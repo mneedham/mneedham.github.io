@@ -1,0 +1,139 @@
++++
+draft = false
+date="2017-04-05 23:49:45"
+title="AWS Lambda: Programmatically scheduling a CloudWatchEvent"
+tag=['lambda', 'aws', 'aws-lambda']
+category=['Software Development']
+description="Creating triggers in AWS Lambda is really easy from the console but we want to automate that process. In this post we'll create triggers programatically."
++++
+
+<p>
+I recently wrote a blog post showing how to <a href="http://www.markhneedham.com/blog/2017/04/02/aws-lambda-programatically-create-a-python-hello-world-function/">create a Python 'Hello World' AWS lambda function</a> and manually invoke it, but what I really wanted to do was have it run automatically every hour.
+</p>
+
+
+<p>
+To achieve that in AWS Lambda land we need to create a <a href="http://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html">CloudWatch Event</a>. The documentation describes them as follows:
+</p>
+
+
+<blockquote>
+Using simple rules that you can quickly set up, you can match events and route them to one or more target functions or streams. 
+</blockquote>
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2017/04/2017-04-05_23-06-36.png" alt="2017 04 05 23 06 36" title="2017-04-05_23-06-36.png" border="0" width="364" height="168" /></div>
+
+<p>
+This is actually really easy from the Amazon web console as you just need to click the 'Triggers' tab and then 'Add trigger'. It's not obvious that there are actually three steps are involved as they're abstracted from you. 
+</p>
+
+
+<p>
+So what are <a href="http://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html">the steps</a>?
+</p>
+
+
+<ol>
+
+<li>Create rule</li>
+<li>Give permission for that rule to execute</li>
+<li>Map the rule to the function</li>
+
+</ol>
+
+<p>
+I forgot to do step 2) initially and then you just end up with a rule that never triggers, which isn't particularly useful. 
+</p>
+
+
+<p>
+The following code creates a 'Hello World' lambda function and runs it once an hour:
+</p>
+
+
+
+~~~python
+
+import boto3
+
+lambda_client = boto3.client('lambda')
+events_client = boto3.client('events')
+
+fn_name = "HelloWorld"
+fn_role = 'arn:aws:iam::[your-aws-id]:role/lambda_basic_execution'
+
+fn_response = lambda_client.create_function(
+    FunctionName=fn_name,
+    Runtime='python2.7',
+    Role=fn_role,
+    Handler="{0}.lambda_handler".format(fn_name),
+    Code={'ZipFile': open("{0}.zip".format(fn_name), 'rb').read(), },
+)
+
+fn_arn = fn_response['FunctionArn']
+frequency = "rate(1 hour)"
+name = "{0}-Trigger".format(fn_name)
+
+rule_response = events_client.put_rule(
+    Name=name,
+    ScheduleExpression=frequency,
+    State='ENABLED',
+)
+
+lambda_client.add_permission(
+    FunctionName=fn_name,
+    StatementId="{0}-Event".format(name),
+    Action='lambda:InvokeFunction',
+    Principal='events.amazonaws.com',
+    SourceArn=rule_response['RuleArn'],
+)
+
+events_client.put_targets(
+    Rule=name,
+    Targets=[
+        {
+            'Id': "1",
+            'Arn': fn_arn,
+        },
+    ]
+)
+~~~
+
+<p>We can now check if our trigger has been configured correctly:</p>
+
+
+
+~~~bash
+
+$ aws events list-rules --query "Rules[?Name=='HelloWorld-Trigger']"
+[
+    {
+        "State": "ENABLED", 
+        "ScheduleExpression": "rate(1 hour)", 
+        "Name": "HelloWorld-Trigger", 
+        "Arn": "arn:aws:events:us-east-1:[your-aws-id]:rule/HelloWorld-Trigger"
+    }
+]
+
+$ aws events list-targets-by-rule --rule HelloWorld-Trigger
+{
+    "Targets": [
+        {
+            "Id": "1", 
+            "Arn": "arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld"
+        }
+    ]
+}
+
+$ aws lambda get-policy --function-name HelloWorld
+{
+    "Policy": "{\"Version\":\"2012-10-17\",\"Id\":\"default\",\"Statement\":[{\"Sid\":\"HelloWorld-Trigger-Event\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"lambda:InvokeFunction\",\"Resource\":\"arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld\",\"Condition\":{\"ArnLike\":{\"AWS:SourceArn\":\"arn:aws:events:us-east-1:[your-aws-id]:rule/HelloWorld-Trigger\"}}}]}"
+}
+~~~
+
+<p>
+All looks good so we're done!
+</p>
+

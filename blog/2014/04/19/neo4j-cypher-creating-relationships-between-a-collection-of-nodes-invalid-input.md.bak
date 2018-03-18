@@ -1,0 +1,82 @@
++++
+draft = false
+date="2014-04-19 06:33:39"
+title="Neo4j: Cypher - Creating relationships between a collection of nodes / Invalid input '[':"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>When working with graphs we'll frequently find ourselves wanting to create relationships between collections of nodes.</p>
+ 
+
+<p>A common example of this would be creating a linked list of days so that we can quickly traverse across <a href="http://blog.neo4j.org/2012/02/modeling-multilevel-index-in-neoj4.html">a time tree</a>. Let's say we start with just 3 days:</p>
+
+
+
+~~~cypher
+
+MERGE (day1:Day {day:1 })
+MERGE (day2:Day {day:2 })
+MERGE (day3:Day {day:3 })
+RETURN day1, day2, day3
+~~~
+
+<p>And we want to create a 'NEXT' relationship between adjacent days:</p>
+
+
+
+~~~cypher
+
+(day1)-[:NEXT]->(day2)-[:NEXT]->(day3)
+~~~
+
+<p>The most obvious way to do this would be to collect the days into an ordered collection and iterate over them using <cite><a href="http://docs.neo4j.org/chunked/stable/query-foreach.html">FOREACH</a></cite>, creating a relationship between adjacent nodes:</p>
+
+
+
+~~~cypher
+
+MATCH (day:Day)
+WITH day
+ORDER BY day.day
+WITH COLLECT(day) AS days
+FOREACH(i in RANGE(0, length(days)-2) | 
+  CREATE UNIQUE (days[i])-[:NEXT]->(days[i+1]))
+~~~
+
+<p>Unfortunately this isn't valid syntax:</p>
+
+
+
+~~~text
+
+Invalid input '[': expected an identifier character, node labels, a property map, whitespace, ')' or a relationship pattern (line 6, column 32)
+"            CREATE UNIQUE (days[i])-[:NEXT]->(days[i+1]))"
+                                ^
+~~~
+
+<p>It doesn't seem to like us using array indices where we specify the node identifier.</p>
+
+
+<p>However, we can work around that by putting <cite>days[i]</cite> and <cite>days[i+1]</cite> into single item arrays and using nested <cite>FOREACH</cite> loops on those, something <a href="http://www.markhneedham.com/blog/2013/11/29/neo4j-modelling-series-of-events/">Michael Hunger showed me last year</a> and I forgot all about!</p>
+
+
+
+~~~cypher
+
+MATCH (day:Day)
+WITH day
+ORDER BY day.day
+WITH COLLECT(day) AS days
+FOREACH(i in RANGE(0, length(days)-2) | 
+  FOREACH(day1 in [days[i]] | 
+    FOREACH(day2 in [days[i+1]] | 
+      CREATE UNIQUE (day1)-[:NEXT]->(day2))))
+~~~
+
+<p>Now if we do a query to get back all the days we'll see they're connected:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/04/2014-04-19_07-32-37.png" alt="2014 04 19 07 32 37" title="2014-04-19_07-32-37.png" border="0" width="366" height="330" />
+</div>

@@ -1,0 +1,64 @@
++++
+draft = false
+date="2014-08-17 01:49:10"
+title="Ruby: Google Drive - Error=BadAuthentication (GoogleDrive::AuthenticationError) Info=InvalidSecondFactor"
+tag=['ruby']
+category=['Ruby']
++++
+
+<p>I've been using the <a href="https://github.com/gimite/google-drive-ruby">Google Drive gem</a> to try and interact with my Google Drive account and almost immediately ran into problems trying to login.</p>
+
+
+<p>I started out with the following code:</p>
+
+
+
+~~~ruby
+
+require "rubygems"
+require "google_drive"
+
+session = GoogleDrive.login("me@mydomain.com", "mypassword")
+~~~
+
+<p>I'll move it to use OAuth when I put it into my application but for spiking this approach works. Unfortunately I got the following error when running the script:</p>
+
+
+
+~~~text
+
+/Users/markneedham/.rbenv/versions/1.9.3-p327/lib/ruby/gems/1.9.1/gems/google_drive-0.3.10/lib/google_drive/session.rb:93:in `rescue in login': Authentication failed for me@mydomain.com: Response code 403 for post https://www.google.com/accounts/ClientLogin: Error=BadAuthentication (GoogleDrive::AuthenticationError)
+Info=InvalidSecondFactor
+	from /Users/markneedham/.rbenv/versions/1.9.3-p327/lib/ruby/gems/1.9.1/gems/google_drive-0.3.10/lib/google_drive/session.rb:86:in `login'
+	from /Users/markneedham/.rbenv/versions/1.9.3-p327/lib/ruby/gems/1.9.1/gems/google_drive-0.3.10/lib/google_drive/session.rb:38:in `login'
+	from /Users/markneedham/.rbenv/versions/1.9.3-p327/lib/ruby/gems/1.9.1/gems/google_drive-0.3.10/lib/google_drive.rb:18:in `login'
+	from src/gdoc.rb:15:in `<main>'
+~~~
+
+<p>Since I have two factor authentication enabled on my account <a href="https://github.com/gimite/google-drive-ruby/issues/40">it turns out</a> that I need to create an <a href="https://security.google.com/settings/security/apppasswords">app password</a> to login:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/08/2014-08-17_02-47-03.png" alt="2014 08 17 02 47 03" title="2014-08-17_02-47-03.png" border="0" width="600" height="195" />
+</div>
+
+<p>It will then pop up with a password that we can use to login (I have revoked this one!):</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/08/2014-08-17_02-46-29.png" alt="2014 08 17 02 46 29" title="2014-08-17_02-46-29.png" border="0" width="600" height="436" /></div>
+
+<p>We can then use this password instead and everything works fine:</p>
+
+
+
+~~~ruby
+
+
+require "rubygems"
+require "google_drive"
+
+session = GoogleDrive.login("me@mydomain.com", "tuceuttkvxbvrblf")
+~~~
+	

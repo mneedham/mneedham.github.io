@@ -1,0 +1,106 @@
++++
+draft = false
+date="2017-04-02 22:11:47"
+title="AWS Lambda: Programatically create a Python 'Hello World' function"
+tag=['aws', 'aws-lambda']
+category=['Software Development']
+description="Learn how to programatically create a Python AWS Lambda function and all the surrounding config."
++++
+
+<p>
+I've been playing around with <a href="http://docs.aws.amazon.com/lambda/latest/dg/welcome.html">AWS Lambda</a> over the last couple of weeks and I wanted to automate the creation of these functions and all their surrounding config.
+</p>
+
+
+<p>Let's say we have the following <cite>Hello World</cite> function:
+
+
+~~~python
+
+def lambda_handler(event, context):
+    print("Hello world")
+~~~
+
+<p>
+To upload it to AWS we need to put it inside a zip file so let's do that:
+</p>
+
+
+
+~~~bash
+
+$ zip HelloWorld.zip HelloWorld.py
+~~~
+
+
+~~~bash
+
+$ unzip -l HelloWorld.zip 
+Archive:  HelloWorld.zip
+  Length     Date   Time    Name
+ --------    ----   ----    ----
+       61  04-02-17 22:04   HelloWorld.py
+ --------                   -------
+       61                   1 file
+~~~
+
+<p>
+Now we're ready to write a script to create our AWS lambda function. 
+</p>
+
+
+
+~~~python
+
+import boto3
+
+lambda_client = boto3.client('lambda')
+
+fn_name = "HelloWorld"
+fn_role = 'arn:aws:iam::[your-aws-id]:role/lambda_basic_execution'
+
+lambda_client.create_function(
+    FunctionName=fn_name,
+    Runtime='python2.7',
+    Role=fn_role,
+    Handler="{0}.lambda_handler".format(fn_name),
+    Code={'ZipFile': open("{0}.zip".format(fn_name), 'rb').read(), },
+)
+~~~
+
+<p>
+<cite>[your-aws-id]</cite> needs to be replaced with the identifier of our AWS account. We can find that out be running <a href="http://stackoverflow.com/questions/33791069/quick-way-to-get-aws-account-number-from-the-cli-tools">the following command</a> against the AWS CLI:
+</p>
+
+
+
+~~~bash
+
+$ aws ec2 describe-security-groups --query 'SecurityGroups[0].OwnerId' --output text
+123456789012
+~~~
+
+<p>
+Now we can create our function:
+</p>
+
+
+
+~~~bash
+
+$ python CreateHelloWorld.py
+~~~
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2017/04/2017-04-02_23-07-38.png" alt="2017 04 02 23 07 38" title="2017-04-02_23-07-38.png" border="0" width="262" height="108" />
+</div>
+
+<p>
+And if we test the function we'll get the expected output:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2017/04/2017-04-02_23-02-59.png" alt="2017 04 02 23 02 59" title="2017-04-02_23-02-59.png" border="0" width="376" height="83" /></div>

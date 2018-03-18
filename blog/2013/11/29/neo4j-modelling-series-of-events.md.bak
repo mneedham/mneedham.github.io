@@ -1,0 +1,415 @@
++++
+draft = false
+date="2013-11-29 00:51:25"
+title="Neo4j: Modelling 'series' of events"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>One of the things I've never worked out how to model in my football graph is series of matches so that I could answer questions like the following:</p>
+
+
+<blockquote>
+How many goals has Robin Van Persie scored in his last 10 matches in the Barclays Premier League?
+</blockquote>
+
+<p>A brute force approach would be to get all the matches featuring Robin Van Persie in a certain competition, order them by date and take the top ten which would work but doesn't feel very graph.</p>
+
+
+<p>I wanted to have a linked list of Robin Van Persie's  Premier League matches in the graph so that I could very quickly traverse the graph and find the answer to my question.</p>
+
+
+<p>One example of using a linked list could be for modelling television episodes where we  capture the most recent episode and then have relationship between consecutive episodes:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-28_00-08-07.png" alt="2013 11 28 00 08 07" title="2013-11-28_00-08-07.png" border="0" width="600" height="261" />
+</div>
+
+<p>This approach works well when a node is only part of one series and if we wanted to create a linked list of the consecutive matches that Robin Van Persie has played in we might model it using this approach:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-28_00-22-57.png" alt="2013 11 28 00 22 57" title="2013-11-28_00-22-57.png" border="0" width="600" height="347" />
+</div>
+
+<p>It becomes a bit more interesting if we want to model multiple series of matches e.g. modelling consecutive Premier League matches as well as consecutive Champions League matches.</p>
+
+
+<p>One way to do this would be to continue to use the 'next' relationship and have multiple linked lists of matches in different competitions </p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-28_00-50-31.png" alt="2013 11 28 00 50 31" title="2013-11-28_00-50-31.png" border="0" width="600" height="333" />
+</div>
+
+<p>A query to find Robin Van Persie's previous 2 Champions League matches from a particular match might read like this:</p>
+
+
+
+~~~cypher
+
+MATCH (g:Game)<-[:in]-(playerInMatch)<-[:played]-(player)
+WHERE g.name = "Match 4" AND player.name = "Robin Van Persie"
+WITH playerInMatch
+MATCH (playerInMatch)<-[:NEXT*1..2]-(previousPlayerInMatch)-[:in]->(previousGame)
+RETURN previousGame, previousPlayerInMatch
+~~~
+
+<p>This works fine as long as each match is only part of one series but becomes problematic if we want to include a match in multiple series</p>
+ 
+
+<p>e.g. the series of all Robin Van Persie matches as well as the series of Robin Van Persie matches played in the Champions League.</p>
+
+
+<p>One way to do this would be to keep our 'next' relationships as they are but add a property to the relationship to indicate which 'series' we were interested in following:</p>
+
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-28_01-06-30.png" alt="2013 11 28 01 06 30" title="2013-11-28_01-06-30.png" border="0" width="600" height="262" />
+</div>
+
+<p>The query to find previous Champions League matches would now read like this:</p>
+
+
+
+~~~cypher
+
+MATCH (g:Game)<-[:in]-(playerInMatch)<-[:played]-(player)
+WHERE g.name = "Match 4" AND player.name = "Robin Van Persie"
+WITH playerInMatch
+MATCH (playerInMatch)<-[n:NEXT*1..2]-(previousPlayerInMatch)-[:in]->(previousGame)
+WHERE n.series = "CL"
+RETURN previousGame, previousPlayerInMatch
+~~~
+
+<p>Whenever I find myself modelling something through properties it's often the case that I've missed a domain concept. In this example the overloading of the <em>next</em> relationship indicates a missing concept.</p>
+
+
+<p>An alternative would be to rename the <em>next</em> relationships for the Champions League and Premier League matches to <em>next_champions_league</em> and <em>next_premier_league</em> respectively although that could get verbose very quickly.</p>
+
+
+<p>While working through this with <a href="https://twitter.com/apcj">Alistair</a> he suggested that we make the <em>series</em> concept even more explicit by pulling out a corresponding <em>playerInMatchSeries</em> node to go along side the <em>playerInMatch</em> (PIM) node.</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-28_09-10-02.png" alt="2013 11 28 09 10 02" title="2013-11-28_09-10-02.png" border="0" width="600" height="179" />
+</div>
+
+<p>If we wanted a series which wasn't for a specific competition we'd exclude the <em>in_competition</em> relationship. If we expand that idea out we might end up with the following graph:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-28_01-20-30.png" alt="2013 11 28 01 20 30" title="2013-11-28_01-20-30.png" border="0" width="600" height="390" />
+</div>
+
+<p>I spiked out this idea on a small data set featuring Robin Van Persie's last 10-15 matches in various competitions:</p>
+
+
+
+~~~cypher
+
+CREATE (robin:Player {name: "Robin Van Persie"})
+
+CREATE (manUtd:Team {name: "Man Utd"})
+CREATE (arsenal:Team {name: "Arsenal"})
+CREATE (realSociedad:Team {name: "Real Sociedad"})
+CREATE (fulham:Team {name: "Fulham"})
+CREATE (stoke:Team {name: "Stoke"})
+CREATE (southampton:Team {name: "Southampton"})
+CREATE (netherlands:Team {name: "Netherlands"})
+CREATE (turkey:Team {name: "Turkey"})
+CREATE (hungary:Team {name: "Hungary"})
+CREATE (sunderland:Team {name: "Sunderland"})
+CREATE (shakhtar:Team {name: "Shakhtar Donetsk"})
+CREATE (westBrom:Team {name: "West Brom"})
+CREATE (leverkusen:Team {name: "Bayer Leverkusen"})
+CREATE (estonia:Team {name: "Estonia"})
+CREATE (andorra:Team {name: "Andorra"})
+
+
+CREATE (premierLeague:Competition {name: "Barclays Premier League"})
+CREATE (championsLeague:Competition {name: "Champions League"})
+CREATE (worldCupQualifiers:Competition {name: "World Cup Qualifiers"})
+
+CREATE (manUtdVsArsenal:Game {name: "Man Utd vs Arsenal", date: 1384041600, home_goals: 1, away_goals: 0})
+CREATE (robinManUtdVsArsenal {name: "RVP in Man Utd vs Arsenal", goals: 1})
+CREATE UNIQUE (manUtdVsArsenal)-[:in_competition]->(premierLeague)
+CREATE UNIQUE (robin)-[:played]-(robinManUtdVsArsenal)-[:in]->(manUtdVsArsenal)
+CREATE UNIQUE (robinManUtdVsArsenal)-[:for]->(manUtd)
+CREATE UNIQUE (arsenal)<-[:away_team]-(manUtdVsArsenal)-[:home_team]->(manUtd)
+
+CREATE (realSociedadVsManUtd:Game {name: "Real Sociedad vs Man Utd", date: 1383609600, home_goals: 0, away_goals: 0})
+CREATE (robinRealSociedadVsManUtd {name: "RVP in Real Sociedad vs Man Utd", goals: 0})
+CREATE UNIQUE (realSociedadVsManUtd)-[:in_competition]->(championsLeague)
+CREATE UNIQUE (robin)-[:played]-(robinRealSociedadVsManUtd)-[:in]->(realSociedadVsManUtd)
+CREATE UNIQUE (robinRealSociedadVsManUtd)-[:for]->(manUtd)
+CREATE UNIQUE (manUtd)<-[:away_team]-(realSociedadVsManUtd)-[:home_team]->(realSociedad)
+
+CREATE (fulhamVsManUtd:Game {name: "Fulham vs Man Utd", date: 1383350400, home_goals: 1, away_goals: 3})
+CREATE (robinFulhamVsManUtd {name: "RVP in Fulham vs Man Utd", goals: 1})
+CREATE UNIQUE (fulhamVsManUtd)-[:in_competition]->(premierLeague)
+CREATE UNIQUE (robin)-[:played]-(robinFulhamVsManUtd)-[:in]->(fulhamVsManUtd)
+CREATE UNIQUE (fulhamVsManUtd)-[:for]->(manUtd)
+CREATE UNIQUE (manUtd)<-[:away_team]-(fulhamVsManUtd)-[:home_team]->(fulham)
+
+CREATE (manUtdVsStoke:Game {name: "Man Utd vs Stoke", date: 1382745600, home_goals: 3, away_goals: 2})
+CREATE (robinManUtdVsStoke {name: "RVP in Man Utd vs Stoke", goals: 1})
+CREATE UNIQUE (manUtdVsStoke)-[:in_competition]->(premierLeague)
+CREATE UNIQUE (robin)-[:played]-(robinManUtdVsStoke)-[:in]->(manUtdVsStoke)
+CREATE UNIQUE (manUtdVsStoke)-[:for]->(manUtd)
+CREATE UNIQUE (stoke)<-[:away_team]-(manUtdVsStoke)-[:home_team]->(manUtd)
+
+CREATE (manUtdVsSouthampton:Game {name: "Man Utd vs Southampton", date: 1382140800, home_goals: 1, away_goals: 1})
+CREATE (robinManUtdVsSouthampton {name: "RVP in Man Utd vs Southampton", goals: 1})
+CREATE UNIQUE (manUtdVsSouthampton)-[:in_competition]->(premierLeague)
+CREATE UNIQUE (robin)-[:played]-(robinManUtdVsSouthampton)-[:in]->(manUtdVsSouthampton)
+CREATE UNIQUE (manUtdVsSouthampton)-[:for]->(manUtd)
+CREATE UNIQUE (southampton)<-[:away_team]-(manUtdVsSouthampton)-[:home_team]->(manUtd)
+
+CREATE (turkeyVsNetherlands:Game {name: "Turkey vs Netherlands", date: 1381795200, home_goals: 0, away_goals: 2})
+CREATE (robinTurkeyVsNetherlands {name: "RVP in Turkey vs Netherlands", goals: 0})
+CREATE UNIQUE (turkeyVsNetherlands)-[:in_competition]->(worldCupQualifiers)
+CREATE UNIQUE (robin)-[:played]-(robinTurkeyVsNetherlands)-[:in]->(turkeyVsNetherlands)
+CREATE UNIQUE (turkeyVsNetherlands)-[:for]->(netherlands)
+CREATE UNIQUE (netherlands)<-[:away_team]-(turkeyVsNetherlands)-[:home_team]->(turkey)
+
+CREATE (netherlandsVsHungary:Game {name: "Netherlands vs Hungary", date: 1381449600, home_goals: 8, away_goals: 1})
+CREATE (robinNetherlandsVsHungary {name: "RVP in Netherlands vs Hungary", goals: 3})
+CREATE UNIQUE (netherlandsVsHungary)-[:in_competition]->(worldCupQualifiers)
+CREATE UNIQUE (robin)-[:played]-(robinNetherlandsVsHungary)-[:in]->(netherlandsVsHungary)
+CREATE UNIQUE (netherlandsVsHungary)-[:for]->(netherlands)
+CREATE UNIQUE (hungary)<-[:away_team]-(netherlandsVsHungary)-[:home_team]->(netherlands)
+
+CREATE (sunderlandVsManUtd:Game {name: "Sunderland vs Man Utd", date: 1380931200, home_goals: 1, away_goals: 2})
+CREATE (robinSunderlandVsManUtd {name: "RVP in Sunderland vs Man Utd", goals: 0})
+CREATE UNIQUE (sunderlandVsManUtd)-[:in_competition]->(premierLeague)
+CREATE UNIQUE (robin)-[:played]-(robinSunderlandVsManUtd)-[:in]->(sunderlandVsManUtd)
+CREATE UNIQUE (sunderlandVsManUtd)-[:for]->(manUtd)
+CREATE UNIQUE (manUtd)<-[:away_team]-(sunderlandVsManUtd)-[:home_team]->(sunderland)
+
+CREATE (shakhtarVsManUtd:Game {name: "Shaktar Donetsk vs Man Utd", date: 1380672000, home_goals: 1, away_goals: 1})
+CREATE (robinShaktarVsManUtd {name: "RVP in Shaktar Donetsk vs Man Utd", goals: 0})
+CREATE UNIQUE (shakhtarVsManUtd)-[:in_competition]->(championsLeague)
+CREATE UNIQUE (robin)-[:played]-(robinShaktarVsManUtd)-[:in]->(shakhtarVsManUtd)
+CREATE UNIQUE (shakhtarVsManUtd)-[:for]->(manUtd)
+CREATE UNIQUE (manUtd)<-[:away_team]-(shakhtarVsManUtd)-[:home_team]->(shakhtar)
+
+CREATE (manUtdVsWestBrom:Game {name: "Man Utd vs West Brom", date: 1380326400, home_goals: 1, away_goals: 2})
+CREATE (robinManUtdVsWestBrom {name: "RVP in Man Utd vs West Brom", goals: 0})
+CREATE UNIQUE (manUtdVsWestBrom)-[:in_competition]->(premierLeague)
+CREATE UNIQUE (robin)-[:played]-(robinManUtdVsWestBrom)-[:in]->(manUtdVsWestBrom)
+CREATE UNIQUE (manUtdVsWestBrom)-[:for]->(manUtd)
+CREATE UNIQUE (westBrom)<-[:away_team]-(manUtdVsWestBrom)-[:home_team]->(manUtd)
+
+CREATE (manUtdVsLeverkusen:Game {name: "Man Utd vs Bayer Leverkusen", date: 1379376000, home_goals: 4, away_goals: 2})
+CREATE (robinManUtdVsLeverkusen {name: "RVP in Man Utd vs Bayer Leverkusen", goals: 1})
+CREATE UNIQUE (manUtdVsLeverkusen)-[:in_competition]->(championsLeague)
+CREATE UNIQUE (robin)-[:played]-(robinManUtdVsLeverkusen)-[:in]->(manUtdVsLeverkusen)
+CREATE UNIQUE (robinManUtdVsLeverkusen)-[:for]->(manUtd)
+CREATE UNIQUE (leverkusen)<-[:away_team]-(manUtdVsLeverkusen)-[:home_team]->(manUtd)
+
+CREATE (manUtdVsPalace:Game {name: "Man Utd vs Crystal Palace", date: 1379116800, home_goals: 2, away_goals: 0})
+CREATE (robinManUtdVsPalace {name: "RVP in Man Utd vs Crystal Palace", goals: 1})
+CREATE UNIQUE (manUtdVsPalace)-[:in_competition]->(premierLeague)
+CREATE UNIQUE (robin)-[:played]-(robinManUtdVsPalace)-[:in]->(manUtdVsPalace)
+CREATE UNIQUE (manUtdVsPalace)-[:for]->(manUtd)
+CREATE UNIQUE (palace)<-[:away_team]-(manUtdVsPalace)-[:home_team]->(manUtd)
+
+CREATE (andorraVsNetherlands:Game {name: "Andorra vs Netherlands", date: 1378771200, home_goals: 0, away_goals: 2})
+CREATE (robinAndorraVsNetherlands {name: "RVP in Andorra vs Netherlands", goals: 2})
+CREATE UNIQUE (andorraVsNetherlands)-[:in_competition]->(worldCupQualifiers)
+CREATE UNIQUE (robin)-[:played]-(robinAndorraVsNetherlands)-[:in]->(andorraVsNetherlands)
+CREATE UNIQUE (andorraVsNetherlands)-[:for]->(netherlands)
+CREATE UNIQUE (netherlands)<-[:away_team]-(andorraVsNetherlands)-[:home_team]->(andorra)
+
+CREATE (netherlandsVsEstonia:Game {name: "Netherlands vs Estonia", date: 1378425600, home_goals: 2, away_goals: 2})
+CREATE (robinNetherlandsVsEstonia {name: "RVP in Netherlands vs Estonia", goals: 1})
+CREATE UNIQUE (netherlandsVsEstonia)-[:in_competition]->(worldCupQualifiers)
+CREATE UNIQUE (robin)-[:played]-(robinNetherlandsVsEstonia)-[:in]->(netherlandsVsEstonia)
+CREATE UNIQUE (netherlandsVsEstonia)-[:for]->(netherlands)
+CREATE UNIQUE (estonia)<-[:away_team]-(netherlandsVsEstonia)-[:home_team]->(netherlands)
+~~~
+
+<p>The first step is to create the <em>playerInMatchSeries</em> 'layer' which we do by returning matches by competition and adding the appropriate relationship:</p>
+
+
+
+~~~cypher
+
+MATCH (p:Player)-[:played]->(stats)-[:in]->(game)-[:in_competition]->(c)
+WHERE p.name = "Robin Van Persie"
+WITH game, c, stats, p
+ORDER BY game.date
+
+CREATE UNIQUE (stats)-[:in_series]->(series {name: p.name + " in " +  c.name + " Series: " + game.name})-[:for_competition]->(c)
+~~~
+
+<p>We then execute a second query to add the series which represents all the matches Robin Van Persie played in regardless of competition:</p>
+
+
+
+~~~cypher
+
+MATCH (p:Player)-[:played]->(stats)-[:in]->(game)
+WHERE p.name = "Robin Van Persie"
+WITH game, stats, p
+ORDER BY game.date
+
+CREATE UNIQUE (stats)-[:in_series]->(series {name: p.name + " in All Competitions Series: " + game.name})-[:all_competitions]->()
+~~~
+
+<p>I couldn't think where the <cite>all_competitions</cite> relationship should be connected to so I've gone for a blank node for the moment.</p>
+
+
+<p>The next step is to add a 'NEXT' relationship between these series nodes so that we'll be able to easily navigate between them:</p>
+
+
+
+~~~cypher
+
+MATCH (p:Player)-[:played]->(stats)-[:in]->(game)-[:in_competition]->(c), 
+      (stats)-[:in_series]->(series)-[:for_competition]->(c)
+WHERE p.name = "Robin Van Persie"
+WITH series, stats, c, game
+ORDER BY game.date
+
+WITH c, COLLECT(series) AS items
+FOREACH(i in RANGE(0, length(items)-2) | 
+    FOREACH(itemsi in [items[i]] | 
+        FOREACH(itemsi2 in [items[i+1]] | 
+            CREATE UNIQUE (itemsi)-[:NEXT]->(itemsi2))))
+~~~
+
+
+~~~cypher
+
+MATCH (p:Player)-[:played]->(stats)-[:in]->(game)-[:in_competition]->(c), 
+      (stats)-[:in_series]->(series)-[:all_competitions]->()
+WHERE p.name = "Robin Van Persie"
+WITH series, stats, c, game
+ORDER BY game.date
+
+WITH COLLECT(series) AS items
+FOREACH(i in RANGE(0, length(items)-2) | 
+    FOREACH(itemsi in [items[i]] | 
+        FOREACH(itemsi2 in [items[i+1]] | 
+            CREATE UNIQUE (itemsi)-[:NEXT]->(itemsi2))))
+~~~
+
+<p>The syntax is a bit verbose and I covered <a href="http://www.markhneedham.com/blog/2013/11/22/neo4j-cypher-creating-relationships-between-nodes-from-adjacent-rows-in-a-query/">why it ends up being like this</a> in a previous post.</p>
+
+
+<p>The next step is to check that we can actually query this part of the graph so we'll start by trying to find Robin Van Persie's previous 5 matches before the 'Man Utd vs Arsenal' match:</p>
+
+
+
+~~~cypher
+
+MATCH (g:Game)<-[:in]-(stats)<-[:played]-(player)
+WHERE g.name = "Man Utd vs Arsenal" AND player.name = "Robin Van Persie"
+WITH g, player, stats
+MATCH (stats)-[:in_series]->(series)<-[:NEXT*1..5]-(previousSeries)<-[:in_series]-(previousStats), 
+      (series)-[:all_competitions]-(), 
+      (previousStats)-[:in]->(previousGame)
+RETURN previousGame.name as match, 
+       previousGame.date as date,
+       previousGame.home_goals + "-" + previousGame.away_goals as score, 
+       previousStats.goals as goals
+~~~
+
+
+~~~bash
+
+==> +---------------------------------------------------------+
+==> | match                      | date       | score | goals |
+==> +---------------------------------------------------------+
+==> | "Real Sociedad vs Man Utd" | 1383609600 | "0-0" | 0     |
+==> | "Fulham vs Man Utd"        | 1383350400 | "1-3" | 1     |
+==> | "Man Utd vs Stoke"         | 1382745600 | "3-2" | 1     |
+==> | "Man Utd vs Southampton"   | 1382140800 | "1-1" | 1     |
+==> | "Turkey vs Netherlands"    | 1381795200 | "0-2" | 0     |
+==> +---------------------------------------------------------+
+~~~
+
+<p>We can check that against <a href="http://espnfc.com/player/_/id/18858/robin-van-persie?cc=5739">his ESPN profile</a> to confirm its correct and indeed it is:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-29_00-41-54.png" alt="2013 11 29 00 41 54" title="2013-11-29_00-41-54.png" border="0" width="600" height="529" />
+</div>
+
+<p>If we wanted to only find his previous matches in that particular competition we would need to tweak the query to take the <em>for_competition</em> relationship into account:</p>
+
+
+
+~~~cypher
+
+MATCH (competition)<-[:in_competition]-(g:Game)<-[:in]-(stats)<-[:played]-(player)
+WHERE g.name = "Man Utd vs Arsenal" AND player.name = "Robin Van Persie"
+WITH g, player, stats, competition
+MATCH (stats)-[:in_series]->(series)<-[:NEXT*1..5]-(previousSeries)<-[:in_series]-(previousStats), 
+      (series)-[:for_competition]-(competition), 
+      (previousStats)-[:in]->(previousGame)
+RETURN previousGame.name as match, 
+       previousGame.date as date, 
+       previousGame.home_goals + "-" + previousGame.away_goals as score, 
+       previousStats.goals as goals  
+~~~
+
+<p>If we run that we get the following results:</p>
+
+
+
+~~~bash
+
+==> +-------------------------------------------------------+
+==> | match                    | date       | score | goals |
+==> +-------------------------------------------------------+
+==> | "Fulham vs Man Utd"      | 1383350400 | "1-3" | 1     |
+==> | "Man Utd vs Stoke"       | 1382745600 | "3-2" | 1     |
+==> | "Man Utd vs Southampton" | 1382140800 | "1-1" | 1     |
+==> | "Sunderland vs Man Utd"  | 1380931200 | "1-2" | 0     |
+==> | "Man Utd vs West Brom"   | 1380326400 | "1-2" | 0     |
+==> +-------------------------------------------------------+
+~~~
+
+<p>A quick glance at his profile suggests all is well. Finally we'll do a sanity check by starting from a different match in a different competition:</p>
+
+
+
+~~~cypher
+
+MATCH (competition)<-[:in_competition]-(g:Game)<-[:in]-(stats)<-[:played]-(player)
+WHERE g.name = "Turkey vs Netherlands" AND player.name = "Robin Van Persie"
+WITH g, player, stats, competition
+MATCH (stats)-[:in_series]->(series)<-[:NEXT*1..5]-(previousSeries)<-[:in_series]-(previousStats), 
+      (series)-[:for_competition]-(competition), 
+      (previousStats)-[:in]->(previousGame)
+RETURN previousGame.name as match, 
+       previousGame.date as date, 
+       previousGame.home_goals + "-" + previousGame.away_goals as score, 
+       previousStats.goals as goals
+~~~
+
+<p>And if we run that...</p>
+
+
+
+~~~bash
+
+==> +-------------------------------------------------------+
+==> | match                    | date       | score | goals |
+==> +-------------------------------------------------------+
+==> | "Netherlands vs Hungary" | 1381449600 | "8-1" | 3     |
+==> | "Andorra vs Netherlands" | 1378771200 | "0-2" | 2     |
+==> | "Netherlands vs Estonia" | 1378425600 | "2-2" | 1     |
+==> +-------------------------------------------------------+
+~~~
+
+<p>...the results are as we'd expect.</p>
+
+
+<p>This post has got ridiculously long so if you've reached this point I'd love to hear your thoughts about this approach - does it make sense or is it way too complicated? Let me know!</p>
+

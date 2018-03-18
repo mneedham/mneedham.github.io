@@ -1,0 +1,37 @@
++++
+draft = false
+date="2010-06-25 23:32:36"
+title="Mercurial: Only pushing some local changes"
+tag=['mercurial']
+category=['Version Control']
++++
+
+One problem we've come across a few times over the last couple of months while using Mercurial is the situation where we want to quickly commit a local change without committing other local changes that we've made.
+
+The example we came across today was where we wanted to make a change to the build file as we'd made a mistake in the target that runs on our continuous integration server and hadn't noticed for a while during which time we'd accumulated other local changes.
+
+The following is a rough diagram of the situation we had:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2010/06/mercurial1.jpg" alt="mercurial.jpg" border="0" width="441" height="482" />
+
+We had multiple file changes in our working directory which hadn't yet been checked in to the local repository or the central repository.
+
+We wanted to push just the change in blue.
+
+My initial thought was that I could check in just that one file into our local repository and then push it to the central one.
+
+
+~~~text
+
+hg ci -m "mark: updating build file to fix build" -A /path/to/build.file
+~~~
+
+I then wanted to push that change but when I went to do so I realised that they were other incoming changes which we hadn't yet integrated with.
+
+In order to integrate with those changes we need to make sure that we don't have any locally uncommitted changes which of course in this scenario we do since we deliberately chose not to check in some of our local changes.
+
+One way around this would be to just force the push and ignore the need to integrate with the remote changes but that doesn't seem the right approach to me but I'm not sure what is.
+
+We ended up just checking in everything we had locally, commenting out the bits that we were currently working on, merging with the remote changes and then pushing everything to the remote repository.
+
+That's obviously a really poor way of solving the problem so I'd be interested in what a good way to solve this problem would be!

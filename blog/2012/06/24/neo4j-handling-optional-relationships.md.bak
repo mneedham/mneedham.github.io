@@ -1,0 +1,84 @@
++++
+draft = false
+date="2012-06-24 23:32:17"
+title="neo4j: Handling optional relationships"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+On my ThoughtWorks neo4j there are now two different types of relationships between people nodes - they can either be colleagues or one can be the <a href="http://www.markhneedham.com/blog/2012/06/21/visualising-a-neo4j-graph-using-gephi/">sponsor of the other</a>. 
+
+The graph looks like this:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/06/sponsors-colleagues.png" alt="Sponsors colleagues" title="sponsors-colleagues.png" border="0" width="392" height="145" />
+
+I wanted to get a list of all the sponsor pairs but also have some indicator of whether the two people have worked together.
+
+I started off by getting all of the sponsor pairs:
+
+
+~~~text
+
+START n = node(*) 
+MATCH n-[r:sponsor_of]->n2
+RETURN n.name, n2.name
+~~~
+
+I managed to narrow that down to the people who sponsored someone that they'd worked with like so:
+
+
+~~~text
+
+START n = node(*) 
+MATCH n-[r:sponsor_of]->n2, n-[r2:colleagues]->c
+WHERE c = n2
+RETURN n.name, n2.name
+~~~
+
+But it wasn't quite what I wanted since I'd now lost all the sponsor pairs who didn't work together.
+
+My next attempt was to remove the WHERE clause and try the following which isn't even a valid cypher query:
+
+
+~~~text
+
+START n = node(*) 
+MATCH n-[r:sponsor_of]->n2, n-[r2:colleagues]->c
+RETURN n.name, n2.name, n2 IN [c]
+~~~
+
+I was struggling so I decided to draw out the above diagram and then work backwards from the type of output which I expected if I had the correct query.
+
+The output I wanted was like this:
+
+
+~~~text
+
+PersonA | PersonB | Sponsor Relationship | Colleague Relationship
+PersonA | PersonC | Sponsor Relationship | -
+~~~
+
+Once I had written it out on paper it became clear that what I needed to do was find all the sponsor pairs and then optionally look for a colleagues relationship between the pair:
+
+
+~~~text
+
+START n = node(*)  
+MATCH n-[r:sponsor_of]->n2-[r2?:colleagues]->n 
+RETURN n.name, n2.name, r, r2
+~~~
+
+The '?' before the ':' in the colleagues relationship indicates that it's optional and will still return the traversal even if that relationship doesn't exist.
+
+If we run that query in the console it does exactly what we want:
+
+
+~~~text
+
+==> +--------------------------------------------------------------------------------------+
+==> | n.name            | n2.name            | r                      | r2                 |
+==> +--------------------------------------------------------------------------------------+
+==> | "PersonA"         | "PersonB"          | :sponsor_of[261255] {} | :colleagues[217292]|
+==> | "PersonA"         | "PersonC"          | :sponsor_of[261252] {} | <null>             |
+==> +--------------------------------------------------------------------------------------+
+~~~

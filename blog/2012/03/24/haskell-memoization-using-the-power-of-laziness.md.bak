@@ -1,0 +1,85 @@
++++
+draft = false
+date="2012-03-24 12:28:03"
+title="Haskell: Memoization using the power of laziness"
+tag=['haskell']
+category=['Haskell']
++++
+
+I've been trying to solve <a href="http://projecteuler.net/problem=15">problem 15 of Project Euler</a> which requires you to find the number of routes that can be taken to navigate from the top corner of a grid down to the bottom right corner.
+
+For example there are six routes across a 2x2 grid:
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/03/grid.gif" alt="Grid" title="grid.gif" border="0" width="270" height="181" />
+</div>
+
+My initial solution looked like this:
+
+
+~~~haskell
+
+routes :: (Int, Int) -> Int -> Int
+routes origin size =
+  inner origin size
+  where
+    inner origin@(x, y) size 
+      | x == size && y == size = 0
+      | x == size || y == size = 1
+      | otherwise = inner (x+1, y) size + inner (x, y+1) size
+~~~
+
+Which can be called like this:
+
+
+~~~haskell
+
+routes (0,0) 2
+~~~
+
+Once we reach the edge of the grid i.e. 'x==size' or 'y==size' then we know there are no more routes from that path because you're not allowed to backtrack so we return a value of 1.
+
+At every other position we recurse twice, once going down the grid and once going across it to get all of the routes.
+
+This solution works fine for small sizes but it starts to take a serious amount of time to finish once 'size' gets above 11. Since the problem requires you to solve the problem for a grid size of 20 it doesn't suffice!
+
+From working through the problem on paper it was clear that a lot of the calculations were being repeated since there were many different ways of reaching each point on the grid. We therefore need to cache the calculations so that they wouldn't be repeated multiple times.
+
+The normal imperative language way of doing that would be to create a map or 2D array containing each grid position and then updating it once a grid position had been calculated.
+
+Unfortunately that doesn't really work with the normal array in Haskell because it's immutable and passing it around as a parameter doesn't seem to work either since we only have a new updated array when it's too late to be useful for other calculations.
+
+I came across a <a href="http://unspecified.wordpress.com/2011/11/04/lazy-dynamic-programming-with-arrays-in-haskell/">cool blog post by Matt Giuca</a> where he suggests that we need to think of things which have been computed and those which haven't rather than thinking about the problem in terms of which elements of the array have been mutated.
+
+He suggests creating an array where (in our case) the key represents a grid position and the value is a function call to work out how many routes we have from that position.
+
+Since Haskell is lazily evaluated that function won't be evaluated until that array position is accessed and once it's been calculated the value will be stored in the array for any future lookups.
+
+The code now ends up looking like this:
+
+
+~~~haskell
+
+routes :: Int -> Int
+routes size =
+  arr ! (size, size)
+  where
+    arr = array ((0,0),(size,size)) [((x,y), inner (x,y) size) | x<-[0..size], y<-[0..size]]
+      inner origin@(x, y) size 
+        | x == 0 && y == 0 = 0
+        | x == 0 || y == 0 = 1
+        | otherwise = arr ! (x-1, y) + arr ! (x, y-1)
+~~~
+
+We first create an array which contains entries for every position on the grid and a corresponding call to the function which works out the number of rotues from there.
+
+I had to change the way we navigate through the grid to be from the bottom right up to the top left corner since that made it much easier to just do a lookup on position (size, size) as the entry point.
+
+And now it returns instantly!
+
+
+~~~text
+
+> routes 20
+137846528820
+~~~

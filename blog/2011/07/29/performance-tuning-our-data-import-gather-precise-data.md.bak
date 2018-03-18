@@ -1,0 +1,55 @@
++++
+draft = false
+date="2011-07-29 01:34:04"
+title="Performance tuning our data import: Gather precise data"
+tag=['software-development']
+category=['Software Development']
++++
+
+One of the interesting problems that we have to solve on my current project is working out how to import a few million XML documents into our database in a reasonable amount of time.
+
+The stages of the import process are as follows:
+
+<ol>
+<li>Extract a bunch of ZIP files to the disc</li>
+<li>Processing only the XML documents...</li>
+<li>Load the XML document and determine whether the document is valid to import</li>
+<li>Add some meta data to the document for database indexing</li>
+<li>Import the document into the database</li>
+</ol>
+
+We've been working on this quite a bit recently and one of the main things we've learnt is the value of gathering detailing information about what's actually happening in the code.
+
+When we started we only gathered the end to end time for the whole job to run against a certain number of documents.
+
+The problem with doing this is that we couldn't see where the constraint in the process is and therefore went and parallelised the process using Akka which gave some improvement but not as much as expected.
+
+Having realised that we didn't really know where the bottle neck was we added in much more logging to our code to try and identify where the most time was being taken.
+
+For each document there are effectively 3 main things that we're doing:
+
+<ul>
+<li>Loading the XML file</li>
+<li>Applying the XPath expressions against the file</li>
+<li>Importing the document into the database</li>
+</ul>
+
+<div align="center" style="float:right">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2011/07/performance.jpg" alt="Performance" title="performance.jpg" border="0" width="510" height="304" />
+</div>
+
+We ran our import process a few times and recorded how long was being taken on each stage. 
+
+It was then much easier to see where we needed to focus our attention if we wanted to see big improvements.
+
+We gathered this data for our local environment and QA environment and noticed that there was a big difference on the loading of the XML files - it was 6 or 7 times quicker on the QA environment.
+
+By chance I ended up running the import on a laptop on the train and noticed that it aborted because it couldn't access an external DTD which was referenced in each XML file.
+
+The QA machine is sitting inside a data centre with a high speed connection which means that the downloading of the DTD files is significantly faster than we can achieve locally.
+
+We realised that we could solve this problem by forcing the parser to load the DTDs locally and immediately saw a huge decrease in the overall time.
+
+Without collecting the data and seeing so clearly where the constraint was it would have taken us much longer to realise where we needed to make improvements.
+
+We still have many more improvements to make but measuring the performance instead of speculating seems to be the way to go.

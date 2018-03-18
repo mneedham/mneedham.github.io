@@ -1,0 +1,142 @@
++++
+draft = false
+date="2015-11-08 11:47:36"
+title="IntelliJ 'java: cannot find JDK 1.8'"
+tag=['software-development']
+category=['Software Development']
++++
+
+<p>
+I upgraded to <a href="https://www.jetbrains.com/idea/download/">IntelliJ 15.0</a> a few days ago and was initially seeing the following exception when trying to compile:
+</p>
+
+
+
+~~~text
+
+module-name
+
+java: cannot find JDK 1.8
+~~~
+
+<p>
+I've been compiling against JDK 1.8 for a while now using IntelliJ 14 so I wasn't sure what was going on.
+</p>
+
+
+<p>I checked my project settings and they seemed fine:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/11/2015-11-08_11-39-16.png" alt="2015 11 08 11 39 16" title="2015-11-08_11-39-16.png" border="0" width="500" />
+</div>
+
+<p>
+The error message suggested I look in the logs to find more information but I wasn't sure where those live! I eventually found out the answer via the <a href="https://intellij-support.jetbrains.com/hc/en-us/articles/206827517-Locating-IDE-log-files">comments of this support ticket</a> although I later found <a href="https://intellij-support.jetbrains.com/hc/en-us/articles/206827437-Directories-used-by-the-IDE-to-store-settings-caches-plugins-and-logs">a post describing it in more detail</a>.
+</p>
+
+
+<p>
+Looking into the logs revealed the following error message:
+</p>
+
+
+
+~~~bash
+
+$ less /Users/markneedham/Library/Logs/IntelliJIdea15/idea.log
+
+2015-11-05 16:31:28,429 [ 428129]   INFO - figurations.GeneralCommandLine - Cannot run program "/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/bin/java" (in directory "/Applications/IntelliJ IDEA 15.app/Contents/bin"): error=2, No such file or directory
+java.io.IOException: Cannot run program "/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/Contents/Home/bin/java" (in directory "/Applications/IntelliJ IDEA 15.app/Contents/bin"): error=2, No such file or directory
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1048)
+	at com.intellij.execution.configurations.GeneralCommandLine.startProcess(GeneralCommandLine.java:368)
+	at com.intellij.execution.configurations.GeneralCommandLine.createProcess(GeneralCommandLine.java:354)
+	at com.intellij.execution.process.OSProcessHandler.<init>(OSProcessHandler.java:38)
+	at org.jetbrains.idea.maven.server.MavenServerManager$3.startProcess(MavenServerManager.java:359)
+	at org.jetbrains.idea.maven.server.MavenServerManager$3.execute(MavenServerManager.java:345)
+	at com.intellij.execution.rmi.RemoteProcessSupport.a(RemoteProcessSupport.java:206)
+	at com.intellij.execution.rmi.RemoteProcessSupport.acquire(RemoteProcessSupport.java:139)
+	at org.jetbrains.idea.maven.server.MavenServerManager.create(MavenServerManager.java:163)
+	at org.jetbrains.idea.maven.server.MavenServerManager.create(MavenServerManager.java:71)
+	at org.jetbrains.idea.maven.server.RemoteObjectWrapper.getOrCreateWrappee(RemoteObjectWrapper.java:41)
+	at org.jetbrains.idea.maven.server.MavenServerManager$9.execute(MavenServerManager.java:525)
+	at org.jetbrains.idea.maven.server.MavenServerManager$9.execute(MavenServerManager.java:522)
+	at org.jetbrains.idea.maven.server.RemoteObjectWrapper.perform(RemoteObjectWrapper.java:76)
+	at org.jetbrains.idea.maven.server.MavenServerManager.applyProfiles(MavenServerManager.java:522)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.applyProfiles(MavenProjectReader.java:369)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.doReadProjectModel(MavenProjectReader.java:98)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.access$300(MavenProjectReader.java:42)
+	at org.jetbrains.idea.maven.project.MavenProjectReader$1.doProcessParent(MavenProjectReader.java:422)
+	at org.jetbrains.idea.maven.project.MavenProjectReader$1.doProcessParent(MavenProjectReader.java:399)
+	at org.jetbrains.idea.maven.project.MavenParentProjectFileProcessor.processRepositoryParent(MavenParentProjectFileProcessor.java:84)
+	at org.jetbrains.idea.maven.project.MavenParentProjectFileProcessor.process(MavenParentProjectFileProcessor.java:62)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.resolveInheritance(MavenProjectReader.java:425)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.doReadProjectModel(MavenProjectReader.java:95)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.access$300(MavenProjectReader.java:42)
+	at org.jetbrains.idea.maven.project.MavenProjectReader$1.doProcessParent(MavenProjectReader.java:422)
+	at org.jetbrains.idea.maven.project.MavenProjectReader$1.doProcessParent(MavenProjectReader.java:399)
+	at org.jetbrains.idea.maven.project.MavenParentProjectFileProcessor.processRepositoryParent(MavenParentProjectFileProcessor.java:84)
+	at org.jetbrains.idea.maven.project.MavenParentProjectFileProcessor.process(MavenParentProjectFileProcessor.java:62)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.resolveInheritance(MavenProjectReader.java:425)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.doReadProjectModel(MavenProjectReader.java:95)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.access$300(MavenProjectReader.java:42)
+	at org.jetbrains.idea.maven.project.MavenProjectReader$1.doProcessParent(MavenProjectReader.java:422)
+	at org.jetbrains.idea.maven.project.MavenProjectReader$1.doProcessParent(MavenProjectReader.java:399)
+	at org.jetbrains.idea.maven.project.MavenParentProjectFileProcessor.processRepositoryParent(MavenParentProjectFileProcessor.java:84)
+	at org.jetbrains.idea.maven.project.MavenParentProjectFileProcessor.process(MavenParentProjectFileProcessor.java:62)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.resolveInheritance(MavenProjectReader.java:425)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.doReadProjectModel(MavenProjectReader.java:95)
+	at org.jetbrains.idea.maven.project.MavenProjectReader.readProject(MavenProjectReader.java:53)
+	at org.jetbrains.idea.maven.project.MavenProject.read(MavenProject.java:626)
+	at org.jetbrains.idea.maven.project.MavenProjectsTree.doUpdate(MavenProjectsTree.java:564)
+	at org.jetbrains.idea.maven.project.MavenProjectsTree.doAdd(MavenProjectsTree.java:509)
+	at org.jetbrains.idea.maven.project.MavenProjectsTree.update(MavenProjectsTree.java:470)
+	at org.jetbrains.idea.maven.project.MavenProjectsTree.updateAll(MavenProjectsTree.java:441)
+	at org.jetbrains.idea.maven.project.MavenProjectsProcessorReadingTask.perform(MavenProjectsProcessorReadingTask.java:60)
+	at org.jetbrains.idea.maven.project.MavenProjectsProcessor.doProcessPendingTasks(MavenProjectsProcessor.java:134)
+	at org.jetbrains.idea.maven.project.MavenProjectsProcessor.access$100(MavenProjectsProcessor.java:30)
+	at org.jetbrains.idea.maven.project.MavenProjectsProcessor$2.run(MavenProjectsProcessor.java:109)
+	at org.jetbrains.idea.maven.utils.MavenUtil$7.run(MavenUtil.java:464)
+	at com.intellij.openapi.application.impl.ApplicationImpl$8.run(ApplicationImpl.java:365)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+	at org.jetbrains.ide.PooledThreadExecutor$1$1.run(PooledThreadExecutor.java:55)
+Caused by: java.io.IOException: error=2, No such file or directory
+	at java.lang.UNIXProcess.forkAndExec(Native Method)
+	at java.lang.UNIXProcess.<init>(UNIXProcess.java:248)
+	at java.lang.ProcessImpl.start(ProcessImpl.java:134)
+	at java.lang.ProcessBuilder.start(ProcessBuilder.java:1029)
+	... 55 more
+~~~
+
+<p>
+Somewhere I had a JDK 1.7 defined which no longer existed on my machine. I actually only have one JDK installed at the moment:
+</p>
+
+
+
+~~~bash
+
+$ /usr/libexec/java_home -V
+Matching Java Virtual Machines (1):
+    1.8.0_51, x86_64:	"Java SE 8"	/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home
+
+/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home
+~~~
+
+<p>
+A bit of exploring led me to 'Platform Settings' which is where the culprit was:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/11/2015-11-08_11-45-00.png" alt="2015 11 08 11 45 00" title="2015-11-08_11-45-00.png" border="0" width="500"  /></div>
+
+<p>
+That setting lives actually lives in <cite>/Users/markneedham/Library/Preferences/IntelliJIdea15/options/jdk.table.xml</cite> and once I removed it IntelliJ resumed normal service.
+</p>
+

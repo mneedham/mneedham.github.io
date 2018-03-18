@@ -1,0 +1,38 @@
++++
+draft = false
+date="2009-09-06 23:25:42"
+title="Fiddler: Trying to work out how it all hooks together"
+tag=['fiddler']
+category=['Software Development']
++++
+
+I <a href="http://www.markhneedham.com/blog/2009/06/24/using-fiddler-with-iis/">mentioned previously</a> that we're making use of Fiddler quite a lot on my current project, mainly to check the traffic going to and from the service layer, and I'm quite curious how it actually works.
+
+In particular I wanted to know:
+
+<ul>
+<li>How we're able to route requests through Fiddler and then through the corporate proxy</li>
+<li>How proxy settings work differently for Firefox and Internet Explorer</li>
+</ul>
+
+As far as I'm aware the source code for Fiddler isn't available so a colleague and I tracked the various proxy settings when Fiddler was turned on and off and also had a look at some registry settings.
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/09/fiddler.png" alt="fiddler.png" border="0" width="673" height="153" />
+
+As Internet Explorer is a <a href="http://msdn.microsoft.com/en-us/library/aa383630%28VS.85%29.aspx">WinInet</a> based application it looks at the Local Area Network settings to check whether there are any proxies that it needs to route requests through. I believe any proxy defined in here would be known as the 'system proxy'. 
+
+We noticed that our application also routed its requests via the proxy defined in the LAN settings as well - it is a .NET application but I guess that even applications written in other languages but running on windows would make use of the system proxy too?
+
+Firefox has its own proxy settings which are accessible via the preferences menu of the browser and are then configurable from the 'Advanced -> Network' tab. 
+
+If another proxy is defined in the LAN settings when Fiddler starts up it takes this value and stores it somewhere (in memory presumably) as the 'Upstream gateway proxy' (Tools -> Fiddler Options -> Connections) which it directs requests through before they go out to the internet.
+
+It then changes the proxy defined in the LAN settings to point to itself - typically port 8888 locally. 
+
+The 'Upstream gateway proxy' always seems to be the same as the 'system proxy' so if a different proxy is defined on FireFox than Internet Explorer this won't be used even though on the latest version of Fiddler when it starts up the FireFox proxy will be changed to point to Fiddler. 
+
+When Fiddler is shut down it reverts the proxy settings to how they were previously although (unsurprisingly) if it crashes then we are left in a state where requests are being sent to 'http://localhost:8888' and there is no application listening on that port anymore meaning that we end up with a 'Cannot find server or DNS Error'.
+
+Restarting Fiddler gets rid of that problem although the 'Upstream gateway proxy' usually seems to get lost so if we want to make requests out to the internet then we need to go and reset that in our LAN settings before restarting Fiddler.
+
+If there's anything inaccurate in what I've written or if you know of any resources that would help me understand this better if you let me know in the comments that'd be cool!

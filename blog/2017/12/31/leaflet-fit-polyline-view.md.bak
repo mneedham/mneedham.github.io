@@ -1,0 +1,124 @@
++++
+draft = false
+date="2017-12-31 17:35:03"
+title="Leaflet: Fit polyline in view"
+tag=['javascript', 'leafletjs']
+category=['Javascript']
++++
+
+<p>
+I've been playing with the <a href="http://leafletjs.com/reference-1.2.0.html">Leaflet.js</a> library over the Christmas holidays to visualise running routes drawn onto the map using a Polyline and I wanted to zoom the map the right amount to see all the points.
+</p>
+
+
+<h2>Pre requisites</h2>
+
+<p>
+We have the following HTML to define the <cite>div</cite> that will contain the map.
+</p>
+
+
+
+~~~html
+
+<div id="container">
+	<div id="map" style="width: 100%; height: 100%">
+	</div>
+</div>
+~~~
+
+<p>
+We also need to import the following Javascript and CSS files:
+</p>
+
+
+
+~~~html
+
+<script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+  <script type="text/javascript" src="https://rawgit.com/jieter/Leaflet.encoded/master/Polyline.encoded.js"></script>
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css"/>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+~~~
+
+<h2>Polyline representing part of a route</h2>
+
+<p>
+The following code creates a polyline for a <a href="https://www.strava.com/segments/15311748">Strava segment</a> that I often run.
+</p>
+
+
+
+~~~javascript
+
+var map = L.map('map');
+L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18,}).addTo(map);
+
+var rawPoints = [
+  { "latitude": 51.357874010145395, "longitude": -0.198045110923591 },
+  { "latitude": 51.3573858289394, "longitude": -0.19787754933584795 },
+  { "latitude": 51.35632791810057, "longitude": -0.19750254941422557 },
+  { "latitude": 51.35553240304241, "longitude": -0.197232163894512 },
+  { "latitude": 51.35496267279901, "longitude": -0.1970247338143316 },
+  { "latitude": 51.35388700570004, "longitude": -0.19666483094752069 },
+  { "latitude": 51.3533898352570, "longitude": -0.1964976504847828 },
+  { "latitude": 51.35358452733139, "longitude": -0.19512563906602554 },
+  { "latitude": 51.354762877995036, "longitude": -0.1945622934585907 },
+  { "latitude": 51.355610110109986, "longitude": -0.19468697186046677 },
+  { "latitude": 51.35680377680643, "longitude": -0.19395063336295112 },
+  { "latitude": 51.356861596801075, "longitude": -0.1936180154828497 },
+  { "latitude": 51.358487396611125, "longitude": -0.19349660642888197 }
+];
+
+var coordinates = rawPoints.map(rawPoint => new L.LatLng(rawPoint["latitude"], rawPoint["longitude"]))
+
+let polyline = L.polyline(
+    coordinates,
+    {
+        color: 'blue',
+        weight: 3,
+        opacity: .7,
+        lineJoin: 'round'
+    }
+);
+
+polyline.addTo(map);
+~~~
+
+<p>I wanted to centre the map around the polyline and initially wrote the following code to do this:</p>
+
+
+
+~~~javascript
+
+let lats = rawPoints.map(c => c.latitude).reduce((previous, current) => current += previous, 0.0);
+let longs = rawPoints.map(c => c.longitude).reduce((previous, current) => current += previous, 0.0);
+
+const position = [lats / rawPoints.length, longs / rawPoints.length];
+map.setView(position, 17);
+~~~
+
+<p>
+This works fine but the zoom factor was wrong when I drew longer polylines so I needed a better solution.</p>
+ 
+
+<p>I should have <a href="http://leafletjs.com/reference-1.2.0.html#polyline">RTFM</a> because there's a much simpler way to do this. I actually found the explanation in <a href="https://github.com/Leaflet/Leaflet/issues/360">a GitHub issue from 2011</a>! We can replace the previous snippet with this single line of code:
+</p>
+
+
+
+~~~javascript
+
+map.fitBounds(polyline.getBounds());
+~~~
+
+<p>
+And this is how it looks on the screen:
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2017/12/2017-12-31_17-30-25.png" alt="2017 12 31 17 30 25" title="2017-12-31_17-30-25.png" border="0" width="213" height="164" />
+</div>

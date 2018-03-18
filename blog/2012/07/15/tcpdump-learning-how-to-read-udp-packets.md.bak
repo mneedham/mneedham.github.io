@@ -1,0 +1,134 @@
++++
+draft = false
+date="2012-07-15 13:29:05"
+title="tcpdump: Learning how to read UDP packets"
+tag=['networking-2']
+category=['Networking']
++++
+
+<a href="http://twitter.com/philandstuff">Phil</a> and I spent some of Friday afternoon configuring <a href="https://github.com/etsy/statsd/">statsd</a>:
+
+<blockquote>
+A network daemon that runs on the Node.js platform and listens for statistics, like counters and timers, sent over UDP and sends aggregates to one or more pluggable backend services
+</blockquote> 
+
+We configured it to listen on its default port 8125 and then used <a href="http://www.markhneedham.com/blog/2012/07/15/netcat-localhost-resolution-not-working-when-sending-udp-packets/">netcat to send UDP packets</a> to see if it was working like so:
+
+
+~~~text
+
+echo -n "blah:36|c" | nc -w 1 -u -4 localhost 8125
+~~~
+
+
+We used tcpdump to capture any UDP packets on port 8125 like so:
+
+
+~~~text
+
+tcpdump -i lo udp port 8125 -vv -X
+~~~
+
+To briefly explain the options we passed to it:
+<ul>
+<li><cite>-i lo</cite> only captures packets on the local loopback i.e. packets sent to localhost</li>
+<li><cite>udp</cite> means that only UDP packets will be captured. Other types of packets we might capture could be tcp or icmp for example.</li>
+<li><cite>-vv</cite> just gives us more verbose output</li>
+<li><cite>-X</cite> prints out the data in the UDP packets in ASCII as well as hex. If we just wanted the latter we could use the <cite>-x</cite> option</li>
+</ul>
+
+This is what one of the messages received by tcpdump looks like:
+
+
+~~~text
+
+13:16:40.317636 IP (tos 0x0, ttl 64, id 58103, offset 0, flags [DF], proto UDP (17), length 37)
+    localhost.48358 > localhost.8125: [bad udp cksum 7c8f!] UDP, length 9
+	0x0000:  4500 0025 e2f7 4000 4011 59ce 7f00 0001  E..%..@.@.Y.....
+	0x0010:  7f00 0001 bce6 1fbd 0011 fe24 626c 6168  ...........$blah
+	0x0020:  3a33 367c 63                             :36|c
+~~~
+
+The last three lines of this output detail the IP header, UDP header and the data in the packet. The following diagram is quite useful for understanding what each part of the IP header is defining:
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/07/IP-Header.jpeg" alt="IP Header" title="IP-Header.jpeg" border="0" width="600" height="373" />
+</div>
+<em>Source: <a href="http://www.wtcs.org/snmp4tpc/literature.htm">WTCS.org</a></em>
+
+This diagram defines things in terms of bits whereas the tcpdump output is in hexidecimal. Each block of 4 hexidecimal digits is equivalent to 16 bits.
+
+There are a couple of parts of the IP header that might be interesting to us in this case.
+
+The first 4 bits/1 digit define the IP version which is 4 in this case since we're using IPv4. 
+
+The next 4 bits define the Internet Header length - the number of 32 bit words in the header. In this case the value is 5 so we know the total length of the IP header will be 160 bits (5 * 32 = 160).
+
+The next few bits aren't that interesting but we can see the source IP address at an offset of 96 bits and covers the next 32 bits:
+
+<table style="border: 1px solid;background-color: #F9F9F9;width: 100%;border-color: #cccccc;padding: 1px;margin-bottom: 10px;">
+<tbody>
+<tr>
+<td>0x0000:  4500 0025 e2f7 4000 4011 59ce <strong>7f00 0001</strong> </td>
+</tbody>
+</table>
+
+We know this is going to represent an IPv4 address so it will be represented as 'x.x.x.x' where the maximum value of x is 255.
+
+In this case since we're just sending packets locally it translates to 127.0.0.1:
+
+<ul>
+<li>7f => 127</li>
+<li>00 => 0</li>
+<li>00 => 0</li>
+<li>01 => 1</li>
+</ul>
+
+The next 32 bits are the destination IP address which has now gone onto the next line but is exactly the same:
+
+<table style="border: 1px solid;background-color: #F9F9F9;width: 100%;border-color: #cccccc;padding: 1px;margin-bottom: 10px;">
+<tbody>
+<tr>
+<td>0x0010:  <strong>7f00 0001</strong> bce6 1fbd 0011 fe24 626c 6168</td>
+</tbody>
+</table>
+
+We've now covered 160 bits which means that the IP header is complete and we can move onto the IP payload which starts with the UDP header: 
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/07/udp-header.png" alt="Udp header" title="udp-header.png" border="0" width="600" height="301" />
+</div>
+<em>Source: <a href="http://ciscoskills.net/2011/03/28/understanding-udp/udp-header/">ciscoskills.net</a></em>
+
+We start with the source port which is 'bce6' or 48358 <a href="http://www.statman.info/conversions/hexadecimal.html">in decimal</a>. We can see that value referenced in the 2nd line of the tcpdump output as well. 
+
+The next 16 bits/4 digits are the destination port which is '1fbd' or 8125 in decimal - exactly what we'd expect.
+
+The next 32 bits/2 blocks of 4 digits define the length and checksum but after that we reach the data part of the packet which should contain 'blah:36|c'.
+
+The word 'blah' is defined like so:
+
+~~~text
+
+626c 6168 
+~~~
+
+00x62 is 98 in decimal and we can use a <a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8 encoding table</a> to see that 98 maps to the letter 'b'. 
+
+00x6c is 108 or the letter 'l', 00x61 is 97 or the letter 'a' and 00x68 is 104 or the letter 'h' 
+
+We wrap onto the last line for the rest of the data we wanted to send to statsd:
+
+
+~~~text
+
+0x0020:  3a33 367c 63                       
+~~~
+
+It follows the same pattern though where 00x3a is 58 or the ':' character and so on.
+
+And now I have a slightly better idea of how to read tcpdump's output than I did when I started writing this! As usual any tips or hints are welcome.
+
+-----
+
+I found <a href="http://www.windowsnetworking.com/articles_tutorials/understanding-udp-protocol.html">this article</a> useful for initially understanding how to read the output but I think the diagrams above work best! TechRepublic's '<a href="http://www.techrepublic.com/article/exploring-the-anatomy-of-a-data-packet/1041907">anatomy of a data packet</a>' also provides a good explanation.

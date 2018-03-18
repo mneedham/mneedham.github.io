@@ -1,0 +1,198 @@
++++
+draft = false
+date="2013-11-23 22:54:58"
+title="Neo4j 2.0.0-M06 -> 2.0.0-RC1: Optional relationships with OPTIONAL MATCH"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+<p>One of the <a href="http://blog.neo4j.org/2013/11/neo4j-200-rc1-final-preparations.html">breaking changes in Neo4j 2.0.0-RC1</a> compared to previous versions is that the <cite>-[?]-></cite> syntax for matching optional relationships has been retired and replaced with the <cite><a href="http://docs.neo4j.org/chunked/milestone/query-optional-match.html">OPTIONAL MATCH</a></cite> construct.</p>
+
+
+<p>An example where we might want to match an optional relationship could be if we want to find colleagues that we haven't worked with given the following model:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-23_21-43-57.png" alt="2013 11 23 21 43 57" title="2013-11-23_21-43-57.png" border="0" width="336" height="200" />
+</div>
+
+<p>Suppose we have the following data set:</p>
+
+
+
+~~~cypher
+
+CREATE (steve:Person {name: "Steve"})
+CREATE (john:Person {name: "John"})
+CREATE (david:Person {name: "David"})
+CREATE (paul:Person {name: "Paul"})
+CREATE (sam:Person {name: "Sam"})
+
+CREATE (londonOffice:Office {name: "London Office"})
+
+CREATE UNIQUE (steve)-[:WORKS_IN]->(londonOffice)
+CREATE UNIQUE (john)-[:WORKS_IN]->(londonOffice)
+CREATE UNIQUE (david)-[:WORKS_IN]->(londonOffice)
+CREATE UNIQUE (paul)-[:WORKS_IN]->(londonOffice)
+CREATE UNIQUE (sam)-[:WORKS_IN]->(londonOffice)
+
+CREATE UNIQUE (steve)-[:COLLEAGUES_WITH]->(john)
+CREATE UNIQUE (steve)-[:COLLEAGUES_WITH]->(david)
+~~~
+
+<p>We might write the following query to find people from the same office as Steve but that he hasn't worked with:</p>
+
+
+
+~~~cypher
+
+MATCH (person:Person)-[:WORKS_IN]->(office)<-[:WORKS_IN]-(potentialColleague)
+WHERE person.name = "Steve" AND office.name = "London Office"
+WITH person, potentialColleague
+MATCH (potentialColleague)-[c?:COLLEAGUES_WITH]-(person)
+WHERE c IS null
+RETURN potentialColleague
+~~~
+
+
+~~~bash
+
+==> +----------------------+
+==> | potentialColleague   |
+==> +----------------------+
+==> | Node[4]{name:"Paul"} |
+==> | Node[5]{name:"Sam"}  |
+==> +----------------------+
+~~~
+
+<p>We first find which office Steve works in and find the people who also work in that office. Then we optionally match the 'COLLEAGUES_WITH' relationship and only return people who Steve doesn't have that relationship with.</p>
+
+
+<p>If we run that query in 2.0.0-RC1 we get this exception:</p>
+
+
+
+~~~bash
+
+==> SyntaxException: Question mark is no longer used for optional patterns - use OPTIONAL MATCH instead (line 1, column 199)
+==> "MATCH (person:Person)-[:WORKS_IN]->(office)<-[:WORKS_IN]-(potentialColleague) WHERE person.name = "Steve" AND office.name = "London Office" WITH person, potentialColleague MATCH (potentialColleague)-[c?:COLLEAGUES_WITH]-(person) WHERE c IS null RETURN potentialColleague"
+==>                     
+~~~
+
+<p>Based on that advice we might translate our query to read like this:</p>
+
+
+
+~~~cypher
+
+MATCH (person:Person)-[:WORKS_IN]->(office)<-[:WORKS_IN]-(potentialColleague)
+WHERE person.name = "Steve" AND office.name = "London Office"
+WITH person, potentialColleague
+OPTIONAL MATCH (potentialColleague)-[c:COLLEAGUES_WITH]-(person)
+WHERE c IS null
+RETURN potentialColleague
+~~~
+
+<p>If we run that we get back more people than we'd expect:</p>
+
+
+
+~~~bash
+
+==> +------------------------+
+==> | potentialColleague     |
+==> +------------------------+
+==> | Node[15]{name:"John"}  |
+==> | Node[14]{name:"David"} |
+==> | Node[13]{name:"Paul"}  |
+==> | Node[12]{name:"Sam"}   |
+==> +------------------------+
+~~~
+
+<p>The reason this query doesn't work as we'd expect is because the <cite>WHERE</cite> clause immediately following <cite>OPTIONAL MATCH</cite> is part of the pattern rather than being evaluated afterwards as we've become used to.</p>
+
+
+<p>The <cite>OPTIONAL MATCH</cite> part of the query matches a 'COLLEAGUES_WITH' relationship where the relationship is actually null, something of a contradiction! However, since the match is optional a row is still returned.</p>
+
+
+<p>If we include 'c' in the <cite>RETURN</cite> part of the query we can see that this is the case:</p>
+
+
+
+~~~cypher
+
+MATCH (person:Person)-[:WORKS_IN]->(office)<-[:WORKS_IN]-(potentialColleague)
+WHERE person.name = "Steve" AND office.name = "London Office"
+WITH person, potentialColleague
+OPTIONAL MATCH (potentialColleague)-[c:COLLEAGUES_WITH]-(person)
+WHERE c IS null
+RETURN potentialColleague, c
+~~~
+
+
+~~~bash
+
+==> +---------------------------------+
+==> | potentialColleague     | c      |
+==> +---------------------------------+
+==> | Node[15]{name:"John"}  | <null> |
+==> | Node[14]{name:"David"} | <null> |
+==> | Node[13]{name:"Paul"}  | <null> |
+==> | Node[12]{name:"Sam"}   | <null> |
+==> +---------------------------------+
+~~~
+
+<p>If we take out the <cite>WHERE</cite> part of the <cite>OPTIONAL MATCH</cite> the query is a bit closer to what we want:</p>
+
+
+
+~~~cypher
+
+MATCH (person:Person)-[:WORKS_IN]->(office)<-[:WORKS_IN]-(potentialColleague)
+WHERE person.name = "Steve" AND office.name = "London Office"
+WITH person, potentialColleague
+OPTIONAL MATCH (potentialColleague)-[c:COLLEAGUES_WITH]-(person)
+RETURN potentialColleague, c
+~~~
+
+
+~~~bash
+
+==> +-----------------------------------------------+
+==> | potentialColleague    | c                     |
+==> +-----------------------------------------------+
+==> | Node[2]{name:"John"}  | :COLLEAGUES_WITH[5]{} |
+==> | Node[3]{name:"David"} | :COLLEAGUES_WITH[6]{} |
+==> | Node[4]{name:"Paul"}  | <null>                |
+==> | Node[5]{name:"Sam"}   | <null>                |
+==> +-----------------------------------------------+
+~~~
+
+<p>If we introduce a <cite>WITH</cite> after the <cite>OPTIONAL MATCH</cite> we can choose to filter out those people that we've already worked with:</p>
+
+
+
+~~~cypher
+
+MATCH (person:Person)-[:WORKS_IN]->(office)<-[:WORKS_IN]-(potentialColleague)
+WHERE person.name = "Steve" AND office.name = "London Office"
+WITH person, potentialColleague
+OPTIONAL MATCH (potentialColleague)-[c:COLLEAGUES_WITH]-(person)
+WITH potentialColleague, c
+WHERE c IS null
+RETURN potentialColleague
+~~~
+
+<p>If we evaluate that query it returns the same output as our original query:</p>
+
+
+
+~~~bash
+
+==> +----------------------+
+==> | potentialColleague   |
+==> +----------------------+
+==> | Node[4]{name:"Paul"} |
+==> | Node[5]{name:"Sam"}  |
+==> +----------------------+
+~~~

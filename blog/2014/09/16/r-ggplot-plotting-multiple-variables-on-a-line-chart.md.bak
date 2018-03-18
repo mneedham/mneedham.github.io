@@ -1,0 +1,130 @@
++++
+draft = false
+date="2014-09-16 16:59:21"
+title="R: ggplot - Plotting multiple variables on a line chart"
+tag=['r-2', 'rstats']
+category=['R']
++++
+
+<p>
+In my continued playing around with meetup data I wanted to plot the number of members who join the Neo4j group over time.
+</p>
+
+
+<p>I started off with the variable 'byWeek' which shows how many members joined the group each week:</p>
+
+
+
+~~~r
+
+> head(byWeek)
+Source: local data frame [6 x 2]
+
+        week n
+1 2011-06-02 8
+2 2011-06-09 4
+3 2011-06-30 2
+4 2011-07-14 1
+5 2011-07-21 1
+6 2011-08-18 1
+~~~
+
+<p>I wanted to plot the actual count alongside <a href="http://www.markhneedham.com/blog/2014/09/13/r-calculating-rolling-or-moving-averages/">a rolling average</a> for which I created the following data frame:</p>
+
+
+
+~~~r
+
+library(zoo)
+joinsByWeek = data.frame(actual = byWeek$n, 
+                         week = byWeek$week,
+                         rolling = rollmean(byWeek$n, 4, fill = NA, align=c("right")))
+~~~
+
+
+~~~text
+
+> head(joinsByWeek, 10)
+   actual       week rolling
+1       8 2011-06-02      NA
+2       4 2011-06-09      NA
+3       2 2011-06-30      NA
+4       1 2011-07-14    3.75
+5       1 2011-07-21    2.00
+6       1 2011-08-18    1.25
+7       1 2011-10-13    1.00
+8       2 2011-11-24    1.25
+9       1 2012-01-05    1.25
+10      3 2012-01-12    1.75
+~~~
+
+<p>The next step was to work out how to <a href="http://stackoverflow.com/questions/3777174/plotting-two-variables-as-lines-using-ggplot2-on-the-same-graph">plot both 'rolling' and 'actual' on the same line chart</a>. The easiest way is to make two calls to 'geom_line', like so:</p>
+
+
+
+~~~r
+
+ggplot(joinsByWeek, aes(x = week)) + 
+  geom_line(aes(y = rolling), colour="blue") + 
+  geom_line(aes(y = actual), colour = "grey") + 
+  ylab(label="Number of new members") + 
+  xlab("Week")
+~~~
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/09/2014-09-16_21-57-14.png" alt="2014 09 16 21 57 14" title="2014-09-16_21-57-14.png" border="0" width="600" height="387" />
+</div>
+
+<p>Alternatively we can make use of the 'melt' function from the <cite><a href="http://www.statmethods.net/management/reshape.html">reshape</a></cite> library...</p>
+
+
+
+~~~r
+
+library(reshape)
+meltedJoinsByWeek = melt(joinsByWeek, id = 'week')
+~~~
+
+
+~~~text
+
+> head(meltedJoinsByWeek, 20)
+   week variable value
+1     1   actual     8
+2     2   actual     4
+3     3   actual     2
+4     4   actual     1
+5     5   actual     1
+6     6   actual     1
+7     7   actual     1
+8     8   actual     2
+9     9   actual     1
+10   10   actual     3
+11   11   actual     1
+12   12   actual     2
+13   13   actual     4
+14   14   actual     2
+15   15   actual     3
+16   16   actual     5
+17   17   actual     1
+18   18   actual     2
+19   19   actual     1
+20   20   actual     2
+~~~
+
+<p>...which then means we can plot the chart with a single call to geom_line:</p>
+
+
+
+~~~r
+
+ggplot(meltedJoinsByWeek, aes(x = week, y = value, colour = variable)) + 
+  geom_line() + 
+  ylab(label="Number of new members") + 
+  xlab("Week Number") + 
+  scale_colour_manual(values=c("grey", "blue"))
+~~~
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/09/2014-09-16_22-17-40.png" alt="2014 09 16 22 17 40" title="2014-09-16_22-17-40.png" border="0" width="600" height="390" /></div>

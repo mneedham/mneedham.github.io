@@ -1,0 +1,145 @@
++++
+draft = false
+date="2013-11-22 22:45:32"
+title="Neo4j: Cypher - Creating relationships between nodes from adjacent rows in a query"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+<p>I want to introduce the concept of a season into my graph so I can have import matches for multiple years and then vary the time period which queries take into account.</p>
+
+
+<p>I started by creating season nodes like this:</p>
+
+
+
+~~~cypher
+
+CREATE (:Season {name: "2013/2014", timestamp: 1375315200})
+CREATE (:Season {name: "2012/2013", timestamp: 1343779200})
+CREATE (:Season {name: "2011/2012", timestamp: 1312156800})
+CREATE (:Season {name: "2010/2011", timestamp: 1280620800})
+CREATE (:Season {name: "2009/2010", timestamp: 1249084800})
+~~~
+
+<p>I wanted to add a 'NEXT' relationship between the seasons so that I could have an <a href="http://blog.neo4j.org/2013/05/reloading-my-beergraph-using-in-graph.html">in graph</a> season index which would allow me to write queries like the following:</p>
+
+
+
+~~~cypher
+
+// return all the matches for 2010/2011, 2011/2012, 2012/2013 
+MATCH (base:Season)<-[:NEXT*0..2]-(s)
+WHERE base.name = "2012/2013"
+MATCH s-[:contains]->game
+RETURN game
+~~~
+
+<p>I started out by writing a query which returned the seasons ordered by date:</p>
+
+
+
+~~~cypher
+
+MATCH (s:Season)
+WITH s
+ORDER BY s.timestamp
+RETURN s
+~~~
+
+
+~~~bash
+
+==> +------------------------------------------------+
+==> | s                                              |
+==> +------------------------------------------------+
+==> | Node[0]{name:"2009/2010",timestamp:1249084800} |
+==> | Node[1]{name:"2010/2011",timestamp:1280620800} |
+==> | Node[2]{name:"2011/2012",timestamp:1312156800} |
+==> | Node[3]{name:"2012/2013",timestamp:1343779200} |
+==> | Node[4]{name:"2013/2014",timestamp:1375315200} |
+==> +------------------------------------------------+
+~~~
+
+<p>The next step was to pair up adjacent rows/nodes so that I could create a relationship between them. To do this we first need to return the seasons as a collection which we can do with the following query:</p>
+
+
+
+~~~cypher
+
+MATCH (s:Season)
+WITH s
+ORDER BY s.timestamp
+RETURN COLLECT(s) AS seasons
+~~~
+
+
+~~~bash
+
+==> +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | seasons                                                                                                                                                                                                                                      |
+==> +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | [Node[0]{name:"2009/2010",timestamp:1249084800},Node[1]{name:"2010/2011",timestamp:1280620800},Node[2]{name:"2011/2012",timestamp:1312156800},Node[3]{name:"2012/2013",timestamp:1343779200},Node[4]{name:"2013/2014",timestamp:1375315200}] |
+==> +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+~~~
+
+<p>In a functional language we might not use the <cite><a href="http://stackoverflow.com/questions/1115563/what-is-zip-functional-programming">zip</a></cite> function create pairs from the collection. Cypher doesn't have this function but we can get close by using the <cite><a href="http://docs.neo4j.org/chunked/milestone/query-functions-collection.html#functions-range">RANGE</a></cite> function to select adjacent nodes.</p>
+ 
+
+<p>I started off with this query:</p>
+
+
+
+~~~cypher
+
+MATCH (s:Season)
+WITH s
+ORDER BY s.timestamp
+WITH COLLECT(s) AS seasons
+
+FOREACH(i in RANGE(0, length(seasons)-2) | 
+    CREATE UNIQUE (seasons[i])-[:NEXT]->(seasons[i+1])))
+~~~
+
+<p>which fails with the following exception:</p>
+
+
+
+~~~bash
+
+==> SyntaxException: Invalid input '[': expected an identifier character, node labels, a property map, whitespace, ')' or a relationship pattern (line 1, column 142)
+==> "MATCH (s:Season) WITH s ORDER BY s.timestamp WITH COLLECT(s) AS seasons  FOREACH(i in RANGE(0, length(seasons)-2) |   CREATE UNIQUE (seasons[i])-[:NEXT]->(seasons[i+1])))"
+~~~
+
+<p>You can't use the slice syntax in a place where a node is expected but luckily <a href="https://twitter.com/wefreema">Wes</a> showed me a workaround using multiple <cite>FOREACH</cite> statements which does the job:</p>
+
+
+
+~~~cypher
+
+MATCH (s:Season)
+WITH s
+ORDER BY s.timestamp
+WITH COLLECT(s) AS seasons
+
+FOREACH(i in RANGE(0, length(seasons)-2) | 
+    FOREACH(si in [seasons[i]] | 
+        FOREACH(si2 in [seasons[i+1]] | 
+            CREATE UNIQUE (si)-[:NEXT]->(si2))))
+~~~
+
+<p>Here we create one node collections which then allows us to reference each pair of nodes using the identifiers 'si' and 'si2'. We then create a relationship between them.</p>
+
+
+<p>We can then write the following query to show how the seasons are connected:</p>
+
+
+
+~~~cypher
+
+MATCH (s:Season)<-[:NEXT*0..]-(ss)
+WHERE s.name = "2013/2014"
+RETURN ss
+~~~
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-22_22-42-10.png" alt="2013 11 22 22 42 10" title="2013-11-22_22-42-10.png" border="0" width="600" height="189" />

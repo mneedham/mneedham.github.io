@@ -1,0 +1,122 @@
++++
+draft = false
+date="2015-03-17 22:46:13"
+title="Neo4j: Detecting potential typos using EXPLAIN"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>I've been running a few intro to Neo4j training sessions recently using Neo4j 2.2.0 RC1 and at some stage in every session somebody will make a typo when writing out of the example queries.
+</p>
+
+
+<p>
+For example one of the queries that we do about half way finds the actors and directors who have worked together and aggregates the movies they were in.
+</p>
+
+
+<p>
+This is the correct query:
+</p>
+
+
+
+~~~cypher
+
+MATCH (actor:Person)-[:ACTED_IN]->(movie)<-[:DIRECTED]-(director)
+RETURN actor.name, director.name, COLLECT(movie.title) AS movies
+ORDER BY LENGTH(movies) DESC
+LIMIT 5
+~~~
+
+<p>which should yield the following results:</p>
+
+
+
+~~~bash
+
+==> +-----------------------------------------------------------------------------------------------------------------------+
+==> | actor.name           | director.name    | movies                                                                      |
+==> +-----------------------------------------------------------------------------------------------------------------------+
+==> | "Hugo Weaving"       | "Andy Wachowski" | ["Cloud Atlas","The Matrix Revolutions","The Matrix Reloaded","The Matrix"] |
+==> | "Hugo Weaving"       | "Lana Wachowski" | ["Cloud Atlas","The Matrix Revolutions","The Matrix Reloaded","The Matrix"] |
+==> | "Laurence Fishburne" | "Lana Wachowski" | ["The Matrix Revolutions","The Matrix Reloaded","The Matrix"]               |
+==> | "Keanu Reeves"       | "Lana Wachowski" | ["The Matrix Revolutions","The Matrix Reloaded","The Matrix"]               |
+==> | "Carrie-Anne Moss"   | "Lana Wachowski" | ["The Matrix Revolutions","The Matrix Reloaded","The Matrix"]               |
+==> +-----------------------------------------------------------------------------------------------------------------------+
+~~~
+
+<p>
+However, a common typo is to write 'DIRECTED_IN' instead of 'DIRECTED' in which case we'll see no results:
+</p>
+
+
+
+~~~cypher
+
+MATCH (actor:Person)-[:ACTED_IN]->(movie)<-[:DIRECTED_IN]-(director)
+RETURN actor.name, director.name, COLLECT(movie.title) AS movies
+ORDER BY LENGTH(movies) DESC
+LIMIT 5
+
+==> +-------------------------------------+
+==> | actor.name | director.name | movies |
+==> +-------------------------------------+
+==> +-------------------------------------+
+==> 0 row
+~~~
+
+
+<p>
+It's not immediately obvious why we aren't seeing any results which can be quite frustrating.<p>
+
+<p>However, in Neo4j 2.2 the 'EXPLAIN' keyword has been introduced and we can use this to see what the query planner thinks of the query we want to execute without actually executing it. </p>
+
+
+<p>Instead the planner makes use of knowledge that it has about our schema to come up with a plan that it would run and how much of the graph it thinks that plan would touch:
+</p>
+
+
+
+~~~cypher
+
+EXPLAIN MATCH (actor:Person)-[:ACTED_IN]->(movie)<-[:DIRECTED_IN]-(director)
+RETURN actor.name, director.name, COLLECT(movie.title) AS movies
+ORDER BY LENGTH(movies) DESC
+LIMIT 5
+~~~
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/03/2015-03-17_23-39-55.png" alt="2015 03 17 23 39 55" title="2015-03-17_23-39-55.png" border="0" />
+
+</div>
+
+<p>
+The first row of the query plan describes an all nodes scan which tells us that the query will start from the 'director' but it's the second row that's interesting.
+</p>
+
+
+<p>
+The estimated rows when expanding the 'DIRECTED_IN' relationship is 0 when we'd expect it to at least be a positive value if there were some instances of that relationship in the database.
+</p>
+
+
+<p>
+If we compare this to the plan generated when using the proper 'DIRECTED' relationship we can see the difference:
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/03/2015-03-17_23-43-11.png" alt="2015 03 17 23 43 11" title="2015-03-17_23-43-11.png" border="0"  />
+</div>
+
+<p>
+Here we see an estimated 44 rows from expanding the 'DIRECTED' relationship so we know there are at least some nodes connected by that relationship type.
+</p>
+
+
+<p>
+In summary if you find your query not returning anything when you expect it to, prefix an 'EXPLAIN' and make sure you're not seeing the dreaded '0 expected rows'.
+</p>
+

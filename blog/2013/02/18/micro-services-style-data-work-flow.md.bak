@@ -1,0 +1,71 @@
++++
+draft = false
+date="2013-02-18 22:16:39"
+title="Micro Services Style Data Work Flow"
+tag=['data-science-2']
+category=['Data Science']
++++
+
+<p>Having worked on a few data related applications over the last ten months or so <a href="https://twitter.com/a5hok">Ashok</a> and I were recently discussing some of the things that we've learnt</p>
+ 
+
+<p>One of the things he pointed out is that it's very helpful to <strong>separate the different stages of a data work flow</strong> into their own applications/scripts.</p>
+
+
+<p>I decided to try out this idea with some football data that I'm currently trying to model and I ended up with the following stages:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/02/data-workflow.png" alt="Data workflow" title="data-workflow.png" border="0" width="600" height="55" />
+</div>
+
+<p>The stages do the following:</p>
+
+
+<ul>
+<li><strong>Find</strong> - Finds web pages which have the data we need and writes those URLs of those to a text file.</li>
+<li><strong>Download</strong> - Reads in the URLs and downloads the contents to the file system.</li>
+<li><strong>Extract</strong> - Reads in the web pages from the file system and using CSS selectors extracts appropriate data and saves JSON files to disk.</li>
+<li><strong>Import</strong> - Reads in the JSON files and creates nodes/relationships in neo4j.</li>
+</ul>
+
+<p>It's reasonably similar to <a href="http://www.infoq.com/presentations/Micro-Services">micro services</a> except instead of using HTTP as the protocol between each part we use text files as the interface between different scripts.</p>
+ 
+
+<p>In fact it's more like a variation of Unix pipelining as described in <a href="http://www.amazon.co.uk/Unix-Programming-Addison-Wesley-Professional-Computing/dp/0131429019/ref=sr_1_1?ie=UTF8&qid=1361141666&sr=8-1">The Art of Unix Programming</a> except we store the results of each stage of the pipeline instead of piping them directly into the next one.
+
+<p>If following the Unix way isn't enough of a reason to split up the problem like this there are a couple of other reasons why this approach is useful:</p>
+
+
+<ul>
+<li><strong>We end up tweaking some parts more than others</strong> therefore it's good if we don't have to run all the steps each time we make a change e.g. I find that  I spend much more time in the extract & import stages than in the other two stages. Once I've got the script for getting all the data written it doesn't seem to change that substantially.</li>
+<li><strong>We can choose the appropriate technology to do each of the jobs</strong>. In this case I find that any data processing is much easier to do in Ruby but the data import is significantly quicker if you use the Java API.</li>
+<li><strong>We can easily make changes to the work flow</strong> if we find a better way of doing things.</li>
+</ul>
+
+<p>That third advantage became clear to me on Saturday when I realised that waiting 3 minutes for the import stage to run each time was becoming quite frustrating.<p> 
+
+<p>All node/relationship creation was happening via the REST interface from a Ruby script since that was the easiest way to get started.</p>
+
+
+<p>I was planning to plugin some Java code <a href="http://www.markhneedham.com/blog/2012/09/23/neo4j-the-batch-inserter-and-the-sunk-cost-fallacy/">using the batch importer</a> to speed things up until Ashok pointed me to a <a href="https://github.com/jexp/batch-import">CSV driven batch importer</a> which seemed like it might be even better.</p>
+
+
+<p>That batch importer takes CSV files of nodes and edges as its input so I needed to add another stage to the work flow if I wanted to use it:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/02/data-workflow-2.png" alt="Data workflow 2" title="data-workflow-2.png" border="0" width="600" height="56" />
+</div>
+
+<p>I spent a few hours working on the 'Extract to CSV' stage and then replaced the initial 'Import' script with a call to the batch importer.</p>
+
+
+<p>It now takes 1.3 seconds to go through the last two stages instead of 3 minutes for the old import stage.</p>
+
+
+<p>Since all I added was another script that took a text file as input and created text files as output it was really easy to make this change to the work flow.</p>
+
+
+<p>I'm not sure how well this scales if you're dealing with massive amounts of data but you can always split the data up into multiple files if the size becomes unmanageable.</p>
+

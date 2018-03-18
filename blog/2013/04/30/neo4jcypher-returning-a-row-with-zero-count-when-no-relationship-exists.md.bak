@@ -1,0 +1,151 @@
++++
+draft = false
+date="2013-04-30 07:02:09"
+title="neo4j/cypher: Returning a row with zero count when no relationship exists"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+<p>I've been trying to see if I can match some of the football stats that <a href="https://twitter.com/OptaJoe">OptaJoe</a> posts on twitter and one that I was looking at yesterday was around the <a href="https://twitter.com/OptaJoe/status/328969438361690113">number of red cards different teams have received</a>.</p>
+
+
+<blockquote>
+1 - Sunderland have picked up their first PL red card of the season. The only team without one now are Man Utd. Angels.
+</blockquote>
+
+<p>To refresh this is the sub graph that we'll need to look at to work it out:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/04/sent_off.png" alt="Sent off" title="sent_off.png" border="0" width="242" height="262" />
+</div>
+
+<p>I started off with the following query which traverses out from each match, finds the players who were sent off in the match and then <a href="http://www.markhneedham.com/blog/2013/02/17/neo4jcypher-sql-style-group-by-functionality/">groups</a> the sendings off by the team they were playing for:</p>
+
+
+
+~~~cypher
+
+START game = node:matches('match_id:*')
+MATCH game<-[:sent_off_in]-player-[:played]->likeThis-[:in]->game, 
+      likeThis-[:for]->team
+RETURN team.name, COUNT(game) AS redCards
+ORDER BY redCards
+LIMIT 5
+~~~
+
+<p>When we run this we get the following results:</p>
+
+
+
+~~~text
+
++------------------------------+
+| team.name         | redCards |
++------------------------------+
+| "Sunderland"      | 1        |
+| "West Ham United" | 1        |
+| "Norwich City"    | 1        |
+| "Reading"         | 1        |
+| "Liverpool"       | 2        |
++------------------------------+
+5 rows
+~~~
+
+<p>The problem we have here is that it hasn't returned Manchester United because they haven't yet received any red cards and therefore none of their players match the 'sent_off_in' relationship.</p>
+
+
+<p>I ran into something similar in a post I wrote about a month ago where I was <a href="http://www.markhneedham.com/blog/2013/03/20/neo4jcypher-getting-the-hang-of-the-with-statement/">working out which day of the week players scored on</a>.</p>
+
+
+<p>The first step towards getting Manchester United to return with a count of 0 is to make the 'sent_off_in' relationship optional.</p>
+
+
+<p>However, that on its own that isn't enough because it now returns a count of all the player performances for each team:</p>
+
+
+
+~~~cypher
+
+START game = node:matches('match_id:*')
+MATCH game<-[?:sent_off_in]-player-[:played]->likeThis-[:in]->game, 
+      likeThis-[:for]->team
+RETURN team.name, COUNT(game) AS redCards
+ORDER BY redCards ASC
+LIMIT 5
+~~~
+
+
+~~~text
+
++-----------------------------+
+| team.name        | redCards |
++-----------------------------+
+| "Chelsea"        | 448      |
+| "Wigan Athletic" | 459      |
+| "Fulham"         | 460      |
+| "Liverpool"      | 466      |
+| "Everton"        | 467      |
++-----------------------------+
+5 rows
+~~~
+
+<p>Instead what we need to do is collect up all the 'sent_off_in' relationships and sum them up.</p>
+
+
+<p>We can use the <a href="http://www.markhneedham.com/blog/2013/03/20/neo4jcypher-with-collect-extract/">COLLECT</a> function to do that and the neat thing about COLLECT is that it doesn't bother collecting the empty relationships so we end up with exactly what we need:</p>
+
+
+
+~~~cypher
+
+START game = node:matches('match_id:*')
+MATCH game<-[r?:sent_off_in]-player-[:played]->likeThis-[:in]->game, 
+      likeThis-[:for]->team
+RETURN team.name, COLLECT(r) AS redCards
+LIMIT 5
+~~~
+
+
+~~~text
+
++-----------------------------------------------------------------------------------------------------+
+| team.name          | redCards                                                                       |
++-----------------------------------------------------------------------------------------------------+
+| "Wigan Athletic"   | [:sent_off_in[26443] {},:sent_off_in[37785] {}]                                |
+| "Everton"          | [:sent_off_in[6795] {minute:61},:sent_off_in[21735] {},:sent_off_in[34594] {}] |
+| "Newcastle United" | [:sent_off_in[434] {minute:75},:sent_off_in[32389] {},:sent_off_in[34915] {}]  |
+| "Southampton"      | [:sent_off_in[49393] {minute:70},:sent_off_in[49392] {minute:82}]              |
+| "West Ham United"  | [:sent_off_in[21734] {minute:67}]                                              |
++-----------------------------------------------------------------------------------------------------+
+5 rows
+~~~
+
+<p>We then just need to call the LENGTH function to work out how many red cards there are in each collection and then we're done:</p>
+
+
+
+~~~cypher
+
+START game = node:matches('match_id:*')
+MATCH game<-[r?:sent_off_in]-player-[:played]->likeThis-[:in]->game, 
+      likeThis-[:for]->team
+RETURN team.name, LENGTH(COLLECT(r)) AS redCards
+ORDER BY redCards
+LIMIT 5
+~~~
+
+
+~~~text
+
++--------------------------------+
+| team.name           | redCards |
++--------------------------------+
+| "Manchester United" | 0        |
+| "West Ham United"   | 1        |
+| "Sunderland"        | 1        |
+| "Norwich City"      | 1        |
+| "Reading"           | 1        |
++--------------------------------+
+5 rows
+~~~

@@ -1,0 +1,27 @@
++++
+draft = false
+date="2009-02-15 01:46:33"
+title="Encoding user entered data"
+tag=['software-development']
+category=['Software Development']
++++
+
+I previously wrote about <a href="http://www.markhneedham.com/blog/2009/02/12/aspnet-mvc-preventing-xss-attacks/">protecting websites from cross site scripting in the ASP.NET MVC framework</a> by encoding user input when we are going to display it in the browser.
+
+We can either choose to encode data like this or we can encode it straight away when we get it.
+
+There did not seem to be a consensus on the best approach in a <a href="http://forums.asp.net/t/1194407.aspx">discussion on the ASP.NET forums</a> but we believe it is far better to encode the data when it is outgoing rather than incoming.
+
+If we encode the data when it comes in then we need to <strong>remember which data  was pre-encoded</strong> and then <strong>un-encode it when it is going to be displayed in a non-HTML format</strong>.
+
+If we had a user enter their name as "John O'Shea' for example then we would end up storing the ' in the name as its HTML representation and might accidentally end up sending them correspondence referring to them as the wrong name.
+
+<a href="http://twitter.com/davcamer">Dave</a> suggested 'fixing it [encoding issue] as close to the problem as possible' as a useful guideline to follow.
+
+In this case our problem is that when the data we received from the user is displayed there could be some potentially dangerous code in there and we don't want to allow it to be executed on our page.
+
+We then work off the assumption that any web applications that use our data should know how to encode the data since that falls under their responsibility. Any other applications can use the data as is.
+
+I drew this diagram to clear it up in my head:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/02/dataencoding.gif" alt="dataEncoding.gif" border="0" width="563" height="263" />

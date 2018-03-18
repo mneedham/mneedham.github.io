@@ -1,0 +1,200 @@
++++
+draft = false
+date="2009-07-12 17:14:13"
+title="F#: A day writing a Feedburner graph creator"
+tag=['f']
+category=['F#']
++++
+
+I've spent a bit of the day writing a little application to take the xml from my <a href="https://feedburner.google.com/api/awareness/1.0/GetFeedData?uri=markneedham&dates=2009-03-01,2009-03-27">Feedburner RSS feed</a> and create a graph showing the daily & weekly average subscribers.
+
+<h4>What did I learn?</h4>
+<ul>
+<li>I decided that I wanted to parameterise the feedburner url so that I would be able to run the code for different time periods and against different feeds. In C# we'd probably make use of 'string.Format()' which has an equivalent in F# called 'sprintf'
+
+My initial thought was that I would be able to do something like this:
+
+
+~~~ocaml
+
+let ShowFeedBurnerStats feed =
+    let statsUrl = "https://feedburner.google.com/api/awareness/1.0/GetFeedData?uri=%s&dates=2009-01-01,2009-07-11"
+    sprintf statsUrl feed |> GetXml
+    // more code
+~~~
+
+Which actually results in the following compilation error:
+
+
+~~~text
+
+The type 'string' is not compatible with the type 'Printf.StringFormat
+~~~
+
+After a bit of searching I found <a href="http://cs.hubfs.net/forums/thread/6341.aspx">a post by Robert Pickering where he explains that the format string needs to be next to the sprintf function to work as expected</a>:
+
+
+~~~ocaml
+
+let ShowFeedBurnerStats feed =
+    let statsUrl = sprintf "https://feedburner.google.com/api/awareness/1.0/GetFeedData?uri=%s&dates=2009-01-01,2009-07-11"
+    statsUrl feed |> GetXml
+    // more code
+~~~
+'statsUrl' therefore becomes a function taking in a 'string' and returning a 'string'. 
+</li>
+<li>I'm still trying to work out the best way to decompose the code I write into functions which make sense in terms of the domain I'm working in. 
+
+I often found myself <strong>splitting up a function along the boundary of where any I/O interaction was happening</strong> so that I could execute the I/O function and save the data before using it in another function which I would execute a lot more frequently (using F# interactive) while I was tweaking it. </li>
+<li>I still haven't come up with a completely satisfactory approach to coding these little applications - right now I'm finding that the feedback cycle is significantly quicker if I just write functions and then run them in F# interactive and then tweak anything which isn't working as expected.
+
+I didn't write any unit tests while coding this although I did find myself writing shorter functions than I originally did when writing my little twitter application. The problem of not writing the tests is that I lose the protection against regression that I would otherwise get.</li>
+
+<li>I still have a bit of a <a href="http://www.markhneedham.com/blog/2009/06/02/f-tuples-dont-seem-to-express-intent-well/">love hate relationship with tuples</a> - I found myself making use of them early on when I was focused on getting the code to work and I could still understand the code easily.
+
+Originally I was only storing 'date' and 'circulation' in the tuple but once I added a third value to the tuple ('weeklyAverage') it became too confusing for me to understand so I decided to introduce the 'FeedBurnerStats' type to simplify things for myself. </li>
+<li>I ended up writing a function called 'Join' which is quite similar to 'Seq.zip' because I wanted to join two sequences together but only join items which had the same date (the 'string' value in the tuple).
+
+Therefore, if I had some data like this:
+
+'dailyStats'
+
+~~~ocaml
+
+"2009-01,07", 200
+"2009-01,08", 222
+~~~
+
+'weeklyAverages'
+
+~~~ocaml
+
+"2009-01,07", 300
+"2009-01,08", 322
+~~~
+
+I wanted the join of the two sequences to look like this:
+
+
+~~~ocaml
+
+"2009-01,07", 200, 300
+"2009-01,08", 222, 322
+~~~
+
+Which wasn't working as expected when I used 'Seq.zip' - the items that were getting matched together seemed to be quite random to me.
+
+
+~~~ocaml
+
+let Join (dailyStats:seq<decimal*string>) (weeklyAverages:seq<decimal*string>) =
+    dailyStats |> Seq.map (fun d -> { Date = d |> snd; 
+                                      Circulation = d |> fst;
+                                      WeeklyAverage = weeklyAverages |> Seq.find (fun w -> snd d = snd w) |> fst}) 
+~~~
+
+
+</ul>
+
+I've included the code is at the end of the post - there are some areas where I don't really like the way I've solved a problem but I'm not sure of a better way at the moment.
+
+In particular:
+<ul>
+<li>I wanted to make use of 'Seq.windowed' to find the rolling weekly average but I needed it to go back 7 days rather than forward 7 days which meant I needed to reverse the sequence. Right now I've done this by converting it to a list and using 'List.rev' to do so but this seems like a fairly inefficient way of doing this. 
+
+The alternative seemed to be to write a function to change the order of the items in the sequence but again this doesn't seem like a great approach.</li>
+<li><strong>What do you do with functions which are only used by one other areas of the code?</strong> For example 'ConvertToCommaSeparatedString' is only used by 'CreateGoogleGraphUri' so I defined it inside that function - I could then pull it to a function in its own right if other areas of the code need it. I did this to reduce the clutter of functions hanging around but it then makes 'CreateGoogleGraphUri' more difficult to read. </li>
+</ul>
+
+I decided to run it against some blogs I follow to see what the graphs, created using <a href="http://chart.apis.google.com/">Google's Charts API</a>, would look like:
+
+
+~~~ocaml
+
+ShowFeedBurnerStats "scotthanselman" "2009-03-01" "2009-07-11";;
+ShowFeedBurnerStats "youdthinkwithallmy" "2009-03-01" "2009-07-11";;
+ShowFeedBurnerStats "codinghorror" "2009-03-01" "2009-07-11";;
+~~~
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/07/hanselman.png" alt="hanselman.png" border="0" width="600" height="240" />
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/07/jasonyip.png" alt="jasonyip.png" border="0" width="600" height="240" />
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/07/codinghorror.png" alt="codinghorror.png" border="0" width="600" height="240" />
+
+Interestingly you can actually see the points where feedburner for some reason counted a particular days circulation as being 0. 
+
+And here's the code:
+
+~~~ocaml
+
+open System.IO
+open System.Net
+open Microsoft.FSharp.Control
+open System.Xml.Linq
+open System
+
+let downloadUrl (url:string) = async{
+    let request =  HttpWebRequest.Create(url)
+    let! response = request.AsyncGetResponse()
+    let stream = response.GetResponseStream()
+    use reader = new StreamReader(stream)
+    return! reader.AsyncReadToEnd() }
+
+let xName value = XName.Get value
+let GetDescendants element (xDocument:XDocument)  = xDocument.Descendants(xName element)
+let GetAttribute element (xElement:XElement) = xElement.Attribute(xName element)
+
+let GetXml = downloadUrl >> Async.Run >> XDocument.Parse 
+       
+let GetDateAndCirculation (document:XDocument) = 
+    document |> 
+    GetDescendants "entry"  |> 
+    Seq.map (fun element -> GetAttribute "circulation" element, GetAttribute "date" element)  |> 
+    Seq.map (fun attribute -> Decimal.Parse((fst attribute).Value), (snd attribute).Value) 
+
+let CalculateAverage days (feedStats:seq<decimal * string>) =
+    let ReverseSequence (sequence:seq<_>) = sequence |> Seq.to_list |> List.rev |> List.to_seq
+    feedStats |> 
+    ReverseSequence |>
+    Seq.windowed days |>
+    Seq.map (fun x -> x |> Array.map (fun y -> y |> fst) |> Array.average, x.[0] |> snd) |>
+    ReverseSequence    
+                         
+let CalculateWeeklyAverage (feedStats:seq<decimal * string>) = CalculateAverage 7 feedStats
+
+type FeedBurnerStats = { Date : string; Circulation: decimal; WeeklyAverage: decimal }
+        
+
+let Join (dailyStats:seq<decimal*string>) (weeklyAverages:seq<decimal*string>) =
+    dailyStats |> Seq.map (fun d -> { Date = d |> snd; 
+                                      Circulation = d |> fst;
+                                      WeeklyAverage = weeklyAverages |> Seq.find (fun w -> snd d = snd w) |> fst})        
+    
+let GetFeedBurnerStats feed startDate endDate =
+    let statsUrl = sprintf "https://feedburner.google.com/api/awareness/1.0/GetFeedData?uri=%s&dates=%s,%s"
+    let allStats = GetDateAndCirculation (statsUrl feed startDate endDate |> GetXml)
+    let weeklyAverages = allStats |> CalculateWeeklyAverage
+    let dailyStats = allStats |> Seq.filter (fun x -> weeklyAverages |> Seq.exists (fun y -> snd y = snd x)) 
+    Join dailyStats weeklyAverages   
+ 
+let CreateGoogleGraphUri feed (stats:seq<FeedBurnerStats>) =
+    let ConvertToCommaSeparatedString (value:seq<string>) =
+        let rec convert (innerVal:List<string>) acc =
+            match innerVal with
+                | [] -> acc
+                | hd::[] -> convert [] (acc + hd)
+                | hd::tl -> convert tl (acc + hd + ",")          
+        convert (Seq.to_list value) ""  
+
+    let graphUrl = sprintf "http://chart.apis.google.com/chart?cht=lc&chtt=%s&&chco=000000,FF0000&chdl=WeeklyAverage|Daily&chs=600x240&chds=%s,%s&chd=t:%s|%s"
+    let weeklyAverages = stats |> Seq.map (fun f -> f.WeeklyAverage.ToString("f0")) |> ConvertToCommaSeparatedString 
+    let circulation = stats |> Seq.map (fun f -> f.Circulation.ToString("f0")) |> ConvertToCommaSeparatedString 
+    
+    let maximum = stats |> Seq.map (fun f -> f.Circulation) |> Seq.max
+    let minimum = stats |> Seq.map (fun f -> f.Circulation) |> Seq.min
+    
+    new System.Uri(graphUrl feed (minimum.ToString("f0")) (maximum.ToString("f0")) weeklyAverages circulation)      
+    
+let ShowFeedBurnerStats feed startDate endDate = CreateGoogleGraphUri feed (GetFeedBurnerStats feed startDate endDate)    
+~~~

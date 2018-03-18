@@ -1,0 +1,194 @@
++++
+draft = false
+date="2013-10-25 16:03:48"
+title="Neo4j: Making implicit relationships explicit & bidirectional relationships"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>I recently read <a href="http://graphaware.com/neo4j/2013/10/11/neo4j-bidirectional-relationships.html">Michal Bachman's post about bidirectional relationships</a> in Neo4j in which he suggests that for some relationship types we're not that interested in the relationship's direction and can therefore ignore it when querying.</p>
+
+
+<p>He uses the following example showing the partnership between Neo Technology and GraphAware:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/10/neo_ga3.png" alt="Neo ga3" title="neo_ga3.png" border="0" width="492" height="116" />
+</div>
+
+<p>Both companies are partners with each other but since we can just as quickly find incoming and outgoing relationships we may as well just have one relationship between the two companies/nodes.</p>
+
+
+<p>This pattern comes up frequently when we want to make implicit relationships in our graph explicit. For example, we might have the following graph which describes people and projects that they've worked on:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/10/2013-10-25_16-34-16.png" alt="2013 10 25 16 34 16" title="2013-10-25_16-34-16.png" border="0" width="600" height="410" />
+</div>
+
+<p>We could create that graph in Neo4j 2.0 using the following cypher syntax:</p>
+
+
+
+~~~cypher
+
+CREATE (mark:Person {name: "Mark"})
+CREATE (dave:Person {name: "Dave"})
+CREATE (john:Person {name: "John"})
+
+CREATE (projectA:Project {name: "Project A"})
+CREATE (projectB:Project {name: "Project B"})
+CREATE (projectC:Project {name: "Project C"})
+
+CREATE (mark)-[:WORKED_ON]->(projectA)
+CREATE (mark)-[:WORKED_ON]->(projectB)
+CREATE (dave)-[:WORKED_ON]->(projectA)
+CREATE (dave)-[:WORKED_ON]->(projectC)
+CREATE (john)-[:WORKED_ON]->(projectC)
+CREATE (john)-[:WORKED_ON]->(projectB)
+~~~
+
+<p>If we wanted to work out which people know each other we could write the following query:</p>
+
+
+
+~~~bash
+
+MATCH (person1:Person)-[:WORKED_ON]-()<-[:WORKED_ON]-(person2)
+RETURN person1, person2
+
+==> +-------------------------------------------------------+
+==> | person1                   | person2                   |
+==> +-------------------------------------------------------+
+==> | Node[500363]{name:"Mark"} | Node[500364]{name:"Dave"} |
+==> | Node[500363]{name:"Mark"} | Node[500365]{name:"John"} |
+==> | Node[500364]{name:"Dave"} | Node[500363]{name:"Mark"} |
+==> | Node[500364]{name:"Dave"} | Node[500365]{name:"John"} |
+==> | Node[500365]{name:"John"} | Node[500364]{name:"Dave"} |
+==> | Node[500365]{name:"John"} | Node[500363]{name:"Mark"} |
+==> +-------------------------------------------------------+
+==> 6 rows
+~~~
+
+<p>We might want to create a <cite>KNOWS</cite> relationship between each pair of people:</p>
+
+
+
+~~~cypher
+
+MATCH (person1:Person)-[:WORKED_ON]-()<-[:WORKED_ON]-(person2)
+CREATE UNIQUE (person1)-[:KNOWS]->(person2)
+RETURN person1, person2
+~~~
+
+<p>Now if we run a query (which ignores the relationship direction) to find out which people know each other we'll get a lot of duplicate results:</p>
+
+
+
+~~~bash
+
+MATCH path=(person1:Person)-[:KNOWS]-(person2) 
+RETURN person1, person2, path
+
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> | person1                   | person2                   | path                                                                   |
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> | Node[500363]{name:"Mark"} | Node[500364]{name:"Dave"} | [Node[500363]{name:"Mark"},:KNOWS[528536]{},Node[500364]{name:"Dave"}] |
+==> | Node[500363]{name:"Mark"} | Node[500365]{name:"John"} | [Node[500363]{name:"Mark"},:KNOWS[528537]{},Node[500365]{name:"John"}] |
+==> | Node[500363]{name:"Mark"} | Node[500364]{name:"Dave"} | [Node[500363]{name:"Mark"},:KNOWS[528538]{},Node[500364]{name:"Dave"}] |
+==> | Node[500363]{name:"Mark"} | Node[500365]{name:"John"} | [Node[500363]{name:"Mark"},:KNOWS[528541]{},Node[500365]{name:"John"}] |
+==> | Node[500364]{name:"Dave"} | Node[500363]{name:"Mark"} | [Node[500364]{name:"Dave"},:KNOWS[528538]{},Node[500363]{name:"Mark"}] |
+==> | Node[500364]{name:"Dave"} | Node[500365]{name:"John"} | [Node[500364]{name:"Dave"},:KNOWS[528539]{},Node[500365]{name:"John"}] |
+==> | Node[500364]{name:"Dave"} | Node[500363]{name:"Mark"} | [Node[500364]{name:"Dave"},:KNOWS[528536]{},Node[500363]{name:"Mark"}] |
+==> | Node[500364]{name:"Dave"} | Node[500365]{name:"John"} | [Node[500364]{name:"Dave"},:KNOWS[528540]{},Node[500365]{name:"John"}] |
+==> | Node[500365]{name:"John"} | Node[500364]{name:"Dave"} | [Node[500365]{name:"John"},:KNOWS[528540]{},Node[500364]{name:"Dave"}] |
+==> | Node[500365]{name:"John"} | Node[500363]{name:"Mark"} | [Node[500365]{name:"John"},:KNOWS[528541]{},Node[500363]{name:"Mark"}] |
+==> | Node[500365]{name:"John"} | Node[500363]{name:"Mark"} | [Node[500365]{name:"John"},:KNOWS[528537]{},Node[500363]{name:"Mark"}] |
+==> | Node[500365]{name:"John"} | Node[500364]{name:"Dave"} | [Node[500365]{name:"John"},:KNOWS[528539]{},Node[500364]{name:"Dave"}] |
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> 12 rows
+~~~
+
+<p>Every pair of people shows up 4 times and if we take the example of Mark and Dave we can see why:</p>
+
+
+
+~~~bash
+
+MATCH path=(person1:Person)-[:KNOWS]-(person2) 
+WHERE person1.name = "Mark" AND person2.name = "Dave" 
+RETURN person1, person2, path
+
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> | person1                   | person2                   | path                                                                   |
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> | Node[500363]{name:"Mark"} | Node[500364]{name:"Dave"} | [Node[500363]{name:"Mark"},:KNOWS[528536]{},Node[500364]{name:"Dave"}] |
+==> | Node[500363]{name:"Mark"} | Node[500364]{name:"Dave"} | [Node[500363]{name:"Mark"},:KNOWS[528538]{},Node[500364]{name:"Dave"}] |
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> 2 rows
+~~~
+
+<p>If we look under the <cite>path</cite> column there are two different <cite>KNOWS</cite> relationships (with ids 528536 and 528538) between Mark and Dave, one going from Mark to Dave and the other from Dave to Mark.</p>
+
+
+<p>As Michal pointed out in his post having two relationships is unnecessary in this case. We only need a relationship one way, which we can do by not specifying a direction when we create the <cite>KNOWS</cite> relationship:</p>
+
+
+
+~~~bash
+
+MATCH (person1:Person)-[:WORKED_ON]-()<-[:WORKED_ON]-(person2)
+CREATE UNIQUE (person1)-[:KNOWS]-(person2)
+RETURN person1, person2
+~~~
+
+<p>Now if we re-run the query to check the relationships between Mark and Dave there is only one:</p>
+
+
+
+~~~bash
+
+MATCH path=(person1:Person)-[:KNOWS]-(person2) WHERE person1.name = "Mark" AND person2.name = "Dave" RETURN person1, person2, path
+
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> | person1                   | person2                   | path                                                                   |
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> | Node[500375]{name:"Mark"} | Node[500376]{name:"Dave"} | [Node[500375]{name:"Mark"},:KNOWS[528560]{},Node[500376]{name:"Dave"}] |
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> 1 row
+~~~
+
+<p>The relationship goes from Mark to Dave in this case which we can see by executing some queries which take direction into account:</p>
+
+
+
+~~~bash
+
+MATCH path=(person1:Person)-[:KNOWS]->(person2) 
+WHERE person1.name = "Mark" AND person2.name = "Dave" 
+RETURN person1, person2, path
+
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> | person1                   | person2                   | path                                                                   |
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> | Node[500375]{name:"Mark"} | Node[500376]{name:"Dave"} | [Node[500375]{name:"Mark"},:KNOWS[528560]{},Node[500376]{name:"Dave"}] |
+==> +--------------------------------------------------------------------------------------------------------------------------------+
+==> 1 row
+~~~
+
+
+~~~bash
+
+MATCH path=(person1:Person)<-[:KNOWS]-(person2) 
+WHERE person1.name = "Mark" AND person2.name = "Dave" 
+RETURN person1, person2, path
+
+==> +--------------------------+
+==> | person1 | person2 | path |
+==> +--------------------------+
+==> +--------------------------+
+==> 0 row
+~~~
+
+<p></p>
+

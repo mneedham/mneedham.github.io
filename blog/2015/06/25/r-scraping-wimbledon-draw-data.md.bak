@@ -1,0 +1,281 @@
++++
+draft = false
+date="2015-06-25 23:14:51"
+title="R: Scraping Wimbledon draw data"
+tag=['r-2', 'rvest']
+category=['R']
++++
+
+<p>
+Given Wimbledon starts next week I wanted to find a data set to explore before it gets underway. Having searched around and failed to find one I had to resort to scraping the <a href="http://www.atpworldtour.com/en/scores/archive/wimbledon/540/2013/results">ATP World Tour's event page</a> which displays the matches in an easy to access format.
+</p>
+
+
+<p>We'll be using the Wimbledon 2013 draw since Andy Murray won that year! This is what the page looks like:</p>
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/06/2015-06-25_23-47-16.png" alt="2015 06 25 23 47 16" title="2015-06-25_23-47-16.png" border="0" width="599" height="162" />
+
+</div>
+
+<p>Each match is in its own row of a table and each column has a class attribute which makes it really easy to scrape. We'll be using R's rvest again. I wrote the following script which grabs the player names, seedings and score of the match and stores everything in a data frame:</p>
+
+
+
+~~~r
+
+library(rvest)
+library(dplyr)
+library(stringr)
+
+s = html_session("http://www.atpworldtour.com/en/scores/archive/wimbledon/540/2013/results")
+rows = s %>% html_nodes("div#scoresResultsContent tr")
+
+matches = data.frame()
+for(row in rows) {  
+  players = row %>% html_nodes("td.day-table-name a")
+  seedings = row %>% html_nodes("td.day-table-seed")
+  score = row %>% html_node("td.day-table-score a")
+  
+  if(!is.null(score)) {
+    player1 = players[1] %>% html_text() %>% str_trim()
+    seeding1 = ifelse(!is.na(seedings[1]), seedings[1] %>% html_node("span") %>% html_text() %>% str_trim(), NA)
+    
+    player2 = players[2] %>% html_text() %>% str_trim()
+    seeding2 = ifelse(!is.na(seedings[2]), seedings[2] %>% html_node("span") %>% html_text() %>% str_trim(), NA)
+        
+    matches = rbind(data.frame(winner = player1, 
+                               winner_seeding = seeding1, 
+                               loser = player2, 
+                               loser_seeding = seeding2,
+                               score = score %>% html_text() %>% str_trim(),
+                               round = round), matches)
+    
+  } else {
+    round = row %>% html_node("th") %>% html_text()
+  }
+}
+~~~
+
+<p>
+This is what the data frame looks like:
+</p>
+
+
+
+~~~r
+
+> matches %>% sample_n(10)
+               winner winner_seeding                       loser loser_seeding            score                round
+61      Wayne Odesnik            (4)                Thiago Alves          <NA>            61 64 1st Round Qualifying
+4     Danai Udomchoke           <NA>            Marton Fucsovics          <NA>       61 57 1210 1st Round Qualifying
+233    Jerzy Janowicz           (24)                Lukasz Kubot          <NA>         75 64 64       Quarter-Finals
+90       Malek Jaziri           <NA>             Illya Marchenko           (9)        674 75 64 2nd Round Qualifying
+222      David Ferrer            (4)         Alexandr Dolgopolov          (26) 676 762 26 61 62          Round of 32
+54  Michal Przysiezny           (11)                 Dusan Lojda          <NA>         26 63 62 1st Round Qualifying
+52           Go Soeda           (13)               Nikola Mektic          <NA>            62 60 1st Round Qualifying
+42    Ruben Bemelmans           (23) Jonathan Dasnieres de Veigy          <NA>            63 64 1st Round Qualifying
+31        Mirza Basic           <NA>              Tsung-Hua Yang          <NA>     674 33 (RET) 1st Round Qualifying
+179     Jurgen Melzer           <NA>              Julian Reister           (Q)    36 762 765 62          Round of 64
+~~~
+
+<p>It also contains qualifying matches which I'm not so interested in. Let's strip those out:</p>
+
+
+
+~~~r
+
+main_matches = matches %>% filter(!grepl("Qualifying", round)) %>% mutate(year = 2013)
+~~~
+
+<p>We'll also put a column in for 'year' so that we can handle the draws for multiple years later on.</p>
+ 
+
+<P>Next I wanted to clean up the data a bit. I'd like to be able to do some queries based on the seedings of the players but at the moment that column contains numeric brackets in values as well as some other values which indicate whether a player is a qualifier, lucky loser or wildcard entry.
+</p>
+
+
+<p>
+I started by adding a column to store this extra information:
+</p>
+
+
+
+~~~r
+
+main_matches$winner_type = NA
+main_matches$winner_type[main_matches$winner_seeding == "(WC)"] = "wildcard"
+main_matches$winner_type[main_matches$winner_seeding == "(Q)"] = "qualifier"
+main_matches$winner_type[main_matches$winner_seeding == "(LL)"] = "lucky loser"
+
+main_matches$loser_type = NA
+main_matches$loser_type[main_matches$loser_seeding == "(WC)"] = "wildcard"
+main_matches$loser_type[main_matches$loser_seeding == "(Q)"] = "qualifier"
+main_matches$loser_type[main_matches$loser_seeding == "(LL)"] = "lucky loser"
+~~~
+
+<p>And then I cleaned up the existing column:</p>
+
+
+
+~~~r
+
+tidy_seeding = function(seeding) {
+  no_brackets = gsub("\\(|\\)", "", seeding)
+  return(gsub("WC|Q|L", NA, no_brackets))
+}
+
+main_matches = main_matches %>% 
+  mutate(winner_seeding = as.numeric(tidy_seeding(winner_seeding)),
+         loser_seeding = as.numeric(tidy_seeding(loser_seeding)))
+~~~
+
+<p>Now we can write a query against the data frame to find out when the underdog won i.e. a player with no seeding beat a player with a seeding or a lower seeded player beat a higher seeded one:</p>
+
+
+
+~~~r
+
+> main_matches %>%  filter((winner_seeding > loser_seeding) | (is.na(winner_seeding) & !is.na(loser_seeding)))
+                  winner winner_seeding                 loser loser_seeding                  score          round year
+1          Jurgen Melzer             NA         Fabio Fognini            30           675 75 63 62   Round of 128 2013
+2          Bernard Tomic             NA           Sam Querrey            21       766 763 36 26 63   Round of 128 2013
+3        Feliciano Lopez             NA          Gilles Simon            19             62 64 7611   Round of 128 2013
+4             Ivan Dodig             NA Philipp Kohlschreiber            16 46 676 763 63 21 (RET)   Round of 128 2013
+5         Viktor Troicki             NA      Janko Tipsarevic            14              63 64 765   Round of 128 2013
+6         Lleyton Hewitt             NA         Stan Wawrinka            11               64 75 63   Round of 128 2013
+7           Steve Darcis             NA          Rafael Nadal             5             764 768 64   Round of 128 2013
+8      Fernando Verdasco             NA      Julien Benneteau            31             761 764 64    Round of 64 2013
+9           Grega Zemlja             NA       Grigor Dimitrov            29       36 764 36 64 119    Round of 64 2013
+10      Adrian Mannarino             NA            John Isner            18               11 (RET)    Round of 64 2013
+11         Igor Sijsling             NA          Milos Raonic            17              75 64 764    Round of 64 2013
+12     Kenny De Schepper             NA           Marin Cilic            10                  (W/O)    Round of 64 2013
+13        Ernests Gulbis             NA    Jo-Wilfried Tsonga             6         36 63 63 (RET)    Round of 64 2013
+14     Sergiy Stakhovsky             NA         Roger Federer             3         675 765 75 765    Round of 64 2013
+15          Lukasz Kubot             NA          Benoit Paire            25               61 63 64    Round of 32 2013
+16     Kenny De Schepper             NA           Juan Monaco            22              64 768 64    Round of 32 2013
+17        Jerzy Janowicz             24       Nicolas Almagro            15              766 63 64    Round of 32 2013
+18         Andreas Seppi             23         Kei Nishikori            12        36 62 674 61 64    Round of 32 2013
+19         Bernard Tomic             NA       Richard Gasquet             9          767 57 75 765    Round of 32 2013
+20 Juan Martin Del Potro              8          David Ferrer             4              62 64 765 Quarter-Finals 2013
+21           Andy Murray              2        Novak Djokovic             1               64 75 64         Finals 2013
+~~~
+
+<p>There are actually very few times when a lower seeded player beat a higher seeded one but there are quite a few instances of non seeds beating seeds. We've got 21 occurrences of underdogs winning out of a total of 127 matches.</p>
+
+
+<p>
+Let's filter that set of rows and see which seeds lost in the first round:
+</p>
+
+
+
+~~~r
+
+> main_matches %>%  filter(round == "Round of 128" & !is.na(loser_seeding))
+           winner winner_seeding                 loser loser_seeding                  score        round year
+1   Jurgen Melzer             NA         Fabio Fognini            30           675 75 63 62 Round of 128 2013
+2   Bernard Tomic             NA           Sam Querrey            21       766 763 36 26 63 Round of 128 2013
+3 Feliciano Lopez             NA          Gilles Simon            19             62 64 7611 Round of 128 2013
+4      Ivan Dodig             NA Philipp Kohlschreiber            16 46 676 763 63 21 (RET) Round of 128 2013
+5  Viktor Troicki             NA      Janko Tipsarevic            14              63 64 765 Round of 128 2013
+6  Lleyton Hewitt             NA         Stan Wawrinka            11               64 75 63 Round of 128 2013
+7    Steve Darcis             NA          Rafael Nadal             5             764 768 64 Round of 128 2013
+~~~
+
+<p>
+Rafael Nadal is the most prominent but Stan Wawrinka also lost in the first round that year which I'd forgotten about! Next let's make the 'round' column an ordered factor one so that we can sort matches by round:
+</p>
+
+
+
+~~~r
+
+main_matches$round = factor(main_matches$round, levels =  c("Round of 128", "Round of 64", "Round of 32", "Round of 16", "Quarter-Finals", "Semi-Finals", "Finals"))
+
+> main_matches$round
+...     
+Levels: Round of 128 Round of 64 Round of 32 Round of 16 Quarter-Finals Semi-Finals Finals
+~~~
+
+<p>We can now really easily work out which unseeded players went the furthest in the tournament:</p>
+
+
+
+~~~r
+
+> main_matches %>% filter(is.na(loser_seeding)) %>% arrange(desc(round)) %>% head(5)
+             winner winner_seeding             loser loser_seeding           score          round year
+1    Jerzy Janowicz             24      Lukasz Kubot            NA        75 64 64 Quarter-Finals 2013
+2       Andy Murray              2 Fernando Verdasco            NA  46 36 61 64 75 Quarter-Finals 2013
+3 Fernando Verdasco             NA Kenny De Schepper            NA        64 64 64    Round of 16 2013
+4      Lukasz Kubot             NA  Adrian Mannarino            NA  46 63 36 63 64    Round of 16 2013
+5    Jerzy Janowicz             24     Jurgen Melzer            NA 36 761 64 46 64    Round of 16 2013
+~~~
+
+<p>Next up I thought it'd be cool to write a function which showed which round each player exited in:</p>
+
+
+
+~~~r
+
+round_reached = function(player, main_matches) {
+  furthest_match = main_matches %>% 
+    filter(winner == player | loser == player) %>% 
+    arrange(desc(round)) %>% 
+    head(1)  
+
+    return(ifelse(furthest_match$winner == player, "Winner", as.character(furthest_match$round)))
+}
+~~~
+
+<p>
+Our function isn't vectorisable - it only works if we pass in a single player at a time so we'll have to group the data frame by player before calling it. Let's check it works by seeing how far Andy Murray and Rafael Nadal got:
+</p>
+
+
+
+~~~r
+
+> round_reached("Rafael Nadal", main_matches)
+[1] "Round of 128"
+> round_reached("Andy Murray", main_matches)
+[1] "Winner"
+~~~
+
+<p>Great. What about if we try it against each of the top 8 seeds?</p>
+
+
+
+~~~r
+
+> rbind(main_matches %>% filter(winner_seeding %in% 1:8) %>% mutate(name = winner, seeding = winner_seeding), 
+        main_matches %>% filter(loser_seeding %in% 1:8) %>% mutate(name = loser, seeding = loser_seeding)) %>%
+    select(name, seeding) %>%
+    distinct() %>%
+    arrange(seeding) %>%
+    group_by(name) %>%
+    mutate(round_reached = round_reached(name, main_matches))
+Source: local data frame [8 x 3]
+Groups: name
+
+                   name seeding  round_reached
+1        Novak Djokovic       1         Finals
+2           Andy Murray       2         Winner
+3         Roger Federer       3    Round of 64
+4          David Ferrer       4 Quarter-Finals
+5          Rafael Nadal       5   Round of 128
+6    Jo-Wilfried Tsonga       6    Round of 64
+7         Tomas Berdych       7 Quarter-Finals
+8 Juan Martin Del Potro       8    Semi-Finals
+~~~
+
+<p>
+Neat. Next up I want to do a comparison between the round they reached and the round you'd expect them to get to given their seeding but that's for the weekend!
+</p>
+
+
+<p>I've put a CSV file containing all the data in <a href="https://gist.github.com/mneedham/8c2b46d960c2208e9961">this gist</a> in case you want to play with it. I'm planning to scrape a few more years worth of data before Monday and add in some extra fields as well but in case I don't get around to it the <a href="https://gist.github.com/mneedham/8c2b46d960c2208e9961#file-wimbledon-r">full script in this blog post is included in the gist</a> as well so feel free to tweak it if tennis is your thing.
+</p>
+

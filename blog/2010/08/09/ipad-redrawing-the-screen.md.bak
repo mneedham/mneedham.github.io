@@ -1,0 +1,111 @@
++++
+draft = false
+date="2010-08-09 04:38:17"
+title="iPad: Redrawing the screen"
+tag=['ipad']
+category=['iPad']
++++
+
+As I mentioned in a post I wrote last week I've been writing a little iPad application to <a href="http://www.markhneedham.com/blog/2010/08/04/objective-c-parsing-an-xml-file/">parse a cctray feed</a> and then display the status of the various builds on the screen.
+
+The way I've been doing this is by dynamically adding labels to the view and colouring the background of those labels red or green depending on the build status.
+
+FirstViewController.h
+
+~~~objc
+
+@interface FirstViewController : UIViewController {
+	...
+	NSMutableArray *dynamicallyAddedFields;
+}
+~~~
+
+FirstViewController.m
+
+~~~objc
+
+@implementation FirstViewController
+
+- (void)viewDidLoad {
+	...
+	// parse xml and put projects into 'theDelegate.projects
+		
+	NSInteger x = 30;
+	NSInteger y = 0;
+	NSInteger column1 = true;
+	
+	dynamicallyAddedFields = [[NSMutableArray alloc] init];
+	
+	for(Project *project in theDelegate.projects) {		
+		if(column1) {
+			x = 30;
+			y = y + 110;
+			column1 = false;
+		} else {
+			x = 290;
+			column1 = true;
+		}
+		
+		UILabel *aLabel	= [self createLabelFrom:project withXCoordinate:x withYCoordinate:y];
+				
+		[dynamicallyAddedFields addObject:aLabel];
+		[self.view addSubview:aLabel];	
+	}
+}
+~~~
+
+
+~~~objc
+
+-(UILabel*) createLabelFrom:(Project *)project withXCoordinate:(NSInteger)x withYCoordinate:(NSInteger)y  {
+	// code to create a label
+}
+~~~
+
+<a href="http://github.com/mneedham/cimon/blob/master/CIMon/Classes/FirstViewController.m">The full code is on github</a> and this is what the application looks like when launched in the simulator:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2010/08/ipad.jpg" alt="ipad.jpg" border="0" width="500" />
+
+I'm storing each of the labels inside 'dynamicallyAddedFields' so that I can easily remove them and then redraw new ones with the new feed url when the user clicks on the 'Go' button. I saw <a href="http://www.iphonedevsdk.com/forum/iphone-sdk-development/5599-removing-all-subviews-view.html">a similar idea suggested in an iPhone Dev SDK article</a>.
+
+The 'Touch Up Inside' event of the 'Go' button is hooked up to the 'changedFeedUrl' method inside my view controller <a href="http://icodeblog.com/2008/07/30/iphone-programming-tutorial-connecting-code-to-an-interface-builder-view/">as described in Brandon Treb's blog</a>.
+
+The code to handle the button being pressed is as follows:
+
+
+~~~objc
+
+- (IBAction) changedFeedUrl:(id) sender {		
+	for (id item in dynamicallyAddedFields) {
+		[item removeFromSuperview];
+	}
+	[dynamicallyAddedFields removeAllObjects];	
+	
+	// parse xml and put projects into 'theDelegate.projects
+	
+	NSInteger x = 30;
+	NSInteger y = 0;
+	NSInteger column1 = true;
+	for(Project *project in theDelegate.projects) {		
+		if(column1) {
+			x = 30;
+			y = y + 110;
+			column1 = false;
+		} else {
+			x = 290;
+			column1 = true;
+		}
+		
+		UILabel *aLabel	= [self createLabelFrom:project withXCoordinate:x withYCoordinate:y];
+		[dynamicallyAddedFields addObject:aLabel];
+		[self.view addSubview: aLabel];
+		
+	}	
+}
+~~~
+
+In order to redraw all the labels I had to first remove them all from their super view (line 3).
+
+We then have the same code as in the 'loadView' method - copy and pasted for now - to add the new labels to the screen.
+
+Although this code does what I want it is very hacky so I'd be grateful for any tips on how I can achieve the same thing in a cleaner way.

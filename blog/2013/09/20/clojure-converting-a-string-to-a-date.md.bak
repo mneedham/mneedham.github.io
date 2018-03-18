@@ -1,0 +1,85 @@
++++
+draft = false
+date="2013-09-20 07:00:01"
+title="Clojure: Converting a string to a date"
+tag=['clojure']
+category=['Clojure']
++++
+
+<p>I wanted to do some date manipulation in Clojure recently and figured that since <a href="https://github.com/seancorfield/clj-time">clj-time</a> is a wrapper around <a href="http://www.joda.org/joda-time/">Joda Time</a> it'd probably do the trick.</p>
+
+
+<p>The first thing we need to do is add the dependency to our project file and then run <cite>lein reps</cite> to pull down the appropriate JARs. The project file should look something like this:</p>
+
+
+<em>project.clj</em>
+
+~~~lisp
+
+(defproject ranking-algorithms "0.1.0-SNAPSHOT"
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :dependencies [[org.clojure/clojure "1.4.0"]
+                 [clj-time "0.6.0"]])
+~~~
+
+<p>Now let's load the clj-time.format namespace into the REPL since we know we'll be parsing dates:</p>
+
+
+
+~~~lisp
+
+> (require '(clj-time [format :as f]))
+~~~
+
+<p>The string that I want to convert into a date looks like this:</p>
+
+
+
+~~~lisp
+
+(def string-date "18 September 2012")
+~~~
+
+<p>The first thing we should do is check whether there is an existing formatter that we can use by evaluating the following function:</p>
+
+
+
+~~~lisp
+
+> (f/show-formatters)
+...
+:hour-minute                            06:45
+:hour-minute-second                     06:45:22
+:hour-minute-second-fraction            06:45:22.473
+:hour-minute-second-ms                  06:45:22.473
+:mysql                                  2013-09-20 06:45:22
+:ordinal-date                           2013-263
+:ordinal-date-time                      2013-263T06:45:22.473Z
+:ordinal-date-time-no-ms                2013-263T06:45:22Z
+:rfc822                                 Fri, 20 Sep 2013 06:45:22 +0000
+...
+~~~
+
+<p>There are a lot of different built in formatters but unfortunately I couldn't find one that exactly matched our date format so we'll have to write our own one.</p>
+
+
+<p>For that we'll need to refresh our knowledge of <a href="http://docs.oracle.com/javase/1.4.2/docs/api/java/text/SimpleDateFormat.html">Java date formatting</a>:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/09/2013-09-20_07-48-52.png" alt="2013 09 20 07 48 52" title="2013-09-20_07-48-52.png" border="0" width="600" height="398" />
+</div>
+
+<p>We end up with the following formatter:</p>
+
+
+
+~~~lisp
+
+> (f/parse (f/formatter "dd MMM YYYY") string-date)
+#<DateTime 2012-09-18T00:00:00.000Z>
+~~~
+
+<p>It took me much longer than it should have to remember that 'MMM' is the pattern to match a short form of a month but it's just the same as what we'd have to do in Java but with some neat wrapper functions.</p>
+

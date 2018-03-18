@@ -1,0 +1,336 @@
++++
+draft = false
+date="2015-02-13 23:38:43"
+title="Neo4j: Building a topic graph with Prismatic Interest Graph API"
+tag=['neo4j']
+category=['neo4j', 'Python']
++++
+
+<p>
+Over the last few weeks I've been using various NLP libraries to derive topics for my corpus of How I met your mother episodes without success and was therefore enthused to see the release of Prismatic's <a href="http://blog.getprismatic.com/interest-graph-api/">Interest Graph API</a> 
+</p>
+
+
+<p>
+The Interest Graph API exposes a web service to which you feed a block of text and get back a set of topics and associated score.</p>
+ 
+
+<p>It has been trained over the last few years with millions of articles that people share on their social media accounts and in my experience using Prismatic the topics have been very useful for finding new material to read.
+</p>
+
+
+<p>The first step is to head to <a href="http://interest-graph.getprismatic.com/">interest-graph.getprismatic.com</a> and get an API key which will be emailed to you.</p>
+
+
+<p>
+Having done that we're ready to make some calls to the API and get back some topics.
+</p>
+
+
+<p>
+I'm going to use Python to call the API and I've found the <a href="http://docs.python-requests.org/en/latest/">requests</a> library the easiest library to use for this type of work. Our call to the API looks like this:
+</p>
+
+
+
+~~~python
+
+import requests
+payload = { 'title': "insert title of article here",
+            'body': "insert body of text here"),
+            'api-token': "insert token sent by email here"}
+r = requests.post("http://interest-graph.getprismatic.com/text/topic", data=payload)
+~~~
+
+<p>
+One thing to keep in mind is that the API is rate limited to 20 requests a second so we need to restrict our requests or we're going to receive error response codes. Luckily I came across an excellent <a href="http://blog.gregburek.com/2011/12/05/Rate-limiting-with-decorators/">blog post showing how to write a decorator around a function</a> and only allow it to execute at a certain frequency. 
+</p>
+
+
+<p>
+To rate limit our calls to the Interest Graph we need to pull the above code into a function and annotate it appropriately:
+</p>
+
+
+
+~~~python
+
+import time
+
+def RateLimited(maxPerSecond):
+    minInterval = 1.0 / float(maxPerSecond)
+    def decorate(func):
+        lastTimeCalled = [0.0]
+        def rateLimitedFunction(*args,**kargs):
+            elapsed = time.clock() - lastTimeCalled[0]
+            leftToWait = minInterval - elapsed
+            if leftToWait>0:
+                time.sleep(leftToWait)
+            ret = func(*args,**kargs)
+            lastTimeCalled[0] = time.clock()
+            return ret
+        return rateLimitedFunction
+    return decorate
+
+@RateLimited(0.3)
+def topics(title, body):
+    payload = { 'title': title,
+                'body': body,
+                'api-token': "insert token sent by email here"}
+    r = requests.post("http://interest-graph.getprismatic.com/text/topic", data=payload)
+    return r
+~~~
+
+<p>
+The <a href="https://github.com/mneedham/neo4j-himym/blob/master/data/import/sentences.csv">text I want to classify</a> is stored in a CSV file - one sentence per line. Here's a sample:
+</p>
+
+
+
+~~~bash
+
+$ head -n 10 data/import/sentences.csv
+SentenceId,EpisodeId,Season,Episode,Sentence
+1,1,1,1,Pilot
+2,1,1,1,Scene One
+3,1,1,1,[Title: The Year 2030]
+4,1,1,1,"Narrator: Kids, I'm going to tell you an incredible story. The story of how I met your mother"
+5,1,1,1,Son: Are we being punished for something?
+6,1,1,1,Narrator: No
+7,1,1,1,"Daughter: Yeah, is this going to take a while?"
+8,1,1,1,"Narrator: Yes. (Kids are annoyed) Twenty-five years ago, before I was dad, I had this whole other life."
+9,1,1,1,"(Music Plays, Title ""How I Met Your Mother"" appears)"
+~~~
+
+<p>
+We'll also need to refer to <a href="https://github.com/mneedham/neo4j-himym/blob/master/data/import/episodes_full.csv">another CSV file</a> to get the title of each episode since it isn't being stored with the sentence:
+</p>
+
+
+
+~~~bash
+
+$ head -n 10 data/import/episodes_full.csv
+NumberOverall,NumberInSeason,Episode,Season,DateAired,Timestamp,Title,Director,Viewers,Writers,Rating
+1,1,/wiki/Pilot,1,"September 19, 2005",1127084400,Pilot,Pamela Fryman,10.94,"Carter Bays,Craig Thomas",68
+2,2,/wiki/Purple_Giraffe,1,"September 26, 2005",1127689200,Purple Giraffe,Pamela Fryman,10.40,"Carter Bays,Craig Thomas",63
+3,3,/wiki/Sweet_Taste_of_Liberty,1,"October 3, 2005",1128294000,Sweet Taste of Liberty,Pamela Fryman,10.44,"Phil Lord,Chris Miller",67
+4,4,/wiki/Return_of_the_Shirt,1,"October 10, 2005",1128898800,Return of the Shirt,Pamela Fryman,9.84,Kourtney Kang,59
+5,5,/wiki/Okay_Awesome,1,"October 17, 2005",1129503600,Okay Awesome,Pamela Fryman,10.14,Chris Harris,53
+6,6,/wiki/Slutty_Pumpkin,1,"October 24, 2005",1130108400,Slutty Pumpkin,Pamela Fryman,10.89,Brenda Hsueh,62
+7,7,/wiki/Matchmaker,1,"November 7, 2005",1131321600,Matchmaker,Pamela Fryman,10.55,"Sam Johnson,Chris Marcil",57
+8,8,/wiki/The_Duel,1,"November 14, 2005",1131926400,The Duel,Pamela Fryman,10.35,Gloria Calderon Kellett,46
+9,9,/wiki/Belly_Full_of_Turkey,1,"November 21, 2005",1132531200,Belly Full of Turkey,Pamela Fryman,10.29,"Phil Lord,Chris Miller",60
+~~~
+
+<p>
+Now we need to get our episode titles and transcripts ready to pass to the <cite>topics</cite> function. Since we've only got ~ 200 episodes we can create a dictionary to store that data:
+</p>
+
+
+
+~~~python
+
+episodes = {}
+with open("data/import/episodes_full.csv", "r") as episodesfile:
+    episodes_reader = csv.reader(episodesfile, delimiter=",")
+    episodes_reader.next()
+    for episode in episodes_reader:
+        episodes[int(episode[0])] = {"title": episode[6], "sentences" : [] }
+
+with open("data/import/sentences.csv", "r") as sentencesfile:
+     sentences_reader = csv.reader(sentencesfile, delimiter=",")
+     sentences_reader.next()
+     for sentence in sentences_reader:
+         episodes[int(sentence[1])]["sentences"].append(sentence[4])
+
+>>> episodes[1]["title"]
+'Pilot'
+>>> episodes[1]["sentences"][:5]
+['Pilot', 'Scene One', '[Title: The Year 2030]', "Narrator: Kids, I'm going to tell you an incredible story. The story of how I met your mother", 'Son: Are we being punished for something?']
+~~~
+
+<p>
+Now we're going to loop through each of the episodes, call <cite>topics</cite> and write the result into a CSV file so we can load it into Neo4j afterwards to explore the data:
+</p>
+
+
+
+~~~python
+
+import json
+
+with open("data/import/topics.csv", "w") as topicsfile:
+    topics_writer = csv.writer(topicsfile, delimiter=",")
+    topics_writer.writerow(["EpisodeId", "TopicId", "Topic", "Score"])
+
+    for episode_id, episode in episodes.iteritems():
+        tmp = topics(episode["title"], "".join(episode["sentences"]).json()
+        print episode_id, tmp
+        for topic in tmp['topics']:
+            topics_writer.writerow([episode_id, topic["id"], topic["topic"], topic["score"]])
+~~~
+
+<p>
+It takes about 10 minutes to run and this is a sample of the output:
+</p>
+
+
+
+~~~bash
+
+$ head -n 10 data/import/topics.csv
+EpisodeId,TopicId,Topic,Score
+1,1519,Fiction,0.5798245566455255
+1,2015,Humour,0.565154963605359
+1,24031,Laughing,0.5587120401021765
+1,16693,Flirting,0.5514098189505282
+1,1163,Dating and Courtship,0.5487490108554022
+1,2386,Kissing,0.5476185929151934
+1,31929,Puns,0.5375100569837977
+2,24031,Laughing,0.5670926949850333
+2,1519,Fiction,0.5396488295397263
+~~~
+
+<p>
+We'll use Neo4j's <a href="http://neo4j.com/docs/stable/query-load-csv.html">LOAD CSV</a> command to load the data in:
+</p>
+
+
+
+~~~cypher
+
+// make sure the topics exist
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-himym/data/import/topics.csv" AS row
+MERGE (topic:Topic {id: TOINT(row.TopicId)})
+ON CREATE SET topic.value = row.Topic
+~~~
+
+
+~~~cypher
+
+// make sure the topics exist
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-himym/data/import/topics.csv" AS row
+MERGE (topic:Topic {id: TOINT(row.TopicId)})
+ON CREATE SET topic.value = row.Topic
+~~~
+
+
+~~~cypher
+
+// now link the episodes and topics
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-himym/data/import/topics.csv" AS row
+MATCH (topic:Topic {id: TOINT(row.TopicId)})
+MATCH (episode:Episode {id: TOINT(row.EpisodeId)})
+MERGE (episode)-[:TOPIC {score: TOFLOAT(row.Score)}]->(topic)
+~~~
+
+<p>
+We'll assume that the episodes and seasons are already loaded - the <a href="https://github.com/mneedham/neo4j-himym/blob/master/data/import/himym.cql">commands to load those in are on github</a>.
+</p>
+
+
+<p>
+We can now write some queries against our topic graph. We'll start simple - show me the topics for an episode:
+</p>
+
+
+
+~~~cypher
+
+MATCH (episode:Episode {id: 1})-[r:TOPIC]->(topic)
+RETURN topic, r
+~~~
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/02/graph.png" alt="Graph" title="graph.png" border="0" width="333" height="339" />
+</div>
+
+<p>Let's say we liked the 'Puns' aspect of the Pilot episode and want to find out which other episodes had puns. The following query would let us find those:</p>
+
+
+
+~~~cypher
+
+MATCH (episode:Episode {id: 1})-[r:TOPIC]->(topic {value: "Puns"})<-[:TOPIC]-(other)
+RETURN episode, topic, other
+~~~
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/02/graph-1.png" alt="Graph  1" title="graph (1).png" border="0" width="425" height="430" /></div>
+
+<p>Or maybe we want to find the episode which has the most topics in common:</p>
+
+
+
+~~~cypher
+
+MATCH (episode:Episode {id: 1})-[:TOPIC]->(topic),
+      (topic)<-[r:TOPIC]-(otherEpisode)
+RETURN otherEpisode.title as episode, COUNT(r) AS topicsInCommon
+ORDER BY topicsInCommon DESC
+LIMIT 10
+==> +------------------------------------------------+
+==> | episode                       | topicsInCommon |
+==> +------------------------------------------------+
+==> | "Purple Giraffe"              | 6              |
+==> | "Ten Sessions"                | 5              |
+==> | "Farhampton"                  | 4              |
+==> | "The Three Days Rule"         | 4              |
+==> | "How I Met Everyone Else"     | 4              |
+==> | "The Time Travelers"          | 4              |
+==> | "Mary the Paralegal"          | 4              |
+==> | "Lobster Crawl"               | 4              |
+==> | "The Magician's Code, Part 2" | 4              |
+==> | "Slutty Pumpkin"              | 4              |
+==> +------------------------------------------------+
+==> 10 rows
+~~~
+
+<p>
+We could then tweak that query to get the names of those topics:
+</p>
+
+
+
+~~~cypher
+
+MATCH (episode:Episode {id: 1})-[:TOPIC]->(topic),
+      (topic)<-[r:TOPIC]-(otherEpisode)-[:IN_SEASON]->(season)
+RETURN otherEpisode.title as episode, season.number AS season, COUNT(r) AS topicsInCommon, COLLECT(topic.value)
+ORDER BY topicsInCommon DESC
+LIMIT 10
+
+==> +-----------------------------------------------------------------------------------------------------------------------------------+
+==> | episode                   | season | topicsInCommon | COLLECT(topic.value)                                                        |
+==> +-----------------------------------------------------------------------------------------------------------------------------------+
+==> | "Purple Giraffe"          | "1"    | 6              | ["Humour","Fiction","Kissing","Dating and Courtship","Flirting","Laughing"] |
+==> | "Ten Sessions"            | "3"    | 5              | ["Humour","Puns","Dating and Courtship","Flirting","Laughing"]              |
+==> | "How I Met Everyone Else" | "3"    | 4              | ["Humour","Fiction","Dating and Courtship","Laughing"]                      |
+==> | "Farhampton"              | "8"    | 4              | ["Humour","Fiction","Kissing","Dating and Courtship"]                       |
+==> | "Bedtime Stories"         | "9"    | 4              | ["Humour","Puns","Dating and Courtship","Laughing"]                         |
+==> | "Definitions"             | "5"    | 4              | ["Kissing","Dating and Courtship","Flirting","Laughing"]                    |
+==> | "Lobster Crawl"           | "8"    | 4              | ["Humour","Dating and Courtship","Flirting","Laughing"]                     |
+==> | "Little Boys"             | "3"    | 4              | ["Humour","Puns","Dating and Courtship","Laughing"]                         |
+==> | "Wait for It"             | "3"    | 4              | ["Fiction","Puns","Flirting","Laughing"]                                    |
+==> | "Mary the Paralegal"      | "1"    | 4              | ["Humour","Dating and Courtship","Flirting","Laughing"]                     |
+==> +-----------------------------------------------------------------------------------------------------------------------------------+
+~~~
+
+<p>
+Overall 168 (out of 208) of the other episodes have a topic in common with the first episode so perhaps just having a topic in common isn't the best indication of similarity.
+</p>
+
+
+<p>
+An interesting next step would be to calculate <a href="http://en.wikipedia.org/wiki/Cosine_similarity">cosine</a> or <a href="http://en.wikipedia.org/wiki/Jaccard_index">jaccard</a> similarity between the episodes and store that value in the graph for querying later on.
+</p>
+
+
+<p>
+I've also calculated <a href="http://www.markhneedham.com/blog/2015/02/12/pythongensim-creating-bigrams-over-how-i-met-your-mother-transcripts/">the most common bigrams across all the transcripts</a> so it would be interesting to see if there are any interesting insights at the intersection of episodes, topics and phrases.
+</p>
+

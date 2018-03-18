@@ -1,0 +1,106 @@
++++
+draft = false
+date="2014-04-07 00:04:28"
+title="install4j and AppleScript: Creating a Mac OS X Application Bundle for a Java application"
+tag=['software-development']
+category=['Software Development']
++++
+
+<p>We have a few internal applications at Neo which can be launched using 'java -jar <path-to-jar>' and I always forget where the jars are so I thought I'd wrap a Mac OS X application bundle around it to make life easier.</p>
+
+
+<p>My favourite installation pattern is the one where when you double click the dmg it shows you a window where you can drag the application into the 'Applications' folder, like this:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/04/2014-04-07_00-38-41.png" alt="2014 04 07 00 38 41" title="2014-04-07_00-38-41.png" border="0" width="551" height="271" />
+</div>
+
+<p>I'm not a fan of the installation wizards and the installation process here is so simple that a wizard seems overkill.</p>
+
+
+<p>I started out learning about <a href="https://developer.apple.com/library/mac/documentation/corefoundation/conceptual/cfbundles/BundleTypes/BundleTypes.html">the structure of an application bundle</a> which is well described in the Apple Bundle Programming guide. I then worked my way through a video which walks you through <a href="https://www.youtube.com/watch?v=Unl8dgqFv6o">bundling a JAR file in a Mac application</a>.</p>
+
+
+<p>I figured that bundling a JAR was probably a solved problem and had a look at <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jweb/packagingAppsForMac.html">App Bundler</a>, <a href="http://informagen.com/JarBundler/">JAR Bundler</a> and <a href="http://s.sudre.free.fr/Software/Iceberg.html">Iceberg</a> before settling on <a href="http://www.ej-technologies.com/products/install4j/overview.html">Install4j</a> which we used for <a href="http://blog.neo4j.org/2013/09/installer-check-desktop-launcher-check.html">Neo4j desktop</a>.</p>
+
+
+<p>I started out by creating an installer using Install4j and then manually copying the launcher it created into an Application bundle template but it was incredibly fiddly and I ended up with a variety of indecipherable messages in the system error log.</p>
+
+
+<p>Eventually I realised that I didn't need to create an installer and that what I actually wanted was a <a href="http://resources.ej-technologies.com/install4j/help/doc/indexRedirect.html?http&&&resources.ej-technologies.com/install4j/help/doc/steps/media/mediaFileTypes.html">Mac OS X single bundle archive media file</a>.</p>
+
+
+<p>After I'd got install4j creating that for me I just needed to figure out how to create the background image telling the user to drag the application into their 'Applications' folder.</p>
+
+
+<p>Luckily I <a href="http://stackoverflow.com/questions/96882/how-do-i-create-a-nice-looking-dmg-for-mac-os-x-using-command-line-tools">came across this StackOverflow post</a> which provided some AppleScript to do just that and with a bit of tweaking I ended up with the following shell script which seems to do the job:</p>
+
+
+
+~~~bash
+
+#!/bin/bash
+
+rm target/DBench_macos_1_0_0.tgz
+/Applications/install4j\ 5/bin/install4jc TestBench.install4j
+
+title="DemoBench"
+backgroundPictureName="graphs.png"
+applicationName="DemoBench"
+finalDMGName="DemoBench.dmg"
+
+rm -rf target/dmg && mkdir -p target/dmg
+tar -C target/dmg -xvf target/DBench_macos_1_0_0.tgz
+cp -r src/packaging/.background target/dmg
+ln -s /Applications target/dmg
+
+cd target
+rm "${finalDMGName}"
+umount -f /Volumes/"${title}"
+
+hdiutil create -volname ${title} -size 100m -srcfolder dmg/ -ov -format UDRW pack.temp.dmg
+device=$(hdiutil attach -readwrite -noverify -noautoopen "pack.temp.dmg" | egrep '^/dev/' | sed 1q | awk '{print $1}')
+
+sleep 5
+
+echo '
+   tell application "Finder"
+     tell disk "'${title}'"
+           open
+           set current view of container window to icon view
+           set toolbar visible of container window to false
+           set statusbar visible of container window to false
+           set the bounds of container window to {400, 100, 885, 430}
+           set theViewOptions to the icon view options of container window
+           set arrangement of theViewOptions to not arranged
+           set icon size of theViewOptions to 72
+           set background picture of theViewOptions to file ".background:'${backgroundPictureName}'"
+           set position of item "'${applicationName}'" of container window to {100, 100}
+           set position of item "Applications" of container window to {375, 100}
+           update without registering applications
+           delay 5
+           eject
+     end tell
+   end tell
+' | osascript
+
+hdiutil detach ${device}
+hdiutil convert "pack.temp.dmg" -format UDZO -imagekey zlib-level=9 -o "${finalDMGName}"
+rm -f pack.temp.dmg
+
+cd ..
+~~~
+
+<p>To summarise, this script creates a symlink to 'Applications', puts a background image in a directory titled '.background', sets that as the background of the window and positions the symlink and application appropriately.</p>
+
+
+<p>Et voila:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/04/2014-04-07_00-59-56.png" alt="2014 04 07 00 59 56" title="2014-04-07_00-59-56.png" border="0" width="485" height="352" />
+</div>
+
+<p>The Firefox guys wrote <a href="http://limi.net/articles/improving-the-mac-installer-for-firefox/">a couple</a> <a href="http://limi.net/articles/firefox-mac-installation-experience-revisited">of blog posts</a> detailing their experiences writing an installer which were quite an interesting read as well.</p>
+

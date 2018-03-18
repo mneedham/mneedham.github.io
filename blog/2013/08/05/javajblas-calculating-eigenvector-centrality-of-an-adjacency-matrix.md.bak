@@ -1,0 +1,197 @@
++++
+draft = false
+date="2013-08-05 22:12:37"
+title="Java/JBLAS: Calculating eigenvector centrality of an adjacency matrix"
+tag=['java', 'graph-processing-2']
+category=['Graph Processing']
++++
+
+<p>I recently came across a very interesting post by Kieran Healy where he <a href="http://kieranhealy.org/blog/archives/2013/06/09/using-metadata-to-find-paul-revere/">runs through a bunch of graph algorithms</a> to see whether he can detect the most influential people behind the American Revolution based on their membership of various organisations.</p>
+
+
+<p>The first algorithm he looked at was betweenness centrality which <a href="http://www.markhneedham.com/blog/2013/07/27/graph-processing-betweeness-centrality-neo4js-cypher-vs-graphstream/">I've looked at previously</a> and is used to determine the load and importance of a node in a graph.</p>
+
+
+<p>This algorithm would assign a high score to nodes which have a lot of nodes connected to them even if those nodes aren't necessarily influential nodes in the graph.</p>
+
+
+<p>If we want to take the influence of the other nodes into account then we can use an algorithm called <a href="https://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality">eigenvector centrality</a>.</p>
+
+
+<blockquote>
+Eigenvector centrality is a measure of the influence of a node in a network. It assigns relative scores to all nodes in the network based on the concept that <strong>connections to high-scoring nodes contribute more to the score of the node in question</strong> than equal connections to low-scoring nodes. 
+
+Google's <a href="https://en.wikipedia.org/wiki/PageRank">PageRank</a> is a variant of the Eigenvector centrality measure.
+</blockquote>
+
+<p>Both PageRank and Eigenvector centrality give us a probability which describes how often we'd end up visiting each node on a random walk around the graph.</p>
+
+
+<p>As far as I can tell there are a couple of differences between PageRank and Eigenvector centrality (but I'm happy to be corrected as I'm still learning this stuff):</p>
+
+
+<ol>
+<li>PageRank introduces a 'dampening factor' to simulate the idea that some percentage of the time we might decide not to follow any of a node's relationships but instead pick a random node in the graph.</li>
+<li>PageRank makes sure that the elements in each column of the adjacency matrix add up to one. Therefore, if our node had a relationship to every other one in the graph then each would only contribute a value of 1/n rather than 1.</li>
+</ol>
+
+<p>In this instance since Healy wanted to analyse the influence of people rather than web pages eigenvector centrality makes more sense.</p>
+
+
+<p>Over the past few days I've been trying to understand this topic area a bit better and found the following resources useful:</p>
+
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=G4N8vJpf7hM">Introduction to Eigenvalues and Eigenvectors</a> - video working through a simple matrix</li>
+<li><a href="https://www.khanacademy.org/math/linear-algebra/alternate_bases/eigen_everything/v/linear-algebra--eigenvalues-of-a-3x3-matrix">Khan Academy videos</a> showing how to calculate eigenvalues and eigenvectors for different sized matrices.</li>
+<li><a href="http://williamcotton.com/pagerank-explained-with-javascript">PageRank explained in Javascript</a> - this is probably the best one to start with.</li>
+<li><a href="http://in1.csie.ncu.edu.tw/~chia/Course/LinearAlgebra/sec7-2.pdf">Finding the eigenvalues of a matrix</a> - some reasonably easy to follow examples</li>
+<li><a href="http://matrixapps.blogspot.co.uk/2010/07/gould-index-matrix-application-to.html">Gould Index: Matrix Application to Geography</a> - I think the Gould Index is another name for eigenvector centrality. This works through a couple of different transport based examples and explains the significance of eigenvector centrality in that field.</li>
+<li><a href="http://www.math.washington.edu/~morrow/336_11/papers/leo.pdf">Justification and Application of Eigenvector Centrality</a> - this runs through a few examples and explains the <a href="http://www.math.harvard.edu/~knill/teaching/math19b_2011/handouts/lecture34.pdf">Perron-Frobenius Theorem</a> - a theorem which explains that if all values in a matrix are positive then there will be a unique maximal eigenvalue. We can then use this principal eigenvalue to calculate an eigenvector which describes the centrality of each of the nodes in the graph.</li>
+<li><a href="http://www.jstor.org/discover/10.2307/621372?uid=3738032&uid=2473321943&uid=2&uid=3&uid=60&sid=21102528715777">On the geographical Interpretation of Eigenvalues</a> - This paper goes through various different transport networks and shows what we can learn by calculating the eigenvector centrality. This is behind JSTOR login but you can view it online for free once you sign up for an account.</p>
+
+</ul>
+
+<p>I calculated a few made up matrices by hand but found it became too difficult after a 3x3 matrix so I wanted to find a Java based library which I could use instead.</p>
+
+
+<div style="float:right">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/08/adjacencymatrix.jpg" alt="Adjacencymatrix" title="adjacencymatrix.jpg" border="0" width="213" height="193" />
+</div>
+
+<p>These were the ones that I came across:</p>
+
+
+<ul>
+<li><a href="http://mikiobraun.github.io/jblas/">JBLAS</a> - Linear Algebra for Java</li>
+<li><a href="http://math.nist.gov/javanumerics/jama/">JAMA</a> - A Java Matrix Package</li>
+<li><a href="http://acs.lbl.gov/software/colt/">Colt</a> - Advanced Computing for Science</li>
+<li><a href="http://commons.apache.org/proper/commons-math/">Commons Math</a> - The Apache Commons Mathematics Library</li>
+<li><a href="http://la4j.org/">la4j</a> - Linear Algebra for Java</li>
+<li><a href="https://github.com/fommil/matrix-toolkits-java">MTJ</a> - Matrix Toolkits Java</li>
+</ul>
+
+<p>I'd heard of JBLAS before so I thought I'd give that a try on one of the adjacency matrices described in <a href="http://matrixapps.blogspot.co.uk/2010/07/gould-index-matrix-application-to.html">Murphy Waggoner's post about the Gould Index</a> and see if I got the same eigenvector centrality values.</li>
+
+<p>The first step was to define the matrix which can be represented as an array of arrays:</p>
+
+
+
+~~~java
+
+DoubleMatrix matrix = new DoubleMatrix(new double[][] {
+        {1,1,0,0,1,0,0},
+        {1,1,0,0,1,0,0},
+        {0,0,1,1,1,0,0},
+        {0,0,1,1,1,0,0},
+        {1,1,1,1,1,1,1},
+        {0,0,0,0,1,1,1},
+        {0,0,0,0,1,1,1},
+});
+~~~
+
+<p>Our next stop is to work out the eigenvalues which we can do using the following function:</p>
+
+
+
+~~~java
+
+ComplexDoubleMatrix eigenvalues = Eigen.eigenvalues(matrix);
+for (ComplexDouble eigenvalue : eigenvalues.toArray()) {
+    System.out.print(String.format("%.2f ", eigenvalue.abs()));
+}
+~~~
+
+
+~~~text
+
+4.00 2.00 0.00 1.00 2.00 0.00 0.00
+~~~
+
+<p>We want to get the corresponding eigenvector for the eigenvalue of 4 and as far as I can tell the <cite>Eigen#eigenvectors</cite> function returns its values in the same order as the <cite>Eigen#eigenvalues</cite> function so I wrote the following code to work out the principal eigenvector :</p>
+
+
+
+~~~java
+
+List<Double> principalEigenvector = getPrincipalEigenvector(matrix);
+System.out.println("principalEigenvector = " + principalEigenvector);
+
+private static List<Double> getPrincipalEigenvector(DoubleMatrix matrix) {
+    int maxIndex = getMaxIndex(matrix);
+    ComplexDoubleMatrix eigenVectors = Eigen.eigenvectors(matrix)[0];
+    return getEigenVector(eigenVectors, maxIndex);
+}
+
+private static int getMaxIndex(DoubleMatrix matrix) {
+    ComplexDouble[] doubleMatrix = Eigen.eigenvalues(matrix).toArray();
+    int maxIndex = 0;
+    for (int i = 0; i < doubleMatrix.length; i++){
+        double newnumber = doubleMatrix[i].abs();
+        if ((newnumber > doubleMatrix[maxIndex].abs())){
+            maxIndex = i;
+        }
+    }
+    return maxIndex;
+}
+
+private static List<Double> getEigenVector(ComplexDoubleMatrix eigenvector, int columnId) {
+    ComplexDoubleMatrix column = eigenvector.getColumn(columnId);
+
+    List<Double> values = new ArrayList<Double>();
+    for (ComplexDouble value : column.toArray()) {
+        values.add(value.abs()  );
+    }
+    return values;
+}
+~~~
+
+<p>In <cite>getMaxIndex</cite> we work out which index in the array the largest eigenvalue belongs to so that we can look it up in the array we get from <cite>Eigen#eigenvectors</cite>. According to the documentation the eigenvectors are stored in the first matrix we get back which is why we choose that on the second line of <cite>getPrincipalEigenvector</cite>.</p>
+
+
+<p>This is the output we get from running that:</p>
+
+
+
+~~~text
+
+principalEigenvector = [0.3162277660168381, 0.3162277660168376, 0.316227766016838, 0.316227766016838, 0.6324555320336759, 0.316227766016838, 0.316227766016838]
+~~~
+
+<p>Finally we normalise the values so that they all add together to equal 1 which means our result will tell the % of time that a random walk would take you to this node:</p>
+
+
+
+~~~java
+
+System.out.println("normalisedPrincipalEigenvector = " + normalised(principalEigenvector));
+
+private static List<Double> normalised(List<Double> principalEigenvector) {
+    double total = sum(principalEigenvector);
+    List<Double> normalisedValues = new ArrayList<Double>();
+    for (Double aDouble : principalEigenvector) {
+        normalisedValues.add(aDouble / total);
+    }
+    return normalisedValues;
+}
+
+private static double sum(List<Double> principalEigenvector) {
+    double total = 0;
+    for (Double aDouble : principalEigenvector) {
+        total += aDouble;
+    }
+    return total;
+}
+~~~
+
+
+~~~text
+
+normalisedPrincipalEigenvector = [0.12500000000000006, 0.12499999999999988, 0.12500000000000003, 0.12500000000000003, 0.25, 0.12500000000000003, 0.12500000000000003]
+~~~
+
+<p>We get the same answers as Murphy does so I guess the library is working correctly!</p>
+
+
+<p>Next I think I should do some experimentation with PageRank on this graph to see how its measure of centrality differs.</p>
+

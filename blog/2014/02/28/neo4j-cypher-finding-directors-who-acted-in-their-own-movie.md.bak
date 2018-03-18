@@ -1,0 +1,61 @@
++++
+draft = false
+date="2014-02-28 22:57:59"
+title="Neo4j: Cypher - Finding directors who acted in their own movie"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+<p>I've been doing quite a few Intro to Neo4j sessions recently and since it contains a lot of problems for the attendees to work on I get to see how first time users of Cypher actually use it.</p>
+
+
+<p>A couple of hours in we want to write a query to find directors who acted in their own film based on the following model.</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-28_22-40-02.png" alt="2014 02 28 22 40 02" title="2014-02-28_22-40-02.png" border="0" width="600" height="118" />
+</div>
+
+<p>A common answer is the following:</p>
+
+
+
+~~~cypher
+
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+WHERE a.name = d.name
+RETURN a
+~~~
+
+<p>We're matching an actor 'a', finding the movie they acted in and then finding the director of that movie. We now have pairs of actors and directors which we filter down by comparing their 'name' property.</p>
+
+
+<p>I haven't written SQL for a while but if my memory serves me correctly comparing properties or attributes in this way is quite a common way to test for equality.</p>
+
+
+<p>In a graph we don't need to compare properties - what we actually want to check is if 'a' and 'd' are the same node:</p>
+
+
+
+~~~cypher
+
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d)
+WHERE a = d
+RETURN a
+~~~
+
+<p>We've simplifed the query a bit but we can actually go one better by binding the director to the same identifier as the actor like so:</p>
+
+
+
+~~~cypher
+
+MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(a)
+RETURN a
+~~~
+
+<p>So now we're matching an actor 'a', finding the movie they acted in and then finding the director if they happen to be the same person as 'a'.</p>
+ 
+
+<p>The code is now much simpler and more revealing of its intent too.</p>
+

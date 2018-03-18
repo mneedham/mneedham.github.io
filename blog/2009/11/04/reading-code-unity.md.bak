@@ -1,0 +1,106 @@
++++
+draft = false
+date="2009-11-04 01:22:56"
+title="Reading Code: Unity"
+tag=['reading-code', 'unity']
+category=['Reading Code']
++++
+
+I spent a bit of time reading some of the <a href="http://www.codeplex.com/unity/">Unity</a> code base recently and I decided to try out a variation of Michael Feathers 'Effect Sketching' which my colleague <a href="http://intwoplacesatonce.com/">Dave Cameron</a> showed me.
+
+'Effect Sketching' is a technique Feathers describes in '<a href="http://www.amazon.co.uk/Working-Effectively-Legacy-Robert-Martin/dp/0131177052/ref=sr_1_1?ie=UTF8&s=books&qid=1256852443&sr=8-1">Working Effectively With Legacy Code</a>' and the idea is that we  sketch a diagram showing the interactions between the fields and methods in a specific class while browsing through the code.
+
+Dave suggested doing a similar thing but with methods and classes instead while stepping through the code with the debugger.
+
+I set up this code to step my way through:
+
+
+~~~csharp
+
+var container = new UnityContainer();
+
+container.AddNewExtension<Interception>();
+container.RegisterType(typeof (IIDProvider), typeof (HttpContextIDProvider));
+container.Configure<Interception>().SetDefaultInterceptorFor(typeof (GetPaymentBreakdownsService), new VirtualMethodInterceptor());
+
+object resolve = container.Resolve(typeof (GetPaymentBreakdownsService));
+~~~
+
+These are some of my observations from this exercise:
+
+<ul>
+<li>I found it was <strong>much easier for me to remember where I was in the call stack</strong> then normal. 
+
+I often get quite engrossed in the individual method calls on objects that I forget where the code actually started before it ended up in the current location. Whenever this happened I was able to refer to my sketch to remind myself of where the code had started from. </li>
+<li>Despite having the drawing I still got a bit lost when the <a href="http://unity.codeplex.com/sourcecontrol/changeset/view/38085?projectName=unity#616462">PolicyInjectionBehaviourDescriptor</a> made a call back to the container's Resolve method which meant that the code went through the same path that I'd just followed:
+
+
+~~~csharp
+
+public IInterceptionBehavior GetInterceptionBehavior(
+            IInterceptor interceptor,
+            Type interceptedType,
+            Type implementationType,
+            IUnityContainer container)
+        {
+            InjectionPolicy[] policies = container.Resolve<InjectionPolicy[]>();
+~~~
+
+I was getting really confused watching various different injection policies being resolved instead of the type I was trying to resolve!</li>
+<li>I've previously tried drawing diagrams which just contained the classes in a code base but I've found that including the methods that connect them makes it easier for me to understand what's going on.
+
+I've been drawing these diagrams out by hand but I thought I'd translate some of it into dot notation so that I could create a version using <a href="http://www.graphviz.org/">graphviz</a> to show on here.
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/11/unity.png" alt="unity.png" border="0" width="653" height="613" />
+
+The nodes in orange represent classes and the dotted line represents where an event was fired.
+</li>
+<li>I realised that I still need to spend more time reading code so that I know <strong>when to dive into an object and when the details are probably not important</strong>. At the moment I'm too prone to getting distracted by wanting to see how a specific method works instead of looking at those details later on when I actually need to know. </li>
+<li>I felt as I was reading the code that in a lot of places the <a href="http://www.markhneedham.com/blog/2009/01/02/f-option-types/">option type</a> from functional programming would have come in quite useful. There is often code similar to this bit from LifeTimeStrategy:
+
+
+~~~class
+
+object existing = lifetimePolicy.GetValue();
+if (existing != null)
+{
+    context.Existing = existing;
+    context.BuildComplete = true;
+}
+~~~
+
+Instead of existing returning a null it could return 'None' to indicate it hasn't been resolved yet.</li>
+<li>I've read about the '<a href="http://msdn.microsoft.com/en-us/library/9k7k7cf0.aspx">yield</a>' construct before but I've never seen a need to use it yet in any code I've written so it was interesting to see it being used quite frequently inside <a href="http://unity.codeplex.com/sourcecontrol/changeset/view/38085?projectName=unity#616459">PolicySet</a>:
+
+
+~~~csharp
+
+public IEnumerable<InjectionPolicy> GetPoliciesFor(MethodImplementationInfo member)
+{
+    foreach (InjectionPolicy policy in this)
+    {
+        if (policy.Matches(member))
+        {
+            yield return policy;
+        }
+    }
+}
+~~~
+From my understanding of this construct it seems like it acts in a similar way to a stream i.e. it's only evaluated when it's actually needed. </li>
+<li>In the '<a href="http://www.amazon.co.uk/Fundamentals-Object-oriented-Design-Object-Technology/dp/020169946X/ref=sr_1_1?ie=UTF8&s=books&qid=1257261364&sr=8-1">Fundamentals of Object Oriented Design in Uml</a>' Meilir Page Jones suggests that we might want to avoid replicated behaviour in our public APIs since it leads to greater complexity.
+
+This would therefore seem to suggest that having overloads of methods on an object is something to be avoided. Interestingly in this code base the overloads for 'UnityContainer' are actually defined as extension methods which then delegate back to 'UnityContainer' and pass in default values for unspecified parameters. 
+
+This seems like quite a neat way of getting around the problem since we keep the API clean while also providing users of the code an easy way to do so.</li>
+
+</ul>
+
+On the subject of reading code I recently came across an <a href="http://designbygravity.wordpress.com/2009/10/23/how-to-read-other-peoples-code-and-why/">interesting post by designbygravity which describes some approaches for reading code more effectively</a>.
+
+In particular I really liked the section about not hating the code :
+
+<blockquote>
+You can get sucked into hating the code, merely because it is not yours. Software people tend to be equipped with ample egos, and other people’s code can offend. But realize, their working code is better than your imagined code, because their working code exists right now. So put your ego aside and learn the code in front of you.
+</blockquote>
+
+It's so easy to drift into this mindset but it's rarely helpful so if we can stop ourselves it's almost certainly beneficial.

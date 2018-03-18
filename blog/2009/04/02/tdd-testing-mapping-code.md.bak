@@ -1,0 +1,25 @@
++++
+draft = false
+date="2009-04-02 23:11:12"
+title="TDD: Testing mapping code"
+tag=['tdd', 'mapping']
+category=['Testing']
++++
+
+I've previously written about <a href="http://www.markhneedham.com/blog/2009/03/25/coding-isolate-the-data-not-just-the-endpoint/">some</a> <a href="http://www.markhneedham.com/blog/2009/03/10/ddd-repository-not-only-for-databases/">of the aspects</a> of the mapping efforts that we've done on recent projects and what we've found from our testing (or lack of) around this type of code is that somewhere along the line you are going to have to check that you're mapping these values correctly, be it in an automated test or just by manually checking that the correct values are being sent across our integration points and into other systems.
+
+Writing unit tests around mapping code is certainly one of the areas of testing where it feels like there isn't that much value in doing so - after all we are just copying data from one data structure to another, what could possibly go wrong?!
+
+While I would certainly agree that in this case we are not using the tests to drive the design of our code, I think they are still very valuable for helping us to ensure that our specific bit of mapping code is doing what we expect it to.
+
+Let's say we have data flowing across our application like so:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/04/test-your-mapping.gif" alt="test_your_mapping.gif" border="0" width="459" height="168" />
+
+We get the data from the UI and we need it to end up being sent to the service. Along the way there are a few different places where data could get lost and from (painful) experience I've found that if we aren't testing that all our data is being mapped then <strong>we will forget to map something</strong> and then we will have the fun job of debugging end to end trying to work out where it got lost.
+
+I would certainly relax the notion of taking small steps a bit when doing this type of testing otherwise it can get immensely frustrating - maybe write the tests for a set of similar fields and then writing the mapping code rather than creating the test -> code cycle individually for each one.
+
+These tests can end up getting quite difficult to read so an approach we've been trying is to <a href="http://www.markhneedham.com/blog/2009/03/01/nunit-tests-with-contextspec-style-assertions/">setup the test data in a TestFixtureSetUp at the top of our NUnit test fixture and then creating just the assertions for similar sets of fields in each test</a>. I think it's working reasonably well even though maybe it goes against the convention of the way you would typically use NUnit.
+
+We're still got higher level tests around this code and while they're useful they don't help us zoom into the point of error that easily so the humble unit test still has a part to play!

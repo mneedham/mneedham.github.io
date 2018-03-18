@@ -1,0 +1,130 @@
++++
+draft = false
+date="2015-05-26 07:03:36"
+title="Neo4j: The foul revenge graph"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>Last week I was showing the <a href="http://www.markhneedham.com/blog/2015/05/16/neo4j-bbc-football-live-text-fouls-graph/">foul graph</a> to my colleague <a href="http://www.apcjones.com/">Alistair</a> who came up with the idea of running a 'foul revenge' query to find out which players gained revenge for a foul with one of their own later in them match.
+
+</p>
+
+
+<p>
+Queries like this are very path centric and therefore work well in a graph. To recap, this is what the foul graph looks like:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-26_07-35-33.png" alt="2015 05 26 07 35 33" title="2015-05-26_07-35-33.png" border="0" width="598" height="211" />
+
+</div>
+
+<p>
+The first thing that we need to do is connect the fouls in a linked list based on time so that we can query their order more easily.
+</p>
+
+
+<p>
+We can do this with the following query:
+</p>
+
+
+
+~~~cypher
+
+MATCH (foul:Foul)-[:COMMITTED_IN_MATCH]->(match)
+WITH foul,match
+ORDER BY match.id, foul.sortableTime
+WITH match, COLLECT(foul) AS fouls
+FOREACH(i in range(0, length(fouls) -2) |
+  FOREACH(foul1 in [fouls[i]] | FOREACH (foul2 in [fouls[i+1]] |
+    MERGE (foul1)-[:NEXT]->(foul2)
+)));
+~~~
+
+<p>
+This query collects fouls grouped by match and then adds a 'NEXT' relationship between adjacent fouls. The graph now looks like this:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-26_07-43-28.png" alt="2015 05 26 07 43 28" title="2015-05-26_07-43-28.png" border="0" width="598" height="320" />
+
+</div>
+
+<p>
+Now let's find the revenge foulers in the Bayern Munich vs Barcelona match. We're looking for the following pattern:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-26_07-55-45.png" alt="2015 05 26 07 55 45" title="2015-05-26_07-55-45.png" border="0" width="324" height="307" />
+
+</div>
+
+<p>
+This translates to the following cypher query:
+</p>
+
+
+
+~~~cypher
+
+match (foul1:Foul)-[:COMMITTED_AGAINST]->(app1)-[:COMMITTED_FOUL]->(foul2)-[:COMMITTED_AGAINST]->(app2)-[:COMMITTED_FOUL]->(foul1),
+      (player1)-[:MADE_APPEARANCE]->(app1), (player2)-[:MADE_APPEARANCE]->(app2),
+      (foul1)-[:COMMITTED_IN_MATCH]->(match:Match {id: "32683310"})<-[:COMMITTED_IN_MATCH]-(foul2)
+WHERE (foul1)-[:NEXT*]->(foul2)
+RETURN player2.name AS firstFouler, player1.name AS revengeFouler, foul1.time, foul1.location, foul2.time, foul2.location
+~~~
+
+<p>
+I've added in a few extra parts to the pattern to pull out the players involved and to find the revenge foulers in a specific match - the Bayern Munich vs Barcelona Semi Final 2nd leg.
+</p>
+
+
+<p>
+We end up with the following revenge fouls:
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-26_00-05-48.png" alt="2015 05 26 00 05 48" title="2015-05-26_00-05-48.png" border="0" width="469" height="79" /></div>
+
+<p>
+We can see here that Dani Alves actually gains revenge on Bastian Schweinsteiger twice for a foul he made in the 10th minute.
+</p>
+
+
+<p>If we tweak the query to the following we can get a visual representation of the revenge fouls as well:
+</p>
+
+
+
+~~~cypher
+
+match (foul1:Foul)-[:COMMITTED_AGAINST]->(app1)-[:COMMITTED_FOUL]->(foul2)-[:COMMITTED_AGAINST]->(app2)-[:COMMITTED_FOUL]->(foul1),
+      (player1)-[:MADE_APPEARANCE]->(app1), (player2)-[:MADE_APPEARANCE]->(app2),
+      (foul1)-[:COMMITTED_IN_MATCH]->(match:Match {id: "32683310"})<-[:COMMITTED_IN_MATCH]-(foul2),
+      (foul1)-[:NEXT*]->(foul2)
+RETURN *
+~~~
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-23_15-23-22.png" alt="2015 05 23 15 23 22" title="2015-05-23_15-23-22.png" border="0" width="599" height="285" />
+
+</div>
+
+<p>
+At the moment I've restricted the revenge concept to single matches but I wonder whether it'd be more interesting to create a linked list of fouls which crosses matches between teams in the same season.
+</p>
+
+
+<p>The <a href="https://github.com/mneedham/neo4j-bbc">code for all of this is on github</a> - the README is a bit sketchy at the moment but I'll be fixing that up soon.
+</p>
+

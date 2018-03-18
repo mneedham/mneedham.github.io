@@ -1,0 +1,129 @@
++++
+draft = false
+date="2013-06-30 22:23:50"
+title="Leaflet JS: Resizing a map to keep a circle diameter inside it"
+tag=['javascript', 'leafletjs']
+category=['Javascript']
++++
+
+<p>I've been working on creating a UI to make searching for <a href="http://www.markhneedham.com/blog/2013/06/24/neo4j-spatial-indexing-football-stadiums-using-the-rest-api/">the football stadiums</a> that I wrote about last week a bit easier and I thought I'd give <a href="http://leafletjs.com/">Leaflet JS</a> a try.</p>
+
+
+<p>Leaflet is a Javascript library which was recommended to me by <a href="https://twitter.com/jasonneylon">Jason Neylon</a>) and can be used as a wrapper around Open Street Map.</p>
+
+
+<p>I started by creating a simple form where you could fill in a lat/long and distance and it would centre the map on that lat/long and show you a list of the stadiums within that diameter next to the map.</p>
+
+
+<p>Having done that I wanted to draw the diameter onto the map and then show the location of the stadiums which fitted inside the circle.</p>
+
+
+<p>I had the following code to centre the map and draw a circle:</p>
+
+
+
+~~~javascript
+
+  var distance = 10;
+  $("#inputDistance").val(distance);
+  var latLong=[51.505, -0.11398315429687499];
+  $("#inputLatLong").val(latLong)
+
+  var map = L.map('map').setView(latLong,11);
+  var layer = L.tileLayer('http://{s}.tile.cloudmade.com/e7b61e61295a44a5b319ca0bd3150890/997/256/{z}/{x}/{y}.png', { maxZoom: 18 });
+  layer.addTo(map);
+
+  var currentDiameter = L.circle(latLong, distance * 1000);
+  currentDiameter.addTo(map);
+  
+  var currentPositionMarker = L.marker([latLong[0], latLong[1]]);
+  currentPositionMarker.addTo(map);
+~~~
+
+<p>which creates this map:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/06/map.jpg" alt="Map" title="map.jpg" border="0" width="300" height="272" />
+</div>
+
+<p>I wanted to be able to change the diameter of the circle from the form and have it pick up more stadiums which I did with the following code:</p>
+
+
+
+~~~javascript
+
+  $("#inputDistance").change(function() {	
+    map.removeLayer(currentDiameter);
+    currentDiameter = L.circle(currentPositionMarker.getLatLng(), $("#inputDistance").val() * 1000);
+    currentDiameter.addTo(map);
+  }); 
+~~~
+
+<p>I updated the diameter to be 16km and the map looked like this:</p>
+
+
+<div align="center">
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/06/map-diameter.jpg" alt="Map diameter" title="map-diameter.jpg" border="0" width="300" height="271" /></div>
+
+<p>It just about fits inside the map but setting it to anything higher means that the area of the diameter falls outside of the visible map which is annoying.</p>
+
+
+<p>I wanted to be able to resize the map when the circle changed in size and after a bit of browsing of the Leaflet code I came across a function called 'fitBounds' which lets us achieve this. I changed the code like so:</p>
+
+
+
+~~~javascript
+
+  $("#inputDistance").change(function() {	
+    map.removeLayer(currentDiameter);
+    currentDiameter = L.circle(currentPositionMarker.getLatLng(), $("#inputDistance").val() * 1000);
+    currentDiameter.addTo(map);
+    map.fitBounds(currentDiameter.getBounds());
+  });
+~~~
+
+<p>Now if I change the distance the map resizes too:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/06/map-diameter-fixed.jpg" alt="Map diameter fixed" title="map-diameter-fixed.jpg" border="0" width="300" height="272" />
+</div>
+
+<p>Much better!</p>
+
+
+<p>The full code to do this reads like so:</p>
+
+
+
+~~~javascript
+
+$(document).ready(function() {		
+  var distance = 10;
+  $("#inputDistance").val(distance);
+  var latLong=[51.505, -0.11398315429687499];
+  $("#inputLatLong").val(latLong)
+
+  var map = L.map('map').setView(latLong,11);
+  var layer = L.tileLayer('http://{s}.tile.cloudmade.com/e7b61e61295a44a5b319ca0bd3150890/997/256/{z}/{x}/{y}.png', { maxZoom: 18 });
+  layer.addTo(map);
+
+  var currentDiameter = L.circle(latLong, distance * 1000);
+  currentDiameter.addTo(map);
+  
+  var currentPositionMarker = L.marker([latLong[0], latLong[1]]);
+  currentPositionMarker.addTo(map);
+
+  $("#inputDistance").change(function() {	
+    map.removeLayer(currentDiameter);
+    currentDiameter = L.circle(currentPositionMarker.getLatLng(), $("#inputDistance").val() * 1000);
+    currentDiameter.addTo(map);
+    map.fitBounds(currentDiameter.getBounds());
+  }); 
+});
+~~~
+
+<p>The <a href="https://github.com/mneedham/neo4j-football-stadiums">code for this is all on github</a> although I've refactored it a bit now so it doesn't look exactly like this. I tried to put it on <a href="http://jsfiddle.net/">jsfiddle</a> as well but it didn't seem to work very well so screenshots it is!</p>
+

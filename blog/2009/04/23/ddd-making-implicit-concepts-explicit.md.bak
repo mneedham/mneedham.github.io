@@ -1,0 +1,39 @@
++++
+draft = false
+date="2009-04-23 12:36:25"
+title="DDD: Making implicit concepts explicit"
+tag=['ddd', 'domain-driven-design']
+category=['Domain Driven Design']
++++
+
+One of my favourite parts of the <a href="http://domaindrivendesign.org">Domain Driven Design</a> book is where Eric Evans talks about making implicit concepts in our domain model explicit.
+
+The book describes this process like so:
+
+<blockquote>
+Many transformations of domain models and the corresponding code happen when developers recognize a concept that has been hinted at in discussion or present implicitly in the design, and they then represent it explicitly in the model with one or more objects or relationships.
+</blockquote>
+
+Lu and I were working on a small application to parse the WCF message log file on our project into more readable chunks whereby each request in the file would be outputted into another file so that it would be possible to read them individually.
+
+We decided to create a little domain model for this since the code seemed to be getting a bit tricky to handle when it was all being written inline inside a main method.
+
+To start with we just had a collection of requests which was an accurate representation of the way that the data was being stored in the log file.
+
+We collected all these requests and then created individual files for each of them. We also grouped these request files under directories by the session that the request was from.
+
+The input/output of our application looked a bit like this:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/04/implicitexplicit.gif" alt="implicitexplicit.gif" border="0" width="442" height="232" />
+
+The next idea suggested for this little application was that it would be cool if we could put the characters 'FAIL' into the file name of any requests which failed and also into the folder name of any sessions which had failing requests inside them.
+
+We tried to do this with our original model but everything we did resulted in adding more and more code to the Request object which didn't seem to belong to it. The tipping point for me was when we ended up with Request.SessionFolderName as a property.
+
+Eventually we realised that what had been implicit would now need to be made explicit and the Session came to be an object in our domain model.
+
+What I found most interesting about this process was that we were always talking about the Session but it didn't actually exist in our model!
+
+The model in our code now pretty much represents the format in which we out outputting the data and with Session as an explicit concept it makes it much easier to make changes in the future.
+
+

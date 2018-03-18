@@ -1,0 +1,241 @@
++++
+draft = false
+date="2017-04-29 15:36:36"
+title="Leaflet: Mapping Strava runs/polylines on Open Street Map"
+tag=['python', 'leafletjs', 'strava']
+category=['Javascript']
+description="Learn how to take the polyline returned by the Strava API and plot it onto Open Street Map using the Leaflet javascript library."
++++
+
+<p>
+I'm a big <a href="https://www.strava.com/athletes/6958432">Strava</a> user and spent a bit of time last weekend playing around with <a href="https://strava.github.io/api/v3/athlete/">their API</a> to work out how to map all my runs.
+</p>
+
+
+<div style="float:right">
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2017/04/2017-04-29_15-56-06.png" alt="2017 04 29 15 56 06" title="2017-04-29_15-56-06.png" border="0" width="180" height="85" />
+
+</div>
+
+<h3>Strava API and polylines</h3>
+
+<p>
+This is a two step process:
+</P>
+
+<ol>
+<li>Call the <cite>/athlete/activities/</cite> endpoint to get a list of all my activities</li>
+<li>For each of those activities call <cite>/activities/[activityId]</cite> endpoint to get more detailed information for each activity</cite></li>
+</ol>
+
+<p>
+That second API returns a 'polyline' property which the <a href="https://strava.github.io/api/#polylines">documentation</a> describes as follows:
+</p>
+
+
+<blockquote>
+Activity and segment API requests may include summary polylines of their respective routes. The values are string encodings of the latitude and longitude points using the <a href="https://developers.google.com/maps/documentation/utilities/polylinealgorithm">Google encoded polyline algorithm format</a>.
+</blockquote>
+
+<p>If we navigate to that page we get the following explanation:</p>
+
+
+<blockquote>
+Polyline encoding is a lossy compression algorithm that allows you to store a series of coordinates as a single string. 
+</blockquote>
+
+<p>
+I tried out a couple of my polylines using the <a href="https://developers.google.com/maps/documentation/utilities/polylineutility">interactive polyline encoder utility</a> which worked well once I realised that I needed to escape backslashes ("\") in the polyline before pasting it into the tool.
+</p>
+
+
+<p>
+Now that I'd figured out how to map one run it was time to automate the process.</p>
+
+
+<h3>Leaflet and OpenStreetMap</h3>
+
+<p>I've previously had a good experience using <a href="http://leafletjs.com/">Leaflet</a> so I was keen to use that and luckily came across <a href="http://stackoverflow.com/a/40728445/1093511">a Stack Overflow answer</a> showing how to do what I wanted.
+</p>
+
+
+<p>
+I created a HTML file and manually pasted in a couple of my runs (not forgetting to escape those backslashes!) to check that they worked:
+</p>
+
+
+<p><cite>blog.html</cite></p>
+
+
+
+~~~html
+
+<html>
+  <head>
+    <title>Mapping my runs</title>
+  </head>
+
+  <body>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+    <script type="text/javascript" src="https://rawgit.com/jieter/Leaflet.encoded/master/Polyline.encoded.js"></script>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+    <div id="map" style="width: 100%; height: 100%"></div>
+
+    <script>
+    var map = L.map('map').setView([55.609818, 13.003286], 13);
+    L.tileLayer(
+        'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
+
+    var encodedRoutes = [
+      "{zkrIm`inANPD?BDXGPKLATHNRBRFtAR~AFjAHl@D|ALtATj@HHJBL?`@EZ?NQ\\Y^MZURGJKR]RMXYh@QdAWf@[~@aAFGb@?j@YJKBU@m@FKZ[NSPKTCRJD?`@Wf@Wb@g@HCp@Qh@]z@SRMRE^EHJZnDHbBGPHb@NfBTxBN|DVbCBdA^lBFl@Lz@HbBDl@Lr@Bb@ApCAp@Ez@g@bEMl@g@`B_AvAq@l@    QF]Rs@Nq@CmAVKCK?_@Nw@h@UJIHOZa@xA]~@UfASn@U`@_@~@[d@Sn@s@rAs@dAGN?NVhAB\\Ox@@b@S|A?Tl@jBZpAt@vBJhATfGJn@b@fARp@H^Hx@ARGNSTIFWHe@AGBOTAP@^\\zBMpACjEWlEIrCKl@i@nAk@}@}@yBOWSg@kAgBUk@Mu@[mC?QLIEUAuAS_E?uCKyCA{BH{DDgF`AaEr@uAb@oA~@{AE}AKw@    g@qAU[_@w@[gAYm@]qAEa@FOXg@JGJ@j@o@bAy@NW?Qe@oCCc@SaBEOIIEQGaAe@kC_@{De@cE?KD[H[P]NcAJ_@DGd@Gh@UHI@Ua@}Bg@yBa@uDSo@i@UIICQUkCi@sCKe@]aAa@oBG{@G[CMOIKMQe@IIM@KB]Tg@Nw@^QL]NMPMn@@\\Lb@P~@XT",
+      "u}krIq_inA_@y@My@Yu@OqAUsA]mAQc@CS@o@FSHSp@e@n@Wl@]ZCFEBK?OC_@Qw@?m@CSK[]]EMBeAA_@m@qEAg@UoCAaAMs@IkBMoACq@SwAGOYa@IYIyA_@kEMkC]{DEaAScC@yEHkGA_ALsCBiA@mCD{CCuAZcANOH@HDZl@Z`@RFh@\\TDT@ZVJBPMVGLM\\Mz@c@NCPMXERO|@a@^Ut@s@p@KJAJ    Bd@EHEXi@f@a@\\g@b@[HUD_B@uADg@DQLCLD~@l@`@J^TF?JANQ\\UbAyABEZIFG`@o@RAJEl@_@ZENDDIA[Ki@BURQZaARODKVs@LSdAiAz@G`BU^A^GT@PRp@zARXRn@`BlDHt@ZlAFh@^`BX|@HHHEf@i@FAHHp@bBd@v@DRAVMl@i@v@SROXm@tBILOTOLs@NON_@t@KX]h@Un@k@\\c@h@Ud@]ZGNKp@Sj@KJo@    b@W`@UPOX]XWd@UF]b@WPOAIBSf@QVi@j@_@V[b@Uj@YtAEFCCELARBn@`@lBjAzD^vB^hB?LENURkAv@[Ze@Xg@Py@p@QHONMA[HGAWE_@Em@Hg@AMCG@QHq@Cm@M[Jy@?UJIA{@Ae@KI@GFKNIX[QGAcAT[JK?OVMFK@IAIUKAYJI?QKUCGFIZCXDtAHl@@p@LjBCZS^ERAn@Fj@Br@Hn@HzAHh@RfD?j@TnCTlA    NjANb@\\z@TtARr@P`AFnAGfBG`@CFE?"
+  ]
+
+    for (let encoded of encodedRoutes) {
+      var coordinates = L.Polyline.fromEncoded(encoded).getLatLngs();
+
+      L.polyline(
+          coordinates,
+          {
+              color: 'blue',
+              weight: 2,
+              opacity: .7,
+              lineJoin: 'round'
+          }
+      ).addTo(map);
+    }
+    </script>
+  </body>
+</html>
+~~~
+
+<p>
+We can spin up a Python web server over that HTML file to see how it renders:
+</p>
+
+
+
+~~~bash
+
+$ python -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+~~~
+
+<p>And below we can see both runs plotted on the map.</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2017/04/2017-04-29_15-53-28.png" alt="2017 04 29 15 53 28" title="2017-04-29_15-53-28.png" border="0" width="598" height="261" />
+</div>
+
+<h3>Automating Strava API to Open Street Map</h3>
+
+<p>
+The final step is to automate the whole thing so that I can see all of my runs. 
+</p>
+
+
+<p>I wrote the following script to call the Strava API and save the polyline for every run to a CSV file:</p>
+
+
+
+~~~python
+
+import requests
+import os
+import sys
+import csv
+
+token = os.environ["TOKEN"]
+headers = {'Authorization': "Bearer {0}".format(token)}
+
+with open("runs.csv", "w") as runs_file:
+    writer = csv.writer(runs_file, delimiter=",")
+    writer.writerow(["id", "polyline"])
+
+    page = 1
+    while True:
+        r = requests.get("https://www.strava.com/api/v3/athlete/activities?page={0}".format(page), headers = headers)
+        response = r.json()
+
+        if len(response) == 0:
+            break
+        else:
+            for activity in response:
+                r = requests.get("https://www.strava.com/api/v3/activities/{0}?include_all_efforts=true".format(activity["id"]), headers = headers)
+                polyline = r.json()["map"]["polyline"]
+                writer.writerow([activity["id"], polyline])
+            page += 1
+~~~
+
+<p>
+I then wrote a simple script using <a href="http://flask.pocoo.org/">Flask</a> to parse the CSV files and send a JSON representation of my runs to a slightly modified version of the HTML page that I described above:
+</p>
+
+
+
+~~~python
+
+from flask import Flask
+from flask import render_template
+import csv
+import json
+
+app = Flask(__name__)
+
+@app.route('/')
+def my_runs():
+    runs = []
+    with open("runs.csv", "r") as runs_file:
+        reader = csv.DictReader(runs_file)
+
+        for row in reader:
+            runs.append(row["polyline"])
+
+    return render_template("leaflet.html", runs = json.dumps(runs))
+
+if __name__ == "__main__":
+    app.run(port = 5001)
+~~~
+
+<p>I changed the following line in the HTML file:</p>
+
+
+
+~~~html
+
+var encodedRoutes = {{ runs|safe }};
+~~~
+
+<p>
+Now we can launch our Flask web server:
+</p>
+
+
+
+~~~bash
+
+$ python app.py 
+ * Running on http://127.0.0.1:5001/ (Press CTRL+C to quit)
+~~~
+
+<p>
+And if we navigate to <cite>http://127.0.0.1:5001/</cite> we can see all my runs that went near Westminster:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2017/04/2017-04-29_16-32-00.png" alt="2017 04 29 16 32 00" title="2017-04-29_16-32-00.png" border="0" width="336" height="252" /></div>
+
+<p>
+The full code for all the files I've described in this post are <a href="https://gist.github.com/mneedham/34b923beb7fd72f8fe6ee433c2b27d73">available on github</a>. If you give it a try you'll need to provide your Strava Token in the 'TOKEN' environment variable before running <cite>extract_runs.py</cite>. 
+</p>
+
+
+<p>Hope this was helpful and if you have any questions ask me in the comments.</p>
+

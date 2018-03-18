@@ -1,0 +1,174 @@
++++
+draft = false
+date="2014-10-20 23:08:45"
+title="Neo4j: Modelling sub types"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>A question which sometimes comes up when discussing <a href="http://www.infoq.com/articles/let-me-graph-that-for-you">graph data modelling</a> is how you go about <a href="http://www.learndatamodeling.com/dm_super_type.php">modelling sub/super types</a>.</p>
+
+
+<p>In my experience there are two reasons why we might want to do this:</p>
+
+
+<ul>
+<li>To ensure that certain properties exist on bits of data</li>
+<li>To write drill down queries based on those types</li>
+</ul>
+
+<p>At the moment the former isn't built into Neo4j and you'd only be able to achieve it by wiring up some code in a pre commit hook of a <a href="http://docs.neo4j.org/chunked/stable/transactions-events.html">transaction event handler</a> so we'll focus on the latter.</p>
+
+
+<p>The typical example used for showing how to design sub types is the animal kingdom and I managed to find a data set from <a href="http://portal.louisvilleky.gov/dataset/animaltag-data?page=16&order=tag_tail&sort=asc">Louiseville, Kentucky's Animal Services</a> which we can use.</p>
+
+
+<p>In this case the sub types are used to represent the type of animal, breed group and breed. We then also have 'real data' in terms of actual dogs under the care of animal services.</p>
+
+
+<p>We effectively end up with two graphs in one - a model and a meta model:</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/10/2014-10-20_22-32-31.png" alt="2014 10 20 22 32 31" title="2014-10-20_22-32-31.png" border="0" width="600" height="381" />
+</div>
+
+<p>The cypher query to create this graph looks like this:</p>
+
+
+
+~~~cypher
+
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-subtypes/data/dogs.csv" AS line
+MERGE (animalType:AnimalType {name: "Dog"})
+MERGE (breedGroup:BreedGroup {name: line.BreedGroup})
+MERGE (breed:Breed {name: line.PrimaryBreed})
+MERGE (animal:Animal {id: line.TagIdentity, primaryColour: line.PrimaryColour, size: line.Size})
+
+MERGE (animalType)<-[:PARENT]-(breedGroup)
+MERGE (breedGroup)<-[:PARENT]-(breed)
+MERGE (breed)<-[:PARENT]-(animal)
+~~~
+
+<p>We could then write a simple query to find out how many dogs we have:</p>
+
+
+
+~~~cypher
+
+MATCH (animalType:AnimalType)<-[:PARENT*]-(animal)
+RETURN animalType, COUNT(*) AS animals
+ORDER BY animals DESC
+~~~
+
+
+~~~bash
+
+==> +--------------------------------+
+==> | animalType           | animals |
+==> +--------------------------------+
+==> | Node[89]{name:"Dog"} | 131     |
+==> +--------------------------------+
+==> 1 row
+~~~
+
+<p>Or we could write a slightly more complex query to find the number of animals at each level of our type hierarchy:</p>
+
+
+
+~~~cypher
+
+MATCH path = (animalType:AnimalType)<-[:PARENT]-(breedGroup)<-[:PARENT*]-(animal)
+RETURN [node IN nodes(path) | node.name][..-1] AS breed, COUNT(*) AS animals
+ORDER BY animals DESC
+LIMIT 5
+~~~
+
+
+~~~text
+
+==> +-----------------------------------------------------+
+==> | breed                                     | animals |
+==> +-----------------------------------------------------+
+==> | ["Dog","SETTER/RETRIEVE","LABRADOR RETR"] | 15      |
+==> | ["Dog","SETTER/RETRIEVE","GOLDEN RETR"]   | 13      |
+==> | ["Dog","POODLE","POODLE MIN"]             | 10      |
+==> | ["Dog","TERRIER","MIN PINSCHER"]          | 9       |
+==> | ["Dog","SHEPHERD","WELSH CORGI CAR"]      | 6       |
+==> +-----------------------------------------------------+
+==> 5 rows
+~~~
+
+<p>We might then decide to add an exercise sub graph which indicates how much exercise each type of dog requires:</p>
+
+
+
+~~~cypher
+
+MATCH (breedGroup:BreedGroup)
+WHERE breedGroup.name IN ["SETTER/RETRIEVE", "POODLE"]
+MERGE (exercise:Exercise {type: "2 hours hard exercise"})
+MERGE (exercise)<-[:REQUIRES_EXERCISE]-(breedGroup);
+~~~
+
+
+~~~cypher
+
+MATCH (breedGroup:BreedGroup)
+WHERE breedGroup.name IN ["TERRIER", "SHEPHERD"]
+MERGE (exercise:Exercise {type: "1 hour gentle exercise"})
+MERGE (exercise)<-[:REQUIRES_EXERCISE]-(breedGroup);
+~~~
+
+<p>We could then query that to find out which dogs need to come out for 2 hours of hard exercise:</p>
+
+
+
+~~~cypher
+
+MATCH (exercise:Exercise {type: "2 hours hard exercise"})<-[:REQUIRES_EXERCISE]-()<-[:PARENT*]-(dog)
+WHERE NOT (dog)<-[:PARENT]-()
+RETURN dog
+LIMIT 10
+~~~
+
+
+~~~bash
+
+==> +-----------------------------------------------------------+
+==> | dog                                                       |
+==> +-----------------------------------------------------------+
+==> | Node[541]{id:"664427",primaryColour:"BLACK",size:"SMALL"} |
+==> | Node[542]{id:"543787",primaryColour:"BLACK",size:"SMALL"} |
+==> | Node[543]{id:"584021",primaryColour:"BLACK",size:"SMALL"} |
+==> | Node[544]{id:"584022",primaryColour:"BLACK",size:"SMALL"} |
+==> | Node[545]{id:"664430",primaryColour:"BLACK",size:"SMALL"} |
+==> | Node[546]{id:"535176",primaryColour:"BLACK",size:"SMALL"} |
+==> | Node[567]{id:"613557",primaryColour:"WHITE",size:"SMALL"} |
+==> | Node[568]{id:"531376",primaryColour:"WHITE",size:"SMALL"} |
+==> | Node[569]{id:"613567",primaryColour:"WHITE",size:"SMALL"} |
+==> | Node[570]{id:"531379",primaryColour:"WHITE",size:"SMALL"} |
+==> +-----------------------------------------------------------+
+==> 10 rows
+~~~
+
+<p>In this query we ensured that we only returned dogs rather than breeds by checking that there was no incoming <cite>PARENT</cite> relationship. Alternatively we could have filtered on the <cite>Animal</cite> label...</p>
+
+
+
+~~~cypher
+
+MATCH (exercise:Exercise {type: "2 hours hard exercise"})<-[:REQUIRES_EXERCISE]-()<-[:PARENT*]-(dog:Animal)
+RETURN dog
+LIMIT 10
+~~~
+
+<p>or if we wanted to only take the dogs out for exercise perhaps we'd have <cite>Dog</cite> label on the appropriate nodes.</p>
+
+
+<p>People are often curious why labels don't have super/sub types between them but I tend to use labels for simple categorisation - anything more complicated and we may as well use the built in power of the graph model!</p>
+
+
+<p>The <a href="https://github.com/mneedham/neo4j-subtypes">code is on github</a> should you wish to play with it.</p>
+

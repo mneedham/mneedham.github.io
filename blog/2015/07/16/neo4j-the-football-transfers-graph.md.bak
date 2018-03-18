@@ -1,0 +1,257 @@
++++
+draft = false
+date="2015-07-16 06:40:26"
+title="Neo4j: The football transfers graph"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>Given we're still in <a href="http://www.bbc.co.uk/sport/0/football/33531715">pre season</a> <a href="http://www.bbc.co.uk/sport/0/football/33528451">transfer madness</a> as far as European football is concerned I thought it'd be interesting to put together a football transfers graph to see whether there are any interesting insights to be had.
+</p>
+
+
+<p>
+It took me a while to find an appropriate source but I eventually came across <a href="http://www.transfermarkt.co.uk/premier-league/sommertransfers/wettbewerb/GB1/saison_id/2015">transfermarkt.co.uk</a> which contains transfers going back at least as far as the start of the Premier League in 1992.
+</p>
+
+
+<p>
+I wrote a quick Python script to create a CSV file of all the transfers. This is what the file looks like:
+</p>
+
+
+
+~~~bash
+
+$ head -n 10 data/transfers.csv
+player,from_team,from_team_id,to_team,to_team_id,fee,season
+Martin Keown,Everton,29,Arsenal FC,11,"2,10 Mill. £",1992-1993
+John Jensen,Bröndby IF,206,Arsenal FC,11,"1,12 Mill. £",1992-1993
+Alan Miller,Birmingham,337,Arsenal FC,11,,1992-1993
+Jim Will,Sheffield Utd.,350,Arsenal FC,11,,1992-1993
+David Rocastle,Arsenal FC,11,Leeds,399,"1,68 Mill. £",1992-1993
+Perry Groves,Arsenal FC,11,Southampton FC,180,595 Th. £,1992-1993
+Ty Gooden,Arsenal FC,11,Wycombe Wand.,2805,?,1992-1993
+Geraint Williams,Derby,22,Ipswich Town,677,525 Th. £,1992-1993
+Jason Winters,Chelsea U21,9250,Ipswich Town,677,?,1992-1993
+~~~
+
+<p>
+I'm going to create the following graph and then we'll write some queries which explore chains of transfers involving players and clubs.
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/07/2015-07-15_07-28-11.png" alt="2015 07 15 07 28 11" title="2015-07-15_07-28-11.png" border="0" width="599" height="309" />
+</div>
+
+<p>
+I wrote a few import scripts using Neo4j's <a href="http://neo4j.com/docs/stable/query-load-csv.html">LOAD CSV</a> command, having set up the appropriate indexes first:
+</p>
+
+
+
+~~~cypher
+
+create index on :Team(id);
+create index on :Season(name);
+create index on :Transfer(description);
+create index on :Player(name);
+~~~
+
+
+~~~cypher
+
+// teams
+load csv with headers from "file:///Users/markneedham/projects/football-transfers/data/teams.csv" as row
+merge (team:Team {id: toint(row.team_id)})
+on create set team.name = row.team;
+
+// seasons
+load csv with headers from "file:///Users/markneedham/projects/football-transfers/data/transfers.csv" as row
+merge (season:Season {name: row.season})
+ON CREATE SET season.starts =  toint(split(season.name, "-")[0]);
+
+// players
+load csv with headers from "file:///Users/markneedham/projects/football-transfers/data/transfers.csv" as row
+merge (player:Player {name: row.player});
+
+// transfers
+load csv with headers from "file:///Users/markneedham/projects/football-transfers/data/transfers.csv" as row
+match (from:Team {id: toint(row.from_team_id)})
+match (to:Team {id: toint(row.to_team_id)})
+match (season:Season {name: row.season})
+match (player:Player {name: row.player})
+
+merge (transfer:Transfer {description: row.player + " from " + from.name + " to " + to.name})
+merge (transfer)-[:FROM_TEAM]->(from)
+merge (transfer)-[:TO_TEAM]->(to)
+merge (transfer)-[:IN_SEASON]->(season)
+merge (transfer)-[:PLAYER]->(player);
+
+// connect transfers
+match (season)<-[:IN_SEASON]-(transfer:Transfer)-[:PLAYER]->(player)
+WITH player, season, transfer
+ORDER BY player.name, season.starts
+WITH player, COLLECT({s: season, t: transfer}) AS transfers
+UNWIND range(0, length(transfers)-2) AS idx
+WITH player, transfers[idx] AS t1, transfers[idx +1] AS t2
+WITH player, t1.t AS t1, t2.t AS t2
+MERGE (t1)-[:NEXT]->(t2);
+~~~
+
+<P>All the files and scripts are on <a href="https://gist.github.com/mneedham/2c0b28ebe2314cb5eab5">this gist</a> if you want to play around with the data. The only thing you'll need to change is the file path on each of the 'LOAD CSV' lines.
+</p>
+
+
+<p>
+The 'connect transfers' query is a bit more complicated than the others - in that one we're first ordering the transfers in ascending order grouped by player and then <a href="http://www.markhneedham.com/blog/2015/06/04/neo4j-cypher-step-by-step-to-creating-a-linked-list-of-adjacent-nodes-using-unwind/">creating a linked list</a> of a player's transfers.
+</p>
+
+
+<p>
+Now that we've got the data loaded let's find out which player was transferred the most:
+</p>
+
+
+
+~~~cypher
+
+match path = (:Transfer)-[:NEXT*0..]->(transfer:Transfer)
+where NOT (transfer)-[:NEXT]->()
+RETURN path 
+ORDER BY LENGTH(path) DESC
+LIMIT 1
+~~~
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/07/graph-22.png" alt="Graph  22" title="graph (22).png" border="0" width="599" height="251" />
+</div>
+
+<p>
+Which other players have moved teams frequently?
+</p>
+
+
+
+~~~cypher
+
+match path = (first:Transfer)-[:NEXT*0..]->(transfer:Transfer),
+             (player)<-[:PLAYER]-(transfer)
+where NOT ((transfer)-[:NEXT]->()) AND NOT ((first)<-[:NEXT]-())
+RETURN player.name, LENGTH(path) AS numberOfTransfers 
+ORDER BY numberOfTransfers DESC
+LIMIT 10
+
+==> +--------------------------------------+
+==> | player.name      | numberOfTransfers |
+==> +--------------------------------------+
+==> | "Craig Bellamy"  | 7                 |
+==> | "David Unsworth" | 6                 |
+==> | "Andrew Cole"    | 6                 |
+==> | "Peter Crouch"   | 6                 |
+==> | "Les Ferdinand"  | 5                 |
+==> | "Kevin Phillips" | 5                 |
+==> | "Mark Hughes"    | 5                 |
+==> | "Tommy Wright"   | 4                 |
+==> | "Carl Tiler"     | 4                 |
+==> | "Don Hutchison"  | 4                 |
+==> +--------------------------------------+
+==> 10 rows
+~~~
+
+<p>What are the most frequent combinations of clubs involved in transfers?</p>
+
+
+
+~~~cypher
+
+match (from)<-[:FROM_TEAM]-(t:Transfer)-[:TO_TEAM]->(to), (t)-[:PLAYER]->(p)
+RETURN from.name, to.name, COUNT(*) AS times, COLLECT(p.name) AS players
+ORDER BY times DESC
+LIMIT 10
+
+==> +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | from.name           | to.name               | times | players                                                                                                                                                                                                    |
+==> +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | "West Ham United"   | "Queens Park Rangers" | 13    | ["Keith Rowland","Iain Dowie","Tim Breacker","Ludek Miklosko","Bertie Brayley","Terrell Forbes","Steve Lomas","Hogan Ephraim","Nigel Quashie","Danny Gabbidon","Kieron Dyer","Robert Green","Gary O'Neil"] |
+==> | "Tottenham Hotspur" | "Portsmouth FC"       | 12    | ["Paul Walsh","Andy Turner","Rory Allen","Justin Edinburgh","Tim Sherwood","Teddy Sheringham","Noé Pamarot","Pedro Mendes","Sean Davis","Jermain Defoe","Younès Kaboul","Kevin-Prince Boateng"]            |
+==> | "Liverpool FC"      | "West Ham United"     | 12    | ["Julian Dicks","David Burrows","Mike Marsh","Don Hutchison","Neil Ruddock","Titi Camara","Rob Jones","Rigobert Song","Craig Bellamy","Joe Cole","Andy Carroll","Stewart Downing"]                         |
+==> | "Manchester United" | "Everton FC"          | 9     | ["Andrey Kanchelskis","John O'Kane","Jesper Blomqvist","Phil Neville","Tim Howard","Louis Saha","Darron Gibson","Sam Byrne","Tom Cleverley"]                                                               |
+==> | "Newcastle United"  | "West Ham United"     | 9     | ["Paul Kitson","Shaka Hislop","Stuart Pearce","Wayne Quinn","Lee Bowyer","Kieron Dyer","Scott Parker","Nolberto Solano","Kevin Nolan"]                                                                     |
+==> | "Blackburn Rovers"  | "Leicester City"      | 9     | ["Steve Agnew","Tim Flowers","Callum Davidson","John Curtis","Keith Gillespie","Craig Hignett","Nils-Eric Johansson","Bruno Berner","Paul Gallagher"]                                                      |
+==> | "Chelsea FC"        | "Southampton FC"      | 8     | ["Ken Monkou","Kerry Dixon","Neil Shipperley","Mark Hughes","Paul Hughes","Graeme Le Saux","Jack Cork","Ryan Bertrand"]                                                                                    |
+==> | "Birmingham City"   | "Coventry City"       | 8     | ["David Rennie","John Gayle","Liam Daish","Gary Breen","Stern John","Julian Gray","Lee Carsley","Gary McSheffrey"]                                                                                         |
+==> | "Southampton FC"    | "Fulham FC"           | 8     | ["Micky Adams","Kevin Moore","Terry Hurlock","Maik Taylor","Alan Neilson","Luís Boa Morte","Antti Niemi","Chris Baird"]                                                                                    |
+==> | "Portsmouth FC"     | "Stoke City"          | 8     | ["Kevin Harper","Lewis Buxton","Anthony Pulis","Vincent Péricard","Asmir Begovic","Marc Wilson","Elliot Wheeler","Alex Grant"]                                                                             |
+==> +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> 10 rows
+~~~
+
+<p>
+Are there ever situations where players get transferred in both directions?
+</p>
+
+
+
+~~~cypher
+
+match (from)<-[:FROM_TEAM]-(t:Transfer)-[:TO_TEAM]->(to), (t)-[:PLAYER]->(player)
+where id(from) < id(to)
+WITH from, to, COUNT(*) AS times, COLLECT(player.name) AS players
+match (to)<-[:FROM_TEAM]-(t:Transfer)-[:TO_TEAM]->(from), (t)-[:PLAYER]->(player)
+RETURN from.name, to.name, times, COUNT(*) as otherWayTimes, players, COLLECT(player.name) AS otherWayPlayers
+ORDER BY times + otherWayTimes DESC
+LIMIT 10
+
+==> +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | from.name           | to.name               | times | otherWayTimes | players                                                                                                                                                                                                    | otherWayPlayers                                                                                                                                                                    |
+==> +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | "Tottenham Hotspur" | "Portsmouth FC"       | 12    | 5             | ["Paul Walsh","Andy Turner","Rory Allen","Justin Edinburgh","Tim Sherwood","Teddy Sheringham","Noé Pamarot","Pedro Mendes","Sean Davis","Jermain Defoe","Younès Kaboul","Kevin-Prince Boateng"]            | ["Jermain Defoe","Niko Kranjcar","Younès Kaboul","Peter Crouch","Darren Anderton"]                                                                                                 |
+==> | "West Ham United"   | "Liverpool FC"        | 4     | 12            | ["Julian Dicks","Daniel Sjölund","Yossi Benayoun","Javier Mascherano"]                                                                                                                                     | ["Stewart Downing","Andy Carroll","Joe Cole","Craig Bellamy","Rigobert Song","Titi Camara","Rob Jones","Neil Ruddock","Don Hutchison","Julian Dicks","Mike Marsh","David Burrows"] |
+==> | "West Ham United"   | "Queens Park Rangers" | 13    | 2             | ["Keith Rowland","Iain Dowie","Tim Breacker","Ludek Miklosko","Bertie Brayley","Terrell Forbes","Steve Lomas","Hogan Ephraim","Nigel Quashie","Danny Gabbidon","Kieron Dyer","Robert Green","Gary O'Neil"] | ["Andy Impey","Trevor Sinclair"]                                                                                                                                                   |
+==> | "West Ham United"   | "Tottenham Hotspur"   | 5     | 8             | ["Jermain Defoe","Frédéric Kanouté","Michael Carrick","Jimmy Walker","Scott Parker"]                                                                                                                       | ["Sergiy Rebrov","Mauricio Taricco","Calum Davenport","Les Ferdinand","Matthew Etherington","Bobby Zamora","Ilie Dumitrescu","Mark Robson"]                                        |
+==> | "West Ham United"   | "Portsmouth FC"       | 8     | 5             | ["Martin Allen","Adrian Whitbread","Marc Keller","Svetoslav Todorov","Hayden Foxe","Shaka Hislop","Sébastien Schemmel","Hayden Mullins"]                                                                   | ["Stephen Henderson","Teddy Sheringham","Shaka Hislop","Marc Keller","Lee Chapman"]                                                                                                |
+==> | "Newcastle United"  | "West Ham United"     | 9     | 3             | ["Paul Kitson","Shaka Hislop","Stuart Pearce","Wayne Quinn","Lee Bowyer","Kieron Dyer","Scott Parker","Nolberto Solano","Kevin Nolan"]                                                                     | ["Demba Ba","Lee Bowyer","David Terrier"]                                                                                                                                          |
+==> | "Birmingham City"   | "Coventry City"       | 8     | 4             | ["David Rennie","John Gayle","Liam Daish","Gary Breen","Stern John","Julian Gray","Lee Carsley","Gary McSheffrey"]                                                                                         | ["Scott Dann","David Burrows","Peter Ndlovu","David Smith"]                                                                                                                        |
+==> | "Manchester City"   | "Portsmouth FC"       | 8     | 4             | ["Paul Walsh","Carl Griffiths","Fitzroy Simpson","Eyal Berkovic","David James","Andrew Cole","Sylvain Distin","Tal Ben Haim"]                                                                              | ["Benjani","Gerry Creaney","Kit Symons","Paul Walsh"]                                                                                                                              |
+==> | "Blackburn Rovers"  | "Southampton FC"      | 5     | 6             | ["David Speedie","Stuart Ripley","James Beattie","Kevin Davies","Zak Jones"]                                                                                                                               | ["Zak Jones","Egil Östenstad","Kevin Davies","Alan Shearer","Jeff Kenna","Tim Flowers"]                                                                                            |
+==> | "AFC Bournemouth"   | "West Ham United"     | 3     | 8             | ["Keith Rowland","Paul Mitchell","Scott Mean"]                                                                                                                                                             | ["Steve Jones","Matt Holland","Mohammed Berthé","Scott Mean","Paul Mitchell","Jamie Victory","Mark Watson","Stephen Purches"]                                                      |
+==> +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+~~~
+
+<p>Any players who go back to the same club they were at previously?</p>
+
+
+
+~~~cypher
+
+match (player:Player)<-[:PLAYER]-(t1:Transfer)-[:FROM_TEAM]->(from)<-[:TO_TEAM]-(t2:Transfer)-[:FROM_TEAM]->(to),
+      (t2)-[:PLAYER]->(player), (t1)-[:TO_TEAM]->(to)
+WHERE ID(to) < ID(from)
+WITH player, COLLECT([ from.name, " ⥄ ", to.name]) AS teams
+RETURN player.name, 
+       REDUCE(acc = [], item in teams | acc  + REDUCE(acc2 = "", i in item | acc2 + i)) AS thereAndBack
+ORDER BY LENGTH(thereAndBack) DESC
+LIMIT 10
+
+==> +-------------------------------------------------------------------------------------+
+==> | player.name       | thereAndBack                                                    |
+==> +-------------------------------------------------------------------------------------+
+==> | "Mark Stein"      | ["Stoke City ⥄ Chelsea FC","Ipswich Town ⥄ Chelsea FC"]         |
+==> | "Peter Beagrie"   | ["Bradford City ⥄ Everton FC","Bradford City ⥄ Wigan Athletic"] |
+==> | "Richard Dryden"  | ["Southampton FC ⥄ Stoke City","Southampton FC ⥄ Swindon Town"] |
+==> | "Robbie Elliott"  | ["Bolton Wanderers ⥄ Newcastle United"]                         |
+==> | "Elliot Grandin"  | ["Blackpool FC ⥄ Crystal Palace"]                               |
+==> | "Robert Fleck"    | ["Chelsea FC ⥄ Norwich City"]                                   |
+==> | "Paul Walsh"      | ["Portsmouth FC ⥄ Manchester City"]                             |
+==> | "Rick Holden"     | ["Manchester City ⥄ Oldham Athletic"]                           |
+==> | "Gary McAllister" | ["Liverpool FC ⥄ Coventry City"]                                |
+==> | "Lee Bowyer"      | ["West Ham United ⥄ Newcastle United"]                          |
+==> +-------------------------------------------------------------------------------------+
+~~~
+
+<p>
+That's all I've got for now - if you can think of any other interesting avenues to explore let me know and I'll take a look. 
+</p>
+

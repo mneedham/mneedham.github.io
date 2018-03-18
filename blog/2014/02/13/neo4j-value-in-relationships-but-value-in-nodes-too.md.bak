@@ -1,0 +1,89 @@
++++
+draft = false
+date="2014-02-13 00:10:37"
+title="Neo4j: Value in relationships, but value in nodes too!"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>I've recently spent a bit of time working with people on their graph commons and a common pattern I've come across is that although the  models have lots of relationships there are often missing nodes.</p>
+
+
+<h2>Emails</h2>
+
+<p>We'll start with a model which represents the emails that people send between each other. A first cut might look like this:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-12_08-30-59.png" alt="2014 02 12 08 30 59" title="2014-02-12_08-30-59.png" border="0" width="600" height="164" />
+</div>
+
+<p>The problem with this approach is that we haven't modelled the concept of <strong>an email</strong> - that's been implicitly modelled via a relationship.</p>
+ 
+
+<p>This means that if we want to indicate who was cc'd or bcc'd on the email we can't do it. We might also want to track the replies on a thread but again we can't do it.</p>
+
+
+<p>A richer model that treated an email as a first class citizen would allow us to do both these things and would look like this:</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-12_23-16-02.png" alt="2014 02 12 23 16 02" title="2014-02-12_23-16-02.png" border="0" width="600" height="358" /></div>
+
+<p>We could then write queries to get the chain of emails in a thread or find all the emails that a person was cc'd in - two queries that would be much more difficult to write if we don't have the concept of an email.</p>
+
+
+<h2>Footballers and football matches</h2>
+
+<p>Our <a href="http://www.markhneedham.com/blog/2013/10/22/neo4j-modelling-hyper-edges-in-a-property-graph/">second example come from my football dataset</a> and involves modelling the matches that players participated in.</p>
+
+
+<p>My first attempt looked like this:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-12_23-30-35.png" alt="2014 02 12 23 30 35" title="2014-02-12_23-30-35.png" border="0" width="600" height="231" /></div>
+
+<p>This works reasonably well but I wanted to be able to model which team a player had represented in a match which was quite difficult with this model.</p>
+ 
+
+<p>One approach would be to add a 'team' property to the 'PLAYED_IN' relationship but then we'd need to do some work at query time to work out which team node that property value referred to.</p>
+
+
+<p>Instead I realised that I was missing the concept of a <strong>player's performance in a match</strong> which would make some queries much easier to write. The new model looks like this:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-12_23-37-28.png" alt="2014 02 12 23 37 28" title="2014-02-12_23-37-28.png" border="0" width="600" height="347" />
+</div>
+
+<h2>The tube</h2>
+
+<p>The final example is modelling the London tube although this could apply to any transport system. Our initial model of part of the Northern Line might look like this:</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-12_23-59-46.png" alt="2014 02 12 23 59 46" title="2014-02-12_23-59-46.png" border="0" width="600" height="80" /></div>
+
+<p>This model works really well and my colleague Rik has <a href="http://blog.bruggen.com/2013/11/meet-this-tubular-graph.html">written a blog post showing the queries you could write against it</a>.</p>
+
+
+<p>However, it's missing the concept of a platform which means if we want to create a routing application which takes into account the amount of time it takes to move between different </p>
+
+
+<p>If we introduce a node to represent the different platforms in a station we can introduce that type of information:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-13_00-04-06.png" alt="2014 02 13 00 04 06" title="2014-02-13_00-04-06.png" border="0" width="600" height="361" /></div>
+
+<p>In each of these examples we've effectively normalised our model by introducing an extra concept which means it looks more complicated.</p>
+
+
+<p>The benefit of this approach across all three examples is that it allows us to answer more complicated questions of our data which in my experience are the really interesting questions.</p>
+
+
+<p>As always, let me know what you think in the comments.</p>
+

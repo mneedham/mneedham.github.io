@@ -1,0 +1,194 @@
++++
+draft = false
+date="2015-07-07 06:28:01"
+title="Python: Converting WordPress posts in CSV format"
+tag=['python']
+category=['Python']
++++
+
+<p>
+Over the weekend I wanted to look into the Wordpress data behind this blog (very meta!) and wanted to get the data in CSV format so I could do some analysis in R.
+</p>
+
+
+<div style="float:right">
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/07/2015-07-07_06-59-02.png" alt="2015 07 07 06 59 02" title="2015-07-07_06-59-02.png" border="0" width="313" height="101" />
+</div>
+
+<p>
+I found a couple of WordPress CSV plugins but unfortunately I couldn't get any of them to work and ended up working with the raw XML data that WordPress produces when you 'export' a blog.
+</p>
+
+
+<p>
+I had the problem of the <a href="http://beerpla.net/2012/04/13/how-to-fix-incomplete-wordpress-wxr-exports/">export being incomplete</a> which I 'solved' by importing the posts in two parts of a few years each.
+</p>
+
+
+<p>
+I then spent quite a few hours struggling to get the data into shape using R's <a href="http://blog.rstudio.org/2014/11/24/rvest-easy-web-scraping-with-r/">rvest</a> library but eventually decided to do the scraping using Python's beautifulsoup and save it to a CSV file for analysis in R.
+</p>
+
+
+<p>The structure of the XML that we want to extract is as follows:
+</p>
+
+
+
+~~~text
+
+<rss version="2.0"
+	xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:wp="http://wordpress.org/export/1.2/"
+>
+...
+    <channel>
+		<item>
+		<title>First thoughts on Ruby...</title>
+		<link>http://www.markhneedham.com/blog/2006/08/29/first-thoughts-on-ruby/</link>
+		<pubDate>Tue, 29 Aug 2006 13:31:05 +0000</pubDate>
+...
+~~~
+
+<p>
+I wrote the following script to parse the files:
+</p>
+
+
+
+~~~python
+
+from bs4 import BeautifulSoup
+from soupselect import select
+from dateutil import parser
+
+import csv
+
+def read_page(page):
+    return BeautifulSoup(open(page, 'r').read())
+
+with open("posts.csv", "w") as file:
+    writer = csv.writer(file, delimiter=",")
+    writer.writerow(["title", "date"])
+
+    for row in select(read_page("part2.xml"), "item"):
+        title = select(row, "title")[0].text.encode("utf-8")
+        date = parser.parse(select(row, "pubdate")[0].text)
+        writer.writerow([title, date])
+
+    for row in select(read_page("part1.xml"), "item"):
+        title = select(row, "title")[0].text.encode("utf-8")
+        date = parser.parse(select(row, "pubdate")[0].text)
+        writer.writerow([title, date])
+~~~
+
+<p>
+We end up with a CSV file that looks like this:
+</p>
+
+
+
+~~~bash
+
+$ head -n 10 posts.csv
+title,date
+Functional C#: Writing a 'partition' function,2010-02-01 23:34:02+00:00
+Coding: Wrapping/not wrapping 3rd party libraries and DSLs,2010-02-02 23:54:21+00:00
+Functional C#: LINQ vs Method chaining,2010-02-05 18:06:28+00:00
+F#: function keyword,2010-02-07 02:54:13+00:00
+Willed vs Forced designs,2010-02-08 22:48:05+00:00
+Functional C#: Extracting a higher order function with generics,2010-02-08 23:17:47+00:00
+Javascript: File encoding when using string.replace,2010-02-10 00:02:02+00:00
+F#: Inline functions and statically resolved type parameters,2010-02-10 23:06:14+00:00
+Javascript: Passing functions around with call and apply,2010-02-12 20:18:02+00:00
+~~~
+
+<p>Let's quickly look over the data in R and check it's being correctly exported:
+</p>
+
+
+
+~~~r
+
+require(dplyr)
+require(lubridate)
+
+df = read.csv("posts.csv")
+
+> df %>% count()
+Source: local data frame [1 x 1]
+
+     n
+1 1501
+~~~
+
+<p>
+So we've exported 1501 posts. Let's cross check with the WordPress dashboard:
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/07/2015-07-07_07-06-02.png" alt="2015 07 07 07 06 02" title="2015-07-07_07-06-02.png" border="0" width="598" height="152" />
+</div>
+
+<p>We've gained two extra posts! A bit more exploration of the WordPress dashboard reveals that there are actually 2 draft posts lying around.
+</p>
+
+
+<p>We probably want to remove those from the export and luckily there's a 'status' tag for each post that we can check. We want to make sure it doesn't have the value 'draft':
+</p>
+
+
+
+~~~python
+
+from bs4 import BeautifulSoup
+from soupselect import select
+from dateutil import parser
+
+import csv
+
+def read_page(page):
+    return BeautifulSoup(open(page, 'r').read())
+
+with open("posts.csv", "w") as file:
+    writer = csv.writer(file, delimiter=",")
+    writer.writerow(["title", "date"])
+
+    for row in select(read_page("part2.xml"), "item"):
+        if (not row.find("wp:status")) or row.find("wp:status").text != "draft":
+            title = select(row, "title")[0].text.encode("utf-8")
+            date = parser.parse(select(row, "pubdate")[0].text)
+            writer.writerow([title, date])
+
+    for row in select(read_page("part1.xml"), "item"):
+        if (not row.find("wp:status")) or row.find("wp:status").text != "draft":
+            title = select(row, "title")[0].text.encode("utf-8")
+            date = parser.parse(select(row, "pubdate")[0].text)
+            writer.writerow([title, date])
+~~~
+
+<p>
+I also had to check if that tag actually existed since there were a couple of posts which didn't have it but had been published. If we check the resulting CSV file in R we can see that we've now got all the posts:
+</p>
+
+
+
+~~~r
+
+> df = read.csv("posts.csv")
+> df %>% count()
+Source: local data frame [1 x 1]
+
+     n
+1 1499
+~~~
+
+<p>
+Now we're ready to test a couple of hypotheses that I have but that's for another post!
+</p>
+

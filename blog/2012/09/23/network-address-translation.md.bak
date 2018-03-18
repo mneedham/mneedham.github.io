@@ -1,0 +1,69 @@
++++
+draft = false
+date="2012-09-23 19:23:54"
+title="Network Address Translation"
+tag=['snat', 'nat', 'dnat']
+category=['Networking']
++++
+
+I've often heard people talking about Network Address Translation (NAT) but I never really understood exactly how it worked until we started configuring some virtual data centres on my current project. 
+
+This is an attempt at documenting my own current understanding so I won't forget in future.
+
+In our case we've been provisioning a bunch of machines into different private networks, and each machine therefore has an IP in the range of <a href="http://en.wikipedia.org/wiki/Private_network">IPv4 addresses reserved for private networks</a>:
+
+<ul>
+<li>10.0.0.0 - 10.255.255.255</li>
+<li>172.16.0.0 - 172.31.255.255</li>
+<li>192.168.0.0 - 192.168.255.255</li>
+</ul>
+
+We've been using IP addresses from the 10.*.*.* allocation so all our machines have an IP address in that range.
+
+As I understand it private IP addresses were initially allocated because there are a <a href="http://www.technewsworld.com/story/71793.html">limited number of IPv4 addresses available</a> and because we don't necessarily want every machine to be directly accessible to the internet.
+
+NAT becomes necessary when we want machines outside the private network to access our machine (e.g. we want to host a web server) or if we want to access things outside the network from our machine (e.g. we want to run an 'apt-get update').
+
+In the first case we'd already have a publicly accessible IP address but creating a connection to it would only take us to a router/firewall.
+
+If we want the connection to make its way to our web server we'd need to create a Destination NAT (<strong>DNAT</strong>) rule which will translate the destination IP address and port in the IP header of the IP packet accordingly.
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/09/dnat.png" alt="Dnat" title="dnat.png" border="0" width="515" height="127" />
+
+We've created a little DSL which allows us to define these rules:
+
+
+~~~ruby
+
+dnat :original =>   { :ip => "217.191.90.72", :port => 80 }, 
+     :translated => { :ip => "10.0.0.2", :port => 80 }
+~~~
+
+As far as I understand it there would be a table which keeps track of these rules and if it sees request coming in on 217.191.90.72 on port 80 it will forward that on to 10.0.0.2 port 80. 
+
+If it's for any other port then there will will be no such forwarding.
+
+If we want to access the internet from our 10.0.0.2 machine we will need to put in a Source NAT (<strong>SNAT</strong>) rule to translate our source IP address and port otherwise any machines we send a request to will have no way of routing the response back to us.
+
+In this case we wrote a more encompassing rule since we want all the machines in any of our networks to be treated the same way:
+
+
+~~~ruby
+
+snat :original =>   { :ip => "10.0.0.0/8" }, # this means 10.*.*.*
+     :translated => { :ip => "217.191.90.72" }
+~~~
+
+In this example 217.191.90.72 would be a public IP address that we have available and any requests coming from machines within our network will look like they came from there.
+
+If we make a request to google (74.125.230.142) from 10.0.0.2 we might create a TCP connection using port 23479 so our NAT software would at least need to translate the source IP from 10.0.0.2 to 217.191.90.72 and possibly the port too.
+
+The NAT software creates some sort of internal state in a NAT session to remember the translations that have been done so that when the response comes back from google it can be routed back to 10.0.0.2 on port 23479.
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/09/snat.png" alt="Snat" title="snat.png" border="0" width="491" height="191" />
+
+There is more going on behind the scenes to ensure that the checksums are changed accordingly but conceptually this is what's happening.
+
+The <a href="http://www.redbooks.ibm.com/abstracts/gg243376.html">TCP/IP red book</a> has a section where it explains this in more detail but I found the chapter in <a href="http://www.amazon.co.uk/TCP-Illustrated-Protocols-Addison-Wesley-Professional/dp/0321336313/ref=sr_1_2?ie=UTF8&qid=1348427594&sr=8-2">TCP/IP Illustrated: The Protocols</a> an easier read. 
+
+If I've got anything wrong please feel free to point it out in the comments and I'll update the post.

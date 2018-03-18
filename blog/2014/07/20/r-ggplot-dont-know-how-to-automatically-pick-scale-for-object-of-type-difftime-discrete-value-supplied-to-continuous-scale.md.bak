@@ -1,0 +1,110 @@
++++
+draft = false
+date="2014-07-20 00:21:17"
+title="R: ggplot - Don't know how to automatically pick scale for object of type difftime - Discrete value supplied to continuous scale"
+tag=['r-2']
+category=['R']
++++
+
+<p>While reading '<a href="http://www.fastcolabs.com/3030063/why-the-r-programming-language-is-good-for-business">Why The R Programming Language Is Good For Business</a>' I came across Udacity's '<a href="https://www.udacity.com/course/viewer#!/c-ud651/l-685569241/e-824578546/m-824578547">Data Analysis with R</a>' courses - part of which focuses exploring data sets using visualisations, something I haven't done much of yet.</p>
+
+
+<p>I thought it'd be interesting to create some visualisations around the times that people RSVP 'yes' to the <a href="http://www.meetup.com/graphdb-london/">various Neo4j events that we run in London</a>.</p>
+
+
+<p>I started off with the following query which returns the date time that people replied 'Yes' to an event and the date time of the event:</p>
+
+
+
+~~~r
+
+library(Rneo4j)
+query = "MATCH (e:Event)<-[:TO]-(response {response: 'yes'})
+         RETURN response.time AS time, e.time + e.utc_offset AS eventTime"
+allYesRSVPs = cypher(graph, query)
+allYesRSVPs$time = timestampToDate(allYesRSVPs$time)
+allYesRSVPs$eventTime = timestampToDate(allYesRSVPs$eventTime)
+
+> allYesRSVPs[1:10,]
+                  time           eventTime
+1  2011-06-05 12:12:27 2011-06-29 18:30:00
+2  2011-06-05 14:49:04 2011-06-29 18:30:00
+3  2011-06-10 11:22:47 2011-06-29 18:30:00
+4  2011-06-07 15:27:07 2011-06-29 18:30:00
+5  2011-06-06 20:21:45 2011-06-29 18:30:00
+6  2011-07-04 19:49:04 2011-07-27 19:00:00
+7  2011-07-05 16:40:10 2011-07-27 19:00:00
+8  2011-08-19 07:41:10 2011-08-31 18:30:00
+9  2011-08-24 12:47:40 2011-08-31 18:30:00
+10 2011-08-18 09:56:53 2011-08-31 18:30:00
+~~~
+
+<p>I wanted to create a bar chart showing the amount of time in advance of a meetup that people RSVP'd 'yes' so I added the following column to my data frame:</p>
+
+
+
+~~~r
+
+allYesRSVPs$difference = allYesRSVPs$eventTime - allYesRSVPs$time
+
+> allYesRSVPs[1:10,]
+                  time           eventTime    difference
+1  2011-06-05 12:12:27 2011-06-29 18:30:00 34937.55 mins
+2  2011-06-05 14:49:04 2011-06-29 18:30:00 34780.93 mins
+3  2011-06-10 11:22:47 2011-06-29 18:30:00 27787.22 mins
+4  2011-06-07 15:27:07 2011-06-29 18:30:00 31862.88 mins
+5  2011-06-06 20:21:45 2011-06-29 18:30:00 33008.25 mins
+6  2011-07-04 19:49:04 2011-07-27 19:00:00 33070.93 mins
+7  2011-07-05 16:40:10 2011-07-27 19:00:00 31819.83 mins
+8  2011-08-19 07:41:10 2011-08-31 18:30:00 17928.83 mins
+9  2011-08-24 12:47:40 2011-08-31 18:30:00 10422.33 mins
+10 2011-08-18 09:56:53 2011-08-31 18:30:00 19233.12 mins
+~~~
+
+<p>I then tried to use ggplot to create a bar chart of that data:</p>
+
+
+
+~~~r
+
+> ggplot(allYesRSVPs, aes(x=difference)) + geom_histogram(binwidth=1, fill="green")
+~~~
+
+<p>Unfortunately that resulted in this error:</p>
+
+
+
+~~~r
+
+Don't know how to automatically pick scale for object of type difftime. Defaulting to continuous
+Error: Discrete value supplied to continuous scale
+~~~
+
+<p>I couldn't find anyone who had come across this problem before in my search but I did find the <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/difftime.html">as.numeric</a> function which seemed like it would put the difference into an appropriate format:</p>
+
+
+
+~~~r
+
+allYesRSVPs$difference = as.numeric(allYesRSVPs$eventTime - allYesRSVPs$time, units="days")
+> ggplot(allYesRSVPs, aes(x=difference)) + geom_histogram(binwidth=1, fill="green")
+~~~
+
+<p>that resulted in the following chart:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/07/2014-07-20_01-15-39.png" alt="2014 07 20 01 15 39" title="2014-07-20_01-15-39.png" border="0" width="580" height="386" />
+</div>
+
+<p>We can see there is quite a heavy concentration of people RSVPing yes in the few days before the event and then the rest are scattered across the first 30 days.</p>
+
+
+<p>We usually announce events 3/4 weeks in advance so I don't know that it tells us anything interesting other than that it seems like people sign up for events when an email is sent out about them.</p>
+
+
+<p>The date the meetup was announced (by email) isn't currently exposed by the API but <a href="https://groups.google.com/forum/#!topic/meetup-api/3kcvh4ye-O0">hopefully one day it will be</a>.</p>
+
+
+<p>The <a href="https://github.com/mneedham/neo4j-meetup/blob/master/rScripts/memberOverlap.R#L290">code is on github</a> if you want to have a play - any suggestions welcome.</p>
+

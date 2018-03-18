@@ -1,0 +1,81 @@
++++
+draft = false
+date="2013-04-30 21:37:11"
+title="Ruby 1.9.3 p0: Investigating weirdness with HTTP POST request in net/http"
+tag=['ruby']
+category=['Ruby']
++++
+
+<p><a href="https://twitter.com/the_T_bot">Thibaut</a> and I spent the best part of the last couple of days trying to diagnose a problem we were having trying to make a POST request using <a href="https://www.ruby-toolbox.com/projects/rest-client">rest-client</a> to one of our services.</p>
+
+
+<p>We have nginx fronting the application server so the request passes through there first:</p>
+
+
+<div align="center">
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/04/post.png" alt="Post" title="post.png" border="0" width="335" height="185" /></div>
+
+<p>The problem we were having was that the request was timing out on the client side before it had been processed and the request wasn't reaching the application server.</p>
+
+
+<p>We initially thought there might be a problem with our nginx configuration because we don't have many POST requests with largish (40kb) payloads so we initially tried tweaking the <a href="http://wiki.nginx.org/HttpProxyModule#proxy_buffer_size">proxy buffer size</a>.</p>
+
+
+<p>It was a bit of a long shot because changing that setting only reduces the likelihood that nginx writes the request body to disc and then loads it later which shouldn't impact performance that much.</p>
+
+
+<p>The next thing we tried was replicating the request using <a href="http://curl.haxx.se/">cURL</a> with a smaller payload which worked fine. cURL had no problem with the bigger payload either.</p>
+
+
+<p>We therefore thought there must be a difference in the request headers being sent by rest-client and our initial investigation suggested that it might be to do with the '<a href="http://stackoverflow.com/questions/2773396/whats-the-content-length-field-in-http-header">Content-Length</a>' header.</p>
+
+
+<p>There was a 1 byte difference in the value being sent by cURL and the one being sent by rest-client which was to do with the last character of the payload being a <a href="http://homepage.smc.edu/morgan_david/CS41/lineterminators.htm">0A</a> (linefeed) character.</p>
+
+
+<p>We changed the 'Content-Length' header on our cURL request to match that of the rest-client request (i.e. 1 byte too large) and were able to replicate the timeout problem.</p>
+ 
+
+<p>At this stage we thought that calling 'strip' on the body of our rest-client request would solve the problem as the 'Content-Length' header would now be set to the correct value. It did set the 'Content-Length' header properly but unfortunately didn't get rid of the timeout.</p>
+
+
+<p>Our next step was to check whether or not we could get any request to work from rest-client so we tried using a smaller payload which worked fine.</p>
+
+
+<p>At this stage <a href="https://twitter.com/jasonneylon">Jason</a> heard us discussing what to do next and said that he'd come across it earlier and that upgrading our Ruby Version from '1.9.3p0' would solve all our woes.</p>
+
+
+<p>That Ruby version is a couple of years old and most of our servers are running '1.9.3p392' but somehow this one had slipped through the net.</p>
+
+
+<p>We <a href="http://www.markhneedham.com/blog/2013/04/27/treat-servers-as-cattle-spin-them-up-tear-them-down/">spun up a new server</a> with that version of Ruby installed and it did indeed fix the problem.</p>
+
+
+<p>However, we were curious what the fix was and had a look at the <a href="http://svn.ruby-lang.org/repos/ruby/tags/v1_9_3_125/ChangeLog">change log of the first patch release after '1.9.3p0'</a>. We noticed the following which seemed relevant:</p>
+
+
+<blockquote>
+Tue May 31 17:03:24 2011  Hiroshi Nakamura  <nahi@ruby-lang.org>
+
+	* lib/net/http.rb, lib/net/protocol.rb: Allow to configure to wait
+	  server returning '100 continue' response before sending HTTP request
+	  body. See NEWS for more detail. See #3622.
+	  Original patch is made by Eric Hodel <drbrain@segment7.net>.
+
+	* test/net/http/test_http.rb: test it.
+
+	* NEWS: Add new feature.
+</blockquote>
+
+<p>One thing we noticed from looking at the requests with <a href="http://vccv.posterous.com/use-ngrep-to-inspect-http-headers">ngrep</a> was that cURL was setting the <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.2.3">100 Continue Expect request header</a> and rest-client wasn't.</p>
+
+
+<p>When the payload size was small nginx didn't seem to send a '100 Continue' response which was presumably why we weren't seeing a problem with the small payloads.</p>
+
+
+<p>I wasn't sure how to go about finding out exactly what was going wrong but given how long it took us to get to this point I thought I'd summarise what we tried and see if anyone could explain it to me.</p>
+
+
+<p>So if you've come across this problem (probably 2 years ago!) it'd be cool to know exactly what the problem was.</p>
+

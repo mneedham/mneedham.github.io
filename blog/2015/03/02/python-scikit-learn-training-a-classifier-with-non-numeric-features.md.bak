@@ -1,0 +1,188 @@
++++
+draft = false
+date="2015-03-02 07:48:24"
+title="Python: scikit-learn - Training a classifier with non numeric features"
+tag=['python']
+category=['Data Science', 'Python']
++++
+
+<p>
+Following on from my <a href="http://www.markhneedham.com/blog/2015/02/20/pythonscikit-learn-detecting-which-sentences-in-a-transcript-contain-a-speaker/">previous</a> <a href="http://www.markhneedham.com/blog/2015/02/24/pythonnltk-naive-vs-naive-bayes-vs-decision-tree/">posts</a> on <a href="http://www.markhneedham.com/blog/2015/03/01/python-detecting-the-speaker-in-himym-using-parts-of-speech-pos-tagging/">training a classifier</a> to pick out the speaker in sentences of <a href="http://en.wikipedia.org/wiki/How_I_Met_Your_Mother">HIMYM</a> transcripts the next thing to do was train a random forest of decision trees to see how that fared.
+</p>
+
+
+<p>
+I've <a href="http://www.markhneedham.com/blog/2013/11/09/python-making-scikit-learn-and-pandas-play-nice/">used scikit-learn for this before</a> so I decided to use that. However, before building a random forest I wanted to check that I could build an equivalent <a href="http://scikit-learn.org/stable/modules/tree.html">decision tree</a>.
+</p>
+
+
+<p>
+I initially thought that scikit-learn's DecisionTree classifier would take in data in the same format as nltk's so I started out with the following code:
+</p>
+
+
+
+~~~python
+
+import json
+import nltk
+import collections
+
+from himymutil.ml import pos_features
+from sklearn import tree
+from sklearn.cross_validation import train_test_split
+
+with open("data/import/trained_sentences.json", "r") as json_file:
+    json_data = json.load(json_file)
+
+tagged_sents = []
+for sentence in json_data:
+    tagged_sents.append([(word["word"], word["speaker"]) for word in sentence["words"]])
+
+featuresets = []
+for tagged_sent in tagged_sents:
+    untagged_sent = nltk.tag.untag(tagged_sent)
+    sentence_pos = nltk.pos_tag(untagged_sent)
+    for i, (word, tag) in enumerate(tagged_sent):
+        featuresets.append((pos_features(untagged_sent, sentence_pos, i), tag) )
+
+clf = tree.DecisionTreeClassifier()
+
+train_data, test_data = train_test_split(featuresets, test_size=0.20, train_size=0.80)
+
+>>> train_data[1]
+({'word': u'your', 'word-pos': 'PRP$', 'next-word-pos': 'NN', 'prev-word-pos': 'VB', 'prev-word': u'throw', 'next-word': u'body'}, False)
+
+>>> clf.fit([item[0] for item in train_data], [item[1] for item in train_data])
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/sklearn/tree/tree.py", line 137, in fit
+    X, = check_arrays(X, dtype=DTYPE, sparse_format="dense")
+  File "/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/sklearn/utils/validation.py", line 281, in check_arrays
+    array = np.asarray(array, dtype=dtype)
+  File "/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/numpy/core/numeric.py", line 460, in asarray
+    return array(a, dtype, copy=False, order=order)
+TypeError: float() argument must be a string or a number
+~~~
+
+<p>
+In fact, the classifier can only deal with numeric features so we need to <a href="http://scikit-learn.org/dev/modules/feature_extraction.html#loading-features-from-dicts">translate our features into that format using DictVectorizer</a>.
+</p>
+
+
+
+~~~python
+
+from sklearn.feature_extraction import DictVectorizer
+
+vec = DictVectorizer()
+X = vec.fit_transform([item[0] for item in featuresets]).toarray()
+
+>>> len(X)
+13016
+
+>>> len(X[0])
+7302
+
+>>> vec.get_feature_names()[10:15]
+['next-word-pos=EX', 'next-word-pos=IN', 'next-word-pos=JJ', 'next-word-pos=JJR', 'next-word-pos=JJS']
+~~~
+
+<p>
+We end up with one feature for every key/value combination that exists in <cite>featuresets</cite>. 
+</p>
+
+
+<p>I was initially confused about how to split up <a href="http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.train_test_split.html">training and test data sets</a> but it's actually fairly easy - <cite>train_test_split</cite> allows us to pass in multiple lists which it splits along the same seam:</p>
+
+
+
+~~~python
+
+vec = DictVectorizer()
+X = vec.fit_transform([item[0] for item in featuresets]).toarray()
+Y = [item[1] for item in featuresets]
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.20, train_size=0.80)
+~~~
+
+<p>
+Next we want to train the classifier which is a couple of lines of code:
+</p>
+
+
+
+~~~python
+
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(X_train, Y_train)
+~~~
+
+<p>
+I wrote the following function to assess the classifier:
+</p>
+
+
+
+~~~python
+
+import collections
+import nltk
+
+def assess(text, predictions_actual):
+    refsets = collections.defaultdict(set)
+    testsets = collections.defaultdict(set)
+    for i, (prediction, actual) in enumerate(predictions_actual):
+        refsets[actual].add(i)
+        testsets[prediction].add(i)
+    speaker_precision = nltk.metrics.precision(refsets[True], testsets[True])
+    speaker_recall = nltk.metrics.recall(refsets[True], testsets[True])
+    non_speaker_precision = nltk.metrics.precision(refsets[False], testsets[False])
+    non_speaker_recall = nltk.metrics.recall(refsets[False], testsets[False])
+    return [text, speaker_precision, speaker_recall, non_speaker_precision, non_speaker_recall]
+~~~
+
+<p>We can call it like so:</p>
+
+
+
+~~~python
+
+predictions = clf.predict(X_test)
+assessment = assess("Decision Tree", zip(predictions, Y_test))
+
+>>> assessment
+['Decision Tree', 0.9459459459459459, 0.9210526315789473, 0.9970134395221503, 0.9980069755854509]
+~~~
+
+<p>
+Those values are in the same ball park as we've seen with the nltk classifier so I'm happy it's all wired up correctly.</p>
+
+
+<p>The last thing I wanted to do was <a href="http://stackoverflow.com/questions/23557545/how-to-explain-the-decision-tree-from-scikit-learn">visualise the decision tree</a> that had been created and the easiest way to do that is <a href="http://scikit-learn.org/stable/modules/generated/sklearn.tree.export_graphviz.html">export the classifier to DOT format</a> and then use graphviz to create an image:
+</p>
+
+
+
+~~~python
+
+with open("/tmp/decisionTree.dot", 'w') as file:
+    tree.export_graphviz(clf, out_file = file, feature_names = vec.get_feature_names())
+~~~
+
+
+~~~bash
+
+dot -Tpng /tmp/decisionTree.dot -o /tmp/decisionTree.png
+~~~
+
+<P>
+The decision tree is quite a few levels deep so here's part of it:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/03/decisionTreeSection.png" alt="DecisionTreeSection" title="decisionTreeSection.png" border="0" width="600" height="343" /></div>
+
+<p>The <a href="https://github.com/mneedham/neo4j-himym/blob/master/scripts/scikit_dt.py">full script is on github</a> if you want to play around with it.</p>
+

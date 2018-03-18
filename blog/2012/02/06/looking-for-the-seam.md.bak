@@ -1,0 +1,35 @@
++++
+draft = false
+date="2012-02-06 22:22:16"
+title="Looking for the seam"
+tag=['software-development']
+category=['Software Development']
++++
+
+During December/early January we spent some time analysing an existing system which we were looking to rewrite and our approach was to look for how we could do this in an incremental way.
+
+In order to do that we needed to look for what Michael Feathers refers to as a <a href="http://www.markhneedham.com/blog/2009/06/21/seams-some-thoughts/">seam</a>:
+
+<blockquote>
+A seam is a place where you can alter behaviour in your program without editing in that place
+</blockquote>
+
+On previous times when I've been thinking about seams it's been at a code level inside a single application but this time there were more than one pieces interacting.
+
+<div style="float:right">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/02/seam.gif" alt="Seam" title="seam.gif" border="0" width="253" height="327" />
+</div>
+
+We knew that there was a web application where the user could request a quote which would be calculated offline and then an email sent to them when it was ready to view.
+
+That led us to believe that there was probably some sort of queue being used to store the outstanding requests and there'd probably be some sort of application processing the requests.
+
+As it turned out the design of the system actually looked like the diagram on the right with the database effectively as a queue.
+
+We then needed to work out which tables we had to read from/write to so that we'd be able to just replace the 'polling application' and leave the 'web application' alone.
+
+We were then able to come up with a design whereby we isolated any interaction with the database into a 'bridging application' which then farmed requests out to a new application which we could scale horizontally. 
+
+It could also take care of writing the quotes back into the database so the existing application could read them back onto the screen.
+
+Although we ended up not using this architecture for other reasons I think it's a neat way of looking at systems to work out how we can change them with minimal impact.

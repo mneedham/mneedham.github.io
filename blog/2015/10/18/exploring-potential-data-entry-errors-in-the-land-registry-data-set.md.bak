@@ -1,0 +1,271 @@
++++
+draft = false
+date="2015-10-18 10:03:57"
+title="Exploring (potential) data entry errors in the Land Registry data set"
+tag=['data-science-2']
+category=['Data Science']
++++
+
+<p>
+I've previously written a couple of blog posts describing the mechanics of analysing the <a href="https://data.gov.uk/dataset/land-registry-monthly-price-paid-data">Land Registry data set</a> and I thought it was about time I described some of the queries I've been running the discoveries I've made.
+</p>
+
+
+<p>To recap, the land registry provides a 3GB, 20 million line CSV file containing all the property sales in the UK since 1995.
+</p>
+
+
+<p>We'll be loading and query the data in R using the <a href="https://cran.r-project.org/web/packages/data.table/index.html">data.table</a> package:</p>
+
+
+
+~~~r
+
+> library(data.table)
+> dt = fread("pp-complete.csv", header = FALSE)
+> dt[1:5]
+                                       V1     V2               V3       V4 V5
+1: {0C7ADEF5-878D-4066-B785-0000003ED74A} 163000 2003-02-21 00:00  UB5 4PJ  T
+2: {35F67271-ABD4-40DA-AB09-00000085B9D3} 247500 2005-07-15 00:00 TA19 9DD  D
+3: {B20B1C74-E8E1-4137-AB3E-0000011DF342} 320000 2010-09-10 00:00   W4 1DZ  F
+4: {7D6B0915-C56B-4275-AF9B-00000156BCE7} 104000 1997-08-27 00:00 NE61 2BH  D
+5: {47B60101-B64C-413D-8F60-000002F1692D} 147995 2003-05-02 00:00 PE33 0RU  D
+   V6 V7  V8 V9           V10        V11         V12
+1:  N  F 106     READING ROAD   NORTHOLT    NORTHOLT
+2:  N  F  58     ADAMS MEADOW  ILMINSTER   ILMINSTER
+3:  N  L  58    WHELLOCK ROAD                 LONDON
+4:  N  F  17         WESTGATE    MORPETH     MORPETH
+5:  N  F   4    MASON GARDENS WEST WINCH KING'S LYNN
+                            V13            V14 V15
+1:                       EALING GREATER LONDON   A
+2:               SOUTH SOMERSET       SOMERSET   A
+3:                       EALING GREATER LONDON   A
+4:               CASTLE MORPETH NORTHUMBERLAND   A
+5: KING'S LYNN AND WEST NORFOLK        NORFOLK   A
+~~~
+
+<p>
+For our first query we're going to find the most expensive query sold for each year from 1995 - 2015.
+</p>
+
+
+<p>
+The first thing we'll need to do is make column 'V2' (price) numeric and convert column 'V3' (sale date) to data format so we can do date arithmetic on it:
+</p>
+
+
+
+~~~r
+
+> dt = dt[, V2:= as.numeric(V2)]
+> dt = dt[, V3:= as.Date(V3)]
+~~~
+
+<p>Now let's write the query:</p>
+
+
+
+~~~r
+
+> dt[, .SD[which.max(V2)], by=year(V3)][order(year)][, .(year,V9,V8,V10,V12,V14,V4,V2)]
+    year             V9               V8                   V10            V12            V14       V4       V2
+ 1: 1995                  THORNETS HOUSE       BUILDER GARDENS    LEATHERHEAD         SURREY KT22 7DE  5610000
+ 2: 1996                              24             MAIN ROAD MELTON MOWBRAY LEICESTERSHIRE LE14 3SP 17250000
+ 3: 1997                              42        HYDE PARK GATE         LONDON GREATER LONDON  SW7 5DU  7500000
+ 4: 1998                              19     NEW BRIDGE STREET         LONDON GREATER LONDON EC4V 6DB 11250000
+ 5: 1999                  TERMINAL HOUSE LOWER BELGRAVE STREET         LONDON GREATER LONDON SW1W 0NH 32477000
+ 6: 2000         UNIT 3     JUNIPER PARK            FENTON WAY       BASILDON          ESSEX SS15 6RZ 12600000
+ 7: 2001                              19        BABMAES STREET         LONDON GREATER LONDON SW1Y 6HD 24750000
+ 8: 2002                              72        VINCENT SQUARE         LONDON GREATER LONDON SW1P 2PA  8300000
+ 9: 2003                              81          ADDISON ROAD         LONDON GREATER LONDON  W14 8ED  9250000
+10: 2004                              29   HOLLAND VILLAS ROAD         LONDON GREATER LONDON  W14 8DH  7950000
+11: 2005 APARTMENT 1102              199         KNIGHTSBRIDGE         LONDON GREATER LONDON  SW7 1RH 15193950
+12: 2006                               1     THORNWOOD GARDENS         LONDON GREATER LONDON   W8 7EA 12400000
+13: 2007                              36         CADOGAN PLACE         LONDON GREATER LONDON SW1X 9RX 17000000
+14: 2008             50                         CHESTER SQUARE         LONDON GREATER LONDON SW1W 9EA 19750000
+15: 2009                       CASA SARA     HEATHERSIDE DRIVE VIRGINIA WATER         SURREY GU25 4JU 13800000
+16: 2010                              10   HOLLAND VILLAS ROAD         LONDON GREATER LONDON  W14 8BP 16200000
+17: 2011                WHITESTONE HOUSE       WHITESTONE LANE         LONDON GREATER LONDON  NW3 1EA 19250000
+18: 2012                              20           THE BOLTONS         LONDON GREATER LONDON SW10 9SU 54959000
+19: 2013   APARTMENT 7F              171         KNIGHTSBRIDGE         LONDON GREATER LONDON  SW7 1DW 39000000
+20: 2014                  APARTMENT 6, 5          PRINCES GATE         LONDON GREATER LONDON  SW7 1QJ 50000000
+21: 2015                              37       BURNSALL STREET         LONDON GREATER LONDON  SW3 3SR 27750000
+    year             V9               V8                   V10            V12            V14       V4       V2
+~~~
+
+<p>The results mostly make sense - the majority of the highest priced properties are around Hyde Park and often somewhere near Knightsbridge which is one of the most expensive places in the country.
+</p>
+
+
+<p>There are some odd odds though. e.g. in 1996 the top priced property is in Leicester and sold for just over £17m. I looked it up on the Land Registry site to quickly see what it was <a href="http://houseprices.landregistry.gov.uk/price-paid-record/1943130/24+main+road+asfordby+valley+melton+mowbray+melton+leicestershire+le14+3sp">subsequently sold for</a>:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/10/2015-10-17_22-06-03.png" alt="2015 10 17 22 06 03" title="2015-10-17_22-06-03.png" border="0" width="500" /></div>
+
+<p>
+Based on the subsequent prices I think we can safely assume that the initial price is incorrect and should actually have been £17,250.
+</p>
+
+
+<p>We can also say the same about our 2000 winner in Juniper Park in Basildon which sold for £12.6 million. If we look at the <a href="http://houseprices.landregistry.gov.uk/sold-prices/juniper%20park%20ss15%206rz">next sale price after that</a> it's £172,500 in 2003 so most likely it was sold for £126,000 - only 100 times out!
+</p>
+
+
+<p>
+I wanted to follow this observation and see if I could find other anomalies by comparing adjacent sale prices of properties.
+</p>
+
+
+<p>
+First we'll create a 'fullAddress' field which we'll use as an identifier for each property. It's not completely unique but it's not far away:
+</p>
+
+
+
+~~~r
+
+> dt = dt[, fullAddress := paste(dt$V8, dt$V9, dt$V10, dt$V11, dt$V12, dt$V13, dt$V4, sep=", ")]
+> setkey(dt, fullAddress)
+
+> dt[, .(fullAddress, V2)][1:5]
+                                                                                  fullAddress     V2
+1:                ''NUTSHELL COTTAGE, 72, , KIRKLAND, KENDAL, KENDAL, SOUTH LAKELAND, LA9 5AP  89000
+2:                         'FARRIERS', , FARRIERS CLOSE, WOODLEY, READING, WOKINGHAM, RG5 3DD 790000
+3: 'HOLMCROFT', 40, , BRIDGNORTH ROAD, WOMBOURNE, WOLVERHAMPTON, SOUTH STAFFORDSHIRE, WV5 0AA 305000
+4:                            (AKERS), , CHAPEL STREET, EASINGWOLD, YORK, HAMBLETON, YO61 3AE 118000
+5:                                       (ANNINGS), , , FARWAY, COLYTON, EAST DEVON, EX24 6DF 150000
+~~~
+
+<p>
+Next we'll add a column to the data table which contains the previous sale price and another column which calculate the difference between the two prices:
+</p>
+
+
+
+~~~R
+
+> dt[, lag.V2:=c(NA, V2[-.N]), by = fullAddress]
+> dt[, V2.diff := V2 - lag.V2]
+
+> dt[!is.na(lag.V2),][1:10][, .(fullAddress, lag.V2, V2, V2.diff)]
+                                                                                   fullAddress lag.V2     V2 V2.diff
+ 1:                                       (ANNINGS), , , FARWAY, COLYTON, EAST DEVON, EX24 6DF 150000 385000  235000
+ 2:                  (BARBER), , PEACOCK CORNER, MOULTON ST MARY, NORWICH, BROADLAND, NR13 3NF 115500 136000   20500
+ 3:                      (BELL), , BAWBURGH ROAD, MARLINGFORD, NORWICH, SOUTH NORFOLK, NR9 5AG 128000 300000  172000
+ 4:                      (BEVERLEY), , DAWNS LANE, ASLOCKTON, NOTTINGHAM, RUSHCLIFFE, NG13 9AD  95000 210000  115000
+ 5: (BLACKMORE), , GREAT STREET, NORTON SUB HAMDON, STOKE-SUB-HAMDON, SOUTH SOMERSET, TA14 6SJ  53000 118000   65000
+ 6:                        (BOWDERY), , HIGH STREET, MARKINGTON, HARROGATE, HARROGATE, HG3 3NR 140000 198000   58000
+ 7:                  (BULLOCK), , MOORLAND ROAD, INDIAN QUEENS, ST. COLUMB, RESTORMEL, TR9 6HN  50000  50000       0
+ 8:                                   (CAWTHRAY), , CAWOOD ROAD, WISTOW, SELBY, SELBY, YO8 3XB 130000 120000  -10000
+ 9:                                   (CAWTHRAY), , CAWOOD ROAD, WISTOW, SELBY, SELBY, YO8 3XB 120000 155000   35000
+10:                                 (COATES), , , BARDSEA, ULVERSTON, SOUTH LAKELAND, LA12 9QT  26000  36000   10000
+~~~
+
+<p>Let's find the properties which have the biggest £ value difference in adjacent sales:</p>
+
+
+
+~~~r
+
+> dt[!is.na(V2.diff)][order(-abs(V2.diff))][, .(fullAddress, lag.V2, V2, V2.diff)][1:20]
+                                                                fullAddress   lag.V2       V2   V2.diff
+ 1:     , 50, CHESTER SQUARE, LONDON, LONDON, CITY OF WESTMINSTER, SW1W 9EA  1135000 19750000  18615000
+ 2:         44, , LANSDOWNE ROAD, , LONDON, KENSINGTON AND CHELSEA, W11 2LU  3675000 22000000  18325000
+ 3:      24, , MAIN ROAD, ASFORDBY VALLEY, MELTON MOWBRAY, MELTON, LE14 3SP 17250000    32500 -17217500
+ 4:           11, , ORMONDE GATE, , LONDON, KENSINGTON AND CHELSEA, SW3 4EU   250000 16000000  15750000
+ 5:     2, , HOLLAND VILLAS ROAD, , LONDON, KENSINGTON AND CHELSEA, W14 8BP  8675000 24000000  15325000
+ 6:          1, , PEMBRIDGE PLACE, , LONDON, KENSINGTON AND CHELSEA, W2 4XB  2340250 17000000  14659750
+ 7:     10, , CHESTER SQUARE, LONDON, LONDON, CITY OF WESTMINSTER, SW1W 9HH   680000 15000000  14320000
+ 8:        12, , SOUTH EATON PLACE, , LONDON, CITY OF WESTMINSTER, SW1W 9JA  4250000 18550000  14300000
+ 9:     32, FLAT 1, HOLLAND PARK, , LONDON, KENSINGTON AND CHELSEA, W11 3TA   420000 14100000  13680000
+10:       42, , EGERTON CRESCENT, , LONDON, KENSINGTON AND CHELSEA, SW3 2EB  1125000 14650000  13525000
+11:   36, , CADOGAN PLACE, LONDON, LONDON, KENSINGTON AND CHELSEA, SW1X 9RX  3670000 17000000  13330000
+12:        22, , ILCHESTER PLACE, , LONDON, KENSINGTON AND CHELSEA, W14 8AA  3350000 16250000  12900000
+13:                3, , BOLNEY GATE, , LONDON, CITY OF WESTMINSTER, SW7 1QW  5650000 18250000  12600000
+14:        JUNIPER PARK, UNIT 3, FENTON WAY, , BASILDON, BASILDON, SS15 6RZ 12600000   172500 -12427500
+15:           10, , WALTON PLACE, , LONDON, KENSINGTON AND CHELSEA, SW3 1RJ   356000 12750000  12394000
+16: 84, MAISONETTE C, EATON SQUARE, , LONDON, CITY OF WESTMINSTER, SW1W 9AG  1500000 13400000  11900000
+17:          3, , CHESTERFIELD HILL, , LONDON, CITY OF WESTMINSTER, W1J 5BJ   955000 12600000  11645000
+18:   39, , ENNISMORE GARDENS, LONDON, LONDON, CITY OF WESTMINSTER, SW7 1AG  3650000 15250000  11600000
+19:       76, FLAT 2, EATON SQUARE, , LONDON, CITY OF WESTMINSTER, SW1W 9AW  3500000 15000000  11500000
+20:                            85, , AVENUE ROAD, , LONDON, CAMDEN, NW8 6JD   519000 12000000  11481000
+~~~
+
+<p>
+Most of the entries here are in Westminster or Hyde Park and don't look particularly dodgy at first glance. We'd have to drill into the sale dates to confirm.
+</p>
+
+
+<p>What you might also have noticed is that our Melton Mowbray and Juniper Park properties both show up and although they don't have the biggest £ value difference they would probably rank top if calculated the multiplier instead. Let's give that a try:</p>
+
+
+
+~~~r
+
+> dt[, V2.multiplier := ifelse(V2 > lag.V2, V2 / lag.V2, lag.V2 / V2)]
+
+> dt[!is.na(V2.multiplier)][order(-V2.multiplier)][, .(fullAddress, lag.V2, V2, V2.multiplier)][1:20]
+                                                                            fullAddress   lag.V2       V2 V2.multiplier
+ 1:                  24, , MAIN ROAD, ASFORDBY VALLEY, MELTON MOWBRAY, MELTON, LE14 3SP 17250000    32500     530.76923
+ 2:                          LEA HAVEN, FLAT 1, CASTLE LANE, , TORQUAY, TORBAY, TQ1 3BE    38000  7537694     198.36037
+ 3:   NIGHTINGALE HOUSE, , BURLEIGH ROAD, ASCOT, ASCOT, WINDSOR AND MAIDENHEAD, SL5 7LD     9500  1100000     115.78947
+ 4:                    JUNIPER PARK, UNIT 3, FENTON WAY, , BASILDON, BASILDON, SS15 6RZ 12600000   172500      73.04348
+ 5:                           9, , ROTHSAY GARDENS, BEDFORD, BEDFORD, BEDFORD, MK40 3QA    21000  1490000      70.95238
+ 6:       22, GROUND FLOOR FLAT, SEA VIEW AVENUE, , PLYMOUTH, CITY OF PLYMOUTH, PL4 8RU    27950  1980000      70.84079
+ 7: 91A, , TINTERN AVENUE, WESTCLIFF-ON-SEA, WESTCLIFF-ON-SEA, SOUTHEND-ON-SEA, SS0 9QQ    17000  1190000      70.00000
+ 8:     204C, , SUTTON ROAD, SOUTHEND-ON-SEA, SOUTHEND-ON-SEA, SOUTHEND-ON-SEA, SS2 5ES    18000  1190000      66.11111
+ 9:            PRIORY COURT, FLAT 3, PRIORY AVENUE, TOTNES, TOTNES, SOUTH HAMS, TQ9 5HS  2226500    34000      65.48529
+10:      59, , ST ANNS ROAD, SOUTHEND-ON-SEA, SOUTHEND-ON-SEA, SOUTHEND-ON-SEA, SS2 5AT    18250  1190000      65.20548
+11:                                    15, , BREWERY LANE, LEIGH, LEIGH, WIGAN, WN7 2RJ    13500   880000      65.18519
+12:                       11, , ORMONDE GATE, , LONDON, KENSINGTON AND CHELSEA, SW3 4EU   250000 16000000      64.00000
+13:                         WOODEND, , CANNONGATE ROAD, HYTHE, HYTHE, SHEPWAY, CT21 5PX    19261  1200000      62.30206
+14:                 DODLESTON OAKS, , CHURCH ROAD, DODLESTON, CHESTER, CHESTER, CH4 9NG    10000   620000      62.00000
+15:         CREEKSIDE, , CURLEW DRIVE, WEST CHARLETON, KINGSBRIDGE, SOUTH HAMS, TQ7 2AA    28000  1700000      60.71429
+16:                              20, , BRANCH ROAD, BURNLEY, BURNLEY, BURNLEY, BB11 3AT     9000   540000      60.00000
+17:             THE BARN, , LEE WICK LANE, ST OSYTH, CLACTON-ON-SEA, TENDRING, CO16 8ES    10000   600000      60.00000
+18:                           11, , OAKWOOD GARDENS, KNAPHILL, WOKING, WOKING, GU21 2RX     6000   357000      59.50000
+19:                              23, , OLDHAM ROAD, GRASSCROFT, OLDHAM, OLDHAM, OL4 4HY     8000   475000      59.37500
+20:                  THE SUNDAY HOUSE, , WATER LANE, GOLANT, FOWEY, RESTORMEL, PL23 1LF     8000   475000      59.37500
+~~~
+
+<p>
+This is much better!  Our Melton Mowbray property comes in first by miles and Juniper Park is there in 4th. The rest of the price increases look implausible as well but let's drill into a couple of them:
+</p>
+
+
+
+~~~r
+
+> dt[fullAddress == "15, , BREWERY LANE, LEIGH, LEIGH, WIGAN, WN7 2RJ"][, .(fullAddress, V3, V2)]
+                                        fullAddress         V3     V2
+1: 15, , BREWERY LANE, LEIGH, LEIGH, WIGAN, WN7 2RJ 1995-06-29  13500
+2: 15, , BREWERY LANE, LEIGH, LEIGH, WIGAN, WN7 2RJ 2008-03-28 880000
+~~~
+
+<p>
+If we look at some other properties on the <a href="http://www.rightmove.co.uk/house-prices/WN7/Brewery-Lane.html">same road</a> and look at the <a href="http://www.rightmove.co.uk/house-prices/detailMatching.html?prop=18993944&sale=35286620&country=england">property's features</a> it seems more likely that's meant to say £88,000.
+</p>
+
+
+<p>
+I noticed a similar trend when looking at some of the others on this list but I also realised that the data needs a bit of cleaning up as the 'fullAddress' column isn't uniquely identifying properties e.g. sometimes a property might have a Town/City of 'London' and a District of 'London' but on another transaction the District could be blank.
+</p>
+
+
+<p>
+On top of that, my strategy of looking for subsequent prices to spot anomalies falls down when trying to explore properties which only have one sale.
+</p>
+
+
+<p>
+So I have a couple of things to look into for now but once I've done those it'd be interesting to write an algorithm/program that could predict which transactions are likely to be anomalies. 
+</p>
+
+
+<p>
+I can imagine how that might work if I had a labelled training set but I'm not sure if I could do it with an unsupervised algorithm so if you have any pointers let me know.
+</p>
+

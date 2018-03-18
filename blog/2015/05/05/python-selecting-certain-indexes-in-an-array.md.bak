@@ -1,0 +1,120 @@
++++
+draft = false
+date="2015-05-05 21:39:24"
+title="Python: Selecting certain indexes in an array"
+tag=['python']
+category=['Python']
++++
+
+<p>A couple of days ago I was scrapping the <a href="http://en.wikipedia.org/wiki/List_of_United_Kingdom_Parliament_constituencies">UK parliament constituencies</a> from Wikipedia in preparation for the <a href="http://www.meetup.com/graphdb-london/events/221364888/">Graph Connect hackathon</a> and had got to the point where I had an array with one entry per column in the table.
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-05_22-22-57.png" alt="2015 05 05 22 22 57" title="2015-05-05_22-22-57.png" border="0" width="600" /></div>
+
+
+~~~python
+
+import requests
+
+from bs4 import BeautifulSoup
+from soupselect import select
+
+page = open("constituencies.html", 'r')
+soup = BeautifulSoup(page.read())
+
+for row in select(soup, "table.wikitable tr"):
+    if select(row, "th"):
+        print [cell.text for cell in select(row, "th")]
+
+    if select(row, "td"):
+        print [cell.text for cell in select(row, "td")]
+~~~
+
+
+~~~bash
+
+$ python blog.py
+[u'Constituency', u'Electorate (2000)', u'Electorate (2010)', u'Largest Local Authority', u'Country of the UK']
+[u'Aldershot', u'66,499', u'71,908', u'Hampshire', u'England']
+[u'Aldridge-Brownhills', u'58,695', u'59,506', u'West Midlands', u'England']
+[u'Altrincham and Sale West', u'69,605', u'72,008', u'Greater Manchester', u'England']
+[u'Amber Valley', u'66,406', u'69,538', u'Derbyshire', u'England']
+[u'Arundel and South Downs', u'71,203', u'76,697', u'West Sussex', u'England']
+[u'Ashfield', u'74,674', u'77,049', u'Nottinghamshire', u'England']
+[u'Ashford', u'72,501', u'81,947', u'Kent', u'England']
+[u'Ashton-under-Lyne', u'67,334', u'68,553', u'Greater Manchester', u'England']
+[u'Aylesbury', u'72,023', u'78,750', u'Buckinghamshire', u'England']
+...
+~~~
+
+<p>
+I wanted to get rid of the 2nd and 3rd columns (containing the electorates) from the array since those aren't interesting to me as I have another source where I've got that data from.
+</p>
+
+
+<p>
+I was struggling to do this but <a href="http://stackoverflow.com/questions/3179106/python-select-subset-from-list-based-on-index-set">two</a> <a href="http://stackoverflow.com/questions/522563/accessing-the-index-in-python-for-loops">different</a> Stack Overflow questions came to the rescue with suggestions to use enumerate to get the index of each column and then add to the list comprehension to filter appropriately.
+</p>
+
+
+<p>
+First we'll look at the filtering on a simple example. Imagine we have a list of 5 people:
+</p>
+
+
+
+~~~python
+
+people = ["mark", "michael", "brian", "alistair", "jim"]
+~~~
+
+<p>And we only want to keep the 1st, 4th and 5th people. We therefore only want to keep the values that exist in index positions 0,3 and 4 which we can do like this:
+
+
+~~~python
+
+>>> [x[1] for x in enumerate(people) if x[0] in [0,3,4]]
+['mark', 'alistair', 'jim']
+~~~
+
+<p>Now let's apply the same approach to our constituencies data set:</p>
+
+
+
+~~~python
+
+import requests
+
+from bs4 import BeautifulSoup
+from soupselect import select
+
+page = open("constituencies.html", 'r')
+soup = BeautifulSoup(page.read())
+
+for row in select(soup, "table.wikitable tr"):
+    if select(row, "th"):
+        print [entry[1].text for entry in enumerate(select(row, "th")) if entry[0] in [0,3,4]]
+
+    if select(row, "td"):
+        print [entry[1].text for entry in enumerate(select(row, "td")) if entry[0] in [0,3,4]]
+
+~~~
+
+
+~~~bash
+
+$ python blog.py
+[u'Constituency', u'Largest Local Authority', u'Country of the UK']
+[u'Aldershot', u'Hampshire', u'England']
+[u'Aldridge-Brownhills', u'West Midlands', u'England']
+[u'Altrincham and Sale West', u'Greater Manchester', u'England']
+[u'Amber Valley', u'Derbyshire', u'England']
+[u'Arundel and South Downs', u'West Sussex', u'England']
+[u'Ashfield', u'Nottinghamshire', u'England']
+[u'Ashford', u'Kent', u'England']
+[u'Ashton-under-Lyne', u'Greater Manchester', u'England']
+[u'Aylesbury', u'Buckinghamshire', u'England']
+~~~

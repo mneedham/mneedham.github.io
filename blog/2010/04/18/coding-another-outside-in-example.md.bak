@@ -1,0 +1,37 @@
++++
+draft = false
+date="2010-04-18 22:46:46"
+title="Coding: Another outside in example"
+tag=['coding']
+category=['Coding']
++++
+
+I've written before about <a href="http://www.markhneedham.com/blog/2010/03/02/riskiest-thing-first-vs-outside-in-development/">my thoughts on outside in development</a> and we came across another example last week where we made our life difficult by not initially following this approach.
+
+The rough design of what we were working on looked like this:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2010/04/outsideIn1.gif" alt="outsideIn1.gif" border="0" width="410" height="328" />
+
+My pair and I were working on the code to do the calculations and we deliberately chose not to drive the functionality from the UI because the other pair were reworking all our validation code and we didn't want to step on each others toes.
+
+We therefore started driving the code directly from the individual calculations and decided to create an object to represent each of the types of calculation. It worked quite well for all but one of the calculation classes, 'Calculation3, which became increasingly complicated as we added more test cases.
+
+At this stage we <a href="http://www.markhneedham.com/blog/2008/11/04/pair-programming-benefits-of-the-pair-switch-mid-story/">rotated pairs</a> and still unable to see a way to simplify 'Calculation3' we decided to try and drive it from the object which would actually make use of it.
+
+As <a href="http://twitter.com/darrenhobbs/statuses/12305120777">Darren Hobbs pointed out</a> in another discussion:
+
+<blockquote>
+Don't design an API. Write the code that you'd want to be able to write to use your API.
+</blockquote>
+
+In this case it became clear that the missing object which could drive out the Calculation objects was a 'Calculator':
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2010/04/outsideIn2.gif" alt="outsideIn2.gif" border="0" width="410" height="328" /> 	
+
+We started writing tests for the calculator and initially it didn't seem to make that much difference - the design of nearly all the individual 'Calculation' objects remained the same.
+
+However, once we got to the tests which would drive out the functionality currently in 'Calculation3' it became clear that we had actually got 3 objects inside 1 and that what we really needed in this case was an orchestrating class which could delegate down to small objects to do the calculations.
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2010/04/outsideIn3.gif" alt="outsideIn3.gif" border="0" width="455" height="431" />
+
+The most interesting thing about this situation for me is that I often do drive code from the outside in and I've even <a href="http://www.markhneedham.com/blog/2009/12/19/coding-an-outside-in-observation">previously written about the benefits of doing so</a> but in this context I got it wrong and it was a slightly painful lesson!

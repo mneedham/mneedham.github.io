@@ -1,0 +1,65 @@
++++
+draft = false
+date="2014-02-20 23:16:34"
+title="Automating Skype's 'This message has been removed'"
+tag=['software-development', 'skype']
+category=['Software Development']
++++
+
+<p>One of the stranger features of Skype is that that it allows you to delete the contents of a message that you've already sent to someone - something I haven't seen on any other messaging system I've used.</p>
+
+
+<p>For example if I wrote a message in Skype and wanted to edit it I would press the 'up' arrow:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-20_23-02-28.png" alt="2014 02 20 23 02 28" title="2014-02-20_23-02-28.png" border="0" width="564" height="227" />
+</div>
+
+<p>Once I've deleted the message I'd see this in the space where the message used to be:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-20_23-00-41.png" alt="2014 02 20 23 00 41" title="2014-02-20_23-00-41.png" border="0" width="600" height="36" />
+</div>
+
+<p>I almost certainly am too obsessed with this but I find it quite amusing when I see people posting and retracting messages so I wanted to see if it could be automated. </p>
+
+
+<p><a href="https://twitter.com/apcj">Alistair</a> showed me <a href="http://support.apple.com/kb/ht2488">Automator</a>, a built in tool on the Mac for automating work flows.</p>
+
+
+<p>Automator allows you to execute Applescript so we wrote the following code which selects the current chat in Skype, writes a message and then deletes it one character at a time:</p>
+
+
+
+~~~bash
+
+on run {input, parameters}
+	tell application "Skype"
+		activate
+	end tell
+	
+	tell application "System Events"
+		set message to "now you see me, now you don't"
+		keystroke message
+		keystroke return
+		keystroke (ASCII character 30) --up arrow
+		repeat length of message times
+			keystroke (ASCII character 8) --backspace
+		end repeat
+		keystroke return
+	end tell
+	return input
+end run
+~~~
+
+<p>We wired up the Applescript via the Utilities > Run Applescript menu option in Automator:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-20_23-12-38.png" alt="2014 02 20 23 12 38" title="2014-02-20_23-12-38.png" border="0" width="380" height="59" />
+</div>
+
+<p>We can then go further and wire that up to a keyboard shortcut if we want by saving the workflow as a service in Automator but for my messing around purposes clicking the 'Run' button from Automator didn't seem too much of a hardship!</p>
+

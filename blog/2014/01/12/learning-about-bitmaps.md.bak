@@ -1,0 +1,135 @@
++++
+draft = false
+date="2014-01-12 17:44:46"
+title="Learning about bitmaps"
+tag=['software-development']
+category=['Software Development']
++++
+
+<p>A few weeks ago <a href="https://twitter.com/apcj">Alistair</a> and I were working on the code used to model the <a href="http://docs.neo4j.org/chunked/milestone/graphdb-neo4j-labels.html">labels</a> that a node has attached to it in a Neo4j database.</p>
+
+
+<p>The way this works is that chunks of 32 nodes ids are represented as a 32 bit <a href="http://en.wikipedia.org/wiki/Bitmap">bitmap</a> for each label where a 1 for a bit means that a node has the label and a 0 means that it doesn't.</p>
+
+
+<p>For example, let's say we have node ids 0-31 where 0 is the highest bit and 31 is the lowest bit. If only node 0 has the label then that'd be represented as the following value:</p>
+
+
+
+~~~java
+
+java> int bitmap = 1 << 31;
+int bitmap = -2147483648
+~~~
+
+<p>If we imagine the 32 bits positioned next to each other it would <a href="http://www.binaryconvert.com/convert_signed_int.html">look like this</a>:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/01/2014-01-12_15-45-16.png" alt="2014 01 12 15 45 16" title="2014-01-12_15-45-16.png" border="0" width="600" height="92" />
+</div>
+
+
+~~~java
+
+java> 0X80000000;
+Integer res16 = -2147483648
+~~~
+
+<p>The next thing we want to do is work out whether a node has a label applied or not. We can do this by using a bitwise AND.</p>
+
+
+<p>For example to check whether the highest bit is set we would write the following code:</p>
+
+
+
+~~~java
+
+java> bitmap & (1 << 31);
+Integer res10 = -2147483648
+~~~
+
+<p>That is set as we would imagine. Now let's check a a few bits that we know aren't set:</p>
+
+
+
+~~~java
+
+java> bitmap & (1 << 0);
+Integer res11 = 0
+
+java> bitmap & (1 << 1);
+Integer res12 = 0
+
+java> bitmap & (1 << 30);
+Integer res13 = 0
+~~~
+
+<p>Another operation we might want to do is set another bit on our existing bitmap for which we can use a bitwise inclusive OR.</p>
+
+
+<p>A bitwise inclusive OR means that a bit will be set if either value has the bit set or if both have it set.</p>
+
+
+<p>Let's set the second highest bit. and visualise that calculation:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/01/2014-01-12_15-45-161.png" alt="2014 01 12 15 45 16" title="2014-01-12_15-45-16.png" border="0" width="600" height="46" />
+</div>
+
+<p>If we evaluate that we'd expect the two highest bits to be set:</p>
+
+
+
+~~~java
+
+java> bitmap |= (1 << 30);
+Integer res14 = -1073741824
+~~~
+
+<p>Now if we visualise the bitmap we'll see that is indeed the case:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/01/2014-01-12_17-16-21.png" alt="2014 01 12 17 16 21" title="2014-01-12_17-16-21.png" border="0" width="600" height="89" />
+</div>
+
+
+~~~java
+
+java> 0XC0000000;
+Integer res15 = -1073741824
+~~~
+
+<p>The next operation we want to do is to unset a bit that we're already set for which we can use a bitwise exclusive OR.</p>
+
+
+<p>An exclusive OR means that a bit will only remain set if there's a combination of (0 and 1) or (1 and 0) in the calculation. If there are two 1's or 2 0's then it'll be unset.</p>
+
+
+<p>Let's unset the 2nd highest bit so that we're left with just the top bit being set.</p>
+
+
+<p>If we visualise that we have the following calculation:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/01/2014-01-12_17-33-21.png" alt="2014 01 12 17 33 21" title="2014-01-12_17-33-21.png" border="0" width="600" height="57" />
+</div>
+
+<p>And if we evaluate that we're back to our original bitmap:</p>
+
+
+
+~~~java
+
+java> bitmap ^= (1 << 30);
+Integer res2 = -2147483648
+~~~
+
+<p>I used the <a href="http://www.javarepl.com/console.html">Java REPL</a> to evaluate the code samples in this post and <a href="http://www.roseindia.net/java/master-java/bitwise-bitshift-operators.shtml">this article explains bitshift operators very clearly</a>.</p>
+
+
+<p>The Neo4j version of the bitmap described in this post is in the <a href="https://github.com/neo4j/neo4j/blob/master/community/lucene-index/src/main/java/org/neo4j/kernel/api/impl/index/bitmaps/BitmapFormat.java">BitmapFormat</a> class on github.</p>
+

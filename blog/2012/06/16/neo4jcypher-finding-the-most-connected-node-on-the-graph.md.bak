@@ -1,0 +1,92 @@
++++
+draft = false
+date="2012-06-16 10:41:03"
+title="neo4j/Cypher: Finding the most connected node on the graph"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+As I mentioned in <a href="http://www.markhneedham.com/blog/2012/05/12/neo4jcypher-finding-the-shortest-path-between-two-nodes-while-applying-predicates/">another post about a month ago</a> I've been playing around with a neo4j graph in which I have the following relationship between nodes:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/05/initial.png" />
+
+One thing I wanted to do was work out which node is the most connected on the graph, which would tell me who's worked with the most people.
+
+I started off with the following cypher query:
+
+
+~~~ruby
+
+query =  " START n = node(*)"
+query << " MATCH n-[r:colleagues]->c"
+query << " WHERE n.type? = 'person' and has(n.name)"
+query << " RETURN n.name, count(r) AS connections"
+query << " ORDER BY connections DESC"
+~~~
+
+I can then execute that via the neo4j console or through irb using the neography gem like so:
+
+
+~~~ruby
+
+> require 'rubygems'
+> require 'neography'
+> neo = Neography::Rest.new(:port => 7476)
+> neo.execute_query query
+
+# cut for brevity
+{"data"=>[["Carlos Villela", 283], ["Mark Needham", 221]], "columns"=>["n.name", "connections"]} 
+~~~
+
+That shows me each person and the number of people they've worked with but I wanted to be able to see the most connected person in each office .
+
+Each person is assigned to an office while they're working out of that office but people tend to move around so they'll have links to multiple offices:
+	
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/06/v3.png" alt="V3" title="v3.png" border="0" width="600" height="125" />
+
+I put 'start_date' and 'end_date' properties on the 'member_of' relationship and we can work out a person's current office by finding the 'member_of' relationship which doesn't have an end date defined:
+
+
+~~~ruby
+
+query =  " START n = node(*)"
+query << " MATCH n-[r:colleagues]->c, n-[r2:member_of]->office"
+query << " WHERE n.type? = 'person' and has(n.name) and not(has(r2.end_date))"
+query << " RETURN n.name, count(r) AS connections, office.name"
+query << " ORDER BY connections DESC"
+~~~
+
+And now our results look more like this:
+
+
+~~~text
+
+{"data"=>[["Carlos Villela", 283, "Porto Alegre - Brazil"], ["Mark Needham", 221, "London - UK South"]], 
+"columns"=>["n.name", "connections"]} 
+~~~
+
+If we want to restrict that just to return the people for a specific person we can do that as well:
+
+
+~~~ruby
+
+query =  " START n = node(*)"
+query << " MATCH n-[r:colleagues]->c, n-[r2:member_of]->office"
+query << " WHERE n.type? = 'person' and has(n.name) and (not(has(r2.end_date))) and office.name = 'London - UK South'"
+query << " RETURN n.name, count(r) AS connections, office.name"
+query << " ORDER BY connections DESC"
+~~~
+
+
+~~~text
+
+{"data"=>[["Mark Needham", 221, "London - UK South"]], "columns"=>["n.name", "connections"]} 
+~~~
+
+In the current version of cypher we need to put brackets around the not expression otherwise it will apply the not to the rest of the where clause. Another way to get around that would be to put the not part of the where clause at the end of the line.
+
+While I am able to work out the most connected person by using these queries I'm not sure that it actually tells you who the most connected person is because it's heavily biased towards people who have worked on big teams.
+
+Some ways to try and account for this are to bias the connectivity in favour of those you have worked longer with and also to give less weight to big teams since you're less likely to have a strong connection with everyone as you might in a smaller team.
+
+I haven't got onto that yet though!

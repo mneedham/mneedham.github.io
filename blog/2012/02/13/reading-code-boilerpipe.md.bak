@@ -1,0 +1,126 @@
++++
+draft = false
+date="2012-02-13 21:16:24"
+title="Reading Code: boilerpipe"
+tag=['reading-code']
+category=['Reading Code']
++++
+
+I'm a big fan of the iPad application <a href="http://flipboard.com/">Flipboard</a>, especially it's ability to filter out the non important content on web pages and just show me the main content so I've been looking around at open source libraries which provide that facility.
+
+I came across <a href="http://www.quora.com/How-do-Read-It-Later-Instapaper-Flipboard-etc-extract-articles-from-a-page">a quora page where someone had asked how this was done</a> and the suggested libraries were <a href="http://code.google.com/p/arc90labs-readability/downloads/detail?name=readability.js&can=2&q=">readability</a>, <a href="https://github.com/jiminoc/goose">Goose</a> and <a href="http://code.google.com/p/boilerpipe/">boilerpipe</a>. 
+
+boilerpipe was written by Christian Kohlschütter and has a corresponding <a href="http://www.l3s.de/~kohlschuetter/boilerplate/">paper</a> and <a href="http://videolectures.net/wsdm2010_kohlschutter_bdu/">video</a> as well.
+
+At a very high level this is my understanding of what the code is doing:
+
+<div align="left">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/02/boilerpipe_highlevel.gif" alt="Boilerpipe highlevel" title="boilerpipe_highlevel.gif" border="0" width="467" height="58" />
+</div>
+
+It is based around a pipes/filters architectural style whereby a <cite>TextDocument</cite> is passed through filters which perform  transformations on it. After they've all been applied we can retrieve the main content of the article via a method call.
+
+I've used the pipes/filters approach when playing around with clojure/F# but the problems I was working on were much smaller than this. 
+
+In the code there around about 7 or 8 fields being manipulated so I did sometimes find it difficult to know how fields could end up with certain values which often involved looking at other filters and seeing what they did to the document.
+
+I always thought it should be possible to <strong>view each filter completely independently but when there's state manipulation involved that doesn't seem to be the case</strong>. 
+
+Luckily Christian has comments in his code which explain how you might compose the different filters again and why certain filters don't make sense on their own, only if they're combined with others.
+
+For example the <cite>BlockProximityFusion</cite> class, which is used to merge together adjacent text blocks, contains the following comment:
+
+<blockquote>
+Fuses adjacent blocks if their distance (in blocks) does not exceed a certain limit. This probably makes sense only in cases where an upstream filter already has removed some blocks.
+</blockquote>
+
+I suppose the same thing could also have been achieved with some automated tests showing scenarios where different filters are composed.
+
+Christian makes use of the logical OR ("|") operator throughout the code base to ensure that all the filters get executed even if a previous one has successfully made changes to the document.
+
+For example the main entry point into the code is <cite>ArticleExtractor</cite> which reads like this:
+
+
+~~~java
+
+public final class ArticleExtractor extends ExtractorBase {
+    public static final ArticleExtractor INSTANCE = new ArticleExtractor();
+
+    public static ArticleExtractor getInstance() {
+        return INSTANCE;
+    }
+
+    public boolean process(TextDocument doc) throws BoilerpipeProcessingException {
+        return TerminatingBlocksFinder.INSTANCE.process(doc)
+                | new DocumentTitleMatchClassifier(doc.getTitle()).process(doc)
+                | NumWordsRulesClassifier.INSTANCE.process(doc)
+                // cut for brevity
+                | ExpandTitleToContentFilter.INSTANCE.process(doc);
+    }
+}
+~~~
+
+I <a href="http://www.markhneedham.com/blog/2010/03/28/reading-code-underscore-js/">noticed a similar thing in the underscore.js code</a> but in that case the '&&' operator was used to execute code on the right hand side only if the expression on the left had been successful.
+
+If we're not using any libraries that simulate first class collections in Java (<a href="http://code.google.com/p/totallylazy/">totallylazy</a>/<a href="http://code.google.com/p/guava-libraries/">Guava</a> for example) then something like this could also work:
+
+
+~~~java
+
+public final class ArticleExtractor extends ExtractorBase {
+    ...
+    public boolean process(TextDocument doc) throws BoilerpipeProcessingException {
+        List<BoilerpipeFilter> filters = asList(TerminatingBlocksFinder.INSTANCE, new DocumentTitleMatchClassifier(doc.getTitle()), ExpandTitleToContentFilter.INSTANCE);
+        boolean result = true;
+
+        for (BoilerpipeFilter filter : filters) {
+            result = result | filter.process(doc);
+        }
+
+        return result;
+    }
+}
+~~~
+
+I originally started just browsing the code and thought I roughly understood it before realising I couldn't explain what it actually did. I therefore changed my approach and started <a href="https://github.com/mneedham/boilerpipe">writing some unit tests around it</a> to see what the current behaviour was.
+
+From what I can tell the main algorithm in the code is contained inside <cite>NumWordsRulesClassifier</cite> where each text block in the document is classified as being either content or non content.
+
+I wrote tests covering all the scenarios in this class and then refactored the code to see if I could make it a bit more expressive. I ended up with <a href="https://github.com/mneedham/boilerpipe/blob/master/src/main/de/l3s/boilerpipe/filters/english/NumWordsRulesClassifier.java">this</a>:
+
+
+~~~java
+
+private boolean currentBlockHasContent(final TextBlock prev, final TextBlock curr, final TextBlock next) {
+    if (fewLinksInCurrentBlock(curr)) {
+        if (fewLinksInPreviousBlock(prev)) {
+            return curr.getNumWords() > 16 || next.getNumWords() > 15 || prev.getNumWords() > 4;
+        } else {
+            return curr.getNumWords() > 40 || next.getNumWords() > 17;
+        }
+    }
+    return false;
+}
+
+private boolean fewLinksInCurrentBlock(TextBlock curr) {
+    return curr.getLinkDensity() <= 0.333333;
+}
+
+private boolean fewLinksInPreviousBlock(TextBlock prev) {
+    return prev.getLinkDensity() <= 0.555556;
+}
+~~~
+
+The logic is all based around examining the text blocks immediately before and after the current one to work out whether or not it's likely to be boiler plate content. 
+
+The logic around the next/previous text blocks is written quite imperatively and feels like it could be made more concise by using something like <a href="http://www.markhneedham.com/blog/2010/01/14/f-refactoring-to-sequencefor-expressions/">F#'s 'Seq.windowed' over the collection</a> but I can't quite see how at the moment!
+
+You can read more about the algorithm on pages 4-7 of <a href="http://www.l3s.de/~kohlschuetter/publications/wsdm187-kohlschuetter.pdf">the paper</a>.
+
+From running the code against a few articles I've got saved to <a href="http://readitlaterlist.com/l">ReadItLater</a> it does seem to work reasonably well. 
+
+<h4>Overall...</h4>
+
+I haven't read every single bit of the code base but from what I have read I think boilerpipe is a pretty cool library and the approach to filtering content is neat. 
+
+I found it especially useful to be able to read parts of the paper and then go and look at the corresponding code. Often that type of thing remains up to the imagination of the reader from my experience!

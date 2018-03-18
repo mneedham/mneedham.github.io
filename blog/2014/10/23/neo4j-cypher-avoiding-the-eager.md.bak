@@ -1,0 +1,372 @@
++++
+draft = false
+date="2014-10-23 05:56:57"
+title="Neo4j: Cypher - Avoiding the Eager"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>Although I love how easy Cypher's <a href="http://neo4j.com/docs/stable/query-load-csv.html">LOAD CSV</a> command makes it to get data into Neo4j, it  currently breaks <a href="http://www.faqs.org/docs/artu/ch11s01.html">the rule of least surprise</a> in the way it eagerly loads in all rows for some queries even those using <a href="http://neo4j.com/docs/stable/query-periodic-commit.html">periodic commit</a>.</p>
+
+
+<div style="float:right; padding: 0 5px 0 5px;">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/10/neverwhere.jpg" alt="Neverwhere" title="neverwhere.jpg" border="0" height="300" />
+<p>
+<cite>Beware of the eager pipe</cite>
+</p>
+
+</div>
+
+<p>This is something that my colleague Michael noted in the <a href="http://jexp.de/blog/2014/10/load-cvs-with-success/">second</a> of his blog posts explaining <a href="http://jexp.de/blog/2014/06/load-csv-into-neo4j-quickly-and-successfully/">how to use LOAD CSV successfully</a>:</p>
+
+
+<blockquote>
+The <strong>biggest issue</strong> that people ran into, even when following the advice I gave earlier, was that for large imports of more than one million rows, Cypher ran into an out-of-memory situation.
+
+That was <strong>not related to commit sizes</strong>, so it happened even with PERIODIC COMMIT of small batches.
+</blockquote>
+
+<p>I recently spent a few days importing data into Neo4j on a Windows machine with 4GB RAM so I was seeing this problem even earlier than Michael suggested.</p>
+
+
+<p>Michael explains how to work out whether your query is suffering from unexpected eager evaluation:</p>
+
+
+<blockquote>
+If you profile that query you see that there is an “Eager” step in the query plan.
+
+That is where the “pull in all data” happens.
+</blockquote>
+
+<p>You can profile queries by prefixing the word 'PROFILE'. You'll need to run your query in the console of <em>/webadmin</em> in your web browser or with the <a href="http://neo4j.com/docs/stable/shell-starting.html">Neo4j shell</a>.</p>
+
+
+<p>I did this for my queries and was able to identify query patterns which get evaluated eagerly and in some cases we can work around it.</p>
+
+
+<p>We'll use the <a href="https://github.com/mneedham/neo4j-northwind/blob/master/data/customerDb.csv">Northwind data set</a> to demonstrate how the Eager pipe can sneak into our queries but keep in mind that this data set is sufficiently small to not cause issues.</p>
+
+
+<p>This is what a row in the file looks like:</p>
+
+
+
+~~~bash
+
+$ head -n 2 data/customerDb.csv
+OrderID,CustomerID,EmployeeID,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipRegion,ShipPostalCode,ShipCountry,CustomerID,CustomerCompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,EmployeeID,LastName,FirstName,Title,TitleOfCourtesy,BirthDate,HireDate,Address,City,Region,PostalCode,Country,HomePhone,Extension,Photo,Notes,ReportsTo,PhotoPath,OrderID,ProductID,UnitPrice,Quantity,Discount,ProductID,ProductName,SupplierID,CategoryID,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,SupplierID,SupplierCompanyName,ContactName,ContactTitle,Address,City,Region,PostalCode,Country,Phone,Fax,HomePage,CategoryID,CategoryName,Description,Picture
+10248,VINET,5,1996-07-04,1996-08-01,1996-07-16,3,32.38,Vins et alcools Chevalier,59 rue de l'Abbaye,Reims,,51100,France,VINET,Vins et alcools Chevalier,Paul Henriot,Accounting Manager,59 rue de l'Abbaye,Reims,,51100,France,26.47.15.10,26.47.15.11,5,Buchanan,Steven,Sales Manager,Mr.,1955-03-04,1993-10-17,14 Garrett Hill,London,,SW1 8JR,UK,(71) 555-4848,3453,\x,"Steven Buchanan graduated from St. Andrews University, Scotland, with a BSC degree in 1976.  Upon joining the company as a sales representative in 1992, he spent 6 months in an orientation program at the Seattle office and then returned to his permanent post in London.  He was promoted to sales manager in March 1993.  Mr. Buchanan has completed the courses ""Successful Telemarketing"" and ""International Sales Management.""  He is fluent in French.",2,http://accweb/emmployees/buchanan.bmp,10248,11,14,12,0,11,Queso Cabrales,5,4,1 kg pkg.,21,22,30,30,0,5,Cooperativa de Quesos 'Las Cabras',Antonio del Valle Saavedra,Export Administrator,Calle del Rosal 4,Oviedo,Asturias,33007,Spain,(98) 598 76 54,,,4,Dairy Products,Cheeses,\x
+~~~
+
+<h3>MERGE, MERGE, MERGE</h3>
+
+<p>The first thing we want to do is create a node for each employee and each order and then create a relationship between them.</p>
+
+
+<p>We might start with the following query:</p>
+
+
+
+~~~cypher
+
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+MERGE (employee:Employee {employeeId: row.EmployeeID})
+MERGE (order:Order {orderId: row.OrderID})
+MERGE (employee)-[:SOLD]->(order)
+~~~
+
+<p>This does the job but if we profile the query like so... 
+
+
+~~~cypher
+
+PROFILE LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+WITH row LIMIT 0
+MERGE (employee:Employee {employeeId: row.EmployeeID})
+MERGE (order:Order {orderId: row.OrderID})
+MERGE (employee)-[:SOLD]->(order)
+~~~
+
+<p>...we'll notice an 'Eager' lurking on the third line:</p>
+
+
+
+~~~text
+
+==> +----------------+------+--------+----------------------------------+-----------------------------------------+
+==> |       Operator | Rows | DbHits |                      Identifiers |                                   Other |
+==> +----------------+------+--------+----------------------------------+-----------------------------------------+
+==> |    EmptyResult |    0 |      0 |                                  |                                         |
+==> | UpdateGraph(0) |    0 |      0 |    employee, order,   UNNAMED216 |                            MergePattern |
+==> |          Eager |    0 |      0 |                                  |                                         |
+==> | UpdateGraph(1) |    0 |      0 | employee, employee, order, order | MergeNode; :Employee; MergeNode; :Order |
+==> |          Slice |    0 |      0 |                                  |                            {  AUTOINT0} |
+==> |        LoadCSV |    1 |      0 |                              row |                                         |
+==> +----------------+------+--------+----------------------------------+-----------------------------------------+
+~~~
+
+<p><em>You'll notice that when we profile each query we're stripping off the periodic commit section and adding a 'WITH row LIMIT 0'. This allows us to generate enough of the query plan to identify the 'Eager' operator without actually importing any data.</em></p>
+
+
+<p>We want to split that query into two so it can be processed in a non eager manner:</p>
+
+
+
+~~~cypher
+
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+WITH row LIMIT 0
+MERGE (employee:Employee {employeeId: row.EmployeeID})
+MERGE (order:Order {orderId: row.OrderID})
+~~~
+
+
+~~~text
+
+==> +-------------+------+--------+----------------------------------+-----------------------------------------+
+==> |    Operator | Rows | DbHits |                      Identifiers |                                   Other |
+==> +-------------+------+--------+----------------------------------+-----------------------------------------+
+==> | EmptyResult |    0 |      0 |                                  |                                         |
+==> | UpdateGraph |    0 |      0 | employee, employee, order, order | MergeNode; :Employee; MergeNode; :Order |
+==> |       Slice |    0 |      0 |                                  |                            {  AUTOINT0} |
+==> |     LoadCSV |    1 |      0 |                              row |                                         |
+==> +-------------+------+--------+----------------------------------+-----------------------------------------+
+~~~
+
+<p>Now that we've created the employees and orders we can join them together:</p>
+
+
+
+~~~cypher
+
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+MATCH (employee:Employee {employeeId: row.EmployeeID})
+MATCH (order:Order {orderId: row.OrderID})
+MERGE (employee)-[:SOLD]->(order)
+~~~
+
+
+~~~text
+
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+==> |       Operator | Rows | DbHits |                   Identifiers |                                                     Other |
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+==> |    EmptyResult |    0 |      0 |                               |                                                           |
+==> |    UpdateGraph |    0 |      0 | employee, order,   UNNAMED216 |                                              MergePattern |
+==> |      Filter(0) |    0 |      0 |                               |          Property(order,orderId) == Property(row,OrderID) |
+==> | NodeByLabel(0) |    0 |      0 |                  order, order |                                                    :Order |
+==> |      Filter(1) |    0 |      0 |                               | Property(employee,employeeId) == Property(row,EmployeeID) |
+==> | NodeByLabel(1) |    0 |      0 |            employee, employee |                                                 :Employee |
+==> |          Slice |    0 |      0 |                               |                                              {  AUTOINT0} |
+==> |        LoadCSV |    1 |      0 |                           row |                                                           |
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+~~~
+
+<p>Not an Eager in sight!</p>
+
+
+<h3>MATCH, MATCH, MATCH, MERGE, MERGE</h3>
+
+<p>If we fast forward a few steps we may now have refactored our import script to the point where we create our nodes in one query and the relationships in another query.</p>
+
+
+<p>Our create query works as expected:</p>
+
+
+
+~~~cypher
+
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+MERGE (employee:Employee {employeeId: row.EmployeeID})
+MERGE (order:Order {orderId: row.OrderID})
+MERGE (product:Product {productId: row.ProductID})
+~~~
+
+
+~~~bash
+
+==> +-------------+------+--------+----------------------------------------------------+--------------------------------------------------------------+
+==> |    Operator | Rows | DbHits |                                        Identifiers |                                                        Other |
+==> +-------------+------+--------+----------------------------------------------------+--------------------------------------------------------------+
+==> | EmptyResult |    0 |      0 |                                                    |                                                              |
+==> | UpdateGraph |    0 |      0 | employee, employee, order, order, product, product | MergeNode; :Employee; MergeNode; :Order; MergeNode; :Product |
+==> |       Slice |    0 |      0 |                                                    |                                                 {  AUTOINT0} |
+==> |     LoadCSV |    1 |      0 |                                                row |                                                              |
+==> +-------------+------+--------+----------------------------------------------------+------------------------------------------------------------
+~~~
+
+<p>We've now got employees, products and orders in the graph. Now let's create relationships between the trio:</p>
+
+
+
+~~~cypher
+
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+MATCH (employee:Employee {employeeId: row.EmployeeID})
+MATCH (order:Order {orderId: row.OrderID})
+MATCH (product:Product {productId: row.ProductID})
+MERGE (employee)-[:SOLD]->(order)
+MERGE (order)-[:PRODUCT]->(product)
+~~~
+
+<p>If we profile that we'll notice Eager has sneaked in again!</p>
+
+
+
+~~~bash
+
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+==> |       Operator | Rows | DbHits |                   Identifiers |                                                     Other |
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+==> |    EmptyResult |    0 |      0 |                               |                                                           |
+==> | UpdateGraph(0) |    0 |      0 |  order, product,   UNNAMED318 |                                              MergePattern |
+==> |          Eager |    0 |      0 |                               |                                                           |
+==> | UpdateGraph(1) |    0 |      0 | employee, order,   UNNAMED287 |                                              MergePattern |
+==> |      Filter(0) |    0 |      0 |                               |    Property(product,productId) == Property(row,ProductID) |
+==> | NodeByLabel(0) |    0 |      0 |              product, product |                                                  :Product |
+==> |      Filter(1) |    0 |      0 |                               |          Property(order,orderId) == Property(row,OrderID) |
+==> | NodeByLabel(1) |    0 |      0 |                  order, order |                                                    :Order |
+==> |      Filter(2) |    0 |      0 |                               | Property(employee,employeeId) == Property(row,EmployeeID) |
+==> | NodeByLabel(2) |    0 |      0 |            employee, employee |                                                 :Employee |
+==> |          Slice |    0 |      0 |                               |                                              {  AUTOINT0} |
+==> |        LoadCSV |    1 |      0 |                           row |                                                           |
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+~~~
+
+<p>In this case the Eager happens on our second call to MERGE as Michael identified in his post:</p>
+
+
+<blockquote>
+The issue is that within a single Cypher statement you have to isolate changes that affect matches further on, e.g. when you CREATE nodes with a label that are suddenly matched by a later MATCH or MERGE operation.
+</blockquote>
+
+<p>We can work around the problem in this case by having separate queries to create the relationships:</p>
+
+
+
+~~~cypher
+
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+MATCH (employee:Employee {employeeId: row.EmployeeID})
+MATCH (order:Order {orderId: row.OrderID})
+MERGE (employee)-[:SOLD]->(order)
+~~~
+
+
+~~~bash
+
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+==> |       Operator | Rows | DbHits |                   Identifiers |                                                     Other |
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+==> |    EmptyResult |    0 |      0 |                               |                                                           |
+==> |    UpdateGraph |    0 |      0 | employee, order,   UNNAMED236 |                                              MergePattern |
+==> |      Filter(0) |    0 |      0 |                               |          Property(order,orderId) == Property(row,OrderID) |
+==> | NodeByLabel(0) |    0 |      0 |                  order, order |                                                    :Order |
+==> |      Filter(1) |    0 |      0 |                               | Property(employee,employeeId) == Property(row,EmployeeID) |
+==> | NodeByLabel(1) |    0 |      0 |            employee, employee |                                                 :Employee |
+==> |          Slice |    0 |      0 |                               |                                              {  AUTOINT0} |
+==> |        LoadCSV |    1 |      0 |                           row |                                                           |
+==> +----------------+------+--------+-------------------------------+-----------------------------------------------------------+
+~~~
+
+
+~~~cypher
+
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+MATCH (order:Order {orderId: row.OrderID})
+MATCH (product:Product {productId: row.ProductID})
+MERGE (order)-[:PRODUCT]->(product)
+~~~
+
+
+~~~bash
+
+==> +----------------+------+--------+------------------------------+--------------------------------------------------------+
+==> |       Operator | Rows | DbHits |                  Identifiers |                                                  Other |
+==> +----------------+------+--------+------------------------------+--------------------------------------------------------+
+==> |    EmptyResult |    0 |      0 |                              |                                                        |
+==> |    UpdateGraph |    0 |      0 | order, product,   UNNAMED229 |                                           MergePattern |
+==> |      Filter(0) |    0 |      0 |                              | Property(product,productId) == Property(row,ProductID) |
+==> | NodeByLabel(0) |    0 |      0 |             product, product |                                               :Product |
+==> |      Filter(1) |    0 |      0 |                              |       Property(order,orderId) == Property(row,OrderID) |
+==> | NodeByLabel(1) |    0 |      0 |                 order, order |                                                 :Order |
+==> |          Slice |    0 |      0 |                              |                                           {  AUTOINT0} |
+==> |        LoadCSV |    1 |      0 |                          row |                                                        |
+==> +----------------+------+--------+------------------------------+--------------------------------------------------------+
+~~~
+
+<h3>MERGE, SET</h3>
+
+<p>I try to make LOAD CSV scripts as idempotent as possible so that if we add more rows or columns of data to our CSV we can rerun the query without having to recreate everything.</p>
+
+
+<p>This can lead you towards the following pattern where we're creating suppliers:</p>
+
+
+
+~~~cypher
+
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+MERGE (supplier:Supplier {supplierId: row.SupplierID})
+SET supplier.companyName = row.SupplierCompanyName
+~~~
+
+<p>We want to ensure that there's only one Supplier with that SupplierID but we might be incrementally adding new properties and decide to just replace everything by using the 'SET' command. If we profile that query, the Eager lurks:</p>
+
+
+
+~~~bash
+
+==> +----------------+------+--------+--------------------+----------------------+
+==> |       Operator | Rows | DbHits |        Identifiers |                Other |
+==> +----------------+------+--------+--------------------+----------------------+
+==> |    EmptyResult |    0 |      0 |                    |                      |
+==> | UpdateGraph(0) |    0 |      0 |                    |          PropertySet |
+==> |          Eager |    0 |      0 |                    |                      |
+==> | UpdateGraph(1) |    0 |      0 | supplier, supplier | MergeNode; :Supplier |
+==> |          Slice |    0 |      0 |                    |         {  AUTOINT0} |
+==> |        LoadCSV |    1 |      0 |                row |                      |
+==> +----------------+------+--------+--------------------+----------------------+
+~~~
+
+<p>We can work around this at the cost of a bit of duplication using 'ON CREATE SET' and 'ON MATCH SET':</p>
+
+
+
+~~~cypher
+
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-northwind/data/customerDb.csv" AS row
+MERGE (supplier:Supplier {supplierId: row.SupplierID})
+ON CREATE SET supplier.companyName = row.SupplierCompanyName
+ON MATCH SET supplier.companyName = row.SupplierCompanyName
+~~~
+
+
+~~~bash
+
+==> +-------------+------+--------+--------------------+----------------------+
+==> |    Operator | Rows | DbHits |        Identifiers |                Other |
+==> +-------------+------+--------+--------------------+----------------------+
+==> | EmptyResult |    0 |      0 |                    |                      |
+==> | UpdateGraph |    0 |      0 | supplier, supplier | MergeNode; :Supplier |
+==> |       Slice |    0 |      0 |                    |         {  AUTOINT0} |
+==> |     LoadCSV |    1 |      0 |                row |                      |
+==> +-------------+------+--------+--------------------+----------------------+
+~~~
+
+<p>With the data set I've been working with I was able to avoid OutOfMemory exceptions in some cases and reduce the amount of time it took to run the query by a factor of 3 in others.</p>
+
+
+<p>As time goes on I expect all of these scenarios will be addressed but as of Neo4j 2.1.5 these are the patterns that I've identified as being overly eager.</p>
+
+
+<p>If you know of any others do let me know and I can add them to the post or write a second part.</p>
+

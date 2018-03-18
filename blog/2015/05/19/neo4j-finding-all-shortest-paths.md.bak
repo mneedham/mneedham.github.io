@@ -1,0 +1,111 @@
++++
+draft = false
+date="2015-05-19 22:45:48"
+title="Neo4j: Finding all shortest paths"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+<p>One of the Cypher language features we show in Neo4j training courses is the <a href="http://neo4j.com/docs/milestone/query-match.html#_shortest_path">shortest path function</a> which allows you to find the shortest path in terms of number of relationships between two nodes.
+</p>
+
+
+<p>
+Using the movie graph, which you can import via the ':play movies' command in the browser, we'll first create a 'KNOWS' relationship between any people that have appeared in the same movie:
+</p>
+
+
+
+~~~cypher
+
+MATCH (p1:Person)-[:ACTED_IN]->()<-[:ACTED_IN]-(p2:Person)
+MERGE (p1)-[:KNOWS]-(p2)
+~~~
+
+<p>Now that we've got that relationship we can easily find the shortest path between two people, say Tom Cruise and Tom Hanks:</p>
+
+
+
+~~~cypher
+
+MATCH (p1:Person {name: "Tom Hanks"}), (p2:Person {name: "Tom Cruise"}),
+      path = shortestpath((p1)-[:KNOWS*]-(p2))
+RETURN path
+~~~
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/graph-18.png" alt="Graph  18" title="graph (18).png" border="0" width="300" />
+</div>
+
+<p>
+That works pretty well but what if we want to find the longest shortest path between any two people in the graph? We can calculate it like this:
+</p>
+
+
+
+~~~cypher
+
+MATCH (p1:Person), (p2:Person),
+      path = shortestpath((p1)-[:KNOWS*]-(p2))
+RETURN path
+ORDER BY LENGTH(path) DESC
+LIMIT 1
+~~~
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/graph-19.png" alt="Graph  19" title="graph (19).png" border="0" width="500"  />
+</div>
+
+<p>So that's 6 hops which is actually the <a href="http://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon">Bacon number</a> - I expect we'd probably see a smaller maximum value if we imported all the movies.</p>
+
+
+<p>
+And to round off the post what if we want to find the longest shortest path between the 10 people who acted in the most movies? We might start out with the following query which seems like it should do the job:
+</p>
+
+
+
+~~~cypher
+
+MATCH (p1:Person)-[:ACTED_IN]->()
+
+WITH p1, COUNT(*) AS appearances
+ORDER BY appearances DESC
+LIMIT 10
+
+WITH p1 AS p1, p1 AS p2
+MATCH path = shortestpath((p1)-[:KNOWS*]-(p2))
+RETURN path
+ORDER BY LENGTH(path) DESC
+LIMIT 1
+~~~
+
+<p><strong>Unfortunately if we run that query we get no rows returned because 'p1' and 'p2' always refer to the same node.</strong></p>
+
+
+<p>Instead we can calculate the shortest path between our hardest working people by creating a cross product using COLLECT and UNWIND:</p>
+
+
+
+~~~cypher
+
+MATCH (p1:Person)-[:ACTED_IN]->()
+
+WITH p1, COUNT(*) AS appearances
+ORDER BY appearances DESC
+LIMIT 10
+
+WITH COLLECT(p1) AS ps
+UNWIND ps AS p1 UNWIND ps AS p2
+MATCH path = shortestpath((p1)-[:KNOWS*]-(p2))
+RETURN path
+ORDER BY LENGTH(path) DESC
+LIMIT 1
+~~~
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/graph-20.png" alt="Graph  20" title="graph (20).png" border="0" width="400"  /></div>
+
+<p>That's all for now!</p>
+

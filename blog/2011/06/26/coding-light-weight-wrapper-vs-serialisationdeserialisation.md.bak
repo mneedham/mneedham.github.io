@@ -1,0 +1,36 @@
++++
+draft = false
+date="2011-06-26 13:58:10"
+title="Coding: Light weight wrapper vs serialisation/deserialisation"
+tag=['coding']
+category=['Coding']
++++
+
+<div align="center" style="float:right">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2011/06/WrapperObjects.jpg" alt="WrapperObjects" title="WrapperObjects.jpg" border="0" width="231" height="350" />
+</div>
+
+As I've <a href="http://www.markhneedham.com/blog/2011/06/18/marklogic-deleting-all-the-documents-in-a-database/">mentioned</a> <a href="http://www.markhneedham.com/blog/2011/06/20/marklogic-customising-a-result-set/">before</a>, we're making use of a MarkLogic database on the project I'm working on which means that we're getting quite big XML data structures coming into our application whenever we execute a query.
+
+The normal way that I've seen for dealing with external systems would be to create an <a href="http://www.markhneedham.com/blog/2009/07/07/domain-driven-design-anti-corruption-layer/">anti corruption layer</a> where we initialise objects in our system with the required data from the external system.
+
+In this case we've decided that approach doesn't seem to make as much sense because we don't need to do that much with the data that we get back.
+
+We effectively map straight into a <a href="http://codebetter.com/gregyoung/2010/02/15/cqrs-is-more-work-because-of-the-read-model/">read model</a> where the only logic is some formatting for how the data will be displayed on the page.
+
+The read model objects look a bit like this:
+
+~~~scala
+
+class Content(root : xml.Node) {
+    def numberOfResults: Int = (root \ "@count").text.toInt
+} 
+~~~
+
+They are just lightweight wrapper objects and we make use of Scala's XML support to retrieve the various bits of content onto the page.
+
+The advantage of doing things this way is that it means we have less code to write than we would with the serialisation/deserialisation approach although it does mean that we're strongly coupled to the data format that our storage mechanism uses.
+
+However, since this is one bit of the architecture which is not going to change it seems to makes sense to accept the leakage of that layer.
+
+So far the approach seems to be working out fine but it'll be interesting to see how well it holds up if those lightweight wrappers do end up needing to have more logic in them.

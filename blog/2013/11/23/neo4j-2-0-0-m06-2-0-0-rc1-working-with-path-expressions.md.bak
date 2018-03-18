@@ -1,0 +1,154 @@
++++
+draft = false
+date="2013-11-23 10:30:41"
+title="Neo4j 2.0.0-M06 -> 2.0.0-RC1: Working with path expressions"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+<p>We <a href="http://blog.neo4j.org/2013/11/neo4j-200-rc1-final-preparations.html">recently released Neo4j 2.0.0-RC1</a> and since there were some breaking changes from Neo4j 2.0.0-M06 I decided to check if I needed to update any of my football graph queries.</p>
+
+
+<p>On query which no longer worked as I expected was the following one which calculated the top goal scorers for televised games:</p>
+
+
+
+~~~cypher
+
+MATCH (player:Player)-[:played|subbed_on]->stats
+WITH stats.goals AS goals, player, stats-[:in]->()-[:on_tv]-() as onTv
+RETURN player.name, 
+       SUM(CASE WHEN onTv = FALSE THEN goals ELSE 0 END) as nonTvGoals,
+       SUM(CASE WHEN onTv = TRUE THEN goals ELSE 0 END) as tvGoals,
+       SUM(goals) as allGoals
+ORDER BY tvGoals DESC
+LIMIT 10
+~~~
+
+<p>This is what that section of the graph looks like visually:</p>
+
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/11/2013-11-23_10-11-24.png" alt="2013 11 23 10 11 24" title="2013-11-23_10-11-24.png" border="0" width="600" height="355" />
+</div>
+
+<p>When I run that query in 2.0.0-M06 I get the following output:</p>
+
+
+
+~~~bash
+
+==> +------------------------------------------------------+
+==> | player.name        | nonTvGoals | tvGoals | allGoals |
+==> +------------------------------------------------------+
+==> | "Robin Van Persie" | 11         | 15      | 26       |
+==> | "Gareth Bale"      | 8          | 13      | 21       |
+==> | "Luis Suárez"      | 12         | 11      | 23       |
+==> | "Theo Walcott"     | 5          | 9       | 14       |
+==> | "Demba Ba"         | 7          | 8       | 15       |
+==> | "Santi Cazorla"    | 5          | 7       | 12       |
+==> | "Edin Dzeko"       | 7          | 7       | 14       |
+==> | "Carlos Tevez"     | 5          | 6       | 11       |
+==> | "Juan Mata"        | 6          | 6       | 12       |
+==> | "Steven Gerrard"   | 3          | 6       | 9        |
+==> +------------------------------------------------------+
+~~~
+
+<p>However, when I tried it in 2.0.0-RC1 the 'nonTvGoals' and 'tvGoals' columns don't show any goals!</p>
+
+
+
+~~~bash
+
+==> +--------------------------------------------------------+
+==> | player.name          | nonTvGoals | tvGoals | allGoals |
+==> +--------------------------------------------------------+
+==> | "Djibril Cissé"      | 0          | 0       | 3        |
+==> | "Gabriel Agbonlahor" | 0          | 0       | 9        |
+==> | "Shaun Derry"        | 0          | 0       | 0        |
+==> | "Marouane Fellaini"  | 0          | 0       | 11       |
+==> | "Jermaine Jenas"     | 0          | 0       | 2        |
+==> | "Claudio Yacob"      | 0          | 0       | 0        |
+==> | "Michael Owen"       | 0          | 0       | 1        |
+==> | "Sean Morrison"      | 0          | 0       | 2        |
+==> | "Kolo Touré"         | 0          | 0       | 0        |
+==> | "Antonio Valencia"   | 0          | 0       | 1        |
+==> +--------------------------------------------------------+
+~~~
+
+<p>I simplified the query a bit and then ran it against both versions to try and work out what was going on:</p>
+
+
+
+~~~cypher
+
+MATCH (player:Player)-[:played|subbed_on]->stats
+RETURN stats-[:in]->()-[:on_tv]-() as onTv
+LIMIT 1
+~~~
+
+<em>on 2.0.0-M06</em>
+
+~~~bash
+
+==> +-------+
+==> | onTv  |
+==> +-------+
+==> | false |
+==> +-------+
+~~~
+
+<em>on 2.0.0-RC1</em>
+
+~~~bash
+
+==> +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | onTv                                                                                                                                                                                                                                                                                                                                                                                         |
+==> +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | [[Node[9058]{name:"Alou Diarra stats for 345824",node_id:"9058",match_id:"345824",type:"stats",goals:0},:in[47190]{},Node[9032]{name:"Swansea City vs West Ham United",node_id:"9032",friendly_date:"2012-08-25 12:45:00 +0100",time:1245,home_goals:3,match_id:"345824",away_goals:0,attendance:"20424",date:1345898700,type:"match"},:on_tv[47059]{},Node[143]{name:"Sky",node_id:"143"}]] |
+==> +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+~~~
+
+<p>As you can see the path expression which indicates whether a match was televised now returns the matching path if there is one rather than a boolean value indicating if there is a path.</p>
+
+
+<p>Now that we know that we can tweak the query to check if the <em>onTV path</em> contains any relationships which would indicate that a path does exist:</p>
+
+
+
+~~~cypher
+
+MATCH (player:Player)-[:played|subbed_on]->stats
+WITH stats.goals AS goals, player, stats-[:in]->()-[:on_tv]-() as onTv
+RETURN player.name,
+       SUM(CASE WHEN LENGTH(onTv) = 0 THEN goals ELSE 0 END) as nonTVGoals,
+       SUM(CASE WHEN LENGTH(onTv) > 0 THEN goals ELSE 0 END) as tvGoals,
+       SUM(goals) AS allGoals
+ORDER BY tvGoals DESC
+LIMIT 10
+~~~
+
+<p>If we run that it works as before:</p>
+
+
+
+~~~bash
+
+==> +------------------------------------------------------+
+==> | player.name        | nonTVGoals | tvGoals | allGoals |
+==> +------------------------------------------------------+
+==> | "Robin Van Persie" | 11         | 15      | 26       |
+==> | "Gareth Bale"      | 8          | 13      | 21       |
+==> | "Luis Suárez"      | 12         | 11      | 23       |
+==> | "Theo Walcott"     | 5          | 9       | 14       |
+==> | "Demba Ba"         | 7          | 8       | 15       |
+==> | "Santi Cazorla"    | 5          | 7       | 12       |
+==> | "Edin Dzeko"       | 7          | 7       | 14       |
+==> | "Carlos Tevez"     | 5          | 6       | 11       |
+==> | "Juan Mata"        | 6          | 6       | 12       |
+==> | "Steven Gerrard"   | 3          | 6       | 9        |
+==> +------------------------------------------------------+
+~~~
+
+<p>I'm still going through the rest of my queries to check they work but if any of your pre 2.0.0-RC1 queries are breaking do post them up on the <a href="https://groups.google.com/forum/#!forum/neo4j">mailing list</a> and someone will help you sort them out.</p>
+

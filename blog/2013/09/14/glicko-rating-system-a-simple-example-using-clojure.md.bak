@@ -1,0 +1,248 @@
++++
+draft = false
+date="2013-09-14 21:02:30"
+title="Glicko Rating System: A simple example using Clojure"
+tag=['software-development', 'glicko']
+category=['Clojure', 'Ranking Systems']
++++
+
+<p>A couple of weeks ago I wrote about the <a href="http://www.markhneedham.com/blog/2013/08/31/elo-rating-system-ranking-champions-league-teams-using-clojure/">Elo Rating system</a> and when reading more about it I learnt that one of its weaknesses is that it doesn't take into account the reliability of a players' rating.</p>
+
+
+<p>For example, a player may not have played for a long time. When they next play a match we shouldn't assume that the accuracy of that rating is the same as for another player with the same rating but who plays regularly.</p>
+
+
+<p>Mark Glickman wrote the <a href="http://www.glicko.net/glicko/glicko.pdf">Glicko Rating System</a> to take the uncertainty into account by introducing a 'ratings deviation' (RD). A low RD indicates that a player competes frequently and a higher RD indicates that they don't.</p>
+
+
+<p>One other difference between Glicko and Elo is the following:</p>
+
+
+<blockquote>
+It is interesting to note that, in the Glicko system, rating changes are not balanced as they usually are in the Elo system. 
+
+If one player's rating increases by x, the opponent's rating does not usually decrease by x as in the Elo system. 
+
+In fact, in the Glicko system, the amount by which the opponent's rating decreases is governed by both players' RD's.
+</blockquote>
+
+<p>The RD value effectively tells us the range in which the player's actual rating probably exists. i.e. a 95% confidence interval.</p>
+
+
+<p>e.g. if a player has a rating of 1850 and a RD of 50 then the interval is 1750 - 1950 or <cite>(Rating - 2*RD)</cite> - <cite>(Rating + 2*RD)</cite></p>
+ 
+
+<p>The algorithm has 2 steps:</p>
+
+
+<ol>
+<li>Determine a rating and RD for each player at the onset of the rating period. If the player is unrated use a value of 1500 and RD of 350. If they do have a rating we'll calculate the new RD from the old RD using this formula:
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/09/glicko-rd.jpg" alt="Glicko rd" title="glicko-rd.jpg" border="0" width="213" height="45" />
+</div>
+
+where:
+
+<ul>
+<li>t is the number of rating periods since last competition (e.g., if the player
+competed in the most recent rating period, t = 1) </li>
+<li>c is a constant that governs the increase in uncertainty over time.</li>
+</ul>
+
+</li>
+<li>Update each players rating and RD separately using the following formula:
+
+<div align="center">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/09/glicko.jpg" alt="Glicko" title="glicko.jpg" border="0" width="561" height="326" />
+</div>
+
+where:
+
+<ul>
+<li>r is the player's pre-period rating</li>
+<li>RD is the player's pre-period ratings deviation</li>
+<li>r<sub>1</sub>, r<sub>2</sub>,...,r<sub>m</sub> are the pre-period ratings of their opponents</li>
+<li>RD<sub>1</sub>, RD<sub>2</sub>,...,RD<sub>m</sub> are the pre-period ratings deviations of their opponents</li>
+<li>s<sub>1</sub>, s<sub>2</sub>,...,2<sub>m</sub> are the scores against the opponents. 1 is a win, 1/2 is a draw, 0 is a defeat.</li>
+<li>r' is the player's post-period rating</li>
+<li>RD' is the player's post-period ratings deviation</li>
+</ul>
+</li>
+</ol>
+
+<p>The <a href="http://www.glicko.net/glicko/glicko.pdf">paper</a> provides an example to follow and includes the intermediate workings which made it easier to build the algorithm one function at a time.</p>
+
+
+<p>The <cite>q</cite> function was the simplest to implement so I created that and the <cite>g</cite> function at the same time:</p>
+
+
+
+~~~lisp
+
+(ns ranking-algorithms.glicko
+  (:require [clojure.math.numeric-tower :as math]))
+
+(def q
+  (/ (java.lang.Math/log 10) 400))
+
+(defn g [rd]
+  (/ 1
+     (java.lang.Math/sqrt (+ 1
+                             (/ (* 3 (math/expt q 2) (math/expt rd 2))
+                                (math/expt ( . Math PI) 2))))))
+~~~
+
+<p>We can use the following table to check we get the right results when we call it.:</p>
+
+
+<div align="center">
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2013/09/glicko-table.jpg" alt="Glicko table" title="glicko-table.jpg" border="0" width="419" height="103" /></div>
+
+
+~~~lisp
+
+> (g 30)
+0.9954980060779481
+> (g 100)
+0.953148974234587
+> (g 300)
+0.7242354637384434
+~~~
+
+<p>The next easiest function to write was the <cite>E</cite> function:</p>
+
+
+
+~~~lisp
+
+(defn e [rating opponent-rating opponent-rd]
+  (/ 1
+     (+ 1
+        (math/expt 10 (/ (* (- (g opponent-rd))
+                            (- rating opponent-rating))
+                         400)))))
+~~~
+
+<p>And if we test that assuming that we have a rating of 1500 with a RD of 200:</p>
+
+
+
+~~~lisp
+
+> (e 1500 1400 30)
+0.639467736007921
+> (e 1500 1550 100)
+0.43184235355955686
+> (e 1500 1700 300)
+0.30284072524764
+~~~
+
+<p>Finally we need to write the <cite>d<sup>2</sup></cite> supporting function:</p>
+
+
+
+~~~lisp
+
+(defn d2 [opponents]
+  (/ 1  (* (math/expt q 2)
+           (reduce process-opponent 0 opponents))))
+
+(defn process-opponent [total opponent]
+  (let [{:keys [g e]} opponent]
+    (+ total (* (math/expt g 2) e (- 1 e)))))
+~~~
+
+<p>In this function we need to sum a combination of the <cite>g</cite> and <cite>e</cite> values we calculated earlier for each opponent so we can use a reduce over a collection of those values for each opponent to do that:</p>
+
+
+
+~~~lisp
+
+> (d2 [{:g (g 30) :e (e 1500 1400 30)} 
+       {:g (g 100) :e (e 1500 1550 100)} 
+       {:g (g 300) :e (e 1500 1700 300)}])
+53685.74290197874
+~~~
+
+<p>I get a slightly different value for this function which I think is because I didn't round the intermediate values to 2 decimal places as the example does.</p>
+
+
+<p>Now we can introduce the <cite>r'</cite> function which returns our ranking after taking the matches against these opponents into account:</p>
+
+
+
+~~~lisp
+
+(defn update-ranking [ranking-delta opponent]
+  (let [{:keys [ranking opponent-ranking opponent-ranking-rd score]} opponent]
+    (+ ranking-delta
+       (* (g opponent-ranking-rd)
+          (- score (e ranking opponent-ranking opponent-ranking-rd))))))
+
+(defn g-and-e
+  [ranking {o-rd :opponent-ranking-rd o-ranking :opponent-ranking}]
+  {:g (g o-rd) :e (e ranking o-ranking o-rd)})
+
+(defn ranking-after-round
+  [{ ranking :ranking rd :ranking-rd opponents :opponents}]  
+  (+ ranking
+     (* (/ q
+           (+ (/ 1 (math/expt rd 2))
+              (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))
+        (reduce update-ranking 0 (map #(assoc-in % [:ranking] ranking) opponents)))))
+~~~
+
+<p>One thing I wasn't sure about here was the use of <cite>partial</cite> which is a bit of a Haskell idiom. I'm not sure what the favoured approach is in Clojure land yet.</p>
+
+
+<p>If we execute that function we get the expected result:</p>
+
+
+
+~~~lisp
+
+> (ranking-after-round { :ranking 1500 
+                         :ranking-rd 200 
+                         :opponents[{:opponent-ranking 1400 :opponent-ranking-rd 30 :score 1} 
+                                    {:opponent-ranking 1550 :opponent-ranking-rd 100 :score 0} 
+                                    {:opponent-ranking 1700 :opponent-ranking-rd 300 :score 0}]})
+1464.1064627569112
+~~~
+
+<p>The only function missing now is <cite>RD'</cite> which returns our RD after taking these matches into account:</p>
+
+
+
+~~~lisp
+
+(defn rd-after-round
+  [{ ranking :ranking rd :ranking-rd opponents :opponents}]
+  (java.lang.Math/sqrt (/ 1 (+ (/ 1 (math/expt rd 2)
+                                  )
+                               (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))))
+~~~
+
+<p>If we execute that function we get the expected result and we're done!</p>
+
+
+
+~~~lisp
+
+> (rd-after-round { :ranking 1500 
+                    :ranking-rd 200 
+                    :opponents[{:opponent-ranking 1400 :opponent-ranking-rd 30 :score 1} 
+                               {:opponent-ranking 1550 :opponent-ranking-rd 100 :score 0} 
+                               {:opponent-ranking 1700 :opponent-ranking-rd 300 :score 0}]})
+151.39890244796933
+~~~
+
+<p>The next step is to run this algorithm against the football data and see if its results differ to the ones I got with the Elo algorithm.</p>
+
+
+<p>I'm still not quite sure what I should set the rating period to. My initial thinking was that the rating period could be a season but that would mean that a team's rating only really makes sense after a few seasons of matches.</p>
+
+
+<p>The <a href="https://github.com/mneedham/ranking-algorithms/blob/master/src/ranking_algorithms/glicko.clj">code is on github </a>if you want to play with it and if you have any suggestions on how to make the code more idiomatic I'd love to hear them.</p>
+

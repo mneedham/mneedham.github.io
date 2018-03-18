@@ -1,0 +1,111 @@
++++
+draft = false
+date="2015-08-19 23:27:42"
+title="Python: Extracting Excel spreadsheet into CSV files"
+tag=['python']
+category=['Python']
++++
+
+<p>
+I've been playing around with the <a href="http://data.gov.uk/dataset/road-accidents-safety-data">Road Safety open data set</a> and the download comes with several CSV files and an excel spreadsheet containing the legend.
+</p>
+
+
+<p>
+There are 45 sheets in total and each of them looks like this:
+</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/08/2015-08-17_23-33-19.png" alt="2015 08 17 23 33 19" title="2015-08-17_23-33-19.png" border="0"  />
+</div>
+
+<P>I wanted to create a CSV file for each sheet so that I can import the data set into Neo4j using the <a href="http://neo4j.com/docs/stable/query-load-csv.html">LOAD CSV command</a>.
+</p>
+
+
+<p>I came across the <a href="http://www.python-excel.org/">Python Excel website</a> which pointed me at the <cite>xlrd</cite> library since I'm working with a pre 2010 Excel file.</p>
+
+
+<P>
+The <a href="https://secure.simplistix.co.uk/svn/xlrd/trunk/xlrd/doc/xlrd.html?p=4966#sheet.Cell-class">main documentation is very extensive</a> but I found the <a href="https://github.com/python-excel/xlrd">github example</a> much easier to follow. 
+</p>
+
+
+<p>I ended up with the following script which iterates through all but the first two sheets in the spreadsheet - the first two sheets contain instructions rather than data:</p>
+
+
+
+~~~python
+
+from xlrd import open_workbook
+import csv
+
+wb = open_workbook('Road-Accident-Safety-Data-Guide-1979-2004.xls')
+
+for i in range(2, wb.nsheets):
+    sheet = wb.sheet_by_index(i)
+    print sheet.name
+    with open("data/%s.csv" %(sheet.name.replace(" ","")), "w") as file:
+        writer = csv.writer(file, delimiter = ",")
+        print sheet, sheet.name, sheet.ncols, sheet.nrows
+
+        header = [cell.value for cell in sheet.row(0)]
+        writer.writerow(header)
+
+        for row_idx in range(1, sheet.nrows):
+            row = [int(cell.value) if isinstance(cell.value, float) else cell.value
+                   for cell in sheet.row(row_idx)]
+            writer.writerow(row)
+
+~~~
+
+<p>
+I've replaced spaces in the sheet name so that the file name on a disk is a bit easier to work with. For some reason the numeric values were all floats whereas I wanted them as ints so I had to explicitly apply that transformation.
+</p>
+
+
+<p>Here are a few examples of what the CSV files look like:
+</p>
+
+
+
+~~~bash
+
+$ cat data/1stPointofImpact.csv
+code,label
+0,Did not impact
+1,Front
+2,Back
+3,Offside
+4,Nearside
+-1,Data missing or out of range
+
+$ cat data/RoadType.csv
+code,label
+1,Roundabout
+2,One way street
+3,Dual carriageway
+6,Single carriageway
+7,Slip road
+9,Unknown
+12,One way street/Slip road
+-1,Data missing or out of range
+
+$ cat data/Weather.csv
+code,label
+1,Fine no high winds
+2,Raining no high winds
+3,Snowing no high winds
+4,Fine + high winds
+5,Raining + high winds
+6,Snowing + high winds
+7,Fog or mist
+8,Other
+9,Unknown
+-1,Data missing or out of range
+~~~
+
+<p>And that's it. Not too difficult!</p>
+

@@ -1,0 +1,260 @@
++++
+draft = false
+date="2015-04-01 11:54:03"
+title="Neo4j: Cypher - Building the query for a movie's profile page"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<div style="float:right">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/04/2015-04-01_12-11-51.png" alt="2015 04 01 12 11 51" title="2015-04-01_12-11-51.png" border="0" width="256" height="336" />
+</div>
+
+<p>
+Yesterday I spent the day in Berlin delivering a workshop as part of the <a href="http://datascienceretreat.com/">Data Science Retreat</a> and one of the exercises we did was write a query that would pull back all the information you'd need to create the <a href="http://www.imdb.com/title/tt0133093/?ref_=fn_al_tt_1">IMDB page for a movie</a>.
+</p>
+
+
+<p>
+Scanning the page we can see that need to get some basic meta data including the title. Next we'll need to pull in the actors, directors, producers and finally a recommendation for some other movies the viewer might like to see.
+</p>
+
+
+<p>
+I'd struggle to be able to write this all in one go - it's non trivial. However, if we break it down there are actually 5 simpler queries that we probably can write. Our final step is then to work out how to glue them all together.
+</p>
+
+
+<p>
+Let's get started.</p>
+ 
+
+<p><em>If you want to follow along open up your Neo4j browser and type <cite>:play movies</cite> and import the built in data set.</em>
+</p>
+
+
+<p>
+We're going to create the query for The Matrix home page so the first step is to find the node representing that movie in the database:
+</p>
+
+
+
+~~~cypher
+
+match (movie:Movie {title: "The Matrix"})
+return movie.title
+
+==> +--------------+
+==> | movie.title  |
+==> +--------------+
+==> | "The Matrix" |
+==> +--------------+
+==> 1 row
+~~~
+
+Easy enough. Now let's get back the producers:
+
+
+~~~cypher
+
+match (movie:Movie {title: "The Matrix"})
+optional match (producer)-[:PRODUCED]->(movie)
+
+RETURN movie.title, COLLECT(producer.name) AS producers
+
+==> +--------------------------------+
+==> | movie.title  | producers       |
+==> +--------------------------------+
+==> | "The Matrix" | ["Joel Silver"] |
+==> +--------------------------------+
+==> 1 row
+~~~
+
+<p>
+We've introduced the <a href="http://neo4j.com/docs/milestone/query-aggregation.html#aggregation-collect">COLLECT</a> function here as we want to ensure that our final result only has one row regardless of how many producers there are. COLLECT applies an implicit group by 'movie.title' and collects the producers for each movie (in this case just The Matrix) into an array. 
+</p>
+
+
+<p>
+We've used OPTIONAL MATCH *LINK* because we still want to return a row for the query even if it has no producers. In the case that there are no producers we'd hope to see an empty array.
+</p>
+
+
+<p>
+Now let's write the same query to pull back the directors of the movie:
+</p>
+
+
+
+~~~cypher
+
+match (movie:Movie {title: "The Matrix"})
+optional match (director)-[:DIRECTED]->(movie)
+
+RETURN movie.title, COLLECT(director.name) AS directors
+
+==> +----------------------------------------------------+
+==> | movie.title  | directors                           |
+==> +----------------------------------------------------+
+==> | "The Matrix" | ["Lana Wachowski","Andy Wachowski"] |
+==> +----------------------------------------------------+
+==> 1 row
+~~~
+
+We really want to do both of these in one query so we get back a single result with 3 columns. To do that we're going to introduce the <a href="http://neo4j.com/docs/stable/query-with.html">WITH</a> clause which allows us combine the results of traversals together.
+
+In this case we'll first do a traversal to get the producers, collect those into an array and then traverse out again to get the directors and collect those. This is what the query looks like:
+
+
+~~~cypher
+
+match (movie:Movie {title: "The Matrix"})
+optional match (producer)-[:PRODUCED]->(movie)
+
+with movie, COLLECT(producer.name) AS producers
+optional match (director)-[:DIRECTED]->(movie)
+
+RETURN movie.title, producers, COLLECT(director.name) AS directors
+
+==> +----------------------------------------------------------------------+
+==> | movie.title  | producers       | directors                           |
+==> +----------------------------------------------------------------------+
+==> | "The Matrix" | ["Joel Silver"] | ["Lana Wachowski","Andy Wachowski"] |
+==> +----------------------------------------------------------------------+
+==> 1 row
+~~~
+
+<p>We can follow the same pattern to return the actors:</p>
+
+
+
+~~~cypher
+
+match (movie:Movie {title: "The Matrix"})
+optional match (producer)-[:PRODUCED]->(movie)
+
+with movie, COLLECT(producer.name) AS producers
+optional match (director)-[:DIRECTED]->(movie)
+
+with movie, producers, COLLECT(director.name) AS directors
+optional match (actor)-[:ACTED_IN]->(movie)
+
+RETURN movie.title, COLLECT(actor.name) AS actors, producers, directors
+
+==> +--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | movie.title  | actors                                                                                | producers       | directors                           |
+==> +--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | "The Matrix" | ["Hugo Weaving","Laurence Fishburne","Carrie-Anne Moss","Keanu Reeves","Emil Eifrem"] | ["Joel Silver"] | ["Lana Wachowski","Andy Wachowski"] |
+==> +--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> 1 row
+~~~
+
+<p>So far, so good. We've got everything except the other movies recommendation which is a bit trickier so we'll write it on its own first:</p>
+
+
+
+~~~cypher
+
+match (movie:Movie {title: "The Matrix"})<-[:ACTED_IN]-(actor)-[:ACTED_IN]->(otherMovie)
+RETURN otherMovie, COUNT(*) AS score
+ORDER BY score DESC
+
+==> +---------------------------------------------------------------------------------------------------------------------------+
+==> | otherMovie                                                                                                        | score |
+==> +---------------------------------------------------------------------------------------------------------------------------+
+==> | Node[348]{title:"The Matrix Revolutions",released:2003,tagline:"Everything that has a beginning has an end"}      | 4     |
+==> | Node[347]{title:"The Matrix Reloaded",released:2003,tagline:"Free your mind"}                                     | 4     |
+==> | Node[490]{title:"Something's Gotta Give",released:2003}                                                           | 1     |
+==> | Node[349]{title:"The Devil's Advocate",released:1997,tagline:"Evil has its winning ways"}                         | 1     |
+==> | Node[438]{title:"Johnny Mnemonic",released:1995,tagline:"The hottest data on earth. In the coolest head in town"} | 1     |
+==> | Node[443]{title:"Cloud Atlas",released:2012,tagline:"Everything is connected"}                                    | 1     |
+==> | Node[452]{title:"V for Vendetta",released:2006,tagline:"Freedom! Forever!"}                                       | 1     |
+==> | Node[425]{title:"The Replacements",released:2000,tagline:"Pain heals, Chicks dig scars... Glory lasts forever"}   | 1     |
+==> +---------------------------------------------------------------------------------------------------------------------------+
+==> 8 rows
+~~~
+
+<p>
+Our recommendation query finds all the actors in The Matrix and then traverses out to find other movies they've acted in and orders those movies based on how many of our actors appeared in them. Not surprisingly the other Matrix movies come out top.
+</p>
+
+
+<p>
+In order to plug this into the rest of the query we need a single row to be returned i.e. our other movie suggestions need to be returned as an array rather than individual rows. Let's do that:
+</p>
+
+
+
+~~~cypher
+
+match (movie:Movie {title: "The Matrix"})<-[:ACTED_IN]-(actor)-[:ACTED_IN]->(otherMovie)
+
+WITH otherMovie, COUNT(*) AS score
+ORDER BY score DESC
+
+RETURN COLLECT({movie: otherMovie.title, score: score}) AS otherMovies
+
+==> +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | recommended                                                                                                                                                                                                                                                                                                                                                  |
+==> +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | [{movie -> "The Matrix Revolutions", score -> 4},{movie -> "The Matrix Reloaded", score -> 4},{movie -> "Something's Gotta Give", score -> 1},{movie -> "The Devil's Advocate", score -> 1},{movie -> "Johnny Mnemonic", score -> 1},{movie -> "Cloud Atlas", score -> 1},{movie -> "V for Vendetta", score -> 1},{movie -> "The Replacements", score -> 1}] |
+==> +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+~~~
+
+<p>
+We've introduced a WITH clause for two reasons:</p>
+
+
+<ol>
+<li>To ensure the order of the movies based on highest score</li>
+<li>Because we can't do an aggregation within an aggregation i.e. COLLECT(COUNT(...)) would be an illegal operation in Cypher.</li>
+</ol>
+
+<p>
+Now we're ready to plug this recommendation query into our main one:
+</p>
+
+
+
+~~~cypher
+
+match (movie:Movie {title: "The Matrix"})
+optional match (producer)-[:PRODUCED]->(movie)
+
+with movie, COLLECT(producer.name) AS producers
+optional match (director)-[:DIRECTED]->(movie)
+
+with movie, producers, COLLECT(director.name) AS directors
+optional match (actor)-[:ACTED_IN]->(movie)
+
+WITH  movie, COLLECT(actor.name) AS actors, producers, directors
+optional match (movie)<-[:ACTED_IN]-(actor)-[:ACTED_IN]->(otherMovie)
+
+WITH movie, actors, producers, directors, otherMovie, COUNT(*) AS score
+ORDER BY score DESC
+
+RETURN movie, actors, producers, directors,  
+       COLLECT({movie: otherMovie.title, score: score}) AS recommended
+
+==> +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | movie                                                                           | actors                                                                                | producers       | directors                           | recommended                                                                                                                                                                                                                                                                                                                                                  |
+==> +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> | Node[338]{title:"The Matrix",released:1999,tagline:"Welcome to the Real World"} | ["Hugo Weaving","Laurence Fishburne","Carrie-Anne Moss","Keanu Reeves","Emil Eifrem"] | ["Joel Silver"] | ["Lana Wachowski","Andy Wachowski"] | [{movie -> "The Matrix Revolutions", score -> 4},{movie -> "The Matrix Reloaded", score -> 4},{movie -> "Johnny Mnemonic", score -> 1},{movie -> "The Replacements", score -> 1},{movie -> "Cloud Atlas", score -> 1},{movie -> "V for Vendetta", score -> 1},{movie -> "Something's Gotta Give", score -> 1},{movie -> "The Devil's Advocate", score -> 1}] |
+==> +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+==> 1 row
+~~~
+
+<p>
+Voila! 4 different types of data gathered and just one query to do it all.
+</p>
+
+
+<p>
+For the eagle eyed cypher specialists (Hi Michael!), you'll have noticed a bit of duplication in how we traverse out to the actors twice, once to retrieve them and once to make the movie recommendation.
+</p>
+
+
+<p>
+We could optimise this by collecting the actors once and then using the <a href="http://neo4j.com/docs/stable/query-unwind.html">UNWIND</a> clause but that's an optimisation which I think slightly obscures the intent of the query so I've left it like this for now.
+</p>
+

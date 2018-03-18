@@ -1,0 +1,366 @@
++++
+draft = false
+date="2015-05-16 21:13:01"
+title="Neo4j: BBC football live text fouls graph"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>
+I recently came across the <a href="http://www.partiallyderivative.com/">Partially Derivative podcast</a> and in <a href="http://www.partiallyderivative.com/news/2015/3/20/episode-17-get-back-to-work-you-slackers">episode 17</a> they describe how Kirk Goldsberry scraped a bunch of data about shots in basketball matches then ran some analysis on that data.
+</p>
+
+
+<p>
+It got me thinking that we might be able to do something similar for football matches and although event based data for football matches only comes from Opta, the BBC does expose some of them in <a href="http://www.bbc.co.uk/sport/0/football/32683310">live text feeds</a>.
+</p>
+
+
+<p>
+We'll start with the Champions League match between Barcelona and Bayern Munich from last Tuesday.</p>
+ 
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-16_23-10-43.png" alt="2015 05 16 23 10 43" title="2015-05-16_23-10-43.png" border="0" width="500"  /></div>
+
+<p>Our first task is to extract the events that happened in the match along with the players involved. After we've got that we'll generate a Neo4j graph and see if we can find some interesting insights.
+
+</p>
+
+
+I find the feedback cycle with this type of work is dramatically improved if we have the source data available locally so the first step was to get the BBC web page downloaded:
+
+
+~~~bash
+
+$ wget http://www.bbc.co.uk/sport/0/football/32683310
+~~~
+
+<p>
+Next we need to write a scraper which will extract all the events. We want to get an array containing one entry for each event, where the following is an example of an event:
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-16_22-19-00.png" alt="2015 05 16 22 19 00" title="2015-05-16_22-19-00.png" border="0" width="400" />
+</div>
+
+<p>HTML-wise it looks like this:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-16_22-20-28.png" alt="2015 05 16 22 20 28" title="2015-05-16_22-20-28.png" border="0" width="400"  />
+</div>
+
+<div style="float:right">
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/4709393221_bddd85c64e_z.jpg" alt="4709393221 bddd85c64e z" title="4709393221_bddd85c64e_z.jpg" border="0" width="250" />
+
+<p>
+<em><a href="https://www.flickr.com/photos/williambrawley/4709393221/in/photolist-8b9SwR-6FTMrs-kjb1c6-8GSYQL-pSn21H-pA9Kth-rCShaw-qy4Xgi-sSbbVk-6MdAU7-87QzF8-rs2RDf-6HTYfC-5JDiBz-7BmS1F-pxqZ4p-6U7aJp-5WhPnU-bdY8mi-8rYjri-3QrsFo-rjzJJG-sEQqH4-oBJXVN-2arDFy-6gsqEy-q8pCNP-qu8jj3-9WHiE2-qrUEmj-6exzwZ-rWGovk-5DpUtE-6dMYMH-6g894r-52ynpA-8DJstA-513gJu-noN6vB-7YSJFB-4SAjSF-22M5E-sTwhh6-9chu3z-dKwpKf-sEGoJQ-Mdc8-7YSJfr-22M4s-95scP3">Image courtesy of William Brawley</a></em></p>
+
+
+</div>
+
+
+<p>
+I do most of my scraping work in Python so I used the <a href="http://www.crummy.com/software/BeautifulSoup/">Beautiful Soup library</a> with the <a href="http://code.google.com/p/soupselect/">soupselect wrapper</a> to get the data into CSV format ready to import into Neo4j.
+</p>
+
+
+<p>
+It was mostly a straight forward job of finding the appropriate CSS tag and pulling out the values although the way fouls are described in the page is a bit strange - sometimes the person fouled comes first row and the fouler comes on the next line and sometimes vice versa.</p>
+ 
+
+<p>Luckily the two parts of the foul can be joined together by matching the time which made life easier.
+</p>
+
+
+<p>
+The <a href="https://github.com/mneedham/neo4j-bbc/blob/master/extract_events.py">full code for the scrapper is on github</a> if you want to play with it.
+</p>
+
+
+<p>
+This is what the resulting CSV file looks like:
+</p>
+
+
+
+~~~bash
+
+$ head -n 10 data/events.csv 
+matchId,foulId,freeKickId,time,foulLocation,fouledPlayer,fouledPlayerTeam,foulingPlayer,foulingPlayerTeam
+32683310,3,2,90:00 +0:40,in the defensive half.,Xabi Alonso,FC Bayern München,Pedro,Barcelona
+32683310,9,8,84:38,on the right wing.,Rafinha,FC Bayern München,Pedro,Barcelona
+32683310,12,13,83:17,in the attacking half.,Lionel Messi,Barcelona,Sebastian Rode,FC Bayern München
+32683310,15,14,82:43,in the defensive half.,Sebastian Rode,FC Bayern München,Neymar,Barcelona
+32683310,17,18,80:41,in the attacking half.,Pedro,Barcelona,Xabi Alonso,FC Bayern München
+32683310,22,23,76:31,in the defensive half.,Neymar,Barcelona,Rafinha,FC Bayern München
+32683310,25,26,75:03,in the attacking half.,Lionel Messi,Barcelona,Xabi Alonso,FC Bayern München
+32683310,31,30,69:37,in the attacking half.,Bastian Schweinsteiger,FC Bayern München,Dani Alves,Barcelona
+32683310,36,35,63:27,in the attacking half.,Robert Lewandowski,FC Bayern München,Ivan Rakitic,Barcelona
+~~~
+
+<p>
+Now it's time to create a graph. We'll aim to massage the data into this model:
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/05/2015-05-16_22-50-32.png" alt="2015 05 16 22 50 32" title="2015-05-16_22-50-32.png" border="0" width="465" height="242" />
+</div>
+
+<p>
+Next we need to write some Cypher code to get the CSV data into the graph. The <a href="https://github.com/mneedham/neo4j-bbc/blob/master/import.cql">full script is here</a>, a sample of which is below:
+</p>
+
+
+
+~~~cypher
+
+// match
+LOAD CSV WITH HEADERS FROM "file:///Users/markhneedham/projects/neo4j-bbc/data/events.csv" AS row
+MERGE (:Match {id: row.matchId});
+
+// teams
+LOAD CSV WITH HEADERS FROM "file:///Users/markhneedham/projects/neo4j-bbc/data/events.csv" AS row
+MERGE (:Team {name: row.foulingPlayerTeam});
+
+LOAD CSV WITH HEADERS FROM "file:///Users/markhneedham/projects/neo4j-bbc/data/events.csv" AS row
+MERGE (:Team {name: row.fouledPlayerTeam});
+
+// players
+LOAD CSV WITH HEADERS FROM "file:///Users/markhneedham/projects/neo4j-bbc/data/events.csv" AS row
+MERGE (player:Player {id: row.foulingPlayer + "_" + row.foulingPlayerTeam})
+ON CREATE SET player.name = row.foulingPlayer;
+
+// appearances
+LOAD CSV WITH HEADERS FROM "file:///Users/markhneedham/projects/neo4j-bbc/data/events.csv" AS row
+MATCH (match:Match {id: row.matchId})
+MATCH (player:Player {id: row.foulingPlayer + "_" + row.foulingPlayerTeam})
+MATCH (team:Team {name: row.foulingPlayerTeam})
+
+MERGE (appearance:Appearance {id: player.id + " in " + row.matchId})
+MERGE (player)-[:MADE_APPEARANCE]->(appearance)
+MERGE (appearance)-[:IN_MATCH]->(match)
+MERGE (appearance)-[:FOR_TEAM]->(team);
+
+// fouls
+LOAD CSV WITH HEADERS FROM "file:///Users/markhneedham/projects/neo4j-bbc/data/events.csv" AS row
+
+MATCH (foulingPlayer:Player {id:row.foulingPlayer + "_" + row.foulingPlayerTeam })
+MATCH (fouledPlayer:Player {id:row.fouledPlayer + "_" + row.fouledPlayerTeam })
+MATCH (match:Match {id: row.matchId})
+
+MERGE (foul:Foul {eventId: row.foulId})
+ON CREATE SET foul.time = row.time, foul.location = row.foulLocation
+
+MERGE (foul)<-[:COMMITTED_FOUL]-(foulingPlayer)
+MERGE (foul)-[:COMMITTED_AGAINST]->(fouledPlayer)
+MERGE (foul)-[:COMMITTED_IN_MATCH]->(match);
+~~~
+
+<p>We'll use neo4j-shell to execute the script:</p>
+
+
+
+~~~bash
+
+$ ./neo4j-community-2.2.1/bin/neo4j-shell --file import.cql
+~~~
+
+<p>
+Now that we've got the data into Neo4j we need to come up with some questions to ask of it. I came up with the following but perhaps you can think of some others!
+</p>
+
+
+
+<ul>
+<li>Where do the fouls happen on the pitch?</li>
+<li>Who made the most fouls?</li>
+<li>Who was fouled the most?</li>
+<li>Who fouled who the most?</li>
+<li>Which team fouled the most?</li>
+<li>Who's the worst fouler in each team?</li>
+<li>Who's the most fouled in each team?</li>
+</ul>
+
+<h3>Where do the fouls happen?</h3>
+
+
+~~~cypher
+
+match (match:Match)<-[:COMMITTED_IN_MATCH]-(foul)
+RETURN foul.location AS location, COUNT(*) as fouls
+ORDER BY fouls DESC;
+
++----------------------------------+
+| location                 | fouls |
++----------------------------------+
+| "in the defensive half." | 12    |
+| "in the attacking half." | 12    |
+| "on the right wing."     | 3     |
+| "on the left wing."      | 3     |
++----------------------------------+
+4 rows
+~~~
+
+<h3>Who fouls the most?</h3>
+
+
+~~~cypher
+
+match (match:Match)<-[:COMMITTED_IN_MATCH]-(foul)<-[:COMMITTED_FOUL]-(fouler)
+RETURN fouler.name AS fouler, COUNT(*) as fouls
+ORDER BY fouls DESC
+LIMIT 10;
+
++------------------------------+
+| fouler               | fouls |
++------------------------------+
+| "Rafinha"            | 4     |
+| "Pedro"              | 3     |
+| "Medhi Benatia"      | 3     |
+| "Dani Alves"         | 3     |
+| "Xabi Alonso"        | 3     |
+| "Javier Mascherano"  | 2     |
+| "Thiago Alcántara"   | 2     |
+| "Robert Lewandowski" | 2     |
+| "Sebastian Rode"     | 1     |
+| "Sergio Busquets"    | 1     |
++------------------------------+
+10 rows
+~~~
+
+<h3>Who was fouled the most?</h3>
+
+
+~~~cypher
+
+// who was fouled the most
+match (match:Match)<-[:COMMITTED_IN_MATCH]-(foul)-[:COMMITTED_AGAINST]->(fouled)
+RETURN fouled.name AS fouled, COUNT(*) as fouls
+ORDER BY fouls DESC
+LIMIT 10;
+
++----------------------------------+
+| fouled                   | fouls |
++----------------------------------+
+| "Robert Lewandowski"     | 4     |
+| "Lionel Messi"           | 4     |
+| "Neymar"                 | 3     |
+| "Pedro"                  | 2     |
+| "Xabi Alonso"            | 2     |
+| "Andrés Iniesta"         | 2     |
+| "Rafinha"                | 2     |
+| "Bastian Schweinsteiger" | 2     |
+| "Sebastian Rode"         | 1     |
+| "Sergio Busquets"        | 1     |
++----------------------------------+
+10 rows
+~~~
+
+<h3>Who fouled who the most?</h3>
+
+
+~~~cypher
+
+match (match:Match)<-[:COMMITTED_IN_MATCH]-(foul)-[:COMMITTED_AGAINST]->(fouled),
+      (foul)<-[:COMMITTED_FOUL]-(fouler)
+RETURN fouler.name AS fouler, fouled.name AS fouled, COUNT(*) as fouls
+ORDER BY fouls DESC
+LIMIT 10;
+
++--------------------------------------------------------+
+| fouler              | fouled                   | fouls |
++--------------------------------------------------------+
+| "Javier Mascherano" | "Robert Lewandowski"     | 2     |
+| "Dani Alves"        | "Bastian Schweinsteiger" | 2     |
+| "Xabi Alonso"       | "Lionel Messi"           | 2     |
+| "Rafinha"           | "Neymar"                 | 2     |
+| "Rafinha"           | "Andrés Iniesta"         | 2     |
+| "Dani Alves"        | "Xabi Alonso"            | 1     |
+| "Thiago Alcántara"  | "Javier Mascherano"      | 1     |
+| "Pedro"             | "Juan Bernat"            | 1     |
+| "Medhi Benatia"     | "Pedro"                  | 1     |
+| "Neymar"            | "Sebastian Rode"         | 1     |
++--------------------------------------------------------+
+10 rows
+~~~
+
+<h3>Which team fouled the most?</h3>
+
+
+~~~cypher
+
+match (match:Match)<-[:COMMITTED_IN_MATCH]-(foul)<-[:COMMITTED_FOUL]-(fouler),
+      (fouler)-[:MADE_APPEARANCE]-(app)-[:IN_MATCH]-(match),
+      (app)-[:FOR_TEAM]->(team)
+RETURN team.name, COUNT(*) as fouls
+ORDER BY fouls DESC
+LIMIT 10;
+
++-----------------------------+
+| team.name           | fouls |
++-----------------------------+
+| "FC Bayern München" | 18    |
+| "Barcelona"         | 12    |
++-----------------------------+
+2 rows
+~~~
+
+<h3>Worst fouler for each team?</h3>
+
+
+~~~cypher
+
+match (match:Match)<-[:COMMITTED_IN_MATCH]-(foul)<-[:COMMITTED_FOUL]-(fouler),
+      (fouler)-[:MADE_APPEARANCE]-(app)-[:IN_MATCH]-(match),
+      (app)-[:FOR_TEAM]->(team)
+WITH team, fouler, COUNT(*) AS fouls
+ORDER BY team.name, fouls DESC
+WITH team, COLLECT({fouler:fouler, fouls:fouls})[0] AS topFouler
+RETURN team.name, topFouler.fouler.name, topFouler.fouls;
+
++---------------------------------------------------------------+
+| team.name           | topFouler.fouler.name | topFouler.fouls |
++---------------------------------------------------------------+
+| "FC Bayern München" | "Rafinha"             | 4               |
+| "Barcelona"         | "Pedro"               | 3               |
++---------------------------------------------------------------+
+2 rows
+~~~
+
+<h3>Most fouled against for each team</h3>
+
+
+~~~cypher
+
+match (match:Match)<-[:COMMITTED_IN_MATCH]-(foul)-[:COMMITTED_AGAINST]-(fouled),
+      (fouled)-[:MADE_APPEARANCE]-(app)-[:IN_MATCH]-(match),
+      (app)-[:FOR_TEAM]->(team)
+WITH team, fouled, COUNT(*) AS fouls
+ORDER BY team.name, fouls DESC
+WITH team, COLLECT({fouled:fouled, fouls:fouls})[0] AS topFouled
+RETURN team.name, topFouled.fouled.name, topFouled.fouls;
+
++---------------------------------------------------------------+
+| team.name           | topFouled.fouled.name | topFouled.fouls |
++---------------------------------------------------------------+
+| "FC Bayern München" | "Robert Lewandowski"  | 4               |
+| "Barcelona"         | "Lionel Messi"        | 4               |
++---------------------------------------------------------------+
+2 rows
+~~~
+
+<p>
+So Bayern fouled a bit more than Barca, the main forwards for each team (Messi/Lewandowski) were the most fouled players on the pitch and the fouling was mostly in the middle of the pitch.
+</p>
+
+
+<p>
+I expect this graph will become much more interesting to query with more matches and with the other event types as well but I haven't got those scraped yet. The <a href="https://github.com/mneedham/neo4j-bbc">code is on github </a>if you want to play around with it and perhaps get the other events into the graph.
+</p>
+

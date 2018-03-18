@@ -1,0 +1,228 @@
++++
+draft = false
+date="2015-04-07 20:59:49"
+title="Neo4j: The learning to cycle dependency graph"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>
+Over the past couple of weeks I've been reading about skill building and the break down of skills into more manageable chunks, and recently had a chance to break down the skills required to learn to cycle.
+</p>
+
+
+<p>
+I initially sketched out the skill progression but quickly realised I had drawn a dependency graph and thought that putting it into Neo4j would simplify things.
+</p>
+
+
+<p>
+I started out with the overall goal for cycling which was to 'Be able to cycle through a public park':</p>
+
+
+
+~~~cypher
+
+MERGE (:Goal:Task {name: "Be able to cycle through a public park"})
+~~~
+
+<p>
+This goal is easy for someone who's already learnt to cycle but if we're starting from scratch it's a bit daunting so we need to break it down into a simpler skill that we can practice.
+</p>
+
+
+<p>
+The mini algorithm that we're going to employ for task breakdown is this:
+</p>
+
+
+<ol>
+<li>Can we do the given task now?</li>
+<li>Break the task down into something simpler and return to 1.</li>
+</ol>
+
+<p>
+One of the things to keep in mind is that we won't get the break down perfect the first time so we may need to change it. For a diagram drawn on a piece of paper this would be annoying but in Neo4j it's just a simpler refactoring.
+</p>
+
+
+<p>
+Going back to cycling. Since the goal isn't yet achievable we need to break that down into something a bit easier. Let's start with something really simple:
+</p>
+
+
+
+~~~cypher
+
+MERGE (task:Task {name: "Take a few steps forward while standing over the bike"})
+WITH task
+MATCH (goal:Goal:Task {name: "Be able to cycle through a public park"})
+MERGE (goal)-[:DEPENDS_ON]->(task)
+~~~
+
+<p>
+In the first line we create our new task and then we connect it to our goal which we created earlier. 
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/04/graph-9.png" alt="Graph  9" title="graph (9).png" border="0" width="300"  />
+</div>
+
+<p>
+After we've got the hang of walking with the bike we want to get comfortable with cycling forward a few rotations while sitting on the bike but to do that we need to be able to get the bike moving from a standing start. We might also have another step where we cycle forward while standing on the bike as that might be slightly easier.</p>
+
+
+<p>
+Let's update our graph:
+</p>
+
+
+
+~~~cypher
+
+// First let's get rid of the relationship between our initial task and the goal
+MATCH (initialTask:Task {name: "Take a few steps forward while standing over the bike"})
+MATCH (goal:Goal {name: "Be able to cycle through a public park"})
+MATCH (goal)-[rel:DEPENDS_ON]->(initialTask)
+DELETE rel
+
+WITH initialTask, goal, ["Get bike moving from standing start", "Cycle forward while standing", "Cycle forward while sitting"] AS newTasks
+
+// Create some nodes for our new tasks
+UNWIND newTasks AS newTask
+MERGE (t:Task {name: newTask})
+WITH initialTask, goal, COLLECT(t) AS newTasks
+WITH initialTask, goal, newTasks, newTasks[0] AS firstTask, newTasks[-1] AS lastTask
+
+// Connect the last task to the goal
+MERGE (goal)-[:DEPENDS_ON]->(lastTask)
+
+// And the first task to our initial task
+MERGE (firstTask)-[:DEPENDS_ON]->(initialTask)
+
+// And all the tasks to each other
+FOREACH(i in RANGE(0, length(newTasks) - 2) |
+  FOREACH(t1 in [newTasks[i]] | FOREACH(t2 in [newTasks[i+1]] |
+    MERGE (t2)-[:DEPENDS_ON]->(t1) 
+)))
+~~~
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/04/graph-10.png" alt="Graph  10" title="graph (10).png" border="0" width="600"  />
+</div>
+
+<p>
+We don't strictly need to learn how to cycle while standing up - we could just go straight from getting the bike moving to cycling forward while sitting. Let's update the graph to reflect that:
+</p>
+
+
+
+~~~cypher
+
+MATCH (sitting:Task {name: "Cycle forward while sitting"})
+MATCH (moving:Task {name: "Get bike moving from standing start"})
+MERGE (sitting)-[:DEPENDS_ON]->(moving)
+~~~
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/04/graph-11.png" alt="Graph  11" title="graph (11).png" border="0" width="600" /></div>
+
+<p>
+Once we've got the hang of those tasks let's add in a few more to get us closer to our goal: 
+</p>
+
+
+
+~~~cypher
+
+WITH [
+  {skill: "Controlled stop using brakes/feet", dependsOn: "Cycle forward while sitting"},
+  {skill: "Steer around stationary objects", dependsOn: "Controlled stop using brakes/feet"},
+  {skill: "Steer around people", dependsOn: "Steer around stationary objects"},
+  {skill: "Navigate a small circular circuit", dependsOn: "Steer around stationary objects"},
+  {skill: "Navigate a loop of a section of the park", dependsOn: "Navigate a small circular circuit"},
+  {skill: "Navigate a loop of a section of the park", dependsOn: "Steer around people"},
+  {skill: "Be able to cycle through a public park", dependsOn: "Navigate a loop of a section of the park"}
+
+] AS newTasks
+
+FOREACH(newTask in newTasks |
+  MERGE (t1:Task {name: newTask.skill})   
+  MERGE (t2:Task {name: newTask.dependsOn})
+  MERGE (t1)-[:DEPENDS_ON]->(t2)
+)
+~~~
+
+<p>Finally let's get rid of the relationship from our goal to 'Cycle forward while sitting' since we've replaced that with some intermediate steps:</p>
+
+
+
+~~~cypher
+
+MATCH (task:Task {name: "Cycle forward while sitting"})
+WITH task
+MATCH (goal:Goal:Task {name: "Be able to cycle through a public park"})
+MERGE (goal)-[rel:DEPENDS_ON]->(task)
+DELETE rel
+~~~
+
+<p>And here's what the final dependency graph looks like:</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/04/graph-13.png" alt="Graph  13" title="graph (13).png" border="0" width="600"  /></div>
+
+<p>
+Although I put this into Neo4j in order to visualise the dependencies we can now query the data as well. For example, let's say I know how to cycle forward while sitting on the bike. What steps are there between me and being able to cycle around a park?
+</p>
+
+
+
+~~~cypher
+
+MATCH (t:Task {name: "Cycle forward while sitting"}),
+      (g:Goal {name: "Be able to cycle through a public park"}),
+      path = shortestpath((g)-[:DEPENDS_ON*]->(t))
+RETURN path
+~~~
+
+<div>
+
+
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/04/graph-14.png" alt="Graph  14" title="graph (14).png" border="0" width="400" />
+</div>
+
+<p>Or if we want a list of the tasks we need to do next we could restructure the query slightly:</p>
+
+
+
+~~~cypher
+
+MATCH (t:Task {name: "Cycle forward while sitting"}),
+      (g:Goal {name: "Be able to cycle through a public park"}),
+      path = shortestpath((t)<-[:DEPENDS_ON*]->(g))
+WITH [n in nodes(path) | n.name] AS tasks
+UNWIND tasks AS task
+RETURN task
+
+==> +--------------------------------------------+
+==> | task                                       |
+==> +--------------------------------------------+
+==> | "Cycle forward while sitting"              |
+==> | "Controlled stop using brakes/feet"        |
+==> | "Steer around stationary objects"          |
+==> | "Steer around people"                      |
+==> | "Navigate a loop of a section of the park" |
+==> | "Be able to cycle through a public park"   |
+==> +--------------------------------------------+
+==> 6 rows
+~~~
+
+<p>
+That's all for now but I think this is an interesting way of tracking how you'd learn a skill. I'm trying a similar approach for some statistics topics I'm learning about but I've found the order of tasks isn't so linear there - interestingly much more a graph than a tree.
+</p>
+

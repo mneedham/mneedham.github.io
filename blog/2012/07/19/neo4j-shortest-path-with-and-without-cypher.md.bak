@@ -1,0 +1,64 @@
++++
+draft = false
+date="2012-07-19 19:57:31"
+title="neo4j: Shortest Path with and without cypher"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+I was looking back at some code I wrote a few months ago to query a neo4j database to find the shortest path between two people via the colleagues relationships that exist.
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/05/initial.png"></img>
+
+The initial code, written using neography, looked like this:
+
+
+~~~ruby
+
+neo = Neography::Rest.new
+
+start_node = neo.get_node(start_node_id)
+destination_node = neo.get_node(destination_node_id)
+
+neo.get_paths(start_node,
+              destination_node,
+              { "type" => "colleagues" },
+              depth = 3,
+              algorithm = "shortestPath")
+~~~
+
+The neography code eventually makes a POST request to <cite>/node/{start_id}/paths</cite> and provides a JSON payload containing the other information about the query.
+
+It works fine and is pretty readable but since I wrote it I've learnt how to write queries using the <a href="http://docs.neo4j.org/chunked/stable/cypher-query-lang.html">cypher</a> query language so I thought it would be interesting to contrast the two bits of code against each other.
+
+This is the equivalent written using cypher:
+
+
+~~~ruby
+
+query =  "START source=node(#{start_node_id}), destination=node(#{destination_node_id})"
+query << "MATCH p = allShortestPaths(source-[r:colleagues*..3]->destination)"
+query << "RETURN NODES(p)"
+
+neo.execute_query(query)
+~~~
+
+The amount of lines of code is pretty similar but the thing I like about cypher is that it feels much more declarative and therefore, I think at least, easier to understand.
+
+Having said that, the learning curve for the non-cypher API is a bit easier and it's probably best to start with that to get a feel of what sorts of things you can do with a graph.
+
+When I first started learning cypher I was always forgetting which order to put the different key words and what the syntax was for selecting your starting node. 
+
+After a while you do get the hang of it though and it starts to feel like any other programming language.
+
+If we didn't have the node ids of our source and destination nodes but we had two people's names which had been stored in a 'people' Lucene index then we could just as easily find the path between them like this:
+
+
+~~~ruby
+
+START source=node:people(name="Mark Needham"), destination=node:people(name="Cameron Swords")
+MATCH p = allShortestPaths(source-[r:colleagues*..3]->destination)
+RETURN NODES(p)
+~~~
+
+I use cypher for pretty much everything I do when reading from the graph and since <a href="http://blog.neo4j.org/2012/05/neo4j-18m01-release-vindeln-vy.html">version 1.8 M01</a> it's been possible to construct queries which mutate the graph as well.

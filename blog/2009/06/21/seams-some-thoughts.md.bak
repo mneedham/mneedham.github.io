@@ -1,0 +1,47 @@
++++
+draft = false
+date="2009-06-21 17:21:22"
+title="Seams: Some thoughts"
+tag=['coding', 'software-development', 'seams']
+category=['Software Development']
++++
+
+I pick up Michael Feathers' <a href="http://www.amazon.co.uk/Working-Effectively-Legacy-Robert-Martin/dp/0131177052/ref=sr_1_1?ie=UTF8&s=books&qid=1245554188&sr=8-1">Working Effectively with Legacy Code</a> book from time to time and one of my favourite parts of the book is the chapter where he talks about 'Seams'.
+
+To quote the book:
+
+<blockquote>A seam is a place where you can alter behaviour in your program without editing in that place</blockquote>
+
+Seams in the book are generally discussed in terms of how we can get tests around legacy code which was written without easy testability in mind but I've noticed that the ideas behind seams seem to be more widely applicable than this.
+
+The reason for using seams elsewhere is fairly similar as far as I can tell - <strong>we want to alter the way that code works in a specific context but we don't want to change it in that place since it needs to remain the way it is when used in other contexts</strong>.
+
+<h3>Removing dependencies</h3>
+One place where we recently used what I consider to be a seam was to remove calls to external sites from our application when we were running our tests against the application in our normal build.
+
+We don't have any control over these dependencies as they are completely external so we made calls to those urls go to localhost instead by adding an entry in our hosts file (C:\WINDOWS\system32\drivers\etc) like so:
+
+
+~~~text
+
+127.0.0.1		external.site.com
+~~~
+
+On our UAT and production servers further down the pipeline we don't have that type of setting in the hosts file so those run against the real dependencies.
+
+I think the ideal place to apply this seam would be in a configuration file where you would be able to configure dependencies but in this case the dependency is actually added in outside of our team's control so we decided to adjust the behaviour where we could albeit a bit further away from where the behaviour is than we would have liked.
+
+<h3>Impersonators</h3>
+Another area where we might make use of seams in our systems is in the creation of what my colleague Julio Maia refers to as 'impersonators'.
+
+Impersonators are little pieces of code that we write to <strong>impersonate 3rd party systems we need to integrate with</strong> - ideally we would have an impersonator for every integration point and we can make use of these impersonators at certain stages of our build rather than always having to call the real end point.
+
+One example of an impersonator that we've used recently is a proxy which captures requests and responses being made to a service layer from our application and then just replays these back every other time the same requests are made.
+
+The ideal place for this seams to be triggered (i.e. the seam's <strong>enabling point</strong>) is in a configuration which is independent of our production code and therefore allows us to choose when we want to make use of the impersonator and when we need to use the real service.
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2009/06/proxy.gif" alt="proxy.gif" border="0" width="514" height="434"/>
+
+In our case we have the endpoint defined in our 'web.config' and a step in our build process generates versions of that file for each of the environments that we might run our application in. 
+
+We can then change the 'service.Endpoint' entry to point to the proxy for our development environment but have it point to the real service layer for other environments.

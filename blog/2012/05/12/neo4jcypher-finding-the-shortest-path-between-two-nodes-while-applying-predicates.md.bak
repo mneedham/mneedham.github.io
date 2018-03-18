@@ -1,0 +1,106 @@
++++
+draft = false
+date="2012-05-12 14:55:30"
+title="neo4j/Cypher: Finding the shortest path between two nodes while applying predicates"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+As I <a href="http://www.markhneedham.com/blog/2012/05/05/neo4j-what-question-do-you-want-to-answer/">mentioned in a blog post about a week ago</a> I decided to restructure the ThoughtWorks graph I've modelled in neo4j so that I could explicitly model projects and clients.
+
+As a result I had to update a traversal I'd written for finding the shortest path between two people in the graph.
+
+The original traversal query I had was really simple because I had a direct connection between the people nodes:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/05/initial.png">
+
+
+~~~ruby
+
+neo = Neography::Rest.new
+paths = neo.get_paths(start_node,
+                      destination_node,
+                      { "type" => "colleagues" },
+                      depth = 3,
+                      algorithm = "shortestPath")
+           .map { |x| x["nodes"] }
+           .uniq
+paths.map { |p| p.map { |node| neo.get_node_properties(node, "name")["name"] } }
+~~~
+
+I changed the way the graph was modelled so that you needed to follow a 'worked_on' relationship to a project in order to go between people:
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/05/v2.png" alt="V2" title="v2.png" border="0" width="576" height="203" />
+
+In the first version I'd written some pre processing code in Ruby to check whether or not people worked on the project at the same time before creating the relationship between the nodes.
+
+It wasn't possible to do that with the new structure since I was working out if there was a colleagues relationship dynamically.
+
+I therefore added a 'start_date' and 'end_date' property to the 'worked_on' relationship between a person node and project node so that I'd be able to take it into account when traversing the graph.]
+
+I initially thought it would be possible to do this using cypher and wrote the following query:
+
+
+~~~ruby
+
+start_node_id = neo.send(:get_id, start_node)
+destination_node_id = neo.send(:get_id, destination_node)
+
+query =  " START a=node(#{start_node_id}), x=node(#{destination_node_id})" 
+query << " MATCH p = allShortestPaths( a-[:worked_on*]-x )" 
+query << " RETURN p, extract(person in nodes(p) : person.name)"
+paths = neo.execute_query(query)
+~~~
+
+I wasn't sure how to do the filtering on 'start_date' and 'end_date' and <a href="https://groups.google.com/forum/?fromgroups#!topic/neo4j/t0UMIqqpZA4">Andres pointed out</a> that it's not actually currently possible to take relationship properties into account when traversing a graph with <a href="https://github.com/neo4j/community/tree/master/cypher">cypher</a> so we need to do the filtering on 'start_date' and 'end_date' in code.
+
+My first attempt to do that looked like this:
+
+
+~~~ruby
+
+paths = neo.get_paths(node1, node2, { "type" => "worked_on", "direction" => "all" }, 
+                      depth = 5, algorithm = "shortestPath").uniq
+matching = paths.select do |row|
+  relationshipPairs = row["relationships"].each_slice(2).to_a
+  relationshipPairs.all? do |pair|
+    r1 = neo.get_relationship(pair[0])["data"]
+    r2 = neo.get_relationship(pair[1])["data"]
+    r1["start_date"] <= r2["end_date"] && r1["end_date"] >= r2["start_date"]
+  end
+end
+~~~
+
+The problem with this approach is that it's really slow due to the fact that I'm pulling back every relationship back in order to check the start and end dates. 
+
+Michael Hunger <a href="https://groups.google.com/forum/?fromgroups#!topic/neo4j/H1HRTVZp1ls">suggested an alternative approach</a> where I still used a cypher query but returned the relationships instead of just the nodes:
+
+
+~~~ruby
+
+start_node_id = neo.send(:get_id, start_node)
+destination_node_id = neo.send(:get_id, destination_node)
+    
+query =  " START a=node(#{start_node_id}), x=node(#{destination_node_id})" 
+query << " MATCH p = allShortestPaths( a-[:worked_on*]-x )" 
+query << " RETURN p, rels(p), extract(person in nodes(p) : person.name)"
+paths = neo.execute_query(query)
+matching = paths["data"].select do |row|
+  relationship_pairs = row[1].each_slice(2).to_a
+  relationship_pairs.all? do |pair|
+    r1 = pair[0]["data"]
+    r2 = pair[1]["data"]
+    r1["start_date"] <= r2["end_date"] && r1["end_date"] >= r2["start_date"]
+  end
+end
+
+matching.map { |x| x[2].each_with_index.select { |x,idx| idx.even? }.map(&:first) }.uniq
+~~~
+
+This approach mostly works although it runs into problems in the scenario where two people have worked on the same project but not at the same time.
+
+In that scenario the above code will return the relationship between them but it will then be filtered out by the start date/end date logic which means we won't see a shortest path between those nodes.
+
+I'm not sure how to solve that problem so for the moment I'm going to take the <a href="http://www.markhneedham.com/blog/2012/05/05/neo4j-what-question-do-you-want-to-answer/#comment-520250796">Josh Adell's suggestion to keep the 'colleagues' relationship between nodes</a> and use that relationship for the shortest path traversal.
+
+The 'worked_on' relationship is still useful for other things that I want to do but not this particular one.

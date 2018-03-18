@@ -1,0 +1,437 @@
++++
+draft = false
+date="2015-03-11 21:13:26"
+title="Python/Neo4j: Finding interesting computer sciency people to follow on Twitter"
+tag=['neo4j', 'python']
+category=['neo4j', 'Python']
++++
+
+<p>
+At the beginning of this year I moved from Neo4j's field team to dev team and since the code we write there is much lower level than I'm used to I thought I should find some people to follow on twitter whom I can learn from.
+</p>
+
+
+<p>
+My technique for finding some of those people was to pick a person from the Neo4j kernel team who's very good at systems programming and uses twitter which led me to Mr <a href="https://twitter.com/chvest">Chris Vest</a>.
+</p>
+
+
+<p>
+I thought that the people Chris interacts with on twitter are likely to be interested in this type of programming so I manually traversed out to those people and had a look who they interacted with and put them all into a <a href="https://twitter.com/markhneedham/lists/comp-science-peoples">list</a>.
+</p>
+
+
+<p>
+This approach has worked well and I've picked up lots of reading material from following these people. It does feel like something that could be automated though and we'll using Python and Neo4j as our tool kit.
+</p>
+
+
+<p>
+We need to find a library to connect to the Twitter API. There are a few to choose from but <a href="https://github.com/tweepy/tweepy">tweepy</a> seems simple enough so I started using that.
+</p>
+
+
+<p>The first thing we need to so is fill in our <a href="http://docs.tweepy.org/en/latest/getting_started.html#hello-tweepy">Twitter API auth details</a>. Since the application is just for me I'm not going to bother with setting up OAuth - instead I'll just create an application on <a href="https://apps.twitter.com/">apps.twitter.com</a> and grab the appropriate tokens: 
+</p>
+
+
+<div>
+
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/03/2015-03-11_01-18-47.png" alt="2015 03 11 01 18 47" title="2015-03-11_01-18-47.png" border="0" width="492" height="166" />
+</div>
+
+<p>Once we've done that we can navigate to that app and get a consumer key, consumer secret, access token and access token secret. They all reside on the 'Keys and Access Tokens' tab:
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/03/2015-03-11_01-20-17.png" alt="2015 03 11 01 20 17" title="2015-03-11_01-20-17.png" border="0" width="351" height="150" />
+</div>
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/03/2015-03-11_01-20-30.png" alt="2015 03 11 01 20 30" title="2015-03-11_01-20-30.png" border="0" width="438" height="86" />
+</div>
+
+<p>
+Now that we've got ourself all auth'd up let's write some code that starts from Chris and goes out and finds his latest tweets and the people he's interacted with in them. We'll write the appropriate information out to a CSV file so that we can import it into Neo4j later on:
+</p>
+
+
+
+~~~python
+
+import tweepy
+import csv
+from collections import Counter, deque
+
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+
+api = tweepy.API(auth, wait_on_rate_limit = True, wait_on_rate_limit_notify = True)
+
+counter = Counter()
+users_to_process = deque()
+USERS_TO_PROCESS = 50
+
+def extract_tweet(tweet):
+    user_mentions = ",".join([user["screen_name"].encode("utf-8")
+                             for user in tweet.entities["user_mentions"]])
+    urls = ",".join([url["expanded_url"]
+                     for url in tweet.entities["urls"]])
+    return [tweet.user.screen_name.encode("utf-8"),
+            tweet.id,
+            tweet.text.encode("utf-8"),
+            user_mentions,
+            urls]
+
+starting_user = "chvest"
+with open("tweets.csv", "a") as tweets:
+    writer = csv.writer(tweets, delimiter=",", escapechar="\\", doublequote = False)
+    for tweet in tweepy.Cursor(api.user_timeline, id=starting_user).items(50):
+        writer.writerow(extract_tweet(tweet))
+        tweets.flush()
+        for user in tweet.entities["user_mentions"]:
+            if not len(users_to_process) > USERS_TO_PROCESS:
+                users_to_process.append(user["screen_name"])
+                counter[user["screen_name"]] += 1
+            else:
+                break
+~~~
+
+<p>As well as printing out Chris' tweets I'm also capturing other users who he's had interacted and putting them in a queue that we'll drain later on. We're limiting the number of other users that we'll process to 50 for now but it's easy to change.
+</p>
+
+
+<p>
+If we print out the first few lines of 'tweets.csv' this is what we'd see:
+</p>
+
+
+
+
+~~~bash
+
+$ head -n 5 tweets.csv
+userName,tweetId,contents,usersMentioned,urls
+chvest,575427045167071233,@shipilev http://t.co/WxqFIsfiSF,shipilev,
+chvest,575403105174552576,@AlTobey I often use http://t.co/G7Cdn9Udst for small one-off graph diagrams.,AlTobey,http://www.apcjones.com/arrows/
+chvest,575337346687766528,RT @theburningmonk: this is why you need composition over inheritance... :s #CompositionOverInheritance http://t.co/aKRwUaZ0qo,theburningmonk,
+chvest,575269402083459072,@chvest except…? “Each library implementation should therefore be identical with respect to the public API”,chvest,
+~~~
+
+<p>We're capturing the user, tweetId, the tweet itself, any users mentioned in the tweet and any URLs shared in the tweet.</p>
+
+
+<p>Next we want to get some of the tweets of the people Chris has interacted with 
+
+
+~~~python
+
+# Grab the code from here too - https://gist.github.com/mneedham/3188c44b2cceb88c6de0
+
+import tweepy
+import csv
+from collections import Counter, deque
+
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+
+api = tweepy.API(auth, wait_on_rate_limit = True, wait_on_rate_limit_notify = True)
+
+counter = Counter()
+users_to_process = deque()
+USERS_TO_PROCESS = 50
+
+def extract_tweet(tweet):
+    user_mentions = ",".join([user["screen_name"].encode("utf-8")
+                             for user in tweet.entities["user_mentions"]])
+    urls = ",".join([url["expanded_url"]
+                     for url in tweet.entities["urls"]])
+    return [tweet.user.screen_name.encode("utf-8"),
+            tweet.id,
+            tweet.text.encode("utf-8"),
+            user_mentions,
+            urls]
+
+starting_user = "chvest"
+with open("tweets.csv", "a") as tweets:
+    writer = csv.writer(tweets, delimiter=",", escapechar="\\", doublequote = False)
+    for tweet in tweepy.Cursor(api.user_timeline, id=starting_user).items(50):
+        writer.writerow(extract_tweet(tweet))
+        tweets.flush()
+        for user in tweet.entities["user_mentions"]:
+            if not len(users_to_process) > USERS_TO_PROCESS:
+                users_to_process.append(user["screen_name"])
+                counter[user["screen_name"]] += 1
+            else:
+                break
+    users_processed = set([starting_user])
+    while True:
+        if len(users_processed) >= USERS_TO_PROCESS:
+            break
+        else:
+            if len(users_to_process) > 0:
+                next_user = users_to_process.popleft()
+                print next_user
+                if next_user in users_processed:
+                    "-- user already processed"
+                else:
+                    "-- processing user"
+                    users_processed.add(next_user)
+                    for tweet in tweepy.Cursor(api.user_timeline, id=next_user).items(10):
+                        writer.writerow(extract_tweet(tweet))
+                        tweets.flush()
+                        for user_mentioned in tweet.entities["user_mentions"]:
+                            if not len(users_processed) > 50:
+                                users_to_process.append(user_mentioned["screen_name"])
+                                counter[user_mentioned["screen_name"]] += 1
+                            else:
+                                break
+            else:
+                break
+~~~
+
+<p>Finally let's take a quick look at the users who show up most frequently:</p>
+
+
+
+~~~python
+
+>>> for user_name, count in counter.most_common(20):
+        print user_name, count
+
+neo4j 13
+devnexus 12
+AlTobey 11
+bitprophet 11
+hazelcast 10
+chvest 9
+shipilev 9
+AntoineGrondin 8
+gvsmirnov 8
+GatlingTool 8
+lagergren 7
+tomsontom 6
+dorkitude 5
+noctarius2k 5
+DanHeidinga 5
+chris_mahan 5
+coda 4
+mccv 4
+gAmUssA 4
+jmhodges 4
+~~~
+
+<p>
+A few of the people on that list are in my list which is a good start. We can explore the data set better once it's in Neo4j though so let's write some Cypher import statements to create our own mini Twitter graph:
+</p>
+
+
+
+~~~cypher
+
+// add people
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-twitter/tweets.csv" AS row
+MERGE (p:Person {userName: row.userName});
+
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-twitter/tweets.csv" AS row
+WITH SPLIT(row.usersMentioned, ",") AS users
+UNWIND users AS user
+MERGE (p:Person {userName: user});
+
+// add tweets
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-twitter/tweets.csv" AS row
+MERGE (t:Tweet {id: row.tweetId})
+ON CREATE SET t.contents = row.contents;
+
+// add urls
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-twitter/tweets.csv" AS row
+WITH SPLIT(row.urls, ",") AS urls
+UNWIND urls AS url
+MERGE (:URL {value: url});
+
+// add links
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-twitter/tweets.csv" AS row
+MATCH (p:Person {userName: row.userName})
+MATCH (t:Tweet {id: row.tweetId})
+MERGE (p)-[:TWEETED]->(t);
+
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-twitter/tweets.csv" AS row
+WITH SPLIT(row.usersMentioned, ",") AS users, row
+UNWIND users AS user
+MATCH (p:Person {userName: user})
+MATCH (t:Tweet {id: row.tweetId})
+MERGE (p)-[:MENTIONED_IN]->(t);
+
+LOAD CSV WITH HEADERS FROM "file:///Users/markneedham/projects/neo4j-twitter/tweets.csv" AS row
+WITH SPLIT(row.urls, ",") AS urls, row
+UNWIND urls AS url
+MATCH (u:URL {value: url})
+MATCH (t:Tweet {id: row.tweetId})
+MERGE (t)-[:CONTAINS_LINK]->(u);
+~~~
+
+<p>
+We can put all those commands in a file and execute them using neo4j-shell:
+</p>
+
+
+
+~~~bash
+
+$ ./neo4j-community-2.2.0-RC01/bin/neo4j-shell --file import.cql
+~~~
+
+<p>
+Now let's write some queries against the graph:
+</p>
+
+
+
+~~~cypher
+
+// Find the tweets where Chris mentioned himself
+MATCH path = (n:Person {userName: "chvest"})-[:TWEETED]->()<-[:MENTIONED_IN]-(n)
+RETURN path
+~~~
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/03/graph-5.png" alt="Graph  5" title="graph (5).png" border="0" /></div>
+
+
+~~~cypher
+
+// Find the most popular links shared in the network
+MATCH (u:URL)<-[r:CONTAINS_LINK]->()
+RETURN u.value, COUNT(*) AS times
+ORDER BY times DESC
+LIMIT 10
+
++-------------------------------------------------------------------------------------------------+
+| u.value                                                                                 | times |
++-------------------------------------------------------------------------------------------------+
+| "http://www.polyglots.dk/"                                                              | 4     |
+| "http://www.java-forum-nord.de/"                                                        | 4     |
+| "http://hirt.se/blog/?p=646"                                                            | 3     |
+| "http://wp.me/p26jdv-Ja"                                                                | 3     |
+| "https://instagram.com/p/0D4I_hH77t/"                                                   | 3     |
+| "https://blogs.oracle.com/java/entry/new_java_champion_tom_chindl"                      | 3     |
+| "http://www.kennybastani.com/2015/03/spark-neo4j-tutorial-docker.html"                  | 2     |
+| "https://firstlook.org/theintercept/2015/03/10/ispy-cia-campaign-steal-apples-secrets/" | 2     |
+| "http://buff.ly/1GzZXlo"                                                                | 2     |
+| "http://buff.ly/1BrgtQd"                                                                | 2     |
++-------------------------------------------------------------------------------------------------+
+10 rows
+~~~
+
+<p>
+The first link is for a programming language meetup in Copenhagen, the second for a Java conference in Hanovier and the third an announcement about the latest version of Java Mission Control. So far so good!
+</p>
+
+
+<p>
+A next step in this area would be to run the links through Prismatic's <a href="https://github.com/Prismatic/interest-graph">interest graph</a> so we can model topics in our graph as well. For now let's have a look at the interactions between Chris and others in the graph:
+</p>
+
+
+
+~~~cypher
+
+// Find the people who Chris interacts with most often
+MATCH path = (n:Person {userName: "chvest"})-[:TWEETED]->()<-[:MENTIONED_IN]-(other)
+RETURN other.userName, COUNT(*) AS times
+ORDER BY times DESC
+LIMIT 5
+
++------------------------+
+| other.userName | times |
++------------------------+
+| "gvsmirnov"    | 7     |
+| "shipilev"     | 5     |
+| "nitsanw"      | 4     |
+| "DanHeidinga"  | 3     |
+| "AlTobey"      | 3     |
++------------------------+
+5 rows
+~~~
+
+<p>
+Let's generalise that to find interactions between any pair of people:
+</p>
+
+
+
+~~~cypher
+
+// Find the people who interact most often
+MATCH (n:Person)-[:TWEETED]->()<-[:MENTIONED_IN]-(other)
+WHERE n <> other
+RETURN n.userName, other.userName, COUNT(*) AS times
+ORDER BY times DESC
+LIMIT 5
+
++------------------------------------------+
+| n.userName    | other.userName   | times |
++------------------------------------------+
+| "fbogsany"    | "AntoineGrondin" | 8     |
+| "chvest"      | "gvsmirnov"      | 7     |
+| "chris_mahan" | "bitprophet"     | 6     |
+| "maxdemarzi"  | "neo4j"          | 6     |
+| "chvest"      | "shipilev"       | 5     |
++------------------------------------------+
+5 rows
+~~~
+
+<p>Let's combine a couple of these together to come up with a score for each person:</p>
+
+
+
+~~~cypher
+
+MATCH (n:Person)
+
+// number of mentions
+OPTIONAL MATCH (n)-[mention:MENTIONED_IN]->()
+WITH n, COUNT(mention) AS mentions
+
+// number of links shared by someone else
+OPTIONAL MATCH (n)-[:TWEETED]->()-[:CONTAINS_LINK]->(link)<-[:CONTAINS_LINK]-()
+
+WITH n, mentions, COUNT(link) AS links
+RETURN n.userName, mentions + links AS score, mentions, links
+ORDER BY score DESC
+LIMIT 10
+
++------------------------------------------+
+| n.userName    | score | mentions | links |
++------------------------------------------+
+| "chvest"      | 17    | 10       | 7     |
+| "hazelcast"   | 16    | 10       | 6     |
+| "neo4j"       | 15    | 13       | 2     |
+| "noctarius2k" | 14    | 4        | 10    |
+| "devnexus"    | 12    | 12       | 0     |
+| "polyglotsdk" | 11    | 2        | 9     |
+| "shipilev"    | 11    | 10       | 1     |
+| "AlTobey"     | 11    | 10       | 1     |
+| "bitprophet"  | 10    | 9        | 1     |
+| "GatlingTool" | 10    | 8        | 2     |
++------------------------------------------+
+10 rows
+~~~
+
+<p>
+Amusingly Chris is top of his own network but we also see three accounts which aren't people, but rather products - neo4j, hazelcast and GatlingTool. The rest are legit though
+</p>
+
+
+<p>
+That's as far as I've got but to make this more useful I think we need to introduce follower/friend links as well as importing more data.
+</p>
+
+
+<p>
+In the mean time I've got a bunch of links to go and read!
+</p>
+

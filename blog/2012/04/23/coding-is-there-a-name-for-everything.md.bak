@@ -1,0 +1,39 @@
++++
+draft = false
+date="2012-04-23 00:20:57"
+title="Coding: Is there a name for everything?"
+tag=['coding', 'naming']
+category=['Coding']
++++
+
+A month ago I wrote a post describing <a href="http://www.markhneedham.com/blog/2012/03/17/coding-wait-for-the-abstractions-to-emerge/">an approach my team has been taking to avoid premature abstractions</a> whereby we leave code inline until we know enough about the domain to pull out meaningful classes or methods.
+
+Since I wrote that post we've come across a couple of examples where there doesn't seem to be a name to describe a data structure.
+
+We are building a pricing engine where the input is a set of configurations and the output is a set of pricing rows associated with each configuration.
+
+We modelled the problem using a List of <a href="http://code.google.com/p/totallylazy/source/browse/src/com/googlecode/totallylazy/Pair.java?r=ddc97667f03784cbf4db4906d2d09777926d0a17">Pairs</a> of Configuration/PricingItems:
+
+
+~~~java
+
+List<Pair<Configuration, PricingItem>> configurationToPricingItems = buildThoseCombinations();
+~~~
+
+<div style="float:left">
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2012/04/configuration-pricingrow.gif" alt="Configuration pricingrow" title="configuration-pricingrow.gif" border="0" width="221" height="218" />
+</div>
+
+We don't need to do any lookups by Configuration - just show the results to the user - which is why we haven't used a Map.
+
+Our object oriented background suggested that there should be a name in the business domain for this but when we spoke to our business analyst and subject matter expert it became clear that they didn't actually have a word.
+
+Despite that it still feels strange to have to pass around a List of Pairs but I wonder if that's because in Java we tend to abstract concepts behind classes rather than because it makes sense to do so. 
+
+If we were using clojure then I don't think we'd feel as uncomfortable about passing around basic data structures because the language and the culture around it encourage this. We should only create a type when it's strictly necessary.
+
+In this case it's a data structure to carry those combinations around and we don't actually apply any logic to the data structure as a whole, only to the individual entries.
+
+We wrote the code about three weeks ago now and haven't experienced any difficulties in terms of the code being understandable or easy to work with.
+
+I'm intrigued as to whether others have noticed a similar thing or if we aren't embracing Domain Driven Design fully and need to dig deeper to find a missing domain concept?

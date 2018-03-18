@@ -1,0 +1,180 @@
++++
+draft = false
+date="2014-08-17 21:42:24"
+title="Ruby: Create and share Google Drive Spreadsheet"
+tag=['ruby']
+category=['Ruby']
++++
+
+<p>Over the weekend I've been trying to write some code to help me create and share a Google Drive spreadsheet and for the first bit I<a href="http://www.markhneedham.com/blog/2014/08/17/ruby-google-drive-errorbadauthentication-googledriveauthenticationerror-infoinvalidsecondfactor/"> started out with the Google Drive gem</a>.</p>
+
+
+<p>This worked reasonably well but that gem doesn't have an API for changing the permissions on a document so I ended up using the <a href="https://github.com/google/google-api-ruby-client">google-api-client</a> gem for that bit.</p>
+
+
+<p><a href="https://developers.google.com/drive/web/quickstart/quickstart-ruby">This tutorial</a> provides a good quick start for getting up and running but it still has a manual step to copy/paste the 'OAuth token' which I wanted to get rid of.</p>
+
+
+<p>The first step is to create a project via the <a href="https://console.developers.google.com/project">Google Developers Console</a>. Once the project is created, click through to it and then click on 'credentials' on the left menu. Click on the "Create new Client ID" button to create the project credentials.</p>
+
+
+<p>You should see something like this on the right hand side of the screen:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/08/2014-08-17_16-29-39.png" alt="2014 08 17 16 29 39" title="2014-08-17_16-29-39.png" border="0" width="600" height="135" />
+</div>
+
+<p>These are the credentials that we'll use in our code.</p>
+
+
+<p>Since I now have two libraries I need to satisfy the OAuth credentials for both, preferably without getting the user to go through the process twice.</p>
+ 
+
+<p>After a bit of trial and error I realised that it was easier to get the google-api-client to handle authentication and just pass in the token to the google-drive code.</p>
+
+
+<p>I wrote the following code using Sinatra to handle the OAuth authorisation with Google:</p>
+
+
+
+~~~ruby
+
+require 'sinatra'
+require 'json'
+require "google_drive"
+require 'google/api_client'
+
+CLIENT_ID = 'my client id'
+CLIENT_SECRET = 'my client secret'
+OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/'
+REDIRECT_URI = 'http://localhost:9393/oauth2callback'
+
+helpers do
+  def partial (template, locals = {})
+    haml(template, :layout => false, :locals => locals)
+  end
+end
+
+enable :sessions
+
+get '/' do
+  haml :index
+end
+
+configure do
+  google_client = Google::APIClient.new
+  google_client.authorization.client_id = CLIENT_ID
+  google_client.authorization.client_secret = CLIENT_SECRET
+  google_client.authorization.scope = OAUTH_SCOPE
+  google_client.authorization.redirect_uri = REDIRECT_URI
+
+  set :google_client, google_client
+  set :google_client_driver, google_client.discovered_api('drive', 'v2')
+end
+
+
+post '/login/' do
+  client = settings.google_client
+  redirect client.authorization.authorization_uri
+end
+
+get '/oauth2callback' do
+  authorization_code = params['code']
+
+  client = settings.google_client
+  client.authorization.code = authorization_code
+  client.authorization.fetch_access_token!
+
+  oauth_token = client.authorization.access_token
+
+  session[:oauth_token] = oauth_token
+
+  redirect '/'
+end
+~~~
+
+<p>And this is the code for the index page:</p>
+
+
+
+~~~haml
+
+%html
+  %head
+    %title Google Docs Spreadsheet
+  %body
+    .container
+      %h2
+        Create Google Docs Spreadsheet
+
+      %div
+        - unless session['oauth_token']
+          %form{:name => "spreadsheet", :id => "spreadsheet", :action => "/login/", :method => "post", :enctype => "text/plain"}
+            %input{:type => "submit", :value => "Authorise Google Account", :class => "button"}
+        - else
+          %form{:name => "spreadsheet", :id => "spreadsheet", :action => "/spreadsheet/", :method => "post", :enctype => "text/plain"}
+            %input{:type => "submit", :value => "Create Spreadsheet", :class => "button"}
+
+~~~
+
+<p>We initialise the Google API client inside the 'configure' block before each request gets handled and then from '/' the user can click a button which does a POST request to '/login/'.</p>
+
+
+<p>'/login/' redirects us to the OAuth authorisation URI where we select the Google account we want to use and login if necessary. We'll then get redirected back to '/oauth2callback' where we extract the authorisation code and then get an authorisation token.</p>
+
+
+<p>We'll store that token in the session so that we can use it later on.</p>
+
+
+<p>Now we need to create the spreadsheet and share that document with someone else:</p>
+
+
+
+~~~ruby
+
+post '/spreadsheet/' do
+  client = settings.google_client
+  if session[:oauth_token]
+    client.authorization.access_token = session[:oauth_token]
+  end
+
+  google_drive_session = GoogleDrive.login_with_oauth(session[:oauth_token])
+
+  spreadsheet = google_drive_session.create_spreadsheet(title = "foobar")
+  ws = spreadsheet.worksheets[0]
+
+  ws[2, 1] = "foo"
+  ws[2, 2] = "bar"
+  ws.save()
+
+  file_id = ws.worksheet_feed_url.split("/")[-4]
+
+  drive = settings.google_client_driver
+
+  new_permission = drive.permissions.insert.request_schema.new({
+      'value' => "some_other_email@gmail.com",
+      'type' => "user",
+      'role' => "reader"
+  })
+
+  result = client.execute(
+    :api_method => drive.permissions.insert,
+    :body_object => new_permission,
+    :parameters => { 'fileId' => file_id })
+
+  if result.status == 200
+    p result.data
+  else
+    puts "An error occurred: #{result.data['error']['message']}"
+  end
+
+  "spreadsheet created and shared"
+end
+~~~
+
+<p>Here we create a spreadsheet with some arbitrary values using the google-drive gem before <a href="https://developers.google.com/drive/v2/reference/permissions/insert">granting permission</a> to a different email address than the one which owns it. I've given that other user read permission on the document.</p>
+
+
+<p>One other thing to keep in mind is which 'scopes' the OAuth authentication is for. If you authenticate for one URI and then try to do something against another one you'll get a '<a href="http://geoffmcqueen.com/2010/03/14/token-invalid-authsub-token-has-wrong-scope-oauth-google-problem/">Token invalid - AuthSub token has wrong scope</a>' error.</p>
+

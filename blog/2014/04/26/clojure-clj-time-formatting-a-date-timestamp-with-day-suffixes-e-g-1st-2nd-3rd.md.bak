@@ -1,0 +1,92 @@
++++
+draft = false
+date="2014-04-26 07:50:46"
+title="Clojure: clj-time - Formatting a date / timestamp with day suffixes e.g. 1st, 2nd, 3rd"
+tag=['clojure']
+category=['Clojure']
++++
+
+<p>I've been using the <a href="https://github.com/clj-time/clj-time">clj-time</a> library recently - a Clojure wrapper around <a href="http://joda-time.sourceforge.net/">Joda Time</a> - and one thing I wanted to do is format a date with day suffixes e.g. 1st, 2nd, 3rd.</p>
+
+
+<p>I started with the following timestamp:</p>
+
+
+
+~~~text
+
+1309368600000
+~~~
+
+<p>The first step was to convert that into a DateTime object like so:</p>
+
+
+
+~~~lisp
+
+user> (require '[clj-time.coerce :as c])
+user> (c/from-long 1309368600000)
+#<DateTime 2011-06-29T17:30:00.000Z>
+~~~
+
+<p>I wanted to output that date in the following format:</p>
+
+
+
+~~~text
+
+29th June 2011
+~~~
+
+<p>We can get quite close by using a <a href="https://github.com/clj-time/clj-time#clj-timeformat">custom time formatter</a>:</p>
+
+
+
+~~~lisp
+
+user> (require '[clj-time.format :as f])
+nil
+user> (f/unparse (f/formatter "d MMMM yyyy") (c/from-long 1309368600000))
+"29 June 2011"
+~~~
+
+<p>Unfortunately I couldn't find anywhere in the documentation explaining how to get the elusive 'th' or 'st' to print. I was hoping for something similar to PHP date formatting:</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/04/2014-04-26_08-38-39.png" alt="2014 04 26 08 38 39" title="2014-04-26_08-38-39.png" border="0" width="600" height="38" />
+</div>
+
+<p>Eventually I came across a Stack Overflow post about Joda Time suggesting that <a href="http://stackoverflow.com/questions/12950392/jodatime-format-date-with-1st-2nd-3rd-etc-day">you can't actually format a day in the way I was hoping to</a>.</p>
+
+
+<p>So I now have the following function to do it for me:</p>
+
+
+
+~~~lisp
+
+(defn day-suffix [day]
+  (let [stripped-day (if (< day 20) day (mod day 10))]
+    (cond (= stripped-day 1) "st"
+          (= stripped-day 2) "nd"
+          (= stripped-day 3) "rd"
+          :else "th")))
+~~~
+
+<p>and the code to get the date in my favoured format looks like this:</p>
+
+
+
+~~~lisp
+
+user> (def my-time (c/from-long 1309368600000))
+#'user/my-time
+user> (def day (read-string (f/unparse (f/formatter "d") my-time)))
+#'user/day
+user> (str day (day-suffix day) " " (f/unparse (f/formatter "MMMM yyyy") my-time))
+"29th June 2011"
+~~~
+
+<p>I'm assuming there's a better way but what is it?!</p>
+

@@ -1,0 +1,97 @@
++++
+draft = false
+date="2014-09-24 20:21:59"
+title="Neo4j: LOAD CSV - Column is null"
+tag=['neo4j']
+category=['neo4j']
++++
+
+<p>One problem I've seen a few people have recently when using Neo4j's <a href="http://docs.neo4j.org/chunked/stable/query-load-csv.html">LOAD CSV</a> function is dealing with CSV files that have dodgy hidden characters at the beginning of the header line.</p>
+
+
+<p>For example, consider an import of this CSV file:</p>
+
+
+
+~~~text
+
+$ cat ~/Downloads/dodgy.csv
+userId,movieId
+1,2
+~~~
+
+<p>We might start by checking which columns it has:</p>
+
+
+
+~~~cypher
+
+$ load csv with headers from "file:/Users/markneedham/Downloads/dodgy.csv" as line return line;
++----------------------------------+
+| line                             |
++----------------------------------+
+| {userId -> "1", movieId -> "2"} |
++----------------------------------+
+1 row
+~~~
+
+<p>Looks good so far but what about if we try to return just 'userId'?</p>
+
+
+
+~~~cypher
+
+$ load csv with headers from "file:/Users/markneedham/Downloads/dodgy.csv" as line return line.userId;
++-------------+
+| line.userId |
++-------------+
+| <null>      |
++-------------+
+1 row
+~~~
+
+<p>Hmmm it's null...what about 'movieId'?</p>
+
+
+
+~~~cypher
+
+$ load csv with headers from "file:/Users/markneedham/Downloads/dodgy.csv" as line return line.movieId;
++--------------+
+| line.movieId |
++--------------+
+| "2"          |
++--------------+
+1 row
+~~~
+
+<p>That works fine so immediately we can suspect there are hidden characters at the beginning of the first line of the file.</p>
+
+
+<p>The easiest way to check if this is the case is open the file using a Hex Editor - I quite like <a href="http://ridiculousfish.com/hexfiend/">Hex Fiend</a> for the Mac.</p>
+
+
+<p>If we look at dodgy.csv we'll see the following:</p>
+
+
+<div>
+
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/09/2014-09-24_21-20-06.png" alt="2014 09 24 21 20 06" title="2014-09-24_21-20-06.png" border="0" width="465" height="442" /></div>
+
+<p>Let's delete the highlighted characters and try our cypher query again:</p>
+
+
+
+~~~cypher
+
+$ load csv with headers from "file:/Users/markneedham/Downloads/dodgy.csv" as line return line.userId;
++-------------+
+| line.userId |
++-------------+
+| "1"         |
++-------------+
+1 row
+~~~
+
+<p>All is well again, but something to keep in mind if you see a LOAD CSV near you behaving badly.</p>
+

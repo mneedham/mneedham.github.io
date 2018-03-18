@@ -1,0 +1,128 @@
++++
+draft = false
+date="2014-02-20 18:22:43"
+title="Neo4j: Cypher - Set Based Operations"
+tag=['neo4j', 'cypher']
+category=['neo4j']
++++
+
+<p>I was recently reminded of a Neo4j cypher query that I wrote a couple of years ago to find the colleagues that I hadn't worked with in the ThoughtWorks London office.</p>
+
+
+<p>The model looked like this:</p>
+
+
+<div>	
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2014/02/2014-02-18_17-04-01.png" alt="2014 02 18 17 04 01" title="2014-02-18_17-04-01.png" border="0" width="344" height="329" />
+</div>
+
+<p>And I created the following fake data set of the aforementioned model:</p>
+
+
+
+~~~java
+
+public class SetBasedOperations
+{
+    private static final Label PERSON = DynamicLabel.label( "Person" );
+    private static final Label OFFICE = DynamicLabel.label( "Office" );
+
+    private static final DynamicRelationshipType COLLEAGUES = DynamicRelationshipType.withName( "COLLEAGUES" );
+    private static final DynamicRelationshipType MEMBER_OF = DynamicRelationshipType.withName( "MEMBER_OF" );
+
+    public static void main( String[] args ) throws IOException
+    {
+        Random random = new Random();
+        String path = "/tmp/set-based-operations";
+        FileUtils.deleteRecursively( new File( path ) );
+
+        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path );
+
+        Transaction tx = db.beginTx();
+        try
+        {
+            Node me = db.createNode( PERSON );
+            me.setProperty( "name", "me" );
+
+            Node londonOffice = db.createNode( OFFICE );
+            londonOffice.setProperty( "name", "London Office" );
+
+            me.createRelationshipTo( londonOffice, MEMBER_OF );
+
+            for ( int i = 0; i < 1000; i++ )
+            {
+                Node colleague = db.createNode( PERSON );
+                colleague.setProperty( "name", "person" + i );
+
+                colleague.createRelationshipTo( londonOffice, MEMBER_OF );
+
+                if(random.nextInt( 10 ) >= 8) {
+                    me.createRelationshipTo( colleague, COLLEAGUES );
+                }
+
+                tx.success();
+            }
+        }
+        finally
+        {
+            tx.finish();
+        }
+
+        db.shutdown();
+
+        CommunityNeoServer server = CommunityServerBuilder
+                .server()
+                .usingDatabaseDir( path )
+                .onPort( 9001 )
+                .persistent()
+                .build();
+
+        server.start();
+
+    }
+}
+~~~
+
+<p>I've created a node representing me and 1,000 people who work in the London office. Out of those 1,000 people I made it so that ~150 of them have worked with me.</p>
+
+
+<p>If I want to write a cypher query to find the exact number of people who haven't worked with me I might start with the following:</p>
+
+
+
+~~~cypher
+
+MATCH (p:Person {name: "me"})-[:MEMBER_OF]->(office {name: "London Office"})<-[:MEMBER_OF]-(colleague)
+WHERE NOT (p-[:COLLEAGUES]->(colleague))
+RETURN COUNT(colleague)
+~~~
+
+<p>We start by finding me, then find the London office which I was a member of, and then find the other people who are members of that office. On the second line we remove people that I've previously worked with and then return a count of the people who are left.</p>
+
+
+<p>When I ran this through <a href="https://github.com/mneedham/cypher-query-tuning">my Cypher query tuning tool</a> the average time to evaluate this query was 7.46 seconds.</p>
+
+
+<p>That is obviously a bit too slow if we want to run the query on a web page and as far as I can tell the reason for that is that for each potential colleague we are searching through my 'COLLEAGUES' relationships and checking whether they exist. We're doing that 1,000 times which is a bit inefficient.</p>
+
+
+<p>I chatted to <a href="https://twitter.com/dmontag">David</a> about this, and he suggested that a more efficient query would be to work out all my colleagues up front once and then do the filtering from that set of people instead.</p>
+
+
+<p>The re-worked query looks like this:
+
+
+~~~cypher
+
+MATCH (p:Person {name: "me"})-[:COLLEAGUES]->(colleague)
+WITH p, COLLECT(colleague) as marksColleagues
+MATCH (colleague)-[:MEMBER_OF]->(office {name: "London Office"})<-[:MEMBER_OF]-(p)
+WHERE NOT (colleague IN marksColleagues)
+RETURN COUNT(colleague)
+~~~
+
+<p>When we run that through the query tuner the average time reduces to 150 milliseconds which is much better.</p>
+
+
+<p>This type of query seems to be more about set operations than graph ones because <strong>we're looking for what isn't there rather than what is</strong>. When that's the case getting the set of things that we want to compare against up front is more profitable.</p>
+

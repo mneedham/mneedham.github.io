@@ -1,0 +1,243 @@
++++
+draft = false
+date="2018-01-29 06:51:10"
+title="Tensorflow: Kaggle Spooky Authors Bag of Words Model"
+tag=['kaggle', 'machine-learning', 'tensorflow']
+category=['Machine Learning']
+description="In this mini tutorial you can learn how to create a Tensorflow Bag of Words model for Kaggle'e Spooky Authors halloween competition."
++++
+
+<p>
+I've been playing around with some Tensorflow tutorials recently and wanted to see if I could create a submission for <a href="https://www.kaggle.com/c/spooky-author-identification">Kaggle's Spooky Author Identification competition</a> that I've written about recently.
+</p>
+
+
+<p>
+My model is based on one from the <a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/learn/text_classification.py">text classification tutorial</a>. The tutorial shows how to create custom Estimators which we can learn more about in <a href="https://developers.googleblog.com/2017/12/creating-custom-estimators-in-tensorflow.html">a post on the Google Developers blog</a>.
+</p>
+
+
+<h3>Imports</h3>
+
+<p>
+Let's get started. First, our imports:
+</p>
+
+
+
+
+~~~python
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+~~~
+
+<p>
+We've obviously got Tensorflow, but also scikit-learn which we'll use to split our data into a training and test sets as well as convert the author names into numeric values. 
+</p>
+
+
+<h3>Model building functions</h3>
+
+<p>
+Next we'll create a function to create a bag of words model. This function calls another one that creates different <cite>EstimatorSpec</cite>s depending on the context it's called from. 
+</p>
+
+
+
+~~~python
+
+EMBEDDING_SIZE = 50
+MAX_LABEL = 3
+WORDS_FEATURE = 'words'  # Name of the input words feature.
+
+
+def bag_of_words_model(features, labels, mode):
+    bow_column = tf.feature_column.categorical_column_with_identity(WORDS_FEATURE, num_buckets=n_words)
+    bow_embedding_column = tf.feature_column.embedding_column(bow_column, dimension=EMBEDDING_SIZE)
+    bow = tf.feature_column.input_layer(features, feature_columns=[bow_embedding_column])
+    logits = tf.layers.dense(bow, MAX_LABEL, activation=None)
+    return create_estimator_spec(logits=logits, labels=labels, mode=mode)
+
+
+def create_estimator_spec(logits, labels, mode):
+    predicted_classes = tf.argmax(logits, 1)
+    if mode == tf.estimator.ModeKeys.PREDICT:
+        return tf.estimator.EstimatorSpec(
+            mode=mode,
+            predictions={
+                'class': predicted_classes,
+                'prob': tf.nn.softmax(logits),
+                'log_loss': tf.nn.softmax(logits),
+            })
+
+    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+    if mode == tf.estimator.ModeKeys.TRAIN:
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
+        train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
+        return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)
+
+    eval_metric_ops = {
+        'accuracy': tf.metrics.accuracy(labels=labels, predictions=predicted_classes)
+    }
+    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
+~~~
+
+<h3>Loading data</h3>
+
+<p>
+Now we're ready to load our data.
+</p>
+
+
+
+~~~python
+
+Y_COLUMN = "author"
+TEXT_COLUMN = "text"
+le = preprocessing.LabelEncoder()
+
+train_df = pd.read_csv("train.csv")
+X = pd.Series(train_df[TEXT_COLUMN])
+y = le.fit_transform(train_df[Y_COLUMN].copy())
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+~~~
+
+<p>
+The only interesting thing here is the <cite>LabelEncoder</cite>. We'll keep that around as we'll use it later as well.
+</p>
+
+
+<h3>Transform documents</h3>
+
+<p>
+At the moment our training and test dataframes contain text, but Tensorflow works with vectors so we need to convert our data into that format. We can use the <cite><a href="http://tflearn.org/data_utils/#vocabulary-processor">VocabularyProcessor</a></cite> to do this:
+</p>
+
+
+
+
+~~~python
+
+MAX_DOCUMENT_LENGTH = 100
+vocab_processor = tf.contrib.learn.preprocessing.VocabularyProcessor(MAX_DOCUMENT_LENGTH)
+
+X_transform_train = vocab_processor.fit_transform(X_train)
+X_transform_test = vocab_processor.transform(X_test)
+
+X_train = np.array(list(X_transform_train))
+X_test = np.array(list(X_transform_test))
+
+n_words = len(vocab_processor.vocabulary_)
+print('Total words: %d' % n_words)
+~~~
+
+<h3>Training our model</h3>
+
+<p>
+Finally we're ready to train our model! We'll call the Bag of Words model we created at the beginning and build a train input function where we pass in the training arrays that we just created:
+</p>
+
+
+
+~~~python
+
+model_fn = bag_of_words_model
+classifier = tf.estimator.Estimator(model_fn=model_fn)
+
+train_input_fn = tf.estimator.inputs.numpy_input_fn(
+    x={WORDS_FEATURE: X_train},
+    y=y_train,
+    batch_size=len(X_train),
+    num_epochs=None,
+    shuffle=True)
+classifier.train(input_fn=train_input_fn, steps=100)
+~~~
+
+<h3>Evaluating our model</h3>
+
+<p>
+Let's see how our model fares. We'll call the <cite>evaluate</cite> function with our test data:
+</p>
+
+
+
+~~~python
+
+test_input_fn = tf.estimator.inputs.numpy_input_fn(
+    x={WORDS_FEATURE: X_test},
+    y=y_test,
+    num_epochs=1,
+    shuffle=False)
+
+scores = classifier.evaluate(input_fn=test_input_fn)
+print('Accuracy: {0:f}, Loss {1:f}'.format(scores['accuracy'], scores["loss"]))
+~~~
+
+
+~~~text
+
+INFO:tensorflow:Saving checkpoints for 1 into /var/folders/k5/ssmkw9vd2yb3h5wnqlxnqbkw0000gn/T/tmpb6v4rrrn/model.ckpt.
+INFO:tensorflow:loss = 1.0888131, step = 1
+INFO:tensorflow:Saving checkpoints for 100 into /var/folders/k5/ssmkw9vd2yb3h5wnqlxnqbkw0000gn/T/tmpb6v4rrrn/model.ckpt.
+INFO:tensorflow:Loss for final step: 0.18394235.
+INFO:tensorflow:Starting evaluation at 2018-01-28-22:41:34
+INFO:tensorflow:Restoring parameters from /var/folders/k5/ssmkw9vd2yb3h5wnqlxnqbkw0000gn/T/tmpb6v4rrrn/model.ckpt-100
+INFO:tensorflow:Finished evaluation at 2018-01-28-22:41:34
+INFO:tensorflow:Saving dict for global step 100: accuracy = 0.8246673, global_step = 100, loss = 0.44942895
+Accuracy: 0.824667, Loss 0.449429
+~~~
+
+<p>
+Not too bad! I managed to get a log loss score of ~ 0.36 with a scikit-learn ensemble model but it is better than some of my first attempts.
+</p>
+
+
+<h3>Generating predictions</h3>
+
+<p>
+I wanted to see how it'd do against Kaggle's test dataset so I generated a CSV file with predictions:
+</p>
+
+
+
+~~~python
+
+test_df = pd.read_csv("test.csv")
+
+X_test = pd.Series(test_df[TEXT_COLUMN])
+X_test = np.array(list(vocab_processor.transform(X_test)))
+
+test_input_fn = tf.estimator.inputs.numpy_input_fn(
+    x={WORDS_FEATURE: X_test},
+    num_epochs=1,
+    shuffle=False)
+
+predictions = classifier.predict(test_input_fn)
+y_predicted_classes = np.array(list(p['prob'] for p in predictions))
+
+output = pd.DataFrame(y_predicted_classes, columns=le.classes_)
+output["id"] = test_df["id"]
+output.to_csv("output.csv", index=False, float_format='%.6f')
+~~~
+
+<p>
+Here we go:
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2018/01/2018-01-29_06-44-30.png" alt="2018 01 29 06 44 30" title="2018-01-29_06-44-30.png" border="0" width="456" height="64" />
+</div>
+
+<p>
+The score is roughly the same as we saw with the test split of the training set. If you want to see all the code in one place I've <a href="https://github.com/mneedham/spooky-author-identification/blob/master/tf_test.py">put it on my Spooky Authors GitHub repository</a>.
+</p>
+

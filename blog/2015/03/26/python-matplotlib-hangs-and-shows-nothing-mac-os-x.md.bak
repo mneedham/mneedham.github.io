@@ -1,0 +1,83 @@
++++
+draft = false
+date="2015-03-26 00:02:54"
+title="Python: matplotlib hangs and shows nothing (Mac OS X)"
+tag=['python']
+category=['Python']
++++
+
+<p>
+I've been playing around with some of the  <a href="http://matplotlib.org/">matplotlib</a> demos recently and discovered that simply copying one of the examples didn't actually work for me.
+</p>
+
+
+<p>I was following the <a href="http://matplotlib.org/examples/api/barchart_demo.html">bar chart example</a> and had the following code:</p>
+
+
+
+
+~~~python
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+N = 5
+ind = np.arange(N)
+fig, ax = plt.subplots()
+menMeans = (20, 35, 30, 35, 27)
+menStd =   (2, 3, 4, 1, 2)
+width = 0.35       # the width of the bars
+rects1 = ax.bar(ind, menMeans, width, color='r', yerr=menStd)
+
+plt.show()
+
+~~~
+
+<p>
+When I execute this script from the command line it just hangs and I don't see anything at all.
+</p>
+
+
+<p>Via a <a href="http://stackoverflow.com/questions/21129055/no-plot-window-shows-up-with-matplotlib-pyplot-run-with-enthought-canopy-python">combination of</a> <a href="http://stackoverflow.com/questions/7534453/matplotlib-does-not-show-my-drawings-although-i-call-pyplot-show">different</a> <a href="http://stackoverflow.com/questions/2512225/matplotlib-not-showing-up-in-mac-osx">blog posts</a> (which all suggested different things!) I ended up with the following variation of imports which seems to do the job:
+</p>
+
+
+
+~~~python
+
+import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
+N = 5
+ind = np.arange(N)
+fig, ax = plt.subplots()
+menMeans = (20, 35, 30, 35, 27)
+menStd =   (2, 3, 4, 1, 2)
+width = 0.35       # the width of the bars
+rects1 = ax.bar(ind, menMeans, width, color='r', yerr=menStd)
+
+plt.show()
+
+~~~
+
+<p>
+If I run this script a Python window pops up and contains the following image which is what I expected to happen in the first place!
+</p>
+
+
+<div>
+<img src="http://www.markhneedham.com/blog/wp-content/uploads/2015/03/2015-03-25_23-56-08.png" alt="2015 03 25 23 56 08" title="2015-03-25_23-56-08.png" border="0"  />
+
+</div>
+
+<p>The thing to notice is that we've had to change the <a href="http://matplotlib.org/faq/usage_faq.html#what-is-a-backend">backend</a> in order to use matplotlib from the shell:</p>
+
+
+<blockquote>
+With the TkAgg backend, which uses the Tkinter user interface toolkit, you can use matplotlib from an arbitrary non-gui python shell. 
+</blockquote>
+
+<p>Current state: Wishing for ggplot!</p>
+
