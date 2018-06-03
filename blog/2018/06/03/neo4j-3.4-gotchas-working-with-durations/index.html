@@ -64,7 +64,7 @@
         "description": "Continuing with my explorations of Strava data in Neo4j I wanted to share some things I learnt while trying to work out my pace for certain distances.
  Before we get into the pace calculations let&#8217;s first understand how the duration function works. If we run the following query we might expect to get back the same value that we put in&#8230;&#8203;
  RETURN duration({seconds: 413.77}).seconds AS seconds   ╒═════════╕ │"",
-        "wordCount": 705
+        "wordCount": 703
     }
     </script>
     
@@ -217,7 +217,7 @@ RETURN duration({seconds: elapsedTime.seconds / distance * 1609.34}) AS pacePerM
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH duration({minutes: 21, seconds: 24}) AS elapsedTime,
-       toFloat(5000) AS distance
+     toFloat(5000) AS distance
 WITH duration({seconds: elapsedTime.seconds / distance * 1609.34}) AS pacePerMile,
      duration({seconds: elapsedTime.seconds / distance * 1000}) AS pacePerKm
 RETURN apoc.date.format(pacePerMile.milliseconds, "ms", "mm:ss") AS pacePerMile,
@@ -245,8 +245,10 @@ We have a bit of duplication on lines 3 and 4 which we can remove by calculating
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH duration({minutes: 21, seconds: 24}) AS elapsedTime,
       toFloat(5000) AS distance
 WITH duration({seconds: elapsedTime.seconds / distance}) AS pacePerMetre
-RETURN apoc.date.format(toInteger(pacePerMetre.milliseconds * 1609.34), "ms", "mm:ss") AS pacePerMile,
-       apoc.date.format(pacePerMetre.milliseconds * 1000, "ms", "mm:ss") AS pacePerKm</code></pre>
+RETURN apoc.date.format(toInteger(pacePerMetre.milliseconds * 1609.34), "ms", "mm:ss")
+       AS pacePerMile,
+       apoc.date.format(pacePerMetre.milliseconds * 1000, "ms", "mm:ss")
+       AS pacePerKm</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -319,12 +321,15 @@ We can use the same approach to get an accurate <code>pacePerMile</code> value.<
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH duration({minutes: 22, seconds: 24}) AS elapsedTime,
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH duration({minutes: 21, seconds: 24}) AS elapsedTime,
      toFloat(5000) AS distance
 WITH duration({seconds: elapsedTime.seconds / distance}) AS pacePerMetre
-RETURN apoc.date.format(toInteger(pacePerMetre.microseconds * (1609.34 / 1000)), "ms", "mm:ss") AS pacePerMile,
-       apoc.date.format(pacePerMetre.microseconds, "ms", "mm:ss") AS pacePerKm,
-       1.0 / (pacePerMetre.microseconds / 1000.0 / 1000.0) AS metresPerSecond</code></pre>
+RETURN apoc.date.format(toInteger(pacePerMetre.microseconds * 1.60934), "ms", "mm:ss")
+       AS pacePerMile,
+       apoc.date.format(pacePerMetre.microseconds, "ms", "mm:ss")
+       AS pacePerKm,
+       1.0 / (pacePerMetre.microseconds / 1000.0 / 1000.0)
+       AS metresPerSecond</code></pre>
 </div>
 </div>
 <div class="paragraph">
