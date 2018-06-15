@@ -1,0 +1,1485 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <meta property="og:title" content=" Neo4j: Querying the Strava Graph using Py2neo &middot;  Mark Needham" />
+        <meta property="og:site_name" content="Mark Needham" />
+        <meta property="og:url" content="https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/" />
+
+    
+        <meta property="og:type" content="article" />
+        <meta property="og:article:published_time" content="2018-06-15T13:45:21Z" />
+        <meta property="og:article:tag" content="neo4j" />
+        <meta property="og:article:tag" content="cypher" />
+        <meta property="og:article:tag" content="strava" />
+        <meta property="og:article:tag" content="py2neo" />
+        <meta property="og:article:tag" content="python" />
+        
+
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@markhneedham" />
+        <meta name="twitter:creator" content="@markhneedham" />
+        <meta name="twitter:title" content="Neo4j: Querying the Strava Graph using Py2neo" />
+        
+          <meta name="twitter:description" content="Learn how to query a Strava activity graph using Py2neo v4." />
+        
+        <meta name="twitter:url" content="https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/" />
+    
+
+        <title> Neo4j: Querying the Strava Graph using Py2neo &middot;  Mark Needham</title>
+
+    
+        <meta name="description" content="Learn how to query a Strava activity graph using Py2neo v4." />
+    
+
+        <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        
+        
+
+    
+        <link href="https://markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
+    
+
+    
+        <link rel="canonical" href="https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/" />
+
+    
+    <script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Neo4j: Querying the Strava Graph using Py2neo",
+        "author": {
+            "@type": "Person",
+            "name": "http://profiles.google.com/100354797468725665406?rel=author"
+        },
+        "datePublished": "2018-06-15",
+        "description": "Last week Nigel released v4 of Py2neo and given I was just getting ready to write some queries against my Strava activity graph I thought I&#8217;d give it a try.
+ If you want to learn how to create your own Strava graph you should read my previous post, but just to recap, this is the graph model that we created:
+   Let&#8217;s get to it!
+ tl;dr the code in this post is available as a Jupyter notebook so if you want the code and nothing but the code head over there!",
+        "wordCount": 1039
+    }
+    </script>
+    
+
+    <style>
+*{padding:0;margin:0}body,html{font-size:1em;line-height:1.65em;font-family:"Open Sans",sans-serif;font-weight:300;color:#444}html{height:100%}body{padding:2em 2.5em 1em 20em}header{border-right:1px #eee solid;padding:2em;position:fixed;top:0;left:0;height:100%;width:13.5em}#content{display:block;width:100%}footer{padding:1em 0 2.5em;font-size:.8em;line-height:1.5em;color:#888}article{border-bottom:.1em #eee solid;padding-bottom:1.7em;max-width:56em}h4,h5,h6,hr,p{margin-top:.9em;margin-bottom:.9em}h1,h2,h3,h4,h5,h6{font-family:"Bree Serif",serif;font-weight:400!important}h1{font-size:2.5em;line-height:1.1em;margin-top:.6em;margin-bottom:.6em}h2{font-size:1.9em;line-height:1.2em;margin-top:.7em;margin-bottom:.7em}h3{font-size:1.4em;line-height:1.3em;margin-top:.8em;margin-bottom:.8em}h4{font-size:1.3em}h5{font-size:1.2em}h6{font-size:1.1em}iframe,img{max-width:100%}a{font-weight:700;text-decoration:none;color:#5cc265}a:hover{text-decoration:underline}h1 a,h2 a,h3 a,h4 a,h5 a,h6 a{font-weight:400!important}strong{font-weight:700}blockquote{border-left:.4em solid #eee;padding-left:1.2em;font-size:1.3em}hr{border:0;height:1px;background:#eee}ol,ul{margin-left:3em}code{font-size:1.4em;background:#eee}pre{font-size:.8em;line-height:2em;background:#eee;padding:1em;word-break:break-all;word-wrap:break-word;white-space:pre;white-space:-moz-pre-wrap;white-space:pre-wrap}input{font-size:1em;padding:.3em}header h1{font-size:1.9em;margin-top:.8em;margin-bottom:.6em}header h1 a{color:#444}header h1 a:hover{text-decoration:none}header #logo img{width:9em;height:9em;border-radius:4.5em;-moz-border-radius:4.5em;-webkit-border-radius:4.5em;border:none}#follow-icons{font-size:.7em;margin-top:-.7em;margin-bottom:1.5em}#follow-icons a{color:#ccc}#follow-icons span{vertical-align:top;margin-left:-.15em;margin-right:-.15em}#follow-icons span .fa-stack-1x{font-size:1.05em;line-height:1.9em}header h6{margin-top:.5em}article span.post-stamp{color:#888}h1.post-title{margin-top:.35em;margin-bottom:.6em}h3.post-title{margin-top:.4em;padding-bottom:.9em;border-bottom:1px solid #eee;font-size:1.2em;color:#444}.post-title .feature-star{font-size:.9em}.feature-star,.separator,.taglist{color:#ccc}.taglist a{background-color:#ccc;color:#fff;display:inline-block;line-height:1.5em;padding:.3em .6em;vertical-align:20%;font-size:.5em;font-family:"Open Sans",sans-serif;font-weight:700!important;text-transform:uppercase;letter-spacing:.05em;border-radius:.25em;-moz-border-radius:.25em;-webkit-border-radius:.25em}#social-bar{margin-top:1.5em;background-color:#eee;padding:.5em}#comments{margin-top:.15em;padding-bottom:.2em;border-bottom:1px solid #eee}.pagination{margin-bottom:1em}footer a{font-weight:300;color:#888;text-decoration:underline}footer a:hover{color:#444;text-decoration:none}@media only screen and (min-width:1281px){body,html{font-size:1.1em}}@media only screen and (max-width:800px){body{padding:0}header{border-right:none;border-bottom:1px #eee solid;position:relative;height:auto;width:auto;text-align:center;padding-bottom:1em}#content{margin-left:0;padding:2em 2em 1em;width:auto}footer{padding:0 2.5em 2em}}@media only screen and (max-width:320px){#content,header{padding:1.2em 1.2em .6em}footer{padding:0 1.5em 1.2em}ol,ul{margin-left:2em}}
+</style>
+    </head>
+    <body>
+        <header id="header">
+            <a id="logo" href="https://markhneedham.com/blog/"><img src="https://markhneedham.com/blog//me.jpg" alt="Mark Needham" /></a>
+            <h1><a href="https://markhneedham.com/blog/">Mark Needham</a></h1>
+            <p>Learn how to query a Strava activity graph using Py2neo v4.</p>
+
+            <div id="follow-icons">
+	<a href="http://twitter.com/markhneedham" rel="me"><i class="fa fa-twitter-square fa-2x"></i></a>
+	<a href="http://linkedin.com/in/markhneedham" rel="me"><i class="fa fa-linkedin-square fa-2x"></i></a>
+	<a href="http://github.com/mneedham" rel="me"><i class="fa fa-github-square fa-2x"></i></a>
+	<a href="mailto:m.h.needham@gmail.com"><i class="fa fa-envelope-square fa-2x"></i></a>
+	<a href="https://markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
+</div>
+
+                        
+        </header>
+
+<main id="content">
+
+<article id="" class="2018">
+    <div class="post-stamp">
+        <time datetime="2018-06-15T13:45:21Z">
+            15 Jun 2018
+        </time>
+        <span class="taglist">
+        
+        &middot;
+        
+            <a href="https://markhneedham.com/blog/tag/neo4j/">neo4j</a>
+        
+            <a href="https://markhneedham.com/blog/tag/cypher/">cypher</a>
+        
+            <a href="https://markhneedham.com/blog/tag/strava/">strava</a>
+        
+            <a href="https://markhneedham.com/blog/tag/py2neo/">py2neo</a>
+        
+            <a href="https://markhneedham.com/blog/tag/python/">python</a>
+        
+        
+        </span>
+    </div>
+    <h1 class="post-title">Neo4j: Querying the Strava Graph using Py2neo</h1>
+    <div class="paragraph">
+<p>Last week Nigel <a href="https://medium.com/neo4j/py2neo-v4-2bedc8afef2" target="_blank" rel="noopener">released v4 of Py2neo</a> and given I was just getting ready to write some queries against <a href="https://markhneedham.com/blog/2018/06/12/neo4j-building-strava-graph/" target="_blank" rel="noopener">my Strava activity graph</a> I thought I&#8217;d give it a try.</p>
+</div>
+<div class="paragraph">
+<p>If you want to learn how to create your own Strava graph you should read my previous post, but just to recap, this is the graph model that we created:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2018/06/strava-graph.svg" alt="strava graph">
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s get to it!</p>
+</div>
+<div class="sect1">
+<h2 id="_tl_dr">tl;dr</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>the code in this post is available as a <a href="https://github.com/mneedham/strava/blob/master/Strava.ipynb" target="_blank" rel="noopener">Jupyter notebook</a> so if you want the code and nothing but the code head over there!</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_importing_libraries">Importing libraries</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Importing and creating a <code>Graph</code> object in Py2neo is as simple as executing the following lines of code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from py2neo import Graph
+graph = Graph("bolt://localhost:7687", auth=("neo4j", "neo"))</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_find_the_most_recent_activities">Find the most recent activities</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We&#8217;ll start with a simple query where we find the most recent activities that I&#8217;ve done.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">recent_runs_df = graph.run("""\
+MATCH (r:Run)
+WITH r { .id, .startDate, .name, .movingTime, .distance,
+         pace: duration({seconds: r.movingTime.seconds / r.distance * 1000}) }
+RETURN r.name,
+       apoc.date.format(r.startDate.epochSeconds, 's', 'MMM d yyyy') AS dateOfRun,
+       r.distance,
+       apoc.date.format(r.movingTime.milliseconds, 'ms', 'HH:mm:ss') AS time,
+       apoc.date.format(r.pace.milliseconds, "ms", "mm:ss") AS pacePerKm,
+       r.startDate AS startDate
+""").to_data_frame()
+
+recent_runs_df \
+  .sort_values(by = ["startDate"], ascending=False) \
+  .drop(["startDate"], axis=1) \
+  .head(10)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This query converts the Cypher output into a DataFrame with the <code>to_data_frame</code> function.
+There are other formats that we can use instead but I want to post process the results using Pandas so this format works best for me.</p>
+</div>
+<div class="paragraph">
+<p>If we run that query we&#8217;ll get the following output:</p>
+</div>
+<table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dateOfRun</th>
+      <th>pacePerKm</th>
+      <th>r.distance</th>
+      <th>r.name</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>605</th>
+      <td>Jun 13 2018</td>
+      <td>04:33</td>
+      <td>10780.2</td>
+      <td>Morning Run</td>
+      <td>00:49:11</td>
+    </tr>
+    <tr>
+      <th>604</th>
+      <td>Jun 11 2018</td>
+      <td>04:34</td>
+      <td>10035.8</td>
+      <td>Morning Run</td>
+      <td>00:45:53</td>
+    </tr>
+    <tr>
+      <th>603</th>
+      <td>Jun 9 2018</td>
+      <td>04:23</td>
+      <td>11043.2</td>
+      <td>Morning Run</td>
+      <td>00:48:29</td>
+    </tr>
+    <tr>
+      <th>602</th>
+      <td>Jun 8 2018</td>
+      <td>04:36</td>
+      <td>11281.2</td>
+      <td>Morning Run</td>
+      <td>00:51:57</td>
+    </tr>
+    <tr>
+      <th>586</th>
+      <td>Jun 6 2018</td>
+      <td>04:28</td>
+      <td>10884.9</td>
+      <td>Morning Run</td>
+      <td>00:48:38</td>
+    </tr>
+    <tr>
+      <th>585</th>
+      <td>Jun 4 2018</td>
+      <td>04:24</td>
+      <td>10030.5</td>
+      <td>Morning Run</td>
+      <td>00:44:14</td>
+    </tr>
+    <tr>
+      <th>584</th>
+      <td>Jun 2 2018</td>
+      <td>04:25</td>
+      <td>13039.8</td>
+      <td>Morning Run</td>
+      <td>00:57:41</td>
+    </tr>
+    <tr>
+      <th>601</th>
+      <td>Jun 1 2018</td>
+      <td>04:29</td>
+      <td>10701.7</td>
+      <td>Morning Run</td>
+      <td>00:48:02</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>May 30 2018</td>
+      <td>04:41</td>
+      <td>9828.4</td>
+      <td>Morning Run</td>
+      <td>00:46:06</td>
+    </tr>
+    <tr>
+      <th>599</th>
+      <td>May 28 2018</td>
+      <td>04:34</td>
+      <td>10193.0</td>
+      <td>Morning Run</td>
+      <td>00:46:42</td>
+    </tr>
+  </tbody>
+</table>
+
+<style>
+table {
+    border-collapse: collapse;
+}
+
+
+table, th, td {
+    border: 1px solid black;
+    padding: 5px;
+}
+</style>
+<div class="paragraph">
+<p>We could also do the sorting of the data directly in Cypher, but I wanted to have all the activities available in the DataFrame so that we could play around with it directly in Pandas without having to re-run the query each time.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_find_the_longest_activities">Find the longest activities</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For example, we could find the activities ordered by distance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">recent_runs_df \
+  .sort_values(by = ["r.distance"], ascending=False) \
+  .drop(["startDate"], axis=1) \
+  .head(10)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that query we&#8217;ll get the following output:</p>
+</div>
+<table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dateOfRun</th>
+      <th>pacePerKm</th>
+      <th>r.distance</th>
+      <th>r.name</th>
+      <th>time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>594</th>
+      <td>May 19 2018</td>
+      <td>04:30</td>
+      <td>13635.2</td>
+      <td>Morning Run</td>
+      <td>01:01:27</td>
+    </tr>
+    <tr>
+      <th>584</th>
+      <td>Jun 2 2018</td>
+      <td>04:25</td>
+      <td>13039.8</td>
+      <td>Morning Run</td>
+      <td>00:57:41</td>
+    </tr>
+    <tr>
+      <th>590</th>
+      <td>May 12 2018</td>
+      <td>04:40</td>
+      <td>12963.9</td>
+      <td>Morning Run</td>
+      <td>01:00:33</td>
+    </tr>
+    <tr>
+      <th>597</th>
+      <td>May 25 2018</td>
+      <td>04:37</td>
+      <td>11690.0</td>
+      <td>Morning Run</td>
+      <td>00:54:02</td>
+    </tr>
+    <tr>
+      <th>572</th>
+      <td>May 5 2018</td>
+      <td>04:31</td>
+      <td>11674.4</td>
+      <td>Morning Run</td>
+      <td>00:52:48</td>
+    </tr>
+    <tr>
+      <th>531</th>
+      <td>Mar 17 2018</td>
+      <td>04:37</td>
+      <td>11299.0</td>
+      <td>Afternoon Run</td>
+      <td>00:52:19</td>
+    </tr>
+    <tr>
+      <th>602</th>
+      <td>Jun 8 2018</td>
+      <td>04:36</td>
+      <td>11281.2</td>
+      <td>Morning Run</td>
+      <td>00:51:57</td>
+    </tr>
+    <tr>
+      <th>548</th>
+      <td>Jan 27 2018</td>
+      <td>04:37</td>
+      <td>11064.7</td>
+      <td>Afternoon Run</td>
+      <td>00:51:05</td>
+    </tr>
+    <tr>
+      <th>603</th>
+      <td>Jun 9 2018</td>
+      <td>04:23</td>
+      <td>11043.2</td>
+      <td>Morning Run</td>
+      <td>00:48:29</td>
+    </tr>
+    <tr>
+      <th>586</th>
+      <td>Jun 6 2018</td>
+      <td>04:28</td>
+      <td>10884.9</td>
+      <td>Morning Run</td>
+      <td>00:48:38</td>
+    </tr>
+  </tbody>
+</table>
+<div class="paragraph">
+<p>We can also visualise the distances over time using matplotlib:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">%matplotlib inline
+recent_runs_df.plot(x="startDate", y="r.distance")</code></pre>
+</div>
+</div>
+<br />
+<img src="data:image/png;base64,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
+"
+>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_estimated_runs">Estimated runs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In our graph we also have estimated attempts at different distances.</p>
+</div>
+<div class="paragraph">
+<p>When you submit an activity Strava generates predicted best times for a range of distances less than the total distance for that activity.
+For example if you submit an activity of 6,000 metres, Strava will generated estimated times for 5k, 2 miles, 1 mile, 1k, and 400m.</p>
+</div>
+<div class="paragraph">
+<p>We can write the following query to find my best 10k attempts:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">estimated_effort_query = """\
+MATCH (distance:Distance {name: {distance}})&lt;-[:DISTANCE]-(effort),
+      (effort)&lt;-[:DISTANCE_EFFORT]-(run)
+
+WITH run { .id, .startDate, .distance, pace: duration({
+           seconds: run.elapsedTime.seconds / run.distance * 1000})},
+     effort { .elapsedTime, pace: duration({
+              seconds: effort.elapsedTime.seconds / distance.distance * 1000 })}
+
+RETURN apoc.date.format(run.startDate.epochSeconds, 's', 'MMM d yyyy') AS dateOfRun,
+       apoc.date.format(effort.elapsedTime.milliseconds, 'ms', 'mm:ss') AS time,
+       apoc.date.format(effort.pace.milliseconds, "ms", "mm:ss") AS pacePerKm,
+       apoc.math.round(toFloat(effort.pace.seconds) / 60, 2) AS pacePerKmFloat,
+       apoc.date.format(run.pace.milliseconds, "ms", "mm:ss") AS overallPacePerKm,
+       run.distance AS totalDistance,
+       run.startDate AS startDate
+ORDER BY effort.elapsedTime
+LIMIT {limit}
+"""
+
+df_10k = graph \
+  .run(estimated_effort_query, {"distance": "10k", "limit": 1000}) \
+  .to_data_frame()
+
+df_10k \
+  .drop(["startDate", "pacePerKmFloat"], axis=1) \
+  .head(10)</code></pre>
+</div>
+</div>
+<br />
+<table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dateOfRun</th>
+      <th>overallPacePerKm</th>
+      <th>pacePerKm</th>
+      <th>time</th>
+      <th>totalDistance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Jun 9 2018</td>
+      <td>04:24</td>
+      <td>04:24</td>
+      <td>44:05</td>
+      <td>11043.2</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Jun 2 2018</td>
+      <td>04:25</td>
+      <td>04:25</td>
+      <td>44:12</td>
+      <td>13039.8</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Jun 4 2018</td>
+      <td>04:27</td>
+      <td>04:27</td>
+      <td>44:35</td>
+      <td>10030.5</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Jun 6 2018</td>
+      <td>04:28</td>
+      <td>04:28</td>
+      <td>44:49</td>
+      <td>10884.9</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Jun 1 2018</td>
+      <td>04:29</td>
+      <td>04:29</td>
+      <td>44:59</td>
+      <td>10701.7</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>May 19 2018</td>
+      <td>04:31</td>
+      <td>04:30</td>
+      <td>45:02</td>
+      <td>13635.2</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>May 5 2018</td>
+      <td>04:33</td>
+      <td>04:32</td>
+      <td>45:26</td>
+      <td>11674.4</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>May 21 2018</td>
+      <td>04:33</td>
+      <td>04:34</td>
+      <td>45:41</td>
+      <td>10147.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Jun 13 2018</td>
+      <td>04:34</td>
+      <td>04:34</td>
+      <td>45:48</td>
+      <td>10780.2</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>May 16 2018</td>
+      <td>04:34</td>
+      <td>04:34</td>
+      <td>45:49</td>
+      <td>10148.8</td>
+    </tr>
+  </tbody>
+</table>
+<div class="paragraph">
+<p>We can also create a matplotlib plot to see my 10k runs over time:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">%matplotlib inline
+df_10k.sort_values(by=["startDate"]).plot(x="startDate", y="pacePerKmFloat")</code></pre>
+</div>
+</div>
+<br />
+<img src="data:image/png;base64,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
+"
+>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_combining_estimated_runs">Combining estimated runs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>What if we want to combine my efforts for multiple distances in a single row?
+The pandas <code>merge</code> function comes in handy here.</p>
+</div>
+<div class="paragraph">
+<p>For example we could write the following code to create a DataFrame that combines my 10k and 5k runs:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import pandas as pd
+cols = ["run.id", "dateOfRun_x", "time_x", "pacePerKm_x", "time_y", "pacePerKm_y"]
+
+df_5k = graph \
+  .run(estimated_effort_query, {"distance": "5k", "limit": 1000}) \
+  .to_data_frame()
+
+df_10k = graph \
+  .run(estimated_effort_query, {"distance": "10k", "limit": 1000}) \
+  .to_data_frame()
+
+pd.merge(df_5k, df_10k, on="run.id")[cols].head(10)</code></pre>
+</div>
+</div>
+<br />
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>run.id</th>
+      <th>dateOfRun_x</th>
+      <th>time_x</th>
+      <th>pacePerKm_x</th>
+      <th>time_y</th>
+      <th>pacePerKm_y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1611168962</td>
+      <td>Jun 2 2018</td>
+      <td>21:24</td>
+      <td>04:16</td>
+      <td>44:12</td>
+      <td>04:25</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1626636004</td>
+      <td>Jun 9 2018</td>
+      <td>21:34</td>
+      <td>04:18</td>
+      <td>44:05</td>
+      <td>04:24</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1620188065</td>
+      <td>Jun 6 2018</td>
+      <td>22:00</td>
+      <td>04:24</td>
+      <td>44:49</td>
+      <td>04:28</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1616050069</td>
+      <td>Jun 4 2018</td>
+      <td>22:01</td>
+      <td>04:24</td>
+      <td>44:35</td>
+      <td>04:27</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1581401227</td>
+      <td>May 19 2018</td>
+      <td>22:15</td>
+      <td>04:27</td>
+      <td>45:02</td>
+      <td>04:30</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1609355524</td>
+      <td>Jun 1 2018</td>
+      <td>22:16</td>
+      <td>04:27</td>
+      <td>44:59</td>
+      <td>04:29</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1635264102</td>
+      <td>Jun 13 2018</td>
+      <td>22:20</td>
+      <td>04:28</td>
+      <td>45:48</td>
+      <td>04:34</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1585759604</td>
+      <td>May 21 2018</td>
+      <td>22:27</td>
+      <td>04:29</td>
+      <td>45:41</td>
+      <td>04:34</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>1566256778</td>
+      <td>May 12 2018</td>
+      <td>22:30</td>
+      <td>04:30</td>
+      <td>46:11</td>
+      <td>04:37</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>1624450599</td>
+      <td>Jun 8 2018</td>
+      <td>22:30</td>
+      <td>04:30</td>
+      <td>46:11</td>
+      <td>04:37</td>
+    </tr>
+  </tbody>
+</table>
+<div class="paragraph">
+<p>That&#8217;s all for now.
+Hopefully that&#8217;s given you some ideas of how you can use the new version of Py2neo to query your graph data.</p>
+</div>
+<div class="paragraph">
+<p>I only covered some examples in this blog post.
+If you want to see the full set you can look at the <a href="https://github.com/mneedham/strava/blob/master/Strava.ipynb" target="_blank" rel="noopener">accompanying Jupyter notebook</a>.</p>
+</div>
+</div>
+</div>
+
+    <div id="social-bar">
+	<ul class="rrssb-buttons clearfix">
+      <li class="email">
+          <a href="mailto:?subject=Neo4j%3a%20Querying%20the%20Strava%20Graph%20using%20Py2neo&amp;body=https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path transform="scale(0.014,-0.014) translate(0,-1670)" d="M1792 826v-794q0 -66 -47 -113t-113 -47h-1472q-66 0 -113 47t-47 113v794q44 -49 101 -87q362 -246 497 -345q57 -42 92.5 -65.5t94.5 -48t110 -24.5h1h1q51 0 110 24.5t94.5 48t92.5 65.5q170 123 498 345q57 39 100 87zM1792 1120q0 -79 -49 -151t-122 -123 q-376 -261 -468 -325q-10 -7 -42.5 -30.5t-54 -38t-52 -32.5t-57.5 -27t-50 -9h-1h-1q-23 0 -50 9t-57.5 27t-52 32.5t-54 38t-42.5 30.5q-91 64 -262 182.5t-205 142.5q-62 42 -117 115.5t-55 136.5q0 78 41.5 130t118.5 52h1472q65 0 112.5 -47t47.5 -113z"/>
+                  </svg>
+              </span>
+              <span class="text">Email</span>
+          </a>
+      </li>
+      <li class="facebook">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path d="M27.825,4.783c0-2.427-2.182-4.608-4.608-4.608H4.783c-2.422,0-4.608,2.182-4.608,4.608v18.434 c0,2.427,2.181,4.608,4.608,4.608H14V17.379h-3.379v-4.608H14v-1.795c0-3.089,2.335-5.885,5.192-5.885h3.718v4.608h-3.726 c-0.408,0-0.884,0.492-0.884,1.236v1.836h4.609v4.608h-4.609v10.446h4.916c2.422,0,4.608-2.188,4.608-4.608V4.783z"/>
+                  </svg>
+              </span>
+              <span class="text">Facebook</span>
+          </a>
+      </li>
+			<li class="twitter">
+          <a href="http://twitter.com/home?status=Neo4j%3a%20Querying%20the%20Strava%20Graph%20using%20Py2neo%20https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+		                  <path d="M24.253,8.756C24.689,17.08,18.297,24.182,9.97,24.62c-3.122,0.162-6.219-0.646-8.861-2.32 c2.703,0.179,5.376-0.648,7.508-2.321c-2.072-0.247-3.818-1.661-4.489-3.638c0.801,0.128,1.62,0.076,2.399-0.155 C4.045,15.72,2.215,13.6,2.115,11.077c0.688,0.275,1.426,0.407,2.168,0.386c-2.135-1.65-2.729-4.621-1.394-6.965 C5.575,7.816,9.54,9.84,13.803,10.071c-0.842-2.739,0.694-5.64,3.434-6.482c2.018-0.623,4.212,0.044,5.546,1.683 c1.186-0.213,2.318-0.662,3.329-1.317c-0.385,1.256-1.247,2.312-2.399,2.942c1.048-0.106,2.069-0.394,3.019-0.851 C26.275,7.229,25.39,8.196,24.253,8.756z"/>
+                  </svg>
+              </span>
+              <span class="text">Twitter</span>
+          </a>
+      </li>
+			<li class="linkedin">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/&amp;title=Neo4j%3a%20Querying%20the%20Strava%20Graph%20using%20Py2neo&amp;summary=Last%20week%20Nigel%20released%20v4%20of%20Py2neo%20and%20given%20I%20was%20just%20getting%20ready%20to%20write%20some%20queries%20against%20my%20Strava%20activity%20graph%20I%20thought%20I%26%238217%3bd%20give%20it%20a%20try.%0a%20If%20you%20want%20to%20learn%20how%20to%20create%20your%20own%20Strava%20graph%20you%20should%20read%20my%20previous%20post%2c%20but%20just%20to%20recap%2c%20this%20is%20the%20graph%20model%20that%20we%20created%3a%0a%20%20%20Let%26%238217%3bs%20get%20to%20it%21%0a%20tl%3bdr%20the%20code%20in%20this%20post%20is%20available%20as%20a%20Jupyter%20notebook%20so%20if%20you%20want%20the%20code%20and%20nothing%20but%20the%20code%20head%20over%20there%21..." class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
+                  </svg>
+              </span>
+              <span class="text">LinkedIn</span>
+          </a>
+      </li>
+      <li class="tumblr">
+					<script>
+						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('https:\/\/markhneedham.com\/blog\/2018\/06\/15\/neo4j-querying-strava-graph-py2neo\/') + '&amp;t=Neo4j: Querying the Strava Graph using Py2neo" class="popup">');
+					</script>
+              <span class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+											<path d="M18.02 21.842c-2.029 0.052-2.422-1.396-2.439-2.446v-7.294h4.729V7.874h-4.71V1.592c0 0-3.653 0-3.714 0 s-0.167 0.053-0.182 0.186c-0.218 1.935-1.144 5.33-4.988 6.688v3.637h2.927v7.677c0 2.8 1.7 6.7 7.3 6.6 c1.863-0.03 3.934-0.795 4.392-1.453l-1.22-3.539C19.595 21.6 18.7 21.8 18 21.842z"/>
+									</svg>
+              </span>
+              <span class="text">Tumblr</span>
+          <script>document.write('</a>');</script>
+      </li>
+      <li class="reddit">
+          <a href="http://www.reddit.com/submit?url=https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/">
+              <span class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+											<g>
+													<path d="M11.794 15.316c0-1.029-0.835-1.895-1.866-1.895c-1.03 0-1.893 0.865-1.893 1.895s0.863 1.9 1.9 1.9 C10.958 17.2 11.8 16.3 11.8 15.316z"/>
+													<path d="M18.1 13.422c-1.029 0-1.895 0.864-1.895 1.895c0 1 0.9 1.9 1.9 1.865c1.031 0 1.869-0.836 1.869-1.865 C19.969 14.3 19.1 13.4 18.1 13.422z"/>
+													<path d="M17.527 19.791c-0.678 0.678-1.826 1.006-3.514 1.006c-0.004 0-0.009 0-0.014 0c-0.004 0-0.01 0-0.015 0 c-1.686 0-2.834-0.328-3.51-1.005c-0.264-0.265-0.693-0.265-0.958 0c-0.264 0.265-0.264 0.7 0 1 c0.943 0.9 2.4 1.4 4.5 1.402c0.005 0 0 0 0 0c0.005 0 0 0 0 0c2.066 0 3.527-0.459 4.47-1.402 c0.265-0.264 0.265-0.693 0.002-0.958C18.221 19.5 17.8 19.5 17.5 19.791z"/>
+													<path d="M27.707 13.267c0-1.785-1.453-3.237-3.236-3.237c-0.793 0-1.518 0.287-2.082 0.761c-2.039-1.295-4.646-2.069-7.438-2.219 l1.483-4.691l4.062 0.956c0.071 1.4 1.3 2.6 2.7 2.555c1.488 0 2.695-1.208 2.695-2.695C25.881 3.2 24.7 2 23.2 2 c-1.059 0-1.979 0.616-2.42 1.508l-4.633-1.091c-0.344-0.081-0.693 0.118-0.803 0.455l-1.793 5.7 C10.548 8.6 7.7 9.4 5.6 10.75C5.006 10.3 4.3 10 3.5 10.029c-1.785 0-3.237 1.452-3.237 3.2 c0 1.1 0.6 2.1 1.4 2.69c-0.04 0.272-0.061 0.551-0.061 0.831c0 2.3 1.3 4.4 3.7 5.9 c2.299 1.5 5.3 2.3 8.6 2.325c3.228 0 6.271-0.825 8.571-2.325c2.387-1.56 3.7-3.66 3.7-5.917 c0-0.26-0.016-0.514-0.051-0.768C27.088 15.5 27.7 14.4 27.7 13.267z M23.186 3.355c0.74 0 1.3 0.6 1.3 1.3 c0 0.738-0.6 1.34-1.34 1.34s-1.342-0.602-1.342-1.34C21.844 4 22.4 3.4 23.2 3.355z M1.648 13.3 c0-1.038 0.844-1.882 1.882-1.882c0.31 0 0.6 0.1 0.9 0.209c-1.049 0.868-1.813 1.861-2.26 2.9 C1.832 14.2 1.6 13.8 1.6 13.267z M21.773 21.57c-2.082 1.357-4.863 2.105-7.831 2.105c-2.967 0-5.747-0.748-7.828-2.105 c-1.991-1.301-3.088-3-3.088-4.782c0-1.784 1.097-3.484 3.088-4.784c2.081-1.358 4.861-2.106 7.828-2.106 c2.967 0 5.7 0.7 7.8 2.106c1.99 1.3 3.1 3 3.1 4.784C24.859 18.6 23.8 20.3 21.8 21.57z M25.787 14.6 c-0.432-1.084-1.191-2.095-2.244-2.977c0.273-0.156 0.59-0.245 0.928-0.245c1.035 0 1.9 0.8 1.9 1.9 C26.354 13.8 26.1 14.3 25.8 14.605z"/>
+											</g>
+									</svg>
+              </span>
+              <span class="text">Reddit</span>
+          </a>
+      </li>
+      <li class="googleplus">
+          <a href="https://plus.google.com/share?url=https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <g>
+                          <path d="M14.703,15.854l-1.219-0.948c-0.372-0.308-0.88-0.715-0.88-1.459c0-0.748,0.508-1.223,0.95-1.663 c1.42-1.119,2.839-2.309,2.839-4.817c0-2.58-1.621-3.937-2.399-4.581h2.097l2.202-1.383h-6.67c-1.83,0-4.467,0.433-6.398,2.027 C3.768,4.287,3.059,6.018,3.059,7.576c0,2.634,2.022,5.328,5.604,5.328c0.339,0,0.71-0.033,1.083-0.068 c-0.167,0.408-0.336,0.748-0.336,1.324c0,1.04,0.551,1.685,1.011,2.297c-1.524,0.104-4.37,0.273-6.467,1.562 c-1.998,1.188-2.605,2.916-2.605,4.137c0,2.512,2.358,4.84,7.289,4.84c5.822,0,8.904-3.223,8.904-6.41 c0.008-2.327-1.359-3.489-2.829-4.731H14.703z M10.269,11.951c-2.912,0-4.231-3.765-4.231-6.037c0-0.884,0.168-1.797,0.744-2.511 c0.543-0.679,1.489-1.12,2.372-1.12c2.807,0,4.256,3.798,4.256,6.242c0,0.612-0.067,1.694-0.845,2.478 c-0.537,0.55-1.438,0.948-2.295,0.951V11.951z M10.302,25.609c-3.621,0-5.957-1.732-5.957-4.142c0-2.408,2.165-3.223,2.911-3.492 c1.421-0.479,3.25-0.545,3.555-0.545c0.338,0,0.52,0,0.766,0.034c2.574,1.838,3.706,2.757,3.706,4.479 c-0.002,2.073-1.736,3.665-4.982,3.649L10.302,25.609z"/>
+                          <polygon points="23.254,11.89 23.254,8.521 21.569,8.521 21.569,11.89 18.202,11.89 18.202,13.604 21.569,13.604 21.569,17.004 23.254,17.004 23.254,13.604 26.653,13.604 26.653,11.89"/>
+                      </g>
+                  </svg>
+              </span>
+              <span class="text">Google+</span>
+          </a>
+      </li>
+      <li class="pinterest">
+          <script>
+						var imgurl = "https:\/\/markhneedham.com\/blog\/logo.png";
+						var firstimg = document.getElementsByClassName("2018")[0].getElementsByTagName("img")[0];
+						if (firstimg !== undefined) {
+							imgurl = firstimg.src;
+						}
+						document.write('<a href="http://pinterest.com/pin/create/button/?url=https:\/\/markhneedham.com\/blog\/2018\/06\/15\/neo4j-querying-strava-graph-py2neo\/&amp;media=' + imgurl + '&amp;description=Neo4j: Querying the Strava Graph using Py2neo" class="popup">');
+					</script>
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+		                  <path d="M14.021,1.57C6.96,1.57,1.236,7.293,1.236,14.355c0,7.062,5.724,12.785,12.785,12.785c7.061,0,12.785-5.725,12.785-12.785 C26.807,7.294,21.082,1.57,14.021,1.57z M15.261,18.655c-1.161-0.09-1.649-0.666-2.559-1.219c-0.501,2.626-1.113,5.145-2.925,6.458 c-0.559-3.971,0.822-6.951,1.462-10.116c-1.093-1.84,0.132-5.545,2.438-4.632c2.837,1.123-2.458,6.842,1.099,7.557 c3.711,0.744,5.227-6.439,2.925-8.775c-3.325-3.374-9.678-0.077-8.897,4.754c0.19,1.178,1.408,1.538,0.489,3.168 C7.165,15.378,6.53,13.7,6.611,11.462c0.131-3.662,3.291-6.227,6.46-6.582c4.007-0.448,7.771,1.474,8.29,5.239 c0.579,4.255-1.816,8.865-6.102,8.533L15.261,18.655z"/>
+                  </svg>
+              </span>
+              <span class="text">Pinterest</span>
+          <script>document.write('</a>');</script>
+      </li>
+      <li class="pocket">
+          <a href="https://getpocket.com/save?url=https://markhneedham.com/blog/2018/06/15/neo4j-querying-strava-graph-py2neo/"  class="popup">
+              <span class="icon">
+                  <svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                      <path d="M28.7817528,0.00172488695 C30.8117487,0.00431221738 31.9749312,1.12074529 31.9644402,3.10781507 C31.942147,6.67703739 32.1336065,10.2669583 31.8057648,13.8090137 C30.7147076,25.5813672 17.2181194,31.8996281 7.20714461,25.3808491 C2.71833574,22.4571656 0.196577202,18.3122624 0.0549495772,12.9357897 C-0.0342233715,9.5774348 0.00642900214,6.21519891 0.0300336062,2.85555035 C0.0405245414,1.1129833 1.21157517,0.0146615391 3.01995012,0.00819321302 C7.34746087,-0.00603710433 11.6775944,0.00431221738 16.0064164,0.00172488695 C20.2644248,0.00172488695 24.5237444,-0.00215610869 28.7817528,0.00172488695 L28.7817528,0.00172488695 Z M8.64885184,7.85611511 C7.38773662,7.99113854 6.66148108,8.42606978 6.29310958,9.33228474 C5.90114134,10.2969233 6.17774769,11.1421181 6.89875951,11.8276216 C9.35282156,14.161969 11.8108164,16.4924215 14.2976518,18.7943114 C15.3844131,19.7966007 16.5354102,19.7836177 17.6116843,18.7813283 C20.0185529,16.5495467 22.4070683,14.2982907 24.7824746,12.0327533 C25.9845979,10.8850542 26.1012707,9.56468083 25.1469132,8.60653379 C24.1361858,7.59255976 22.8449191,7.6743528 21.5890476,8.85191291 C19.9936451,10.3488554 18.3680912,11.8172352 16.8395462,13.3777945 C16.1342655,14.093159 15.7200114,14.0048744 15.0566806,13.3440386 C13.4599671,11.7484252 11.8081945,10.2060421 10.1262706,8.70001155 C9.65564653,8.27936164 9.00411403,8.05345704 8.64885184,7.85611511 L8.64885184,7.85611511 L8.64885184,7.85611511 Z"></path>
+                  </svg>
+              </span>
+              <span class="text">Pocket</span>
+          </a>
+      </li>
+  </ul>
+</div>
+
+    <div itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <h5>About the author</h5>
+  <section>
+    <p><a href="https://twitter.com/markhneedham" itemprop="name" rel="author">Mark Needham</a> is a Developer Relations Engineer for <a href="https://neo4j.com/developer/">Neo4j</a>, the world's leading graph database.
+    </p>
+  </section>
+</div>
+
+    <div id="comments">
+    
+    
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+      var disqus_shortname = 'markhneedham';
+      var disqus_identifier = 'https:\/\/markhneedham.com\/blog\/2018\/06\/15\/neo4j-querying-strava-graph-py2neo\/';
+      var disqus_title = 'Neo4j: Querying the Strava Graph using Py2neo';
+      var disqus_url = 'https:\/\/markhneedham.com\/blog\/2018\/06\/15\/neo4j-querying-strava-graph-py2neo\/';
+      (function() {
+        if (window.location.hostname == "localhost")
+                return;
+
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+    
+</div>
+
+</article>
+
+</main>
+		<footer id="footer">
+			<section id="footer-message">&copy; Mark Needham. All rights reserved. Powered by <a href="http://gohugo.io" target="_blank">Hugo</a>. <a href="https://github.com/kathyqian/crisp-ghost-theme" target="_blank">Crisp</a> theme by <a href="http://kathyqian.com" target="_blank">Kathy Qian</a>.</section>
+		</footer>
+
+    <script>
+      (function(c,f){asyncLoader=function(i,h){i.foreach(function(k,j){e(j,d(j),h)});if(typeof h.callback=="function"){var g=setInterval(function(){if(f.readyState==="complete"){clearInterval(g);h.callback()}},10)}};var d=function(g){var h=g.split(".");return h[h.length-1]},e=function(h,i,g){switch(i){case"js":a(h,g);break;case"css":b(h);break;default:break}},a=function(i,h){var g=document.createElement("script");g.type="text/javascript";g.async=true;g.src=i;document.getElementsByTagName("head")[0].appendChild(g)},b=function(g){var h=document.createElement("link");h.type="text/css";h.rel="stylesheet";h.href=g;document.getElementsByTagName("head")[0].appendChild(h)};Array.prototype.foreach=function(h){for(var g=0;g<this.length;g++){h(g,this[g])}}})(this,document);
+
+      var WebFontConfig={google:{families:["Open Sans:300italic,700italic,300,700","Bree+Serif"]}};
+      asyncLoader([
+        "//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css",
+        "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js",
+        "//cdnjs.cloudflare.com/ajax/libs/webfont/1.5.16/webfontloader.js",
+        "//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"
+      ],{
+        callback:function(){
+          asyncLoader([
+            "https:\/\/markhneedham.com\/blog\/css/rrssb.css",
+            "https:\/\/markhneedham.com\/blog\/js/gist.min.js",
+            "https:\/\/markhneedham.com\/blog\/js/rrssb.min.js",
+            "//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/styles/default.min.css"
+          ], { callback:function() {
+              hljs.initHighlighting();
+          }});
+        }
+      });
+    </script>
+	
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-9991626-1');
+		</script>
+
+  
+	</body>
+</html>
+
