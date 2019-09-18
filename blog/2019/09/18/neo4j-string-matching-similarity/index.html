@@ -64,7 +64,7 @@
         "description": "I&#8217;ve been playing with the Brexit Graph over the last few days, and wanted to map the MPs that I got from CommonsVotes with data from the TheyWorkForYou API.
  I already had voting records loaded into Neo4j, but to recap, this is how I did that:
  UNWIND [655,656,657,658,659,660,661,662,711, 669, 668, 667, 666, 664] AS division LOAD CSV FROM "https://github.com/mneedham/graphing-brexit/raw/master/data/commonsvotes/Division" + division + ".csv" AS row // Create motion nodes WITH division, collect(row) AS rows MERGE (motion:Motion {division: trim(split(rows[0][0], "",
-        "wordCount": 1145
+        "wordCount": 1174
     }
     </script>
     
@@ -178,7 +178,8 @@ LOAD CSV FROM "https://github.com/mneedham/graphing-brexit/raw/master/data/commo
 WITH division, collect(row) AS rows
 MERGE (motion:Motion {division: trim(split(rows[0][0], ":")[1]) })
 SET motion.name = rows[2][0],
-    motion.date = date(datetime({epochmillis:apoc.date.parse(trim(split(rows[1][0], ":")[1]), "ms", "dd/MM/yyyy")}))
+    motion.date = date(datetime({epochmillis:
+      apoc.date.parse(trim(split(rows[1][0], ":")[1]), "ms", "dd/MM/yyyy")}))
 
 // Skip the first 6 rows as they have metadata we don't need
 WITH motion, rows
@@ -209,7 +210,8 @@ The following query does this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+CALL apoc.load.json(uri)
 YIELD value
 MATCH (other:Person) WHERE other.name = value.name
 SET other.id = value.person_id;</code></pre>
@@ -231,7 +233,8 @@ The following query does this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
 MATCH (other:Person) WHERE not(exists(other.id))
@@ -310,7 +313,8 @@ The following query finds the most similar people to Joseph Johnson:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_20190301_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
 match (other:Person {name: "Joseph Johnson"}) WHERE not(exists(other.id))
@@ -318,7 +322,7 @@ with other, [value in values WHERE other.name ends with split(value.name, " ")[-
 WHERE size(potentialValues) &gt; 1
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
-	    value: value,
+	value: value,
         sorensen: apoc.text.sorensenDiceSimilarity(other.name, value),
         jaro: apoc.text.jaroWinklerDistance(other.name, value),
         average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value), apoc.text.jaroWinklerDistance(other.name, value)])
@@ -378,7 +382,8 @@ What about if we match Stewart McDonald, where there&#8217;s actually another pe
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">call apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_20190301_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
 match (other:Person {name: "Stewart Malcolm McDonald"}) WHERE not(exists(other.id))
@@ -386,7 +391,7 @@ with other, [value in values WHERE other.name ends with split(value.name, " ")[-
 WHERE size(potentialValues) &gt; 1
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
-	    value: value,
+        value: value,
         sorensen: apoc.text.sorensenDiceSimilarity(other.name, value),
         jaro: apoc.text.jaroWinklerDistance(other.name, value),
         average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value), apoc.text.jaroWinklerDistance(other.name, value)])
@@ -437,17 +442,19 @@ We&#8217;ll finish the mapping by storing the <code>person_id</code> of the best
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">call apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_20190301_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
 match (other:Person) WHERE not(exists(other.id))
 with other, [value in values WHERE other.name ends with split(value.name, " ")[-1] | value] AS potentialValues
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
-	    value: value,
+	value: value,
         sorensen: apoc.text.sorensenDiceSimilarity(other.name, value.name),
         jaro: apoc.text.jaroWinklerDistance(other.name, value.name),
-        average: apoc.text.sorensenDiceSimilarity(other.name, value.name) + apoc.text.jaroWinklerDistance(other.name, value.name)
+        average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value),
+                                apoc.text.jaroWinklerDistance(other.name, value)])
         }], "average") AS similarities
 SET other.id = similarities[0].value.person_id</code></pre>
 </div>
@@ -517,16 +524,18 @@ RETURN value.name</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">call apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_20190301_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS potentialValues
 match (other:Person) WHERE not(exists(other.id))
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
-	    value: value,
+	value: value,
         sorensen: apoc.text.sorensenDiceSimilarity(other.name, value.name),
         jaro: apoc.text.jaroWinklerDistance(other.name, value.name),
-        average: apoc.text.sorensenDiceSimilarity(other.name, value.name) + apoc.text.jaroWinklerDistance(other.name, value.name)
+        average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value.name),
+                                apoc.text.jaroWinklerDistance(other.name, value.name)])
         }], "average") AS similarities
 SET other.id = similarities[0].value.person_id</code></pre>
 </div>
@@ -536,16 +545,18 @@ SET other.id = similarities[0].value.person_id</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">call apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_20190301_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS potentialValues
 match (other:Person) WHERE not(exists(other.id))
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
-	    value: value,
+	value: value,
         sorensen: apoc.text.sorensenDiceSimilarity(other.name, value.name),
         jaro: apoc.text.jaroWinklerDistance(other.name, value.name),
-        average: apoc.text.sorensenDiceSimilarity(other.name, value.name) + apoc.text.jaroWinklerDistance(other.name, value.name)
+        average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value.name),
+                                apoc.text.jaroWinklerDistance(other.name, value.name)])
         }], "average") AS similarities
 RETURN other.name, similarities[0].value.name AS name, similarities[0].value.person_id AS personId</code></pre>
 </div>
@@ -582,16 +593,18 @@ RETURN other.name, similarities[0].value.name AS name, similarities[0].value.per
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">call apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_20190301_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS potentialValues
 match (other:Person) WHERE not(exists(other.id))
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
-	    value: value,
+	value: value,
         sorensen: apoc.text.sorensenDiceSimilarity(other.name, value.name),
         jaro: apoc.text.jaroWinklerDistance(other.name, value.name),
-        average: apoc.text.sorensenDiceSimilarity(other.name, value.name) + apoc.text.jaroWinklerDistance(other.name, value.name)
+        average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value.name),
+                                apoc.text.jaroWinklerDistance(other.name, value.name)])
         }], "average") AS similarities
 SET other.id = similarities[0].value.person_id</code></pre>
 </div>
