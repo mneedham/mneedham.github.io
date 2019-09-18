@@ -238,7 +238,9 @@ CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
 MATCH (other:Person) WHERE not(exists(other.id))
-WITH other, [value in values WHERE other.name ENDS WITH split(value.name, " ")[-1] | value.name] AS potentialValues
+WITH other,
+     [value in values
+      WHERE other.name ENDS WITH split(value.name, " ")[-1] | value.name] AS potentialValues
 RETURN other.name, potentialValues
 LIMIT 10</code></pre>
 </div>
@@ -325,7 +327,8 @@ WITH other,
 	value: value,
         sorensen: apoc.text.sorensenDiceSimilarity(other.name, value),
         jaro: apoc.text.jaroWinklerDistance(other.name, value),
-        average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value), apoc.text.jaroWinklerDistance(other.name, value)])
+        average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value),
+                                apoc.text.jaroWinklerDistance(other.name, value)])
         }], "average") AS similarities
 UNWIND similarities AS similarity
 RETURN similarity.value, similarity.sorensen, similarity.jaro</code></pre>
@@ -394,7 +397,8 @@ WITH other,
         value: value,
         sorensen: apoc.text.sorensenDiceSimilarity(other.name, value),
         jaro: apoc.text.jaroWinklerDistance(other.name, value),
-        average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value), apoc.text.jaroWinklerDistance(other.name, value)])
+        average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value),
+                 apoc.text.jaroWinklerDistance(other.name, value)])
         }], "average") AS similarities
 UNWIND similarities AS similarity
 RETURN similarity.value, similarity.sorensen, similarity.jaro</code></pre>
