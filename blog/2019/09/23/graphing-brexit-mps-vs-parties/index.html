@@ -63,7 +63,7 @@
         "datePublished": "2019-09-23",
         "description": "In the previous post of the Graphing Brexit series we computed the average vote by party. In this post we&#8217;re going to take those average party scores and compare them against the votes placed by individual MPs. The goal is to determine whether, Brexit wise, MPs are representing the right party!
  It won&#8217;t be perfect since we know that not everyone in a party voted the same way, but it should still give us some fun results.",
-        "wordCount": 1862
+        "wordCount": 1865
     }
     </script>
     
@@ -179,7 +179,8 @@ The goal is to determine whether, Brexit wise, MPs are representing the right pa
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (person:Person)-[vote]-&gt;(m:Motion {date: date({year: 2019, month: 3, day: 27})})
-WHERE (person)-[:MEMBER_OF {end: date({year: 2019, month: 9, day: 3})}]-&gt;(:Party {name: "Conservative"})
+WHERE (person)-[:MEMBER_OF {end: date({year: 2019, month: 9, day: 3})}]
+      -&gt;(:Party {name: "Conservative"})
 RETURN person</code></pre>
 </div>
 </div>
@@ -225,7 +226,8 @@ To recap from our last post, we&#8217;re going to represent an MP&#8217;s vote o
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (person:Person)
-WHERE (person)-[:MEMBER_OF {end: date({year: 2019, month: 9, day: 3})}]-&gt;(:Party {name: "Conservative"})
+WHERE (person)-[:MEMBER_OF {end: date({year: 2019, month: 9, day: 3})}]
+      -&gt;(:Party {name: "Conservative"})
 WITH person LIMIT 1
 MATCH (person)-[vote]-&gt;(m:Motion {date: date({year: 2019, month: 3, day: 27})})
 MATCH (party:Party)-[ave:AVERAGE_VOTE]-&gt;(m) WHERE party.name &lt;&gt; "Speaker"
@@ -340,7 +342,8 @@ Let&#8217;s run this query for all the rebel MPs:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (person:Person)-[vote]-&gt;(m:Motion {date: date({year: 2019, month: 3, day: 27})})
-WHERE (person)-[:MEMBER_OF {end: date({year: 2019, month: 9, day: 3})}]-&gt;(:Party {name: "Conservative"})
+WHERE (person)-[:MEMBER_OF {end: date({year: 2019, month: 9, day: 3})}]
+      -&gt;(:Party {name: "Conservative"})
 MATCH (party:Party)-[ave:AVERAGE_VOTE]-&gt;(m) WHERE party.name &lt;&gt; "Speaker"
 WITH person, party,
      collect(CASE WHEN type(vote) = "FOR" THEN 1
@@ -530,7 +533,9 @@ One person who did recently do that is Phillip Lee.</p>
 MATCH (party:Party)-[ave:AVERAGE_VOTE]-&gt;(m) WHERE party.name &lt;&gt; "Speaker"
 RETURN party.name,
        algo.similarity.cosine(
-        collect(CASE WHEN type(vote) = "FOR" THEN 1 WHEN type(vote) = "DID_NOT_VOTE" THEN 0.5 ELSE 0 END),
+        collect(CASE WHEN type(vote) = "FOR" THEN 1
+                     WHEN type(vote) = "DID_NOT_VOTE" THEN 0.5
+                     ELSE 0 END),
         collect(ave.score)) AS similarity
 ORDER BY similarity DESC</code></pre>
 </div>
