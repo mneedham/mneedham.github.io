@@ -62,7 +62,7 @@
         },
         "datePublished": "2019-09-27",
         "description": "Following on from the blog post where we compared how MPs and parties voted on Brexit indicative measures, in this post we&#8217;re going to explore how Conservative MPs have voted with respect to a no deal exit from the European Union. In particular we&#8217;d like to know whether the threat to have the party whip removed had an impact on how they voted in the recent motion to request an extension to work out a deal.",
-        "wordCount": 1231
+        "wordCount": 1232
     }
     </script>
     
@@ -216,7 +216,8 @@ We&#8217;d assume that they mostly voted against this motion, but let&#8217;s ch
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (person:Person)-[vote]-&gt;(:Motion {division: "386"})
-WHERE (person)-[:MEMBER_OF {end: date({year: 2019, month: 9, day: 3})}]-&gt;(:Party {name: "Conservative"})
+WHERE (person)-[:MEMBER_OF {end: date({year: 2019, month: 9, day: 3})}]
+       -&gt;(:Party {name: "Conservative"})
 WITH person, type(vote) AS vote
 ORDER BY person.pageviews DESC
 RETURN person.name AS person, vote</code></pre>
@@ -416,7 +417,8 @@ We can write the following query to find out what happened with them:</p>
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (person:Person)-[:AGAINST]-&gt;(noDealMotion:Motion {division: "386"}),
       (person)-[memberOf:MEMBER_OF]-&gt;(:Party {name: "Conservative"})
-WHERE memberOf.start &lt;= noDealMotion.date AND (not(exists(memberOf.end)) OR noDealMotion.date &lt;= memberOf.end)
+WHERE memberOf.start &lt;= noDealMotion.date
+AND (not(exists(memberOf.end)) OR noDealMotion.date &lt;= memberOf.end)
 MATCH (person)-[vote]-&gt;(:Motion {division: "439"})
 WITH person, type(vote) AS vote, memberOf
 WHERE memberOf.end &lt;&gt; date({year: 2019, month: 9, day: 3})
@@ -465,11 +467,14 @@ But if their constituency had a majority vote to remain in the EU we can&#8217;t
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (person:Person)-[:AGAINST]-&gt;(noDealMotion:Motion {division: "386"}),
       (person)-[memberOf:MEMBER_OF]-&gt;(:Party {name: "Conservative"})
-WHERE memberOf.start &lt;= noDealMotion.date AND (not(exists(memberOf.end)) OR noDealMotion.date &lt;= memberOf.end)
+WHERE memberOf.start &lt;= noDealMotion.date
+AND (not(exists(memberOf.end)) OR noDealMotion.date &lt;= memberOf.end)
 MATCH (person)-[:AGAINST]-&gt;(:Motion {division: "439"}),
       (person)-[:REPRESENTS]-&gt;(constituency:Constituency)
 WHERE constituency.leave &lt; 50
-RETURN person.name AS person, constituency.name AS constituency, constituency.leave AS leavePercentage
+RETURN person.name AS person,
+       constituency.name AS constituency,
+       constituency.leave AS leavePercentage
 ORDER BY constituency.leave</code></pre>
 </div>
 </div>
