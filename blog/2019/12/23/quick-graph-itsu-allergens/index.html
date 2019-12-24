@@ -460,7 +460,8 @@ LIMIT 5</code></pre>
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (:Product) WITH count(*) AS productCount
 WITH ["crustaceans", "nuts", "peanuts", "egg", "dairy", "fish"] AS allergens, productCount
 MATCH (product:Product)
-WHERE all(allergen in allergens WHERE not((product)-[:CONTAINS_ALLERGEN]-&gt;(:Allergen {name: allergen})))
+WHERE all(allergen in allergens
+          WHERE not((product)-[:CONTAINS_ALLERGEN]-&gt;(:Allergen {name: allergen})))
 WITH count(*) AS count, collect(product.name) AS products, productCount
 RETURN count,
        apoc.math.round(count*1.0/productCount, 2) AS percentageOfProducts,
@@ -526,7 +527,8 @@ The following query will find the products that I can eat in this category:</p>
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH ["crustaceans", "nuts", "peanuts", "egg", "dairy", "fish"] AS allergens
 MATCH (product:Product)
-WHERE all(allergen in allergens WHERE not((product)-[:CONTAINS_ALLERGEN]-&gt;(:Allergen {name: allergen})))
+WHERE all(allergen in allergens
+          WHERE not((product)-[:CONTAINS_ALLERGEN]-&gt;(:Allergen {name: allergen})))
 WITH product WHERE split(product.url, "/")[-3] = "hot"
 RETURN product.name AS product, product.url AS url,
        [(product)-[:CONTAINS_ALLERGEN]-&gt;(allergen) | allergen.name] AS allergens</code></pre>
