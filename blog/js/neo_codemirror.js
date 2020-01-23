@@ -23,8 +23,13 @@ CodeMirror.colorize = (function() {
                 mode = "text/x-java";
             } else if (mode === "sql") {
                 mode = "text/x-sql";
+            } else if(mode === "yaml") {
+                mode = "text/x-yaml"
+            } else if(mode === "json") {
+                mode = "application/json"
+            } else if(mode === "bash") {
+                mode = "application/x-sh"
             }
-
             var text = [];
             textContent(node, text);
             node.innerHTML = "";
