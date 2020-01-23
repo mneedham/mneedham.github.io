@@ -67,7 +67,7 @@
         "description": "It&#8217;s time for another QuickGraph, this one based on data from the Australian Open tennis tournament. We&#8217;re going to use data curated by Jeff Sackmann in the tennis_wta and tennis_atp repositories.
  Setting up Neo4j We&#8217;re going to use the following Docker Compose configuration in this blog post:
  docker-compose.yml version: '3.7' services: neo4j: image: neo4j:4.0.0-enterprise container_name: "quickgraph-aus-open" volumes: - ./plugins:/plugins - ./data:/data - ./import:/import ports: - "7474:7474" - "7687:7687" environment: - "",
-        "wordCount": 3195
+        "wordCount": 3196
     }
     </script>
     
@@ -571,7 +571,8 @@ Jeff Sackmann has curated data going back to 1968, but we&#8217;ll only load dat
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.periodic.iterate(
   "UNWIND range(2000, 2019) AS year RETURN year",
-  "WITH 'https://raw.githubusercontent.com/JeffSackmann/tennis_wta/master/wta_matches_' AS base, year
+  "WITH 'https://raw.githubusercontent.com/JeffSackmann/tennis_wta/master/wta_matches_' AS base,
+        year
    LOAD CSV WITH HEADERS FROM base + year + '.csv' AS row
    WITH row, split(row.score, ' ') AS rawSets WHERE row.tourney_name = 'Australian Open'
    WITH row, row.tourney_date + '_' + row.match_num AS matchId
@@ -870,11 +871,13 @@ Let&#8217;s have a look at Naomi Osaka&#8217;s journey to the 2019 final:</p>
 MATCH path = (p:Player)-[:WINNER]-&gt;(match:Match {round: "F"})&lt;-[:NEXT_MATCH*]-(m)&lt;-[:WINNER]-(p)
 
 // Only get the winner of the 2019 tournament
-// Only get the longest path of NEXT_MATCH relationships that includes all matches played by the winner
+// Only get the longest path of NEXT_MATCH relationships that includes all matches
+// played by the winner
 WHERE not((m)&lt;-[:NEXT_MATCH]-()) AND (match)-[:IN_TOURNAMENT]-(:Tournament {year: 2019})
 
 // Find the winners and losers of all the matches in which the winner participated
-RETURN path, [node in nodes(path) WHERE node:Match | [p = (p1)-[:WINNER]-&gt;(node)&lt;-[:LOSER]-(p2) | p]];</code></pre>
+RETURN path,
+       [node in nodes(path) WHERE node:Match | [p = (p1)-[:WINNER]-&gt;(node)&lt;-[:LOSER]-(p2) | p]];</code></pre>
 </div>
 </div>
 <div class="imageblock">
@@ -1122,11 +1125,13 @@ We&#8217;re going to create one node per set played and connect those sets to th
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.periodic.iterate(
   "UNWIND range(2000, 2019) AS year RETURN year",
-  "WITH 'https://raw.githubusercontent.com/JeffSackmann/tennis_wta/master/wta_matches_' AS base, year
+  "WITH 'https://raw.githubusercontent.com/JeffSackmann/tennis_wta/master/wta_matches_' AS base,
+        year
    LOAD CSV WITH HEADERS FROM base + year + '.csv' AS row
    WITH row, split(row.score, ' ') AS rawSets WHERE row.tourney_name = 'Australian Open'
    WITH row, rawSets,
-        [set in rawSets | apoc.text.regexGroups(set, \"(\\\\d{1,2})-(\\\\d{1,2})\")[0][1..]] AS sets,
+        [set in rawSets |
+          apoc.text.regexGroups(set, \"(\\\\d{1,2})-(\\\\d{1,2})\")[0][1..]] AS sets,
         row.tourney_date + '_' + row.match_num AS matchId
 
    MATCH (m:Match {id: matchId})
@@ -1261,7 +1266,8 @@ ORDER BY rounds[match.round]
 WITH winner, t,
      collect({round: match.round, opponent: opponent.name, score: match.score }) AS matches,
      collect([(match)&lt;-[:IN_MATCH]-(set)&lt;-[:LOSER]-(winner) | set]) AS sets
-RETURN winner.name AS winner, t.year AS year, size(matches) AS count, size(apoc.coll.flatten(sets)) AS sets,  matches
+RETURN winner.name AS winner, t.year AS year, size(matches) AS count,
+       size(apoc.coll.flatten(sets)) AS sets,  matches
 ORDER BY count DESC
 LIMIT 5</code></pre>
 </div>
@@ -1270,10 +1276,10 @@ LIMIT 5</code></pre>
 <caption class="title">Table 12. Did the winner drop any sets?</caption>
 <colgroup>
 <col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 50%;">
 </colgroup>
 <thead>
 <tr>
