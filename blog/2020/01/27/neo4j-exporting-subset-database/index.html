@@ -71,7 +71,7 @@
         "description": "As part of the preparation for another blog post, I wanted to export a subset of data from one Neo4j database to another one, which seemed like a blog post in its own right.
   Figure 1. Exporting data using APOC&#8217;s Export JSON  Setting up Neo4j We&#8217;re going to use the following Docker Compose configuration in this blog post:
  Dockerfile version: '3.7' services: neo4j: image: neo4j:4.0.0-enterprise container_name: "",
-        "wordCount": 1798
+        "wordCount": 1858
     }
     </script>
     
@@ -556,8 +556,39 @@ ASSERT (t.name, t.year) IS NODE KEY;</code></pre>
 </table>
 <div class="paragraph">
 <p>Alright, it&#8217;s time to import the data!
-We&#8217;re going to use the <code>apoc.load.json</code> procedure to do this, and we&#8217;ll start with <code>tournaments.json</code>.
-Let&#8217;s quickly run an exploratory query to remind ourselves the data that we&#8217;ll be working with:</p>
+We&#8217;re going to use the <code>apoc.load.json</code> procedure to do this, and we&#8217;ll start with <code>tournaments.json</code>.</p>
+</div>
+<div class="paragraph">
+<p>When we&#8217;re using the import procedures, we need to specify some properties that enable importing from local files.
+In our Dockerfile, we have the following lines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">  - NEO4J_apoc_import_file_use__neo4j__config=true
+  - NEO4J_apoc_import_file_enabled=true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These properties are the equivalent of adding the following values to the <code>apoc.conf</code> file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">apoc.import.file.use_neo4j_config=true
+apoc.import.file.enabled=true</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>apoc.import.file.enabled=true</code> enables reading files to disk</p>
+</li>
+<li>
+<p><code>apoc.import.file.use_neo4j_config=true</code> reads those files from the <code>import</code> directory</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s quickly run an exploratory query to remind ourselves the data that we&#8217;ll be working with:</p>
 </div>
 <div class="listingblock">
 <div class="content">
