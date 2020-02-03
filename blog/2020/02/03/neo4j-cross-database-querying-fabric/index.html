@@ -69,7 +69,7 @@
         },
         "datePublished": "2020-02-03",
         "description": "A couple of weeks ago I wrote a QuickGraph blog post about the Australian Open, in which I showed how to use Neo4j 4.0&#8217;s multi database feature. In that post we focused on queries that could be run on one database, but the 4.0 release also contains another feature for doing cross database querying - Neo4j Fabric - and we&#8217;re going to learn how to use that in this post.",
-        "wordCount": 1099
+        "wordCount": 1100
     }
     </script>
     
@@ -535,7 +535,8 @@ CALL {
   MATCH (player)-[:LOSER]-&gt;(:Match {round: "F"})-[:IN_TOURNAMENT]-&gt;(t)-[:NEXT_TOURNAMENT*]-&gt;(t2),
         (player)-[:WINNER]-&gt;(:Match {round: "F"})-[:IN_TOURNAMENT]-&gt;(t2)
   // Exclude paths where the player has been in the final of an earlier tournament
-  WHERE  not (player)-[:LOSER|WINNER]-&gt;(:Match {round: "F"})-[:IN_TOURNAMENT]-&gt;()-[:NEXT_TOURNAMENT*]-&gt;(t)
+  WHERE  not ((player)-[:LOSER|WINNER]-&gt;(:Match {round: "F"})-[:IN_TOURNAMENT]
+              -&gt;()-[:NEXT_TOURNAMENT*]-&gt;(t))
   RETURN player, t, t2
   }
 RETURN player.name, t.year, t2.year, t2.year - t.year AS difference
