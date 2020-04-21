@@ -72,7 +72,7 @@
         "datePublished": "2020-04-21",
         "description": "It&#8217;s been several months since our last QuickGraph and the world feels very different than it was back then. I&#8217;ve been reading a couple of books about viruses - Spillover and Pale Rider - and am now very curious to learn more about the medical terms reference in the books.
  With the Pre Release of neosemantics (n10s) for Neo4j 4.0, I thought it would be interesting to create a graph of the taxonomy of the virus that caused COVID-19, using data extracted from Wikidata&#8217;s SPARQL API.",
-        "wordCount": 1989
+        "wordCount": 2043
     }
     </script>
     
@@ -547,6 +547,27 @@ SET n:Virus;</code></pre>
 </div>
 </div>
 <div class="paragraph">
+<p>Before we continue, let&#8217;s do a bit of cleanup.
+Wikidata&#8217;s taxonomy has some unnecessary shortcuts that make the graph harder to understand.
+For example in the following visualisation we can remove a couple of extraneous <code>CHILD_OF</code> relationships:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2020/04/shortcuts.png" alt="shortcuts">
+</div>
+<div class="title">Figure 3. Taxonomy Shortcuts</div>
+</div>
+<div class="paragraph">
+<p>We can remove these shortcut relationships by running the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (v:Virus)&lt;-[co:CHILD_OF*2..]-(child)-[shortcut:CHILD_OF]-&gt;(v)
+DELETE shortcut;</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>We&#8217;re now ready to query the graph.</p>
 </div>
 </div>
@@ -573,7 +594,7 @@ RETURN path;</code></pre>
 <img src="https://markhneedham.com/blog/
 /uploads/2020/04/sars-sars-cov-2.svg" alt="sars sars cov 2">
 </div>
-<div class="title">Figure 3. Path between SARS and SARS-CoV-2</div>
+<div class="title">Figure 4. Path between SARS and SARS-CoV-2</div>
 </div>
 <div class="paragraph">
 <p>Both of these viruses have a common parent, <a href="https://www.wikidata.org/wiki/Q278567" target="_blank" rel="noopener">severe acute respiratory syndrome-related coronavirus</a>.</p>
@@ -601,7 +622,7 @@ RETURN path1, path2</code></pre>
 <img src="https://markhneedham.com/blog/
 /uploads/2020/04/sars-sars-cov2-root.svg" alt="sars sars cov2 root">
 </div>
-<div class="title">Figure 4. SARS and SARS-CoV-2 in the virus taxonomy</div>
+<div class="title">Figure 5. SARS and SARS-CoV-2 in the virus taxonomy</div>
 </div>
 <div class="paragraph">
 <p>Both of these coronaviruses are part of the <a href="https://en.wikipedia.org/wiki/Betacoronavirus" target="_blank" rel="noopener">Betacoronaviruses</a> family, and from its Wikipedia page we learn that the virus that caused Middle East Respiratory Syndrome:</p>
@@ -634,7 +655,7 @@ RETURN path</code></pre>
 <img src="https://markhneedham.com/blog/
 /uploads/2020/04/coronaviruses.svg" alt="coronaviruses">
 </div>
-<div class="title">Figure 5. Paths between SARS, SARS-CoV-2, and MERS</div>
+<div class="title">Figure 6. Paths between SARS, SARS-CoV-2, and MERS</div>
 </div>
 <div class="paragraph">
 <p>MERS comes under <a href="https://en.wikipedia.org/wiki/Merbecovirus" target="_blank" rel="noopener">Merbecovirus</a>, which is described below:</p>
@@ -669,7 +690,7 @@ RETURN path</code></pre>
 <img src="https://markhneedham.com/blog/
 /uploads/2020/04/beta-coronavirus.svg" alt="beta coronavirus">
 </div>
-<div class="title">Figure 6. Betacoronavirus Taxonomy</div>
+<div class="title">Figure 7. Betacoronavirus Taxonomy</div>
 </div>
 </div>
 </div>
@@ -688,7 +709,7 @@ It&#8217;d be good to know which hosts each virus can infect, the diseases cause
 <img src="https://markhneedham.com/blog/
 /uploads/2020/04/taxonomy-graph-enriched.png" alt="taxonomy graph enriched">
 </div>
-<div class="title">Figure 7. Virus Graph</div>
+<div class="title">Figure 8. Virus Graph</div>
 </div>
 <div class="paragraph">
 <p>Let&#8217;s start by adding the hosts.
@@ -705,7 +726,7 @@ In Wikidata, the host statement is <a href="https://www.wikidata.org/wiki/Proper
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (r:Virus)
-WITH split(r.uri, "/")[-1] AS virus, r
+WITH n10s.rdf.getIRILocalName(r.uri) AS virus, r
 WITH 'prefix schema: &lt;http://schema.org/&gt;
 
 CONSTRUCT {
@@ -766,7 +787,7 @@ CALL n10s.mapping.addMappingToSchema("http://www.wikidata.org/prop/direct/","SIG
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (r:Virus)
-WITH split(r.uri, "/")[-1] AS virus, r
+WITH n10s.rdf.getIRILocalName(r.uri) AS virus, r
 WITH 'prefix schema: &lt;http://schema.org/&gt;
 
 CONSTRUCT {
@@ -843,7 +864,7 @@ RETURN hostPath</code></pre>
 <img src="https://markhneedham.com/blog/
 /uploads/2020/04/corona-hosts.svg" alt="corona hosts">
 </div>
-<div class="title">Figure 8. Viruses that affect humans</div>
+<div class="title">Figure 9. Viruses that affect humans</div>
 </div>
 <div class="paragraph">
 <p>We get back the three viruses that we&#8217;ve explored so far: SARS, SARS-CoV-2, and MERS.
@@ -868,7 +889,7 @@ RETURN hostPath, diseasePath, eventPath</code></pre>
 <img src="https://markhneedham.com/blog/
 /uploads/2020/04/corona-graph.svg" alt="corona graph">
 </div>
-<div class="title">Figure 9. Coronavirus Graph - viruses, diseases, events, locations</div>
+<div class="title">Figure 10. Coronavirus Graph - viruses, diseases, events, locations</div>
 </div>
 <div class="paragraph">
 <p>We can now see nodes representing the pandemics in different countries for COVID-19.
