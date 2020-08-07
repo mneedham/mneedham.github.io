@@ -24,8 +24,8 @@
         <meta name="twitter:title" content="Ruby: Getting Active Record validation errors twice" />
         
           <meta name="twitter:description" content="I managed to create an interesting problem for myself while playing around with some code whereby I was ending up with validation errors appearing twice every time I called &lsquo;valid?&rsquo; on a specific model.
-I figured I was probably doing something stupid and in fact a few replies by Aaron Baldwin on a mailing list thread on &lsquo;rubyonrails-talk&rsquo; helped explain exactly what I&rsquo;d done:
- Are you calling require &#39;employee&#39; anywhere?" />
+I figured I was probably doing something stupid and in fact a few replies by Aaron Baldwin on a mailing list thread on &lsquo;rubyonrails-talk&#39;helped explain exactly what I&rsquo;d done:
+I&rsquo;d put the following code into a controller elsewhere somewhat unnecessarily since it didn&rsquo;t seem to be picking up the location of my model at the time:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/10/29/ruby-getting-active-record-validation-errors-twice/" />
 
@@ -37,8 +37,8 @@ I figured I was probably doing something stupid and in fact a few replies by Aar
 
     
         <meta name="description" content="I managed to create an interesting problem for myself while playing around with some code whereby I was ending up with validation errors appearing twice every time I called &lsquo;valid?&rsquo; on a specific model.
-I figured I was probably doing something stupid and in fact a few replies by Aaron Baldwin on a mailing list thread on &lsquo;rubyonrails-talk&rsquo; helped explain exactly what I&rsquo;d done:
- Are you calling require &#39;employee&#39; anywhere?" />
+I figured I was probably doing something stupid and in fact a few replies by Aaron Baldwin on a mailing list thread on &lsquo;rubyonrails-talk&#39;helped explain exactly what I&rsquo;d done:
+I&rsquo;d put the following code into a controller elsewhere somewhat unnecessarily since it didn&rsquo;t seem to be picking up the location of my model at the time:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,10 +67,8 @@ I figured I was probably doing something stupid and in fact a few replies by Aar
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-10-29",
-        "description": "I managed to create an interesting problem for myself while playing around with some code whereby I was ending up with validation errors appearing twice every time I called &lsquo;valid?&rsquo; on a specific model.
-I figured I was probably doing something stupid and in fact a few replies by Aaron Baldwin on a mailing list thread on &lsquo;rubyonrails-talk&rsquo; helped explain exactly what I&rsquo;d done:
- Are you calling require 'employee' anywhere?",
-        "wordCount": 233
+        "description": "I managed to create an interesting problem for myself while playing around with some code whereby I was ending up with validation errors appearing twice every time I called \x26lsquo;valid?\x26rsquo; on a specific model.\nI figured I was probably doing something stupid and in fact a few replies by Aaron Baldwin on a mailing list thread on \x26lsquo;rubyonrails-talk\x27helped explain exactly what I\x26rsquo;d done:\nI\x26rsquo;d put the following code into a controller elsewhere somewhat unnecessarily since it didn\x26rsquo;t seem to be picking up the location of my model at the time:",
+        "wordCount":  178 
     }
     </script>
     
@@ -182,45 +180,26 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Ruby: Getting Active Record validation errors twice</h1>
     <p>I managed to create an interesting problem for myself while playing around with some code whereby I was ending up with validation errors appearing twice every time I called &lsquo;valid?&rsquo; on a specific model.</p>
-
-<p>I figured I was probably doing something stupid and in fact a few replies by Aaron Baldwin on <a href="http://groups.google.com/group/rubyonrails-talk/browse_thread/thread/a848f697dd7eba61?pli=1">a mailing list thread on &lsquo;rubyonrails-talk&rsquo;</a> helped explain exactly what I&rsquo;d done:</p>
-
-<blockquote>
-Are you calling require 'employee' anywhere?  If so you are likely 
-causing the model to load twice which causes duplicate errors because 
-the validates_presence_of method gets called twice. 
-</blockquote>
-
+<p>I figured I was probably doing something stupid and in fact a few replies by Aaron Baldwin on <!-- raw HTML omitted -->a mailing list thread on &lsquo;rubyonrails-talk'<!-- raw HTML omitted --> helped explain exactly what I&rsquo;d done:</p>
+<!-- raw HTML omitted -->
 <p>I&rsquo;d put the following code into a controller elsewhere somewhat unnecessarily since it didn&rsquo;t seem to be picking up the location of my model at the time:</p>
-
 <p>code_submissions_controller.rb</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+require <span style="color:#e6db74">&#39;models/code_submission&#39;</span>
 
-<pre><code class="language-ruby">
-require 'models/code_submission'
-
-class CodeSubmissionsController &lt; ApplicationController
-  def new
-    CodeSubmission.new  
-  end
-end
-</code></pre>
-
-<p><a href="http://ruby-doc.org/core/classes/Kernel.html#M005941">require</a> doesn&rsquo;t load a file if it&rsquo;s already been included but Aaron points out why it does on this occasion:</p>
-
-<blockquote>
-You are right that "require" will only load the file once.  But if you load the class another way calling "require" will load it again. 
-</blockquote>
-
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CodeSubmissionsController</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ApplicationController</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">new</span>
+    <span style="color:#66d9ef">CodeSubmission</span><span style="color:#f92672">.</span>new  
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></div><p><!-- raw HTML omitted -->require<!-- raw HTML omitted --> doesn&rsquo;t load a file if it&rsquo;s already been included but Aaron points out why it does on this occasion:</p>
+<!-- raw HTML omitted -->
 <p>As I understand it that controller code would also implicitly require &lsquo;code_submission&rsquo; by the convention of inserting an underscore between the &lsquo;CodeSubmission&rsquo; constant&rsquo;s names.</p>
-
 <p>We therefore effectively have the following two requires:</p>
-
-<pre><code class="language-ruby">
-require 'code_submission'
-require 'models/code_submission'
-</code></pre>
-
-<p>Which explain how the file gets loaded twice and therefore why the validation method fires twice and therefore creates two errors!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+require <span style="color:#e6db74">&#39;code_submission&#39;</span>
+require <span style="color:#e6db74">&#39;models/code_submission&#39;</span>
+</code></pre></div><p>Which explain how the file gets loaded twice and therefore why the validation method fires twice and therefore creates two errors!</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -255,7 +234,7 @@ require 'models/code_submission'
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/10/29/ruby-getting-active-record-validation-errors-twice/&amp;title=Ruby%3a%20Getting%20Active%20Record%20validation%20errors%20twice&amp;summary=I%20managed%20to%20create%20an%20interesting%20problem%20for%20myself%20while%20playing%20around%20with%20some%20code%20whereby%20I%20was%20ending%20up%20with%20validation%20errors%20appearing%20twice%20every%20time%20I%20called%20%26lsquo%3bvalid%3f%26rsquo%3b%20on%20a%20specific%20model.%0aI%20figured%20I%20was%20probably%20doing%20something%20stupid%20and%20in%20fact%20a%20few%20replies%20by%20Aaron%20Baldwin%20on%20a%20mailing%20list%20thread%20on%20%26lsquo%3brubyonrails-talk%26rsquo%3b%20helped%20explain%20exactly%20what%20I%26rsquo%3bd%20done%3a%0a%20Are%20you%20calling%20require%20%27employee%27%20anywhere%3f..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/10/29/ruby-getting-active-record-validation-errors-twice/&amp;title=Ruby%3a%20Getting%20Active%20Record%20validation%20errors%20twice&amp;summary=I%20managed%20to%20create%20an%20interesting%20problem%20for%20myself%20while%20playing%20around%20with%20some%20code%20whereby%20I%20was%20ending%20up%20with%20validation%20errors%20appearing%20twice%20every%20time%20I%20called%20%26lsquo%3bvalid%3f%26rsquo%3b%20on%20a%20specific%20model.%0aI%20figured%20I%20was%20probably%20doing%20something%20stupid%20and%20in%20fact%20a%20few%20replies%20by%20Aaron%20Baldwin%20on%20a%20mailing%20list%20thread%20on%20%26lsquo%3brubyonrails-talk%27helped%20explain%20exactly%20what%20I%26rsquo%3bd%20done%3a%0aI%26rsquo%3bd%20put%20the%20following%20code%20into%20a%20controller%20elsewhere%20somewhat%20unnecessarily%20since%20it%20didn%26rsquo%3bt%20seem%20to%20be%20picking%20up%20the%20location%20of%20my%20model%20at%20the%20time%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

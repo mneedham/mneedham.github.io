@@ -22,8 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Tacit programming" />
         
-          <meta name="twitter:description" content="I recently came across the idea of tacit programming which is described as such:
- Tacit programming is a programming paradigm in which a function definition does not include information regarding its arguments, using combinators and function composition (but not λ-abstraction) instead of variables. The simplicity behind this idea allows its use on several programming languages, such as J programming language and APL and especially in stack or concatenative languages, such as PostScript, Forth, Joy or Factor." />
+          <meta name="twitter:description" content="I recently came across the idea of tacit programmingwhich is described as such:
+The simplicity behind this idea allows its use on several programming languages, such as J programming language and APL and especially in stack or concatenative languages, such as PostScript, Forth, Joy or Factor. Outside of the APL and J communities, tacit programming is referred to as point-free style.
+I realised that this approach quite closely describes what I&rsquo;ve been trying to drive towards in my most recent playing around with F# and it&rsquo;s actually quite fun trying to drive any intermediate state or storing of data in variables out of a program and just relying completely on function composition and higher order functions." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/05/10/f-tacit-programming/" />
 
@@ -34,8 +35,9 @@
         <title> F#: Tacit programming &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I recently came across the idea of tacit programming which is described as such:
- Tacit programming is a programming paradigm in which a function definition does not include information regarding its arguments, using combinators and function composition (but not λ-abstraction) instead of variables. The simplicity behind this idea allows its use on several programming languages, such as J programming language and APL and especially in stack or concatenative languages, such as PostScript, Forth, Joy or Factor." />
+        <meta name="description" content="I recently came across the idea of tacit programmingwhich is described as such:
+The simplicity behind this idea allows its use on several programming languages, such as J programming language and APL and especially in stack or concatenative languages, such as PostScript, Forth, Joy or Factor. Outside of the APL and J communities, tacit programming is referred to as point-free style.
+I realised that this approach quite closely describes what I&rsquo;ve been trying to drive towards in my most recent playing around with F# and it&rsquo;s actually quite fun trying to drive any intermediate state or storing of data in variables out of a program and just relying completely on function composition and higher order functions." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,9 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-05-10",
-        "description": "I recently came across the idea of tacit programming which is described as such:
- Tacit programming is a programming paradigm in which a function definition does not include information regarding its arguments, using combinators and function composition (but not λ-abstraction) instead of variables. The simplicity behind this idea allows its use on several programming languages, such as J programming language and APL and especially in stack or concatenative languages, such as PostScript, Forth, Joy or Factor.",
-        "wordCount": 692
+        "description": "I recently came across the idea of tacit programmingwhich is described as such:\nThe simplicity behind this idea allows its use on several programming languages, such as J programming language and APL and especially in stack or concatenative languages, such as PostScript, Forth, Joy or Factor. Outside of the APL and J communities, tacit programming is referred to as point-free style.\nI realised that this approach quite closely describes what I\x26rsquo;ve been trying to drive towards in my most recent playing around with F# and it\x26rsquo;s actually quite fun trying to drive any intermediate state or storing of data in variables out of a program and just relying completely on function composition and higher order functions.",
+        "wordCount":  650 
     }
     </script>
     
@@ -175,77 +176,47 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Tacit programming</h1>
-    <p>I recently came across the idea of <a href="http://en.wikipedia.org/wiki/Tacit_programming">tacit programming</a> which is described as such:</p>
-
-<blockquote>
-Tacit programming is a programming paradigm in which a function definition does not include information regarding its arguments, using combinators and function composition (but not λ-abstraction) instead of variables. 
-
-The simplicity behind this idea allows its use on several programming languages, such as J programming language and APL and especially in stack or concatenative languages, such as PostScript, Forth, Joy or Factor. Outside of the APL and J communities, tacit programming is referred to as <strong>point-free style</strong>.
-</blockquote>
-
+    <p>I recently came across the idea of <!-- raw HTML omitted -->tacit programming<!-- raw HTML omitted --> which is described as such:</p>
+<!-- raw HTML omitted -->
+<p>The simplicity behind this idea allows its use on several programming languages, such as J programming language and APL and especially in stack or concatenative languages, such as PostScript, Forth, Joy or Factor. Outside of the APL and J communities, tacit programming is referred to as <!-- raw HTML omitted -->point-free style<!-- raw HTML omitted -->.</p>
+<!-- raw HTML omitted -->
 <p>I realised that this approach quite closely describes what I&rsquo;ve been trying to drive towards in my most recent playing around with F# and it&rsquo;s actually quite fun trying to drive any intermediate state or storing of data in variables out of a program and just relying completely on function composition and higher order functions.</p>
-
 <p>It seems like we need to define the signatures of some of the functions more explicitly but once we have a group of these functions we can combine them quite effectively elsewhere in our program.</p>
-
-<h3>Moving towards function composition</h3>
-
-<p>I&rsquo;ve been trying to do this with the <a href="http://code.google.com/p/yetanotherbuilder/source/browse/yab/Builder.fs">F# test builder</a> that I&rsquo;ve been working on and in a few cases it&rsquo;s helped to reduce the amount of code required.</p>
-
+<!-- raw HTML omitted -->
+<p>I&rsquo;ve been trying to do this with the <!-- raw HTML omitted -->F# test builder<!-- raw HTML omitted --> that I&rsquo;ve been working on and in a few cases it&rsquo;s helped to reduce the amount of code required.</p>
 <p>The build function originally read roughly like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#f92672">and</span> build <span style="color:#f92672">(</span>t<span style="color:#f92672">:</span><span style="color:#a6e22e">Type</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 
+     <span style="color:#66d9ef">let</span> shortestConstructor <span style="color:#f92672">=</span> getShortestConstructor t
 
-<pre><code class="language-ocaml">
-and build (t:Type) = 
-     let shortestConstructor = getShortestConstructor t
-
-     shortestConstructor |&gt;
-     invokeWith (fun c -&gt; getParameters c |&gt; Array.map (fun p -&gt; valueFor { Type = p.ParameterType; Name = p.Name })) |&gt;
-     andApply (fun t -&gt; getWriteableProperties t |&gt; Array.iter(setValueOn t))
-</code></pre>
-
-<p>In order to drive that code toward a &lsquo;point-free style&rsquo; we need to make use of the function composition operator which allows us to get the code to the stage where we don&rsquo;t need to specify the signature of &lsquo;build&rsquo;, it can be inferred:</p>
-
-<pre><code class="language-ocaml">
-and build = getShortestConstructor &gt;&gt;
-            invokeWith (getParameters &gt;&gt; Array.map (fun p -&gt; valueFor { Type = p.ParameterType; Name = p.Name })) &gt;&gt;
-            andApply (fun t -&gt; getWriteableProperties t |&gt; Array.iter(setValueOn t))
-</code></pre>
-
-<p>I think that code is pretty much identical to the first version but I&rsquo;m getting the following warning message pointing to the &lsquo;valueFor&rsquo; call on line 2:</p>
-
-<pre><code class="language-text">
-Warning	1	This and other recursive references to the object(s) being defined will be checked for initialization-soundness at runtime through the use of a delayed reference. This is because you are defining one or more recursive objects, rather than recursive functions. This warning may be suppressed by using #nowarn &quot;40&quot; or --nowarn 40.	C:\Playbox\yab\yab\Builder.fs	40	66	yab
-</code></pre>
-
-<p>I can&rsquo;t figure out how I can change the code to get rid of that warning. I also haven&rsquo;t worked out whether it&rsquo;s possible to fix the &lsquo;andApply&rsquo; line so that we can use functional composition throughout.</p>
-
-<p>It would be cool if it could written in such a way that &rsquo;t&rsquo; wouldn&rsquo;t have to be explicitly specified. I can&rsquo;t quite figure out how to do it because I need to call &lsquo;getWriteableProperties&rsquo; and then iterate through that sequence and set a value on &rsquo;t&rsquo; using each one.</p>
-
-<p>Is there a way to write that bit of code so that &rsquo;t&rsquo; could be inferred?</p>
-
-<h3>Some functions need to define signatures?</h3>
-
+     shortestConstructor <span style="color:#f92672">|&gt;</span>
+     invokeWith <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> c <span style="color:#f92672">-&gt;</span> getParameters c <span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> p <span style="color:#f92672">-&gt;</span> valueFor <span style="color:#f92672">{</span> <span style="color:#a6e22e">Type</span> <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span><span style="color:#a6e22e">ParameterType</span><span style="color:#f92672">;</span> <span style="color:#a6e22e">Name</span> <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span><span style="color:#a6e22e">Name</span> <span style="color:#f92672">}))</span> <span style="color:#f92672">|&gt;</span>
+     andApply <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> t <span style="color:#f92672">-&gt;</span> getWriteableProperties t <span style="color:#f92672">|&gt;</span> Array.iter<span style="color:#f92672">(</span>setValueOn t<span style="color:#f92672">))</span>
+</code></pre></div><p>In order to drive that code toward a &lsquo;point-free style&rsquo; we need to make use of the function composition operator which allows us to get the code to the stage where we don&rsquo;t need to specify the signature of &lsquo;build&rsquo;, it can be inferred:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#f92672">and</span> build <span style="color:#f92672">=</span> getShortestConstructor <span style="color:#f92672">&gt;&gt;</span>
+            invokeWith <span style="color:#f92672">(</span>getParameters <span style="color:#f92672">&gt;&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> p <span style="color:#f92672">-&gt;</span> valueFor <span style="color:#f92672">{</span> <span style="color:#a6e22e">Type</span> <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span><span style="color:#a6e22e">ParameterType</span><span style="color:#f92672">;</span> <span style="color:#a6e22e">Name</span> <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span><span style="color:#a6e22e">Name</span> <span style="color:#f92672">}))</span> <span style="color:#f92672">&gt;&gt;</span>
+            andApply <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> t <span style="color:#f92672">-&gt;</span> getWriteableProperties t <span style="color:#f92672">|&gt;</span> Array.iter<span style="color:#f92672">(</span>setValueOn t<span style="color:#f92672">))</span>
+</code></pre></div><p>I think that code is pretty much identical to the first version but I&rsquo;m getting the following warning message pointing to the &lsquo;valueFor&rsquo; call on line 2:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+Warning	1	This and other recursive references to the object(s) being defined will be checked for initialization-soundness at runtime through the use of a delayed reference. This is because you are defining one or more recursive objects, rather than recursive functions. This warning may be suppressed by using #nowarn &#34;40&#34; or --nowarn 40.	C:\Playbox\yab\yab\Builder.fs	40	66	yab
+</code></pre></div><p>I can&rsquo;t figure out how I can change the code to get rid of that warning. I also haven&rsquo;t worked out whether it&rsquo;s possible to fix the &lsquo;andApply&rsquo; line so that we can use functional composition throughout.</p>
+<p>It would be cool if it could written in such a way that &lsquo;t&rsquo; wouldn&rsquo;t have to be explicitly specified. I can&rsquo;t quite figure out how to do it because I need to call &lsquo;getWriteableProperties&rsquo; and then iterate through that sequence and set a value on &lsquo;t&rsquo; using each one.</p>
+<p>Is there a way to write that bit of code so that &lsquo;t&rsquo; could be inferred?</p>
+<!-- raw HTML omitted -->
 <p>In order to write a &lsquo;build&rsquo; function which heavily uses functional composition I&rsquo;ve pulled out several helper functions which all currently explicitly define their signatures:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+    <span style="color:#66d9ef">let</span> getWriteableProperties t <span style="color:#f92672">=</span> t<span style="color:#f92672">.</span><span style="color:#a6e22e">GetType</span>()<span style="color:#f92672">.</span><span style="color:#a6e22e">GetProperties</span>() <span style="color:#f92672">|&gt;</span> Array.filter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> p <span style="color:#f92672">-&gt;</span> p<span style="color:#f92672">.</span><span style="color:#a6e22e">CanWrite</span><span style="color:#f92672">)</span>
 
-<pre><code class="language-ocaml">
-    let getWriteableProperties t = t.GetType().GetProperties() |&gt; Array.filter (fun p -&gt; p.CanWrite)
-
-    let invokeWith f (aConstructor:ConstructorInfo) = f(aConstructor) |&gt; aConstructor.Invoke
-</code></pre>
-
-<p>If we want to call C# libraries like this then I don&rsquo;t think we have a choice but to explicitly define function signatures. It is possible to push the place at which we need to do this by <a href="http://www.markhneedham.com/blog/2009/07/12/f-wrapping-net-library-calls/">writing F# functions to wrap those C# method calls</a> but at some stage we&rsquo;ll explicitly define a function signature:</p>
-
-<pre><code class="language-ocaml">
-let getWriteableProperties = getTypeProperties &gt;&gt; Array.filter writeableProperty
-</code></pre>
-
-<p>where the extra helper functions are defined like so:</p>
-
-<pre><code class="language-ocaml">
-let getTypeProperties t = t.GetType().GetProperties()
-let writeableProperty (p:PropertyInfo) = p.CanWrite
-</code></pre>
-
-<p>I can&rsquo;t see a way around this so again I&rsquo;d be interested if there is one. I don&rsquo;t think it&rsquo;s a problem anyway, just intrigued how far their programming approach can be taken.</p>
+    <span style="color:#66d9ef">let</span> invokeWith f <span style="color:#f92672">(</span>aConstructor<span style="color:#f92672">:</span><span style="color:#a6e22e">ConstructorInfo</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> f<span style="color:#f92672">(</span>aConstructor<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> aConstructor<span style="color:#f92672">.</span><span style="color:#a6e22e">Invoke</span>
+</code></pre></div><p>If we want to call C# libraries like this then I don&rsquo;t think we have a choice but to explicitly define function signatures. It is possible to push the place at which we need to do this by <!-- raw HTML omitted -->writing F# functions to wrap those C# method calls<!-- raw HTML omitted --> but at some stage we&rsquo;ll explicitly define a function signature:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">let</span> getWriteableProperties <span style="color:#f92672">=</span> getTypeProperties <span style="color:#f92672">&gt;&gt;</span> Array.filter writeableProperty
+</code></pre></div><p>where the extra helper functions are defined like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">let</span> getTypeProperties t <span style="color:#f92672">=</span> t<span style="color:#f92672">.</span><span style="color:#a6e22e">GetType</span>()<span style="color:#f92672">.</span><span style="color:#a6e22e">GetProperties</span>()
+<span style="color:#66d9ef">let</span> writeableProperty <span style="color:#f92672">(</span>p<span style="color:#f92672">:</span><span style="color:#a6e22e">PropertyInfo</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span><span style="color:#a6e22e">CanWrite</span>
+</code></pre></div><p>I can&rsquo;t see a way around this so again I&rsquo;d be interested if there is one. I don&rsquo;t think it&rsquo;s a problem anyway, just intrigued how far their programming approach can be taken.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -280,7 +251,7 @@ let writeableProperty (p:PropertyInfo) = p.CanWrite
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/05/10/f-tacit-programming/&amp;title=F%23%3a%20Tacit%20programming&amp;summary=I%20recently%20came%20across%20the%20idea%20of%20tacit%20programming%20which%20is%20described%20as%20such%3a%0a%20Tacit%20programming%20is%20a%20programming%20paradigm%20in%20which%20a%20function%20definition%20does%20not%20include%20information%20regarding%20its%20arguments%2c%20using%20combinators%20and%20function%20composition%20%28but%20not%20%ce%bb-abstraction%29%20instead%20of%20variables.%20The%20simplicity%20behind%20this%20idea%20allows%20its%20use%20on%20several%20programming%20languages%2c%20such%20as%20J%20programming%20language%20and%20APL%20and%20especially%20in%20stack%20or%20concatenative%20languages%2c%20such%20as%20PostScript%2c%20Forth%2c%20Joy%20or%20Factor...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/05/10/f-tacit-programming/&amp;title=F%23%3a%20Tacit%20programming&amp;summary=I%20recently%20came%20across%20the%20idea%20of%20tacit%20programmingwhich%20is%20described%20as%20such%3a%0aThe%20simplicity%20behind%20this%20idea%20allows%20its%20use%20on%20several%20programming%20languages%2c%20such%20as%20J%20programming%20language%20and%20APL%20and%20especially%20in%20stack%20or%20concatenative%20languages%2c%20such%20as%20PostScript%2c%20Forth%2c%20Joy%20or%20Factor.%20Outside%20of%20the%20APL%20and%20J%20communities%2c%20tacit%20programming%20is%20referred%20to%20as%20point-free%20style.%0aI%20realised%20that%20this%20approach%20quite%20closely%20describes%20what%20I%26rsquo%3bve%20been%20trying%20to%20drive%20towards%20in%20my%20most%20recent%20playing%20around%20with%20F%23%20and%20it%26rsquo%3bs%20actually%20quite%20fun%20trying%20to%20drive%20any%20intermediate%20state%20or%20storing%20of%20data%20in%20variables%20out%20of%20a%20program%20and%20just%20relying%20completely%20on%20function%20composition%20and%20higher%20order%20functions...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

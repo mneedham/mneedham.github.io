@@ -63,8 +63,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-10-06",
-        "description": "I had a problem on a graph I was working on recently where I'd managed to create duplicate nodes because I hadn't applied any unique constraints.  I wanted to remove the duplicates, and came across Jimmy Ruts' excellent post which shows some ways to do this.  Let's first create a graph with some duplicate nodes to play with: UNWIND range(0, 100) AS id CREATE (p1:Person {id: toInteger(rand() * id)}) MERGE (p2:Person {id: toInteger(rand() * id)}) MERGE (p3:Person {id: toInteger(rand() * id)}) MERGE (p4:Person {id: toInteger(rand() * id)}) CREATE (p1)-[:KNOWS]-&gt;(p2) CREATE (p1)-[:KNOWS]-&gt;(p3) CREATE (p1)-[:KNOWS]-&gt;(p4) Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms.",
-        "wordCount": 717
+        "description": "UNWIND range(0, 100) AS id CREATE (p1:Person {id: toInteger(rand() * id)}) MERGE (p2:Person {id: toInteger(rand() * id)}) MERGE (p3:Person {id: toInteger(rand() * id)}) MERGE (p4:Person {id: toInteger(rand() * id)}) CREATE (p1)-[:KNOWS]-\x26gt;(p2) CREATE (p1)-[:KNOWS]-\x26gt;(p3) CREATE (p1)-[:KNOWS]-\x26gt;(p4) Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms. MATCH (p:Person) WITH p.id as id, collect(p) AS nodes WHERE size(nodes) \x26gt; 1 RETURN [ n in nodes | n.",
+        "wordCount":  466 
     }
     </script>
     
@@ -175,19 +175,10 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Deleting duplicate nodes</h1>
-    <p>
-I had a problem on a graph I was working on recently where I'd managed to create duplicate nodes because I hadn't applied any <a href="http://neo4j.com/docs/developer-manual/current/cypher/schema/constraints/">unique constraints</a>.
-</p>
-
-<p>
-I wanted to remove the duplicates, and came across <a href="https://gist.github.com/jruts/fe782ff2531d509784a24b655ad8ae76">Jimmy Ruts' excellent post</a> which shows some ways to do this.
-</p>
-
-<p>
-Let's first create a graph with some duplicate nodes to play with:
-</p>
-
-<pre><code class="language-cypher">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 UNWIND range(0, 100) AS id
 CREATE (p1:Person {id: toInteger(rand() * id)})
 MERGE (p2:Person {id: toInteger(rand() * id)})
@@ -198,13 +189,8 @@ CREATE (p1)-[:KNOWS]-&gt;(p3)
 CREATE (p1)-[:KNOWS]-&gt;(p4)
 
 Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms.
-</code></pre>
-
-<p>
-How do we find the duplicate nodes?
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (p:Person)
 WITH p.id as id, collect(p) AS nodes 
 WHERE size(nodes) &gt;  1
@@ -235,13 +221,8 @@ LIMIT 10
 ├──────────────────────┼─────────────┤
 │[43,43,43,43,43]      │5            │
 └──────────────────────┴─────────────┘
-</code></pre>
-
-<p>
-Let's zoom in on all the people with 'id:1' and work out how many relationships they have. Our plan is keep the node that has the most connections and get rid of the others.
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (p:Person)
 WITH p.id as id, collect(p) AS nodes 
 WHERE size(nodes) &gt;  1
@@ -270,17 +251,9 @@ ORDER BY rels DESC
 ├──────┼────────────┼──────┤
 │1     │306         │1     │
 └──────┴────────────┴──────┘
-</code></pre>
-
-<p>
-So in this example we want to keep the node that has 210 relationships and delete the rest.
-</p>
-
-<p>
-To make things easy we need the node with the highest cardinality to be first or last in our list. We can ensure that's the case by ordering the nodes before we group them.
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (p:Person)
 WITH p 
 ORDER BY p.id, size((p)--()) DESC
@@ -326,13 +299,8 @@ LIMIT 10
 │[{&quot;id&quot;:43,&quot;rels&quot;:92},{&quot;id&quot;:43,&quot;rels&quot;:85},{&quot;id&quot;:43,&quot;rels&quot;:9},{&quot;id&quot;:43,&quot;│5            │
 │rels&quot;:5},{&quot;id&quot;:43,&quot;rels&quot;:1}]                                          │             │
 └──────────────────────────────────────────────────────────────────────┴─────────────┘───────────────────────────────────────────────────────┴─────────────┘
-</code></pre>
-
-<p>
-Now it's time to delete the duplicates:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (p:Person)
 WITH p 
 ORDER BY p.id, size((p)--()) DESC
@@ -342,13 +310,8 @@ UNWIND nodes[1..] AS n
 DETACH DELETE n
 
 Deleted 143 nodes, deleted 13806 relationships, completed after 29 ms.
-</code></pre>
-
-<p>
-Now if we run our duplicate query:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (p:Person)
 WITH p.id as id, collect(p) AS nodes 
 WHERE size(nodes) &gt;  1
@@ -357,13 +320,8 @@ ORDER BY size(nodes) DESC
 LIMIT 10
 
 (no changes, no records)
-</code></pre>
-
-<p>
-What about if we remove the WHERE clause?
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (p:Person)
 WITH p.id as id, collect(p) AS nodes 
 RETURN [ n in nodes | n.id] AS ids, size(nodes)
@@ -393,11 +351,8 @@ LIMIT 10
 ├─────┼─────────────┤
 │[8]  │1            │
 └─────┴─────────────┘
-</code></pre>
-
-<p>Hoorah, no more duplicates! Finally, let's check that we kept the node we expected to keep. We expect it to have an 'internalId' of 175:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (p:Person {id: 1})
 RETURN size((p)--()), id(p) AS internalId
 
@@ -406,15 +361,8 @@ RETURN size((p)--()), id(p) AS internalId
 ╞═══════════════╪════════════╡
 │242            │175         │
 └───────────────┴────────────┘
-</code></pre>
-
-<p>
-Which it does! There are many fewer relationships than we had before because a lot of those relationships were to duplicate nodes that we've now deleted.
-</p>
-
-<p>
-If we want to go a step further we could 'merge' the duplicate node's relationships onto the nodes that we did keep, but that's for another post!
-</p>
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -449,7 +397,7 @@ If we want to go a step further we could 'merge' the duplicate node's relationsh
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/10/06/neo4j-cypher-deleting-duplicate-nodes/&amp;title=Neo4j%3a%20Cypher%20-%20Deleting%20duplicate%20nodes&amp;summary=I%20had%20a%20problem%20on%20a%20graph%20I%20was%20working%20on%20recently%20where%20I%27d%20managed%20to%20create%20duplicate%20nodes%20because%20I%20hadn%27t%20applied%20any%20unique%20constraints.%20%20I%20wanted%20to%20remove%20the%20duplicates%2c%20and%20came%20across%20Jimmy%20Ruts%27%20excellent%20post%20which%20shows%20some%20ways%20to%20do%20this.%20%20Let%27s%20first%20create%20a%20graph%20with%20some%20duplicate%20nodes%20to%20play%20with%3a%20UNWIND%20range%280%2c%20100%29%20AS%20id%20CREATE%20%28p1%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p2%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p3%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p4%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p2%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p3%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p4%29%20Added%20173%20labels%2c%20created%20173%20nodes%2c%20set%20173%20properties%2c%20created%205829%20relationships%2c%20completed%20after%20408%20ms...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/10/06/neo4j-cypher-deleting-duplicate-nodes/&amp;title=Neo4j%3a%20Cypher%20-%20Deleting%20duplicate%20nodes&amp;summary=UNWIND%20range%280%2c%20100%29%20AS%20id%20CREATE%20%28p1%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p2%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p3%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p4%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p2%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p3%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p4%29%20Added%20173%20labels%2c%20created%20173%20nodes%2c%20set%20173%20properties%2c%20created%205829%20relationships%2c%20completed%20after%20408%20ms.%20MATCH%20%28p%3aPerson%29%20WITH%20p.id%20as%20id%2c%20collect%28p%29%20AS%20nodes%20WHERE%20size%28nodes%29%20%26gt%3b%201%20RETURN%20%5b%20n%20in%20nodes%20%7c%20n...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

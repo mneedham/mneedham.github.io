@@ -22,9 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Unix: Caught out by shell significant characters" />
         
-          <meta name="twitter:description" content="One of the applications that Phil and I were deploying today needed a MySQL server and part of our puppet code to provision that node type runs a command to setup the privileges for a database user.
+          <meta name="twitter:description" content="One of the applications that Philand I were deploying today needed a MySQL server and part of our puppet code to provision that node type runs a command to setup the privileges for a database user.
 The unevaluated puppet code reads like this:
-/usr/bin/mysql -h ${host} -uroot ${rootpassarg} -e &quot;grant all on ${name}.* to ${user}@&#39;${remote_host}&#39; identified by &#39;$password&#39;; flush privileges;&quot;  In the application we were deploying that expanded into something like this:" />
+/usr/bin/mysql -h ${host} -uroot ${rootpassarg} -e &#34;grant all on ${name}.* to ${user}@&#39;${remote_host}&#39; identified by &#39;$password&#39;; flush privileges;&#34; In the application we were deploying that expanded into something like this:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/09/13/unix-caught-out-by-shell-significant-characters/" />
 
@@ -35,9 +35,9 @@ The unevaluated puppet code reads like this:
         <title> Unix: Caught out by shell significant characters &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="One of the applications that Phil and I were deploying today needed a MySQL server and part of our puppet code to provision that node type runs a command to setup the privileges for a database user.
+        <meta name="description" content="One of the applications that Philand I were deploying today needed a MySQL server and part of our puppet code to provision that node type runs a command to setup the privileges for a database user.
 The unevaluated puppet code reads like this:
-/usr/bin/mysql -h ${host} -uroot ${rootpassarg} -e &quot;grant all on ${name}.* to ${user}@&#39;${remote_host}&#39; identified by &#39;$password&#39;; flush privileges;&quot;  In the application we were deploying that expanded into something like this:" />
+/usr/bin/mysql -h ${host} -uroot ${rootpassarg} -e &#34;grant all on ${name}.* to ${user}@&#39;${remote_host}&#39; identified by &#39;$password&#39;; flush privileges;&#34; In the application we were deploying that expanded into something like this:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,10 +66,8 @@ The unevaluated puppet code reads like this:
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-09-13",
-        "description": "One of the applications that Phil and I were deploying today needed a MySQL server and part of our puppet code to provision that node type runs a command to setup the privileges for a database user.
-The unevaluated puppet code reads like this:
-/usr/bin/mysql -h ${host} -uroot ${rootpassarg} -e &quot;grant all on ${name}.* to ${user}@'${remote_host}' identified by '$password'; flush privileges;&quot;  In the application we were deploying that expanded into something like this:",
-        "wordCount": 279
+        "description": "One of the applications that Philand I were deploying today needed a MySQL server and part of our puppet code to provision that node type runs a command to setup the privileges for a database user.\nThe unevaluated puppet code reads like this:\n\/usr\/bin\/mysql -h ${host} -uroot ${rootpassarg} -e \x26#34;grant all on ${name}.* to ${user}@\x26#39;${remote_host}\x26#39; identified by \x26#39;$password\x26#39;; flush privileges;\x26#34; In the application we were deploying that expanded into something like this:",
+        "wordCount":  276 
     }
     </script>
     
@@ -178,44 +176,27 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Unix: Caught out by shell significant characters</h1>
-    <p>One of the applications that <a href="https://twitter.com/philandstuff">Phil</a> and I were deploying today needed a MySQL server and part of our puppet code to provision that node type runs a command to setup the privileges for a database user.</p>
-
+    <p>One of the applications that <!-- raw HTML omitted -->Phil<!-- raw HTML omitted --> and I were deploying today needed a MySQL server and part of our puppet code to provision that node type runs a command to setup the privileges for a database user.</p>
 <p>The unevaluated puppet code reads like this:</p>
-
-<pre><code class="language-text">
-/usr/bin/mysql -h ${host} -uroot ${rootpassarg} -e &quot;grant all on ${name}.* to ${user}@'${remote_host}' identified by '$password'; flush privileges;&quot;
-</code></pre>
-
-<p>In the application we were deploying that expanded into something like this:</p>
-
-<pre><code class="language-text">
-/usr/bin/mysql -h localhost -uroot root_pw -e &quot;grant all on db_name.* to db_user@'%' identified by 'awe$ome+password'; flush privileges;&quot;
-</code></pre>
-
-<p>Unfortunately when we ran puppet it was executing without any problems but when we tried to connect to MySQL using &lsquo;db_user&rsquo; with a password of &lsquo;awe$ome+password&rsquo; we kept being denied access.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+/usr/bin/mysql -h ${host} -uroot ${rootpassarg} -e &#34;grant all on ${name}.* to ${user}@&#39;${remote_host}&#39; identified by &#39;$password&#39;; flush privileges;&#34;
+</code></pre></div><p>In the application we were deploying that expanded into something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+/usr/bin/mysql -h localhost -uroot root_pw -e &#34;grant all on db_name.* to db_user@&#39;%&#39; identified by &#39;awe$ome+password&#39;; flush privileges;&#34;
+</code></pre></div><p>Unfortunately when we ran puppet it was executing without any problems but when we tried to connect to MySQL using &lsquo;db_user&rsquo; with a password of &lsquo;awe$ome+password&rsquo; we kept being denied access.</p>
 <p>We tried changing the password to &lsquo;bob&rsquo; to see what would happen, expecting that to fail as well, but were actually able to login so we figured there was something wrong with the password.</p>
-
-<p>Phil suggested echoing the command to see what it was being evaluated to in the shell and once we did that we realised that the password was actually being set to &lsquo;awe+password&rsquo; because the <cite>$ome</cite> bit was being evaluated as a shell variable.</p>
-
-<p>This happens because <a href="http://www.howtogeek.com/howto/29980/whats-the-difference-between-single-and-double-quotes-in-the-bash-shell/">shell variables are evaluated</a> if they are enclosed in &ldquo;&rdquo; which is the case here as our whole grant statement is enclosed in &ldquo;&rdquo;. If variables are enclosed in &ldquo; then they won&rsquo;t be evaluated:</p>
-
-<pre><code class="language-text">
-$ mark=&quot;foo&quot;; echo &quot;$mark&quot;
+<p>Phil suggested echoing the command to see what it was being evaluated to in the shell and once we did that we realised that the password was actually being set to &lsquo;awe+password&rsquo; because the <!-- raw HTML omitted -->$ome<!-- raw HTML omitted --> bit was being evaluated as a shell variable.</p>
+<p>This happens because <!-- raw HTML omitted -->shell variables are evaluated<!-- raw HTML omitted --> if they are enclosed in &quot;&rdquo; which is the case here as our whole grant statement is enclosed in &ldquo;&quot;. If variables are enclosed in '&rsquo; then they won&rsquo;t be evaluated:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+$ mark=&#34;foo&#34;; echo &#34;$mark&#34;
 foo
-</code></pre>
-
-<pre><code class="language-text">
-$ mark=&quot;foo&quot;; echo '$mark'
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+$ mark=&#34;foo&#34;; echo &#39;$mark&#39;
 $mark
-</code></pre>
-
-<p>In this case we can therefore switch the &ldquo; and &ldquo;&rdquo; around to solve the problem:</p>
-
-<pre><code class="language-text">
-/usr/bin/mysql -h localhost -uroot root_pw -e 'grant all on db_name.* to db_user@&quot;%&quot; identified by awe$ome+password&quot;; flush privileges;'
-</code></pre>
-
+</code></pre></div><p>In this case we can therefore switch the '&rsquo; and &quot;&rdquo; around to solve the problem:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+/usr/bin/mysql -h localhost -uroot root_pw -e &#39;grant all on db_name.* to db_user@&#34;%&#34; identified by awe$ome+password&#34;; flush privileges;&#39;
+</code></pre></div>
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -249,7 +230,7 @@ $mark
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/09/13/unix-caught-out-by-shell-significant-characters/&amp;title=Unix%3a%20Caught%20out%20by%20shell%20significant%20characters&amp;summary=One%20of%20the%20applications%20that%20Phil%20and%20I%20were%20deploying%20today%20needed%20a%20MySQL%20server%20and%20part%20of%20our%20puppet%20code%20to%20provision%20that%20node%20type%20runs%20a%20command%20to%20setup%20the%20privileges%20for%20a%20database%20user.%0aThe%20unevaluated%20puppet%20code%20reads%20like%20this%3a%0a%2fusr%2fbin%2fmysql%20-h%20%24%7bhost%7d%20-uroot%20%24%7brootpassarg%7d%20-e%20%26quot%3bgrant%20all%20on%20%24%7bname%7d.%2a%20to%20%24%7buser%7d%40%27%24%7bremote_host%7d%27%20identified%20by%20%27%24password%27%3b%20flush%20privileges%3b%26quot%3b%20%20In%20the%20application%20we%20were%20deploying%20that%20expanded%20into%20something%20like%20this%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/09/13/unix-caught-out-by-shell-significant-characters/&amp;title=Unix%3a%20Caught%20out%20by%20shell%20significant%20characters&amp;summary=One%20of%20the%20applications%20that%20Philand%20I%20were%20deploying%20today%20needed%20a%20MySQL%20server%20and%20part%20of%20our%20puppet%20code%20to%20provision%20that%20node%20type%20runs%20a%20command%20to%20setup%20the%20privileges%20for%20a%20database%20user.%0aThe%20unevaluated%20puppet%20code%20reads%20like%20this%3a%0a%2fusr%2fbin%2fmysql%20-h%20%24%7bhost%7d%20-uroot%20%24%7brootpassarg%7d%20-e%20%26%2334%3bgrant%20all%20on%20%24%7bname%7d.%2a%20to%20%24%7buser%7d%40%26%2339%3b%24%7bremote_host%7d%26%2339%3b%20identified%20by%20%26%2339%3b%24password%26%2339%3b%3b%20flush%20privileges%3b%26%2334%3b%20In%20the%20application%20we%20were%20deploying%20that%20expanded%20into%20something%20like%20this%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

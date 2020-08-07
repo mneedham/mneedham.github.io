@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="TDD: Hand written stubs vs Framework generated stubs" />
         
-          <meta name="twitter:description" content="A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests wherever possible and only resorted to using a Mockito created stub as a last resort.
+          <meta name="twitter:description" content="A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his testswherever possible and only resorted to using a Mockito created stub as a last resort.
 I&rsquo;ve tended to use framework created ones but my colleague Matt Dunn and I noticed that it didn&rsquo;t seem to work out too well for us writing some tests around a controller where the majority of our tests were making exactly the same call to that repository and expected to receive the same return value but a few select edge cases expected something different." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/01/15/tdd-hand-written-stubs-vs-framework-generated-stubs/" />
@@ -34,7 +34,7 @@ I&rsquo;ve tended to use framework created ones but my colleague Matt Dunn and I
         <title> TDD: Hand written stubs vs Framework generated stubs &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests wherever possible and only resorted to using a Mockito created stub as a last resort.
+        <meta name="description" content="A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his testswherever possible and only resorted to using a Mockito created stub as a last resort.
 I&rsquo;ve tended to use framework created ones but my colleague Matt Dunn and I noticed that it didn&rsquo;t seem to work out too well for us writing some tests around a controller where the majority of our tests were making exactly the same call to that repository and expected to receive the same return value but a few select edge cases expected something different." />
     
 
@@ -64,9 +64,8 @@ I&rsquo;ve tended to use framework created ones but my colleague Matt Dunn and I
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-15",
-        "description": "A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests wherever possible and only resorted to using a Mockito created stub as a last resort.
-I&rsquo;ve tended to use framework created ones but my colleague Matt Dunn and I noticed that it didn&rsquo;t seem to work out too well for us writing some tests around a controller where the majority of our tests were making exactly the same call to that repository and expected to receive the same return value but a few select edge cases expected something different.",
-        "wordCount": 507
+        "description": "A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his testswherever possible and only resorted to using a Mockito created stub as a last resort.\nI\x26rsquo;ve tended to use framework created ones but my colleague Matt Dunn and I noticed that it didn\x26rsquo;t seem to work out too well for us writing some tests around a controller where the majority of our tests were making exactly the same call to that repository and expected to receive the same return value but a few select edge cases expected something different.",
+        "wordCount":  505 
     }
     </script>
     
@@ -175,62 +174,47 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">TDD: Hand written stubs vs Framework generated stubs</h1>
-    <p>A few months ago <a href="http://blog.objectmentor.com/articles/2009/10/28/manual-mocking-resisting-the-invasion-of-dots-and-parentheses">Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests</a> wherever possible and only resorted to using a Mockito created stub as a last resort.</p>
-
+    <p>A few months ago <!-- raw HTML omitted -->Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests<!-- raw HTML omitted --> wherever possible and only resorted to using a Mockito created stub as a last resort.</p>
 <p>I&rsquo;ve tended to use framework created ones but my colleague Matt Dunn and I noticed that it didn&rsquo;t seem to work out too well for us writing some tests around a controller where the majority of our tests were making exactly the same call to that repository and expected to receive the same return value but a few select edge cases expected something different.</p>
-
 <p>The edge cases came along later on by which time we&rsquo;d already gone past the stage of putting the stub expectation setup in every test and had moved it up into a setup method which ran before all test.</p>
-
 <p>We tried to keep on using the same stub instance of the dependency which meant that we were trying to setup more than one stub expectation on the same method with different return values.</p>
-
-<pre><code class="language-csharp">
-[TestFixture]
-public SomeControllerTests
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">[TestFixture]</span>
+<span style="color:#66d9ef">public</span> SomeControllerTests
 {
-	private ITheDependency theDependency;
-
-	[SetUp]
-	public void Before()
+	<span style="color:#66d9ef">private</span> ITheDependency theDependency;
+<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">	[SetUp]</span>
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> Before()
 	{
 		theDependency = MockRepository.GenerateStub&lt;ITheDependency&gt;();
 		theDependency.Stub(t =&gt; t.SomeMethod()).Return(someResult);
 
-		controller = new Controller(theDependency);
+		controller = <span style="color:#66d9ef">new</span> Controller(theDependency);
 	}
 	
 	....
-
-	[Test]
-	public void SomeAnnoyingEdgeCaseTest()
+<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">	[Test]</span>
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> SomeAnnoyingEdgeCaseTest()
 	{
 		theDependency.Stub(t =&gt; t.SomeMethod().Return(someOtherResult);
 
 		controller.DoSomething();
 
-		// and so on...
-	}
+		<span style="color:#75715e">// and so on...
+</span><span style="color:#75715e"></span>	}
 
 }
-</code></pre>
-
-<p>We were struggling to remember where we had setup the various return values and could see a few ways to try and reduce this pain.</p>
-
+</code></pre></div><p>We were struggling to remember where we had setup the various return values and could see a few ways to try and reduce this pain.</p>
 <p>The first was to extract those edge case tests out into another test fixture where we would setup the stub expectation on a per test basis instead of using a blanket approach for all of them.</p>
-
 <p>This generally works pretty well although it means that we now have our tests in more than one place which can be a bit annoying unless you know that&rsquo;s what&rsquo;s being done.</p>
-
-<p>Another way which Matt suggested is to <strong>make use of a hand written stub for the tests which aren&rsquo;t bothered about the return value and then use a framework created one for specific cases</strong>.</p>
-
+<p>Another way which Matt suggested is to <!-- raw HTML omitted -->make use of a hand written stub for the tests which aren&rsquo;t bothered about the return value and then use a framework created one for specific cases<!-- raw HTML omitted -->.</p>
 <p>The added benefit of that is that it&rsquo;s more obvious that the latter tests care about the result returned because it&rsquo;s explicitly stated in the body of the test.</p>
-
 <p>We found that our tests were easier to read once we&rsquo;d done this and we spent much less time trying to work out what was going on.</p>
-
-<p>I think framework generated stubs do have thier place though and as <a href="http://blog.objectmentor.com/articles/2009/10/28/manual-mocking-resisting-the-invasion-of-dots-and-parentheses">Colin Goudie points out in the comments on Uncle Bob&rsquo;s post</a> it probably makes more sense to make use of a framework generated stub when each of our tests returns different values for the same method call.</p>
-
+<p>I think framework generated stubs do have thier place though and as <!-- raw HTML omitted -->Colin Goudie points out in the comments on Uncle Bob&rsquo;s post<!-- raw HTML omitted --> it probably makes more sense to make use of a framework generated stub when each of our tests returns different values for the same method call.</p>
 <p>If we don&rsquo;t do that then we end up writing lots of different hand written stubs which I don&rsquo;t think adds much value.</p>
-
 <p>I still start out with a framework generated stub but if it&rsquo;s becoming overly complicated or repetitive then I&rsquo;m happy to switch to a hand written one.</p>
-
 <p>It&rsquo;d be interesting to hear others&rsquo; approaches on this.</p>
 
     <div id="social-bar">
@@ -266,7 +250,7 @@ public SomeControllerTests
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/15/tdd-hand-written-stubs-vs-framework-generated-stubs/&amp;title=TDD%3a%20Hand%20written%20stubs%20vs%20Framework%20generated%20stubs&amp;summary=A%20few%20months%20ago%20Uncle%20Bob%20wrote%20a%20post%20about%20TDD%20where%20he%20suggested%20that%20he%20preferred%20to%20use%20hand%20created%20stubs%20in%20his%20tests%20wherever%20possible%20and%20only%20resorted%20to%20using%20a%20Mockito%20created%20stub%20as%20a%20last%20resort.%0aI%26rsquo%3bve%20tended%20to%20use%20framework%20created%20ones%20but%20my%20colleague%20Matt%20Dunn%20and%20I%20noticed%20that%20it%20didn%26rsquo%3bt%20seem%20to%20work%20out%20too%20well%20for%20us%20writing%20some%20tests%20around%20a%20controller%20where%20the%20majority%20of%20our%20tests%20were%20making%20exactly%20the%20same%20call%20to%20that%20repository%20and%20expected%20to%20receive%20the%20same%20return%20value%20but%20a%20few%20select%20edge%20cases%20expected%20something%20different...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/15/tdd-hand-written-stubs-vs-framework-generated-stubs/&amp;title=TDD%3a%20Hand%20written%20stubs%20vs%20Framework%20generated%20stubs&amp;summary=A%20few%20months%20ago%20Uncle%20Bob%20wrote%20a%20post%20about%20TDD%20where%20he%20suggested%20that%20he%20preferred%20to%20use%20hand%20created%20stubs%20in%20his%20testswherever%20possible%20and%20only%20resorted%20to%20using%20a%20Mockito%20created%20stub%20as%20a%20last%20resort.%0aI%26rsquo%3bve%20tended%20to%20use%20framework%20created%20ones%20but%20my%20colleague%20Matt%20Dunn%20and%20I%20noticed%20that%20it%20didn%26rsquo%3bt%20seem%20to%20work%20out%20too%20well%20for%20us%20writing%20some%20tests%20around%20a%20controller%20where%20the%20majority%20of%20our%20tests%20were%20making%20exactly%20the%20same%20call%20to%20that%20repository%20and%20expected%20to%20receive%20the%20same%20return%20value%20but%20a%20few%20select%20edge%20cases%20expected%20something%20different...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

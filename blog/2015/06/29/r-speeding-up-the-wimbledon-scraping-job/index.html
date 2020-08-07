@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Speeding up the Wimbledon scraping job" />
         
-          <meta name="twitter:description" content="Over the past few days I&#39;ve written a few blog posts about a Wimbledon data set I&#39;ve been building and after running the scripts a few times I noticed that it was taking much longer to run that I expected.  To recap, I started out with the following function which takes in a URI and returns a data frame containing a row for each match: library(rvest) library(dplyr) scrape_matches1 = function(uri) { matches = data." />
+          <meta name="twitter:description" content="library(rvest) library(dplyr) scrape_matches1 = function(uri) { matches = data.frame() s = html(uri) rows = s %&gt;% html_nodes(&#34;div#scoresResultsContent tr&#34;) i = 0 for(row in rows) { players = row %&gt;% html_nodes(&#34;td.day-table-name a&#34;) seedings = row %&gt;% html_nodes(&#34;td.day-table-seed&#34;) score = row %&gt;% html_node(&#34;td.day-table-score a&#34;) flags = row %&gt;% html_nodes(&#34;td.day-table-flag img&#34;) if(!is.null(score)) { player1 = players[1] %&gt;% html_text() %&gt;% str_trim() seeding1 = ifelse(!is.na(seedings[1]), seedings[1] %&gt;% html_node(&#34;span&#34;) %&gt;% html_text() %&gt;% str_trim(), NA) flag1 = flags[1] %&gt;% html_attr(&#34;alt&#34;) player2 = players[2] %&gt;% html_text() %&gt;% str_trim() seeding2 = ifelse(!" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/06/29/r-speeding-up-the-wimbledon-scraping-job/" />
 
@@ -33,7 +33,7 @@
         <title> R: Speeding up the Wimbledon scraping job &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Over the past few days I&#39;ve written a few blog posts about a Wimbledon data set I&#39;ve been building and after running the scripts a few times I noticed that it was taking much longer to run that I expected.  To recap, I started out with the following function which takes in a URI and returns a data frame containing a row for each match: library(rvest) library(dplyr) scrape_matches1 = function(uri) { matches = data." />
+        <meta name="description" content="library(rvest) library(dplyr) scrape_matches1 = function(uri) { matches = data.frame() s = html(uri) rows = s %&gt;% html_nodes(&#34;div#scoresResultsContent tr&#34;) i = 0 for(row in rows) { players = row %&gt;% html_nodes(&#34;td.day-table-name a&#34;) seedings = row %&gt;% html_nodes(&#34;td.day-table-seed&#34;) score = row %&gt;% html_node(&#34;td.day-table-score a&#34;) flags = row %&gt;% html_nodes(&#34;td.day-table-flag img&#34;) if(!is.null(score)) { player1 = players[1] %&gt;% html_text() %&gt;% str_trim() seeding1 = ifelse(!is.na(seedings[1]), seedings[1] %&gt;% html_node(&#34;span&#34;) %&gt;% html_text() %&gt;% str_trim(), NA) flag1 = flags[1] %&gt;% html_attr(&#34;alt&#34;) player2 = players[2] %&gt;% html_text() %&gt;% str_trim() seeding2 = ifelse(!" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +62,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-06-29",
-        "description": "Over the past few days I've written a few blog posts about a Wimbledon data set I've been building and after running the scripts a few times I noticed that it was taking much longer to run that I expected.  To recap, I started out with the following function which takes in a URI and returns a data frame containing a row for each match: library(rvest) library(dplyr) scrape_matches1 = function(uri) { matches = data.",
-        "wordCount": 1555
+        "description": "library(rvest) library(dplyr) scrape_matches1 = function(uri) { matches = data.frame() s = html(uri) rows = s %\x26gt;% html_nodes(\x26#34;div#scoresResultsContent tr\x26#34;) i = 0 for(row in rows) { players = row %\x26gt;% html_nodes(\x26#34;td.day-table-name a\x26#34;) seedings = row %\x26gt;% html_nodes(\x26#34;td.day-table-seed\x26#34;) score = row %\x26gt;% html_node(\x26#34;td.day-table-score a\x26#34;) flags = row %\x26gt;% html_nodes(\x26#34;td.day-table-flag img\x26#34;) if(!is.null(score)) { player1 = players[1] %\x26gt;% html_text() %\x26gt;% str_trim() seeding1 = ifelse(!is.na(seedings[1]), seedings[1] %\x26gt;% html_node(\x26#34;span\x26#34;) %\x26gt;% html_text() %\x26gt;% str_trim(), NA) flag1 = flags[1] %\x26gt;% html_attr(\x26#34;alt\x26#34;) player2 = players[2] %\x26gt;% html_text() %\x26gt;% str_trim() seeding2 = ifelse(!",
+        "wordCount":  1046 
     }
     </script>
     
@@ -172,259 +172,203 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Speeding up the Wimbledon scraping job</h1>
-    <p>
-Over the past few days I've written <a href="http://www.markhneedham.com/blog/2015/06/26/r-ggplot-show-discrete-scale-even-with-no-value/">a few</a> <a href="http://www.markhneedham.com/blog/2015/06/25/r-scraping-wimbledon-draw-data/">blog</a> <a href="http://www.markhneedham.com/blog/2015/06/28/r-dplyr-update-rows-with-earlierprevious-rows-values/">posts</a> about a <a href="https://github.com/mneedham/neo4j-wimbledon/blob/master/wimbledon.csv">Wimbledon data set</a> I've been building and after running the scripts a few times I noticed that it was taking much longer to run that I expected.
-</p>
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">library</span>(rvest)
+<span style="color:#a6e22e">library</span>(dplyr)
 
-<p>
-To recap, I started out with the following function which takes in a URI and returns a data frame containing a row for each match:
-</p>
-
-<pre><code class="language-r">
-library(rvest)
-library(dplyr)
-
-scrape_matches1 = function(uri) {
-  matches = data.frame()
+scrape_matches1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(uri) {
+  matches <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>()
   
-  s = html(uri)
-  rows = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr&quot;)
-  i = 0
-  for(row in rows) {  
-    players = row %&gt;% html_nodes(&quot;td.day-table-name a&quot;)
-    seedings = row %&gt;% html_nodes(&quot;td.day-table-seed&quot;)
-    score = row %&gt;% html_node(&quot;td.day-table-score a&quot;)
-    flags = row %&gt;% html_nodes(&quot;td.day-table-flag img&quot;)
+  s <span style="color:#f92672">=</span> <span style="color:#a6e22e">html</span>(uri)
+  rows <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr&#34;</span>)
+  i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+  <span style="color:#a6e22e">for</span>(row in rows) {  
+    players <span style="color:#f92672">=</span> row <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;td.day-table-name a&#34;</span>)
+    seedings <span style="color:#f92672">=</span> row <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;td.day-table-seed&#34;</span>)
+    score <span style="color:#f92672">=</span> row <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_node</span>(<span style="color:#e6db74">&#34;td.day-table-score a&#34;</span>)
+    flags <span style="color:#f92672">=</span> row <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;td.day-table-flag img&#34;</span>)
     
-    if(!is.null(score)) {
-      player1 = players[1] %&gt;% html_text() %&gt;% str_trim()
-      seeding1 = ifelse(!is.na(seedings[1]), seedings[1] %&gt;% html_node(&quot;span&quot;) %&gt;% html_text() %&gt;% str_trim(), NA)
-      flag1 = flags[1] %&gt;% html_attr(&quot;alt&quot;)
+    <span style="color:#a6e22e">if</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.null</span>(score)) {
+      player1 <span style="color:#f92672">=</span> players[1] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()
+      seeding1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(seedings[1]), seedings[1] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_node</span>(<span style="color:#e6db74">&#34;span&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>(), <span style="color:#66d9ef">NA</span>)
+      flag1 <span style="color:#f92672">=</span> flags[1] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_attr</span>(<span style="color:#e6db74">&#34;alt&#34;</span>)
       
-      player2 = players[2] %&gt;% html_text() %&gt;% str_trim()
-      seeding2 = ifelse(!is.na(seedings[2]), seedings[2] %&gt;% html_node(&quot;span&quot;) %&gt;% html_text() %&gt;% str_trim(), NA)
-      flag2 = flags[2] %&gt;% html_attr(&quot;alt&quot;)
+      player2 <span style="color:#f92672">=</span> players[2] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()
+      seeding2 <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(seedings[2]), seedings[2] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_node</span>(<span style="color:#e6db74">&#34;span&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>(), <span style="color:#66d9ef">NA</span>)
+      flag2 <span style="color:#f92672">=</span> flags[2] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_attr</span>(<span style="color:#e6db74">&#34;alt&#34;</span>)
       
-      matches = rbind(data.frame(winner = player1, 
-                                 winner_seeding = seeding1, 
-                                 winner_flag = flag1,
-                                 loser = player2, 
-                                 loser_seeding = seeding2,
-                                 loser_flag = flag2,
-                                 score = score %&gt;% html_text() %&gt;% str_trim(),
-                                 round = round), matches)      
+      matches <span style="color:#f92672">=</span> <span style="color:#a6e22e">rbind</span>(<span style="color:#a6e22e">data.frame</span>(winner <span style="color:#f92672">=</span> player1, 
+                                 winner_seeding <span style="color:#f92672">=</span> seeding1, 
+                                 winner_flag <span style="color:#f92672">=</span> flag1,
+                                 loser <span style="color:#f92672">=</span> player2, 
+                                 loser_seeding <span style="color:#f92672">=</span> seeding2,
+                                 loser_flag <span style="color:#f92672">=</span> flag2,
+                                 score <span style="color:#f92672">=</span> score <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>(),
+                                 round <span style="color:#f92672">=</span> round), matches)      
     } else {
-      round = row %&gt;% html_node(&quot;th&quot;) %&gt;% html_text()
+      round <span style="color:#f92672">=</span> row <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_node</span>(<span style="color:#e6db74">&#34;th&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>()
     }
   } 
-  return(matches)
+  <span style="color:#a6e22e">return</span>(matches)
 }
-</code></pre>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+matches1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">scrape_matches1</span>(<span style="color:#e6db74">&#34;http://www.atpworldtour.com/en/scores/archive/wimbledon/540/2014/results&#34;</span>)
 
-<p>Let's run it to get an idea of the data that it returns:</p>
-
-<pre><code class="language-r">
-matches1 = scrape_matches1(&quot;http://www.atpworldtour.com/en/scores/archive/wimbledon/540/2014/results&quot;)
-
-&gt; matches1 %&gt;% filter(round %in% c(&quot;Finals&quot;, &quot;Semi-Finals&quot;, &quot;Quarter-Finals&quot;))
+<span style="color:#f92672">&gt;</span> matches1 <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(round <span style="color:#f92672">%in%</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;Finals&#34;</span>, <span style="color:#e6db74">&#34;Semi-Finals&#34;</span>, <span style="color:#e6db74">&#34;Quarter-Finals&#34;</span>))
            winner winner_seeding winner_flag           loser loser_seeding loser_flag            score          round
-1    Milos Raonic            (8)         CAN    Nick Kyrgios          (WC)        AUS    674 62 64 764 Quarter-Finals
-2   Roger Federer            (4)         SUI   Stan Wawrinka           (5)        SUI     36 765 64 64 Quarter-Finals
-3 Grigor Dimitrov           (11)         BUL     Andy Murray           (3)        GBR        61 764 62 Quarter-Finals
-4  Novak Djokovic            (1)         SRB     Marin Cilic          (26)        CRO  61 36 674 62 62 Quarter-Finals
-5   Roger Federer            (4)         SUI    Milos Raonic           (8)        CAN         64 64 64    Semi-Finals
-6  Novak Djokovic            (1)         SRB Grigor Dimitrov          (11)        BUL    64 36 762 767    Semi-Finals
-7  Novak Djokovic            (1)         SRB   Roger Federer           (4)        SUI 677 64 764 57 64         Finals
-</code></pre>
-
-<p>As I mentioned, it's quite slow but I thought I'd wrap it in <cite>system.time</cite> so I could see exactly how long it was taking:
-</p>
-
-<pre><code class="language-r">
-&gt; system.time(scrape_matches1(&quot;http://www.atpworldtour.com/en/scores/archive/wimbledon/540/2014/results&quot;))
+<span style="color:#ae81ff">1</span>    Milos <span style="color:#a6e22e">Raonic            </span>(<span style="color:#ae81ff">8</span>)         CAN    Nick <span style="color:#a6e22e">Kyrgios          </span>(WC)        AUS    <span style="color:#ae81ff">674</span> <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">764</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">2</span>   Roger <span style="color:#a6e22e">Federer            </span>(<span style="color:#ae81ff">4</span>)         SUI   Stan <span style="color:#a6e22e">Wawrinka           </span>(<span style="color:#ae81ff">5</span>)        SUI     <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">765</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">3</span> Grigor <span style="color:#a6e22e">Dimitrov           </span>(<span style="color:#ae81ff">11</span>)         BUL     Andy <span style="color:#a6e22e">Murray           </span>(<span style="color:#ae81ff">3</span>)        GBR        <span style="color:#ae81ff">61</span> <span style="color:#ae81ff">764</span> <span style="color:#ae81ff">62</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">4</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>)         SRB     Marin <span style="color:#a6e22e">Cilic          </span>(<span style="color:#ae81ff">26</span>)        CRO  <span style="color:#ae81ff">61</span> <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">674</span> <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">62</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">5</span>   Roger <span style="color:#a6e22e">Federer            </span>(<span style="color:#ae81ff">4</span>)         SUI    Milos <span style="color:#a6e22e">Raonic           </span>(<span style="color:#ae81ff">8</span>)        CAN         <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span>    Semi<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">6</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>)         SRB Grigor <span style="color:#a6e22e">Dimitrov          </span>(<span style="color:#ae81ff">11</span>)        BUL    <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">762</span> <span style="color:#ae81ff">767</span>    Semi<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">7</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>)         SRB   Roger <span style="color:#a6e22e">Federer           </span>(<span style="color:#ae81ff">4</span>)        SUI <span style="color:#ae81ff">677</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">764</span> <span style="color:#ae81ff">57</span> <span style="color:#ae81ff">64</span>         Finals
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">system.time</span>(<span style="color:#a6e22e">scrape_matches1</span>(<span style="color:#e6db74">&#34;http://www.atpworldtour.com/en/scores/archive/wimbledon/540/2014/results&#34;</span>))
    user  system elapsed 
- 25.570   0.111  31.416 
-</code></pre>
-
-<p>About 30 seconds! The first thing I tried was downloading the file separately and running the function against the local file:</p>
-
-<pre><code class="language-r">
-&gt; system.time(scrape_matches1(&quot;data/raw/2014.html&quot;))
+ <span style="color:#ae81ff">25.570</span>   <span style="color:#ae81ff">0.111</span>  <span style="color:#ae81ff">31.416</span> 
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">system.time</span>(<span style="color:#a6e22e">scrape_matches1</span>(<span style="color:#e6db74">&#34;data/raw/2014.html&#34;</span>))
    user  system elapsed 
- 25.662   0.123  25.863
-</code></pre>
+ <span style="color:#ae81ff">25.662</span>   <span style="color:#ae81ff">0.123</span>  <span style="color:#ae81ff">25.863</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+matches2<span style="color:#f92672">=</span> <span style="color:#a6e22e">html</span>(<span style="color:#e6db74">&#34;data/raw/2014.html&#34;</span>) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">html_node</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent table.day-table&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_table</span>(header <span style="color:#f92672">=</span> <span style="color:#66d9ef">FALSE</span>) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">mutate</span>(X1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(X1 <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#66d9ef">NA</span>, X1)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">mutate</span>(round <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(<span style="color:#a6e22e">grepl</span>(<span style="color:#e6db74">&#34;\\([0-9]\\)|\\(&#34;</span>, X1), <span style="color:#66d9ef">NA</span>, X1)) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">mutate</span>(round <span style="color:#f92672">=</span> <span style="color:#a6e22e">na.locf</span>(round)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">filter</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(X8)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">select</span>(winner <span style="color:#f92672">=</span> X3, winner_seeding <span style="color:#f92672">=</span> X1, loser <span style="color:#f92672">=</span> X7, loser_seeding <span style="color:#f92672">=</span> X5, score <span style="color:#f92672">=</span> X8, round)
 
-<p>Hmmm, that's only saved us 5 seconds so the bottleneck must be somewhere else. Still there's no point making a HTTP request every time we run the script so we'll stick with the local file version.
-</p>
-
-<p>
-While browsing <a href="http://cran.r-project.org/web/packages/rvest/rvest.pdf">rvest's vignette</a> I noticed a function called <cite>html_table</cite> which I was curious about. I decided to try and replace some of my code with a call to that:
-</p>
-
-<pre><code class="language-r">
-matches2= html(&quot;data/raw/2014.html&quot;) %&gt;% 
-  html_node(&quot;div#scoresResultsContent table.day-table&quot;) %&gt;% html_table(header = FALSE) %&gt;% 
-  mutate(X1 = ifelse(X1 == &quot;&quot;, NA, X1)) %&gt;%
-  mutate(round = ifelse(grepl(&quot;\\([0-9]\\)|\\(&quot;, X1), NA, X1)) %&gt;% 
-  mutate(round = na.locf(round)) %&gt;%
-  filter(!is.na(X8)) %&gt;%
-  select(winner = X3, winner_seeding = X1, loser = X7, loser_seeding = X5, score = X8, round)
-
-&gt; matches2 %&gt;% filter(round %in% c(&quot;Finals&quot;, &quot;Semi-Finals&quot;, &quot;Quarter-Finals&quot;))
+<span style="color:#f92672">&gt;</span> matches2 <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(round <span style="color:#f92672">%in%</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;Finals&#34;</span>, <span style="color:#e6db74">&#34;Semi-Finals&#34;</span>, <span style="color:#e6db74">&#34;Quarter-Finals&#34;</span>))
            winner winner_seeding           loser loser_seeding            score          round
-1  Novak Djokovic            (1)   Roger Federer           (4) 677 64 764 57 64         Finals
-2  Novak Djokovic            (1) Grigor Dimitrov          (11)    64 36 762 767    Semi-Finals
-3   Roger Federer            (4)    Milos Raonic           (8)         64 64 64    Semi-Finals
-4  Novak Djokovic            (1)     Marin Cilic          (26)  61 36 674 62 62 Quarter-Finals
-5 Grigor Dimitrov           (11)     Andy Murray           (3)        61 764 62 Quarter-Finals
-6   Roger Federer            (4)   Stan Wawrinka           (5)     36 765 64 64 Quarter-Finals
-7    Milos Raonic            (8)    Nick Kyrgios          (WC)    674 62 64 764 Quarter-Finals
-</code></pre>
-
-<p>I had to do some slightly clever stuff to get the 'round' column into shape using zoo's <cite>na.locf</cite> function which I <a href="http://www.markhneedham.com/blog/2015/06/28/r-dplyr-update-rows-with-earlierprevious-rows-values/">wrote about previously.</a></p>
-
-<p>
-Unfortunately I couldn't work out how to extract the flag with this version - that value is hidden in the 'alt' tag of an img and presumably <cite>html_table</cite> is just grabbing the text value of each cell. This version is much quicker though!
-</p>
-
-<pre><code class="language-r">
-system.time(html(&quot;data/raw/2014.html&quot;) %&gt;% 
-  html_node(&quot;div#scoresResultsContent table.day-table&quot;) %&gt;% html_table(header = FALSE) %&gt;% 
-  mutate(X1 = ifelse(X1 == &quot;&quot;, NA, X1)) %&gt;%
-  mutate(round = ifelse(grepl(&quot;\\([0-9]\\)|\\(&quot;, X1), NA, X1)) %&gt;% 
-  mutate(round = na.locf(round)) %&gt;%
-  filter(!is.na(X8)) %&gt;%
-  select(winner = X3, winner_seeding = X1, loser = X7, loser_seeding = X5, score = X8, round))
+<span style="color:#ae81ff">1</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>)   Roger <span style="color:#a6e22e">Federer           </span>(<span style="color:#ae81ff">4</span>) <span style="color:#ae81ff">677</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">764</span> <span style="color:#ae81ff">57</span> <span style="color:#ae81ff">64</span>         Finals
+<span style="color:#ae81ff">2</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>) Grigor <span style="color:#a6e22e">Dimitrov          </span>(<span style="color:#ae81ff">11</span>)    <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">762</span> <span style="color:#ae81ff">767</span>    Semi<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">3</span>   Roger <span style="color:#a6e22e">Federer            </span>(<span style="color:#ae81ff">4</span>)    Milos <span style="color:#a6e22e">Raonic           </span>(<span style="color:#ae81ff">8</span>)         <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span>    Semi<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">4</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>)     Marin <span style="color:#a6e22e">Cilic          </span>(<span style="color:#ae81ff">26</span>)  <span style="color:#ae81ff">61</span> <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">674</span> <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">62</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">5</span> Grigor <span style="color:#a6e22e">Dimitrov           </span>(<span style="color:#ae81ff">11</span>)     Andy <span style="color:#a6e22e">Murray           </span>(<span style="color:#ae81ff">3</span>)        <span style="color:#ae81ff">61</span> <span style="color:#ae81ff">764</span> <span style="color:#ae81ff">62</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">6</span>   Roger <span style="color:#a6e22e">Federer            </span>(<span style="color:#ae81ff">4</span>)   Stan <span style="color:#a6e22e">Wawrinka           </span>(<span style="color:#ae81ff">5</span>)     <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">765</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">7</span>    Milos <span style="color:#a6e22e">Raonic            </span>(<span style="color:#ae81ff">8</span>)    Nick <span style="color:#a6e22e">Kyrgios          </span>(WC)    <span style="color:#ae81ff">674</span> <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">764</span> Quarter<span style="color:#f92672">-</span>Finals
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">system.time</span>(<span style="color:#a6e22e">html</span>(<span style="color:#e6db74">&#34;data/raw/2014.html&#34;</span>) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">html_node</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent table.day-table&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_table</span>(header <span style="color:#f92672">=</span> <span style="color:#66d9ef">FALSE</span>) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">mutate</span>(X1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(X1 <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#66d9ef">NA</span>, X1)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">mutate</span>(round <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(<span style="color:#a6e22e">grepl</span>(<span style="color:#e6db74">&#34;\\([0-9]\\)|\\(&#34;</span>, X1), <span style="color:#66d9ef">NA</span>, X1)) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">mutate</span>(round <span style="color:#f92672">=</span> <span style="color:#a6e22e">na.locf</span>(round)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">filter</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(X8)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">select</span>(winner <span style="color:#f92672">=</span> X3, winner_seeding <span style="color:#f92672">=</span> X1, loser <span style="color:#f92672">=</span> X7, loser_seeding <span style="color:#f92672">=</span> X5, score <span style="color:#f92672">=</span> X8, round))
 
    user  system elapsed 
-  0.545   0.002   0.548 
-</code></pre>
-
-<p>
-What I realised from writing this version is that I need to match all the columns with one call to <cite>html_nodes</cite> rather than getting the row and then each column in a loop. 
-</p>
-
-<p>
-I rewrote the function to do that:
-</p>
-
-<pre><code class="language-r">
-scrape_matches3 = function(uri) {
-  s = html(uri)
+  <span style="color:#ae81ff">0.545</span>   <span style="color:#ae81ff">0.002</span>   <span style="color:#ae81ff">0.548</span> 
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+scrape_matches3 <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(uri) {
+  s <span style="color:#f92672">=</span> <span style="color:#a6e22e">html</span>(uri)
   
-  players  = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr td.day-table-name a&quot;)
-  seedings = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr td.day-table-seed&quot;)
-  scores   = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr td.day-table-score a&quot;)
-  flags    = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr td.day-table-flag img&quot;) %&gt;% html_attr(&quot;alt&quot;) %&gt;% str_trim()
+  players  <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr td.day-table-name a&#34;</span>)
+  seedings <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr td.day-table-seed&#34;</span>)
+  scores   <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr td.day-table-score a&#34;</span>)
+  flags    <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr td.day-table-flag img&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_attr</span>(<span style="color:#e6db74">&#34;alt&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()
   
-  matches3 = data.frame(
-    winner         = sapply(seq(1,length(players),2),  function(idx) players[[idx]] %&gt;% html_text()),
-    winner_seeding = sapply(seq(1,length(seedings),2), function(idx) seedings[[idx]] %&gt;% html_text() %&gt;% str_trim()),
-    winner_flag    = sapply(seq(1,length(flags),2),    function(idx) flags[[idx]]),  
-    loser          = sapply(seq(2,length(players),2),  function(idx) players[[idx]] %&gt;% html_text()),
-    loser_seeding  = sapply(seq(2,length(seedings),2), function(idx) seedings[[idx]] %&gt;% html_text() %&gt;% str_trim()),
-    loser_flag     = sapply(seq(2,length(flags),2),    function(idx) flags[[idx]]),
-    score          = sapply(scores,                    function(score) score %&gt;% html_text() %&gt;% str_trim())
+  matches3 <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>(
+    winner         <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">1</span>,<span style="color:#a6e22e">length</span>(players),<span style="color:#ae81ff">2</span>),  <span style="color:#a6e22e">function</span>(idx) players[[idx]] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>()),
+    winner_seeding <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">1</span>,<span style="color:#a6e22e">length</span>(seedings),<span style="color:#ae81ff">2</span>), <span style="color:#a6e22e">function</span>(idx) seedings[[idx]] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()),
+    winner_flag    <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">1</span>,<span style="color:#a6e22e">length</span>(flags),<span style="color:#ae81ff">2</span>),    <span style="color:#a6e22e">function</span>(idx) flags[[idx]]),  
+    loser          <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">2</span>,<span style="color:#a6e22e">length</span>(players),<span style="color:#ae81ff">2</span>),  <span style="color:#a6e22e">function</span>(idx) players[[idx]] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>()),
+    loser_seeding  <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">2</span>,<span style="color:#a6e22e">length</span>(seedings),<span style="color:#ae81ff">2</span>), <span style="color:#a6e22e">function</span>(idx) seedings[[idx]] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()),
+    loser_flag     <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">2</span>,<span style="color:#a6e22e">length</span>(flags),<span style="color:#ae81ff">2</span>),    <span style="color:#a6e22e">function</span>(idx) flags[[idx]]),
+    score          <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(scores,                    <span style="color:#a6e22e">function</span>(score) score <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>())
   )
-  return(matches3)
+  <span style="color:#a6e22e">return</span>(matches3)
 }
-</code></pre>
-
-<p>Let's run and time that to check we're getting back the right results in a timely manner:</p>
-
-<pre><code class="language-r">
-&gt; matches3 %&gt;% sample_n(10)
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> matches3 <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sample_n</span>(<span style="color:#ae81ff">10</span>)
                    winner winner_seeding winner_flag               loser loser_seeding loser_flag         score
-70           David Ferrer            (7)         ESP Pablo Carreno Busta                      ESP  60 673 61 61
-128        Alex Kuznetsov           (26)         USA         Tim Smyczek           (3)        USA   46 63 63 63
-220   Rogerio Dutra Silva                        BRA   Kristijan Mesaros                      CRO         62 63
-83         Kevin Anderson           (20)         RSA        Aljaz Bedene          (LL)        GBR      63 75 62
-73          Kei Nishikori           (10)         JPN   Kenny De Schepper                      FRA     64 765 75
-56  Roberto Bautista Agut           (27)         ESP         Jan Hernych           (Q)        CZE   75 46 62 62
-138            Ante Pavic                        CRO        Marc Gicquel          (29)        FRA  46 63 765 64
-174             Tim Puetz                        GER     Ruben Bemelmans                      BEL         64 62
-103        Lleyton Hewitt                        AUS   Michal Przysiezny                      POL 62 6714 61 64
-35          Roger Federer            (4)         SUI       Gilles Muller           (Q)        LUX      63 75 63
+<span style="color:#ae81ff">70</span>           David <span style="color:#a6e22e">Ferrer            </span>(<span style="color:#ae81ff">7</span>)         ESP Pablo Carreno Busta                      ESP  <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">673</span> <span style="color:#ae81ff">61</span> <span style="color:#ae81ff">61</span>
+<span style="color:#ae81ff">128</span>        Alex <span style="color:#a6e22e">Kuznetsov           </span>(<span style="color:#ae81ff">26</span>)         USA         Tim <span style="color:#a6e22e">Smyczek           </span>(<span style="color:#ae81ff">3</span>)        USA   <span style="color:#ae81ff">46</span> <span style="color:#ae81ff">63</span> <span style="color:#ae81ff">63</span> <span style="color:#ae81ff">63</span>
+<span style="color:#ae81ff">220</span>   Rogerio Dutra Silva                        BRA   Kristijan Mesaros                      CRO         <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">63</span>
+<span style="color:#ae81ff">83</span>         Kevin <span style="color:#a6e22e">Anderson           </span>(<span style="color:#ae81ff">20</span>)         RSA        Aljaz <span style="color:#a6e22e">Bedene          </span>(LL)        GBR      <span style="color:#ae81ff">63</span> <span style="color:#ae81ff">75</span> <span style="color:#ae81ff">62</span>
+<span style="color:#ae81ff">73</span>          Kei <span style="color:#a6e22e">Nishikori           </span>(<span style="color:#ae81ff">10</span>)         JPN   Kenny De Schepper                      FRA     <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">765</span> <span style="color:#ae81ff">75</span>
+<span style="color:#ae81ff">56</span>  Roberto Bautista <span style="color:#a6e22e">Agut           </span>(<span style="color:#ae81ff">27</span>)         ESP         Jan <span style="color:#a6e22e">Hernych           </span>(Q)        CZE   <span style="color:#ae81ff">75</span> <span style="color:#ae81ff">46</span> <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">62</span>
+<span style="color:#ae81ff">138</span>            Ante Pavic                        CRO        Marc <span style="color:#a6e22e">Gicquel          </span>(<span style="color:#ae81ff">29</span>)        FRA  <span style="color:#ae81ff">46</span> <span style="color:#ae81ff">63</span> <span style="color:#ae81ff">765</span> <span style="color:#ae81ff">64</span>
+<span style="color:#ae81ff">174</span>             Tim Puetz                        GER     Ruben Bemelmans                      BEL         <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">62</span>
+<span style="color:#ae81ff">103</span>        Lleyton Hewitt                        AUS   Michal Przysiezny                      POL <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">6714</span> <span style="color:#ae81ff">61</span> <span style="color:#ae81ff">64</span>
+<span style="color:#ae81ff">35</span>          Roger <span style="color:#a6e22e">Federer            </span>(<span style="color:#ae81ff">4</span>)         SUI       Gilles <span style="color:#a6e22e">Muller           </span>(Q)        LUX      <span style="color:#ae81ff">63</span> <span style="color:#ae81ff">75</span> <span style="color:#ae81ff">63</span>
 
-&gt; system.time(scrape_matches3(&quot;data/raw/2014.html&quot;))
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">system.time</span>(<span style="color:#a6e22e">scrape_matches3</span>(<span style="color:#e6db74">&#34;data/raw/2014.html&#34;</span>))
    user  system elapsed 
-  0.815   0.006   0.827 
-</code></pre>
+  <span style="color:#ae81ff">0.815</span>   <span style="color:#ae81ff">0.006</span>   <span style="color:#ae81ff">0.827</span> 
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+raw_rounds <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;th&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>()
 
-<p>It's still quick - a bit slower than <cite>html_table</cite> but we can deal with that. As you can see, I also had to add some logic to separate the values for the winners and losers - the players, seeds, flags come back as as one big list. The odd rows represent the winner; the even rows the loser.</p>
+<span style="color:#f92672">&gt;</span> raw_rounds
+ [1] <span style="color:#e6db74">&#34;Finals&#34;</span>               <span style="color:#e6db74">&#34;Semi-Finals&#34;</span>          <span style="color:#e6db74">&#34;Quarter-Finals&#34;</span>       <span style="color:#e6db74">&#34;Round of 16&#34;</span>          <span style="color:#e6db74">&#34;Round of 32&#34;</span>         
+ [6] <span style="color:#e6db74">&#34;Round of 64&#34;</span>          <span style="color:#e6db74">&#34;Round of 128&#34;</span>         <span style="color:#e6db74">&#34;3rd Round Qualifying&#34;</span> <span style="color:#e6db74">&#34;2nd Round Qualifying&#34;</span> <span style="color:#e6db74">&#34;1st Round Qualifying&#34;</span>
 
-<p>Annoyingly we've now lost the 'round' column because that appears as a table heading so we can't extract it the same way. I ended up cheating a bit to get it to work by working out how many matches each round should contain and generated a vector with that number of entries:</p>
+rounds <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>( <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">6</span>, <span style="color:#a6e22e">function</span>(idx) <span style="color:#a6e22e">rep</span>(raw_rounds[[idx <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>]], <span style="color:#ae81ff">2</span> <span style="color:#f92672">**</span> idx)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">unlist</span>(),
+            <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">7</span><span style="color:#f92672">:</span><span style="color:#ae81ff">9</span>, <span style="color:#a6e22e">function</span>(idx) <span style="color:#a6e22e">rep</span>(raw_rounds[[idx <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>]], <span style="color:#ae81ff">2</span> <span style="color:#f92672">**</span> (idx <span style="color:#f92672">-</span> <span style="color:#ae81ff">3</span>))) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">unlist</span>())
 
-<pre><code class="language-r">
-raw_rounds = s %&gt;% html_nodes(&quot;th&quot;) %&gt;% html_text()
-
-&gt; raw_rounds
- [1] &quot;Finals&quot;               &quot;Semi-Finals&quot;          &quot;Quarter-Finals&quot;       &quot;Round of 16&quot;          &quot;Round of 32&quot;         
- [6] &quot;Round of 64&quot;          &quot;Round of 128&quot;         &quot;3rd Round Qualifying&quot; &quot;2nd Round Qualifying&quot; &quot;1st Round Qualifying&quot;
-
-rounds = c( sapply(0:6, function(idx) rep(raw_rounds[[idx + 1]], 2 ** idx)) %&gt;% unlist(),
-            sapply(7:9, function(idx) rep(raw_rounds[[idx + 1]], 2 ** (idx - 3))) %&gt;% unlist())
-
-&gt; rounds[1:10]
- [1] &quot;Finals&quot;         &quot;Semi-Finals&quot;    &quot;Semi-Finals&quot;    &quot;Quarter-Finals&quot; &quot;Quarter-Finals&quot; &quot;Quarter-Finals&quot; &quot;Quarter-Finals&quot;
- [8] &quot;Round of 16&quot;    &quot;Round of 16&quot;    &quot;Round of 16&quot;  
-</code></pre>
-
-<p>
-Let's put that code into the function and see if we end up with the same resulting data frame:
-</p>
-
-<pre><code class="language-r">
-scrape_matches4 = function(uri) {
-  s = html(uri)
+<span style="color:#f92672">&gt;</span> rounds[1<span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>]
+ [1] <span style="color:#e6db74">&#34;Finals&#34;</span>         <span style="color:#e6db74">&#34;Semi-Finals&#34;</span>    <span style="color:#e6db74">&#34;Semi-Finals&#34;</span>    <span style="color:#e6db74">&#34;Quarter-Finals&#34;</span> <span style="color:#e6db74">&#34;Quarter-Finals&#34;</span> <span style="color:#e6db74">&#34;Quarter-Finals&#34;</span> <span style="color:#e6db74">&#34;Quarter-Finals&#34;</span>
+ [8] <span style="color:#e6db74">&#34;Round of 16&#34;</span>    <span style="color:#e6db74">&#34;Round of 16&#34;</span>    <span style="color:#e6db74">&#34;Round of 16&#34;</span>  
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+scrape_matches4 <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(uri) {
+  s <span style="color:#f92672">=</span> <span style="color:#a6e22e">html</span>(uri)
   
-  players  = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr td.day-table-name a&quot;)
-  seedings = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr td.day-table-seed&quot;)
-  scores   = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr td.day-table-score a&quot;)
-  flags    = s %&gt;% html_nodes(&quot;div#scoresResultsContent tr td.day-table-flag img&quot;) %&gt;% html_attr(&quot;alt&quot;) %&gt;% str_trim()
+  players  <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr td.day-table-name a&#34;</span>)
+  seedings <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr td.day-table-seed&#34;</span>)
+  scores   <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr td.day-table-score a&#34;</span>)
+  flags    <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;div#scoresResultsContent tr td.day-table-flag img&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_attr</span>(<span style="color:#e6db74">&#34;alt&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()
   
-  raw_rounds = s %&gt;% html_nodes(&quot;th&quot;) %&gt;% html_text()
-  rounds = c( sapply(0:6, function(idx) rep(raw_rounds[[idx + 1]], 2 ** idx)) %&gt;% unlist(),
-              sapply(7:9, function(idx) rep(raw_rounds[[idx + 1]], 2 ** (idx - 3))) %&gt;% unlist())
+  raw_rounds <span style="color:#f92672">=</span> s <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_nodes</span>(<span style="color:#e6db74">&#34;th&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>()
+  rounds <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>( <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">6</span>, <span style="color:#a6e22e">function</span>(idx) <span style="color:#a6e22e">rep</span>(raw_rounds[[idx <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>]], <span style="color:#ae81ff">2</span> <span style="color:#f92672">**</span> idx)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">unlist</span>(),
+              <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">7</span><span style="color:#f92672">:</span><span style="color:#ae81ff">9</span>, <span style="color:#a6e22e">function</span>(idx) <span style="color:#a6e22e">rep</span>(raw_rounds[[idx <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>]], <span style="color:#ae81ff">2</span> <span style="color:#f92672">**</span> (idx <span style="color:#f92672">-</span> <span style="color:#ae81ff">3</span>))) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">unlist</span>())
   
-  matches4 = data.frame(
-    winner         = sapply(seq(1,length(players),2),  function(idx) players[[idx]] %&gt;% html_text()),
-    winner_seeding = sapply(seq(1,length(seedings),2), function(idx) seedings[[idx]] %&gt;% html_text() %&gt;% str_trim()),
-    winner_flag    = sapply(seq(1,length(flags),2),    function(idx) flags[[idx]]),  
-    loser          = sapply(seq(2,length(players),2),  function(idx) players[[idx]] %&gt;% html_text()),
-    loser_seeding  = sapply(seq(2,length(seedings),2), function(idx) seedings[[idx]] %&gt;% html_text() %&gt;% str_trim()),
-    loser_flag     = sapply(seq(2,length(flags),2),    function(idx) flags[[idx]]),
-    score          = sapply(scores,                    function(score) score %&gt;% html_text() %&gt;% str_trim()),
-    round          = rounds
+  matches4 <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>(
+    winner         <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">1</span>,<span style="color:#a6e22e">length</span>(players),<span style="color:#ae81ff">2</span>),  <span style="color:#a6e22e">function</span>(idx) players[[idx]] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>()),
+    winner_seeding <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">1</span>,<span style="color:#a6e22e">length</span>(seedings),<span style="color:#ae81ff">2</span>), <span style="color:#a6e22e">function</span>(idx) seedings[[idx]] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()),
+    winner_flag    <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">1</span>,<span style="color:#a6e22e">length</span>(flags),<span style="color:#ae81ff">2</span>),    <span style="color:#a6e22e">function</span>(idx) flags[[idx]]),  
+    loser          <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">2</span>,<span style="color:#a6e22e">length</span>(players),<span style="color:#ae81ff">2</span>),  <span style="color:#a6e22e">function</span>(idx) players[[idx]] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>()),
+    loser_seeding  <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">2</span>,<span style="color:#a6e22e">length</span>(seedings),<span style="color:#ae81ff">2</span>), <span style="color:#a6e22e">function</span>(idx) seedings[[idx]] <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()),
+    loser_flag     <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(<span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">2</span>,<span style="color:#a6e22e">length</span>(flags),<span style="color:#ae81ff">2</span>),    <span style="color:#a6e22e">function</span>(idx) flags[[idx]]),
+    score          <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(scores,                    <span style="color:#a6e22e">function</span>(score) score <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">html_text</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">str_trim</span>()),
+    round          <span style="color:#f92672">=</span> rounds
   )
-  return(matches4)
+  <span style="color:#a6e22e">return</span>(matches4)
 }
 
-matches4 = scrape_matches4(&quot;data/raw/2014.html&quot;)
+matches4 <span style="color:#f92672">=</span> <span style="color:#a6e22e">scrape_matches4</span>(<span style="color:#e6db74">&#34;data/raw/2014.html&#34;</span>)
 
-&gt; matches4 %&gt;% filter(round %in% c(&quot;Finals&quot;, &quot;Semi-Finals&quot;, &quot;Quarter-Finals&quot;))
+<span style="color:#f92672">&gt;</span> matches4 <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(round <span style="color:#f92672">%in%</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;Finals&#34;</span>, <span style="color:#e6db74">&#34;Semi-Finals&#34;</span>, <span style="color:#e6db74">&#34;Quarter-Finals&#34;</span>))
            winner winner_seeding winner_flag           loser loser_seeding loser_flag            score          round
-1  Novak Djokovic            (1)         SRB   Roger Federer           (4)        SUI 677 64 764 57 64         Finals
-2  Novak Djokovic            (1)         SRB Grigor Dimitrov          (11)        BUL    64 36 762 767    Semi-Finals
-3   Roger Federer            (4)         SUI    Milos Raonic           (8)        CAN         64 64 64    Semi-Finals
-4  Novak Djokovic            (1)         SRB     Marin Cilic          (26)        CRO  61 36 674 62 62 Quarter-Finals
-5 Grigor Dimitrov           (11)         BUL     Andy Murray           (3)        GBR        61 764 62 Quarter-Finals
-6   Roger Federer            (4)         SUI   Stan Wawrinka           (5)        SUI     36 765 64 64 Quarter-Finals
-7    Milos Raonic            (8)         CAN    Nick Kyrgios          (WC)        AUS    674 62 64 764 Quarter-Finals
-</code></pre>
-
-<p>We shouldn't have added much to the time but let's check:</p>
-
-<pre><code class="language-r">
-&gt; system.time(scrape_matches4(&quot;data/raw/2014.html&quot;))
+<span style="color:#ae81ff">1</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>)         SRB   Roger <span style="color:#a6e22e">Federer           </span>(<span style="color:#ae81ff">4</span>)        SUI <span style="color:#ae81ff">677</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">764</span> <span style="color:#ae81ff">57</span> <span style="color:#ae81ff">64</span>         Finals
+<span style="color:#ae81ff">2</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>)         SRB Grigor <span style="color:#a6e22e">Dimitrov          </span>(<span style="color:#ae81ff">11</span>)        BUL    <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">762</span> <span style="color:#ae81ff">767</span>    Semi<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">3</span>   Roger <span style="color:#a6e22e">Federer            </span>(<span style="color:#ae81ff">4</span>)         SUI    Milos <span style="color:#a6e22e">Raonic           </span>(<span style="color:#ae81ff">8</span>)        CAN         <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span>    Semi<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">4</span>  Novak <span style="color:#a6e22e">Djokovic            </span>(<span style="color:#ae81ff">1</span>)         SRB     Marin <span style="color:#a6e22e">Cilic          </span>(<span style="color:#ae81ff">26</span>)        CRO  <span style="color:#ae81ff">61</span> <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">674</span> <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">62</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">5</span> Grigor <span style="color:#a6e22e">Dimitrov           </span>(<span style="color:#ae81ff">11</span>)         BUL     Andy <span style="color:#a6e22e">Murray           </span>(<span style="color:#ae81ff">3</span>)        GBR        <span style="color:#ae81ff">61</span> <span style="color:#ae81ff">764</span> <span style="color:#ae81ff">62</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">6</span>   Roger <span style="color:#a6e22e">Federer            </span>(<span style="color:#ae81ff">4</span>)         SUI   Stan <span style="color:#a6e22e">Wawrinka           </span>(<span style="color:#ae81ff">5</span>)        SUI     <span style="color:#ae81ff">36</span> <span style="color:#ae81ff">765</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">64</span> Quarter<span style="color:#f92672">-</span>Finals
+<span style="color:#ae81ff">7</span>    Milos <span style="color:#a6e22e">Raonic            </span>(<span style="color:#ae81ff">8</span>)         CAN    Nick <span style="color:#a6e22e">Kyrgios          </span>(WC)        AUS    <span style="color:#ae81ff">674</span> <span style="color:#ae81ff">62</span> <span style="color:#ae81ff">64</span> <span style="color:#ae81ff">764</span> Quarter<span style="color:#f92672">-</span>Finals
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">system.time</span>(<span style="color:#a6e22e">scrape_matches4</span>(<span style="color:#e6db74">&#34;data/raw/2014.html&#34;</span>))
    user  system elapsed 
-  0.816   0.004   0.824 
-</code></pre>
-
-<p>Sweet. We've saved ourselves 29 seconds per page as long as the number of rounds stayed constant over the years. For the 10 years that I've looked at it has but I expect if you go back further the draw sizes will have been different and our script would break.
-</p>
-
-<p>For now though this will do!</p>
+  <span style="color:#ae81ff">0.816</span>   <span style="color:#ae81ff">0.004</span>   <span style="color:#ae81ff">0.824</span> 
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -459,7 +403,7 @@ matches4 = scrape_matches4(&quot;data/raw/2014.html&quot;)
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/06/29/r-speeding-up-the-wimbledon-scraping-job/&amp;title=R%3a%20Speeding%20up%20the%20Wimbledon%20scraping%20job&amp;summary=Over%20the%20past%20few%20days%20I%27ve%20written%20a%20few%20blog%20posts%20about%20a%20Wimbledon%20data%20set%20I%27ve%20been%20building%20and%20after%20running%20the%20scripts%20a%20few%20times%20I%20noticed%20that%20it%20was%20taking%20much%20longer%20to%20run%20that%20I%20expected.%20%20To%20recap%2c%20I%20started%20out%20with%20the%20following%20function%20which%20takes%20in%20a%20URI%20and%20returns%20a%20data%20frame%20containing%20a%20row%20for%20each%20match%3a%20library%28rvest%29%20library%28dplyr%29%20scrape_matches1%20%3d%20function%28uri%29%20%7b%20matches%20%3d%20data...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/06/29/r-speeding-up-the-wimbledon-scraping-job/&amp;title=R%3a%20Speeding%20up%20the%20Wimbledon%20scraping%20job&amp;summary=library%28rvest%29%20library%28dplyr%29%20scrape_matches1%20%3d%20function%28uri%29%20%7b%20matches%20%3d%20data.frame%28%29%20s%20%3d%20html%28uri%29%20rows%20%3d%20s%20%25%26gt%3b%25%20html_nodes%28%26%2334%3bdiv%23scoresResultsContent%20tr%26%2334%3b%29%20i%20%3d%200%20for%28row%20in%20rows%29%20%7b%20players%20%3d%20row%20%25%26gt%3b%25%20html_nodes%28%26%2334%3btd.day-table-name%20a%26%2334%3b%29%20seedings%20%3d%20row%20%25%26gt%3b%25%20html_nodes%28%26%2334%3btd.day-table-seed%26%2334%3b%29%20score%20%3d%20row%20%25%26gt%3b%25%20html_node%28%26%2334%3btd.day-table-score%20a%26%2334%3b%29%20flags%20%3d%20row%20%25%26gt%3b%25%20html_nodes%28%26%2334%3btd.day-table-flag%20img%26%2334%3b%29%20if%28%21is.null%28score%29%29%20%7b%20player1%20%3d%20players%5b1%5d%20%25%26gt%3b%25%20html_text%28%29%20%25%26gt%3b%25%20str_trim%28%29%20seeding1%20%3d%20ifelse%28%21is.na%28seedings%5b1%5d%29%2c%20seedings%5b1%5d%20%25%26gt%3b%25%20html_node%28%26%2334%3bspan%26%2334%3b%29%20%25%26gt%3b%25%20html_text%28%29%20%25%26gt%3b%25%20str_trim%28%29%2c%20NA%29%20flag1%20%3d%20flags%5b1%5d%20%25%26gt%3b%25%20html_attr%28%26%2334%3balt%26%2334%3b%29%20player2%20%3d%20players%5b2%5d%20%25%26gt%3b%25%20html_text%28%29%20%25%26gt%3b%25%20str_trim%28%29%20seeding2%20%3d%20ifelse%28%21..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

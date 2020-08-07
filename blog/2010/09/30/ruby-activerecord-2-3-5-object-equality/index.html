@@ -67,10 +67,8 @@ We needed to check that we were referring to the same user for one piece of func
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-09-30",
-        "description": "We learnt something interesting about the equality of ActiveRecord objects today while comparing two user objects - one which was being provided to our application by Warden and the other that we&rsquo;d retrieved by a &lsquo;User.find&rsquo; call.
-Both objects referred to the same user in the database but were different instances in memory.
-We needed to check that we were referring to the same user for one piece of functionality and were therefore able to make use of the &lsquo;==&rsquo; method defined on ActiveRecord::Base which is defined in the documentation like so:",
-        "wordCount": 558
+        "description": "We learnt something interesting about the equality of ActiveRecord objects today while comparing two user objects - one which was being provided to our application by Warden and the other that we\x26rsquo;d retrieved by a \x26lsquo;User.find\x26rsquo; call.\nBoth objects referred to the same user in the database but were different instances in memory.\nWe needed to check that we were referring to the same user for one piece of functionality and were therefore able to make use of the \x26lsquo;==\x26rsquo; method defined on ActiveRecord::Base which is defined in the documentation like so:",
+        "wordCount":  534 
     }
     </script>
     
@@ -182,77 +180,53 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Ruby: ActiveRecord 2.3.5 object equality</h1>
     <p>We learnt something interesting about the equality of ActiveRecord objects today while comparing two user objects - one which was being provided to our application by Warden and the other that we&rsquo;d retrieved by a &lsquo;User.find&rsquo; call.</p>
-
 <p>Both objects referred to the same user in the database but were different instances in memory.</p>
-
-<p>We needed to check that we were referring to the same user for one piece of functionality and were therefore able to make use of the &lsquo;==&rsquo; method defined on ActiveRecord::Base which is <a href="http://api.rubyonrails.org/classes/ActiveRecord/Base.html">defined in the documentation like so</a>:</p>
-
-<blockquote>
-Public Instance methods
-==(comparison_object)
-Returns true if the comparison_object is the same object, or is of the same type and has the same id.
-</blockquote>
-
+<p>We needed to check that we were referring to the same user for one piece of functionality and were therefore able to make use of the &lsquo;==&rsquo; method defined on ActiveRecord::Base which is <!-- raw HTML omitted -->defined in the documentation like so<!-- raw HTML omitted -->:</p>
+<!-- raw HTML omitted -->
 <p>This worked fine but when trying to write a test around this code we found it quite difficult.</p>
-
 <p>We wanted to simulate the fact that we had two objects in our application that referred to the same database entry but not the same object.</p>
-
 <p>Our initial approach was something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+describe <span style="color:#e6db74">&#34;ActiveRecord::Base Equality&#34;</span> <span style="color:#66d9ef">do</span>
+	it <span style="color:#e6db74">&#34;should let us have two objects which both point to the same user in the database&#34;</span> <span style="color:#66d9ef">do</span>
+		<span style="color:#75715e"># Create a user in the database with Factory Girl</span>
+		<span style="color:#66d9ef">Factory</span>(<span style="color:#e6db74">:user_with_x_role</span>, <span style="color:#e6db74">:id</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">15</span> )
 
-<pre><code class="language-ruby">
-describe &quot;ActiveRecord::Base Equality&quot; do
-	it &quot;should let us have two objects which both point to the same user in the database&quot; do
-		# Create a user in the database with Factory Girl
-		Factory(:user_with_x_role, :id =&gt; 15 )
+		u <span style="color:#f92672">=</span> <span style="color:#66d9ef">User</span><span style="color:#f92672">.</span>find <span style="color:#ae81ff">15</span>
+		u2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">User</span><span style="color:#f92672">.</span>find <span style="color:#ae81ff">15</span>
 
-		u = User.find 15
-		u2 = User.find 15
-
-		# the rest of our test where we'd insert u and u2 into the application
-	end
-end
-</code></pre>
-
-<p>Unfortunately when we ran the test we found that if we mutated &lsquo;u&rsquo; in the production code then the value of &lsquo;u2&rsquo; was also being mutated so they were somehow both referring to the same instance.</p>
-
+		<span style="color:#75715e"># the rest of our test where we&#39;d insert u and u2 into the application</span>
+	<span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></div><p>Unfortunately when we ran the test we found that if we mutated &lsquo;u&rsquo; in the production code then the value of &lsquo;u2&rsquo; was also being mutated so they were somehow both referring to the same instance.</p>
 <p>Our second attempt was to create a clone of the object so that they wouldn&rsquo;t be referring to the same instance:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+describe <span style="color:#e6db74">&#34;ActiveRecord::Base Equality&#34;</span> <span style="color:#66d9ef">do</span>
+	it <span style="color:#e6db74">&#34;should let us have two objects which both point to the same user in the database&#34;</span> <span style="color:#66d9ef">do</span>
+		<span style="color:#75715e"># Create a user in the database with Factory Girl</span>
+		<span style="color:#66d9ef">Factory</span>(<span style="color:#e6db74">:user_with_x_role</span>, <span style="color:#e6db74">:id</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">15</span> )
 
-<pre><code class="language-ruby">
-describe &quot;ActiveRecord::Base Equality&quot; do
-	it &quot;should let us have two objects which both point to the same user in the database&quot; do
-		# Create a user in the database with Factory Girl
-		Factory(:user_with_x_role, :id =&gt; 15 )
+		u <span style="color:#f92672">=</span> <span style="color:#66d9ef">User</span><span style="color:#f92672">.</span>find <span style="color:#ae81ff">15</span>
 
-		u = User.find 15
+		u2 <span style="color:#f92672">=</span> u<span style="color:#f92672">.</span>clone
+		u2<span style="color:#f92672">.</span>id <span style="color:#f92672">=</span> u<span style="color:#f92672">.</span>id
 
-		u2 = u.clone
-		u2.id = u.id
-
-		# the rest of our test where we'd insert u and u2 into the application
-	end
-end
-</code></pre>
-
-<p>&lsquo;clone&rsquo; creates a copy of the object but removes the id. Since we want both our objects to have the same id so that they&rsquo;ll be recognised as being equal we set the id on the next line.</p>
-
+		<span style="color:#75715e"># the rest of our test where we&#39;d insert u and u2 into the application</span>
+	<span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></div><p>&lsquo;clone&rsquo; creates a copy of the object but removes the id. Since we want both our objects to have the same id so that they&rsquo;ll be recognised as being equal we set the id on the next line.</p>
 <p>Unfortunately we now found that the two objects weren&rsquo;t being considered equal even though they were both of the same type and had the same id as per the documentation.</p>
-
-<p>After a bit of binging with Google I came across an interesting post by <a href="https://rails.lighthouseapp.com/projects/8994/tickets/3120-activerecordbase-is-non-commutative-when-comparing-a-loaded-versus-initialized-object">fritz describing the code of &lsquo;==&rsquo;</a>:</p>
-
-<pre><code class="language-ruby">
-      # Returns true if the +comparison_object+ is the same object, or is of the same type and has the same id.
-      def ==(comparison_object)
-        comparison_object.equal?(self) ||
-          (comparison_object.instance_of?(self.class) &amp;&amp;
-            comparison_object.id == id &amp;&amp;
-            !comparison_object.new_record?)
-      end
-</code></pre>
-
-<p>In fact the &lsquo;==&rsquo; code also takes into account whether or not the object passed to &lsquo;==&rsquo; is new or not and since in our code we had &lsquo;u == u2&rsquo; it would return false.</p>
-
+<p>After a bit of binging with Google I came across an interesting post by <!-- raw HTML omitted -->fritz describing the code of &lsquo;=='<!-- raw HTML omitted -->:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+      <span style="color:#75715e"># Returns true if the +comparison_object+ is the same object, or is of the same type and has the same id.</span>
+      <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">==</span>(comparison_object)
+        comparison_object<span style="color:#f92672">.</span>equal?(self) <span style="color:#f92672">||</span>
+          (comparison_object<span style="color:#f92672">.</span>instance_of?(self<span style="color:#f92672">.</span>class) <span style="color:#f92672">&amp;&amp;</span>
+            comparison_object<span style="color:#f92672">.</span>id <span style="color:#f92672">==</span> id <span style="color:#f92672">&amp;&amp;</span>
+            <span style="color:#f92672">!</span>comparison_object<span style="color:#f92672">.</span>new_record?)
+      <span style="color:#66d9ef">end</span>
+</code></pre></div><p>In fact the &lsquo;==&rsquo; code also takes into account whether or not the object passed to &lsquo;==&rsquo; is new or not and since in our code we had &lsquo;u == u2&rsquo; it would return false.</p>
 <p>If we had &lsquo;u2 == u&rsquo; then it would have passed!</p>
-
 <p>Our current solution to the problem is to compare the ids of the objects in our code rather than the objects themselves but fritz also describes a way to monkey patch the &lsquo;==&rsquo; method to make it a bit more useful.</p>
 
     <div id="social-bar">

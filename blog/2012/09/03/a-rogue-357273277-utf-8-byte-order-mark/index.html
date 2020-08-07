@@ -62,17 +62,14 @@ require &#39;rubygems&#39; require &#39;fastercsv&#39; things = FasterCSV." />
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "A rogue &#34;\357\273\277&#34; (UTF-8 byte order mark)",
+        "headline": "A rogue \x22\\357\\273\\277\x22 (UTF-8 byte order mark)",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-09-03",
-        "description": "We&rsquo;ve been loading some data into neo4j from a CSV file - creating one node per row and using the value in the first column as the index lookup for the node.
-Unfortunately the index lookup wasn&rsquo;t working for the first row but was for every other row.
-By coincidence we started saving each row into a hash map and were then able to see what was going wrong:
-require 'rubygems' require 'fastercsv' things = FasterCSV.",
-        "wordCount": 308
+        "description": "We\x26rsquo;ve been loading some data into neo4j from a CSV file - creating one node per row and using the value in the first column as the index lookup for the node.\nUnfortunately the index lookup wasn\x26rsquo;t working for the first row but was for every other row.\nBy coincidence we started saving each row into a hash map and were then able to see what was going wrong:\nrequire \x26#39;rubygems\x26#39; require \x26#39;fastercsv\x26#39; things = FasterCSV.",
+        "wordCount":  267 
     }
     </script>
     
@@ -182,69 +179,45 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">A rogue &#34;\357\273\277&#34; (UTF-8 byte order mark)</h1>
     <p>We&rsquo;ve been loading some data into neo4j from a CSV file - creating one node per row and using the value in the first column as the index lookup for the node.</p>
-
 <p>Unfortunately the index lookup wasn&rsquo;t working for the first row but was for every other row.</p>
-
 <p>By coincidence we started saving each row into a hash map and were then able to see what was going wrong:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+require <span style="color:#e6db74">&#39;rubygems&#39;</span>
+require <span style="color:#e6db74">&#39;fastercsv&#39;</span>
 
-<pre><code class="language-ruby">
-require 'rubygems'
-require 'fastercsv'
+things <span style="color:#f92672">=</span> <span style="color:#66d9ef">FasterCSV</span><span style="color:#f92672">.</span>read(<span style="color:#e6db74">&#34;things.csv&#34;</span>, <span style="color:#e6db74">:col_sep</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;|&#34;</span>)
 
-things = FasterCSV.read(&quot;things.csv&quot;, :col_sep =&gt; &quot;|&quot;)
-
-saved_things = {}
-things do |row|
-  saved_things[row[0]] = row[1]
-end
+saved_things <span style="color:#f92672">=</span> {}
+things <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>row<span style="color:#f92672">|</span>
+  saved_things<span style="color:#f92672">[</span>row<span style="color:#f92672">[</span><span style="color:#ae81ff">0</span><span style="color:#f92672">]]</span> <span style="color:#f92672">=</span> row<span style="color:#f92672">[</span><span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>
+<span style="color:#66d9ef">end</span>
 
 p saved_things
-</code></pre>
-
-<p>This is what we saw when we ran the script:</p>
-
-<pre><code class="language-text">
-{&quot;\357\273\2771&quot;=&gt;&quot;Thing1&quot;, &quot;2&quot; =&gt; &quot;Thing2&quot;}
-</code></pre>
-
-<p>A bit of googling suggests that &ldquo;\357\273\277&rdquo; <a href="http://www.highdots.com/forums/macromedia-dreamweaver/357-273-277-characters-placed-154281.html">represents a UTF-8 byte order mark</a> which apparently <a href="http://en.wikipedia.org/wiki/Byte_order_mark">isn&rsquo;t actually needed anyway</a>:</p>
-
-<blockquote>
-The Unicode Standard does permit the BOM in UTF-8, but does not require or recommend its use. Byte order has no meaning in UTF-8 so in UTF-8 the BOM serves only to identify a text stream or file as UTF-8.
-</blockquote>
-
+</code></pre></div><p>This is what we saw when we ran the script:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+{&#34;\357\273\2771&#34;=&gt;&#34;Thing1&#34;, &#34;2&#34; =&gt; &#34;Thing2&#34;}
+</code></pre></div><p>A bit of googling suggests that &ldquo;\357\273\277&rdquo; <!-- raw HTML omitted -->represents a UTF-8 byte order mark<!-- raw HTML omitted --> which apparently <!-- raw HTML omitted -->isn&rsquo;t actually needed anyway<!-- raw HTML omitted -->:</p>
+<!-- raw HTML omitted -->
 <p>We&rsquo;re not converting the CSV file back into any other format so the following awk command can be used to cleanup it up:</p>
-
-<pre><code class="language-text">
-awk '{if(NR==1)sub(/^\xef\xbb\xbf/,&quot;&quot;);print}' things.csv &gt; things.nobom.csv
-</code></pre>
-
-<p>If we use the hexdump tool we can see that the BOM has been removed:</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+awk &#39;{if(NR==1)sub(/^\xef\xbb\xbf/,&#34;&#34;);print}&#39; things.csv &gt; things.nobom.csv
+</code></pre></div><p>If we use the hexdump tool we can see that the BOM has been removed:</p>
 <p>Before:</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 $ hexdump things.csv
 0000000 ef bb bf 31 7c 50 72 69 6d 61 72 69 65 73 0d 0a
 ...
-</code></pre>
-
-<p>After:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>After:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 hexdump things.nobom.csv
 0000000 31 7c 50 72 69 6d 61 72 69 65 73 0d 0a 31 30 7c
-</code></pre>
-
-<p>I was initially curious why Ruby and the hexdump were printing out different values but it&rsquo;s just a case of Ruby showing the Octal version of the BOM as compared to the Hexidecimal version. The values translate like so:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>I was initially curious why Ruby and the hexdump were printing out different values but it&rsquo;s just a case of Ruby showing the Octal version of the BOM as compared to the Hexidecimal version. The values translate like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 Octal | Hexadecimal | Decimal
 357   | EF          | 239
 273   | BB          | 187
 277   | BF          | 191
-</code></pre>
-
+</code></pre></div>
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -278,7 +251,7 @@ Octal | Hexadecimal | Decimal
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/09/03/a-rogue-357273277-utf-8-byte-order-mark/&amp;title=A%20rogue%20%22%5c357%5c273%5c277%22%20%28UTF-8%20byte%20order%20mark%29&amp;summary=We%26rsquo%3bve%20been%20loading%20some%20data%20into%20neo4j%20from%20a%20CSV%20file%20-%20creating%20one%20node%20per%20row%20and%20using%20the%20value%20in%20the%20first%20column%20as%20the%20index%20lookup%20for%20the%20node.%0aUnfortunately%20the%20index%20lookup%20wasn%26rsquo%3bt%20working%20for%20the%20first%20row%20but%20was%20for%20every%20other%20row.%0aBy%20coincidence%20we%20started%20saving%20each%20row%20into%20a%20hash%20map%20and%20were%20then%20able%20to%20see%20what%20was%20going%20wrong%3a%0arequire%20%27rubygems%27%20require%20%27fastercsv%27%20things%20%3d%20FasterCSV...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/09/03/a-rogue-357273277-utf-8-byte-order-mark/&amp;title=A%20rogue%20%22%5c357%5c273%5c277%22%20%28UTF-8%20byte%20order%20mark%29&amp;summary=We%26rsquo%3bve%20been%20loading%20some%20data%20into%20neo4j%20from%20a%20CSV%20file%20-%20creating%20one%20node%20per%20row%20and%20using%20the%20value%20in%20the%20first%20column%20as%20the%20index%20lookup%20for%20the%20node.%0aUnfortunately%20the%20index%20lookup%20wasn%26rsquo%3bt%20working%20for%20the%20first%20row%20but%20was%20for%20every%20other%20row.%0aBy%20coincidence%20we%20started%20saving%20each%20row%20into%20a%20hash%20map%20and%20were%20then%20able%20to%20see%20what%20was%20going%20wrong%3a%0arequire%20%26%2339%3brubygems%26%2339%3b%20require%20%26%2339%3bfastercsv%26%2339%3b%20things%20%3d%20FasterCSV...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

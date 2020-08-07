@@ -25,7 +25,8 @@
         
           <meta name="twitter:description" content="We recently had a requirement to delete an item based on user input and wanting to adhere to the &lsquo;RESTful&rsquo; approach that Rails encourages we therefore needed to fake a HTTP Delete method request.
 The documentation talks a little about this:
- The Rails framework encourages RESTful design of your applications, which means you’ll be making a lot of “PUT” and “DELETE” requests (besides “GET” and “POST”). However, most browsers don’t support methods other than “GET” and “POST” when it comes to submitting forms." />
+Rails works around this issue by emulating other methods over POST with a hidden input named &ldquo;_method&rdquo;, which is set to reflect the desired method:
+The example provided is for the &lsquo;form_tag&rsquo; helper method where you just need to pass a hash containing an entry with a key &lsquo;:method&rsquo; and value &lsquo;delete&rsquo;." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/09/20/rails-faking-a-delete-method-with-form_for/" />
 
@@ -38,7 +39,8 @@ The documentation talks a little about this:
     
         <meta name="description" content="We recently had a requirement to delete an item based on user input and wanting to adhere to the &lsquo;RESTful&rsquo; approach that Rails encourages we therefore needed to fake a HTTP Delete method request.
 The documentation talks a little about this:
- The Rails framework encourages RESTful design of your applications, which means you’ll be making a lot of “PUT” and “DELETE” requests (besides “GET” and “POST”). However, most browsers don’t support methods other than “GET” and “POST” when it comes to submitting forms." />
+Rails works around this issue by emulating other methods over POST with a hidden input named &ldquo;_method&rdquo;, which is set to reflect the desired method:
+The example provided is for the &lsquo;form_tag&rsquo; helper method where you just need to pass a hash containing an entry with a key &lsquo;:method&rsquo; and value &lsquo;delete&rsquo;." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -61,16 +63,14 @@ The documentation talks a little about this:
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "Rails: Faking a delete method with &#39;form_for&#39;",
+        "headline": "Rails: Faking a delete method with \x27form_for\x27",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-09-20",
-        "description": "We recently had a requirement to delete an item based on user input and wanting to adhere to the &lsquo;RESTful&rsquo; approach that Rails encourages we therefore needed to fake a HTTP Delete method request.
-The documentation talks a little about this:
- The Rails framework encourages RESTful design of your applications, which means you’ll be making a lot of “PUT” and “DELETE” requests (besides “GET” and “POST”). However, most browsers don’t support methods other than “GET” and “POST” when it comes to submitting forms.",
-        "wordCount": 368
+        "description": "We recently had a requirement to delete an item based on user input and wanting to adhere to the \x26lsquo;RESTful\x26rsquo; approach that Rails encourages we therefore needed to fake a HTTP Delete method request.\nThe documentation talks a little about this:\nRails works around this issue by emulating other methods over POST with a hidden input named \x26ldquo;_method\x26rdquo;, which is set to reflect the desired method:\nThe example provided is for the \x26lsquo;form_tag\x26rsquo; helper method where you just need to pass a hash containing an entry with a key \x26lsquo;:method\x26rsquo; and value \x26lsquo;delete\x26rsquo;.",
+        "wordCount":  326 
     }
     </script>
     
@@ -182,56 +182,39 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Rails: Faking a delete method with &#39;form_for&#39;</h1>
     <p>We recently had a requirement to delete an item based on user input and wanting to adhere to the &lsquo;RESTful&rsquo; approach that Rails encourages we therefore needed to fake a HTTP Delete method request.</p>
-
-<p>The <a href="http://guides.rubyonrails.org/form_helpers.html#how-do-forms-with-put-or-delete-methods-work">documentation talks a little about this</a>:</p>
-
-<blockquote>
-The Rails framework encourages RESTful design of your applications, which means you’ll be making a lot of “PUT” and “DELETE” requests (besides “GET” and “POST”). However, most browsers don’t support methods other than “GET” and “POST” when it comes to submitting forms.
-
-Rails works around this issue by emulating other methods over POST with a hidden input named "_method", which is set to reflect the desired method:
-</blockquote>
-
+<p>The <!-- raw HTML omitted -->documentation talks a little about this<!-- raw HTML omitted -->:</p>
+<!-- raw HTML omitted -->
+<p>Rails works around this issue by emulating other methods over POST with a hidden input named &ldquo;_method&rdquo;, which is set to reflect the desired method:</p>
+<!-- raw HTML omitted -->
 <p>The example provided is for the &lsquo;form_tag&rsquo; helper method where you just need to pass a hash containing an entry with a key &lsquo;:method&rsquo; and value &lsquo;delete&rsquo;.</p>
-
 <p>We tried to do the same with &lsquo;form_for&rsquo; but unfortunately found that that the hidden &lsquo;_method&rsquo; field was still being set to &lsquo;POST&rsquo;.</p>
-
 <p>It turns out that &lsquo;form_for&rsquo; expects the &lsquo;:method&rsquo; to be provided as part of the right hand most argument as part of a hash with the key &lsquo;:html&rsquo;.</p>
-
 <p>We therefore need to write something like this if we want to simulate a delete request:</p>
-
-<pre><code class="language-ruby">
- &lt;% form_for(item, :html =&gt; {:method =&gt; 'delete'}) do  %&gt;
- ...
- &lt;% end %&gt;
-</code></pre>
-
-<p>The hidden field is eventually created inside <a href="http://github.com/rails/rails/blob/master/actionpack/lib/action_view/helpers/form_tag_helper.rb">form_tag_helper.rb</a>:</p>
-
-<pre><code class="language-ruby">
-def extra_tags_for_form(html_options)
-          ...
-          method_tag = case method
-            when /^get$/i # must be case-insensitive, but can't use downcase as might be nil
-              html_options[&quot;method&quot;] = &quot;get&quot;
-              ''
-            when /^post$/i, &quot;&quot;, nil
-              html_options[&quot;method&quot;] = &quot;post&quot;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+ <span style="color:#f92672">&lt;</span><span style="color:#e6db74">% form_for(item, </span> <span style="color:#e6db74">:html</span> <span style="color:#f92672">=&gt;</span> {<span style="color:#e6db74">:method</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#39;delete&#39;</span>}) <span style="color:#66d9ef">do</span>  <span style="color:#e6db74">%&gt;
+</span><span style="color:#e6db74"> ...
+</span><span style="color:#e6db74"> &lt;% end %&gt;</span>
+</code></pre></div><p>The hidden field is eventually created inside <!-- raw HTML omitted -->form_tag_helper.rb<!-- raw HTML omitted -->:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">extra_tags_for_form</span>(html_options)
+          <span style="color:#f92672">...</span>
+          method_tag <span style="color:#f92672">=</span> <span style="color:#66d9ef">case</span> method
+            <span style="color:#66d9ef">when</span> <span style="color:#e6db74">/^get$/i</span> <span style="color:#75715e"># must be case-insensitive, but can&#39;t use downcase as might be nil</span>
+              html_options<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;method&#34;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;get&#34;</span>
+              <span style="color:#e6db74">&#39;&#39;</span>
+            <span style="color:#66d9ef">when</span> <span style="color:#e6db74">/^post$/i</span>, <span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#66d9ef">nil</span>
+              html_options<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;method&#34;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;post&#34;</span>
               token_tag
-            else
-              html_options[&quot;method&quot;] = &quot;post&quot;
-              tag(:input, :type =&gt; &quot;hidden&quot;, :name =&gt; &quot;_method&quot;, :value =&gt; method) + token_tag
-          end
+            <span style="color:#66d9ef">else</span>
+              html_options<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;method&#34;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;post&#34;</span>
+              tag(<span style="color:#e6db74">:input</span>, <span style="color:#e6db74">:type</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;hidden&#34;</span>, <span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;_method&#34;</span>, <span style="color:#e6db74">:value</span> <span style="color:#f92672">=&gt;</span> method) <span style="color:#f92672">+</span> token_tag
+          <span style="color:#66d9ef">end</span>
 
-         ...
-end
-</code></pre>
-
-<p>I&rsquo;m not finding the method signatures of many Ruby libraries particularly intuitive at the moment.</p>
-
+         <span style="color:#f92672">...</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></div><p>I&rsquo;m not finding the method signatures of many Ruby libraries particularly intuitive at the moment.</p>
 <p>It seems like a lot of times the favoured approach is to pass in a hash into methods and then work off implicit knowledge that Ruby/Rails programmers have about the way that hashes are typically used.</p>
-
 <p>While this makes methods very flexible it seems more difficult to understand how to use them as a consumer than if they took in specifically typed values as parameters.</p>
-
 <p>It&rsquo;ll be interesting to see if/how my opinion changes with respect to this.</p>
 
     <div id="social-bar">
@@ -267,7 +250,7 @@ end
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/09/20/rails-faking-a-delete-method-with-form_for/&amp;title=Rails%3a%20Faking%20a%20delete%20method%20with%20%27form_for%27&amp;summary=We%20recently%20had%20a%20requirement%20to%20delete%20an%20item%20based%20on%20user%20input%20and%20wanting%20to%20adhere%20to%20the%20%26lsquo%3bRESTful%26rsquo%3b%20approach%20that%20Rails%20encourages%20we%20therefore%20needed%20to%20fake%20a%20HTTP%20Delete%20method%20request.%0aThe%20documentation%20talks%20a%20little%20about%20this%3a%0a%20The%20Rails%20framework%20encourages%20RESTful%20design%20of%20your%20applications%2c%20which%20means%20you%e2%80%99ll%20be%20making%20a%20lot%20of%20%e2%80%9cPUT%e2%80%9d%20and%20%e2%80%9cDELETE%e2%80%9d%20requests%20%28besides%20%e2%80%9cGET%e2%80%9d%20and%20%e2%80%9cPOST%e2%80%9d%29.%20However%2c%20most%20browsers%20don%e2%80%99t%20support%20methods%20other%20than%20%e2%80%9cGET%e2%80%9d%20and%20%e2%80%9cPOST%e2%80%9d%20when%20it%20comes%20to%20submitting%20forms...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/09/20/rails-faking-a-delete-method-with-form_for/&amp;title=Rails%3a%20Faking%20a%20delete%20method%20with%20%27form_for%27&amp;summary=We%20recently%20had%20a%20requirement%20to%20delete%20an%20item%20based%20on%20user%20input%20and%20wanting%20to%20adhere%20to%20the%20%26lsquo%3bRESTful%26rsquo%3b%20approach%20that%20Rails%20encourages%20we%20therefore%20needed%20to%20fake%20a%20HTTP%20Delete%20method%20request.%0aThe%20documentation%20talks%20a%20little%20about%20this%3a%0aRails%20works%20around%20this%20issue%20by%20emulating%20other%20methods%20over%20POST%20with%20a%20hidden%20input%20named%20%26ldquo%3b_method%26rdquo%3b%2c%20which%20is%20set%20to%20reflect%20the%20desired%20method%3a%0aThe%20example%20provided%20is%20for%20the%20%26lsquo%3bform_tag%26rsquo%3b%20helper%20method%20where%20you%20just%20need%20to%20pass%20a%20hash%20containing%20an%20entry%20with%20a%20key%20%26lsquo%3b%3amethod%26rsquo%3b%20and%20value%20%26lsquo%3bdelete%26rsquo%3b...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

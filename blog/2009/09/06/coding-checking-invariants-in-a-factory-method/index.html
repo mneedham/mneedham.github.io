@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Coding: Checking invariants in a factory method" />
         
-          <meta name="twitter:description" content="Something which we discussed quite frequently when studying Domain Driven Design in our technical book club earlier this year was where the code which checked whether we had setup an object correctly should reside.
-Shortly after that I suggested that I didn&rsquo;t think it should go in the constructor of an object but that we should rely on objects to be good citizens and not pass in null values or the like to other objects." />
+          <meta name="twitter:description" content="Something which we discussed quite frequently when studying Domain Driven Designin our technical book club earlier this year was where the code which checked whether we had setup an object correctly should reside.
+Shortly after that I suggested that I didn&rsquo;t think it should go in the constructor of an objectbut that we should rely on objects to be good citizens and not pass in null values or the like to other objects." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/09/06/coding-checking-invariants-in-a-factory-method/" />
 
@@ -34,8 +34,8 @@ Shortly after that I suggested that I didn&rsquo;t think it should go in the con
         <title> Coding: Checking invariants in a factory method &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Something which we discussed quite frequently when studying Domain Driven Design in our technical book club earlier this year was where the code which checked whether we had setup an object correctly should reside.
-Shortly after that I suggested that I didn&rsquo;t think it should go in the constructor of an object but that we should rely on objects to be good citizens and not pass in null values or the like to other objects." />
+        <meta name="description" content="Something which we discussed quite frequently when studying Domain Driven Designin our technical book club earlier this year was where the code which checked whether we had setup an object correctly should reside.
+Shortly after that I suggested that I didn&rsquo;t think it should go in the constructor of an objectbut that we should rely on objects to be good citizens and not pass in null values or the like to other objects." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,9 +64,8 @@ Shortly after that I suggested that I didn&rsquo;t think it should go in the con
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-09-06",
-        "description": "Something which we discussed quite frequently when studying Domain Driven Design in our technical book club earlier this year was where the code which checked whether we had setup an object correctly should reside.
-Shortly after that I suggested that I didn&rsquo;t think it should go in the constructor of an object but that we should rely on objects to be good citizens and not pass in null values or the like to other objects.",
-        "wordCount": 649
+        "description": "Something which we discussed quite frequently when studying Domain Driven Designin our technical book club earlier this year was where the code which checked whether we had setup an object correctly should reside.\nShortly after that I suggested that I didn\x26rsquo;t think it should go in the constructor of an objectbut that we should rely on objects to be good citizens and not pass in null values or the like to other objects.",
+        "wordCount":  544 
     }
     </script>
     
@@ -175,91 +174,64 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Coding: Checking invariants in a factory method</h1>
-    <p>Something which we discussed quite frequently when studying <a href="http://domaindrivendesign.org/">Domain Driven Design</a> in our technical book club earlier this year was where the code which checked whether we had setup an object correctly should reside.</p>
-
-<p>Shortly after that I suggested that I <a href="http://www.markhneedham.com/blog/2009/02/14/coding-assertions-in-constructors/">didn&rsquo;t think it should go in the constructor of an object</a> but that we should rely on objects to be good citizens and not pass in null values or the like to other objects.</p>
-
+    <p>Something which we discussed quite frequently when studying <!-- raw HTML omitted -->Domain Driven Design<!-- raw HTML omitted --> in our technical book club earlier this year was where the code which checked whether we had setup an object correctly should reside.</p>
+<p>Shortly after that I suggested that I <!-- raw HTML omitted -->didn&rsquo;t think it should go in the constructor of an object<!-- raw HTML omitted --> but that we should rely on objects to be good citizens and not pass in null values or the like to other objects.</p>
 <p>However, for code that&rsquo;s on the edge of our system we can&rsquo;t really rely on that approach so our code needs to be a bit more defensive.</p>
-
 <p>On those occasions an approach which seems to work relatively well is to introduce a factory method which is responsible for creating an object or throwing an exception if the object can&rsquo;t be created in a consistent state.</p>
-
-<p><a href="http://intwoplacesatonce.com/">Dave</a> and I made use of this pattern while working on some code to get a &lsquo;User&rsquo; object into our system.</p>
-
+<p><!-- raw HTML omitted -->Dave<!-- raw HTML omitted --> and I made use of this pattern while working on some code to get a &lsquo;User&rsquo; object into our system.</p>
 <p>We realised that there were three different scenarios that we needed to handle:</p>
-
-<ul>
-<li>All the authentication details for a user were available in the headers of the HTTP request <ul><li>Create a logged in user</li></ul></li>
-<li>There were no authentication details available for a user
-<ul><li>Create an anonymous user</li></ul></li>
-<li>Some of the authenticated details for a user were available - something has gone wrong
- <ul><li>Throw an exception</li></ul></li>
-</ul>
-
+<!-- raw HTML omitted -->
 <p>We created a method with the following signature:</p>
-
-<pre><code class="language-csharp">
-public static User CreateUserFrom(NameValueCollection headers)  { }
-</code></pre>
-
-<p>&lsquo;headers&rsquo; are the values that we retrieve from the HTTP request headers.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> User CreateUserFrom(NameValueCollection headers)  { }
+</code></pre></div><p>&lsquo;headers&rsquo; are the values that we retrieve from the HTTP request headers.</p>
 <p>Whenever I&rsquo;ve used static factory methods on an object previusly, it&rsquo;s mainly been for providing a way of creating an object while giving the client more information on the specific type of object that they are about to create.</p>
-
 <p>As Dave pointed out, the factory method is also useful for providing a simplified interface to clients and allowing the factory to take away some of the complexity of the object creation which is what we wanted to do here.</p>
-
 <p>We ended up with code that looked a bit like this:</p>
-
-<pre><code class="language-csharp">
-public class User
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>
 {
-	public static readonly User Anonymous = new AnonymousUser(&quot;&quot;, &quot;&quot;);
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">readonly</span> User Anonymous = <span style="color:#66d9ef">new</span> AnonymousUser(<span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>);
 
-	private readonly string userName;
-	private readonly string customerId;
+	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">string</span> userName;
+	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">string</span> customerId;
 
-	private User(string userName, string customerId)
+	<span style="color:#66d9ef">private</span> User(<span style="color:#66d9ef">string</span> userName, <span style="color:#66d9ef">string</span> customerId)
 	{
-		this.userName = userName;
-		this.customerId = customerId;
+		<span style="color:#66d9ef">this</span>.userName = userName;
+		<span style="color:#66d9ef">this</span>.customerId = customerId;
 	}
 
-	public static User CreateUserFrom(NameValueCollection headers)  
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> User CreateUserFrom(NameValueCollection headers)  
 	{ 
-		var userName = headers[&quot;user-name-header-tag&quot;];
-		var customerId = headers[&quot;customer-id-header-tag&quot;];
+		<span style="color:#66d9ef">var</span> userName = headers[<span style="color:#e6db74">&#34;user-name-header-tag&#34;</span>];
+		<span style="color:#66d9ef">var</span> customerId = headers[<span style="color:#e6db74">&#34;customer-id-header-tag&#34;</span>];
 
-		var invariants = new List&lt;string&gt; { userName, customerId };
+		<span style="color:#66d9ef">var</span> invariants = <span style="color:#66d9ef">new</span> List&lt;<span style="color:#66d9ef">string</span>&gt; { userName, customerId };
 
-		if(invariants.All(i =&gt; i == null)
+		<span style="color:#66d9ef">if</span>(invariants.All(i =&gt; i == <span style="color:#66d9ef">null</span>)
 		{
-			return Anonymous;
+			<span style="color:#66d9ef">return</span> Anonymous;
 		}
 
-		if(invariants.Any(i =&gt; i == null)
+		<span style="color:#66d9ef">if</span>(invariants.Any(i =&gt; i == <span style="color:#66d9ef">null</span>)
 		{
-			throw new Exception(&quot;Attempt to create user failed as not all header tags were available&quot;);
+			<span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Exception(<span style="color:#e6db74">&#34;Attempt to create user failed as not all header tags were available&#34;</span>);
 		}
 	
-		return new User(userName, customerId);
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> User(userName, customerId);
 	}
 }
 
-public AnonymousUser : User
+<span style="color:#66d9ef">public</span> AnonymousUser : User
 {
-	public AnonymousUser(string userName, string customerId) : base(userName, customerId) {}
+	<span style="color:#66d9ef">public</span> AnonymousUser(<span style="color:#66d9ef">string</span> userName, <span style="color:#66d9ef">string</span> customerId) : <span style="color:#66d9ef">base</span>(userName, customerId) {}
 }
-</code></pre>
-
-<p>In this example &lsquo;AnonymousUser&rsquo; is an implementation of the <a href="http://en.wikipedia.org/wiki/Null_Object_pattern">null object pattern</a>.</p>
-
-<p>When discussing our approach with <a href="http://lizdouglass.wordpress.com/">Liz</a> she reminded me that Eric Evans actually talks about invariant handling in the book and suggests that checking invariants in factory methods certainly is appropriate on some occasions:</p>
-
-<blockquote>
-A FACTORY is responsible for ensuring that all invariants are met for the object or AGGREGATE it creates; yet you should always think twice before removing the rules applying to an object outside that object. The FACTORY can delegate invariant checking to the product, and this is often best.
-
-But FACTORIES have a special relationship with their products. They already know their product's internal structure, and their entire reason for being involves the implementation of their product. Under some circumstances, there are advantages to placing invariant logic in the FACTORY and reducing clutter in the product. This is especially appealing with AGGREGATE rules (which span many objects). It is especially unappealing with FACTORY METHODS attached to other domain objects.
-</blockquote>
-
+</code></pre></div><p>In this example &lsquo;AnonymousUser&rsquo; is an implementation of the <!-- raw HTML omitted -->null object pattern<!-- raw HTML omitted -->.</p>
+<p>When discussing our approach with <!-- raw HTML omitted -->Liz<!-- raw HTML omitted --> she reminded me that Eric Evans actually talks about invariant handling in the book and suggests that checking invariants in factory methods certainly is appropriate on some occasions:</p>
+<!-- raw HTML omitted -->
+<p>But FACTORIES have a special relationship with their products. They already know their product&rsquo;s internal structure, and their entire reason for being involves the implementation of their product. Under some circumstances, there are advantages to placing invariant logic in the FACTORY and reducing clutter in the product. This is especially appealing with AGGREGATE rules (which span many objects). It is especially unappealing with FACTORY METHODS attached to other domain objects.</p>
+<!-- raw HTML omitted -->
 <p>I&rsquo;m not sure if what we have is an aggregate root since &lsquo;User&rsquo; doesn&rsquo;t act as the gateway to access any other objects but the approach seemed to work reasonably well here nonetheless.</p>
 
     <div id="social-bar">
@@ -295,7 +267,7 @@ But FACTORIES have a special relationship with their products. They already know
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/09/06/coding-checking-invariants-in-a-factory-method/&amp;title=Coding%3a%20Checking%20invariants%20in%20a%20factory%20method&amp;summary=Something%20which%20we%20discussed%20quite%20frequently%20when%20studying%20Domain%20Driven%20Design%20in%20our%20technical%20book%20club%20earlier%20this%20year%20was%20where%20the%20code%20which%20checked%20whether%20we%20had%20setup%20an%20object%20correctly%20should%20reside.%0aShortly%20after%20that%20I%20suggested%20that%20I%20didn%26rsquo%3bt%20think%20it%20should%20go%20in%20the%20constructor%20of%20an%20object%20but%20that%20we%20should%20rely%20on%20objects%20to%20be%20good%20citizens%20and%20not%20pass%20in%20null%20values%20or%20the%20like%20to%20other%20objects...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/09/06/coding-checking-invariants-in-a-factory-method/&amp;title=Coding%3a%20Checking%20invariants%20in%20a%20factory%20method&amp;summary=Something%20which%20we%20discussed%20quite%20frequently%20when%20studying%20Domain%20Driven%20Designin%20our%20technical%20book%20club%20earlier%20this%20year%20was%20where%20the%20code%20which%20checked%20whether%20we%20had%20setup%20an%20object%20correctly%20should%20reside.%0aShortly%20after%20that%20I%20suggested%20that%20I%20didn%26rsquo%3bt%20think%20it%20should%20go%20in%20the%20constructor%20of%20an%20objectbut%20that%20we%20should%20rely%20on%20objects%20to%20be%20good%20citizens%20and%20not%20pass%20in%20null%20values%20or%20the%20like%20to%20other%20objects...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

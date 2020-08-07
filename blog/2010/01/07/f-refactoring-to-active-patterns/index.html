@@ -23,7 +23,7 @@
         <meta name="twitter:title" content="F#: Refactoring to active patterns" />
         
           <meta name="twitter:description" content="I&rsquo;ve been playing around with more F# code and after realising that I&rsquo;d peppered the code with if statements I thought it would be interesting to try and refactor it to make use of active patterns.
-The code is part of my F# solution to Roy Osherove&rsquo;s TDD Kata and is used to parse the input string and find which delimeters are being used.
+The code is part of my F# solution to Roy Osherove&rsquo;s TDD Kataand is used to parse the input string and find which delimeters are being used.
 This is the original code:
 let hasCustomDelimeter (value:string) = value." />
         
@@ -37,7 +37,7 @@ let hasCustomDelimeter (value:string) = value." />
 
     
         <meta name="description" content="I&rsquo;ve been playing around with more F# code and after realising that I&rsquo;d peppered the code with if statements I thought it would be interesting to try and refactor it to make use of active patterns.
-The code is part of my F# solution to Roy Osherove&rsquo;s TDD Kata and is used to parse the input string and find which delimeters are being used.
+The code is part of my F# solution to Roy Osherove&rsquo;s TDD Kataand is used to parse the input string and find which delimeters are being used.
 This is the original code:
 let hasCustomDelimeter (value:string) = value." />
     
@@ -68,11 +68,8 @@ let hasCustomDelimeter (value:string) = value." />
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-07",
-        "description": "I&rsquo;ve been playing around with more F# code and after realising that I&rsquo;d peppered the code with if statements I thought it would be interesting to try and refactor it to make use of active patterns.
-The code is part of my F# solution to Roy Osherove&rsquo;s TDD Kata and is used to parse the input string and find which delimeters are being used.
-This is the original code:
-let hasCustomDelimeter (value:string) = value.",
-        "wordCount": 495
+        "description": "I\x26rsquo;ve been playing around with more F# code and after realising that I\x26rsquo;d peppered the code with if statements I thought it would be interesting to try and refactor it to make use of active patterns.\nThe code is part of my F# solution to Roy Osherove\x26rsquo;s TDD Kataand is used to parse the input string and find which delimeters are being used.\nThis is the original code:\nlet hasCustomDelimeter (value:string) = value.",
+        "wordCount":  493 
     }
     </script>
     
@@ -182,56 +179,43 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">F#: Refactoring to active patterns</h1>
     <p>I&rsquo;ve been playing around with more F# code and after realising that I&rsquo;d peppered the code with if statements I thought it would be interesting to try and refactor it to make use of active patterns.</p>
-
-<p>The code is part of my F# solution to <a href="http://osherove.com/tdd-kata-1/">Roy Osherove&rsquo;s TDD Kata</a> and is used to parse the input string and find which delimeters are being used.</p>
-
+<p>The code is part of my F# solution to <!-- raw HTML omitted -->Roy Osherove&rsquo;s TDD Kata<!-- raw HTML omitted --> and is used to parse the input string and find which delimeters are being used.</p>
 <p>This is the original code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+    <span style="color:#66d9ef">let</span> hasCustomDelimeter <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Length</span> <span style="color:#f92672">&gt;</span> 2 <span style="color:#f92672">&amp;&amp;</span> <span style="color:#e6db74">&#34;//&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 2<span style="color:#f92672">))</span>
+    <span style="color:#66d9ef">let</span> hasMultipleDelimeters <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> hasCustomDelimeter <span style="color:#66d9ef">value</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#e6db74">&#34;[&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span>1<span style="color:#f92672">))</span>
 
-<pre><code class="language-ocaml">
-    let hasCustomDelimeter (value:string) = value.Length &gt; 2 &amp;&amp; &quot;//&quot;.Equals(value.Substring(0, 2))
-    let hasMultipleDelimeters (value:string) = hasCustomDelimeter value &amp;&amp; &quot;[&quot;.Equals(value.Substring(2,1))
-
-    let delimeter value = if (hasCustomDelimeter value) then value.Substring(2, value.IndexOf(&quot;\n&quot;) - 2) else &quot;,&quot;
-    let delimeters (value:string) = Regex.Matches(value, &quot;\[(.)\]&quot;) |&gt; 
-                                    Seq.cast |&gt; 
-                                    Seq.map (fun (x:Match) -&gt; x.Groups) |&gt;
-                                    Seq.map (fun x -&gt; x |&gt; Seq.cast&lt;Group&gt; |&gt; Seq.nth 1) |&gt;
-                                    Seq.map (fun x -&gt; x.Value) |&gt;
+    <span style="color:#66d9ef">let</span> delimeter <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>hasCustomDelimeter <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">-</span> 2<span style="color:#f92672">)</span> <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#34;,&#34;</span>
+    <span style="color:#66d9ef">let</span> delimeters <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> Regex.<span style="color:#a6e22e">Matches</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">[(.)</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">]&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> 
+                                    Seq.cast <span style="color:#f92672">|&gt;</span> 
+                                    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">:</span><span style="color:#a6e22e">Match</span><span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Groups</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span>
+                                    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x <span style="color:#f92672">|&gt;</span> Seq.cast<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Group</span><span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> Seq.nth 1<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span>
+                                    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span>
                                     Seq.to_array   
 
-    let digits value = 
-        let delimeter = delimeter value
-        if (hasMultipleDelimeters value) then value.Substring(value.IndexOf(&quot;\n&quot;)) |&gt; split (delimeters value) |&gt; Array.map parse  
-        else if (hasCustomDelimeter value) then value.Substring(value.IndexOf(&quot;\n&quot;)) |&gt; split [| delimeter |] |&gt; Array.map parse
-        else value.Replace(&quot;\n&quot;, delimeter) |&gt; split [|delimeter |] |&gt; Array.map parse
-</code></pre>
-
-<p>The active pattern that we want to use is known as a &lsquo;multi case active pattern&rsquo; which <a href="http://blogs.msdn.com/chrsmith/archive/2008/02/21/Introduction-to-F_2300_-Active-Patterns.aspx">Chris Smith</a> defines as &ldquo;partitioning the entirety of the input space into different things&rdquo;. In this case given an input string we want to determine what type of delimeters are contained within that string.</p>
-
+    <span style="color:#66d9ef">let</span> digits <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> 
+        <span style="color:#66d9ef">let</span> delimeter <span style="color:#f92672">=</span> delimeter <span style="color:#66d9ef">value</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>hasMultipleDelimeters <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">|&gt;</span> split <span style="color:#f92672">(</span>delimeters <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Array.map parse  
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>hasCustomDelimeter <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">|&gt;</span> split <span style="color:#f92672">[|</span> delimeter <span style="color:#f92672">|]</span> <span style="color:#f92672">|&gt;</span> Array.map parse
+        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Replace</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">,</span> delimeter<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> split <span style="color:#f92672">[|</span>delimeter <span style="color:#f92672">|]</span> <span style="color:#f92672">|&gt;</span> Array.map parse
+</code></pre></div><p>The active pattern that we want to use is known as a &lsquo;multi case active pattern&rsquo; which <!-- raw HTML omitted -->Chris Smith<!-- raw HTML omitted --> defines as &ldquo;partitioning the entirety of the input space into different things&rdquo;. In this case given an input string we want to determine what type of delimeters are contained within that string.</p>
 <p>This is the code after I&rsquo;d created the active pattern:</p>
-
-<pre><code class="language-ocaml">
-    let (|MultipleCustomDelimeters|SingleCustomDelimeter|NoCustomDelimeter|) (value:string) =  
-        if (value.Length &gt; 2 &amp;&amp; &quot;//&quot;.Equals(value.Substring(0, 2))) then
-            if (&quot;[&quot;.Equals(value.Substring(2,1))) then MultipleCustomDelimeters(delimeters value)
-            else SingleCustomDelimeter(delimeter value)
-        else NoCustomDelimeter(delimeter value)    
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+    <span style="color:#66d9ef">let</span> <span style="color:#f92672">(|</span><span style="color:#a6e22e">MultipleCustomDelimeters</span><span style="color:#f92672">|</span><span style="color:#a6e22e">SingleCustomDelimeter</span><span style="color:#f92672">|</span><span style="color:#a6e22e">NoCustomDelimeter</span><span style="color:#f92672">|)</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span>  
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Length</span> <span style="color:#f92672">&gt;</span> 2 <span style="color:#f92672">&amp;&amp;</span> <span style="color:#e6db74">&#34;//&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 2<span style="color:#f92672">)))</span> <span style="color:#66d9ef">then</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;[&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span>1<span style="color:#f92672">)))</span> <span style="color:#66d9ef">then</span> <span style="color:#a6e22e">MultipleCustomDelimeters</span><span style="color:#f92672">(</span>delimeters <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">SingleCustomDelimeter</span><span style="color:#f92672">(</span>delimeter <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span>
+        <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">NoCustomDelimeter</span><span style="color:#f92672">(</span>delimeter <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span>    
     
-    let digits value =  
-        match value with 
-        | SingleCustomDelimeter(delimeter)     -&gt; value.Substring(value.IndexOf(&quot;\n&quot;)) |&gt; split [| delimeter |] |&gt; Array.map parse
-        | MultipleCustomDelimeters(delimeters) -&gt; value.Substring(value.IndexOf(&quot;\n&quot;)) |&gt; split delimeters  |&gt; Array.map parse 
-        | NoCustomDelimeter(delimeter)         -&gt; value.Replace(&quot;\n&quot;, delimeter) |&gt; split [|delimeter |] |&gt; Array.map parse
-</code></pre>
-
-<p>One thing I didn&rsquo;t realise is that you can set different types for the constructor values of each of the active patterns. In this case I want to match single or multiple delimeters and then return those delimeters. We can define one active pattern which matches a single delimeter and just returns that and then another one which returns an array of delimeters which is quite neat.</p>
-
-<p>The way it works is quite similar to <a href="http://tomasp.net/articles/fsharp-ii-functional.aspx">discriminated unions</a>.</p>
-
+    <span style="color:#66d9ef">let</span> digits <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span>  
+        <span style="color:#66d9ef">match</span> <span style="color:#66d9ef">value</span> <span style="color:#66d9ef">with</span> 
+        <span style="color:#f92672">|</span> <span style="color:#a6e22e">SingleCustomDelimeter</span><span style="color:#f92672">(</span>delimeter<span style="color:#f92672">)</span>     <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">|&gt;</span> split <span style="color:#f92672">[|</span> delimeter <span style="color:#f92672">|]</span> <span style="color:#f92672">|&gt;</span> Array.map parse
+        <span style="color:#f92672">|</span> <span style="color:#a6e22e">MultipleCustomDelimeters</span><span style="color:#f92672">(</span>delimeters<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">|&gt;</span> split delimeters  <span style="color:#f92672">|&gt;</span> Array.map parse 
+        <span style="color:#f92672">|</span> <span style="color:#a6e22e">NoCustomDelimeter</span><span style="color:#f92672">(</span>delimeter<span style="color:#f92672">)</span>         <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Replace</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">,</span> delimeter<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> split <span style="color:#f92672">[|</span>delimeter <span style="color:#f92672">|]</span> <span style="color:#f92672">|&gt;</span> Array.map parse
+</code></pre></div><p>One thing I didn&rsquo;t realise is that you can set different types for the constructor values of each of the active patterns. In this case I want to match single or multiple delimeters and then return those delimeters. We can define one active pattern which matches a single delimeter and just returns that and then another one which returns an array of delimeters which is quite neat.</p>
+<p>The way it works is quite similar to <!-- raw HTML omitted -->discriminated unions<!-- raw HTML omitted -->.</p>
 <p>I found that that having all the code around parsing the input in the same function made it easier for me to understand that code and I quite like that it&rsquo;s possible to match the pattern and also get the delimeter/delimeters in one expression.</p>
-
 <p>Although there are more lines of code I think this code is more expressive and it wouldn&rsquo;t be too hard to add in another active pattern if there&rsquo;s another delimeter type that needs to be handled.</p>
-
 <p>I can&rsquo;t decide whether the &lsquo;value.SubString&rsquo; and &lsquo;value.Replace&rsquo; code should also be contained within the active pattern or not. At the moment I&rsquo;m thinking perhaps not because it&rsquo;s not related to the actual delimeters.</p>
 
     <div id="social-bar">
@@ -267,7 +251,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/07/f-refactoring-to-active-patterns/&amp;title=F%23%3a%20Refactoring%20to%20active%20patterns&amp;summary=I%26rsquo%3bve%20been%20playing%20around%20with%20more%20F%23%20code%20and%20after%20realising%20that%20I%26rsquo%3bd%20peppered%20the%20code%20with%20if%20statements%20I%20thought%20it%20would%20be%20interesting%20to%20try%20and%20refactor%20it%20to%20make%20use%20of%20active%20patterns.%0aThe%20code%20is%20part%20of%20my%20F%23%20solution%20to%20Roy%20Osherove%26rsquo%3bs%20TDD%20Kata%20and%20is%20used%20to%20parse%20the%20input%20string%20and%20find%20which%20delimeters%20are%20being%20used.%0aThis%20is%20the%20original%20code%3a%0alet%20hasCustomDelimeter%20%28value%3astring%29%20%3d%20value...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/07/f-refactoring-to-active-patterns/&amp;title=F%23%3a%20Refactoring%20to%20active%20patterns&amp;summary=I%26rsquo%3bve%20been%20playing%20around%20with%20more%20F%23%20code%20and%20after%20realising%20that%20I%26rsquo%3bd%20peppered%20the%20code%20with%20if%20statements%20I%20thought%20it%20would%20be%20interesting%20to%20try%20and%20refactor%20it%20to%20make%20use%20of%20active%20patterns.%0aThe%20code%20is%20part%20of%20my%20F%23%20solution%20to%20Roy%20Osherove%26rsquo%3bs%20TDD%20Kataand%20is%20used%20to%20parse%20the%20input%20string%20and%20find%20which%20delimeters%20are%20being%20used.%0aThis%20is%20the%20original%20code%3a%0alet%20hasCustomDelimeter%20%28value%3astring%29%20%3d%20value...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

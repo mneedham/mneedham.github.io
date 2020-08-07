@@ -23,7 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="C#: Removing duplication in mapping code with partial classes" />
         
-          <meta name="twitter:description" content="One of the problems that we&rsquo;ve come across while writing the mapping code for our anti corruption layer is that there is quite a lot of duplication of mapping similar types due to the fact that each service has different auto generated classes representing the same data structure.
+          <meta name="twitter:description" content="One of the problems that we&rsquo;ve come across while writing the mapping code for our anti corruption layeris that there is quite a lot of duplication of mapping similar types due to the fact that each service has different auto generated classes representing the same data structure.
 We are making SOAP web service calls and generating classes to represent the requests and responses to those end points using SvcUtil. We then translate from those auto generated classes to our domain model using various mapper classes." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/07/07/c-removing-duplication-in-mapping-code-with-partial-classes/" />
@@ -35,7 +35,7 @@ We are making SOAP web service calls and generating classes to represent the req
         <title> C#: Removing duplication in mapping code with partial classes &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="One of the problems that we&rsquo;ve come across while writing the mapping code for our anti corruption layer is that there is quite a lot of duplication of mapping similar types due to the fact that each service has different auto generated classes representing the same data structure.
+        <meta name="description" content="One of the problems that we&rsquo;ve come across while writing the mapping code for our anti corruption layeris that there is quite a lot of duplication of mapping similar types due to the fact that each service has different auto generated classes representing the same data structure.
 We are making SOAP web service calls and generating classes to represent the requests and responses to those end points using SvcUtil. We then translate from those auto generated classes to our domain model using various mapper classes." />
     
 
@@ -65,9 +65,8 @@ We are making SOAP web service calls and generating classes to represent the req
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-07-07",
-        "description": "One of the problems that we&rsquo;ve come across while writing the mapping code for our anti corruption layer is that there is quite a lot of duplication of mapping similar types due to the fact that each service has different auto generated classes representing the same data structure.
-We are making SOAP web service calls and generating classes to represent the requests and responses to those end points using SvcUtil. We then translate from those auto generated classes to our domain model using various mapper classes.",
-        "wordCount": 404
+        "description": "One of the problems that we\x26rsquo;ve come across while writing the mapping code for our anti corruption layeris that there is quite a lot of duplication of mapping similar types due to the fact that each service has different auto generated classes representing the same data structure.\nWe are making SOAP web service calls and generating classes to represent the requests and responses to those end points using SvcUtil. We then translate from those auto generated classes to our domain model using various mapper classes.",
+        "wordCount":  402 
     }
     </script>
     
@@ -178,87 +177,60 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">C#: Removing duplication in mapping code with partial classes</h1>
-    <p>One of the problems that we&rsquo;ve come across while writing the mapping code for our <a href="http://www.markhneedham.com/blog/2009/07/07/domain-driven-design-anti-corruption-layer/">anti corruption layer</a> is that there is quite a lot of duplication of mapping similar types due to the fact that each service has different auto generated classes representing the same data structure.</p>
-
-<p>We are making SOAP web service calls and generating classes to represent the requests and responses to those end points using <a href="http://msdn.microsoft.com/en-us/library/aa347733.aspx">SvcUtil</a>. We then translate from those auto generated classes to our domain model using various mapper classes.</p>
-
+    <p>One of the problems that we&rsquo;ve come across while writing the mapping code for our <!-- raw HTML omitted -->anti corruption layer<!-- raw HTML omitted --> is that there is quite a lot of duplication of mapping similar types due to the fact that each service has different auto generated classes representing the same data structure.</p>
+<p>We are making SOAP web service calls and generating classes to represent the requests and responses to those end points using <!-- raw HTML omitted -->SvcUtil<!-- raw HTML omitted -->. We then translate from those auto generated classes to our domain model using various mapper classes.</p>
 <p>One example of duplication which really stood out is the creation of a &lsquo;ShortAddress&rsquo; which is a data structure consisting of a postcode, suburb and state.</p>
-
 <p>In order to map address we have a lot of code similar to this:</p>
-
-<pre><code class="language-csharp">
-private ShortAddress MapAddress(XsdGeneratedAddress xsdGeneratedAddress)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">private</span> ShortAddress MapAddress(XsdGeneratedAddress xsdGeneratedAddress)
 {
-	return new ShortAddress(xsdGeneratedAddress.Postcode, xsdGeneratedAddress.Suburb, xsdGeneratedAddress.State);
+	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ShortAddress(xsdGeneratedAddress.Postcode, xsdGeneratedAddress.Suburb, xsdGeneratedAddress.State);
 }
-</code></pre>
-
-<pre><code class="language-csharp">
-private ShortAddress MapAddress(AnotherXsdGeneratedAddress xsdGeneratedAddress)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">private</span> ShortAddress MapAddress(AnotherXsdGeneratedAddress xsdGeneratedAddress)
 {
-	return new ShortAddress(xsdGeneratedAddress.Postcode, xsdGeneratedAddress.Suburb, xsdGeneratedAddress.State);
+	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ShortAddress(xsdGeneratedAddress.Postcode, xsdGeneratedAddress.Suburb, xsdGeneratedAddress.State);
 }
-</code></pre>
-
-<p>Where the XsdGeneratedAddress might be something like this:</p>
-
-<pre><code class="language-csharp">
-public class XsdGeneratedAddress
+</code></pre></div><p>Where the XsdGeneratedAddress might be something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">XsdGeneratedAddress</span>
 {
-	string Postcode { get; }
-	string Suburb { get; }
-	string State { get; }
-	// random other code
-}
-</code></pre>
-
-<p>It&rsquo;s really quite boring code to write and it&rsquo;s pretty much exactly the same apart from the class name.</p>
-
+	<span style="color:#66d9ef">string</span> Postcode { <span style="color:#66d9ef">get</span>; }
+	<span style="color:#66d9ef">string</span> Suburb { <span style="color:#66d9ef">get</span>; }
+	<span style="color:#66d9ef">string</span> State { <span style="color:#66d9ef">get</span>; }
+	<span style="color:#75715e">// random other code
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>It&rsquo;s really quite boring code to write and it&rsquo;s pretty much exactly the same apart from the class name.</p>
 <p>I realise here that if we were using a dynamic language we wouldn&rsquo;t have a problem since we could just write the code as if the object being passed into the method had those properties on it.</p>
-
 <p>Sadly we are in C# which doesn&rsquo;t yet have that capability!</p>
-
-<p>Luckily for us the SvcUtil generated classes are partial classes so (as <a href="http://twitter.com/davcamer">Dave</a> pointed out) we can create another partial class which inherits from an interface that we define. We can then refer to types which implement this interface in our mapping code, helping to reduce the duplication.</p>
-
+<p>Luckily for us the SvcUtil generated classes are partial classes so (as <!-- raw HTML omitted -->Dave<!-- raw HTML omitted --> pointed out) we can create another partial class which inherits from an interface that we define. We can then refer to types which implement this interface in our mapping code, helping to reduce the duplication.</p>
 <p>In this case we create a &lsquo;ShortAddressDTO&rsquo; with properties that match those on the auto generated class:</p>
-
-<pre><code class="language-csharp">
-public interface ShortAddressDTO 
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> ShortAddressDTO 
 {
-	string Postcode { get; }
-	string Suburb { get; }
-	string State { get; }
+	<span style="color:#66d9ef">string</span> Postcode { <span style="color:#66d9ef">get</span>; }
+	<span style="color:#66d9ef">string</span> Suburb { <span style="color:#66d9ef">get</span>; }
+	<span style="color:#66d9ef">string</span> State { <span style="color:#66d9ef">get</span>; }
 }
-</code></pre>
-
-<p>We then need to make the generated classes inherit from this:</p>
-
-<pre><code class="language-csharp">
-public partial class XsdGeneratedAddress : ShortAddressDTO {}
-</code></pre>
-
-<p>Which means in our mapping code we can now do the following:</p>
-
-<pre><code class="language-csharp">
-private ShortAddress MapAddress(ShortAddressDTO shortAddressDTO)
+</code></pre></div><p>We then need to make the generated classes inherit from this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">partial</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">XsdGeneratedAddress</span> : ShortAddressDTO {}
+</code></pre></div><p>Which means in our mapping code we can now do the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">private</span> ShortAddress MapAddress(ShortAddressDTO shortAddressDTO)
 {
-	return xsdGeneratedAddress.ConvertToShortAddress();
+	<span style="color:#66d9ef">return</span> xsdGeneratedAddress.ConvertToShortAddress();
 }
-</code></pre>
-
-<p>Which uses this extension method:</p>
-
-<pre><code class="language-csharp">
-public static class ServiceDTOExtensions 
+</code></pre></div><p>Which uses this extension method:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ServiceDTOExtensions</span> 
 {
-	public static ShortAddress ConvertToShortAddress(ShortAddressDTO shortAddressDTO)
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> ShortAddress ConvertToShortAddress(ShortAddressDTO shortAddressDTO)
 	{
-		return new ShortAddress(shortAddressDTO.Postcode, shortAddressDTO.Suburb, shortAddressDTO.State);
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ShortAddress(shortAddressDTO.Postcode, shortAddressDTO.Suburb, shortAddressDTO.State);
 	}
 }
-</code></pre>
-
-<p>Which seems much cleaner than what we had to do before.</p>
+</code></pre></div><p>Which seems much cleaner than what we had to do before.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -293,7 +265,7 @@ public static class ServiceDTOExtensions
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/07/c-removing-duplication-in-mapping-code-with-partial-classes/&amp;title=C%23%3a%20Removing%20duplication%20in%20mapping%20code%20with%20partial%20classes&amp;summary=One%20of%20the%20problems%20that%20we%26rsquo%3bve%20come%20across%20while%20writing%20the%20mapping%20code%20for%20our%20anti%20corruption%20layer%20is%20that%20there%20is%20quite%20a%20lot%20of%20duplication%20of%20mapping%20similar%20types%20due%20to%20the%20fact%20that%20each%20service%20has%20different%20auto%20generated%20classes%20representing%20the%20same%20data%20structure.%0aWe%20are%20making%20SOAP%20web%20service%20calls%20and%20generating%20classes%20to%20represent%20the%20requests%20and%20responses%20to%20those%20end%20points%20using%20SvcUtil.%20We%20then%20translate%20from%20those%20auto%20generated%20classes%20to%20our%20domain%20model%20using%20various%20mapper%20classes...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/07/c-removing-duplication-in-mapping-code-with-partial-classes/&amp;title=C%23%3a%20Removing%20duplication%20in%20mapping%20code%20with%20partial%20classes&amp;summary=One%20of%20the%20problems%20that%20we%26rsquo%3bve%20come%20across%20while%20writing%20the%20mapping%20code%20for%20our%20anti%20corruption%20layeris%20that%20there%20is%20quite%20a%20lot%20of%20duplication%20of%20mapping%20similar%20types%20due%20to%20the%20fact%20that%20each%20service%20has%20different%20auto%20generated%20classes%20representing%20the%20same%20data%20structure.%0aWe%20are%20making%20SOAP%20web%20service%20calls%20and%20generating%20classes%20to%20represent%20the%20requests%20and%20responses%20to%20those%20end%20points%20using%20SvcUtil.%20We%20then%20translate%20from%20those%20auto%20generated%20classes%20to%20our%20domain%20model%20using%20various%20mapper%20classes...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

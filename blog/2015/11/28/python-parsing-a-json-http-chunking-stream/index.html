@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Python: Parsing a JSON HTTP chunking stream" />
         
-          <meta name="twitter:description" content="I&#39;ve been playing around with meetup.com&#39;s API again and this time wanted to consume the chunked HTTP RSVP stream and filter RSVPs for events I&#39;m interested in.  I use Python for most of my hacking these days and if HTTP requests are required the requests library is my first port of call. I started out with the following script import requests import json def stream_meetup_initial(): uri = &quot;http://stream.meetup.com/2/rsvps&quot; response = requests." />
+          <meta name="twitter:description" content="import requests import json def stream_meetup_initial(): uri = &#34;http://stream.meetup.com/2/rsvps&#34; response = requests.get(uri, stream = True) for chunk in response.iter_content(chunk_size = None): yield chunk for raw_rsvp in stream_meetup_initial(): print raw_rsvp try: rsvp = json.loads(raw_rsvp) except ValueError as e: print e continue No JSON object could be decoded def stream_meetup_newline(): uri = &#34;http://stream.meetup.com/2/rsvps&#34; response = requests.get(uri, stream = True) buffer = &#34;&#34; for chunk in response.iter_content(chunk_size = 1): if chunk.endswith(&#34;\n&#34;): buffer &#43;= chunk yield buffer buffer = &#34;&#34; else: buffer &#43;= chunk r = requests." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/11/28/python-parsing-a-json-http-chunking-stream/" />
 
@@ -33,7 +33,7 @@
         <title> Python: Parsing a JSON HTTP chunking stream &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&#39;ve been playing around with meetup.com&#39;s API again and this time wanted to consume the chunked HTTP RSVP stream and filter RSVPs for events I&#39;m interested in.  I use Python for most of my hacking these days and if HTTP requests are required the requests library is my first port of call. I started out with the following script import requests import json def stream_meetup_initial(): uri = &quot;http://stream.meetup.com/2/rsvps&quot; response = requests." />
+        <meta name="description" content="import requests import json def stream_meetup_initial(): uri = &#34;http://stream.meetup.com/2/rsvps&#34; response = requests.get(uri, stream = True) for chunk in response.iter_content(chunk_size = None): yield chunk for raw_rsvp in stream_meetup_initial(): print raw_rsvp try: rsvp = json.loads(raw_rsvp) except ValueError as e: print e continue No JSON object could be decoded def stream_meetup_newline(): uri = &#34;http://stream.meetup.com/2/rsvps&#34; response = requests.get(uri, stream = True) buffer = &#34;&#34; for chunk in response.iter_content(chunk_size = 1): if chunk.endswith(&#34;\n&#34;): buffer &#43;= chunk yield buffer buffer = &#34;&#34; else: buffer &#43;= chunk r = requests." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +62,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-11-28",
-        "description": "I've been playing around with meetup.com's API again and this time wanted to consume the chunked HTTP RSVP stream and filter RSVPs for events I'm interested in.  I use Python for most of my hacking these days and if HTTP requests are required the requests library is my first port of call. I started out with the following script import requests import json def stream_meetup_initial(): uri = &quot;http://stream.meetup.com/2/rsvps&quot; response = requests.",
-        "wordCount": 284
+        "description": "import requests import json def stream_meetup_initial(): uri = \x26#34;http:\/\/stream.meetup.com\/2\/rsvps\x26#34; response = requests.get(uri, stream = True) for chunk in response.iter_content(chunk_size = None): yield chunk for raw_rsvp in stream_meetup_initial(): print raw_rsvp try: rsvp = json.loads(raw_rsvp) except ValueError as e: print e continue No JSON object could be decoded def stream_meetup_newline(): uri = \x26#34;http:\/\/stream.meetup.com\/2\/rsvps\x26#34; response = requests.get(uri, stream = True) buffer = \x26#34;\x26#34; for chunk in response.iter_content(chunk_size = 1): if chunk.endswith(\x26#34;\\n\x26#34;): buffer \x2b= chunk yield buffer buffer = \x26#34;\x26#34; else: buffer \x2b= chunk r = requests.",
+        "wordCount":  95 
     }
     </script>
     
@@ -172,78 +172,51 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Python: Parsing a JSON HTTP chunking stream</h1>
-    <p>
-I've been playing around with meetup.com's API again and this time wanted to consume the <a href="http://www.meetup.com/meetup_api/docs/stream/2/rsvps/#http">chunked HTTP RSVP stream</a> and filter RSVPs for events I'm interested in.
-</p>
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+<span style="color:#f92672">import</span> requests
+<span style="color:#f92672">import</span> json
 
-<p>
-I use Python for most of my hacking these days and if HTTP requests are required the <a href="http://docs.python-requests.org/en/latest/">requests library</a> is my first port of call.
-</p>
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">stream_meetup_initial</span>():
+    uri <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://stream.meetup.com/2/rsvps&#34;</span>
+    response <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(uri, stream <span style="color:#f92672">=</span> True)
+    <span style="color:#66d9ef">for</span> chunk <span style="color:#f92672">in</span> response<span style="color:#f92672">.</span>iter_content(chunk_size <span style="color:#f92672">=</span> None):
+        <span style="color:#66d9ef">yield</span> chunk
 
-<p>I started out with the following script </p>
-
-<pre><code class="language-python">
-import requests
-import json
-
-def stream_meetup_initial():
-    uri = &quot;http://stream.meetup.com/2/rsvps&quot;
-    response = requests.get(uri, stream = True)
-    for chunk in response.iter_content(chunk_size = None):
-        yield chunk
-
-for raw_rsvp in stream_meetup_initial():
-    print raw_rsvp
-    try:
-        rsvp = json.loads(raw_rsvp)
-    except ValueError as e:
-        print e
-        continue
-</code></pre>
-
-<p>This mostly worked but I also noticed the following error from time to time:</p>
-
-<pre><code class="language-text">
+<span style="color:#66d9ef">for</span> raw_rsvp <span style="color:#f92672">in</span> stream_meetup_initial():
+    <span style="color:#66d9ef">print</span> raw_rsvp
+    <span style="color:#66d9ef">try</span>:
+        rsvp <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>loads(raw_rsvp)
+    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">ValueError</span> <span style="color:#66d9ef">as</span> e:
+        <span style="color:#66d9ef">print</span> e
+        <span style="color:#66d9ef">continue</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 No JSON object could be decoded
-</code></pre>
-
-<p>
-Although less frequent, I also saw errors suggesting I was trying to parse an incomplete JSON object. I tweaked the function to keep a local buffer and only yield that if the chunk ended in a new line character:
-</p>
-
-<pre><code class="language-python">
-def stream_meetup_newline():
-    uri = &quot;http://stream.meetup.com/2/rsvps&quot;
-    response = requests.get(uri, stream = True)
-    buffer = &quot;&quot;
-    for chunk in response.iter_content(chunk_size = 1):
-        if chunk.endswith(&quot;\n&quot;):
-            buffer += chunk
-            yield buffer
-            buffer = &quot;&quot;
-        else:
-            buffer += chunk
-</code></pre>
-
-<p>
-This mostly works although I'm sure I've seen some occasions where two JSON objects were being yielded and then the call to 'json.loads' failed. I haven't been able to reproduce that though.
-</p>
-
-<p>
-A second read through the <a href="http://docs.python-requests.org/en/latest/user/advanced/#streaming-requests">requests documentation</a> made me realise I hadn't read it very carefully the first time since we can make our lives much easier by using 'iter_lines' rather than 'iter_content':
-</p>
-
-<pre><code class="language-python">
-r = requests.get('http://stream.meetup.com/2/rsvps', stream=True)
-for raw_rsvp in r.iter_lines():
-    if raw_rsvp:
-        rsvp = json.loads(raw_rsvp)
-        print rsvp
-</code></pre>
-
-<p>
-We can then process 'rsvp', filtering out the ones we're interested in.
-</p>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">stream_meetup_newline</span>():
+    uri <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://stream.meetup.com/2/rsvps&#34;</span>
+    response <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(uri, stream <span style="color:#f92672">=</span> True)
+    buffer <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+    <span style="color:#66d9ef">for</span> chunk <span style="color:#f92672">in</span> response<span style="color:#f92672">.</span>iter_content(chunk_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>):
+        <span style="color:#66d9ef">if</span> chunk<span style="color:#f92672">.</span>endswith(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>):
+            buffer <span style="color:#f92672">+=</span> chunk
+            <span style="color:#66d9ef">yield</span> buffer
+            buffer <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+        <span style="color:#66d9ef">else</span>:
+            buffer <span style="color:#f92672">+=</span> chunk
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;http://stream.meetup.com/2/rsvps&#39;</span>, stream<span style="color:#f92672">=</span>True)
+<span style="color:#66d9ef">for</span> raw_rsvp <span style="color:#f92672">in</span> r<span style="color:#f92672">.</span>iter_lines():
+    <span style="color:#66d9ef">if</span> raw_rsvp:
+        rsvp <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>loads(raw_rsvp)
+        <span style="color:#66d9ef">print</span> rsvp
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -278,7 +251,7 @@ We can then process 'rsvp', filtering out the ones we're interested in.
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/11/28/python-parsing-a-json-http-chunking-stream/&amp;title=Python%3a%20Parsing%20a%20JSON%20HTTP%20chunking%20stream&amp;summary=I%27ve%20been%20playing%20around%20with%20meetup.com%27s%20API%20again%20and%20this%20time%20wanted%20to%20consume%20the%20chunked%20HTTP%20RSVP%20stream%20and%20filter%20RSVPs%20for%20events%20I%27m%20interested%20in.%20%20I%20use%20Python%20for%20most%20of%20my%20hacking%20these%20days%20and%20if%20HTTP%20requests%20are%20required%20the%20requests%20library%20is%20my%20first%20port%20of%20call.%20I%20started%20out%20with%20the%20following%20script%20import%20requests%20import%20json%20def%20stream_meetup_initial%28%29%3a%20uri%20%3d%20%26quot%3bhttp%3a%2f%2fstream.meetup.com%2f2%2frsvps%26quot%3b%20response%20%3d%20requests...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/11/28/python-parsing-a-json-http-chunking-stream/&amp;title=Python%3a%20Parsing%20a%20JSON%20HTTP%20chunking%20stream&amp;summary=import%20requests%20import%20json%20def%20stream_meetup_initial%28%29%3a%20uri%20%3d%20%26%2334%3bhttp%3a%2f%2fstream.meetup.com%2f2%2frsvps%26%2334%3b%20response%20%3d%20requests.get%28uri%2c%20stream%20%3d%20True%29%20for%20chunk%20in%20response.iter_content%28chunk_size%20%3d%20None%29%3a%20yield%20chunk%20for%20raw_rsvp%20in%20stream_meetup_initial%28%29%3a%20print%20raw_rsvp%20try%3a%20rsvp%20%3d%20json.loads%28raw_rsvp%29%20except%20ValueError%20as%20e%3a%20print%20e%20continue%20No%20JSON%20object%20could%20be%20decoded%20def%20stream_meetup_newline%28%29%3a%20uri%20%3d%20%26%2334%3bhttp%3a%2f%2fstream.meetup.com%2f2%2frsvps%26%2334%3b%20response%20%3d%20requests.get%28uri%2c%20stream%20%3d%20True%29%20buffer%20%3d%20%26%2334%3b%26%2334%3b%20for%20chunk%20in%20response.iter_content%28chunk_size%20%3d%201%29%3a%20if%20chunk.endswith%28%26%2334%3b%5cn%26%2334%3b%29%3a%20buffer%20%2b%3d%20chunk%20yield%20buffer%20buffer%20%3d%20%26%2334%3b%26%2334%3b%20else%3a%20buffer%20%2b%3d%20chunk%20r%20%3d%20requests...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

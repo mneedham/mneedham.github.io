@@ -65,9 +65,8 @@ The problem we had was that we were ending up overwriting old artifacts from the
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-06-09",
-        "description": "We had the need to do a bit of scripting recently to change the names of the folders where we store our artifacts to signify which artifacts were created from our build&rsquo;s production branch and which were generated from the main branch.
-The problem we had was that we were ending up overwriting old artifacts from the main branch with the production branch&rsquo;s artifacts so we wanted to fix this.",
-        "wordCount": 513
+        "description": "We had the need to do a bit of scripting recently to change the names of the folders where we store our artifacts to signify which artifacts were created from our build\x26rsquo;s production branch and which were generated from the main branch.\nThe problem we had was that we were ending up overwriting old artifacts from the main branch with the production branch\x26rsquo;s artifacts so we wanted to fix this.",
+        "wordCount":  505 
     }
     </script>
     
@@ -179,74 +178,44 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">F#: Useful for scripting</h1>
     <p>We had the need to do a bit of scripting recently to change the names of the folders where we store our artifacts to signify which artifacts were created from our build&rsquo;s production branch and which were generated from the main branch.</p>
-
 <p>The problem we had was that we were ending up overwriting old artifacts from the main branch with the production branch&rsquo;s artifacts so we wanted to fix this.</p>
-
 <p>We had already manually changed some of the folder names to work with the changes that had already been made to our deployment script to read from the proposed new folder names.</p>
-
 <p>We therefore had a folder structure that looked like this:</p>
-
-<ul>
-<li>Artifacts
-<ul>
-<li>12</li>
-<li>20</li>
-<li>45</li>
-<li>1000</li>
-<li>1001</li>
-<li>Trunk-1050</li>
-<li>Prod-23</li>
-</ul>
-</li>
-</ul>
-
+<!-- raw HTML omitted -->
 <p>All the folders with numbers over 1000 were from the trunk build since our production build is only up to around 50. The trouble in the renaming was around the lower numbers where some could be production or trunk.</p>
-
 <p>I think this could have been calculated by checking the creation date of the folders but I decided it was quicker at the time to just scan through them and manually note which were of each type.</p>
-
 <p>At the time we didn&rsquo;t have F# installed so I wrote the script in Ruby but I decided to rewrite it later on in an F# script file and then use F# interactive to execute the script.</p>
-
 <p>This is the script I&rsquo;ve ended up with:</p>
-
 <p>(rename.fsx)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">open</span> <span style="color:#a6e22e">System</span>
+<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">IO</span>
+<span style="color:#66d9ef">open</span> System.Text.<span style="color:#a6e22e">RegularExpressions</span>
 
-<pre><code class="language-ocaml">
-open System
-open System.IO
-open System.Text.RegularExpressions
+<span style="color:#66d9ef">let</span> get_position_of_last_folder <span style="color:#f92672">(</span>dir<span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> dir<span style="color:#f92672">.</span><span style="color:#a6e22e">LastIndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;\\&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">+</span> 1
 
-let get_position_of_last_folder (dir:string) = dir.LastIndexOf('\\') + 1
+<span style="color:#66d9ef">let</span> get_last_folder_name <span style="color:#f92672">(</span>dir<span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> dir<span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>get_position_of_last_folder dir<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">let</span> get_rest_of_dir_name <span style="color:#f92672">(</span>dir<span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> dir<span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> <span style="color:#f92672">(</span>get_position_of_last_folder dir<span style="color:#f92672">)-</span>1<span style="color:#f92672">)</span>
 
-let get_last_folder_name (dir:string) = dir.Substring(get_position_of_last_folder dir)
-let get_rest_of_dir_name (dir:string) = dir.Substring(0, (get_position_of_last_folder dir)-1)
-
-let create_new_dir_name dir = 
-    let prodVersions = seq { yield! [47..48]; yield! [37..45]; yield! [28..34]; } 
-    let folderName = get_last_folder_name dir
-    let isProdDir = prodVersions |&gt; Seq.exists (fun item -&gt; item = Int32.Parse(folderName))
+<span style="color:#66d9ef">let</span> create_new_dir_name dir <span style="color:#f92672">=</span> 
+    <span style="color:#66d9ef">let</span> prodVersions <span style="color:#f92672">=</span> seq <span style="color:#f92672">{</span> yield<span style="color:#f92672">!</span> <span style="color:#f92672">[</span>47<span style="color:#f92672">..</span>48<span style="color:#f92672">];</span> yield<span style="color:#f92672">!</span> <span style="color:#f92672">[</span>37<span style="color:#f92672">..</span>45<span style="color:#f92672">];</span> yield<span style="color:#f92672">!</span> <span style="color:#f92672">[</span>28<span style="color:#f92672">..</span>34<span style="color:#f92672">];</span> <span style="color:#f92672">}</span> 
+    <span style="color:#66d9ef">let</span> folderName <span style="color:#f92672">=</span> get_last_folder_name dir
+    <span style="color:#66d9ef">let</span> isProdDir <span style="color:#f92672">=</span> prodVersions <span style="color:#f92672">|&gt;</span> Seq.exists <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> item <span style="color:#f92672">-&gt;</span> item <span style="color:#f92672">=</span> Int32.<span style="color:#a6e22e">Parse</span><span style="color:#f92672">(</span>folderName<span style="color:#f92672">))</span>
     
-    let build_dir_name branch = (get_rest_of_dir_name dir) + &quot;\\&quot; + branch + &quot;-&quot; + folderName
+    <span style="color:#66d9ef">let</span> build_dir_name branch <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>get_rest_of_dir_name dir<span style="color:#f92672">)</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">+</span> branch <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;-&#34;</span> <span style="color:#f92672">+</span> folderName
     
-    if (isProdDir) then build_dir_name &quot;Prod&quot; else build_dir_name &quot;Trunk&quot;
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>isProdDir<span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span> build_dir_name <span style="color:#e6db74">&#34;Prod&#34;</span> <span style="color:#66d9ef">else</span> build_dir_name <span style="color:#e6db74">&#34;Trunk&#34;</span>
 
-let rename_directories =  Array.filter (fun dir -&gt; Regex.IsMatch(get_last_folder_name dir , &quot;^[0-9]&quot;) ) &gt;&gt; 
-                          Array.iter (fun dir -&gt; Directory.Move(dir, create_new_dir_name dir))
+<span style="color:#66d9ef">let</span> rename_directories <span style="color:#f92672">=</span>  Array.filter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> dir <span style="color:#f92672">-&gt;</span> Regex.<span style="color:#a6e22e">IsMatch</span><span style="color:#f92672">(</span>get_last_folder_name dir <span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;^[0-9]&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">)</span> <span style="color:#f92672">&gt;&gt;</span> 
+                          Array.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> dir <span style="color:#f92672">-&gt;</span> Directory.<span style="color:#a6e22e">Move</span><span style="color:#f92672">(</span>dir<span style="color:#f92672">,</span> create_new_dir_name dir<span style="color:#f92672">))</span>
     
-rename_directories &lt;| Directory.GetDirectories(&quot;C:\\artifacts&quot;)
-</code></pre>
-
-<p>I don&rsquo;t really like the &lsquo;get_position_of_last_folder&rsquo; function but it helped to remove the duplication in the following two functions. Maybe there&rsquo;s a better way to remove this duplication that I&rsquo;m not aware of.</p>
-
+rename_directories <span style="color:#f92672">&lt;|</span> Directory.<span style="color:#a6e22e">GetDirectories</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">artifacts&#34;</span><span style="color:#f92672">)</span>
+</code></pre></div><p>I don&rsquo;t really like the &lsquo;get_position_of_last_folder&rsquo; function but it helped to remove the duplication in the following two functions. Maybe there&rsquo;s a better way to remove this duplication that I&rsquo;m not aware of.</p>
 <p>We can then execute this by using the following command (note I have added &lsquo;C:\Program Files\FSharp-1.9.6.2\bin&rsquo; to the path):</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 fsi --exec --nologo rename.fsx
-</code></pre>
-
-<p>I wrote this script file in Visual Studio so that I could get all the Intellisense help that I need but it&rsquo;s not part of any project - it stands alone!</p>
-
-<p>I learnt about the possibility to do scripting in F# from a blog post by Chris Smith <a href="http://blogs.msdn.com/chrsmith/archive/2008/09/12/scripting-in-f.aspx">where he talks about some of the ways that he&rsquo;s been able to use F# for scripting in his work</a>.</p>
-
+</code></pre></div><p>I wrote this script file in Visual Studio so that I could get all the Intellisense help that I need but it&rsquo;s not part of any project - it stands alone!</p>
+<p>I learnt about the possibility to do scripting in F# from a blog post by Chris Smith <!-- raw HTML omitted -->where he talks about some of the ways that he&rsquo;s been able to use F# for scripting in his work<!-- raw HTML omitted -->.</p>
 <p>I thought running an F# script would be significantly slower than running an equivalent Ruby one since the F# code needs to be compiled first but I didn&rsquo;t notice that the F# script ran any slower than the Ruby one just from observation.</p>
 
     <div id="social-bar">

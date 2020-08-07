@@ -64,9 +64,8 @@ Our initial approach was to populate the drop down with all potential options on
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-06-30",
-        "description": "We recently had a requirement to dynamically update a drop down list based on how the user had filled in other parts of the page.
-Our initial approach was to populate the drop down with all potential options on page load and then add CSS selectors to the options that we wanted to hide. That worked fine in Chrome and Firefox but Internet Explorer seems to ignore CSS selectors inside a drop down list so none of the options were being hidden.",
-        "wordCount": 240
+        "description": "We recently had a requirement to dynamically update a drop down list based on how the user had filled in other parts of the page.\nOur initial approach was to populate the drop down with all potential options on page load and then add CSS selectors to the options that we wanted to hide. That worked fine in Chrome and Firefox but Internet Explorer seems to ignore CSS selectors inside a drop down list so none of the options were being hidden.",
+        "wordCount":  239 
     }
     </script>
     
@@ -176,50 +175,38 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">jQuery: Dynamically updating a drop down list</h1>
     <p>We recently had a requirement to dynamically update a drop down list based on how the user had filled in other parts of the page.</p>
-
 <p>Our initial approach was to populate the drop down with all potential options on page load and then add CSS selectors to the options that we wanted to hide. That worked fine in Chrome and Firefox but Internet Explorer seems to ignore CSS selectors inside a drop down list so none of the options were being hidden.</p>
-
 <p>We therefore had to try and dynamically add and remove options from the drop down list instead.</p>
-
 <p>The list that we initially loaded onto the page was like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html">
+&lt;<span style="color:#f92672">select</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;foo&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;foo&#34;</span>&gt;
+&lt;<span style="color:#f92672">option</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;A&#34;</span> <span style="color:#a6e22e">selected</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;selected&#34;</span>&gt;A&lt;/<span style="color:#f92672">option</span>&gt;
+&lt;<span style="color:#f92672">option</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;B&#34;</span>&gt;B&lt;/<span style="color:#f92672">option</span>&gt;
+&lt;<span style="color:#f92672">option</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;C&#34;</span>&gt;C&lt;/<span style="color:#f92672">option</span>&gt;
+&lt;<span style="color:#f92672">option</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Not applicable&#34;</span>&gt;Not applicable&lt;/<span style="color:#f92672">option</span>&gt;
+&lt;/<span style="color:#f92672">select</span>&gt;
+</code></pre></div><p><!-- raw HTML omitted -->Christian<!-- raw HTML omitted --> eventually came up with the following solution to hide/show those options and select the appropriate one after several hours of trial and error:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
+<span style="color:#75715e">// captured on page load
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">originalFooOptions</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">$</span>(<span style="color:#e6db74">&#34;#foo &gt; option&#34;</span>); 
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">foo</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">$</span>(<span style="color:#e6db74">&#34;#foo&#34;</span>);
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">dependentField</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">$</span>(<span style="color:#e6db74">&#34;#fieldFooIsDependentOn&#34;</span>);
 
-<pre><code class="language-html">
-&lt;select id=&quot;foo&quot; name=&quot;foo&quot;&gt;
-&lt;option value=&quot;A&quot; selected=&quot;selected&quot;&gt;A&lt;/option&gt;
-&lt;option value=&quot;B&quot;&gt;B&lt;/option&gt;
-&lt;option value=&quot;C&quot;&gt;C&lt;/option&gt;
-&lt;option value=&quot;Not applicable&quot;&gt;Not applicable&lt;/option&gt;
-&lt;/select&gt;
-</code></pre>
-
-<p><a href="http://twitter.com/christianralph">Christian</a> eventually came up with the following solution to hide/show those options and select the appropriate one after several hours of trial and error:</p>
-
-<pre><code class="language-javascript">
-// captured on page load
-var originalFooOptions = $(&quot;#foo &gt; option&quot;); 
-</code></pre>
-
-<pre><code class="language-javascript">
-var foo = $(&quot;#foo&quot;);
-var dependentField = $(&quot;#fieldFooIsDependentOn&quot;);
-
-if(notApplicable()) {
-	foo.children(&quot;option[value!='Not applicable']&quot;).remove();
-	foo.val(&quot;Not applicable&quot;);
-} else {
-	foo.empty();
-	$(originalFooOptions).each(function() {
-		var newOption = $(this).clone();
-		if ($(this).val() === dependentField.val()) {
-			newOption.attr(&quot;selected&quot;, &quot;selected&quot;);
+<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">notApplicable</span>()) {
+	<span style="color:#a6e22e">foo</span>.<span style="color:#a6e22e">children</span>(<span style="color:#e6db74">&#34;option[value!=&#39;Not applicable&#39;]&#34;</span>).<span style="color:#a6e22e">remove</span>();
+	<span style="color:#a6e22e">foo</span>.<span style="color:#a6e22e">val</span>(<span style="color:#e6db74">&#34;Not applicable&#34;</span>);
+} <span style="color:#66d9ef">else</span> {
+	<span style="color:#a6e22e">foo</span>.<span style="color:#a6e22e">empty</span>();
+	<span style="color:#a6e22e">$</span>(<span style="color:#a6e22e">originalFooOptions</span>).<span style="color:#a6e22e">each</span>(<span style="color:#66d9ef">function</span>() {
+		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">newOption</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">$</span>(<span style="color:#66d9ef">this</span>).<span style="color:#a6e22e">clone</span>();
+		<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">$</span>(<span style="color:#66d9ef">this</span>).<span style="color:#a6e22e">val</span>() <span style="color:#f92672">===</span> <span style="color:#a6e22e">dependentField</span>.<span style="color:#a6e22e">val</span>()) {
+			<span style="color:#a6e22e">newOption</span>.<span style="color:#a6e22e">attr</span>(<span style="color:#e6db74">&#34;selected&#34;</span>, <span style="color:#e6db74">&#34;selected&#34;</span>);
 		}
-		newOption.appendTo(foo);
+		<span style="color:#a6e22e">newOption</span>.<span style="color:#a6e22e">appendTo</span>(<span style="color:#a6e22e">foo</span>);
 	});	
 }
-</code></pre>
-
-<p>Another approach we tried was to try and dynamically update &lsquo;foo&rsquo; rather than removing all the items and then adding them back.</p>
-
+</code></pre></div><p>Another approach we tried was to try and dynamically update &lsquo;foo&rsquo; rather than removing all the items and then adding them back.</p>
 <p>Unfortunately we kept getting an &lsquo;unspecified error&rsquo; on Internet Explorer 6 when we tried to set the selected value with that approach.</p>
 
     <div id="social-bar">

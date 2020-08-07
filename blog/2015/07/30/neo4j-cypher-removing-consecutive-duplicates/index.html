@@ -23,8 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Cypher - Removing consecutive duplicates" />
         
-          <meta name="twitter:description" content="When writing Cypher queries I sometimes find myself wanting to remove consecutive duplicates in collections that I&#39;ve joined together. e.g we might start with the following query where 1 and 7 appear consecutively:
-RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&gt; &#43;-----------------------&#43; ==&gt; | values | ==&gt; &#43;-----------------------&#43; ==&gt; | [1,1,2,3,4,5,6,7,7,8] | ==&gt; &#43;-----------------------&#43; ==&gt; 1 row   We want to end up with [1,2,3,4,5,6,7,8]. We can start by exploding our array and putting consecutive elements next to each other: WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx RETURN idx, idx&#43;1, values[idx], values[idx&#43;1] ==&gt; &#43;-------------------------------------------&#43; ==&gt; | idx | idx&#43;1 | values[idx] | values[idx&#43;1] | ==&gt; &#43;-------------------------------------------&#43; ==&gt; | 0 | 1 | 1 | 1 | ==&gt; | 1 | 2 | 1 | 2 | ==&gt; | 2 | 3 | 2 | 3 | ==&gt; | 3 | 4 | 3 | 4 | ==&gt; | 4 | 5 | 4 | 5 | ==&gt; | 5 | 6 | 5 | 6 | ==&gt; | 6 | 7 | 6 | 7 | ==&gt; | 7 | 8 | 7 | 7 | ==&gt; | 8 | 9 | 7 | 8 | ==&gt; &#43;-------------------------------------------&#43; ==&gt; 9 rows  Next we can filter out rows which have the same values since that means they have consecutive duplicates:" />
+          <meta name="twitter:description" content="RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&gt; &#43;-----------------------&#43; ==&gt; | values | ==&gt; &#43;-----------------------&#43; ==&gt; | [1,1,2,3,4,5,6,7,7,8] | ==&gt; &#43;-----------------------&#43; ==&gt; 1 row WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx RETURN idx, idx&#43;1, values[idx], values[idx&#43;1] ==&gt; &#43;-------------------------------------------&#43; ==&gt; | idx | idx&#43;1 | values[idx] | values[idx&#43;1] | ==&gt; &#43;-------------------------------------------&#43; ==&gt; | 0 | 1 | 1 | 1 | ==&gt; | 1 | 2 | 1 | 2 | ==&gt; | 2 | 3 | 2 | 3 | ==&gt; | 3 | 4 | 3 | 4 | ==&gt; | 4 | 5 | 4 | 5 | ==&gt; | 5 | 6 | 5 | 6 | ==&gt; | 6 | 7 | 6 | 7 | ==&gt; | 7 | 8 | 7 | 7 | ==&gt; | 8 | 9 | 7 | 8 | ==&gt; &#43;-------------------------------------------&#43; ==&gt; 9 rows WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx&#43;1] AS b WHERE a &lt;&gt; b RETURN a,b ==&gt; &#43;-------&#43; ==&gt; | a | b | ==&gt; &#43;-------&#43; ==&gt; | 1 | 2 | ==&gt; | 2 | 3 | ==&gt; | 3 | 4 | ==&gt; | 4 | 5 | ==&gt; | 5 | 6 | ==&gt; | 6 | 7 | ==&gt; | 7 | 8 | ==&gt; &#43;-------&#43; ==&gt; 7 rows WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx&#43;1] AS b WHERE a &lt;&gt; b RETURN COLLECT(a)[0] &#43; COLLECT(b) AS noDuplicates ==&gt; &#43;-------------------&#43; ==&gt; | noDuplicates | ==&gt; &#43;-------------------&#43; ==&gt; | [1,2,3,4,5,6,7,8] | ==&gt; &#43;-------------------&#43; ==&gt; 1 row WITH [1,1,1,2,3,4,5,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx&#43;1] AS b WHERE a &lt;&gt; b RETURN COLLECT(a)[0] &#43; COLLECT(b) AS noDuplicates ==&gt; &#43;-------------------&#43; ==&gt; | noDuplicates | ==&gt; &#43;-------------------&#43; ==&gt; | [1,2,3,4,5,6,7,8] | ==&gt; &#43;-------------------&#43; ==&gt; 1 row WITH [1,1,1,2,3,4,5,5,6,7,7,8,1] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx&#43;1] AS b WHERE a &lt;&gt; b RETURN COLLECT(a)[0] &#43; COLLECT(b) AS noDuplicates ==&gt; &#43;---------------------&#43; ==&gt; | noDuplicates | ==&gt; &#43;---------------------&#43; ==&gt; | [1,2,3,4,5,6,7,8,1] | ==&gt; &#43;---------------------&#43; ==&gt; 1 row " />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/07/30/neo4j-cypher-removing-consecutive-duplicates/" />
 
@@ -35,8 +34,7 @@ RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&gt; &#43;-----------------------&#43; 
         <title> Neo4j: Cypher - Removing consecutive duplicates &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="When writing Cypher queries I sometimes find myself wanting to remove consecutive duplicates in collections that I&#39;ve joined together. e.g we might start with the following query where 1 and 7 appear consecutively:
-RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&gt; &#43;-----------------------&#43; ==&gt; | values | ==&gt; &#43;-----------------------&#43; ==&gt; | [1,1,2,3,4,5,6,7,7,8] | ==&gt; &#43;-----------------------&#43; ==&gt; 1 row   We want to end up with [1,2,3,4,5,6,7,8]. We can start by exploding our array and putting consecutive elements next to each other: WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx RETURN idx, idx&#43;1, values[idx], values[idx&#43;1] ==&gt; &#43;-------------------------------------------&#43; ==&gt; | idx | idx&#43;1 | values[idx] | values[idx&#43;1] | ==&gt; &#43;-------------------------------------------&#43; ==&gt; | 0 | 1 | 1 | 1 | ==&gt; | 1 | 2 | 1 | 2 | ==&gt; | 2 | 3 | 2 | 3 | ==&gt; | 3 | 4 | 3 | 4 | ==&gt; | 4 | 5 | 4 | 5 | ==&gt; | 5 | 6 | 5 | 6 | ==&gt; | 6 | 7 | 6 | 7 | ==&gt; | 7 | 8 | 7 | 7 | ==&gt; | 8 | 9 | 7 | 8 | ==&gt; &#43;-------------------------------------------&#43; ==&gt; 9 rows  Next we can filter out rows which have the same values since that means they have consecutive duplicates:" />
+        <meta name="description" content="RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&gt; &#43;-----------------------&#43; ==&gt; | values | ==&gt; &#43;-----------------------&#43; ==&gt; | [1,1,2,3,4,5,6,7,7,8] | ==&gt; &#43;-----------------------&#43; ==&gt; 1 row WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx RETURN idx, idx&#43;1, values[idx], values[idx&#43;1] ==&gt; &#43;-------------------------------------------&#43; ==&gt; | idx | idx&#43;1 | values[idx] | values[idx&#43;1] | ==&gt; &#43;-------------------------------------------&#43; ==&gt; | 0 | 1 | 1 | 1 | ==&gt; | 1 | 2 | 1 | 2 | ==&gt; | 2 | 3 | 2 | 3 | ==&gt; | 3 | 4 | 3 | 4 | ==&gt; | 4 | 5 | 4 | 5 | ==&gt; | 5 | 6 | 5 | 6 | ==&gt; | 6 | 7 | 6 | 7 | ==&gt; | 7 | 8 | 7 | 7 | ==&gt; | 8 | 9 | 7 | 8 | ==&gt; &#43;-------------------------------------------&#43; ==&gt; 9 rows WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx&#43;1] AS b WHERE a &lt;&gt; b RETURN a,b ==&gt; &#43;-------&#43; ==&gt; | a | b | ==&gt; &#43;-------&#43; ==&gt; | 1 | 2 | ==&gt; | 2 | 3 | ==&gt; | 3 | 4 | ==&gt; | 4 | 5 | ==&gt; | 5 | 6 | ==&gt; | 6 | 7 | ==&gt; | 7 | 8 | ==&gt; &#43;-------&#43; ==&gt; 7 rows WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx&#43;1] AS b WHERE a &lt;&gt; b RETURN COLLECT(a)[0] &#43; COLLECT(b) AS noDuplicates ==&gt; &#43;-------------------&#43; ==&gt; | noDuplicates | ==&gt; &#43;-------------------&#43; ==&gt; | [1,2,3,4,5,6,7,8] | ==&gt; &#43;-------------------&#43; ==&gt; 1 row WITH [1,1,1,2,3,4,5,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx&#43;1] AS b WHERE a &lt;&gt; b RETURN COLLECT(a)[0] &#43; COLLECT(b) AS noDuplicates ==&gt; &#43;-------------------&#43; ==&gt; | noDuplicates | ==&gt; &#43;-------------------&#43; ==&gt; | [1,2,3,4,5,6,7,8] | ==&gt; &#43;-------------------&#43; ==&gt; 1 row WITH [1,1,1,2,3,4,5,5,6,7,7,8,1] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx&#43;1] AS b WHERE a &lt;&gt; b RETURN COLLECT(a)[0] &#43; COLLECT(b) AS noDuplicates ==&gt; &#43;---------------------&#43; ==&gt; | noDuplicates | ==&gt; &#43;---------------------&#43; ==&gt; | [1,2,3,4,5,6,7,8,1] | ==&gt; &#43;---------------------&#43; ==&gt; 1 row " />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,9 +63,8 @@ RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&gt; &#43;-----------------------&#43; 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-07-30",
-        "description": "When writing Cypher queries I sometimes find myself wanting to remove consecutive duplicates in collections that I've joined together. e.g we might start with the following query where 1 and 7 appear consecutively:
-RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&gt; +-----------------------+ ==&gt; | values | ==&gt; +-----------------------+ ==&gt; | [1,1,2,3,4,5,6,7,7,8] | ==&gt; +-----------------------+ ==&gt; 1 row   We want to end up with [1,2,3,4,5,6,7,8]. We can start by exploding our array and putting consecutive elements next to each other: WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx RETURN idx, idx+1, values[idx], values[idx+1] ==&gt; +-------------------------------------------+ ==&gt; | idx | idx+1 | values[idx] | values[idx+1] | ==&gt; +-------------------------------------------+ ==&gt; | 0 | 1 | 1 | 1 | ==&gt; | 1 | 2 | 1 | 2 | ==&gt; | 2 | 3 | 2 | 3 | ==&gt; | 3 | 4 | 3 | 4 | ==&gt; | 4 | 5 | 4 | 5 | ==&gt; | 5 | 6 | 5 | 6 | ==&gt; | 6 | 7 | 6 | 7 | ==&gt; | 7 | 8 | 7 | 7 | ==&gt; | 8 | 9 | 7 | 8 | ==&gt; +-------------------------------------------+ ==&gt; 9 rows  Next we can filter out rows which have the same values since that means they have consecutive duplicates:",
-        "wordCount": 496
+        "description": "RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==\x26gt; \x2b-----------------------\x2b ==\x26gt; | values | ==\x26gt; \x2b-----------------------\x2b ==\x26gt; | [1,1,2,3,4,5,6,7,7,8] | ==\x26gt; \x2b-----------------------\x2b ==\x26gt; 1 row WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx RETURN idx, idx\x2b1, values[idx], values[idx\x2b1] ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; | idx | idx\x2b1 | values[idx] | values[idx\x2b1] | ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; | 0 | 1 | 1 | 1 | ==\x26gt; | 1 | 2 | 1 | 2 | ==\x26gt; | 2 | 3 | 2 | 3 | ==\x26gt; | 3 | 4 | 3 | 4 | ==\x26gt; | 4 | 5 | 4 | 5 | ==\x26gt; | 5 | 6 | 5 | 6 | ==\x26gt; | 6 | 7 | 6 | 7 | ==\x26gt; | 7 | 8 | 7 | 7 | ==\x26gt; | 8 | 9 | 7 | 8 | ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; 9 rows WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx\x2b1] AS b WHERE a \x26lt;\x26gt; b RETURN a,b ==\x26gt; \x2b-------\x2b ==\x26gt; | a | b | ==\x26gt; \x2b-------\x2b ==\x26gt; | 1 | 2 | ==\x26gt; | 2 | 3 | ==\x26gt; | 3 | 4 | ==\x26gt; | 4 | 5 | ==\x26gt; | 5 | 6 | ==\x26gt; | 6 | 7 | ==\x26gt; | 7 | 8 | ==\x26gt; \x2b-------\x2b ==\x26gt; 7 rows WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx\x2b1] AS b WHERE a \x26lt;\x26gt; b RETURN COLLECT(a)[0] \x2b COLLECT(b) AS noDuplicates ==\x26gt; \x2b-------------------\x2b ==\x26gt; | noDuplicates | ==\x26gt; \x2b-------------------\x2b ==\x26gt; | [1,2,3,4,5,6,7,8] | ==\x26gt; \x2b-------------------\x2b ==\x26gt; 1 row WITH [1,1,1,2,3,4,5,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx\x2b1] AS b WHERE a \x26lt;\x26gt; b RETURN COLLECT(a)[0] \x2b COLLECT(b) AS noDuplicates ==\x26gt; \x2b-------------------\x2b ==\x26gt; | noDuplicates | ==\x26gt; \x2b-------------------\x2b ==\x26gt; | [1,2,3,4,5,6,7,8] | ==\x26gt; \x2b-------------------\x2b ==\x26gt; 1 row WITH [1,1,1,2,3,4,5,5,6,7,7,8,1] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx\x2b1] AS b WHERE a \x26lt;\x26gt; b RETURN COLLECT(a)[0] \x2b COLLECT(b) AS noDuplicates ==\x26gt; \x2b---------------------\x2b ==\x26gt; | noDuplicates | ==\x26gt; \x2b---------------------\x2b ==\x26gt; | [1,2,3,4,5,6,7,8,1] | ==\x26gt; \x2b---------------------\x2b ==\x26gt; 1 row ",
+        "wordCount":  362 
     }
     </script>
     
@@ -178,13 +175,9 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Removing consecutive duplicates</h1>
-    <p>
-When writing Cypher queries I sometimes find myself wanting to remove consecutive duplicates in collections that I've joined together.
-</p>
-
-<p>e.g we might start with the following query where 1 and 7 appear consecutively:</p>
-
-<pre><code class="language-cypher">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 RETURN [1,1,2,3,4,5,6,7,7,8] AS values
 
 ==&gt; +-----------------------+
@@ -193,13 +186,8 @@ RETURN [1,1,2,3,4,5,6,7,7,8] AS values
 ==&gt; | [1,1,2,3,4,5,6,7,7,8] |
 ==&gt; +-----------------------+
 ==&gt; 1 row
-</code></pre>
-
-<p>
-We want to end up with [1,2,3,4,5,6,7,8]. We can start by exploding our array and putting consecutive elements next to each other:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [1,1,2,3,4,5,6,7,7,8] AS values
 UNWIND RANGE(0, LENGTH(values) - 2) AS idx
 RETURN idx, idx+1, values[idx], values[idx+1]
@@ -218,11 +206,8 @@ RETURN idx, idx+1, values[idx], values[idx+1]
 ==&gt; | 8   | 9     | 7           | 8             |
 ==&gt; +-------------------------------------------+
 ==&gt; 9 rows
-</code></pre>
-
-<p>Next we can filter out rows which have the same values since that means they have consecutive duplicates:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [1,1,2,3,4,5,6,7,7,8] AS values
 UNWIND RANGE(0, LENGTH(values) - 2) AS idx
 WITH values[idx] AS a, values[idx+1] AS b
@@ -241,11 +226,8 @@ RETURN a,b
 ==&gt; | 7 | 8 |
 ==&gt; +-------+
 ==&gt; 7 rows
-</code></pre>
-
-<p>Now we need to join the collection back together again. Most of the values we want are in field 'b' but we also need to grab the first value from field 'a':</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [1,1,2,3,4,5,6,7,7,8] AS values
 UNWIND RANGE(0, LENGTH(values) - 2) AS idx
 WITH values[idx] AS a, values[idx+1] AS b
@@ -258,11 +240,8 @@ RETURN COLLECT(a)[0] + COLLECT(b) AS noDuplicates
 ==&gt; | [1,2,3,4,5,6,7,8] |
 ==&gt; +-------------------+
 ==&gt; 1 row
-</code></pre>
-
-<p>What about if we have more than 2 duplicates in a row?</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [1,1,1,2,3,4,5,5,6,7,7,8] AS values
 UNWIND RANGE(0, LENGTH(values) - 2) AS idx
 WITH values[idx] AS a, values[idx+1] AS b
@@ -275,11 +254,8 @@ RETURN COLLECT(a)[0] + COLLECT(b) AS noDuplicates
 ==&gt; | [1,2,3,4,5,6,7,8] |
 ==&gt; +-------------------+
 ==&gt; 1 row
-</code></pre>
-
-<p>Still happy, good times! Of course if we have a non consecutive duplicate that wouldn't be removed:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [1,1,1,2,3,4,5,5,6,7,7,8,1] AS values
 UNWIND RANGE(0, LENGTH(values) - 2) AS idx
 WITH values[idx] AS a, values[idx+1] AS b
@@ -293,7 +269,6 @@ RETURN COLLECT(a)[0] + COLLECT(b) AS noDuplicates
 ==&gt; +---------------------+
 ==&gt; 1 row
 </code></pre>
-
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -327,7 +302,7 @@ RETURN COLLECT(a)[0] + COLLECT(b) AS noDuplicates
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/07/30/neo4j-cypher-removing-consecutive-duplicates/&amp;title=Neo4j%3a%20Cypher%20-%20Removing%20consecutive%20duplicates&amp;summary=When%20writing%20Cypher%20queries%20I%20sometimes%20find%20myself%20wanting%20to%20remove%20consecutive%20duplicates%20in%20collections%20that%20I%27ve%20joined%20together.%20e.g%20we%20might%20start%20with%20the%20following%20query%20where%201%20and%207%20appear%20consecutively%3a%0aRETURN%20%5b1%2c1%2c2%2c3%2c4%2c5%2c6%2c7%2c7%2c8%5d%20AS%20values%20%3d%3d%26gt%3b%20%2b-----------------------%2b%20%3d%3d%26gt%3b%20%7c%20values%20%7c%20%3d%3d%26gt%3b%20%2b-----------------------%2b%20%3d%3d%26gt%3b%20%7c%20%5b1%2c1%2c2%2c3%2c4%2c5%2c6%2c7%2c7%2c8%5d%20%7c%20%3d%3d%26gt%3b%20%2b-----------------------%2b%20%3d%3d%26gt%3b%201%20row%20%20%20We%20want%20to%20end%20up%20with%20%5b1%2c2%2c3%2c4%2c5%2c6%2c7%2c8%5d.%20We%20can%20start%20by%20exploding%20our%20array%20and%20putting%20consecutive%20elements%20next%20to%20each%20other%3a%20WITH%20%5b1%2c1%2c2%2c3%2c4%2c5%2c6%2c7%2c7%2c8%5d%20AS%20values%20UNWIND%20RANGE%280%2c%20LENGTH%28values%29%20-%202%29%20AS%20idx%20RETURN%20idx%2c%20idx%2b1%2c%20values%5bidx%5d%2c%20values%5bidx%2b1%5d%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20idx%20%7c%20idx%2b1%20%7c%20values%5bidx%5d%20%7c%20values%5bidx%2b1%5d%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%200%20%7c%201%20%7c%201%20%7c%201%20%7c%20%3d%3d%26gt%3b%20%7c%201%20%7c%202%20%7c%201%20%7c%202%20%7c%20%3d%3d%26gt%3b%20%7c%202%20%7c%203%20%7c%202%20%7c%203%20%7c%20%3d%3d%26gt%3b%20%7c%203%20%7c%204%20%7c%203%20%7c%204%20%7c%20%3d%3d%26gt%3b%20%7c%204%20%7c%205%20%7c%204%20%7c%205%20%7c%20%3d%3d%26gt%3b%20%7c%205%20%7c%206%20%7c%205%20%7c%206%20%7c%20%3d%3d%26gt%3b%20%7c%206%20%7c%207%20%7c%206%20%7c%207%20%7c%20%3d%3d%26gt%3b%20%7c%207%20%7c%208%20%7c%207%20%7c%207%20%7c%20%3d%3d%26gt%3b%20%7c%208%20%7c%209%20%7c%207%20%7c%208%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%209%20rows%20%20Next%20we%20can%20filter%20out%20rows%20which%20have%20the%20same%20values%20since%20that%20means%20they%20have%20consecutive%20duplicates%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/07/30/neo4j-cypher-removing-consecutive-duplicates/&amp;title=Neo4j%3a%20Cypher%20-%20Removing%20consecutive%20duplicates&amp;summary=RETURN%20%5b1%2c1%2c2%2c3%2c4%2c5%2c6%2c7%2c7%2c8%5d%20AS%20values%20%3d%3d%26gt%3b%20%2b-----------------------%2b%20%3d%3d%26gt%3b%20%7c%20values%20%7c%20%3d%3d%26gt%3b%20%2b-----------------------%2b%20%3d%3d%26gt%3b%20%7c%20%5b1%2c1%2c2%2c3%2c4%2c5%2c6%2c7%2c7%2c8%5d%20%7c%20%3d%3d%26gt%3b%20%2b-----------------------%2b%20%3d%3d%26gt%3b%201%20row%20WITH%20%5b1%2c1%2c2%2c3%2c4%2c5%2c6%2c7%2c7%2c8%5d%20AS%20values%20UNWIND%20RANGE%280%2c%20LENGTH%28values%29%20-%202%29%20AS%20idx%20RETURN%20idx%2c%20idx%2b1%2c%20values%5bidx%5d%2c%20values%5bidx%2b1%5d%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20idx%20%7c%20idx%2b1%20%7c%20values%5bidx%5d%20%7c%20values%5bidx%2b1%5d%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%200%20%7c%201%20%7c%201%20%7c%201%20%7c%20%3d%3d%26gt%3b%20%7c%201%20%7c%202%20%7c%201%20%7c%202%20%7c%20%3d%3d%26gt%3b%20%7c%202%20%7c%203%20%7c%202%20%7c%203%20%7c%20%3d%3d%26gt%3b%20%7c%203%20%7c%204%20%7c%203%20%7c%204%20%7c%20%3d%3d%26gt%3b%20%7c%204%20%7c%205%20%7c%204%20%7c%205%20%7c%20%3d%3d%26gt%3b%20%7c%205%20%7c%206%20%7c%205%20%7c%206%20%7c%20%3d%3d%26gt%3b%20%7c%206%20%7c%207%20%7c%206%20%7c%207%20%7c%20%3d%3d%26gt%3b%20%7c%207%20%7c%208%20%7c%207%20%7c%207%20%7c%20%3d%3d%26gt%3b%20%7c%208%20%7c%209%20%7c%207%20%7c%208%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%209%20rows%20WITH%20%5b1%2c1%2c2%2c3%2c4%2c5%2c6%2c7%2c7%2c8%5d%20AS%20values%20UNWIND%20RANGE%280%2c%20LENGTH%28values%29%20-%202%29%20AS%20idx%20WITH%20values%5bidx%5d%20AS%20a%2c%20values%5bidx%2b1%5d%20AS%20b%20WHERE%20a%20%26lt%3b%26gt%3b%20b%20RETURN%20a%2cb%20%3d%3d%26gt%3b%20%2b-------%2b%20%3d%3d%26gt%3b%20%7c%20a%20%7c%20b%20%7c%20%3d%3d%26gt%3b%20%2b-------%2b%20%3d%3d%26gt%3b%20%7c%201%20%7c%202%20%7c%20%3d%3d%26gt%3b%20%7c%202%20%7c%203%20%7c%20%3d%3d%26gt%3b%20%7c%203%20%7c%204%20%7c%20%3d%3d%26gt%3b%20%7c%204%20%7c%205%20%7c%20%3d%3d%26gt%3b%20%7c%205%20%7c%206%20%7c%20%3d%3d%26gt%3b%20%7c%206%20%7c%207%20%7c%20%3d%3d%26gt%3b%20%7c%207%20%7c%208%20%7c%20%3d%3d%26gt%3b%20%2b-------%2b%20%3d%3d%26gt%3b%207%20rows%20WITH%20%5b1%2c1%2c2%2c3%2c4%2c5%2c6%2c7%2c7%2c8%5d%20AS%20values%20UNWIND%20RANGE%280%2c%20LENGTH%28values%29%20-%202%29%20AS%20idx%20WITH%20values%5bidx%5d%20AS%20a%2c%20values%5bidx%2b1%5d%20AS%20b%20WHERE%20a%20%26lt%3b%26gt%3b%20b%20RETURN%20COLLECT%28a%29%5b0%5d%20%2b%20COLLECT%28b%29%20AS%20noDuplicates%20%3d%3d%26gt%3b%20%2b-------------------%2b%20%3d%3d%26gt%3b%20%7c%20noDuplicates%20%7c%20%3d%3d%26gt%3b%20%2b-------------------%2b%20%3d%3d%26gt%3b%20%7c%20%5b1%2c2%2c3%2c4%2c5%2c6%2c7%2c8%5d%20%7c%20%3d%3d%26gt%3b%20%2b-------------------%2b%20%3d%3d%26gt%3b%201%20row%20WITH%20%5b1%2c1%2c1%2c2%2c3%2c4%2c5%2c5%2c6%2c7%2c7%2c8%5d%20AS%20values%20UNWIND%20RANGE%280%2c%20LENGTH%28values%29%20-%202%29%20AS%20idx%20WITH%20values%5bidx%5d%20AS%20a%2c%20values%5bidx%2b1%5d%20AS%20b%20WHERE%20a%20%26lt%3b%26gt%3b%20b%20RETURN%20COLLECT%28a%29%5b0%5d%20%2b%20COLLECT%28b%29%20AS%20noDuplicates%20%3d%3d%26gt%3b%20%2b-------------------%2b%20%3d%3d%26gt%3b%20%7c%20noDuplicates%20%7c%20%3d%3d%26gt%3b%20%2b-------------------%2b%20%3d%3d%26gt%3b%20%7c%20%5b1%2c2%2c3%2c4%2c5%2c6%2c7%2c8%5d%20%7c%20%3d%3d%26gt%3b%20%2b-------------------%2b%20%3d%3d%26gt%3b%201%20row%20WITH%20%5b1%2c1%2c1%2c2%2c3%2c4%2c5%2c5%2c6%2c7%2c7%2c8%2c1%5d%20AS%20values%20UNWIND%20RANGE%280%2c%20LENGTH%28values%29%20-%202%29%20AS%20idx%20WITH%20values%5bidx%5d%20AS%20a%2c%20values%5bidx%2b1%5d%20AS%20b%20WHERE%20a%20%26lt%3b%26gt%3b%20b%20RETURN%20COLLECT%28a%29%5b0%5d%20%2b%20COLLECT%28b%29%20AS%20noDuplicates%20%3d%3d%26gt%3b%20%2b---------------------%2b%20%3d%3d%26gt%3b%20%7c%20noDuplicates%20%7c%20%3d%3d%26gt%3b%20%2b---------------------%2b%20%3d%3d%26gt%3b%20%7c%20%5b1%2c2%2c3%2c4%2c5%2c6%2c7%2c8%2c1%5d%20%7c%20%3d%3d%26gt%3b%20%2b---------------------%2b%20%3d%3d%26gt%3b%201%20row%20..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

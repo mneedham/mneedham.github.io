@@ -22,9 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="awk: Parsing &#39;free -m&#39; output to get memory usage/consumption" />
         
-          <meta name="twitter:description" content="Although I know this problem is already solved by collectd and New Relic I wanted to write a little shell script that showed me the memory usage on a bunch of VMs by parsing the output of free.
-The output I was playing with looks like this:
-$ free -m total used free shared buffers cached Mem: 365 360 5 0 59 97 -/&#43; buffers/cache: 203 161 Swap: 767 13 754  I wanted to find out what % of the memory on the machine was being used and as I understand it the numbers that we would use to calculate this are the &#39;total&#39; value on the &#39;Mem&#39; line and the &#39;used&#39; value on the &#39;buffers/cache&#39; line." />
+          <meta name="twitter:description" content="$ free -m total used free shared buffers cached Mem: 365 360 5 0 59 97 -/&#43; buffers/cache: 203 161 Swap: 767 13 754 $ free -m | awk &#39;/Mem:/ { print $2 } /buffers\/cache/ { print $3 }&#39; 365 203 $ free -m | awk &#39;/Mem:/ { print $2 } /buffers\/cache/ { print $3 }&#39; | awk &#39;BEGIN { RS = &#34;&#34; ; FS = &#34;\n&#34; } { print $2 / $1 }&#39; 0." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/04/10/awk-parsing-free-m-output-to-get-memory-usageconsumption/" />
 
@@ -35,9 +33,7 @@ $ free -m total used free shared buffers cached Mem: 365 360 5 0 59 97 -/&#43; b
         <title> awk: Parsing &#39;free -m&#39; output to get memory usage/consumption &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Although I know this problem is already solved by collectd and New Relic I wanted to write a little shell script that showed me the memory usage on a bunch of VMs by parsing the output of free.
-The output I was playing with looks like this:
-$ free -m total used free shared buffers cached Mem: 365 360 5 0 59 97 -/&#43; buffers/cache: 203 161 Swap: 767 13 754  I wanted to find out what % of the memory on the machine was being used and as I understand it the numbers that we would use to calculate this are the &#39;total&#39; value on the &#39;Mem&#39; line and the &#39;used&#39; value on the &#39;buffers/cache&#39; line." />
+        <meta name="description" content="$ free -m total used free shared buffers cached Mem: 365 360 5 0 59 97 -/&#43; buffers/cache: 203 161 Swap: 767 13 754 $ free -m | awk &#39;/Mem:/ { print $2 } /buffers\/cache/ { print $3 }&#39; 365 203 $ free -m | awk &#39;/Mem:/ { print $2 } /buffers\/cache/ { print $3 }&#39; | awk &#39;BEGIN { RS = &#34;&#34; ; FS = &#34;\n&#34; } { print $2 / $1 }&#39; 0." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -60,16 +56,14 @@ $ free -m total used free shared buffers cached Mem: 365 360 5 0 59 97 -/&#43; b
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "awk: Parsing &#39;free -m&#39; output to get memory usage/consumption",
+        "headline": "awk: Parsing \x27free -m\x27 output to get memory usage\/consumption",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-04-10",
-        "description": "Although I know this problem is already solved by collectd and New Relic I wanted to write a little shell script that showed me the memory usage on a bunch of VMs by parsing the output of free.
-The output I was playing with looks like this:
-$ free -m total used free shared buffers cached Mem: 365 360 5 0 59 97 -/+ buffers/cache: 203 161 Swap: 767 13 754  I wanted to find out what % of the memory on the machine was being used and as I understand it the numbers that we would use to calculate this are the 'total' value on the 'Mem' line and the 'used' value on the 'buffers/cache' line.",
-        "wordCount": 390
+        "description": "$ free -m total used free shared buffers cached Mem: 365 360 5 0 59 97 -\/\x2b buffers\/cache: 203 161 Swap: 767 13 754 $ free -m | awk \x26#39;\/Mem:\/ { print $2 } \/buffers\\\/cache\/ { print $3 }\x26#39; 365 203 $ free -m | awk \x26#39;\/Mem:\/ { print $2 } \/buffers\\\/cache\/ { print $3 }\x26#39; | awk \x26#39;BEGIN { RS = \x26#34;\x26#34; ; FS = \x26#34;\\n\x26#34; } { print $2 \/ $1 }\x26#39; 0.",
+        "wordCount":  93 
     }
     </script>
     
@@ -178,54 +172,36 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">awk: Parsing &#39;free -m&#39; output to get memory usage/consumption</h1>
-    <p>Although I know this problem is already solved by <a href="http://collectd.org/">collectd</a> and <a href="http://newrelic.com/">New Relic</a> I wanted to write a little shell script that showed me the memory usage on a bunch of VMs by parsing the output of <cite><a href="http://linux.about.com/library/cmd/blcmdl1_free.htm">free</a></cite>.</p>
-
-<p>The output I was playing with looks like this:</p>
-
-<pre><code class="language-text">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 $ free -m
              total       used       free     shared    buffers     cached
 Mem:           365        360          5          0         59         97
 -/+ buffers/cache:        203        161
 Swap:          767         13        754
-</code></pre>
-
-<p>I wanted to find out what % of the memory on the machine was being used and as I understand it the numbers that we would use to calculate this are the 'total' value on the 'Mem' line and the 'used' value on the 'buffers/cache' line.</p>
-
-<p>I initially thought that the 'used' value I was interested in should be the one on the 'Mem' line but this number includes memory that <a href="http://www.linuxatemyram.com/index.html">Linux has borrowed for disk caching</a> so it isn't the true number.</p>
- 
-
-<p>There's another <a href="http://www.linuxatemyram.com/play.html">quite interesting article showing some experiments you can do</a> to prove this.</p>
-
-<p>So what I wanted to do was get the result of the calculation '203/365' which I wasn't sure how to do until I realised you can match multiple regular expressions with awk like so:</p>
-
-<pre><code class="language-text">
-$ free -m | awk '/Mem:/ { print $2 } /buffers\/cache/ { print $3 }'                                                        
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+$ free -m | awk &#39;/Mem:/ { print $2 } /buffers\/cache/ { print $3 }&#39;                                                        
 365
 203
-</code></pre>
-
-<p>We've now filtered the output down to just our two numbers but another neat thing you can do with awk is change what it uses as its field and record separator.</p>
-
-<p>In this case we want to change the field separator to be the new line character and we'll set the record separator to be nothing because otherwise it defaults to the new line character which will mess with our field separator.</p>
-
-<p>Those two values are set by using <a href="http://www.thegeekstuff.com/2010/01/8-powerful-awk-built-in-variables-fs-ofs-rs-ors-nr-nf-filename-fnr/">the 'RS' and 'FS' variables</a>:</p>
-
-<pre><code class="language-text">
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 $ free -m | 
-  awk '/Mem:/ { print $2 } /buffers\/cache/ { print $3 }' | 
-  awk 'BEGIN { RS = &quot;&quot; ; FS = &quot;\n&quot; } { print $2 / $1 }'
+  awk &#39;/Mem:/ { print $2 } /buffers\/cache/ { print $3 }&#39; | 
+  awk &#39;BEGIN { RS = &#34;&#34; ; FS = &#34;\n&#34; } { print $2 / $1 }&#39;
 0.556164
-</code></pre>
-
-<p>This is still sub optimal because we're using two awk commands rather than one! We can get around that by storing the two memory values in variables and printing them out in an END block:</p>
-
-<pre><code class="language-text">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 $ free -m | 
-  awk '/Mem:/ { total=$2 } /buffers\/cache/ { used=$3 } END { print used/total}'
+  awk &#39;/Mem:/ { total=$2 } /buffers\/cache/ { used=$3 } END { print used/total}&#39;
 0.556164
-</code></pre>
-
+</code></pre></div>
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -259,7 +235,7 @@ $ free -m |
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/04/10/awk-parsing-free-m-output-to-get-memory-usageconsumption/&amp;title=awk%3a%20Parsing%20%27free%20-m%27%20output%20to%20get%20memory%20usage%2fconsumption&amp;summary=Although%20I%20know%20this%20problem%20is%20already%20solved%20by%20collectd%20and%20New%20Relic%20I%20wanted%20to%20write%20a%20little%20shell%20script%20that%20showed%20me%20the%20memory%20usage%20on%20a%20bunch%20of%20VMs%20by%20parsing%20the%20output%20of%20free.%0aThe%20output%20I%20was%20playing%20with%20looks%20like%20this%3a%0a%24%20free%20-m%20total%20used%20free%20shared%20buffers%20cached%20Mem%3a%20365%20360%205%200%2059%2097%20-%2f%2b%20buffers%2fcache%3a%20203%20161%20Swap%3a%20767%2013%20754%20%20I%20wanted%20to%20find%20out%20what%20%25%20of%20the%20memory%20on%20the%20machine%20was%20being%20used%20and%20as%20I%20understand%20it%20the%20numbers%20that%20we%20would%20use%20to%20calculate%20this%20are%20the%20%27total%27%20value%20on%20the%20%27Mem%27%20line%20and%20the%20%27used%27%20value%20on%20the%20%27buffers%2fcache%27%20line...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/04/10/awk-parsing-free-m-output-to-get-memory-usageconsumption/&amp;title=awk%3a%20Parsing%20%27free%20-m%27%20output%20to%20get%20memory%20usage%2fconsumption&amp;summary=%24%20free%20-m%20total%20used%20free%20shared%20buffers%20cached%20Mem%3a%20365%20360%205%200%2059%2097%20-%2f%2b%20buffers%2fcache%3a%20203%20161%20Swap%3a%20767%2013%20754%20%24%20free%20-m%20%7c%20awk%20%26%2339%3b%2fMem%3a%2f%20%7b%20print%20%242%20%7d%20%2fbuffers%5c%2fcache%2f%20%7b%20print%20%243%20%7d%26%2339%3b%20365%20203%20%24%20free%20-m%20%7c%20awk%20%26%2339%3b%2fMem%3a%2f%20%7b%20print%20%242%20%7d%20%2fbuffers%5c%2fcache%2f%20%7b%20print%20%243%20%7d%26%2339%3b%20%7c%20awk%20%26%2339%3bBEGIN%20%7b%20RS%20%3d%20%26%2334%3b%26%2334%3b%20%3b%20FS%20%3d%20%26%2334%3b%5cn%26%2334%3b%20%7d%20%7b%20print%20%242%20%2f%20%241%20%7d%26%2339%3b%200...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -24,7 +24,8 @@
         
           <meta name="twitter:description" content="A few weeks ago I was looking at quite an interesting bug in our system which initially didn&rsquo;t seem possible.
 On one of our screens we have some questions that the user fills in which read a bit like this:
- Do you have a foo?  Is your foo an approved foo? Is your foo special?    i.e. you would only see the 2nd and 3rd questions on the screen if you answered yes to the first question." />
+i.e. you would only see the 2nd and 3rd questions on the screen if you answered yes to the first question.
+However, if you went to the next page on the form having answered &lsquo;Yes&rsquo; to the first question and then came back to this page and changed your answer to the first question to &lsquo;No&rsquo; then when the data got submitted to the server the answers to the other two questions would still be posted." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/03/22/defensive-programming-and-the-ui/" />
 
@@ -37,7 +38,8 @@ On one of our screens we have some questions that the user fills in which read a
     
         <meta name="description" content="A few weeks ago I was looking at quite an interesting bug in our system which initially didn&rsquo;t seem possible.
 On one of our screens we have some questions that the user fills in which read a bit like this:
- Do you have a foo?  Is your foo an approved foo? Is your foo special?    i.e. you would only see the 2nd and 3rd questions on the screen if you answered yes to the first question." />
+i.e. you would only see the 2nd and 3rd questions on the screen if you answered yes to the first question.
+However, if you went to the next page on the form having answered &lsquo;Yes&rsquo; to the first question and then came back to this page and changed your answer to the first question to &lsquo;No&rsquo; then when the data got submitted to the server the answers to the other two questions would still be posted." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,10 +68,8 @@ On one of our screens we have some questions that the user fills in which read a
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-03-22",
-        "description": "A few weeks ago I was looking at quite an interesting bug in our system which initially didn&rsquo;t seem possible.
-On one of our screens we have some questions that the user fills in which read a bit like this:
- Do you have a foo?  Is your foo an approved foo? Is your foo special?    i.e. you would only see the 2nd and 3rd questions on the screen if you answered yes to the first question.",
-        "wordCount": 398
+        "description": "A few weeks ago I was looking at quite an interesting bug in our system which initially didn\x26rsquo;t seem possible.\nOn one of our screens we have some questions that the user fills in which read a bit like this:\ni.e. you would only see the 2nd and 3rd questions on the screen if you answered yes to the first question.\nHowever, if you went to the next page on the form having answered \x26lsquo;Yes\x26rsquo; to the first question and then came back to this page and changed your answer to the first question to \x26lsquo;No\x26rsquo; then when the data got submitted to the server the answers to the other two questions would still be posted.",
+        "wordCount":  382 
     }
     </script>
     
@@ -179,41 +179,21 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Defensive Programming and the UI</h1>
     <p>A few weeks ago I was looking at quite an interesting bug in our system which initially didn&rsquo;t seem possible.</p>
-
 <p>On one of our screens we have some questions that the user fills in which read a bit like this:</p>
-
-<ul>
-<li>Do you have a foo?
-<ul>
-<li>Is your foo an approved foo?</li>
-<li>Is your foo special?</li>
-</ul>
-</li>
-</ul>
-
+<!-- raw HTML omitted -->
 <p>i.e. you would only see the 2nd and 3rd questions on the screen if you answered yes to the first question.</p>
-
 <p>However, if you went to the next page on the form having answered &lsquo;Yes&rsquo; to the first question and then came back to this page and changed your answer to the first question to &lsquo;No&rsquo; then when the data got submitted to the server the answers to the other two questions would still be posted.</p>
-
 <p>We were therefore ending up with a request with the following values submitted:</p>
-
-<pre><code class="language-text">
-hasFoo		&quot;No&quot;
-approvedFoo 	&quot;Yes&quot;
-specialFoo	&quot;Yes&quot;
-</code></pre>
-
-<p>Later on in the application we had some logic which decided what to do with the user request and this one was erroneously being approved because we hadn&rsquo;t catered for the condition where the first question was answered &lsquo;No&rsquo; and the other questions had &lsquo;Yes&rsquo; values.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+hasFoo		&#34;No&#34;
+approvedFoo 	&#34;Yes&#34;
+specialFoo	&#34;Yes&#34;
+</code></pre></div><p>Later on in the application we had some logic which decided what to do with the user request and this one was erroneously being approved because we hadn&rsquo;t catered for the condition where the first question was answered &lsquo;No&rsquo; and the other questions had &lsquo;Yes&rsquo; values.</p>
 <p>In theory we should have written some client side code to reset the optional questions if the first one was answered &lsquo;No&rsquo; but even then it&rsquo;s still possible to post whatever data you want to the server if you try hard enough.</p>
-
 <p>Given that we need to behave in a somewhat defensive way somewhere on the server.</p>
-
-<p>My initial thinking was that perhaps we should change the logic to handle this scenario but talking through the problem with <a href="http://mikewagg.blogspot.com/">Mike</a> he pointed out that it would make more sense to fix the data earlier in the chain.</p>
-
+<p>My initial thinking was that perhaps we should change the logic to handle this scenario but talking through the problem with <!-- raw HTML omitted -->Mike<!-- raw HTML omitted --> he pointed out that it would make more sense to fix the data earlier in the chain.</p>
 <p>I ended up writing some code in the controller to change the latter two fields to &lsquo;No&rsquo; if the answer to the first question was &lsquo;No&rsquo;. We&rsquo;re not really using custom binders on the project otherwise I think it would be the type of logic that would go in there.</p>
-
-<p>Overall I&rsquo;m no really a fan of defensive programming in general because it often seems to lead to over complicated code but in the case of user input it does make sense and the general guideline seems to be to <strong>fix any logically invalid values as close to the entry point of our application as possible</strong>.</p>
+<p>Overall I&rsquo;m no really a fan of defensive programming in general because it often seems to lead to over complicated code but in the case of user input it does make sense and the general guideline seems to be to <!-- raw HTML omitted -->fix any logically invalid values as close to the entry point of our application as possible<!-- raw HTML omitted -->.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -248,7 +228,7 @@ specialFoo	&quot;Yes&quot;
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/22/defensive-programming-and-the-ui/&amp;title=Defensive%20Programming%20and%20the%20UI&amp;summary=A%20few%20weeks%20ago%20I%20was%20looking%20at%20quite%20an%20interesting%20bug%20in%20our%20system%20which%20initially%20didn%26rsquo%3bt%20seem%20possible.%0aOn%20one%20of%20our%20screens%20we%20have%20some%20questions%20that%20the%20user%20fills%20in%20which%20read%20a%20bit%20like%20this%3a%0a%20Do%20you%20have%20a%20foo%3f%20%20Is%20your%20foo%20an%20approved%20foo%3f%20Is%20your%20foo%20special%3f%20%20%20%20i.e.%20you%20would%20only%20see%20the%202nd%20and%203rd%20questions%20on%20the%20screen%20if%20you%20answered%20yes%20to%20the%20first%20question...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/22/defensive-programming-and-the-ui/&amp;title=Defensive%20Programming%20and%20the%20UI&amp;summary=A%20few%20weeks%20ago%20I%20was%20looking%20at%20quite%20an%20interesting%20bug%20in%20our%20system%20which%20initially%20didn%26rsquo%3bt%20seem%20possible.%0aOn%20one%20of%20our%20screens%20we%20have%20some%20questions%20that%20the%20user%20fills%20in%20which%20read%20a%20bit%20like%20this%3a%0ai.e.%20you%20would%20only%20see%20the%202nd%20and%203rd%20questions%20on%20the%20screen%20if%20you%20answered%20yes%20to%20the%20first%20question.%0aHowever%2c%20if%20you%20went%20to%20the%20next%20page%20on%20the%20form%20having%20answered%20%26lsquo%3bYes%26rsquo%3b%20to%20the%20first%20question%20and%20then%20came%20back%20to%20this%20page%20and%20changed%20your%20answer%20to%20the%20first%20question%20to%20%26lsquo%3bNo%26rsquo%3b%20then%20when%20the%20data%20got%20submitted%20to%20the%20server%20the%20answers%20to%20the%20other%20two%20questions%20would%20still%20be%20posted...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -25,9 +25,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="neo4j: Extracting a subgraph as an adjacency matrix and calculating eigenvector centrality with JBLAS" />
         
-          <meta name="twitter:description" content="Earlier in the week I wrote a blog post showing how to calculate the eigenvector centrality of an adjacency matrix using JBLAS and the next step was to work out the eigenvector centrality of a neo4j sub graph.
-There were 3 steps involved in doing this:
- Export the neo4j sub graph as an adjacency matrix Run JBLAS over it to get eigenvector centrality scores for each node Write those scores back into neo4j  I decided to make use of the Paul Revere data set from Kieran Healy&#39;s blog post which consists of people and groups that they had membership of." />
+          <meta name="twitter:description" content="There were 3 steps involved in doing this:
+MATCH p1:Person, p2:Person WHERE p1.name = &quot;Paul Revere&quot; WITH p1, p2 MATCH p = p1-[?:MEMBER_OF]-&gt;()&lt;-[?:MEMBER_OF]-p2 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links ORDER BY p2 RETURN p1, COLLECT(links) AS row &#43;-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; | p1 | row | &#43;-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; | &#34;Paul Revere&#34; | [2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,2,1,1,2,1,2,1,1,1,1,1,0,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,2,1,3,1,3,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,0,1,0,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,1,1,0,1,2,1,1,1,1,1,1,1] | &#43;-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; MATCH p1:Person, p2:Person WITH p1, p2 MATCH p = p1-[?:MEMBER_OF]-&gt;()&lt;-[?:MEMBER_OF]-p2 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links ORDER BY p2 RETURN p1, COLLECT(links) AS row ORDER BY p1 &#43;---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; | p1 | row | &#43;---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; | &#34;Abiel Ruddock&#34; | [0,1,1,1,0,1,0,1,0,0,1,1,1,0,1,2,0,1,0,1,1,1,2,2,1,0,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,0,0,2,2,0,0,1,1,2,1,1,1,0,1,0,1,1,0,0,2,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,2,1,2,1,0,0,0,0,1,1,0,1,0,0,1,0,2,0,0,1,0,0,0,1,0,0,2,0,1,0,1,1,1,0,0,1,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,2,0,0,1,1,0,0,2,0,1,2,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,2,1,0,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,1,1,0,0,1,0,0,2,1,0,0,1,1,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,2,1,1,0,0,2,0,1,0,0,0,0,1,0,1,0,1,0,1,0] | | &#34;Abraham Hunt&#34; | [1,0,1,1,0,1,0,0,0,0,0,1,0,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,1,0,1,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0] | ." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/08/11/neo4j-extracting-a-subgraph-as-an-adjacency-matrix-and-calculating-eigenvector-centrality-with-jblas/" />
 
@@ -38,9 +37,8 @@ There were 3 steps involved in doing this:
         <title> neo4j: Extracting a subgraph as an adjacency matrix and calculating eigenvector centrality with JBLAS &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Earlier in the week I wrote a blog post showing how to calculate the eigenvector centrality of an adjacency matrix using JBLAS and the next step was to work out the eigenvector centrality of a neo4j sub graph.
-There were 3 steps involved in doing this:
- Export the neo4j sub graph as an adjacency matrix Run JBLAS over it to get eigenvector centrality scores for each node Write those scores back into neo4j  I decided to make use of the Paul Revere data set from Kieran Healy&#39;s blog post which consists of people and groups that they had membership of." />
+        <meta name="description" content="There were 3 steps involved in doing this:
+MATCH p1:Person, p2:Person WHERE p1.name = &quot;Paul Revere&quot; WITH p1, p2 MATCH p = p1-[?:MEMBER_OF]-&gt;()&lt;-[?:MEMBER_OF]-p2 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links ORDER BY p2 RETURN p1, COLLECT(links) AS row &#43;-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; | p1 | row | &#43;-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; | &#34;Paul Revere&#34; | [2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,2,1,1,2,1,2,1,1,1,1,1,0,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,2,1,3,1,3,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,0,1,0,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,1,1,0,1,2,1,1,1,1,1,1,1] | &#43;-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; MATCH p1:Person, p2:Person WITH p1, p2 MATCH p = p1-[?:MEMBER_OF]-&gt;()&lt;-[?:MEMBER_OF]-p2 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links ORDER BY p2 RETURN p1, COLLECT(links) AS row ORDER BY p1 &#43;---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; | p1 | row | &#43;---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; | &#34;Abiel Ruddock&#34; | [0,1,1,1,0,1,0,1,0,0,1,1,1,0,1,2,0,1,0,1,1,1,2,2,1,0,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,0,0,2,2,0,0,1,1,2,1,1,1,0,1,0,1,1,0,0,2,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,2,1,2,1,0,0,0,0,1,1,0,1,0,0,1,0,2,0,0,1,0,0,0,1,0,0,2,0,1,0,1,1,1,0,0,1,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,2,0,0,1,1,0,0,2,0,1,2,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,2,1,0,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,1,1,0,0,1,0,0,2,1,0,0,1,1,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,2,1,1,0,0,2,0,1,0,0,0,0,1,0,1,0,1,0,1,0] | | &#34;Abraham Hunt&#34; | [1,0,1,1,0,1,0,0,0,0,0,1,0,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,1,0,1,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0] | ." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -69,10 +67,8 @@ There were 3 steps involved in doing this:
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-08-11",
-        "description": "Earlier in the week I wrote a blog post showing how to calculate the eigenvector centrality of an adjacency matrix using JBLAS and the next step was to work out the eigenvector centrality of a neo4j sub graph.
-There were 3 steps involved in doing this:
- Export the neo4j sub graph as an adjacency matrix Run JBLAS over it to get eigenvector centrality scores for each node Write those scores back into neo4j  I decided to make use of the Paul Revere data set from Kieran Healy's blog post which consists of people and groups that they had membership of.",
-        "wordCount": 879
+        "description": "There were 3 steps involved in doing this:\nMATCH p1:Person, p2:Person WHERE p1.name = \x26quot;Paul Revere\x26quot; WITH p1, p2 MATCH p = p1-[?:MEMBER_OF]-\x26gt;()\x26lt;-[?:MEMBER_OF]-p2 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links ORDER BY p2 RETURN p1, COLLECT(links) AS row \x2b-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\x2b | p1 | row | \x2b-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\x2b | \x26#34;Paul Revere\x26#34; | [2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,2,1,1,2,1,2,1,1,1,1,1,0,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,2,1,3,1,3,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,0,1,0,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,1,1,0,1,2,1,1,1,1,1,1,1] | \x2b-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\x2b MATCH p1:Person, p2:Person WITH p1, p2 MATCH p = p1-[?:MEMBER_OF]-\x26gt;()\x26lt;-[?:MEMBER_OF]-p2 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links ORDER BY p2 RETURN p1, COLLECT(links) AS row ORDER BY p1 \x2b---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\x2b | p1 | row | \x2b---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\x2b | \x26#34;Abiel Ruddock\x26#34; | [0,1,1,1,0,1,0,1,0,0,1,1,1,0,1,2,0,1,0,1,1,1,2,2,1,0,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,0,0,2,2,0,0,1,1,2,1,1,1,0,1,0,1,1,0,0,2,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,2,1,2,1,0,0,0,0,1,1,0,1,0,0,1,0,2,0,0,1,0,0,0,1,0,0,2,0,1,0,1,1,1,0,0,1,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,2,0,0,1,1,0,0,2,0,1,2,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,2,1,0,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,1,1,0,0,1,0,0,2,1,0,0,1,1,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,2,1,1,0,0,2,0,1,0,0,0,0,1,0,1,0,1,0,1,0] | | \x26#34;Abraham Hunt\x26#34; | [1,0,1,1,0,1,0,0,0,0,0,1,0,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,1,0,1,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0] | .",
+        "wordCount":  393 
     }
     </script>
     
@@ -187,25 +183,14 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">neo4j: Extracting a subgraph as an adjacency matrix and calculating eigenvector centrality with JBLAS</h1>
-    <p>Earlier in the week I wrote a blog post showing <a href="http://www.markhneedham.com/blog/2013/08/05/javajblas-calculating-eigenvector-centrality-of-an-adjacency-matrix/">how to calculate the eigenvector centrality of an adjacency matrix</a> using <a href="http://mikiobraun.github.io/jblas/">JBLAS</a> and the next step was to work out the eigenvector centrality of a neo4j sub graph.</p>
-
+    <!-- raw HTML omitted -->
 <p>There were 3 steps involved in doing this:</p>
-
-<ol>
-<li>Export the neo4j sub graph as an adjacency matrix</li>
-<li>Run JBLAS over it to get eigenvector centrality scores for each node</li>
-<li>Write those scores back into neo4j</li>
-</ol>
-
-<p>I decided to make use of the <a href="https://github.com/mneedham/revere/blob/neo4j/data/PaulRevereAppD.csv">Paul Revere data set</a> from <a href="http://kieranhealy.org/blog/archives/2013/06/09/using-metadata-to-find-paul-revere/">Kieran Healy's blog post</a> which consists of people and groups that they had membership of.</p>
-
-<p>The <a href="https://github.com/mneedham/revere/blob/neo4j/scripts/import.rb">script</a> to import the data is on <a href="https://github.com/mneedham/revere/tree/neo4j">my fork of the revere repository</a>.</p>
-
-<p>Having imported the data the next step was to write a cypher query which would give me the people in an <a href="http://en.wikipedia.org/wiki/Adjacency_matrix">adjacency matrix</a> with the number in each column/row intersection showing how many common groups that pair of people had.<p>
-
-<p>I thought it'd be easier to build this query incrementally so I started out writing a query which would return one row of the adjacency matrix:</p>
-
-<pre><code class="language-cypher">
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH p1:Person, p2:Person
 WHERE p1.name = &quot;Paul Revere&quot;
 WITH p1, p2
@@ -214,25 +199,17 @@ MATCH p = p1-[?:MEMBER_OF]-&gt;()&lt;-[?:MEMBER_OF]-p2
 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links
 ORDER BY p2
 RETURN p1, COLLECT(links) AS row
-</code></pre>
-
-<p>Here we start with Paul Revere and then find the relationships between him and every other person by way of a common group membership.<p>
-
-<p>We use an optional relationship since we need to include a value in each column/row of our adjacency matrix we need to return a 0 value for anyone he doesn't intersect with.</p>
-
-<p>If we run that query we get back the following:</p>
-
-<pre><code class="language-text">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | p1            | row                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| &quot;Paul Revere&quot; | [2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,2,1,1,2,1,2,1,1,1,1,1,0,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,2,1,3,1,3,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,0,1,0,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,1,1,0,1,2,1,1,1,1,1,1,1] |
+| &#34;Paul Revere&#34; | [2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,2,1,1,2,1,2,1,1,1,1,1,0,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,2,1,3,1,3,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,0,1,0,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,1,1,0,1,2,1,1,1,1,1,1,1] |
 +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-</code></pre>
-
-<p>As it turns outs we've only got to remove the WHERE clause and order everybody and we've get the adjacency matrix for everyone:</p>
-
-<pre><code class="language-cypher">
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH p1:Person, p2:Person
 WITH p1, p2
 MATCH p = p1-[?:MEMBER_OF]-&gt;()&lt;-[?:MEMBER_OF]-p2
@@ -241,109 +218,94 @@ WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links
 ORDER BY p2
 RETURN p1, COLLECT(links) AS row
 ORDER BY p1
-</code></pre>
-
-<pre><code class="language-text">
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | p1                      | row                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| &quot;Abiel Ruddock&quot;         | [0,1,1,1,0,1,0,1,0,0,1,1,1,0,1,2,0,1,0,1,1,1,2,2,1,0,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,0,0,2,2,0,0,1,1,2,1,1,1,0,1,0,1,1,0,0,2,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,2,1,2,1,0,0,0,0,1,1,0,1,0,0,1,0,2,0,0,1,0,0,0,1,0,0,2,0,1,0,1,1,1,0,0,1,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,2,0,0,1,1,0,0,2,0,1,2,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,2,1,0,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,1,1,0,0,1,0,0,2,1,0,0,1,1,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,2,1,1,0,0,2,0,1,0,0,0,0,1,0,1,0,1,0,1,0] |
-| &quot;Abraham Hunt&quot;          | [1,0,1,1,0,1,0,0,0,0,0,1,0,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,1,0,1,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0] |
+| &#34;Abiel Ruddock&#34;         | [0,1,1,1,0,1,0,1,0,0,1,1,1,0,1,2,0,1,0,1,1,1,2,2,1,0,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,0,0,2,2,0,0,1,1,2,1,1,1,0,1,0,1,1,0,0,2,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,2,1,2,1,0,0,0,0,1,1,0,1,0,0,1,0,2,0,0,1,0,0,0,1,0,0,2,0,1,0,1,1,1,0,0,1,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,2,0,0,1,1,0,0,2,0,1,2,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,2,1,0,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,1,1,0,0,1,0,0,2,1,0,0,1,1,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,2,1,1,0,0,2,0,1,0,0,0,0,1,0,1,0,1,0,1,0] |
+| &#34;Abraham Hunt&#34;          | [1,0,1,1,0,1,0,0,0,0,0,1,0,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,1,0,1,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0] |
 ...
 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 254 rows
 9897 ms
-</code></pre>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Neo4jAdjacencyMatrixSpike</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> SQLException <span style="color:#f92672">{</span>
+        ClientResponse response <span style="color:#f92672">=</span> client<span style="color:#f92672">()</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">resource</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;http://localhost:7474/db/data/cypher&#34;</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">entity</span><span style="color:#f92672">(</span>queryAsJson<span style="color:#f92672">(),</span> MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span><span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">post</span><span style="color:#f92672">(</span>ClientResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
 
-<p>The next step was to wire up the query results with the JBLAS code that I wrote in the previous post. I ended up with the <a href="https://github.com/mneedham/revere/blob/neo4j/src/main/java/Neo4jAdjacencyMatrixSpike.java">following</a>:</p>
+        JsonNode result <span style="color:#f92672">=</span> response<span style="color:#f92672">.</span><span style="color:#a6e22e">getEntity</span><span style="color:#f92672">(</span>JsonNode<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        ArrayNode rows <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>ArrayNode<span style="color:#f92672">)</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">);</span>
 
-<pre><code class="language-java">
-public class Neo4jAdjacencyMatrixSpike {
-    public static void main(String[] args) throws SQLException {
-        ClientResponse response = client()
-                .resource(&quot;http://localhost:7474/db/data/cypher&quot;)
-                .entity(queryAsJson(), MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .post(ClientResponse.class);
+        List<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> principalEigenvector <span style="color:#f92672">=</span> JBLASSpike<span style="color:#f92672">.</span><span style="color:#a6e22e">getPrincipalEigenvector</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> DoubleMatrix<span style="color:#f92672">(</span>asMatrix<span style="color:#f92672">(</span>rows<span style="color:#f92672">)));</span>
 
-        JsonNode result = response.getEntity(JsonNode.class);
-        ArrayNode rows = (ArrayNode) result.get(&quot;data&quot;);
+        List<span style="color:#f92672">&lt;</span>Person<span style="color:#f92672">&gt;</span> people <span style="color:#f92672">=</span> asPeople<span style="color:#f92672">(</span>rows<span style="color:#f92672">);</span>
+        updatePeopleWithEigenvector<span style="color:#f92672">(</span>people<span style="color:#f92672">,</span> principalEigenvector<span style="color:#f92672">);</span>
 
-        List&lt;Double&gt; principalEigenvector = JBLASSpike.getPrincipalEigenvector(new DoubleMatrix(asMatrix(rows)));
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>sort<span style="color:#f92672">(</span>people<span style="color:#f92672">).</span><span style="color:#a6e22e">take</span><span style="color:#f92672">(</span>10<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
 
-        List&lt;Person&gt; people = asPeople(rows);
-        updatePeopleWithEigenvector(people, principalEigenvector);
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">double</span><span style="color:#f92672">[][]</span> <span style="color:#a6e22e">asMatrix</span><span style="color:#f92672">(</span>ArrayNode rows<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">double</span><span style="color:#f92672">[][]</span> matrix <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">double</span><span style="color:#f92672">[</span>rows<span style="color:#f92672">.</span><span style="color:#a6e22e">size</span><span style="color:#f92672">()][</span>254<span style="color:#f92672">];</span>
+        <span style="color:#66d9ef">int</span> rowCount <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
 
-        System.out.println(sort(people).take(10));
-    }
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>JsonNode row <span style="color:#f92672">:</span> rows<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            ArrayNode matrixRow <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>ArrayNode<span style="color:#f92672">)</span> row<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>2<span style="color:#f92672">);</span>
 
-    private static double[][] asMatrix(ArrayNode rows) {
-        double[][] matrix = new double[rows.size()][254];
-        int rowCount = 0;
+            <span style="color:#66d9ef">double</span><span style="color:#f92672">[]</span> rowInMatrix <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">double</span><span style="color:#f92672">[</span>254<span style="color:#f92672">];</span>
+            matrix<span style="color:#f92672">[</span>rowCount<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> rowInMatrix<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">int</span> columnCount <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>JsonNode jsonNode <span style="color:#f92672">:</span> matrixRow<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                matrix<span style="color:#f92672">[</span>rowCount<span style="color:#f92672">][</span>columnCount<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> jsonNode<span style="color:#f92672">.</span><span style="color:#a6e22e">asInt</span><span style="color:#f92672">();</span>
+                columnCount<span style="color:#f92672">++;</span>
+            <span style="color:#f92672">}</span>
 
-        for (JsonNode row : rows) {
-            ArrayNode matrixRow = (ArrayNode) row.get(2);
+            rowCount<span style="color:#f92672">++;</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> matrix<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
 
-            double[] rowInMatrix = new double[254];
-            matrix[rowCount] = rowInMatrix;
-            int columnCount = 0;
-            for (JsonNode jsonNode : matrixRow) {
-                matrix[rowCount][columnCount] = jsonNode.asInt();
-                columnCount++;
-            }
+    <span style="color:#75715e">// rest cut for brevity
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+Person{name=&#39;William Cooper&#39;, eigenvector=0.172604992239612, nodeId=68},
+Person{name=&#39;Nathaniel Barber&#39;, eigenvector=0.17260499223961198, nodeId=18},
+Person{name=&#39;John Hoffins&#39;, eigenvector=0.17260499223961195, nodeId=118},
+Person{name=&#39;Paul Revere&#39;, eigenvector=0.17171142003936804, nodeId=207},
+Person{name=&#39;Caleb Davis&#39;, eigenvector=0.16383970722169897, nodeId=71},
+Person{name=&#39;Caleb Hopkins&#39;, eigenvector=0.16383970722169897, nodeId=121},
+Person{name=&#39;Henry Bass&#39;, eigenvector=0.16383970722169897, nodeId=21},
+Person{name=&#39;Thomas Chase&#39;, eigenvector=0.16383970722169897, nodeId=54},
+Person{name=&#39;William Greenleaf&#39;, eigenvector=0.16383970722169897, nodeId=104},
+Person{name=&#39;Edward Proctor&#39;, eigenvector=0.15600043886738055, nodeId=201}
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">updateNeo4jWithEigenvectors</span><span style="color:#f92672">(</span>List<span style="color:#f92672">&lt;</span>Person<span style="color:#f92672">&gt;</span> people<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>Person person <span style="color:#f92672">:</span> people<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            ObjectNode request <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">objectNode</span><span style="color:#f92672">();</span>
+            request<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;query&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;START p = node({nodeId}) SET p.eigenvectorCentrality={value}&#34;</span><span style="color:#f92672">);</span>
 
-            rowCount++;
-        }
-        return matrix;
-    }
+            ObjectNode params <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">objectNode</span><span style="color:#f92672">();</span>
+            params<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;nodeId&#34;</span><span style="color:#f92672">,</span> person<span style="color:#f92672">.</span><span style="color:#a6e22e">nodeId</span><span style="color:#f92672">);</span>
+            params<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;value&#34;</span><span style="color:#f92672">,</span> person<span style="color:#f92672">.</span><span style="color:#a6e22e">eigenvector</span><span style="color:#f92672">);</span>
 
-    // rest cut for brevity
-}
-</code></pre>
+            request<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;params&#34;</span><span style="color:#f92672">,</span> params<span style="color:#f92672">);</span>
 
-<p>Here we are taking the query and then converting it into an array of arrays before passing it to our JBLAS code to calculate the principal eigenvector. We then return the top 10 people:</p>
-
-<pre><code class="language-text">
-Person{name='William Cooper', eigenvector=0.172604992239612, nodeId=68},
-Person{name='Nathaniel Barber', eigenvector=0.17260499223961198, nodeId=18},
-Person{name='John Hoffins', eigenvector=0.17260499223961195, nodeId=118},
-Person{name='Paul Revere', eigenvector=0.17171142003936804, nodeId=207},
-Person{name='Caleb Davis', eigenvector=0.16383970722169897, nodeId=71},
-Person{name='Caleb Hopkins', eigenvector=0.16383970722169897, nodeId=121},
-Person{name='Henry Bass', eigenvector=0.16383970722169897, nodeId=21},
-Person{name='Thomas Chase', eigenvector=0.16383970722169897, nodeId=54},
-Person{name='William Greenleaf', eigenvector=0.16383970722169897, nodeId=104},
-Person{name='Edward Proctor', eigenvector=0.15600043886738055, nodeId=201}
-</code></pre>
-
-<p>I get back the same 10 people as Kieran Healy although they have different eigenvector values. As far as I understand the absolute value doesn't matter, what's more important is the relative score to other people so I think we're ok.</p>
-
-<p>The final step was to write these eigenvector values back into neo4j which we can do with the following code:</p>
-
-<pre><code class="language-java">
-    private static void updateNeo4jWithEigenvectors(List&lt;Person&gt; people) {
-        for (Person person : people) {
-            ObjectNode request = JsonNodeFactory.instance.objectNode();
-            request.put(&quot;query&quot;, &quot;START p = node({nodeId}) SET p.eigenvectorCentrality={value}&quot;);
-
-            ObjectNode params = JsonNodeFactory.instance.objectNode();
-            params.put(&quot;nodeId&quot;, person.nodeId);
-            params.put(&quot;value&quot;, person.eigenvector);
-
-            request.put(&quot;params&quot;, params);
-
-            client()
-                    .resource(&quot;http://localhost:7474/db/data/cypher&quot;)
-                    .entity(request, MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .post(ClientResponse.class);
-        }
-    }
-</code></pre>
-
-<p>Now we might use that eigenvector centrality value in other queries, such as one to show who the most central/potentially influential people are in each group:</p>
-
-<pre><code class="language-cypher">
+            client<span style="color:#f92672">()</span>
+                    <span style="color:#f92672">.</span><span style="color:#a6e22e">resource</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;http://localhost:7474/db/data/cypher&#34;</span><span style="color:#f92672">)</span>
+                    <span style="color:#f92672">.</span><span style="color:#a6e22e">entity</span><span style="color:#f92672">(</span>request<span style="color:#f92672">,</span> MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span><span style="color:#f92672">)</span>
+                    <span style="color:#f92672">.</span><span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span><span style="color:#f92672">)</span>
+                    <span style="color:#f92672">.</span><span style="color:#a6e22e">post</span><span style="color:#f92672">(</span>ClientResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH g:Group&lt;-[:MEMBER_OF]-p
 
 WITH g.name AS group, p.name AS personName, p.eigenvectorCentrality as eigen
@@ -351,29 +313,23 @@ ORDER BY eigen DESC
 
 WITH group, COLLECT(personName) AS people
 RETURN group, HEAD(people) + [HEAD(TAIL(people))] + [HEAD(TAIL(TAIL(people)))] AS mostCentral
-</code></pre>
-
-<pre><code class="language-text">
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 +--------------------------------------------------------------------------+
 | group             | mostCentral                                          |
 +--------------------------------------------------------------------------+
-| &quot;StAndrewsLodge&quot;  | [&quot;Paul Revere&quot;,&quot;Joseph Warren&quot;,&quot;Thomas Urann&quot;]       |
-| &quot;BostonCommittee&quot; | [&quot;William Cooper&quot;,&quot;Nathaniel Barber&quot;,&quot;John Hoffins&quot;] |
-| &quot;LoyalNine&quot;       | [&quot;Caleb Hopkins&quot;,&quot;William Greenleaf&quot;,&quot;Caleb Davis&quot;]  |
-| &quot;LondonEnemies&quot;   | [&quot;William Cooper&quot;,&quot;Nathaniel Barber&quot;,&quot;John Hoffins&quot;] |
-| &quot;LongRoomClub&quot;    | [&quot;Paul Revere&quot;,&quot;John Hancock&quot;,&quot;Benjamin Clarke&quot;]     |
-| &quot;NorthCaucus&quot;     | [&quot;William Cooper&quot;,&quot;Nathaniel Barber&quot;,&quot;John Hoffins&quot;] |
-| &quot;TeaParty&quot;        | [&quot;William Cooper&quot;,&quot;Nathaniel Barber&quot;,&quot;John Hoffins&quot;] |
+| &#34;StAndrewsLodge&#34;  | [&#34;Paul Revere&#34;,&#34;Joseph Warren&#34;,&#34;Thomas Urann&#34;]       |
+| &#34;BostonCommittee&#34; | [&#34;William Cooper&#34;,&#34;Nathaniel Barber&#34;,&#34;John Hoffins&#34;] |
+| &#34;LoyalNine&#34;       | [&#34;Caleb Hopkins&#34;,&#34;William Greenleaf&#34;,&#34;Caleb Davis&#34;]  |
+| &#34;LondonEnemies&#34;   | [&#34;William Cooper&#34;,&#34;Nathaniel Barber&#34;,&#34;John Hoffins&#34;] |
+| &#34;LongRoomClub&#34;    | [&#34;Paul Revere&#34;,&#34;John Hancock&#34;,&#34;Benjamin Clarke&#34;]     |
+| &#34;NorthCaucus&#34;     | [&#34;William Cooper&#34;,&#34;Nathaniel Barber&#34;,&#34;John Hoffins&#34;] |
+| &#34;TeaParty&#34;        | [&#34;William Cooper&#34;,&#34;Nathaniel Barber&#34;,&#34;John Hoffins&#34;] |
 +--------------------------------------------------------------------------+
 7 rows
 280 ms
-</code></pre>
-
-<p>Our top ten feature frequently although it's interesting that only one of them is in the 'LongRoomClub' group which perhaps indicates that people in that group are less likely to be members of the other ones.</p>
-
-<p>I'd be interested if anyone can think of other potential uses for eigenvector centrality once we've got it back in the graph.</p>
-
-<p>All the code described in this post is <a href="https://github.com/mneedham/revere/tree/neo4j">on github</a> if you want to take it for a spin.</p>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -408,7 +364,7 @@ RETURN group, HEAD(people) + [HEAD(TAIL(people))] + [HEAD(TAIL(TAIL(people)))] A
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/08/11/neo4j-extracting-a-subgraph-as-an-adjacency-matrix-and-calculating-eigenvector-centrality-with-jblas/&amp;title=neo4j%3a%20Extracting%20a%20subgraph%20as%20an%20adjacency%20matrix%20and%20calculating%20eigenvector%20centrality%20with%20JBLAS&amp;summary=Earlier%20in%20the%20week%20I%20wrote%20a%20blog%20post%20showing%20how%20to%20calculate%20the%20eigenvector%20centrality%20of%20an%20adjacency%20matrix%20using%20JBLAS%20and%20the%20next%20step%20was%20to%20work%20out%20the%20eigenvector%20centrality%20of%20a%20neo4j%20sub%20graph.%0aThere%20were%203%20steps%20involved%20in%20doing%20this%3a%0a%20Export%20the%20neo4j%20sub%20graph%20as%20an%20adjacency%20matrix%20Run%20JBLAS%20over%20it%20to%20get%20eigenvector%20centrality%20scores%20for%20each%20node%20Write%20those%20scores%20back%20into%20neo4j%20%20I%20decided%20to%20make%20use%20of%20the%20Paul%20Revere%20data%20set%20from%20Kieran%20Healy%27s%20blog%20post%20which%20consists%20of%20people%20and%20groups%20that%20they%20had%20membership%20of...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/08/11/neo4j-extracting-a-subgraph-as-an-adjacency-matrix-and-calculating-eigenvector-centrality-with-jblas/&amp;title=neo4j%3a%20Extracting%20a%20subgraph%20as%20an%20adjacency%20matrix%20and%20calculating%20eigenvector%20centrality%20with%20JBLAS&amp;summary=There%20were%203%20steps%20involved%20in%20doing%20this%3a%0aMATCH%20p1%3aPerson%2c%20p2%3aPerson%20WHERE%20p1.name%20%3d%20%26quot%3bPaul%20Revere%26quot%3b%20WITH%20p1%2c%20p2%20MATCH%20p%20%3d%20p1-%5b%3f%3aMEMBER_OF%5d-%26gt%3b%28%29%26lt%3b-%5b%3f%3aMEMBER_OF%5d-p2%20WITH%20p1.name%20AS%20p1%2c%20p2.name%20AS%20p2%2c%20COUNT%28p%29%20AS%20links%20ORDER%20BY%20p2%20RETURN%20p1%2c%20COLLECT%28links%29%20AS%20row%20%2b-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%2b%20%7c%20p1%20%7c%20row%20%7c%20%2b-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%2b%20%7c%20%26%2334%3bPaul%20Revere%26%2334%3b%20%7c%20%5b2%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c2%2c3%2c1%2c1%2c1%2c1%2c1%2c1%2c3%2c3%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c2%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c3%2c2%2c1%2c1%2c2%2c1%2c2%2c1%2c1%2c1%2c1%2c1%2c0%2c1%2c1%2c1%2c1%2c3%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c2%2c1%2c1%2c1%2c2%2c1%2c1%2c1%2c1%2c1%2c1%2c2%2c1%2c3%2c1%2c3%2c2%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c2%2c1%2c1%2c1%2c0%2c1%2c0%2c1%2c1%2c1%2c2%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c4%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c3%2c1%2c1%2c1%2c1%2c1%2c1%2c2%2c1%2c1%2c0%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c0%2c1%2c1%2c1%2c3%2c1%2c1%2c2%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c2%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c3%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c3%2c1%2c1%2c2%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c3%2c1%2c1%2c1%2c1%2c3%2c1%2c1%2c1%2c1%2c0%2c1%2c2%2c1%2c1%2c1%2c1%2c1%2c1%2c1%5d%20%7c%20%2b-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%2b%20MATCH%20p1%3aPerson%2c%20p2%3aPerson%20WITH%20p1%2c%20p2%20MATCH%20p%20%3d%20p1-%5b%3f%3aMEMBER_OF%5d-%26gt%3b%28%29%26lt%3b-%5b%3f%3aMEMBER_OF%5d-p2%20WITH%20p1.name%20AS%20p1%2c%20p2.name%20AS%20p2%2c%20COUNT%28p%29%20AS%20links%20ORDER%20BY%20p2%20RETURN%20p1%2c%20COLLECT%28links%29%20AS%20row%20ORDER%20BY%20p1%20%2b---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%2b%20%7c%20p1%20%7c%20row%20%7c%20%2b---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%2b%20%7c%20%26%2334%3bAbiel%20Ruddock%26%2334%3b%20%7c%20%5b0%2c1%2c1%2c1%2c0%2c1%2c0%2c1%2c0%2c0%2c1%2c1%2c1%2c0%2c1%2c2%2c0%2c1%2c0%2c1%2c1%2c1%2c2%2c2%2c1%2c0%2c0%2c1%2c1%2c0%2c1%2c1%2c1%2c1%2c1%2c0%2c0%2c0%2c0%2c1%2c1%2c0%2c0%2c2%2c2%2c0%2c0%2c1%2c1%2c2%2c1%2c1%2c1%2c0%2c1%2c0%2c1%2c1%2c0%2c0%2c2%2c1%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c1%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c1%2c0%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c1%2c0%2c2%2c1%2c2%2c1%2c0%2c0%2c0%2c0%2c1%2c1%2c0%2c1%2c0%2c0%2c1%2c0%2c2%2c0%2c0%2c1%2c0%2c0%2c0%2c1%2c0%2c0%2c2%2c0%2c1%2c0%2c1%2c1%2c1%2c0%2c0%2c1%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c2%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c1%2c0%2c1%2c1%2c1%2c2%2c0%2c0%2c1%2c1%2c0%2c0%2c2%2c0%2c1%2c2%2c1%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c1%2c1%2c0%2c0%2c0%2c0%2c0%2c1%2c2%2c1%2c0%2c1%2c1%2c1%2c1%2c1%2c0%2c0%2c1%2c1%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c1%2c0%2c0%2c1%2c0%2c0%2c2%2c1%2c0%2c0%2c1%2c1%2c1%2c1%2c0%2c1%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c1%2c1%2c0%2c0%2c1%2c0%2c1%2c0%2c1%2c0%2c0%2c1%2c0%2c2%2c1%2c1%2c0%2c0%2c2%2c0%2c1%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c1%2c0%2c1%2c0%5d%20%7c%20%7c%20%26%2334%3bAbraham%20Hunt%26%2334%3b%20%7c%20%5b1%2c0%2c1%2c1%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c1%2c1%2c0%2c1%2c1%2c0%2c0%2c0%2c1%2c1%2c0%2c1%2c0%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c0%2c1%2c1%2c0%2c0%2c0%2c1%2c1%2c1%2c1%2c1%2c0%2c0%2c0%2c1%2c0%2c0%2c0%2c1%2c1%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c1%2c0%2c0%2c1%2c1%2c0%2c1%2c0%2c1%2c1%2c1%2c1%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c0%2c1%2c1%2c0%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c0%2c0%2c1%2c0%2c0%2c1%2c0%2c1%2c1%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c1%2c1%2c0%2c1%2c0%2c1%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c0%2c1%2c1%2c1%2c1%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c0%2c1%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c0%2c1%2c0%2c1%2c0%2c1%2c0%5d%20%7c%20...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

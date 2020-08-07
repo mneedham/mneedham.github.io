@@ -64,9 +64,8 @@ One thing which I found while doing this is that calls to the .NET base class li
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-07-12",
-        "description": "I&rsquo;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can&rsquo;t currently get from the Feedburner dashboard.
-One thing which I found while doing this is that calls to the .NET base class library don&rsquo;t seem to fit in that well with the way that you would typically compose functions together in F#.",
-        "wordCount": 381
+        "description": "I\x26rsquo;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can\x26rsquo;t currently get from the Feedburner dashboard.\nOne thing which I found while doing this is that calls to the .NET base class library don\x26rsquo;t seem to fit in that well with the way that you would typically compose functions together in F#.",
+        "wordCount":  378 
     }
     </script>
     
@@ -176,64 +175,50 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">F#: Wrapping .NET library calls</h1>
     <p>I&rsquo;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can&rsquo;t currently get from the Feedburner dashboard.</p>
-
 <p>One thing which I found while doing this is that calls to the .NET base class library don&rsquo;t seem to fit in that well with the way that you would typically compose functions together in F#.</p>
-
 <p>For example one of the first things I wanted to do was print the date and the circulation count to the console which I originally did like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">IO</span>
+<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">Net</span>
+<span style="color:#66d9ef">open</span> Microsoft.FSharp.<span style="color:#a6e22e">Control</span>
+<span style="color:#66d9ef">open</span> System.Xml.<span style="color:#a6e22e">Linq</span>
+<span style="color:#66d9ef">open</span> <span style="color:#a6e22e">System</span>
 
-<pre><code class="language-ocaml">
-open System.IO
-open System.Net
-open Microsoft.FSharp.Control
-open System.Xml.Linq
-open System
+<span style="color:#66d9ef">let</span> xName <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> XName.<span style="color:#a6e22e">Get</span> <span style="color:#66d9ef">value</span>
 
-let xName value = XName.Get value
+<span style="color:#f92672">//</span> <span style="color:#a6e22e">GetXml</span> is a <span style="color:#66d9ef">function</span> <span style="color:#66d9ef">of</span> <span style="color:#66d9ef">type</span> <span style="color:#66d9ef">string</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">string</span>
 
-// GetXml is a function of type string -&gt; string
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetFeedBurnerStats</span> url <span style="color:#f92672">=</span> 
+    <span style="color:#66d9ef">let</span> feedBurnerXml <span style="color:#f92672">=</span> <span style="color:#a6e22e">GetXml</span> url <span style="color:#f92672">|&gt;</span> XDocument.<span style="color:#a6e22e">Parse</span>
+    feedBurnerXml<span style="color:#f92672">.</span><span style="color:#a6e22e">Descendants</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;entry&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> 
+    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;circulation&#34;</span><span style="color:#f92672">),</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;date&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">|&gt;</span>
+    Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> printfn <span style="color:#e6db74">&#34;%s %s&#34;</span> <span style="color:#f92672">(</span>fst x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">(</span>snd x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
+</code></pre></div><p>It&rsquo;s quite annoying that we need to store the XDocument as a value before being able to call one of the methods on it to get the data that we want.</p>
+<p>I realised that if I created a function which took in the element whose descendants I wanted to find and the XDocument I could then call the &lsquo;XDocument.Descendants()&rsquo; method inside that function:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">let</span> xName <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> XName.<span style="color:#a6e22e">Get</span> <span style="color:#66d9ef">value</span>
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetDescendants</span> element <span style="color:#f92672">(</span>xDocument<span style="color:#f92672">:</span><span style="color:#a6e22e">XDocument</span><span style="color:#f92672">)</span>  <span style="color:#f92672">=</span> xDocument<span style="color:#f92672">.</span><span style="color:#a6e22e">Descendants</span><span style="color:#f92672">(</span>xName element<span style="color:#f92672">)</span>
 
-let GetFeedBurnerStats url = 
-    let feedBurnerXml = GetXml url |&gt; XDocument.Parse
-    feedBurnerXml.Descendants(xName &quot;entry&quot;) |&gt; 
-    Seq.map (fun x -&gt; x.Attribute(xName &quot;circulation&quot;), x.Attribute(xName &quot;date&quot;)) |&gt;
-    Seq.iter (fun x -&gt; printfn &quot;%s %s&quot; (fst x).Value (snd x).Value)
-~~~	
-
-It's quite annoying that we need to store the XDocument as a value before being able to call one of the methods on it to get the data that we want.
-
-I realised that if I created a function which took in the element whose descendants I wanted to find and the XDocument I could then call the 'XDocument.Descendants()' method inside that function:
-
-
-~~~ocaml
-
-let xName value = XName.Get value
-let GetDescendants element (xDocument:XDocument)  = xDocument.Descendants(xName element)
-
-let GetFeedBurnerStats = 
-    GetXml &gt;&gt; 
-    XDocument.Parse &gt;&gt; 
-    GetDescendants &quot;entry&quot; &gt;&gt;
-    Seq.map (fun x -&gt; x.Attribute(xName &quot;circulation&quot;), x.Attribute(xName &quot;date&quot;)) &gt;&gt;
-    Seq.iter (fun x -&gt; printfn &quot;%s %s&quot; (fst x).Value (snd x).Value)
-</code></pre>
-
-<p>Since we no longer need to store the intermediate step of creating the XDocument we can now just chain together the functions using the <a href="http://www.markhneedham.com/blog/2009/01/12/f-partial-function-application-with-the-function-composition-operator/">functional composition operator</a> instead of the <a href="http://www.markhneedham.com/blog/2009/01/06/f-forward-operator/">forward operator</a>.</p>
-
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetFeedBurnerStats</span> <span style="color:#f92672">=</span> 
+    <span style="color:#a6e22e">GetXml</span> <span style="color:#f92672">&gt;&gt;</span> 
+    XDocument.<span style="color:#a6e22e">Parse</span> <span style="color:#f92672">&gt;&gt;</span> 
+    <span style="color:#a6e22e">GetDescendants</span> <span style="color:#e6db74">&#34;entry&#34;</span> <span style="color:#f92672">&gt;&gt;</span>
+    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;circulation&#34;</span><span style="color:#f92672">),</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;date&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">&gt;&gt;</span>
+    Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> printfn <span style="color:#e6db74">&#34;%s %s&#34;</span> <span style="color:#f92672">(</span>fst x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">(</span>snd x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
+</code></pre></div><p>Since we no longer need to store the intermediate step of creating the XDocument we can now just chain together the functions using the <!-- raw HTML omitted -->functional composition operator<!-- raw HTML omitted --> instead of the <!-- raw HTML omitted -->forward operator<!-- raw HTML omitted -->.</p>
 <p>We can also do this with the calls to &lsquo;Attribute&rsquo; in the &lsquo;Seq.map&rsquo; function on line 9 which helps simplify the code around there.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">let</span> xName <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> XName.<span style="color:#a6e22e">Get</span> <span style="color:#66d9ef">value</span>
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetDescendants</span> element <span style="color:#f92672">(</span>xDocument<span style="color:#f92672">:</span><span style="color:#a6e22e">XDocument</span><span style="color:#f92672">)</span>  <span style="color:#f92672">=</span> xDocument<span style="color:#f92672">.</span><span style="color:#a6e22e">Descendants</span><span style="color:#f92672">(</span>xName element<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetAttribute</span> element <span style="color:#f92672">(</span>xElement<span style="color:#f92672">:</span><span style="color:#a6e22e">XElement</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> xElement<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName element<span style="color:#f92672">)</span>
 
-<pre><code class="language-ocaml">
-let xName value = XName.Get value
-let GetDescendants element (xDocument:XDocument)  = xDocument.Descendants(xName element)
-let GetAttribute element (xElement:XElement) = xElement.Attribute(xName element)
-
-let GetFeedBurnerStats = 
-    GetXml &gt;&gt; 
-    XDocument.Parse &gt;&gt; 
-    GetDescendants &quot;entry&quot; &gt;&gt;
-    Seq.map (fun x -&gt; GetAttribute &quot;circulation&quot; x, GetAttribute &quot;date&quot; x) &gt;&gt;
-    Seq.iter (fun x -&gt; printfn &quot;%s %s&quot; (fst x).Value (snd x).Value)
-</code></pre>
-
+<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetFeedBurnerStats</span> <span style="color:#f92672">=</span> 
+    <span style="color:#a6e22e">GetXml</span> <span style="color:#f92672">&gt;&gt;</span> 
+    XDocument.<span style="color:#a6e22e">Parse</span> <span style="color:#f92672">&gt;&gt;</span> 
+    <span style="color:#a6e22e">GetDescendants</span> <span style="color:#e6db74">&#34;entry&#34;</span> <span style="color:#f92672">&gt;&gt;</span>
+    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">GetAttribute</span> <span style="color:#e6db74">&#34;circulation&#34;</span> x<span style="color:#f92672">,</span> <span style="color:#a6e22e">GetAttribute</span> <span style="color:#e6db74">&#34;date&#34;</span> x<span style="color:#f92672">)</span> <span style="color:#f92672">&gt;&gt;</span>
+    Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> printfn <span style="color:#e6db74">&#34;%s %s&#34;</span> <span style="color:#f92672">(</span>fst x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">(</span>snd x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
+</code></pre></div>
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">

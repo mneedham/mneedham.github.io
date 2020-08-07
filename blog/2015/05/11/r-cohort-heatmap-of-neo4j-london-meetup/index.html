@@ -23,7 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Cohort heatmap of Neo4j London meetup" />
         
-          <meta name="twitter:description" content="A few months ago I had a go at doing some cohort analysis of the Neo4j London meetup group which was an interesting experiment but unfortunately resulted in a chart that was completely illegible.    I wasn&#39;t sure how to progress from there but a few days ago I came across the cohort heatmap which seemed like a better way of visualising things over time. The underlying idea is still the same - we&#39;ve comparing different cohorts of users against each other to see whether a change or intervention we did at a certain time had any impact." />
+          <meta name="twitter:description" content="df = read.csv(&#34;/tmp/df.csv&#34;) &gt; df %&gt;% sample_n(5) rsvp.time person.id time date 255 1.354277e&#43;12 12228948 2012-11-30 12:05:08 2012-11 2475 1.407342e&#43;12 19057581 2014-08-06 16:26:04 2014-08 3988 1.421769e&#43;12 66122172 2015-01-20 15:58:02 2015-01 4411 1.419377e&#43;12 165750262 2014-12-23 23:27:44 2014-12 1010 1.383057e&#43;12 74602292 2013-10-29 14:24:32 2013-10 firstMeetup = df %&gt;% group_by(person.id) %&gt;% summarise(firstEvent = min(time), count = n()) %&gt;% arrange(desc(count)) firstMeetup$date = format(as.Date(firstMeetup$firstEvent), &#34;%Y-%m&#34;) countsForCohort = function(df, firstMeetup, cohort) { members = (firstMeetup %&gt;% filter(date == cohort))$person." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/05/11/r-cohort-heatmap-of-neo4j-london-meetup/" />
 
@@ -34,7 +34,7 @@
         <title> R: Cohort heatmap of Neo4j London meetup &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="A few months ago I had a go at doing some cohort analysis of the Neo4j London meetup group which was an interesting experiment but unfortunately resulted in a chart that was completely illegible.    I wasn&#39;t sure how to progress from there but a few days ago I came across the cohort heatmap which seemed like a better way of visualising things over time. The underlying idea is still the same - we&#39;ve comparing different cohorts of users against each other to see whether a change or intervention we did at a certain time had any impact." />
+        <meta name="description" content="df = read.csv(&#34;/tmp/df.csv&#34;) &gt; df %&gt;% sample_n(5) rsvp.time person.id time date 255 1.354277e&#43;12 12228948 2012-11-30 12:05:08 2012-11 2475 1.407342e&#43;12 19057581 2014-08-06 16:26:04 2014-08 3988 1.421769e&#43;12 66122172 2015-01-20 15:58:02 2015-01 4411 1.419377e&#43;12 165750262 2014-12-23 23:27:44 2014-12 1010 1.383057e&#43;12 74602292 2013-10-29 14:24:32 2013-10 firstMeetup = df %&gt;% group_by(person.id) %&gt;% summarise(firstEvent = min(time), count = n()) %&gt;% arrange(desc(count)) firstMeetup$date = format(as.Date(firstMeetup$firstEvent), &#34;%Y-%m&#34;) countsForCohort = function(df, firstMeetup, cohort) { members = (firstMeetup %&gt;% filter(date == cohort))$person." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +63,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-05-11",
-        "description": "A few months ago I had a go at doing some cohort analysis of the Neo4j London meetup group which was an interesting experiment but unfortunately resulted in a chart that was completely illegible.    I wasn't sure how to progress from there but a few days ago I came across the cohort heatmap which seemed like a better way of visualising things over time. The underlying idea is still the same - we've comparing different cohorts of users against each other to see whether a change or intervention we did at a certain time had any impact.",
-        "wordCount": 890
+        "description": "df = read.csv(\x26#34;\/tmp\/df.csv\x26#34;) \x26gt; df %\x26gt;% sample_n(5) rsvp.time person.id time date 255 1.354277e\x2b12 12228948 2012-11-30 12:05:08 2012-11 2475 1.407342e\x2b12 19057581 2014-08-06 16:26:04 2014-08 3988 1.421769e\x2b12 66122172 2015-01-20 15:58:02 2015-01 4411 1.419377e\x2b12 165750262 2014-12-23 23:27:44 2014-12 1010 1.383057e\x2b12 74602292 2013-10-29 14:24:32 2013-10 firstMeetup = df %\x26gt;% group_by(person.id) %\x26gt;% summarise(firstEvent = min(time), count = n()) %\x26gt;% arrange(desc(count)) firstMeetup$date = format(as.Date(firstMeetup$firstEvent), \x26#34;%Y-%m\x26#34;) countsForCohort = function(df, firstMeetup, cohort) { members = (firstMeetup %\x26gt;% filter(date == cohort))$person.",
+        "wordCount":  515 
     }
     </script>
     
@@ -175,206 +175,149 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Cohort heatmap of Neo4j London meetup</h1>
-    <p>A few months ago I had a go at doing some <a href="http://www.markhneedham.com/blog/2015/02/24/r-cohort-analysis-of-neo4j-meetup-members/">cohort analysis of the Neo4j London meetup group</a> which was an interesting experiment but unfortunately resulted in a chart that was completely illegible.
-</p>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2015/02/unnamed-chunk-5-3.png" />
-</div>
-
-<p>
-I wasn't sure how to progress from there but a few days ago I came across the <a href="http://www.r-bloggers.com/cohort-analysis-with-heatmap/">cohort heatmap</a> which seemed like a better way of visualising things over time.
-</p>
-
-<p>The underlying idea is still the same - we've comparing different cohorts of users against each other to see whether a change or intervention we did at a certain time had any impact.
-</p>
-
-<p>However, the way we display the cohorts changes and I think for the better.</p>
-
-<p>
-To recap, we start with the following data frame:
-</p>
-
-<pre><code class="language-r">
-df = read.csv(&quot;/tmp/df.csv&quot;)
-&gt; df %&gt;% sample_n(5)
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+df <span style="color:#f92672">=</span> <span style="color:#a6e22e">read.csv</span>(<span style="color:#e6db74">&#34;/tmp/df.csv&#34;</span>)
+<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sample_n</span>(<span style="color:#ae81ff">5</span>)
         rsvp.time person.id                time    date
-255  1.354277e+12  12228948 2012-11-30 12:05:08 2012-11
-2475 1.407342e+12  19057581 2014-08-06 16:26:04 2014-08
-3988 1.421769e+12  66122172 2015-01-20 15:58:02 2015-01
-4411 1.419377e+12 165750262 2014-12-23 23:27:44 2014-12
-1010 1.383057e+12  74602292 2013-10-29 14:24:32 2013-10
-</code></pre>
+<span style="color:#ae81ff">255</span>  <span style="color:#ae81ff">1.354277e+12</span>  <span style="color:#ae81ff">12228948</span> <span style="color:#ae81ff">2012-11-30</span> <span style="color:#ae81ff">12</span><span style="color:#f92672">:</span><span style="color:#ae81ff">05</span><span style="color:#f92672">:</span><span style="color:#ae81ff">08</span> <span style="color:#ae81ff">2012-11</span>
+<span style="color:#ae81ff">2475</span> <span style="color:#ae81ff">1.407342e+12</span>  <span style="color:#ae81ff">19057581</span> <span style="color:#ae81ff">2014-08-06</span> <span style="color:#ae81ff">16</span><span style="color:#f92672">:</span><span style="color:#ae81ff">26</span><span style="color:#f92672">:</span><span style="color:#ae81ff">04</span> <span style="color:#ae81ff">2014-08</span>
+<span style="color:#ae81ff">3988</span> <span style="color:#ae81ff">1.421769e+12</span>  <span style="color:#ae81ff">66122172</span> <span style="color:#ae81ff">2015-01-20</span> <span style="color:#ae81ff">15</span><span style="color:#f92672">:</span><span style="color:#ae81ff">58</span><span style="color:#f92672">:</span><span style="color:#ae81ff">02</span> <span style="color:#ae81ff">2015-01</span>
+<span style="color:#ae81ff">4411</span> <span style="color:#ae81ff">1.419377e+12</span> <span style="color:#ae81ff">165750262</span> <span style="color:#ae81ff">2014-12-23</span> <span style="color:#ae81ff">23</span><span style="color:#f92672">:</span><span style="color:#ae81ff">27</span><span style="color:#f92672">:</span><span style="color:#ae81ff">44</span> <span style="color:#ae81ff">2014-12</span>
+<span style="color:#ae81ff">1010</span> <span style="color:#ae81ff">1.383057e+12</span>  <span style="color:#ae81ff">74602292</span> <span style="color:#ae81ff">2013-10-29</span> <span style="color:#ae81ff">14</span><span style="color:#f92672">:</span><span style="color:#ae81ff">24</span><span style="color:#f92672">:</span><span style="color:#ae81ff">32</span> <span style="color:#ae81ff">2013-10</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+firstMeetup <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">group_by</span>(person.id) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">summarise</span>(firstEvent <span style="color:#f92672">=</span> <span style="color:#a6e22e">min</span>(time), count <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span>()) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">arrange</span>(<span style="color:#a6e22e">desc</span>(count))
+firstMeetup<span style="color:#f92672">$</span>date <span style="color:#f92672">=</span> <span style="color:#a6e22e">format</span>(<span style="color:#a6e22e">as.Date</span>(firstMeetup<span style="color:#f92672">$</span>firstEvent), <span style="color:#e6db74">&#34;%Y-%m&#34;</span>)
 
-<p>
-And we need to transform this into a data frame which is grouped by cohort (members who attended their first meetup in a particular month). The following code gets us there:
-</p>
-
-<pre><code class="language-r">
-firstMeetup = df %&gt;% 
-  group_by(person.id) %&gt;% 
-  summarise(firstEvent = min(time), count = n()) %&gt;% 
-  arrange(desc(count))
-firstMeetup$date = format(as.Date(firstMeetup$firstEvent), &quot;%Y-%m&quot;)
-
-countsForCohort = function(df, firstMeetup, cohort) {
-  members = (firstMeetup %&gt;% filter(date == cohort))$person.id
+countsForCohort <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(df, firstMeetup, cohort) {
+  members <span style="color:#f92672">=</span> (firstMeetup <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(date <span style="color:#f92672">==</span> cohort))<span style="color:#f92672">$</span>person.id
   
-  attendance = df %&gt;% 
-    filter(person.id %in% members) %&gt;% 
-    count(person.id, date) %&gt;% 
-    ungroup() %&gt;%
-    count(date)
+  attendance <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> 
+    <span style="color:#a6e22e">filter</span>(person.id <span style="color:#f92672">%in%</span> members) <span style="color:#f92672">%&gt;%</span> 
+    <span style="color:#a6e22e">count</span>(person.id, date) <span style="color:#f92672">%&gt;%</span> 
+    <span style="color:#a6e22e">ungroup</span>() <span style="color:#f92672">%&gt;%</span>
+    <span style="color:#a6e22e">count</span>(date)
     
-  allCohorts = df %&gt;% select(date) %&gt;% unique
-  cohortAttendance = merge(allCohorts, attendance, by = &quot;date&quot;, all.x = TRUE)  
-  cohortAttendance[is.na(cohortAttendance) &amp; cohortAttendance$date &gt; cohort] = 0
-  cohortAttendance %&gt;% mutate(cohort = cohort, retention = n / length(members), members = n)  
+  allCohorts <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(date) <span style="color:#f92672">%&gt;%</span> unique
+  cohortAttendance <span style="color:#f92672">=</span> <span style="color:#a6e22e">merge</span>(allCohorts, attendance, by <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;date&#34;</span>, all.x <span style="color:#f92672">=</span> <span style="color:#66d9ef">TRUE</span>)  
+  cohortAttendance<span style="color:#a6e22e">[is.na</span>(cohortAttendance) <span style="color:#f92672">&amp;</span> cohortAttendance<span style="color:#f92672">$</span>date <span style="color:#f92672">&gt;</span> cohort] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+  cohortAttendance <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(cohort <span style="color:#f92672">=</span> cohort, retention <span style="color:#f92672">=</span> n <span style="color:#f92672">/</span> <span style="color:#a6e22e">length</span>(members), members <span style="color:#f92672">=</span> n)  
 }
 
-cohorts = collect(df %&gt;% select(date) %&gt;% unique())[,1]
+cohorts <span style="color:#f92672">=</span> <span style="color:#a6e22e">collect</span>(df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(date) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">unique</span>())[,<span style="color:#ae81ff">1</span>]
 
-cohortAttendance = data.frame()
-for(cohort in cohorts) {
-  cohortAttendance = rbind(cohortAttendance,countsForCohort(df, firstMeetup, cohort))      
+cohortAttendance <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>()
+<span style="color:#a6e22e">for</span>(cohort in cohorts) {
+  cohortAttendance <span style="color:#f92672">=</span> <span style="color:#a6e22e">rbind</span>(cohortAttendance,<span style="color:#a6e22e">countsForCohort</span>(df, firstMeetup, cohort))      
 }
 
-monthNumber = function(cohort, date) {
-  cohortAsDate = as.yearmon(cohort)
-  dateAsDate = as.yearmon(date)
+monthNumber <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(cohort, date) {
+  cohortAsDate <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.yearmon</span>(cohort)
+  dateAsDate <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.yearmon</span>(date)
     
-  if(cohortAsDate &gt; dateAsDate) {
-    &quot;NA&quot;
+  <span style="color:#a6e22e">if</span>(cohortAsDate <span style="color:#f92672">&gt;</span> dateAsDate) {
+    <span style="color:#e6db74">&#34;NA&#34;</span>
   } else {
-    paste(round((dateAsDate - cohortAsDate) * 12), sep=&quot;&quot;)
+    <span style="color:#a6e22e">paste</span>(<span style="color:#a6e22e">round</span>((dateAsDate <span style="color:#f92672">-</span> cohortAsDate) <span style="color:#f92672">*</span> <span style="color:#ae81ff">12</span>), sep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>)
   }
 }
 
-cohortAttendanceWithMonthNumber = cohortAttendance %&gt;% 
-  group_by(row_number()) %&gt;% 
-  mutate(monthNumber = monthNumber(cohort, date)) %&gt;%
-  filter(monthNumber != &quot;NA&quot;) %&gt;%
-  filter(!is.na(members)) %&gt;%
-  mutate(monthNumber = as.numeric(monthNumber)) %&gt;% 
-  arrange(monthNumber)
+cohortAttendanceWithMonthNumber <span style="color:#f92672">=</span> cohortAttendance <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">group_by</span>(<span style="color:#a6e22e">row_number</span>()) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">mutate</span>(monthNumber <span style="color:#f92672">=</span> <span style="color:#a6e22e">monthNumber</span>(cohort, date)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">filter</span>(monthNumber <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;NA&#34;</span>) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">filter</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(members)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">mutate</span>(monthNumber <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.numeric</span>(monthNumber)) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">arrange</span>(monthNumber)
 
-&gt; cohortAttendanceWithMonthNumber %&gt;% head(10)
-Source: local data frame [10 x 7]
-Groups: row_number()
+<span style="color:#f92672">&gt;</span> cohortAttendanceWithMonthNumber <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">head</span>(<span style="color:#ae81ff">10</span>)
+Source<span style="color:#f92672">:</span> local data frame [10 x <span style="color:#ae81ff">7</span>]
+Groups<span style="color:#f92672">:</span> <span style="color:#a6e22e">row_number</span>()
 
-      date n  cohort retention members row_number() monthNumber
-1  2011-06 4 2011-06      1.00       4            1           0
-2  2011-07 1 2011-06      0.25       1            2           1
-3  2011-08 1 2011-06      0.25       1            3           2
-4  2011-09 2 2011-06      0.50       2            4           3
-5  2011-10 1 2011-06      0.25       1            5           4
-6  2011-11 1 2011-06      0.25       1            6           5
-7  2012-01 1 2011-06      0.25       1            7           7
-8  2012-04 2 2011-06      0.50       2            8          10
-9  2012-05 1 2011-06      0.25       1            9          11
-10 2012-06 1 2011-06      0.25       1           10          12
-</code></pre>
+      date n  cohort retention members <span style="color:#a6e22e">row_number</span>() monthNumber
+<span style="color:#ae81ff">1</span>  <span style="color:#ae81ff">2011-06</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">1.00</span>       <span style="color:#ae81ff">4</span>            <span style="color:#ae81ff">1</span>           <span style="color:#ae81ff">0</span>
+<span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">2011-07</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>       <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">2</span>           <span style="color:#ae81ff">1</span>
+<span style="color:#ae81ff">3</span>  <span style="color:#ae81ff">2011-08</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>       <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">3</span>           <span style="color:#ae81ff">2</span>
+<span style="color:#ae81ff">4</span>  <span style="color:#ae81ff">2011-09</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.50</span>       <span style="color:#ae81ff">2</span>            <span style="color:#ae81ff">4</span>           <span style="color:#ae81ff">3</span>
+<span style="color:#ae81ff">5</span>  <span style="color:#ae81ff">2011-10</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>       <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">5</span>           <span style="color:#ae81ff">4</span>
+<span style="color:#ae81ff">6</span>  <span style="color:#ae81ff">2011-11</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>       <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">6</span>           <span style="color:#ae81ff">5</span>
+<span style="color:#ae81ff">7</span>  <span style="color:#ae81ff">2012-01</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>       <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">7</span>           <span style="color:#ae81ff">7</span>
+<span style="color:#ae81ff">8</span>  <span style="color:#ae81ff">2012-04</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.50</span>       <span style="color:#ae81ff">2</span>            <span style="color:#ae81ff">8</span>          <span style="color:#ae81ff">10</span>
+<span style="color:#ae81ff">9</span>  <span style="color:#ae81ff">2012-05</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>       <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">9</span>          <span style="color:#ae81ff">11</span>
+<span style="color:#ae81ff">10</span> <span style="color:#ae81ff">2012-06</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>       <span style="color:#ae81ff">1</span>           <span style="color:#ae81ff">10</span>          <span style="color:#ae81ff">12</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+t <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">max</span>(cohortAttendanceWithMonthNumber<span style="color:#f92672">$</span>members)
 
-<p>
-Now let's create our first heatmap.
-</p>
+cols <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;#e7f0fa&#34;</span>, <span style="color:#e6db74">&#34;#c9e2f6&#34;</span>, <span style="color:#e6db74">&#34;#95cbee&#34;</span>, <span style="color:#e6db74">&#34;#0099dc&#34;</span>, <span style="color:#e6db74">&#34;#4ab04a&#34;</span>, <span style="color:#e6db74">&#34;#ffd73e&#34;</span>, <span style="color:#e6db74">&#34;#eec73a&#34;</span>, <span style="color:#e6db74">&#34;#e29421&#34;</span>, <span style="color:#e6db74">&#34;#e29421&#34;</span>, <span style="color:#e6db74">&#34;#f05336&#34;</span>, <span style="color:#e6db74">&#34;#ce472e&#34;</span>)
+<span style="color:#a6e22e">ggplot</span>(cohortAttendanceWithMonthNumber, <span style="color:#a6e22e">aes</span>(y<span style="color:#f92672">=</span>cohort, x<span style="color:#f92672">=</span>date, fill<span style="color:#f92672">=</span>members)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">theme_minimal</span>() <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">geom_tile</span>(colour<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;white&#34;</span>, linewidth<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>, width<span style="color:#f92672">=</span><span style="color:#ae81ff">.9</span>, height<span style="color:#f92672">=</span><span style="color:#ae81ff">.9</span>) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">scale_fill_gradientn</span>(colours<span style="color:#f92672">=</span>cols, limits<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">0</span>, t),
+                       breaks<span style="color:#f92672">=</span><span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">0</span>, t, by<span style="color:#f92672">=</span>t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span>),
+                       labels<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;0&#34;</span>, <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">1</span>)),
+                       guide<span style="color:#f92672">=</span><span style="color:#a6e22e">guide_colourbar</span>(ticks<span style="color:#f92672">=</span>T, nbin<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>, barheight<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, label<span style="color:#f92672">=</span>T, barwidth<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">theme</span>(legend.position<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;bottom&#39;</span>, 
+        legend.direction<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;horizontal&#34;</span>,
+        plot.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(size<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>, face<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;bold&#34;</span>, vjust<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>),
+        axis.text.x<span style="color:#f92672">=</span><span style="color:#a6e22e">element_text</span>(size<span style="color:#f92672">=</span><span style="color:#ae81ff">8</span>, angle<span style="color:#f92672">=</span><span style="color:#ae81ff">90</span>, hjust<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, vjust<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, face<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;plain&#34;</span>)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Cohort Activity Heatmap (number of members who attended event)&#34;</span>) 
+</code></pre></div><!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+cohortAttendanceWithMonthNumber<span style="color:#f92672">$</span>retentionPercentage <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(cohortAttendanceWithMonthNumber<span style="color:#f92672">$</span>retention),  cohortAttendanceWithMonthNumber<span style="color:#f92672">$</span>retention <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">0</span>)
+t <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">max</span>(cohortAttendanceWithMonthNumber<span style="color:#f92672">$</span>retentionPercentage)
 
-<pre><code class="language-r">
-t &lt;- max(cohortAttendanceWithMonthNumber$members)
+cols <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;#e7f0fa&#34;</span>, <span style="color:#e6db74">&#34;#c9e2f6&#34;</span>, <span style="color:#e6db74">&#34;#95cbee&#34;</span>, <span style="color:#e6db74">&#34;#0099dc&#34;</span>, <span style="color:#e6db74">&#34;#4ab04a&#34;</span>, <span style="color:#e6db74">&#34;#ffd73e&#34;</span>, <span style="color:#e6db74">&#34;#eec73a&#34;</span>, <span style="color:#e6db74">&#34;#e29421&#34;</span>, <span style="color:#e6db74">&#34;#e29421&#34;</span>, <span style="color:#e6db74">&#34;#f05336&#34;</span>, <span style="color:#e6db74">&#34;#ce472e&#34;</span>)
+<span style="color:#a6e22e">ggplot</span>(cohortAttendanceWithMonthNumber, <span style="color:#a6e22e">aes</span>(y<span style="color:#f92672">=</span>cohort, x<span style="color:#f92672">=</span>date, fill<span style="color:#f92672">=</span>retentionPercentage)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">theme_minimal</span>() <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">geom_tile</span>(colour<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;white&#34;</span>, linewidth<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>, width<span style="color:#f92672">=</span><span style="color:#ae81ff">.9</span>, height<span style="color:#f92672">=</span><span style="color:#ae81ff">.9</span>) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">scale_fill_gradientn</span>(colours<span style="color:#f92672">=</span>cols, limits<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">0</span>, t),
+                       breaks<span style="color:#f92672">=</span><span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">0</span>, t, by<span style="color:#f92672">=</span>t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span>),
+                       labels<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;0&#34;</span>, <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">1</span>)),
+                       guide<span style="color:#f92672">=</span><span style="color:#a6e22e">guide_colourbar</span>(ticks<span style="color:#f92672">=</span>T, nbin<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>, barheight<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, label<span style="color:#f92672">=</span>T, barwidth<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">theme</span>(legend.position<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;bottom&#39;</span>, 
+        legend.direction<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;horizontal&#34;</span>,
+        plot.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(size<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>, face<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;bold&#34;</span>, vjust<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>),
+        axis.text.x<span style="color:#f92672">=</span><span style="color:#a6e22e">element_text</span>(size<span style="color:#f92672">=</span><span style="color:#ae81ff">8</span>, angle<span style="color:#f92672">=</span><span style="color:#ae81ff">90</span>, hjust<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, vjust<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, face<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;plain&#34;</span>)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Cohort Activity Heatmap (number of members who attended event)&#34;</span>) 
+</code></pre></div><!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+t <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">max</span>(cohortAttendanceWithMonthNumber<span style="color:#f92672">$</span>retentionPercentage)
 
-cols &lt;- c(&quot;#e7f0fa&quot;, &quot;#c9e2f6&quot;, &quot;#95cbee&quot;, &quot;#0099dc&quot;, &quot;#4ab04a&quot;, &quot;#ffd73e&quot;, &quot;#eec73a&quot;, &quot;#e29421&quot;, &quot;#e29421&quot;, &quot;#f05336&quot;, &quot;#ce472e&quot;)
-ggplot(cohortAttendanceWithMonthNumber, aes(y=cohort, x=date, fill=members)) +
-  theme_minimal() +
-  geom_tile(colour=&quot;white&quot;, linewidth=2, width=.9, height=.9) +
-  scale_fill_gradientn(colours=cols, limits=c(0, t),
-                       breaks=seq(0, t, by=t/4),
-                       labels=c(&quot;0&quot;, round(t/4*1, 1), round(t/4*2, 1), round(t/4*3, 1), round(t/4*4, 1)),
-                       guide=guide_colourbar(ticks=T, nbin=50, barheight=.5, label=T, barwidth=10)) +
-  theme(legend.position='bottom', 
-        legend.direction=&quot;horizontal&quot;,
-        plot.title = element_text(size=20, face=&quot;bold&quot;, vjust=2),
-        axis.text.x=element_text(size=8, angle=90, hjust=.5, vjust=.5, face=&quot;plain&quot;)) +
-  ggtitle(&quot;Cohort Activity Heatmap (number of members who attended event)&quot;) 
-</code></pre>
-
-<div>
-
-<img src="https://markhneedham.com/blog/
-/uploads/2015/05/2015-05-11_23-55-56.png" alt="2015 05 11 23 55 56" title="2015-05-11_23-55-56.png" border="0" width="598" height="350" /></div>
-
-<p>
-'t' is the maximum number of members within a cohort who attended a meetup in a given month. This makes it easy to see which cohorts started with the most members but makes it difficult to compare their retention over time.
-</p>
-
-<p>
-We can fix that by showing the percentage of members in the cohort who attend each month rather than using absolute values. To do that we must first add an extra column containing the percentage values:
-</p>
-
-<pre><code class="language-r">
-cohortAttendanceWithMonthNumber$retentionPercentage = ifelse(!is.na(cohortAttendanceWithMonthNumber$retention),  cohortAttendanceWithMonthNumber$retention * 100, 0)
-t &lt;- max(cohortAttendanceWithMonthNumber$retentionPercentage)
-
-cols &lt;- c(&quot;#e7f0fa&quot;, &quot;#c9e2f6&quot;, &quot;#95cbee&quot;, &quot;#0099dc&quot;, &quot;#4ab04a&quot;, &quot;#ffd73e&quot;, &quot;#eec73a&quot;, &quot;#e29421&quot;, &quot;#e29421&quot;, &quot;#f05336&quot;, &quot;#ce472e&quot;)
-ggplot(cohortAttendanceWithMonthNumber, aes(y=cohort, x=date, fill=retentionPercentage)) +
-  theme_minimal() +
-  geom_tile(colour=&quot;white&quot;, linewidth=2, width=.9, height=.9) +
-  scale_fill_gradientn(colours=cols, limits=c(0, t),
-                       breaks=seq(0, t, by=t/4),
-                       labels=c(&quot;0&quot;, round(t/4*1, 1), round(t/4*2, 1), round(t/4*3, 1), round(t/4*4, 1)),
-                       guide=guide_colourbar(ticks=T, nbin=50, barheight=.5, label=T, barwidth=10)) +
-  theme(legend.position='bottom', 
-        legend.direction=&quot;horizontal&quot;,
-        plot.title = element_text(size=20, face=&quot;bold&quot;, vjust=2),
-        axis.text.x=element_text(size=8, angle=90, hjust=.5, vjust=.5, face=&quot;plain&quot;)) +
-  ggtitle(&quot;Cohort Activity Heatmap (number of members who attended event)&quot;) 
-</code></pre>
-
-<div>
-
-<img src="https://markhneedham.com/blog/
-/uploads/2015/05/2015-05-12_00-01-55.png" alt="2015 05 12 00 01 55" title="2015-05-12_00-01-55.png" border="0" width="599" height="350" />
-
-</div>
-
-<p>
-This version allows us to compare cohorts against each other but now we don't have the exact numbers which means earlier cohorts will look better since there are less people in them. We can get the best of both worlds by keeping this visualisation but showing the actual values inside each box:
-</p>
-
-<pre><code class="language-r">
-t &lt;- max(cohortAttendanceWithMonthNumber$retentionPercentage)
-
-cols &lt;- c(&quot;#e7f0fa&quot;, &quot;#c9e2f6&quot;, &quot;#95cbee&quot;, &quot;#0099dc&quot;, &quot;#4ab04a&quot;, &quot;#ffd73e&quot;, &quot;#eec73a&quot;, &quot;#e29421&quot;, &quot;#e29421&quot;, &quot;#f05336&quot;, &quot;#ce472e&quot;)
-ggplot(cohortAttendanceWithMonthNumber, aes(y=cohort, x=date, fill=retentionPercentage)) +
-  theme_minimal() +
-  geom_tile(colour=&quot;white&quot;, linewidth=2, width=.9, height=.9) +
-  scale_fill_gradientn(colours=cols, limits=c(0, t),
-                       breaks=seq(0, t, by=t/4),
-                       labels=c(&quot;0&quot;, round(t/4*1, 1), round(t/4*2, 1), round(t/4*3, 1), round(t/4*4, 1)),
-                       guide=guide_colourbar(ticks=T, nbin=50, barheight=.5, label=T, barwidth=10)) +
-  theme(legend.position='bottom', 
-        legend.direction=&quot;horizontal&quot;,
-        plot.title = element_text(size=20, face=&quot;bold&quot;, vjust=2),
-        axis.text.x=element_text(size=8, angle=90, hjust=.5, vjust=.5, face=&quot;plain&quot;)) +
-  ggtitle(&quot;Cohort Activity Heatmap (number of members who attended event)&quot;) + 
-  geom_text(aes(label=members),size=3)
-</code></pre>
-
-<div>
-
-<img src="https://markhneedham.com/blog/
-/uploads/2015/05/2015-05-12_00-04-31.png" alt="2015 05 12 00 04 31" title="2015-05-12_00-04-31.png" border="0" width="599" height="349" /></div>
-
-<p>
-What we can learn overall is that the majority of people seem to have a passing interest and then we have a smaller percentage who will continue to come to events.</p>
- 
-
-<p>It seems like we did a better job at retaining attendees in the middle of last year - one hypothesis is that the events we ran around then were more compelling but I need to do more analysis.
-</p>
-
-<p>
-Next I'm going to drill further into some of the recent events and see what cohorts the attendees came from.
-</p>
+cols <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;#e7f0fa&#34;</span>, <span style="color:#e6db74">&#34;#c9e2f6&#34;</span>, <span style="color:#e6db74">&#34;#95cbee&#34;</span>, <span style="color:#e6db74">&#34;#0099dc&#34;</span>, <span style="color:#e6db74">&#34;#4ab04a&#34;</span>, <span style="color:#e6db74">&#34;#ffd73e&#34;</span>, <span style="color:#e6db74">&#34;#eec73a&#34;</span>, <span style="color:#e6db74">&#34;#e29421&#34;</span>, <span style="color:#e6db74">&#34;#e29421&#34;</span>, <span style="color:#e6db74">&#34;#f05336&#34;</span>, <span style="color:#e6db74">&#34;#ce472e&#34;</span>)
+<span style="color:#a6e22e">ggplot</span>(cohortAttendanceWithMonthNumber, <span style="color:#a6e22e">aes</span>(y<span style="color:#f92672">=</span>cohort, x<span style="color:#f92672">=</span>date, fill<span style="color:#f92672">=</span>retentionPercentage)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">theme_minimal</span>() <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">geom_tile</span>(colour<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;white&#34;</span>, linewidth<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>, width<span style="color:#f92672">=</span><span style="color:#ae81ff">.9</span>, height<span style="color:#f92672">=</span><span style="color:#ae81ff">.9</span>) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">scale_fill_gradientn</span>(colours<span style="color:#f92672">=</span>cols, limits<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">0</span>, t),
+                       breaks<span style="color:#f92672">=</span><span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">0</span>, t, by<span style="color:#f92672">=</span>t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span>),
+                       labels<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;0&#34;</span>, <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span>), <span style="color:#a6e22e">round</span>(t<span style="color:#f92672">/</span><span style="color:#ae81ff">4</span><span style="color:#f92672">*</span><span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">1</span>)),
+                       guide<span style="color:#f92672">=</span><span style="color:#a6e22e">guide_colourbar</span>(ticks<span style="color:#f92672">=</span>T, nbin<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>, barheight<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, label<span style="color:#f92672">=</span>T, barwidth<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">theme</span>(legend.position<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;bottom&#39;</span>, 
+        legend.direction<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;horizontal&#34;</span>,
+        plot.title <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(size<span style="color:#f92672">=</span><span style="color:#ae81ff">20</span>, face<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;bold&#34;</span>, vjust<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>),
+        axis.text.x<span style="color:#f92672">=</span><span style="color:#a6e22e">element_text</span>(size<span style="color:#f92672">=</span><span style="color:#ae81ff">8</span>, angle<span style="color:#f92672">=</span><span style="color:#ae81ff">90</span>, hjust<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, vjust<span style="color:#f92672">=</span><span style="color:#ae81ff">.5</span>, face<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;plain&#34;</span>)) <span style="color:#f92672">+</span>
+  <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Cohort Activity Heatmap (number of members who attended event)&#34;</span>) <span style="color:#f92672">+</span> 
+  <span style="color:#a6e22e">geom_text</span>(<span style="color:#a6e22e">aes</span>(label<span style="color:#f92672">=</span>members),size<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -409,7 +352,7 @@ Next I'm going to drill further into some of the recent events and see what coho
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/05/11/r-cohort-heatmap-of-neo4j-london-meetup/&amp;title=R%3a%20Cohort%20heatmap%20of%20Neo4j%20London%20meetup&amp;summary=A%20few%20months%20ago%20I%20had%20a%20go%20at%20doing%20some%20cohort%20analysis%20of%20the%20Neo4j%20London%20meetup%20group%20which%20was%20an%20interesting%20experiment%20but%20unfortunately%20resulted%20in%20a%20chart%20that%20was%20completely%20illegible.%20%20%20%20I%20wasn%27t%20sure%20how%20to%20progress%20from%20there%20but%20a%20few%20days%20ago%20I%20came%20across%20the%20cohort%20heatmap%20which%20seemed%20like%20a%20better%20way%20of%20visualising%20things%20over%20time.%20The%20underlying%20idea%20is%20still%20the%20same%20-%20we%27ve%20comparing%20different%20cohorts%20of%20users%20against%20each%20other%20to%20see%20whether%20a%20change%20or%20intervention%20we%20did%20at%20a%20certain%20time%20had%20any%20impact...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/05/11/r-cohort-heatmap-of-neo4j-london-meetup/&amp;title=R%3a%20Cohort%20heatmap%20of%20Neo4j%20London%20meetup&amp;summary=df%20%3d%20read.csv%28%26%2334%3b%2ftmp%2fdf.csv%26%2334%3b%29%20%26gt%3b%20df%20%25%26gt%3b%25%20sample_n%285%29%20rsvp.time%20person.id%20time%20date%20255%201.354277e%2b12%2012228948%202012-11-30%2012%3a05%3a08%202012-11%202475%201.407342e%2b12%2019057581%202014-08-06%2016%3a26%3a04%202014-08%203988%201.421769e%2b12%2066122172%202015-01-20%2015%3a58%3a02%202015-01%204411%201.419377e%2b12%20165750262%202014-12-23%2023%3a27%3a44%202014-12%201010%201.383057e%2b12%2074602292%202013-10-29%2014%3a24%3a32%202013-10%20firstMeetup%20%3d%20df%20%25%26gt%3b%25%20group_by%28person.id%29%20%25%26gt%3b%25%20summarise%28firstEvent%20%3d%20min%28time%29%2c%20count%20%3d%20n%28%29%29%20%25%26gt%3b%25%20arrange%28desc%28count%29%29%20firstMeetup%24date%20%3d%20format%28as.Date%28firstMeetup%24firstEvent%29%2c%20%26%2334%3b%25Y-%25m%26%2334%3b%29%20countsForCohort%20%3d%20function%28df%2c%20firstMeetup%2c%20cohort%29%20%7b%20members%20%3d%20%28firstMeetup%20%25%26gt%3b%25%20filter%28date%20%3d%3d%20cohort%29%29%24person...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

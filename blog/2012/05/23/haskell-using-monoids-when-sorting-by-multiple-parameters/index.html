@@ -24,7 +24,7 @@
         
           <meta name="twitter:description" content="On the project I&rsquo;ve been working on we had a requirement to sort a collection of rows by 4 different criteria such that if two items matched for the first criteria we should consider the second criteria and so on.
 If we wrote that code in Haskell it would read a bit like this:
-data Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2 :: Int } deriving (Show, Eq)  import Data." />
+data Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2 :: Int } deriving (Show, Eq) import Data." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/05/23/haskell-using-monoids-when-sorting-by-multiple-parameters/" />
 
@@ -37,7 +37,7 @@ data Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2
     
         <meta name="description" content="On the project I&rsquo;ve been working on we had a requirement to sort a collection of rows by 4 different criteria such that if two items matched for the first criteria we should consider the second criteria and so on.
 If we wrote that code in Haskell it would read a bit like this:
-data Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2 :: Int } deriving (Show, Eq)  import Data." />
+data Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2 :: Int } deriving (Show, Eq) import Data." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,10 +66,8 @@ data Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-05-23",
-        "description": "On the project I&rsquo;ve been working on we had a requirement to sort a collection of rows by 4 different criteria such that if two items matched for the first criteria we should consider the second criteria and so on.
-If we wrote that code in Haskell it would read a bit like this:
-data Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2 :: Int } deriving (Show, Eq)  import Data.",
-        "wordCount": 932
+        "description": "On the project I\x26rsquo;ve been working on we had a requirement to sort a collection of rows by 4 different criteria such that if two items matched for the first criteria we should consider the second criteria and so on.\nIf we wrote that code in Haskell it would read a bit like this:\ndata Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2 :: Int } deriving (Show, Eq) import Data.",
+        "wordCount":  890 
     }
     </script>
     
@@ -179,155 +177,96 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Haskell: Using monoids when sorting by multiple parameters</h1>
     <p>On the project I&rsquo;ve been working on we had a requirement to sort a collection of rows by 4 different criteria such that if two items matched for the first criteria we should consider the second criteria and so on.</p>
-
 <p>If we wrote that code in Haskell it would read a bit like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#66d9ef">data</span> <span style="color:#66d9ef">Row</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">Row</span> { shortListed <span style="color:#f92672">::</span> <span style="color:#66d9ef">Bool</span>, cost <span style="color:#f92672">::</span> <span style="color:#66d9ef">Float</span>, distance1 <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span>, distance2 <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> } <span style="color:#66d9ef">deriving</span> (<span style="color:#66d9ef">Show</span>, <span style="color:#66d9ef">Eq</span>)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#66d9ef">import</span> Data.Ord
+<span style="color:#66d9ef">import</span> Data.List
 
-<pre><code class="language-haskell">
-data Row = Row { shortListed :: Bool, cost :: Float, distance1 :: Int, distance2 :: Int } deriving (Show, Eq)
-</code></pre>
-
-<pre><code class="language-haskell">
-import Data.Ord
-import Data.List
-
-compareRow :: Row -&gt; Row -&gt; Ordering
-compareRow x y = if comparing (not . shortListed) x y == EQ then 
-                    if comparing cost x y == EQ then
-                      if comparing distance1 x y == EQ then
+<span style="color:#a6e22e">compareRow</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Row</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Row</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Ordering</span>
+<span style="color:#a6e22e">compareRow</span> x y <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> comparing (not <span style="color:#f92672">.</span> shortListed) x y <span style="color:#f92672">==</span> <span style="color:#66d9ef">EQ</span> <span style="color:#66d9ef">then</span> 
+                    <span style="color:#66d9ef">if</span> comparing cost x y <span style="color:#f92672">==</span> <span style="color:#66d9ef">EQ</span> <span style="color:#66d9ef">then</span>
+                      <span style="color:#66d9ef">if</span> comparing distance1 x y <span style="color:#f92672">==</span> <span style="color:#66d9ef">EQ</span> <span style="color:#66d9ef">then</span>
                         comparing distance2 x y
-                      else
+                      <span style="color:#66d9ef">else</span>
                         comparing distance1 x y
-                    else
+                    <span style="color:#66d9ef">else</span>
                       comparing cost x y
-                  else 
-                    comparing (not . shortListed) x y
-</code></pre>
+                  <span style="color:#66d9ef">else</span> 
+                    comparing (not <span style="color:#f92672">.</span> shortListed) x y
+</code></pre></div><p>We can then sort a list of rows like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">let</span> shortListedRow <span style="color:#f92672">=</span> <span style="color:#66d9ef">Row</span> {shortListed <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>, cost <span style="color:#f92672">=</span> <span style="color:#ae81ff">10.0</span>, distance1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>, distance2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span> }
 
-<p>We can then sort a list of rows like this:</p>
+<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">let</span> nonShortListedRow <span style="color:#f92672">=</span> <span style="color:#66d9ef">Row</span> {shortListed <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>, cost <span style="color:#f92672">=</span> <span style="color:#ae81ff">10.0</span>, distance1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>, distance2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span> }
 
-<pre><code class="language-haskell">
-&gt; let shortListedRow = Row {shortListed = True, cost = 10.0, distance1 = 20, distance2 = 30 }
-
-&gt; let nonShortListedRow = Row {shortListed = False, cost = 10.0, distance1 = 20, distance2 = 30 }
-
-&gt; sortBy compareRow [nonShortListedRow, shortListedRow]
-[Row {shortListed = True, cost = 10.0, distance1 = 20, distance2 = 30},
- Row {shortListed = False, cost = 10.0, distance1 = 20, distance2 = 30}]
-</code></pre>
-
-<p>It works but it&rsquo;s messy and we couldn&rsquo;t see what abstraction we should be using to simplify the code.</p>
-
-<p>I was continuing with my reading of <a href="http://learnyouahaskell.com/functors-applicative-functors-and-monoids">Functors, Applicative Functors and Monoids</a> yesterday and got to the section on Monoids which showed an example for simplifying this type of code.</p>
-
+<span style="color:#f92672">&gt;</span> sortBy compareRow [nonShortListedRow, shortListedRow]
+[<span style="color:#66d9ef">Row</span> {shortListed <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>, cost <span style="color:#f92672">=</span> <span style="color:#ae81ff">10.0</span>, distance1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>, distance2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>},
+ <span style="color:#66d9ef">Row</span> {shortListed <span style="color:#f92672">=</span> <span style="color:#66d9ef">False</span>, cost <span style="color:#f92672">=</span> <span style="color:#ae81ff">10.0</span>, distance1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>, distance2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>}]
+</code></pre></div><p>It works but it&rsquo;s messy and we couldn&rsquo;t see what abstraction we should be using to simplify the code.</p>
+<p>I was continuing with my reading of <!-- raw HTML omitted -->Functors, Applicative Functors and Monoids<!-- raw HTML omitted --> yesterday and got to the section on Monoids which showed an example for simplifying this type of code.</p>
 <p>The definition of a Monoid from the Haskell source code is:</p>
-
-<blockquote>
-Types with an associative binary operation that has an identity
-</blockquote>
-
-<p>But I prefer <a href="http://blog.sigfpe.com/2009/01/haskell-monoids-and-their-uses.html">Dan Piponi&rsquo;s definition</a>:</p>
-
-<blockquote>
-In Haskell, a monoid is a type with a rule for how two elements of that type can be combined to make another element of the same type. 
-
-To be a monoid there also needs to be an element that you can think of as representing 'nothing' in the sense that when it's combined with other elements it leaves the other element unchanged.
-</blockquote>
-
+<!-- raw HTML omitted -->
+<p>But I prefer <!-- raw HTML omitted -->Dan Piponi&rsquo;s definition<!-- raw HTML omitted -->:</p>
+<!-- raw HTML omitted -->
+<p>To be a monoid there also needs to be an element that you can think of as representing &lsquo;nothing&rsquo; in the sense that when it&rsquo;s combined with other elements it leaves the other element unchanged.</p>
+<!-- raw HTML omitted -->
 <p>In our case we have a bunch of things of type &lsquo;Ordering&rsquo; and we want to combine them all together and end up with a final &lsquo;Ordering&rsquo; which takes them all into account.</p>
-
 <p>For example if we were comparing the following two rows:</p>
-
-<pre><code class="language-haskell">
-&gt; let row1 = Row {shortListed = True, cost = 10.0, distance1 = 1, distance2 = 30 }
-&gt; let row2 = Row {shortListed = True, cost = 10.0, distance1 = 100, distance2 = 30 }
-&gt; compareRow row1 row2
-LT
-</code></pre>
-
-<p>When we compare their shortListed value we get back &lsquo;EQ&rsquo;, so we compare their cost value and get back &lsquo;EQ&rsquo; and finally we compare their distance1 value which gives back &lsquo;LT&rsquo; which is our final value.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">let</span> row1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">Row</span> {shortListed <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>, cost <span style="color:#f92672">=</span> <span style="color:#ae81ff">10.0</span>, distance1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, distance2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span> }
+<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">let</span> row2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">Row</span> {shortListed <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>, cost <span style="color:#f92672">=</span> <span style="color:#ae81ff">10.0</span>, distance1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>, distance2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span> }
+<span style="color:#f92672">&gt;</span> compareRow row1 row2
+<span style="color:#66d9ef">LT</span>
+</code></pre></div><p>When we compare their shortListed value we get back &lsquo;EQ&rsquo;, so we compare their cost value and get back &lsquo;EQ&rsquo; and finally we compare their distance1 value which gives back &lsquo;LT&rsquo; which is our final value.</p>
 <p>We can make use of the Ordering Monoid to do this rather than all the nested if statements.</p>
-
-<p>Monoid is a <a href="http://www.markhneedham.com/blog/2012/05/22/scalahaskell-a-simple-example-of-type-classes/">type class</a> defined like so:</p>
-
-<pre><code class="language-haskell">
-class Monoid a where
-  mempty  :: a
-  mappend :: a -&gt; a -&gt; a
-  mconcat :: [a] -&gt; a
-  mconcat = foldr mappend mempty
-</code></pre>
-
-<p>&lsquo;mempty&rsquo; represents the identity value for a monoid i.e. the &lsquo;nothing&rsquo; in Dan Piponi&rsquo;s definition. If we combine anything with this then we should get that thing back.</p>
-
+<p>Monoid is a <!-- raw HTML omitted -->type class<!-- raw HTML omitted --> defined like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#66d9ef">class</span> <span style="color:#66d9ef">Monoid</span> a <span style="color:#66d9ef">where</span>
+  mempty  <span style="color:#f92672">::</span> a
+  mappend <span style="color:#f92672">::</span> a <span style="color:#f92672">-&gt;</span> a <span style="color:#f92672">-&gt;</span> a
+  mconcat <span style="color:#f92672">::</span> [a] <span style="color:#f92672">-&gt;</span> a
+  mconcat <span style="color:#f92672">=</span> foldr mappend mempty
+</code></pre></div><p>&lsquo;mempty&rsquo; represents the identity value for a monoid i.e. the &lsquo;nothing&rsquo; in Dan Piponi&rsquo;s definition. If we combine anything with this then we should get that thing back.</p>
 <p>The most interesting function here is &lsquo;mappend&rsquo; which we use to combine together two elements of a type. Each instance of Monoid needs to define this function for themselves.</p>
-
 <p>The Ordering Monoid is defined like so:</p>
-
-<pre><code class="language-haskell">
-instance Monoid Ordering where
-  mempty         = EQ
-  LT `mappend` _ = LT
-  EQ `mappend` y = y
-  GT `mappend` _ = GT
-</code></pre>
-
-<p>What makes this work for us is that we always keep the value on the left unless it&rsquo;s &lsquo;EQ&rsquo; in which case we take the value on the right.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Monoid</span> <span style="color:#66d9ef">Ordering</span> <span style="color:#66d9ef">where</span>
+  mempty         <span style="color:#f92672">=</span> <span style="color:#66d9ef">EQ</span>
+  <span style="color:#66d9ef">LT</span> `mappend` <span style="color:#66d9ef">_</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">LT</span>
+  <span style="color:#66d9ef">EQ</span> `mappend` y <span style="color:#f92672">=</span> y
+  <span style="color:#66d9ef">GT</span> `mappend` <span style="color:#66d9ef">_</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">GT</span>
+</code></pre></div><p>What makes this work for us is that we always keep the value on the left unless it&rsquo;s &lsquo;EQ&rsquo; in which case we take the value on the right.</p>
 <p>Therefore as soon as one of our comparisons returns a non &lsquo;EQ&rsquo; value that will be the value that eventually gets returned.</p>
-
 <p>e.g.</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 &gt; GT `mappend` LT `mappend` EQ
 GT
-</code></pre>
-
-<p>Our &lsquo;row1&rsquo;/&lsquo;row2&rsquo; comparison would look like this using &lsquo;mappend&rsquo;:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>Our &lsquo;row1&rsquo;/&lsquo;row2&rsquo; comparison would look like this using &lsquo;mappend&rsquo;:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 &gt; EQ `mappend` EQ `mappend` LT
 LT
-</code></pre>
-
-<p>We can then change our &lsquo;compareRow&rsquo; function:</p>
-
-<pre><code class="language-haskell">
-compareRow x y = comparing (not . shortListed) x y `mappend` comparing cost x y `mappend` comparing distance1 x y `mappend` comparing distance2 x y 
-</code></pre>
-
-<p>We can simplify this further by making use of &lsquo;mconcat&rsquo; which folds over a list of monoids applying &lsquo;mappend&rsquo; each time.</p>
-
+</code></pre></div><p>We can then change our &lsquo;compareRow&rsquo; function:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#a6e22e">compareRow</span> x y <span style="color:#f92672">=</span> comparing (not <span style="color:#f92672">.</span> shortListed) x y `mappend` comparing cost x y `mappend` comparing distance1 x y `mappend` comparing distance2 x y 
+</code></pre></div><p>We can simplify this further by making use of &lsquo;mconcat&rsquo; which folds over a list of monoids applying &lsquo;mappend&rsquo; each time.</p>
 <p>For example we could replace our &lsquo;row1&rsquo;/&lsquo;row2&rsquo; comparison with the following:</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 &gt; mconcat [EQ, EQ, LT]
 LT
-</code></pre>
-
-<p>And &lsquo;compareRow&rsquo; now reads like this:</p>
-
-<pre><code class="language-haskell">
-compareRow x y = mconcat [comparing (not . shortListed) x y,  comparing cost x y, comparing distance1 x y, comparing distance2 x y]
-</code></pre>
-
-<p>We&rsquo;re still repeating the &lsquo;comparing&rsquo; bit of code every time so I extracted that into a function:</p>
-
-<pre><code class="language-haskell">
-by :: Ord a =&gt; (b -&gt; a) -&gt; b -&gt; b -&gt; Ordering
-by fn x y = comparing fn x y
-</code></pre>
-
-<p>We then need to apply those functions to x and y to get our collection of monoids we can pass to mconcat:</p>
-
-<pre><code class="language-haskell">
-compareRow x y = mconcat $ map (\fn -&gt; fn x y) [by (not . shortListed), by cost, by distance1, by distance2]
-</code></pre>
-
-<p><del datetime="2012-05-23T08:24:29+00:00">One problem with this code is that we&rsquo;re now comparing by all the parameters when we can actually stop once we&rsquo;ve found a non equality.</del></p>
-
-<p><del datetime="2012-05-23T08:25:17+00:00">I&rsquo;m sure there&rsquo;s a clever way to short circuit this but I&rsquo;m not sure what it is at the moment!</del></p>
-
+</code></pre></div><p>And &lsquo;compareRow&rsquo; now reads like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#a6e22e">compareRow</span> x y <span style="color:#f92672">=</span> mconcat [comparing (not <span style="color:#f92672">.</span> shortListed) x y,  comparing cost x y, comparing distance1 x y, comparing distance2 x y]
+</code></pre></div><p>We&rsquo;re still repeating the &lsquo;comparing&rsquo; bit of code every time so I extracted that into a function:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#a6e22e">by</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Ord</span> a <span style="color:#f92672">=&gt;</span> (b <span style="color:#f92672">-&gt;</span> a) <span style="color:#f92672">-&gt;</span> b <span style="color:#f92672">-&gt;</span> b <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Ordering</span>
+<span style="color:#a6e22e">by</span> fn x y <span style="color:#f92672">=</span> comparing fn x y
+</code></pre></div><p>We then need to apply those functions to x and y to get our collection of monoids we can pass to mconcat:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#a6e22e">compareRow</span> x y <span style="color:#f92672">=</span> mconcat <span style="color:#f92672">$</span> map (<span style="color:#a6e22e">\</span>fn <span style="color:#f92672">-&gt;</span> fn x y) [by (not <span style="color:#f92672">.</span> shortListed), by cost, by distance1, by distance2]
+</code></pre></div><p><!-- raw HTML omitted -->One problem with this code is that we&rsquo;re now comparing by all the parameters when we can actually stop once we&rsquo;ve found a non equality.<!-- raw HTML omitted --></p>
+<p><!-- raw HTML omitted -->I&rsquo;m sure there&rsquo;s a clever way to short circuit this but I&rsquo;m not sure what it is at the moment!<!-- raw HTML omitted --></p>
 <p>As BeRewt points out in the comments what I wrote here is not actually the case, it is lazily evaluated!</p>
 
     <div id="social-bar">
@@ -363,7 +302,7 @@ compareRow x y = mconcat $ map (\fn -&gt; fn x y) [by (not . shortListed), by co
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/05/23/haskell-using-monoids-when-sorting-by-multiple-parameters/&amp;title=Haskell%3a%20Using%20monoids%20when%20sorting%20by%20multiple%20parameters&amp;summary=On%20the%20project%20I%26rsquo%3bve%20been%20working%20on%20we%20had%20a%20requirement%20to%20sort%20a%20collection%20of%20rows%20by%204%20different%20criteria%20such%20that%20if%20two%20items%20matched%20for%20the%20first%20criteria%20we%20should%20consider%20the%20second%20criteria%20and%20so%20on.%0aIf%20we%20wrote%20that%20code%20in%20Haskell%20it%20would%20read%20a%20bit%20like%20this%3a%0adata%20Row%20%3d%20Row%20%7b%20shortListed%20%3a%3a%20Bool%2c%20cost%20%3a%3a%20Float%2c%20distance1%20%3a%3a%20Int%2c%20distance2%20%3a%3a%20Int%20%7d%20deriving%20%28Show%2c%20Eq%29%20%20import%20Data...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/05/23/haskell-using-monoids-when-sorting-by-multiple-parameters/&amp;title=Haskell%3a%20Using%20monoids%20when%20sorting%20by%20multiple%20parameters&amp;summary=On%20the%20project%20I%26rsquo%3bve%20been%20working%20on%20we%20had%20a%20requirement%20to%20sort%20a%20collection%20of%20rows%20by%204%20different%20criteria%20such%20that%20if%20two%20items%20matched%20for%20the%20first%20criteria%20we%20should%20consider%20the%20second%20criteria%20and%20so%20on.%0aIf%20we%20wrote%20that%20code%20in%20Haskell%20it%20would%20read%20a%20bit%20like%20this%3a%0adata%20Row%20%3d%20Row%20%7b%20shortListed%20%3a%3a%20Bool%2c%20cost%20%3a%3a%20Float%2c%20distance1%20%3a%3a%20Int%2c%20distance2%20%3a%3a%20Int%20%7d%20deriving%20%28Show%2c%20Eq%29%20import%20Data...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

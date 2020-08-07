@@ -63,8 +63,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-10-31",
-        "description": "I've been spending some of my spare time over the last few weeks creating an application that generates running routes from Open Roads data - transformed and imported into Neo4j of course!  I've created a user defined procedure which combines several shortest path queries, but I wanted to exit any of these shortest path searches if they were taking too long. My code without a timeout looks like this: StandardExpander orderedExpander = new OrderedByTypeExpander() .",
-        "wordCount": 285
+        "description": "StandardExpander orderedExpander = new OrderedByTypeExpander() .add( RelationshipType.withName( \x26#34;CONNECTS\x26#34; ), Direction.BOTH ); PathFinder\x26lt;Path\x26gt; shortestPathFinder = GraphAlgoFactory.shortestPath( expander, 250 ); ... public class TimeConstrainedExpander implements PathExpander { private final StandardExpander expander; private final long startTime; private final Clock clock; private int pathsExpanded = 0; private long timeLimitInMillis; public TimeConstrainedExpander( StandardExpander expander, Clock clock, long timeLimitInMillis ) { this.expander = expander; this.clock = clock; this.startTime = clock.instant().toEpochMilli(); this.timeLimitInMillis = timeLimitInMillis; } @Override public Iterable\x26lt;Relationship\x26gt; expand( Path path, BranchState state ) { long timeSoFar = clock.",
+        "wordCount":  135 
     }
     </script>
     
@@ -175,83 +175,63 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Traversal query timeout</h1>
-    <p>
-I've been spending some of my spare time over the last few weeks creating an application that generates running routes from <a href="https://www.ordnancesurvey.co.uk/business-and-government/products/os-open-roads.html">Open Roads</a> data - transformed and imported into Neo4j of course! 
-</p>
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+StandardExpander orderedExpander <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> OrderedByTypeExpander<span style="color:#f92672">()</span>
+    <span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span> RelationshipType<span style="color:#f92672">.</span><span style="color:#a6e22e">withName</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;CONNECTS&#34;</span> <span style="color:#f92672">),</span> Direction<span style="color:#f92672">.</span><span style="color:#a6e22e">BOTH</span> <span style="color:#f92672">);</span>
 
-<p>
-I've created a user defined procedure which combines several shortest path queries, but I wanted to exit any of these shortest path searches if they were taking too long. My code without a timeout looks like this:
-</p>
+PathFinder<span style="color:#f92672">&lt;</span>Path<span style="color:#f92672">&gt;</span> shortestPathFinder <span style="color:#f92672">=</span> GraphAlgoFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">shortestPath</span><span style="color:#f92672">(</span> expander<span style="color:#f92672">,</span> 250 <span style="color:#f92672">);</span>
 
-<pre><code class="language-java">
-StandardExpander orderedExpander = new OrderedByTypeExpander()
-    .add( RelationshipType.withName( &quot;CONNECTS&quot; ), Direction.BOTH );
+<span style="color:#f92672">...</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TimeConstrainedExpander</span> <span style="color:#66d9ef">implements</span> PathExpander
+<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> StandardExpander expander<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">long</span> startTime<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> Clock clock<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> pathsExpanded <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">long</span> timeLimitInMillis<span style="color:#f92672">;</span>
 
-PathFinder&lt;Path&gt; shortestPathFinder = GraphAlgoFactory.shortestPath( expander, 250 );
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">TimeConstrainedExpander</span><span style="color:#f92672">(</span> StandardExpander expander<span style="color:#f92672">,</span> Clock clock<span style="color:#f92672">,</span> <span style="color:#66d9ef">long</span> timeLimitInMillis <span style="color:#f92672">)</span>
+    <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">expander</span> <span style="color:#f92672">=</span> expander<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">clock</span> <span style="color:#f92672">=</span> clock<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">startTime</span> <span style="color:#f92672">=</span> clock<span style="color:#f92672">.</span><span style="color:#a6e22e">instant</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toEpochMilli</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">timeLimitInMillis</span> <span style="color:#f92672">=</span> timeLimitInMillis<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
 
-...
-</code></pre>
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> Iterable<span style="color:#f92672">&lt;</span>Relationship<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">expand</span><span style="color:#f92672">(</span> Path path<span style="color:#f92672">,</span> BranchState state <span style="color:#f92672">)</span>
+    <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">long</span> timeSoFar <span style="color:#f92672">=</span> clock<span style="color:#f92672">.</span><span style="color:#a6e22e">instant</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toEpochMilli</span><span style="color:#f92672">()</span> <span style="color:#f92672">-</span> startTime<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span> timeSoFar <span style="color:#f92672">&gt;</span> timeLimitInMillis <span style="color:#f92672">)</span>
+        <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> Collections<span style="color:#f92672">.</span><span style="color:#a6e22e">emptyList</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
 
-<p>
-There are several places where we could check the time elapsed, but the <cite>expand</cite> method in the <cite>Expander</cite> seemed like an obvious one to me. I wrote my own <cite>Expander</cite> class which looks like this:
-</p>
+        <span style="color:#66d9ef">return</span> expander<span style="color:#f92672">.</span><span style="color:#a6e22e">expand</span><span style="color:#f92672">(</span> path<span style="color:#f92672">,</span> state <span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
 
-<pre><code class="language-java">
-public class TimeConstrainedExpander implements PathExpander
-{
-    private final StandardExpander expander;
-    private final long startTime;
-    private final Clock clock;
-    private int pathsExpanded = 0;
-    private long timeLimitInMillis;
+    <span style="color:#a6e22e">@Override</span>
+    <span style="color:#66d9ef">public</span> PathExpander <span style="color:#a6e22e">reverse</span><span style="color:#f92672">()</span>
+    <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> expander<span style="color:#f92672">.</span><span style="color:#a6e22e">reverse</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
 
-    public TimeConstrainedExpander( StandardExpander expander, Clock clock, long timeLimitInMillis )
-    {
-        this.expander = expander;
-        this.clock = clock;
-        this.startTime = clock.instant().toEpochMilli();
-        this.timeLimitInMillis = timeLimitInMillis;
-    }
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+StandardExpander orderedExpander <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> OrderedByTypeExpander<span style="color:#f92672">()</span>
+    <span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span> RelationshipType<span style="color:#f92672">.</span><span style="color:#a6e22e">withName</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;CONNECTS&#34;</span> <span style="color:#f92672">),</span> Direction<span style="color:#f92672">.</span><span style="color:#a6e22e">BOTH</span> <span style="color:#f92672">);</span>
 
-    @Override
-    public Iterable&lt;Relationship&gt; expand( Path path, BranchState state )
-    {
-        long timeSoFar = clock.instant().toEpochMilli() - startTime;
-        if ( timeSoFar &gt; timeLimitInMillis )
-        {
-            return Collections.emptyList();
-        }
+TimeConstrainedExpander expander <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TimeConstrainedExpander<span style="color:#f92672">(</span>orderedExpander<span style="color:#f92672">,</span> 
+    Clock<span style="color:#f92672">.</span><span style="color:#a6e22e">systemUTC</span><span style="color:#f92672">(),</span> 200<span style="color:#f92672">);</span>
 
-        return expander.expand( path, state );
-    }
-
-    @Override
-    public PathExpander reverse()
-    {
-        return expander.reverse();
-    }
-}
-
-</code></pre>
-
-<p>
-The code snippet from earlier now needs to be updated to use our new class, which isn't too tricky:
-</p>
-
-<pre><code class="language-java">
-StandardExpander orderedExpander = new OrderedByTypeExpander()
-    .add( RelationshipType.withName( &quot;CONNECTS&quot; ), Direction.BOTH );
-
-TimeConstrainedExpander expander = new TimeConstrainedExpander(orderedExpander, 
-    Clock.systemUTC(), 200);
-
-PathFinder&lt;Path&gt; shortestPathFinder = GraphAlgoFactory.shortestPath( expander, 250 );
-...
-</code></pre>
-
-<p>
-I'm not sure if this is the best way to achieve what I want but after failing with several other approaches at least this one actually works!
-</p>
+PathFinder<span style="color:#f92672">&lt;</span>Path<span style="color:#f92672">&gt;</span> shortestPathFinder <span style="color:#f92672">=</span> GraphAlgoFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">shortestPath</span><span style="color:#f92672">(</span> expander<span style="color:#f92672">,</span> 250 <span style="color:#f92672">);</span>
+<span style="color:#f92672">...</span>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -286,7 +266,7 @@ I'm not sure if this is the best way to achieve what I want but after failing wi
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/10/31/neo4j-traversal-query-timeout/&amp;title=Neo4j%3a%20Traversal%20query%20timeout&amp;summary=I%27ve%20been%20spending%20some%20of%20my%20spare%20time%20over%20the%20last%20few%20weeks%20creating%20an%20application%20that%20generates%20running%20routes%20from%20Open%20Roads%20data%20-%20transformed%20and%20imported%20into%20Neo4j%20of%20course%21%20%20I%27ve%20created%20a%20user%20defined%20procedure%20which%20combines%20several%20shortest%20path%20queries%2c%20but%20I%20wanted%20to%20exit%20any%20of%20these%20shortest%20path%20searches%20if%20they%20were%20taking%20too%20long.%20My%20code%20without%20a%20timeout%20looks%20like%20this%3a%20StandardExpander%20orderedExpander%20%3d%20new%20OrderedByTypeExpander%28%29%20...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/10/31/neo4j-traversal-query-timeout/&amp;title=Neo4j%3a%20Traversal%20query%20timeout&amp;summary=StandardExpander%20orderedExpander%20%3d%20new%20OrderedByTypeExpander%28%29%20.add%28%20RelationshipType.withName%28%20%26%2334%3bCONNECTS%26%2334%3b%20%29%2c%20Direction.BOTH%20%29%3b%20PathFinder%26lt%3bPath%26gt%3b%20shortestPathFinder%20%3d%20GraphAlgoFactory.shortestPath%28%20expander%2c%20250%20%29%3b%20...%20public%20class%20TimeConstrainedExpander%20implements%20PathExpander%20%7b%20private%20final%20StandardExpander%20expander%3b%20private%20final%20long%20startTime%3b%20private%20final%20Clock%20clock%3b%20private%20int%20pathsExpanded%20%3d%200%3b%20private%20long%20timeLimitInMillis%3b%20public%20TimeConstrainedExpander%28%20StandardExpander%20expander%2c%20Clock%20clock%2c%20long%20timeLimitInMillis%20%29%20%7b%20this.expander%20%3d%20expander%3b%20this.clock%20%3d%20clock%3b%20this.startTime%20%3d%20clock.instant%28%29.toEpochMilli%28%29%3b%20this.timeLimitInMillis%20%3d%20timeLimitInMillis%3b%20%7d%20%40Override%20public%20Iterable%26lt%3bRelationship%26gt%3b%20expand%28%20Path%20path%2c%20BranchState%20state%20%29%20%7b%20long%20timeSoFar%20%3d%20clock...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

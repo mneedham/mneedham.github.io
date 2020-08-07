@@ -63,10 +63,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-01-31",
-        "description": "As part of a Go script I&rsquo;ve been working on I wanted to write to a CSV file from multiple Go routines, but realised that the built in CSV Writer isn&rsquo;t thread safe.
-My first attempt at writing to the CSV file looked like this:
-package main import ( &quot;encoding/csv&quot; &quot;os&quot; &quot;log&quot; &quot;strconv&quot; ) func main() { csvFile, err := os.Create(&quot;/tmp/foo.csv&quot;) if err != nil { log.Panic(err) } w := csv.",
-        "wordCount": 408
+        "description": "As part of a Go script I\x26rsquo;ve been working on I wanted to write to a CSV file from multiple Go routines, but realised that the built in CSV Writer isn\x26rsquo;t thread safe.\nMy first attempt at writing to the CSV file looked like this:\npackage main import ( \x26#34;encoding\/csv\x26#34; \x26#34;os\x26#34; \x26#34;log\x26#34; \x26#34;strconv\x26#34; ) func main() { csvFile, err := os.Create(\x26#34;\/tmp\/foo.csv\x26#34;) if err != nil { log.Panic(err) } w := csv.",
+        "wordCount":  258 
     }
     </script>
     
@@ -178,52 +176,45 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Go: Multi-threaded writing to a CSV file</h1>
     <p>As part of a Go script I&rsquo;ve been working on I wanted to write to a CSV file from multiple Go routines, but realised that the built in CSV Writer isn&rsquo;t thread safe.</p>
-
 <p>My first attempt at writing to the CSV file looked like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 
-<pre><code class="language-go">
-package main
 
-
-import (
-	&quot;encoding/csv&quot;
-	&quot;os&quot;
-	&quot;log&quot;
-	&quot;strconv&quot;
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;encoding/csv&#34;</span>
+	<span style="color:#e6db74">&#34;os&#34;</span>
+	<span style="color:#e6db74">&#34;log&#34;</span>
+	<span style="color:#e6db74">&#34;strconv&#34;</span>
 )
 
-func main() {
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
 
-	csvFile, err := os.Create(&quot;/tmp/foo.csv&quot;)
-	if err != nil {
-		log.Panic(err)
+	<span style="color:#a6e22e">csvFile</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;/tmp/foo.csv&#34;</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Panic</span>(<span style="color:#a6e22e">err</span>)
 	}
 
-	w := csv.NewWriter(csvFile)
-	w.Write([]string{&quot;id1&quot;,&quot;id2&quot;,&quot;id3&quot;})
+	<span style="color:#a6e22e">w</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">csv</span>.<span style="color:#a6e22e">NewWriter</span>(<span style="color:#a6e22e">csvFile</span>)
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;id1&#34;</span>,<span style="color:#e6db74">&#34;id2&#34;</span>,<span style="color:#e6db74">&#34;id3&#34;</span>})
 
-	count := 100
-	done := make(chan bool, count)
+	<span style="color:#a6e22e">count</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">100</span>
+	<span style="color:#a6e22e">done</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">bool</span>, <span style="color:#a6e22e">count</span>)
 
-	for i := 0; i &lt; count; i++ {
-		go func(i int) {
-			w.Write([]string {strconv.Itoa(i), strconv.Itoa(i), strconv.Itoa(i)})
-			done &lt;- true
-		}(i)
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">count</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span>) {
+			<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">string</span> {<span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">i</span>), <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">i</span>), <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">i</span>)})
+			<span style="color:#a6e22e">done</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">true</span>
+		}(<span style="color:#a6e22e">i</span>)
 	}
 
-	for i:=0; i &lt; count; i++ {
-		&lt;- done
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span><span style="color:#f92672">:=</span><span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">count</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">done</span>
 	}
-	w.Flush()
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Flush</span>()
 }
-</code></pre>
-
-<p>
-This script should output the numbers from 0-99 three times on each line. Some rows in the file are written correctly, but as we can see below, some aren't:
-</p>
-
-<pre><code class="language-text">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 40,40,40
 37,37,37
 38,38,38
@@ -239,75 +230,60 @@ This script should output the numbers from 0-99 three times on each line. Some r
 74
 7779^@,79,77
 ...
-</code></pre>
-
-<p>
-One way that we can make our script safe is to use a mutex whenever we're calling any methods on the CSV writer. I wrote the following code to do this:
-</p>
-
-<pre><code class="language-go">
-type CsvWriter struct {
-	mutex *sync.Mutex
-	csvWriter *csv.Writer
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">CsvWriter</span> <span style="color:#66d9ef">struct</span> {
+	<span style="color:#a6e22e">mutex</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span>
+	<span style="color:#a6e22e">csvWriter</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">csv</span>.<span style="color:#a6e22e">Writer</span>
 }
 
-func NewCsvWriter(fileName string) (*CsvWriter, error) {
-	csvFile, err := os.Create(fileName)
-	if err != nil {
-		return nil, err
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">NewCsvWriter</span>(<span style="color:#a6e22e">fileName</span> <span style="color:#66d9ef">string</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">CsvWriter</span>, <span style="color:#66d9ef">error</span>) {
+	<span style="color:#a6e22e">csvFile</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#a6e22e">fileName</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">err</span>
 	}
-	w := csv.NewWriter(csvFile)
-	return &amp;CsvWriter{csvWriter:w, mutex: &amp;sync.Mutex{}}, nil
+	<span style="color:#a6e22e">w</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">csv</span>.<span style="color:#a6e22e">NewWriter</span>(<span style="color:#a6e22e">csvFile</span>)
+	<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">CsvWriter</span>{<span style="color:#a6e22e">csvWriter</span>:<span style="color:#a6e22e">w</span>, <span style="color:#a6e22e">mutex</span>: <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Mutex</span>{}}, <span style="color:#66d9ef">nil</span>
 }
 
-func (w *CsvWriter) Write(row []string) {
-	w.mutex.Lock()
-	w.csvWriter.Write(row)
-	w.mutex.Unlock()
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">w</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">CsvWriter</span>) <span style="color:#a6e22e">Write</span>(<span style="color:#a6e22e">row</span> []<span style="color:#66d9ef">string</span>) {
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">mutex</span>.<span style="color:#a6e22e">Lock</span>()
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">csvWriter</span>.<span style="color:#a6e22e">Write</span>(<span style="color:#a6e22e">row</span>)
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">mutex</span>.<span style="color:#a6e22e">Unlock</span>()
 }
 
-func (w *CsvWriter) Flush() {
-	w.mutex.Lock()
-	w.csvWriter.Flush()
-	w.mutex.Unlock()
+<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">w</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">CsvWriter</span>) <span style="color:#a6e22e">Flush</span>() {
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">mutex</span>.<span style="color:#a6e22e">Lock</span>()
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">csvWriter</span>.<span style="color:#a6e22e">Flush</span>()
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">mutex</span>.<span style="color:#a6e22e">Unlock</span>()
 }
-</code></pre>
-
-<p>
-We create a mutex when <cite>NewCsvWriter</cite> instantiates <cite>CsvWriter</cite> and then use it in the <cite>Write</cite> and <cite>Flush</cite> functions so that only one go routine at a time can access the underlying <cite>CsvWriter</cite>. We then tweak the initial script to call this class instead of calling CsvWriter directly:
-</p>
-
-<pre><code class="language-go">
-func main() {
-	w, err := NewCsvWriter(&quot;/tmp/foo-safe.csv&quot;)
-	if err != nil {
-		log.Panic(err)
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+	<span style="color:#a6e22e">w</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">NewCsvWriter</span>(<span style="color:#e6db74">&#34;/tmp/foo-safe.csv&#34;</span>)
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+		<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Panic</span>(<span style="color:#a6e22e">err</span>)
 	}
 
-	w.Write([]string{&quot;id1&quot;,&quot;id2&quot;,&quot;id3&quot;})
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;id1&#34;</span>,<span style="color:#e6db74">&#34;id2&#34;</span>,<span style="color:#e6db74">&#34;id3&#34;</span>})
 
-	count := 100
-	done := make(chan bool, count)
+	<span style="color:#a6e22e">count</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">100</span>
+	<span style="color:#a6e22e">done</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">bool</span>, <span style="color:#a6e22e">count</span>)
 
-	for i := 0; i &lt; count; i++ {
-		go func(i int) {
-			w.Write([]string {strconv.Itoa(i), strconv.Itoa(i), strconv.Itoa(i)})
-			done &lt;- true
-		}(i)
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">count</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span>) {
+			<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">string</span> {<span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">i</span>), <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">i</span>), <span style="color:#a6e22e">strconv</span>.<span style="color:#a6e22e">Itoa</span>(<span style="color:#a6e22e">i</span>)})
+			<span style="color:#a6e22e">done</span> <span style="color:#f92672">&lt;-</span> <span style="color:#66d9ef">true</span>
+		}(<span style="color:#a6e22e">i</span>)
 	}
 
-	for i:=0; i &lt; count; i++ {
-		&lt;- done
+	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span><span style="color:#f92672">:=</span><span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">count</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+		<span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">done</span>
 	}
-	w.Flush()
+	<span style="color:#a6e22e">w</span>.<span style="color:#a6e22e">Flush</span>()
 }
-</code></pre>
-
-<p>
-And now if we inspect the CSV file all lines have been written successfully:
-</p>
-
-<pre><code class="language-text">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 ...
 25,25,25
 13,13,13
@@ -324,11 +300,7 @@ And now if we inspect the CSV file all lines have been written successfully:
 37,37,37
 36,36,36
 ...
-</code></pre>
-
-<p>
-That's all for now. If you have any suggestions for a better way to do this do let me know in the comments or on twitter - I'm <a href="https://twitter.com/markhneedham">@markhneedham</a>
-</p>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -363,7 +335,7 @@ That's all for now. If you have any suggestions for a better way to do this do l
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/01/31/go-multi-threaded-writing-csv-file/&amp;title=Go%3a%20Multi-threaded%20writing%20to%20a%20CSV%20file&amp;summary=As%20part%20of%20a%20Go%20script%20I%26rsquo%3bve%20been%20working%20on%20I%20wanted%20to%20write%20to%20a%20CSV%20file%20from%20multiple%20Go%20routines%2c%20but%20realised%20that%20the%20built%20in%20CSV%20Writer%20isn%26rsquo%3bt%20thread%20safe.%0aMy%20first%20attempt%20at%20writing%20to%20the%20CSV%20file%20looked%20like%20this%3a%0apackage%20main%20import%20%28%20%26quot%3bencoding%2fcsv%26quot%3b%20%26quot%3bos%26quot%3b%20%26quot%3blog%26quot%3b%20%26quot%3bstrconv%26quot%3b%20%29%20func%20main%28%29%20%7b%20csvFile%2c%20err%20%3a%3d%20os.Create%28%26quot%3b%2ftmp%2ffoo.csv%26quot%3b%29%20if%20err%20%21%3d%20nil%20%7b%20log.Panic%28err%29%20%7d%20w%20%3a%3d%20csv...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/01/31/go-multi-threaded-writing-csv-file/&amp;title=Go%3a%20Multi-threaded%20writing%20to%20a%20CSV%20file&amp;summary=As%20part%20of%20a%20Go%20script%20I%26rsquo%3bve%20been%20working%20on%20I%20wanted%20to%20write%20to%20a%20CSV%20file%20from%20multiple%20Go%20routines%2c%20but%20realised%20that%20the%20built%20in%20CSV%20Writer%20isn%26rsquo%3bt%20thread%20safe.%0aMy%20first%20attempt%20at%20writing%20to%20the%20CSV%20file%20looked%20like%20this%3a%0apackage%20main%20import%20%28%20%26%2334%3bencoding%2fcsv%26%2334%3b%20%26%2334%3bos%26%2334%3b%20%26%2334%3blog%26%2334%3b%20%26%2334%3bstrconv%26%2334%3b%20%29%20func%20main%28%29%20%7b%20csvFile%2c%20err%20%3a%3d%20os.Create%28%26%2334%3b%2ftmp%2ffoo.csv%26%2334%3b%29%20if%20err%20%21%3d%20nil%20%7b%20log.Panic%28err%29%20%7d%20w%20%3a%3d%20csv...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

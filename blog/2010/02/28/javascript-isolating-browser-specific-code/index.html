@@ -64,9 +64,8 @@ jQuery has some functions which allow you to work out which browser&rsquo;s bein
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-02-28",
-        "description": "One thing we&rsquo;ve found on my current project is that despite our best efforts we&rsquo;ve still ended up with some javascript code which we only want to run if the user is using Internet Explorer 6 and the question then becomes how to write that code so that it doesn&rsquo;t end up being spread all over the application.
-jQuery has some functions which allow you to work out which browser&rsquo;s being used but I&rsquo;ve noticed that when we use those you tend to end up with if statements dotted all around the code which isn&rsquo;t so good.",
-        "wordCount": 455
+        "description": "One thing we\x26rsquo;ve found on my current project is that despite our best efforts we\x26rsquo;ve still ended up with some javascript code which we only want to run if the user is using Internet Explorer 6 and the question then becomes how to write that code so that it doesn\x26rsquo;t end up being spread all over the application.\njQuery has some functions which allow you to work out which browser\x26rsquo;s being used but I\x26rsquo;ve noticed that when we use those you tend to end up with if statements dotted all around the code which isn\x26rsquo;t so good.",
+        "wordCount":  453 
     }
     </script>
     
@@ -176,71 +175,48 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Javascript: Isolating browser specific code</h1>
     <p>One thing we&rsquo;ve found on my current project is that despite our best efforts we&rsquo;ve still ended up with some javascript code which we only want to run if the user is using Internet Explorer 6 and the question then becomes how to write that code so that it doesn&rsquo;t end up being spread all over the application.</p>
-
 <p>jQuery has some functions which allow you to work out which browser&rsquo;s being used but I&rsquo;ve noticed that when we use those you tend to end up with if statements dotted all around the code which isn&rsquo;t so good.</p>
-
-<p>An approach which I was shown recently involves using <a href="http://www.quirksmode.org/css/condcom.html">CSS conditionals</a> to identify when we&rsquo;re using Internet Explorer instead.</p>
-
+<p>An approach which I was shown recently involves using <!-- raw HTML omitted -->CSS conditionals<!-- raw HTML omitted --> to identify when we&rsquo;re using Internet Explorer instead.</p>
 <p>We can then include an IE6 specific javascript file like so:</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 &lt;!--[if lt IE 7]&gt;
-	&lt;script type=&quot;text/javascript&quot; src=&quot;/path/to/ie6.js&quot;) %&gt;&quot;&gt;&lt;/script&gt;
+	&lt;script type=&#34;text/javascript&#34; src=&#34;/path/to/ie6.js&#34;) %&gt;&#34;&gt;&lt;/script&gt;
 &lt;![endif]--&gt;    
-</code></pre>
-
-<p>Since we&rsquo;re building an ASP.NET MVC application we include this bit of code in our master page so that it gets picked up by all the web pages.</p>
-
+</code></pre></div><p>Since we&rsquo;re building an ASP.NET MVC application we include this bit of code in our master page so that it gets picked up by all the web pages.</p>
 <p>We&rsquo;ve either needed to override existing functions or call the existing function but then do some extra work afterwards as well.</p>
-
 <p>In order to do this we have to make sure that the IE6 specific file is included after our other javascript files since the interpreter will use the last definition of a function that it finds.</p>
-
 <p>Given an existing function defined like so:</p>
-
-<pre><code class="language-javascript">
-Foo = {
-    Bar : function() {
-            console.log(&quot;original bar call&quot;);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
+<span style="color:#a6e22e">Foo</span> <span style="color:#f92672">=</span> {
+    <span style="color:#a6e22e">Bar</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">function</span>() {
+            <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;original bar call&#34;</span>);
     }
 };
-</code></pre>
-
-<p>If we want to override this function to do something else we could include the following code in our IE6 specific file:</p>
-
-<pre><code class="language-javascript">
-Foo.bar = function() {
-    console.log(&quot;overriding bar call&quot;);
+</code></pre></div><p>If we want to override this function to do something else we could include the following code in our IE6 specific file:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
+<span style="color:#a6e22e">Foo</span>.<span style="color:#a6e22e">bar</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;overriding bar call&#34;</span>);
 }
-</code></pre>
-
-<p>When we call &lsquo;Foo.bar()&rsquo; we&rsquo;d only see the second &lsquo;console.log&rsquo; statement.</p>
-
+</code></pre></div><p>When we call &lsquo;Foo.bar()&rsquo; we&rsquo;d only see the second &lsquo;console.log&rsquo; statement.</p>
 <p>It becomes a bit more interesting if we want to call the original function and then do some other functionality.</p>
-
-<p>We can make use of the <a href="http://docs.jquery.com/Types#Proxy_Pattern">proxy pattern</a> to allow us to do this cleanly.</p>
-
-<pre><code class="language-javascript">
-Foo = {
-    bar : function() {
-            console.log(&quot;original bar call&quot;);
+<p>We can make use of the <!-- raw HTML omitted -->proxy pattern<!-- raw HTML omitted --> to allow us to do this cleanly.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
+<span style="color:#a6e22e">Foo</span> <span style="color:#f92672">=</span> {
+    <span style="color:#a6e22e">bar</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">function</span>() {
+            <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;original bar call&#34;</span>);
     }
 };
 
-(function() {
-    var originalBar = Foo.bar;
-    Foo.bar = function() {
-        originalBar.apply(this, arguments);
-        console.log(&quot;overriding bar call&quot;);
+(<span style="color:#66d9ef">function</span>() {
+    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">originalBar</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Foo</span>.<span style="color:#a6e22e">bar</span>;
+    <span style="color:#a6e22e">Foo</span>.<span style="color:#a6e22e">bar</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+        <span style="color:#a6e22e">originalBar</span>.<span style="color:#a6e22e">apply</span>(<span style="color:#66d9ef">this</span>, <span style="color:#a6e22e">arguments</span>);
+        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;overriding bar call&#34;</span>);
     };
 })();
-</code></pre>
-
-<p>If we call &lsquo;Foo.bar()&rsquo; in IE6 we&rsquo;d now see both of those &lsquo;console.log&rsquo; statements.</p>
-
+</code></pre></div><p>If we call &lsquo;Foo.bar()&rsquo; in IE6 we&rsquo;d now see both of those &lsquo;console.log&rsquo; statements.</p>
 <p>The reason that we wrap the reassignment in a function is so that we can hide the &lsquo;originalBar&rsquo; function from the rest of our code. We save &lsquo;Foo.bar&rsquo; in a closure and then override it and delegate calls to the original before logging the extra message.</p>
-
 <p>I quite like this approach although I&rsquo;m not sure if it&rsquo;s the most intention revealing code because it&rsquo;s not necessarily obvious that the function is being rewritten unless you happen to know about the IE6 only file.</p>
-
 <p>Is there a better way to do this than the approach I&rsquo;ve described?</p>
 
     <div id="social-bar">

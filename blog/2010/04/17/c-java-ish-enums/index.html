@@ -66,10 +66,8 @@ Right now we have several classes similar to the following in our code base to a
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-04-17",
-        "description": "We&rsquo;ve been writing quite a bit of code on my current project trying to encapsulate user selected values from drop down menus where we then want to go and look up something in another system based on the value that they select.
-Essentially we have the need for some of the things that a Java Enum would give us but which a C# one doesn&rsquo;t!
-Right now we have several classes similar to the following in our code base to achieve this:",
-        "wordCount": 356
+        "description": "We\x26rsquo;ve been writing quite a bit of code on my current project trying to encapsulate user selected values from drop down menus where we then want to go and look up something in another system based on the value that they select.\nEssentially we have the need for some of the things that a Java Enum would give us but which a C# one doesn\x26rsquo;t!\nRight now we have several classes similar to the following in our code base to achieve this:",
+        "wordCount":  355 
     }
     </script>
     
@@ -179,69 +177,54 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">C#: Java-ish enums</h1>
     <p>We&rsquo;ve been writing quite a bit of code on my current project trying to encapsulate user selected values from drop down menus where we then want to go and look up something in another system based on the value that they select.</p>
-
 <p>Essentially we have the need for some of the things that a Java Enum would give us but which a C# one doesn&rsquo;t!</p>
-
 <p>Right now we have several classes similar to the following in our code base to achieve this:</p>
-
-<pre><code class="language-csharp">
-public class CustomerType
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CustomerType</span>
 {
-    public static readonly CustomerType Good = new CustomerType(&quot;Good&quot;, &quot;GoodKey&quot;);
-    public static readonly CustomerType Bad = new CustomerType(&quot;Bad&quot;, &quot;BadKey&quot;);
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">readonly</span> CustomerType Good = <span style="color:#66d9ef">new</span> CustomerType(<span style="color:#e6db74">&#34;Good&#34;</span>, <span style="color:#e6db74">&#34;GoodKey&#34;</span>);
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">readonly</span> CustomerType Bad = <span style="color:#66d9ef">new</span> CustomerType(<span style="color:#e6db74">&#34;Bad&#34;</span>, <span style="color:#e6db74">&#34;BadKey&#34;</span>);
 
-    private readonly string displayValue;
-    private readonly string key;
-    private static readonly CustomerType[] all = new[] { Good, Bad };
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">string</span> displayValue;
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">string</span> key;
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">readonly</span> CustomerType[] all = <span style="color:#66d9ef">new</span>[] { Good, Bad };
 
-    private CustomerType(string displayValue, string key)
+    <span style="color:#66d9ef">private</span> CustomerType(<span style="color:#66d9ef">string</span> displayValue, <span style="color:#66d9ef">string</span> key)
     {
-        this.displayValue = displayValue;
-        this.key = key;
+        <span style="color:#66d9ef">this</span>.displayValue = displayValue;
+        <span style="color:#66d9ef">this</span>.key = key;
     }
 
-    public static CustomerType From(string customerType)
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> CustomerType From(<span style="color:#66d9ef">string</span> customerType)
     {
-        return all.First(c =&gt; c.displayValue == customerType);
+        <span style="color:#66d9ef">return</span> all.First(c =&gt; c.displayValue == customerType);
     }
 
-    public static string[] Values
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">string</span>[] Values
     {
-        get { return all.Select(c =&gt; c.DisplayValue).ToArray(); }
+        <span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> all.Select(c =&gt; c.DisplayValue).ToArray(); }
     }
 
-    public string DisplayValue
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> DisplayValue
     {
-        get { return displayValue; }
+        <span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> displayValue; }
     }
 
-    public string Key
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> Key
     {
-        get { return key; }
+        <span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> key; }
     }
 }
-</code></pre>
-
-<p>To get values to display in drop downs on the screen we call the following property in our controllers:</p>
-
-<pre><code class="language-csharp">
+</code></pre></div><p>To get values to display in drop downs on the screen we call the following property in our controllers:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
 CustomerType.Values
-</code></pre>
-
-<p>And to map from user input to our type we do this:</p>
-
-<pre><code class="language-csharp">
-CustomerType.From(&quot;Good&quot;)
-</code></pre>
-
-<p>Right now that will blow up if you trying to parse a value that doesn&rsquo;t have an instance associated with it.</p>
-
-<p><a href="https://twitter.com/christianralph">Christian</a> came up with the idea of storing each of the public static fields in an array and then using &lsquo;First&rsquo; inside  the &lsquo;From&rsquo; method to select the one that we want.</p>
-
+</code></pre></div><p>And to map from user input to our type we do this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+CustomerType.From(<span style="color:#e6db74">&#34;Good&#34;</span>)
+</code></pre></div><p>Right now that will blow up if you trying to parse a value that doesn&rsquo;t have an instance associated with it.</p>
+<p><!-- raw HTML omitted -->Christian<!-- raw HTML omitted --> came up with the idea of storing each of the public static fields in an array and then using &lsquo;First&rsquo; inside  the &lsquo;From&rsquo; method to select the one that we want.</p>
 <p>We previously had a somewhat over complicated dictionary with the display value as the key and type as the value and looked it up that way.</p>
-
 <p>So far this does all that we need to do and the only annoying thing is that if we add a new instance then we need to manually add it to the &lsquo;all&rsquo; array.</p>
-
 <p>An alternative would be to do that using reflection which I think would work but it&rsquo;s simple enough like this so we haven&rsquo;t taken that approach yet.</p>
 
     <div id="social-bar">

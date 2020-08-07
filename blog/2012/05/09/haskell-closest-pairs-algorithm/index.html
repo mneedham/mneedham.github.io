@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Haskell: Closest Pairs Algorithm" />
         
-          <meta name="twitter:description" content="As I mentioned in a post a couple of days ago I&rsquo;ve been writing the closest pairs algorithm in Haskell and while the brute force version works for small numbers of pairs it starts to fall apart as the number of pairs increases:
+          <meta name="twitter:description" content="As I mentioned in a post a couple of days agoI&rsquo;ve been writing the closest pairs algorithm in Haskell and while the brute force version works for small numbers of pairs it starts to fall apart as the number of pairs increases:
 time ./closest_pairs 100 bf ./closest_pairs 100 bf 0.01s user 0.00s system 87% cpu 0.016 total time ./closest_pairs 1000 bf ./closest_pairs 1000 bf 3.59s user 0.01s system 99% cpu 3." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/05/09/haskell-closest-pairs-algorithm/" />
@@ -34,7 +34,7 @@ time ./closest_pairs 100 bf ./closest_pairs 100 bf 0.01s user 0.00s system 87% c
         <title> Haskell: Closest Pairs Algorithm &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="As I mentioned in a post a couple of days ago I&rsquo;ve been writing the closest pairs algorithm in Haskell and while the brute force version works for small numbers of pairs it starts to fall apart as the number of pairs increases:
+        <meta name="description" content="As I mentioned in a post a couple of days agoI&rsquo;ve been writing the closest pairs algorithm in Haskell and while the brute force version works for small numbers of pairs it starts to fall apart as the number of pairs increases:
 time ./closest_pairs 100 bf ./closest_pairs 100 bf 0.01s user 0.00s system 87% cpu 0.016 total time ./closest_pairs 1000 bf ./closest_pairs 1000 bf 3.59s user 0.01s system 99% cpu 3." />
     
 
@@ -64,9 +64,8 @@ time ./closest_pairs 100 bf ./closest_pairs 100 bf 0.01s user 0.00s system 87% c
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-05-09",
-        "description": "As I mentioned in a post a couple of days ago I&rsquo;ve been writing the closest pairs algorithm in Haskell and while the brute force version works for small numbers of pairs it starts to fall apart as the number of pairs increases:
-time ./closest_pairs 100 bf ./closest_pairs 100 bf 0.01s user 0.00s system 87% cpu 0.016 total time ./closest_pairs 1000 bf ./closest_pairs 1000 bf 3.59s user 0.01s system 99% cpu 3.",
-        "wordCount": 1091
+        "description": "As I mentioned in a post a couple of days agoI\x26rsquo;ve been writing the closest pairs algorithm in Haskell and while the brute force version works for small numbers of pairs it starts to fall apart as the number of pairs increases:\ntime .\/closest_pairs 100 bf .\/closest_pairs 100 bf 0.01s user 0.00s system 87% cpu 0.016 total time .\/closest_pairs 1000 bf .\/closest_pairs 1000 bf 3.59s user 0.01s system 99% cpu 3.",
+        "wordCount":  996 
     }
     </script>
     
@@ -175,9 +174,8 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Haskell: Closest Pairs Algorithm</h1>
-    <p>As I mentioned in <a href="http://www.markhneedham.com/blog/2012/05/07/haskell-maximum-int-value/">a post a couple of days ago</a> I&rsquo;ve been writing the closest pairs algorithm in Haskell and while the brute force version works for small numbers of pairs it starts to fall apart as the number of pairs increases:</p>
-
-<pre><code class="language-text">
+    <p>As I mentioned in <!-- raw HTML omitted -->a post a couple of days ago<!-- raw HTML omitted --> I&rsquo;ve been writing the closest pairs algorithm in Haskell and while the brute force version works for small numbers of pairs it starts to fall apart as the number of pairs increases:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 time ./closest_pairs 100 bf 
 ./closest_pairs 100 bf  0.01s user 0.00s system 87% cpu 0.016 total
 
@@ -186,123 +184,87 @@ time ./closest_pairs 1000 bf
 
 time ./closest_pairs 5000 bf
 ./closest_pairs 5000  554.09s user 0.36s system 99% cpu 9:14.46 total
-</code></pre>
+</code></pre></div><p>Luckily there&rsquo;s a divide and conquer algorithm we can use which brings down the running time from O(n<!-- raw HTML omitted -->2<!-- raw HTML omitted -->) to O(n log(n)) which is significantly quicker as n increases in size.</p>
+<p>That <!-- raw HTML omitted -->algorithm is defined like so<!-- raw HTML omitted -->:</p>
+<!-- raw HTML omitted -->
+<p>By step 4 in which we&rsquo;ll look for a closest pair where the x and y values are in opposite subsets  we don&rsquo;t need to consider the whole list of points again since we already know that the closest pair of points is no further apart than <!-- raw HTML omitted -->dist<!-- raw HTML omitted --> = min(d<!-- raw HTML omitted -->Lmin<!-- raw HTML omitted -->, d<!-- raw HTML omitted -->Rmin<!-- raw HTML omitted -->).</p>
+<p>We can therefore filter out a lot of the values by only keeping values which are within <!-- raw HTML omitted -->dist<!-- raw HTML omitted --> of the middle x value.</p>
+<p>If a point is further away than that then we already know that the distance between it and any point on the other side will be greater than <!-- raw HTML omitted -->dist<!-- raw HTML omitted --> so there&rsquo;s no point in considering it.</p>
+<p>I used the <!-- raw HTML omitted -->C# version from Rosetta Code<!-- raw HTML omitted --> as a template and this is what I ended up with:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#66d9ef">import</span> Data.Maybe
+<span style="color:#66d9ef">import</span> Data.List
+<span style="color:#66d9ef">import</span> Data.List.Split
+<span style="color:#66d9ef">import</span> Data.Function
 
-<p>Luckily there&rsquo;s a divide and conquer algorithm we can use which brings down the running time from O(n<sup>2</sup>) to O(n log(n)) which is significantly quicker as n increases in size.</p>
-
-<p>That <a href="http://en.wikipedia.org/wiki/Closest_pair_of_points_problem">algorithm is defined like so</a>:</p>
-
-<blockquote>
-<ol>
-<li>Sort points along the x-coordinate</li>
-<li>Split the set of points into two equal-sized subsets by a vertical line x = x<sub>mid</sub></li>
-<li>Solve the problem recursively in the left and right subsets. This will give the left-side and right-side minimal distances d<sub>Lmin</sub>  and d<sub>Rmin</sub>  respectively.</li>
-<li>Find the minimal distance d<sub>LRmin</sub>  among the pair of points in which one point lies on the left of the dividing vertical and the second point lies to the right (a split pair).</li>
-<li>The final answer is the minimum among d<sub>Lmin</sub>, d<sub>Rmin</sub>, and d<sub>LRmin</sub>.</li>
-</ol>
-</blockquote>
-
-<p>By step 4 in which we&rsquo;ll look for a closest pair where the x and y values are in opposite subsets  we don&rsquo;t need to consider the whole list of points again since we already know that the closest pair of points is no further apart than <cite>dist</cite> = min(d<sub>Lmin</sub>, d<sub>Rmin</sub>).</p>
-
-<p>We can therefore filter out a lot of the values by only keeping values which are within <cite>dist</cite> of the middle x value.</p>
-
-<p>If a point is further away than that then we already know that the distance between it and any point on the other side will be greater than <cite>dist</cite> so there&rsquo;s no point in considering it.</p>
-
-<p>I used the <a href="http://rosettacode.org/wiki/Closest-pair_problem#C.23">C# version from Rosetta Code</a> as a template and this is what I ended up with:</p>
-
-<pre><code class="language-haskell">
-import Data.Maybe
-import Data.List
-import Data.List.Split
-import Data.Function
-
-dcClosest :: (Ord a, Floating a) =&gt; [Point a] -&gt; (Point a, Point a)
-dcClosest pairs
-  if length pairs &lt;= 3 then = fromJust $ bfClosest pairs    
-  else 
-    foldl (\closest (p1:p2:_) -&gt; if distance (p1, p2) &lt; distance closest then (p1, p2) else closest) 
+<span style="color:#a6e22e">dcClosest</span> <span style="color:#f92672">::</span> (<span style="color:#66d9ef">Ord</span> a, <span style="color:#66d9ef">Floating</span> a) <span style="color:#f92672">=&gt;</span> [<span style="color:#66d9ef">Point</span> a] <span style="color:#f92672">-&gt;</span> (<span style="color:#66d9ef">Point</span> a, <span style="color:#66d9ef">Point</span> a)
+<span style="color:#a6e22e">dcClosest</span> pairs
+  <span style="color:#66d9ef">if</span> length pairs <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">3</span> <span style="color:#66d9ef">then</span> <span style="color:#f92672">=</span> fromJust <span style="color:#f92672">$</span> bfClosest pairs    
+  <span style="color:#66d9ef">else</span> 
+    foldl (<span style="color:#a6e22e">\</span>closest (p1<span style="color:#66d9ef">:</span>p2<span style="color:#66d9ef">:</span><span style="color:#66d9ef">_</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">if</span> distance (p1, p2) <span style="color:#f92672">&lt;</span> distance closest <span style="color:#66d9ef">then</span> (p1, p2) <span style="color:#66d9ef">else</span> closest) 
           closestPair 
-          (windowed 2 pairsWithinMinimumDelta)
-  where sortedByX = sortBy compare pairs	      
-        (leftByX:rightByX:_) = chunk (length sortedByX `div` 2) sortedByX
-        closestPair = if distance closestLeftPair &lt; distance closestRightPair then closestLeftPair else closestRightPair  
-          where closestLeftPair =  dcClosest leftByX
-                closestRightPair = dcClosest rightByX
-        pairsWithinMinimumDelta = sortBy (compare `on` snd) $ filter withinMinimumDelta sortedByX
-          where withinMinimumDelta (x, _) = abs (xMidPoint - x) &lt;= distance closestPair   
-                  where (xMidPoint, _) = last leftByX
-</code></pre>
-
-<p>If the number of pairs is 3 or less then we can just use the brute force algorithm since the whole splitting the list in half thing doesn&rsquo;t work so well with a list of less than 4 items.</p>
-
+          (windowed <span style="color:#ae81ff">2</span> pairsWithinMinimumDelta)
+  <span style="color:#66d9ef">where</span> sortedByX <span style="color:#f92672">=</span> sortBy compare pairs	      
+        (leftByX<span style="color:#66d9ef">:</span>rightByX<span style="color:#66d9ef">:</span><span style="color:#66d9ef">_</span>) <span style="color:#f92672">=</span> chunk (length sortedByX `div` <span style="color:#ae81ff">2</span>) sortedByX
+        closestPair <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> distance closestLeftPair <span style="color:#f92672">&lt;</span> distance closestRightPair <span style="color:#66d9ef">then</span> closestLeftPair <span style="color:#66d9ef">else</span> closestRightPair  
+          <span style="color:#66d9ef">where</span> closestLeftPair <span style="color:#f92672">=</span>  dcClosest leftByX
+                closestRightPair <span style="color:#f92672">=</span> dcClosest rightByX
+        pairsWithinMinimumDelta <span style="color:#f92672">=</span> sortBy (compare `on` snd) <span style="color:#f92672">$</span> filter withinMinimumDelta sortedByX
+          <span style="color:#66d9ef">where</span> withinMinimumDelta (x, <span style="color:#66d9ef">_</span>) <span style="color:#f92672">=</span> abs (xMidPoint <span style="color:#f92672">-</span> x) <span style="color:#f92672">&lt;=</span> distance closestPair   
+                  <span style="color:#66d9ef">where</span> (xMidPoint, <span style="color:#66d9ef">_</span>) <span style="color:#f92672">=</span> last leftByX
+</code></pre></div><p>If the number of pairs is 3 or less then we can just use the brute force algorithm since the whole splitting the list in half thing doesn&rsquo;t work so well with a list of less than 4 items.</p>
 <p>The main function is a fold which goes over all the pairs of points where we&rsquo;ve determined that there might be a closest pair with one point on the left hand side of our &lsquo;sorted by x list&rsquo; and the other on the right hand side.</p>
-
-<p>We use the &lsquo;<a href="http://www.markhneedham.com/blog/2012/02/28/haskell-creating-a-sliding-window-over-a-collection/">windowed</a>&rsquo; function to pair up the points which in this case does something like this:</p>
-
-<pre><code class="language-haskell">
-&gt; windowed 2 [(0,0), (1,1), (2,2), (1.1, 1.2)]
-[[(0.0,0.0),(1.0,1.0)],[(1.0,1.0),(2.0,2.0)],[(2.0,2.0),(1.1,1.2)]]
-</code></pre>
-
-<p>We pass along the closest pair that we&rsquo;ve found from pairs of points on the left and right hand sides of the list as our seed value and check whether any of the split pairs are closer together than that one. By the time the fold is finished we will have the closest pair in the list.</p>
-
+<p>We use the &lsquo;<!-- raw HTML omitted -->windowed<!-- raw HTML omitted -->&rsquo; function to pair up the points which in this case does something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#f92672">&gt;</span> windowed <span style="color:#ae81ff">2</span> [(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>), (<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>), (<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>), (<span style="color:#ae81ff">1.1</span>, <span style="color:#ae81ff">1.2</span>)]
+[[(<span style="color:#ae81ff">0.0</span>,<span style="color:#ae81ff">0.0</span>),(<span style="color:#ae81ff">1.0</span>,<span style="color:#ae81ff">1.0</span>)],[(<span style="color:#ae81ff">1.0</span>,<span style="color:#ae81ff">1.0</span>),(<span style="color:#ae81ff">2.0</span>,<span style="color:#ae81ff">2.0</span>)],[(<span style="color:#ae81ff">2.0</span>,<span style="color:#ae81ff">2.0</span>),(<span style="color:#ae81ff">1.1</span>,<span style="color:#ae81ff">1.2</span>)]]
+</code></pre></div><p>We pass along the closest pair that we&rsquo;ve found from pairs of points on the left and right hand sides of the list as our seed value and check whether any of the split pairs are closer together than that one. By the time the fold is finished we will have the closest pair in the list.</p>
 <p>The code in the where section is used to split the list into two halves, sort it by x and then work out which side of the list has the closest pair. That&rsquo;s all done recursively and then the last bit of code works out which values we need to consider for the split pairs part of the algorithm.</p>
-
-<p>I learnt about the &lsquo;<a href="http://stackoverflow.com/questions/2788195/haskell-sorting">on</a>&rsquo; function while writing this algorithm which makes it really easy to pick a function to sort a collection with e.g. &lsquo;compare <code>on</code> snd&rsquo; lets us sort a list in ascending order based on the second value in a tuple.</p>
-
+<p>I learnt about the &lsquo;<!-- raw HTML omitted -->on<!-- raw HTML omitted -->&rsquo; function while writing this algorithm which makes it really easy to pick a function to sort a collection with e.g. &lsquo;compare <code>on</code> snd&rsquo; lets us sort a list in ascending order based on the second value in a tuple.</p>
 <p>One problem with the way I&rsquo;ve written this algorithm is that it places a lot of focus on the split pair bit of the code when actually a big part of why it works is that we&rsquo;re sorting it into an order that makes it easier to work with and then dividing the problem by 2 each time.</p>
-
 <p>My current thinking is that perhaps I should have had that code in the main body of the function rather than hiding it away in the where section.</p>
-
 <p>It isn&rsquo;t actually necessary to execute the foldl all the way through since we&rsquo;ll often know there&rsquo;s not going to be a split pair before we go through all the pairs. I thought it reads pretty nicely as it is thought and it runs pretty quickly as it is anyway!</p>
-
 <p>Using the same data set as before (and getting the same answers!):</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 &gt; time ./closest_pairs 1000 dc
 ./closest_pairs 1000 dc  0.02s user 0.00s system 91% cpu 0.024 total
 
 &gt; time ./closest_pairs 5000 dc
 ./closest_pairs 5000 dc  0.11s user 0.01s system 97% cpu 0.118 total
-</code></pre>
+</code></pre></div><p>I described the code for <!-- raw HTML omitted -->generating random numbers<!-- raw HTML omitted --> in an earlier blog post but I&rsquo;ll include it again to show how the algorithm is wired up:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#66d9ef">import</span> Control.Monad.State (<span style="color:#66d9ef">State</span>, <span style="color:#a6e22e">evalState</span>, <span style="color:#a6e22e">get</span>, <span style="color:#a6e22e">put</span>)
+<span style="color:#66d9ef">import</span> System.Random (<span style="color:#66d9ef">StdGen</span>, <span style="color:#a6e22e">mkStdGen</span>, <span style="color:#a6e22e">random</span>)
+<span style="color:#66d9ef">import</span> System
 
-<p>I described the code for <a href="http://www.markhneedham.com/blog/2012/05/08/haskell-generating-random-numbers/">generating random numbers</a> in an earlier blog post but I&rsquo;ll include it again to show how the algorithm is wired up:</p>
-
-<pre><code class="language-haskell">
-import Control.Monad.State (State, evalState, get, put)
-import System.Random (StdGen, mkStdGen, random)
-import System
-
-type R a = State StdGen a
-rand :: R Double
-rand = do
-  gen &lt;- get
-  let (r, gen') = random gen
-  put gen'
+<span style="color:#66d9ef">type</span> <span style="color:#66d9ef">R</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">State</span> <span style="color:#66d9ef">StdGen</span> a
+<span style="color:#a6e22e">rand</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">R</span> <span style="color:#66d9ef">Double</span>
+<span style="color:#a6e22e">rand</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+  gen <span style="color:#f92672">&lt;-</span> get
+  <span style="color:#66d9ef">let</span> (r, gen&#39;) <span style="color:#f92672">=</span> random gen
+  put gen&#39;
   return r
 
-randPair :: R (Double, Double)
-randPair = do
-  x &lt;- rand
-  y &lt;- rand
+<span style="color:#a6e22e">randPair</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">R</span> (<span style="color:#66d9ef">Double</span>, <span style="color:#66d9ef">Double</span>)
+<span style="color:#a6e22e">randPair</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
+  x <span style="color:#f92672">&lt;-</span> rand
+  y <span style="color:#f92672">&lt;-</span> rand
   return (x,y)
 
-runRandom :: R a -&gt; Int -&gt; a
-runRandom action seed = evalState action $ mkStdGen seed
+<span style="color:#a6e22e">runRandom</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">R</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> a
+<span style="color:#a6e22e">runRandom</span> action seed <span style="color:#f92672">=</span> evalState action <span style="color:#f92672">$</span> mkStdGen seed
 
-normals :: R [(Double, Double)]
-normals = mapM (\_ -&gt; randPair) $ repeat ()
+<span style="color:#a6e22e">normals</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">R</span> [(<span style="color:#66d9ef">Double</span>, <span style="color:#66d9ef">Double</span>)]
+<span style="color:#a6e22e">normals</span> <span style="color:#f92672">=</span> mapM (<span style="color:#a6e22e">\</span><span style="color:#66d9ef">_</span> <span style="color:#f92672">-&gt;</span> randPair) <span style="color:#f92672">$</span> repeat ()
 
-main = do 
-	args &lt;- getArgs
-	let numberOfPairs = read (head args) :: Int
-	if length args &gt; 1 &amp;&amp; args !! 1 == &quot;bf&quot; then 
-		putStrLn $ show ( (bfClosest $ take numberOfPairs $ runRandom normals 42))
-	else 
-		putStrLn $ show ( (dcClosest $ take numberOfPairs $ runRandom normals 42))
-</code></pre>
-
-<p>The <a href="http://hpaste.org/68299">full code is on hpaste</a> if anyone has any suggestions for how to improve it.</p>
+<span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span> 
+	args <span style="color:#f92672">&lt;-</span> getArgs
+	<span style="color:#66d9ef">let</span> numberOfPairs <span style="color:#f92672">=</span> read (head args) <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span>
+	<span style="color:#66d9ef">if</span> length args <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> args <span style="color:#f92672">!!</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;bf&#34;</span> <span style="color:#66d9ef">then</span> 
+		putStrLn <span style="color:#f92672">$</span> show ( (bfClosest <span style="color:#f92672">$</span> take numberOfPairs <span style="color:#f92672">$</span> runRandom normals <span style="color:#ae81ff">42</span>))
+	<span style="color:#66d9ef">else</span> 
+		putStrLn <span style="color:#f92672">$</span> show ( (dcClosest <span style="color:#f92672">$</span> take numberOfPairs <span style="color:#f92672">$</span> runRandom normals <span style="color:#ae81ff">42</span>))
+</code></pre></div><p>The <!-- raw HTML omitted -->full code is on hpaste<!-- raw HTML omitted --> if anyone has any suggestions for how to improve it.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -337,7 +299,7 @@ main = do
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/05/09/haskell-closest-pairs-algorithm/&amp;title=Haskell%3a%20Closest%20Pairs%20Algorithm&amp;summary=As%20I%20mentioned%20in%20a%20post%20a%20couple%20of%20days%20ago%20I%26rsquo%3bve%20been%20writing%20the%20closest%20pairs%20algorithm%20in%20Haskell%20and%20while%20the%20brute%20force%20version%20works%20for%20small%20numbers%20of%20pairs%20it%20starts%20to%20fall%20apart%20as%20the%20number%20of%20pairs%20increases%3a%0atime%20.%2fclosest_pairs%20100%20bf%20.%2fclosest_pairs%20100%20bf%200.01s%20user%200.00s%20system%2087%25%20cpu%200.016%20total%20time%20.%2fclosest_pairs%201000%20bf%20.%2fclosest_pairs%201000%20bf%203.59s%20user%200.01s%20system%2099%25%20cpu%203...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/05/09/haskell-closest-pairs-algorithm/&amp;title=Haskell%3a%20Closest%20Pairs%20Algorithm&amp;summary=As%20I%20mentioned%20in%20a%20post%20a%20couple%20of%20days%20agoI%26rsquo%3bve%20been%20writing%20the%20closest%20pairs%20algorithm%20in%20Haskell%20and%20while%20the%20brute%20force%20version%20works%20for%20small%20numbers%20of%20pairs%20it%20starts%20to%20fall%20apart%20as%20the%20number%20of%20pairs%20increases%3a%0atime%20.%2fclosest_pairs%20100%20bf%20.%2fclosest_pairs%20100%20bf%200.01s%20user%200.00s%20system%2087%25%20cpu%200.016%20total%20time%20.%2fclosest_pairs%201000%20bf%20.%2fclosest_pairs%201000%20bf%203.59s%20user%200.01s%20system%2099%25%20cpu%203...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

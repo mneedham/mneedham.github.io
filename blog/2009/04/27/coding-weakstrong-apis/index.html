@@ -60,16 +60,14 @@ When we have a strong API the idea is that we pass an object as the argument to 
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "Coding: Weak/Strong APIs",
+        "headline": "Coding: Weak\/Strong APIs",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-04-27",
-        "description": "An interesting problem that I&rsquo;ve come across a few times in the last couple of week centres around how strongly typed we should make the arguments to public methods on our objects.
-There seem to be benefits and drawbacks with each approach so I&rsquo;m not sure which approach is better - it possibly depends on the context.
-When we have a strong API the idea is that we pass an object as the argument to a method on another object.",
-        "wordCount": 540
+        "description": "An interesting problem that I\x26rsquo;ve come across a few times in the last couple of week centres around how strongly typed we should make the arguments to public methods on our objects.\nThere seem to be benefits and drawbacks with each approach so I\x26rsquo;m not sure which approach is better - it possibly depends on the context.\nWhen we have a strong API the idea is that we pass an object as the argument to a method on another object.",
+        "wordCount":  489 
     }
     </script>
     
@@ -179,59 +177,38 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Coding: Weak/Strong APIs</h1>
     <p>An interesting problem that I&rsquo;ve come across a few times in the last couple of week centres around how strongly typed we should make the arguments to public methods on our objects.</p>
-
 <p>There seem to be benefits and drawbacks with each approach so I&rsquo;m not sure which approach is better - it possibly depends on the context.</p>
-
 <p>When we have a strong API the idea is that we pass an object as the argument to a method on another object.</p>
-
 <p>To given an example, recently a colleague and I were working on a little application to compare two objects and show the differences between them.</p>
-
 <p>One of the decisions to be made was how to accumulate the differences. We created PropertyDifference and PropertyDifferences objects to do this, but the question became who should have the responsibility for creating the PropertyDifference.</p>
-
 <p>The choice was between having PropertyDifferences API look like this:</p>
-
-<pre><code class="language-csharp">
-public class PropertyDifferences
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PropertyDifferences</span>
 {
-	public void Add(PropertyDifference propertyDifference) 
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> Add(PropertyDifference propertyDifference) 
 	{
-		// code to add a difference
-	}
+		<span style="color:#75715e">// code to add a difference
+</span><span style="color:#75715e"></span>	}
 }
-</code></pre>
-
-<p>Or like this:</p>
-
-<pre><code class="language-csharp">
-public class PropertyDifferences
+</code></pre></div><p>Or like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PropertyDifferences</span>
 {
-	public void Add(string propertyName, object actualValue, object expectedValue) 
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> Add(<span style="color:#66d9ef">string</span> propertyName, <span style="color:#66d9ef">object</span> actualValue, <span style="color:#66d9ef">object</span> expectedValue) 
 	{
-		var propertyDifference = new PropertyDifference(propertyName, actualValue, expectedValue)
-		// code to add a difference
-	}
+		<span style="color:#66d9ef">var</span> propertyDifference = <span style="color:#66d9ef">new</span> PropertyDifference(propertyName, actualValue, expectedValue)
+		<span style="color:#75715e">// code to add a difference
+</span><span style="color:#75715e"></span>	}
 }
-</code></pre>
-
-<p>In the former the client (ObjectComparer) needs to create the PropertyDifference before passing it to PropertyDifferences whereas in the latter that responsibility for doing that rests with PropertyDifferences.</p>
-
-<p>I&rsquo;m in favour of the former strong API approach which James Noble describes in his paper &lsquo;<a href="http://www.laputan.org/pub/patterns/noble/noble.pdf">Arguments and Results</a>&rsquo; as the Arguments Object.</p>
-
+</code></pre></div><p>In the former the client (ObjectComparer) needs to create the PropertyDifference before passing it to PropertyDifferences whereas in the latter that responsibility for doing that rests with PropertyDifferences.</p>
+<p>I&rsquo;m in favour of the former strong API approach which James Noble describes in his paper &lsquo;<!-- raw HTML omitted -->Arguments and Results<!-- raw HTML omitted -->&rsquo; as the Arguments Object.</p>
 <p>What I like about this approach is that it simplifies the API of PropertyDifferences - we just have to pass in a PropertyDifference and then we don&rsquo;t need to worry about it. I also find it more expressive than having each of the arguments individually.</p>
-
-<p>However, while reading through <a href="http://www.amazon.co.uk/Object-Design-Responsibilities-Collaborations-Addison-Wesley/dp/0201379430/ref=sr_1_1?ie=UTF8&s=books&qid=1240826439&sr=8-1">Object Design</a> this morning I&rsquo;ve started to see that there can be some benefits in the weak API approach as well.</p>
-
-<p>(from page 7 of the book)
-<blockquote>
-As we conceive our design, we must constantly consider each object&rsquo;s value to its immediate neighbourhood. Does it provide a useful service? Is it easy to talk to? Is it a pest because it is constantly asking for help?&hellip;The fewer demands an object makes, the easier it is to use.
-</blockquote></p>
-
+<p>However, while reading through <!-- raw HTML omitted -->Object Design<!-- raw HTML omitted --> this morning I&rsquo;ve started to see that there can be some benefits in the weak API approach as well.</p>
+<p>(from page 7 of the book)</p>
+<!-- raw HTML omitted -->
 <p>By that logic PropertyDifferences is making itself more difficult to use by demanding that it gets sent a PropertyDifference since objects which use it now need to create that object. I suppose the other way of reading that could be that if PropertyDifferences demands that it gets three different arguments instead of one then that is more demanding.</p>
-
 <p>The other advantage I can see with the weak API is that we can reduce the places in the code where we new up a PropertyDifference. If we then decide to change the way that you create a PropertyDifference then we have less places to change.</p>
-
 <p>The down side is that we end up coupling PropertyDifferences and PropertyDifference which maybe isn&rsquo;t so bad since they are fairly closely related.</p>
-
 <p>I still favour having a stronger API on objects since I believe it makes objects more expressive and I currently consider that to be the most important thing when coding but weaker APIs certainly have their place too.</p>
 
     <div id="social-bar">

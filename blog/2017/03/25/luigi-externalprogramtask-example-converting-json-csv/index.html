@@ -65,8 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-03-25",
-        "description": "I've been playing around with the Python library Luigi which is used to build pipelines of batch jobs and I struggled to find an example of an ExternalProgramTask so this is my attempt at filling that void.   I'm building a little data pipeline to get data from the meetup.com API and put it into CSV files that can be loaded into Neo4j using the LOAD CSV command.  The first task I created calls the /groups endpoint and saves the result into a JSON file: import luigi import requests import json from collections import Counter class GroupsToJSON(luigi.",
-        "wordCount": 975
+        "description": "import luigi import requests import json from collections import Counter class GroupsToJSON(luigi.Task): key = luigi.Parameter() lat = luigi.Parameter() lon = luigi.Parameter() def run(self): seed_topic = \x26#34;nosql\x26#34; uri = \x26#34;https:\/\/api.meetup.com\/2\/groups?\x26amp;topic={0}\x26amp;lat={1}\x26amp;lon={2}\x26amp;key={3}\x26#34;.format(seed_topic, self.lat, self.lon, self.key) r = requests.get(uri) all_topics = [topic[\x26#34;urlkey\x26#34;] for result in r.json()[\x26#34;results\x26#34;] for topic in result[\x26#34;topics\x26#34;]] c = Counter(all_topics) topics = [entry[0] for entry in c.most_common(10)] groups = {} for topic in topics: uri = \x26#34;https:\/\/api.meetup.com\/2\/groups?\x26amp;topic={0}\x26amp;lat={1}\x26amp;lon={2}\x26amp;key={3}\x26#34;.format(topic, self.lat, self.lon, self.key) r = requests.",
+        "wordCount":  711 
     }
     </script>
     
@@ -181,224 +181,173 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Luigi: An ExternalProgramTask example - Converting JSON to CSV</h1>
-    <p>
-I've been playing around with the Python library <a href="https://github.com/spotify/luigi">Luigi</a> which is used to build pipelines of batch jobs and I struggled to find an example of an <a href="http://luigi.readthedocs.io/en/stable/_modules/luigi/contrib/external_program.html#ExternalProgramTask">ExternalProgramTask</a> so this is my attempt at filling that void.
-</p>
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+<span style="color:#f92672">import</span> luigi
+<span style="color:#f92672">import</span> requests
+<span style="color:#f92672">import</span> json
+<span style="color:#f92672">from</span> collections <span style="color:#f92672">import</span> Counter
 
-<div align="center">
-<img src="https://markhneedham.com/blog/
-/uploads/2017/03/luigi.png" alt="Luigi - the Python data library for building data science pipelines" width="322" height="172" class="alignnone size-full wp-image-7069" />
-</div>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GroupsToJSON</span>(luigi<span style="color:#f92672">.</span>Task):
+    key <span style="color:#f92672">=</span> luigi<span style="color:#f92672">.</span>Parameter()
+    lat <span style="color:#f92672">=</span> luigi<span style="color:#f92672">.</span>Parameter()
+    lon <span style="color:#f92672">=</span> luigi<span style="color:#f92672">.</span>Parameter()
 
-<p>
-I'm building a little data pipeline to get data from the <a href="https://www.meetup.com/meetup_api/">meetup.com API</a> and put it into CSV files that can be loaded into <a href="https://neo4j.com/developer/">Neo4j</a> using the <a href="https://neo4j.com/developer/guide-import-csv/">LOAD CSV</a> command.
-</p>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">run</span>(self):
+        seed_topic <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;nosql&#34;</span>
+        uri <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}&#34;</span><span style="color:#f92672">.</span>format(seed_topic, self<span style="color:#f92672">.</span>lat, self<span style="color:#f92672">.</span>lon, self<span style="color:#f92672">.</span>key)
 
-<p>
-The first task I created calls the <cite>/groups</cite> endpoint and saves the result into a JSON file:
-</p>
+        r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(uri)
+        all_topics <span style="color:#f92672">=</span> [topic[<span style="color:#e6db74">&#34;urlkey&#34;</span>]  <span style="color:#66d9ef">for</span> result <span style="color:#f92672">in</span> r<span style="color:#f92672">.</span>json()[<span style="color:#e6db74">&#34;results&#34;</span>] <span style="color:#66d9ef">for</span> topic <span style="color:#f92672">in</span> result[<span style="color:#e6db74">&#34;topics&#34;</span>]]
+        c <span style="color:#f92672">=</span> Counter(all_topics)
 
-<pre><code class="language-python">
-import luigi
-import requests
-import json
-from collections import Counter
+        topics <span style="color:#f92672">=</span> [entry[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">for</span> entry <span style="color:#f92672">in</span> c<span style="color:#f92672">.</span>most_common(<span style="color:#ae81ff">10</span>)]
 
-class GroupsToJSON(luigi.Task):
-    key = luigi.Parameter()
-    lat = luigi.Parameter()
-    lon = luigi.Parameter()
+        groups <span style="color:#f92672">=</span> {}
+        <span style="color:#66d9ef">for</span> topic <span style="color:#f92672">in</span> topics:
+            uri <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}&#34;</span><span style="color:#f92672">.</span>format(topic, self<span style="color:#f92672">.</span>lat, self<span style="color:#f92672">.</span>lon, self<span style="color:#f92672">.</span>key)
+            r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(uri)
+            <span style="color:#66d9ef">for</span> group <span style="color:#f92672">in</span> r<span style="color:#f92672">.</span>json()[<span style="color:#e6db74">&#34;results&#34;</span>]:
+                groups[group[<span style="color:#e6db74">&#34;id&#34;</span>]] <span style="color:#f92672">=</span> group
 
-    def run(self):
-        seed_topic = &quot;nosql&quot;
-        uri = &quot;https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}&quot;.format(seed_topic, self.lat, self.lon, self.key)
+        <span style="color:#66d9ef">with</span> self<span style="color:#f92672">.</span>output()<span style="color:#f92672">.</span>open(<span style="color:#e6db74">&#39;w&#39;</span>) <span style="color:#66d9ef">as</span> groups_file:
+            json<span style="color:#f92672">.</span>dump(list(groups<span style="color:#f92672">.</span>values()), groups_file, indent<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>, sort_keys<span style="color:#f92672">=</span>True)
 
-        r = requests.get(uri)
-        all_topics = [topic[&quot;urlkey&quot;]  for result in r.json()[&quot;results&quot;] for topic in result[&quot;topics&quot;]]
-        c = Counter(all_topics)
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">output</span>(self):
+        <span style="color:#66d9ef">return</span> luigi<span style="color:#f92672">.</span>LocalTarget(<span style="color:#e6db74">&#34;/tmp/groups.json&#34;</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+<span style="color:#f92672">from</span> luigi.contrib.external_program <span style="color:#f92672">import</span> ExternalProgramTask
 
-        topics = [entry[0] for entry in c.most_common(10)]
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GroupsToCSV</span>(luigi<span style="color:#f92672">.</span>contrib<span style="color:#f92672">.</span>external_program<span style="color:#f92672">.</span>ExternalProgramTask):
+    file_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/tmp/groups.csv&#34;</span>
+    key <span style="color:#f92672">=</span> luigi<span style="color:#f92672">.</span>Parameter()
+    lat <span style="color:#f92672">=</span> luigi<span style="color:#f92672">.</span>Parameter()
+    lon <span style="color:#f92672">=</span> luigi<span style="color:#f92672">.</span>Parameter()
 
-        groups = {}
-        for topic in topics:
-            uri = &quot;https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}&quot;.format(topic, self.lat, self.lon, self.key)
-            r = requests.get(uri)
-            for group in r.json()[&quot;results&quot;]:
-                groups[group[&quot;id&quot;]] = group
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">program_args</span>(self):
+        <span style="color:#66d9ef">return</span> [<span style="color:#e6db74">&#34;./groups.sh&#34;</span>, self<span style="color:#f92672">.</span>input()[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>path, self<span style="color:#f92672">.</span>output()<span style="color:#f92672">.</span>path]
 
-        with self.output().open('w') as groups_file:
-            json.dump(list(groups.values()), groups_file, indent=4, sort_keys=True)
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">output</span>(self):
+        <span style="color:#66d9ef">return</span> luigi<span style="color:#f92672">.</span>LocalTarget(self<span style="color:#f92672">.</span>file_path)
 
-    def output(self):
-        return luigi.LocalTarget(&quot;/tmp/groups.json&quot;)
-</code></pre>
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">requires</span>(self):
+        <span style="color:#66d9ef">yield</span> GroupsToJSON(self<span style="color:#f92672">.</span>key, self<span style="color:#f92672">.</span>lat, self<span style="color:#f92672">.</span>lon)
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+<span style="color:#75715e">#!/bin/bash</span>
 
-<p>
-We define a few parameters at the top of the class which will be passed in when this task is executed. The most interesting lines of the  <cite>run</cite> function are the last couple where we write the JSON to a file. <cite>self.output()</cite> refers to the target defined in the <cite>output</cite> function which in this case is <cite>/tmp/groups.json</cite>. 
-</p>
+in<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>1<span style="color:#e6db74">}</span>
+out<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>2<span style="color:#e6db74">}</span>
 
-<p>
-Now we need to create a task to convert that JSON file into CSV format. The <a href="https://stedolan.github.io/jq/">jq</a> command line tool does this job well so we'll use that. The following task does the job:
-</p>
+echo <span style="color:#e6db74">&#34;id,name,urlname,link,rating,created,description,organiserName,organiserMemberId&#34;</span> &gt; <span style="color:#e6db74">${</span>out<span style="color:#e6db74">}</span>
+jq -r <span style="color:#e6db74">&#39;.[] | [.id, .name, .urlname, .link, .rating, .created, .description, .organizer.name, .organizer.member_id] | @csv&#39;</span> <span style="color:#e6db74">${</span>in<span style="color:#e6db74">}</span> &gt;&gt; <span style="color:#e6db74">${</span>out<span style="color:#e6db74">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+<span style="color:#f92672">import</span> os
 
-<pre><code class="language-python">
-from luigi.contrib.external_program import ExternalProgramTask
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Meetup</span>(luigi<span style="color:#f92672">.</span>WrapperTask):
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">run</span>(self):
+        <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;Running Meetup&#34;</span>)
 
-class GroupsToCSV(luigi.contrib.external_program.ExternalProgramTask):
-    file_path = &quot;/tmp/groups.csv&quot;
-    key = luigi.Parameter()
-    lat = luigi.Parameter()
-    lon = luigi.Parameter()
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">requires</span>(self):
+        key <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>environ[<span style="color:#e6db74">&#39;MEETUP_API_KEY&#39;</span>]
+        lat <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>getenv(<span style="color:#e6db74">&#39;LAT&#39;</span>, <span style="color:#e6db74">&#34;51.5072&#34;</span>)
+        lon <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>getenv(<span style="color:#e6db74">&#39;LON&#39;</span>, <span style="color:#e6db74">&#34;0.1275&#34;</span>)
 
-    def program_args(self):
-        return [&quot;./groups.sh&quot;, self.input()[0].path, self.output().path]
-
-    def output(self):
-        return luigi.LocalTarget(self.file_path)
-
-    def requires(self):
-        yield GroupsToJSON(self.key, self.lat, self.lon)
-</code></pre>
-
-<p><cite>groups.sh</cite></p>
-
-<pre><code class="language-bash">
-#!/bin/bash
-
-in=${1}
-out=${2}
-
-echo &quot;id,name,urlname,link,rating,created,description,organiserName,organiserMemberId&quot; &gt; ${out}
-jq -r '.[] | [.id, .name, .urlname, .link, .rating, .created, .description, .organizer.name, .organizer.member_id] | @csv' ${in} &gt;&gt; ${out}
-</code></pre>
-
-<p>
-I wanted to call <cite>jq</cite> directly from the Python code but I couldn't figure out how to do it so putting that code in a shell script  is my workaround. 
-</p>
-
-<p>
-The last piece of the puzzle is a wrapper task that launches the others:
-</p>
-
-<pre><code class="language-python">
-import os
-
-class Meetup(luigi.WrapperTask):
-    def run(self):
-        print(&quot;Running Meetup&quot;)
-
-    def requires(self):
-        key = os.environ['MEETUP_API_KEY']
-        lat = os.getenv('LAT', &quot;51.5072&quot;)
-        lon = os.getenv('LON', &quot;0.1275&quot;)
-
-        yield GroupsToCSV(key, lat, lon)
-</code></pre>
-
-<p>
-Now we're ready to run the tasks:
-</p>
-
-<pre><code class="language-bash">
-$ PYTHONPATH=&quot;.&quot; luigi --module blog --local-scheduler Meetup
-DEBUG: Checking if Meetup() is complete
-DEBUG: Checking if GroupsToCSV(key=xxx, lat=51.5072, lon=0.1275) is complete
+        <span style="color:#66d9ef">yield</span> GroupsToCSV(key, lat, lon)
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ PYTHONPATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;.&#34;</span> luigi --module blog --local-scheduler Meetup
+DEBUG: Checking <span style="color:#66d9ef">if</span> Meetup<span style="color:#f92672">()</span> is complete
+DEBUG: Checking <span style="color:#66d9ef">if</span> GroupsToCSV<span style="color:#f92672">(</span>key<span style="color:#f92672">=</span>xxx, lat<span style="color:#f92672">=</span>51.5072, lon<span style="color:#f92672">=</span>0.1275<span style="color:#f92672">)</span> is complete
 INFO: Informed scheduler that task   Meetup__99914b932b   has status   PENDING
-DEBUG: Checking if GroupsToJSON(key=xxx, lat=51.5072, lon=0.1275) is complete
+DEBUG: Checking <span style="color:#66d9ef">if</span> GroupsToJSON<span style="color:#f92672">(</span>key<span style="color:#f92672">=</span>xxx, lat<span style="color:#f92672">=</span>51.5072, lon<span style="color:#f92672">=</span>0.1275<span style="color:#f92672">)</span> is complete
 INFO: Informed scheduler that task   GroupsToCSV_xxx_51_5072_0_1275_e07372cebf   has status   PENDING
 INFO: Informed scheduler that task   GroupsToJSON_xxx_51_5072_0_1275_e07372cebf   has status   PENDING
 INFO: Done scheduling tasks
-INFO: Running Worker with 1 processes
-DEBUG: Asking scheduler for work...
-DEBUG: Pending tasks: 3
-INFO: [pid 4452] Worker Worker(salt=970508581, workers=1, host=Marks-MBP-4, username=markneedham, pid=4452) running   GroupsToJSON(key=xxx, lat=51.5072, lon=0.1275)
-INFO: [pid 4452] Worker Worker(salt=970508581, workers=1, host=Marks-MBP-4, username=markneedham, pid=4452) done      GroupsToJSON(key=xxx, lat=51.5072, lon=0.1275)
-DEBUG: 1 running tasks, waiting for next task to finish
+INFO: Running Worker with <span style="color:#ae81ff">1</span> processes
+DEBUG: Asking scheduler <span style="color:#66d9ef">for</span> work...
+DEBUG: Pending tasks: <span style="color:#ae81ff">3</span>
+INFO: <span style="color:#f92672">[</span>pid 4452<span style="color:#f92672">]</span> Worker Worker<span style="color:#f92672">(</span>salt<span style="color:#f92672">=</span>970508581, workers<span style="color:#f92672">=</span>1, host<span style="color:#f92672">=</span>Marks-MBP-4, username<span style="color:#f92672">=</span>markneedham, pid<span style="color:#f92672">=</span>4452<span style="color:#f92672">)</span> running   GroupsToJSON<span style="color:#f92672">(</span>key<span style="color:#f92672">=</span>xxx, lat<span style="color:#f92672">=</span>51.5072, lon<span style="color:#f92672">=</span>0.1275<span style="color:#f92672">)</span>
+INFO: <span style="color:#f92672">[</span>pid 4452<span style="color:#f92672">]</span> Worker Worker<span style="color:#f92672">(</span>salt<span style="color:#f92672">=</span>970508581, workers<span style="color:#f92672">=</span>1, host<span style="color:#f92672">=</span>Marks-MBP-4, username<span style="color:#f92672">=</span>markneedham, pid<span style="color:#f92672">=</span>4452<span style="color:#f92672">)</span> <span style="color:#66d9ef">done</span>      GroupsToJSON<span style="color:#f92672">(</span>key<span style="color:#f92672">=</span>xxx, lat<span style="color:#f92672">=</span>51.5072, lon<span style="color:#f92672">=</span>0.1275<span style="color:#f92672">)</span>
+DEBUG: <span style="color:#ae81ff">1</span> running tasks, waiting <span style="color:#66d9ef">for</span> next task to finish
 INFO: Informed scheduler that task   GroupsToJSON_xxx_51_5072_0_1275_e07372cebf   has status   DONE
-DEBUG: Asking scheduler for work...
-DEBUG: Pending tasks: 2
-INFO: [pid 4452] Worker Worker(salt=970508581, workers=1, host=Marks-MBP-4, username=markneedham, pid=4452) running   GroupsToCSV(key=xxx, lat=51.5072, lon=0.1275)
+DEBUG: Asking scheduler <span style="color:#66d9ef">for</span> work...
+DEBUG: Pending tasks: <span style="color:#ae81ff">2</span>
+INFO: <span style="color:#f92672">[</span>pid 4452<span style="color:#f92672">]</span> Worker Worker<span style="color:#f92672">(</span>salt<span style="color:#f92672">=</span>970508581, workers<span style="color:#f92672">=</span>1, host<span style="color:#f92672">=</span>Marks-MBP-4, username<span style="color:#f92672">=</span>markneedham, pid<span style="color:#f92672">=</span>4452<span style="color:#f92672">)</span> running   GroupsToCSV<span style="color:#f92672">(</span>key<span style="color:#f92672">=</span>xxx, lat<span style="color:#f92672">=</span>51.5072, lon<span style="color:#f92672">=</span>0.1275<span style="color:#f92672">)</span>
 INFO: Running command: ./groups.sh /tmp/groups.json /tmp/groups.csv
-INFO: [pid 4452] Worker Worker(salt=970508581, workers=1, host=Marks-MBP-4, username=markneedham, pid=4452) done      GroupsToCSV(key=xxx, lat=51.5072, lon=0.1275)
-DEBUG: 1 running tasks, waiting for next task to finish
+INFO: <span style="color:#f92672">[</span>pid 4452<span style="color:#f92672">]</span> Worker Worker<span style="color:#f92672">(</span>salt<span style="color:#f92672">=</span>970508581, workers<span style="color:#f92672">=</span>1, host<span style="color:#f92672">=</span>Marks-MBP-4, username<span style="color:#f92672">=</span>markneedham, pid<span style="color:#f92672">=</span>4452<span style="color:#f92672">)</span> <span style="color:#66d9ef">done</span>      GroupsToCSV<span style="color:#f92672">(</span>key<span style="color:#f92672">=</span>xxx, lat<span style="color:#f92672">=</span>51.5072, lon<span style="color:#f92672">=</span>0.1275<span style="color:#f92672">)</span>
+DEBUG: <span style="color:#ae81ff">1</span> running tasks, waiting <span style="color:#66d9ef">for</span> next task to finish
 INFO: Informed scheduler that task   GroupsToCSV_xxx_51_5072_0_1275_e07372cebf   has status   DONE
-DEBUG: Asking scheduler for work...
-DEBUG: Pending tasks: 1
-INFO: [pid 4452] Worker Worker(salt=970508581, workers=1, host=Marks-MBP-4, username=markneedham, pid=4452) running   Meetup()
+DEBUG: Asking scheduler <span style="color:#66d9ef">for</span> work...
+DEBUG: Pending tasks: <span style="color:#ae81ff">1</span>
+INFO: <span style="color:#f92672">[</span>pid 4452<span style="color:#f92672">]</span> Worker Worker<span style="color:#f92672">(</span>salt<span style="color:#f92672">=</span>970508581, workers<span style="color:#f92672">=</span>1, host<span style="color:#f92672">=</span>Marks-MBP-4, username<span style="color:#f92672">=</span>markneedham, pid<span style="color:#f92672">=</span>4452<span style="color:#f92672">)</span> running   Meetup<span style="color:#f92672">()</span>
 Running Meetup
-INFO: [pid 4452] Worker Worker(salt=970508581, workers=1, host=Marks-MBP-4, username=markneedham, pid=4452) done      Meetup()
-DEBUG: 1 running tasks, waiting for next task to finish
+INFO: <span style="color:#f92672">[</span>pid 4452<span style="color:#f92672">]</span> Worker Worker<span style="color:#f92672">(</span>salt<span style="color:#f92672">=</span>970508581, workers<span style="color:#f92672">=</span>1, host<span style="color:#f92672">=</span>Marks-MBP-4, username<span style="color:#f92672">=</span>markneedham, pid<span style="color:#f92672">=</span>4452<span style="color:#f92672">)</span> <span style="color:#66d9ef">done</span>      Meetup<span style="color:#f92672">()</span>
+DEBUG: <span style="color:#ae81ff">1</span> running tasks, waiting <span style="color:#66d9ef">for</span> next task to finish
 INFO: Informed scheduler that task   Meetup__99914b932b   has status   DONE
-DEBUG: Asking scheduler for work...
+DEBUG: Asking scheduler <span style="color:#66d9ef">for</span> work...
 DEBUG: Done
 DEBUG: There are no more tasks to run at this time
-INFO: Worker Worker(salt=970508581, workers=1, host=Marks-MBP-4, username=markneedham, pid=4452) was stopped. Shutting down Keep-Alive thread
+INFO: Worker Worker<span style="color:#f92672">(</span>salt<span style="color:#f92672">=</span>970508581, workers<span style="color:#f92672">=</span>1, host<span style="color:#f92672">=</span>Marks-MBP-4, username<span style="color:#f92672">=</span>markneedham, pid<span style="color:#f92672">=</span>4452<span style="color:#f92672">)</span> was stopped. Shutting down Keep-Alive thread
 INFO: 
-===== Luigi Execution Summary =====
+<span style="color:#f92672">=====</span> Luigi Execution Summary <span style="color:#f92672">=====</span>
 
-Scheduled 3 tasks of which:
-* 3 ran successfully:
-    - 1 GroupsToCSV(key=xxx, lat=51.5072, lon=0.1275)
-    - 1 GroupsToJSON(key=xxx, lat=51.5072, lon=0.1275)
-    - 1 Meetup()
+Scheduled <span style="color:#ae81ff">3</span> tasks of which:
+* <span style="color:#ae81ff">3</span> ran successfully:
+    - <span style="color:#ae81ff">1</span> GroupsToCSV<span style="color:#f92672">(</span>key<span style="color:#f92672">=</span>xxx, lat<span style="color:#f92672">=</span>51.5072, lon<span style="color:#f92672">=</span>0.1275<span style="color:#f92672">)</span>
+    - <span style="color:#ae81ff">1</span> GroupsToJSON<span style="color:#f92672">(</span>key<span style="color:#f92672">=</span>xxx, lat<span style="color:#f92672">=</span>51.5072, lon<span style="color:#f92672">=</span>0.1275<span style="color:#f92672">)</span>
+    - <span style="color:#ae81ff">1</span> Meetup<span style="color:#f92672">()</span>
 
-This progress looks :) because there were no failed tasks or missing external dependencies
+This progress looks :<span style="color:#f92672">)</span> because there were no failed tasks or missing external dependencies
 
-===== Luigi Execution Summary =====
-</code></pre>
-
-<p>
-Looks good! Let's quickly look at our CSV file:
-</p>
-
-<pre><code class="language-bash">
+<span style="color:#f92672">=====</span> Luigi Execution Summary <span style="color:#f92672">=====</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ head -n10 /tmp/groups.csv 
 id,name,urlname,link,rating,created,description,organiserName,organiserMemberId
-1114381,&quot;London NoSQL, MySQL, Open Source Community&quot;,&quot;london-nosql-mysql&quot;,&quot;https://www.meetup.com/london-nosql-mysql/&quot;,4.28,1208505614000,&quot;&lt;p&gt;Meet others in London interested in NoSQL, MySQL, and Open Source Databases.&lt;/p&gt;
-&quot;,&quot;Sinead Lawless&quot;,185675230
-1561841,&quot;Enterprise Search London Meetup&quot;,&quot;es-london&quot;,&quot;https://www.meetup.com/es-london/&quot;,4.66,1259157419000,&quot;&lt;p&gt;Enterprise Search London is a meetup for anyone interested in building search and discovery experiences — from intranet search and site search, to advanced discovery applications and beyond.&lt;/p&gt;
-
-&lt;p&gt;Disclaimer: This meetup is NOT about SEO or search engine marketing.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;What people are saying:&lt;/strong&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;span&gt;&quot;&quot;Join this meetup if you have a passion for enterprise search and user experience that you would like to share with other able-minded practitioners.&quot;&quot; — Vegard Sandvold&lt;/span&gt;&lt;/li&gt;
-&lt;li&gt;&lt;span&gt;&quot;&quot;Full marks for vision and execution. Looking forward to the next Meetup.&quot;&quot; — Martin White&lt;/span&gt;&lt;/li&gt;
-&lt;li&gt;&lt;span&gt;“Consistently excellent” — Helen Lippell&lt;/span&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</code></pre>
-
-<p>
-Sweet! And what if we run it again?
-</p>
-
-<pre><code class="language-bash">
-$ PYTHONPATH=&quot;.&quot; luigi --module blog --local-scheduler Meetup
-DEBUG: Checking if Meetup() is complete
+1114381,<span style="color:#e6db74">&#34;London NoSQL, MySQL, Open Source Community&#34;</span>,<span style="color:#e6db74">&#34;london-nosql-mysql&#34;</span>,<span style="color:#e6db74">&#34;https://www.meetup.com/london-nosql-mysql/&#34;</span>,4.28,1208505614000,<span style="color:#e6db74">&#34;&lt;p&gt;Meet others in London interested in NoSQL, MySQL, and Open Source Databases.&lt;/p&gt;
+</span><span style="color:#e6db74">&#34;</span>,<span style="color:#e6db74">&#34;Sinead Lawless&#34;</span>,185675230
+1561841,<span style="color:#e6db74">&#34;Enterprise Search London Meetup&#34;</span>,<span style="color:#e6db74">&#34;es-london&#34;</span>,<span style="color:#e6db74">&#34;https://www.meetup.com/es-london/&#34;</span>,4.66,1259157419000,<span style="color:#e6db74">&#34;&lt;p&gt;Enterprise Search London is a meetup for anyone interested in building search and discovery experiences — from intranet search and site search, to advanced discovery applications and beyond.&lt;/p&gt;
+</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">&lt;p&gt;Disclaimer: This meetup is NOT about SEO or search engine marketing.&lt;/p&gt;
+</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">&lt;p&gt;&lt;strong&gt;What people are saying:&lt;/strong&gt;&lt;/p&gt;
+</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">&lt;ul&gt;
+</span><span style="color:#e6db74">&lt;li&gt;&lt;span&gt;&#34;&#34;Join this meetup if you have a passion for enterprise search and user experience that you would like to share with other able-minded practitioners.&#34;&#34; — Vegard Sandvold&lt;/span&gt;&lt;/li&gt;
+</span><span style="color:#e6db74">&lt;li&gt;&lt;span&gt;&#34;&#34;Full marks for vision and execution. Looking forward to the next Meetup.&#34;&#34; — Martin White&lt;/span&gt;&lt;/li&gt;
+</span><span style="color:#e6db74">&lt;li&gt;&lt;span&gt;“Consistently excellent” — Helen Lippell&lt;/span&gt;&lt;/li&gt;
+</span><span style="color:#e6db74">&lt;/ul&gt;
+</span></code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ PYTHONPATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;.&#34;</span> luigi --module blog --local-scheduler Meetup
+DEBUG: Checking <span style="color:#66d9ef">if</span> Meetup<span style="color:#f92672">()</span> is complete
 INFO: Informed scheduler that task   Meetup__99914b932b   has status   DONE
 INFO: Done scheduling tasks
-INFO: Running Worker with 1 processes
-DEBUG: Asking scheduler for work...
+INFO: Running Worker with <span style="color:#ae81ff">1</span> processes
+DEBUG: Asking scheduler <span style="color:#66d9ef">for</span> work...
 DEBUG: Done
 DEBUG: There are no more tasks to run at this time
-INFO: Worker Worker(salt=172768377, workers=1, host=Marks-MBP-4, username=markneedham, pid=4531) was stopped. Shutting down Keep-Alive thread
+INFO: Worker Worker<span style="color:#f92672">(</span>salt<span style="color:#f92672">=</span>172768377, workers<span style="color:#f92672">=</span>1, host<span style="color:#f92672">=</span>Marks-MBP-4, username<span style="color:#f92672">=</span>markneedham, pid<span style="color:#f92672">=</span>4531<span style="color:#f92672">)</span> was stopped. Shutting down Keep-Alive thread
 INFO: 
-===== Luigi Execution Summary =====
+<span style="color:#f92672">=====</span> Luigi Execution Summary <span style="color:#f92672">=====</span>
 
-Scheduled 1 tasks of which:
-* 1 present dependencies were encountered:
-    - 1 Meetup()
+Scheduled <span style="color:#ae81ff">1</span> tasks of which:
+* <span style="color:#ae81ff">1</span> present dependencies were encountered:
+    - <span style="color:#ae81ff">1</span> Meetup<span style="color:#f92672">()</span>
 
 Did not run any tasks
-This progress looks :) because there were no failed tasks or missing external dependencies
+This progress looks :<span style="color:#f92672">)</span> because there were no failed tasks or missing external dependencies
 
-===== Luigi Execution Summary =====
-</code></pre>
-
-<p>
-As expected nothing happens since our dependencies are already satisfied and we have our first Luigi pipeline up and running.
-</p>
+<span style="color:#f92672">=====</span> Luigi Execution Summary <span style="color:#f92672">=====</span>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -433,7 +382,7 @@ As expected nothing happens since our dependencies are already satisfied and we 
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/03/25/luigi-externalprogramtask-example-converting-json-csv/&amp;title=Luigi%3a%20An%20ExternalProgramTask%20example%20-%20Converting%20JSON%20to%20CSV&amp;summary=I%27ve%20been%20playing%20around%20with%20the%20Python%20library%20Luigi%20which%20is%20used%20to%20build%20pipelines%20of%20batch%20jobs%20and%20I%20struggled%20to%20find%20an%20example%20of%20an%20ExternalProgramTask%20so%20this%20is%20my%20attempt%20at%20filling%20that%20void.%20%20%20I%27m%20building%20a%20little%20data%20pipeline%20to%20get%20data%20from%20the%20meetup.com%20API%20and%20put%20it%20into%20CSV%20files%20that%20can%20be%20loaded%20into%20Neo4j%20using%20the%20LOAD%20CSV%20command.%20%20The%20first%20task%20I%20created%20calls%20the%20%2fgroups%20endpoint%20and%20saves%20the%20result%20into%20a%20JSON%20file%3a%20import%20luigi%20import%20requests%20import%20json%20from%20collections%20import%20Counter%20class%20GroupsToJSON%28luigi...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/03/25/luigi-externalprogramtask-example-converting-json-csv/&amp;title=Luigi%3a%20An%20ExternalProgramTask%20example%20-%20Converting%20JSON%20to%20CSV&amp;summary=import%20luigi%20import%20requests%20import%20json%20from%20collections%20import%20Counter%20class%20GroupsToJSON%28luigi.Task%29%3a%20key%20%3d%20luigi.Parameter%28%29%20lat%20%3d%20luigi.Parameter%28%29%20lon%20%3d%20luigi.Parameter%28%29%20def%20run%28self%29%3a%20seed_topic%20%3d%20%26%2334%3bnosql%26%2334%3b%20uri%20%3d%20%26%2334%3bhttps%3a%2f%2fapi.meetup.com%2f2%2fgroups%3f%26amp%3btopic%3d%7b0%7d%26amp%3blat%3d%7b1%7d%26amp%3blon%3d%7b2%7d%26amp%3bkey%3d%7b3%7d%26%2334%3b.format%28seed_topic%2c%20self.lat%2c%20self.lon%2c%20self.key%29%20r%20%3d%20requests.get%28uri%29%20all_topics%20%3d%20%5btopic%5b%26%2334%3burlkey%26%2334%3b%5d%20for%20result%20in%20r.json%28%29%5b%26%2334%3bresults%26%2334%3b%5d%20for%20topic%20in%20result%5b%26%2334%3btopics%26%2334%3b%5d%5d%20c%20%3d%20Counter%28all_topics%29%20topics%20%3d%20%5bentry%5b0%5d%20for%20entry%20in%20c.most_common%2810%29%5d%20groups%20%3d%20%7b%7d%20for%20topic%20in%20topics%3a%20uri%20%3d%20%26%2334%3bhttps%3a%2f%2fapi.meetup.com%2f2%2fgroups%3f%26amp%3btopic%3d%7b0%7d%26amp%3blat%3d%7b1%7d%26amp%3blon%3d%7b2%7d%26amp%3bkey%3d%7b3%7d%26%2334%3b.format%28topic%2c%20self.lat%2c%20self.lon%2c%20self.key%29%20r%20%3d%20requests...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

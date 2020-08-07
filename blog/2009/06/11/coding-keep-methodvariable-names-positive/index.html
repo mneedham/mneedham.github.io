@@ -58,15 +58,14 @@ A recent example of this which I came across was in some acceptance test code wh
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "Coding: Keep method/variable names positive",
+        "headline": "Coding: Keep method\/variable names positive",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-06-11",
-        "description": "Something which I&rsquo;ve come across a few times recently in code is method names which describe the negative aspect of something and for me at least these are very difficult to understand since I need to keep remembering that we are dealing with the negative and not the positive which I think is significantly easier to reason about.
-A recent example of this which I came across was in some acceptance test code which among other things was asserting whether or not the policy number that had been created was in a valid format and returning the result of that assertion back to our Fitnesse fixture.",
-        "wordCount": 482
+        "description": "Something which I\x26rsquo;ve come across a few times recently in code is method names which describe the negative aspect of something and for me at least these are very difficult to understand since I need to keep remembering that we are dealing with the negative and not the positive which I think is significantly easier to reason about.\nA recent example of this which I came across was in some acceptance test code which among other things was asserting whether or not the policy number that had been created was in a valid format and returning the result of that assertion back to our Fitnesse fixture.",
+        "wordCount":  441 
     }
     </script>
     
@@ -176,77 +175,50 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Coding: Keep method/variable names positive</h1>
     <p>Something which I&rsquo;ve come across a few times recently in code is method names which describe the negative aspect of something and for me at least these are very difficult to understand since I need to keep remembering that we are dealing with the negative and not the positive which I think is significantly easier to reason about.</p>
-
 <p>A recent example of this which I came across was in some acceptance test code which among other things was asserting whether or not the policy number that had been created was in a valid format and returning the result of that assertion back to our Fitnesse fixture.</p>
-
-<p>The code to do this was similar to this - we are using the &lsquo;<a href="http://dannorth.net/introducing-bdd">Given, When, Then</a>&rsquo; syntax for acceptance testing and this code came under the &lsquo;Then&rsquo; section:</p>
-
-<pre><code class="language-csharp">
-public bool ThenCustomerShouldSeePageWithPurchasedPolicy()
+<p>The code to do this was similar to this - we are using the &lsquo;<!-- raw HTML omitted -->Given, When, Then<!-- raw HTML omitted -->&rsquo; syntax for acceptance testing and this code came under the &lsquo;Then&rsquo; section:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">bool</span> ThenCustomerShouldSeePageWithPurchasedPolicy()
 {
 	...
-	var policyNumber = GetPolicyNumber();
-	if(InvalidPolicyNumber(policyNumber))
+	<span style="color:#66d9ef">var</span> policyNumber = GetPolicyNumber();
+	<span style="color:#66d9ef">if</span>(InvalidPolicyNumber(policyNumber))
 	{
-		return false;
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
 	}
 	...
 }
-</code></pre>
-
-<pre><code class="language-csharp">
-private bool InvalidPolicyNumber(string policyNumber) 
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">bool</span> InvalidPolicyNumber(<span style="color:#66d9ef">string</span> policyNumber) 
 {
-	string integerPattern = &quot;^[0-9]{7}$&quot;;
-	return policyNumber.Substring(0,5) != &quot;POLIC&quot; &amp;&amp; !Regex.IsMatch(policyNumber.Substring(6,7), integerPattern)  &amp;&amp; policyNumber.Length != 12
+	<span style="color:#66d9ef">string</span> integerPattern = <span style="color:#e6db74">&#34;^[0-9]{7}$&#34;</span>;
+	<span style="color:#66d9ef">return</span> policyNumber.Substring(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">5</span>) != <span style="color:#e6db74">&#34;POLIC&#34;</span> &amp;&amp; !Regex.IsMatch(policyNumber.Substring(<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">7</span>), integerPattern)  &amp;&amp; policyNumber.Length != <span style="color:#ae81ff">12</span>
 }
-</code></pre>
-
-<p>Originally the lines of code in &lsquo;InvalidPolicyNumber&rsquo; were actually inlined in the &lsquo;ThenCustomerShouldSeePageWithPurchasedPolicy&rsquo; method but we pulled them out to try and understand the code more easily.</p>
-
+</code></pre></div><p>Originally the lines of code in &lsquo;InvalidPolicyNumber&rsquo; were actually inlined in the &lsquo;ThenCustomerShouldSeePageWithPurchasedPolicy&rsquo; method but we pulled them out to try and understand the code more easily.</p>
 <p>I still found it quite difficult to reason about what made an invalid policy since the reasoning of what makes something invalid from reading this code is:</p>
-
-<ul>
-<li>The first 5 characters are not 'POLIC'</li>
-<li>The next 7 characters are not digits</li>
-<li>The total length is not 12</li>
-</ul>
-
+<!-- raw HTML omitted -->
 <p>The actual rule for a valid policy number are:</p>
-
-<ul>
-<li>It should start with the characters 'POLIC'</li>
-<li>The next 7 characters should be digits</li>
-<li>The total length should be 12</li>
-</ul>
-
+<!-- raw HTML omitted -->
 <p>So in fact our &lsquo;InvalidPolicyNumber&rsquo; method as well as being quite difficult to read will only tell us that a policy number is invalid if all 3 of those conditions have not been met when in actual fact if any of them are not met the policy number is invalid. A perhaps subtle error has crept in!</p>
-
-<p>We refactored the code to <a href="http://www.markhneedham.com/blog/2008/12/11/code-for-positive-data-values-not-negative/">refer to what we know is valid</a> rather than looking at the reverse which I think is much more difficult to reason about.</p>
-
-<pre><code class="language-csharp">
-public bool ThenCustomerShouldSeePageWithPurchasedPolicy()
+<p>We refactored the code to <!-- raw HTML omitted -->refer to what we know is valid<!-- raw HTML omitted --> rather than looking at the reverse which I think is much more difficult to reason about.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">bool</span> ThenCustomerShouldSeePageWithPurchasedPolicy()
 {
 	...
-	var policyNumber = GetPolicyNumber();
-	if(!ValidPolicyNumber(policyNumber))
+	<span style="color:#66d9ef">var</span> policyNumber = GetPolicyNumber();
+	<span style="color:#66d9ef">if</span>(!ValidPolicyNumber(policyNumber))
 	{
-		return false;
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
 	}
 	...
 }
-</code></pre>
-
-<pre><code class="language-csharp">
-private bool ValidPolicyNumber(string policyNumber) 
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">bool</span> ValidPolicyNumber(<span style="color:#66d9ef">string</span> policyNumber) 
 {
-	string integerPattern = &quot;^[0-9]{7}$&quot;;
-	return policyNumber.Substring(0,5) == &quot;POLIC&quot; &amp;&amp; Regex.IsMatch(policyNumber.Substring(6,7), integerPattern)  &amp;&amp; policyNumber.Length == 12
+	<span style="color:#66d9ef">string</span> integerPattern = <span style="color:#e6db74">&#34;^[0-9]{7}$&#34;</span>;
+	<span style="color:#66d9ef">return</span> policyNumber.Substring(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">5</span>) == <span style="color:#e6db74">&#34;POLIC&#34;</span> &amp;&amp; Regex.IsMatch(policyNumber.Substring(<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">7</span>), integerPattern)  &amp;&amp; policyNumber.Length == <span style="color:#ae81ff">12</span>
 }
-</code></pre>
-
-<p>I&rsquo;ve come across a few other examples and the underlying theme is that I find it much easier to reason about code which is written using positive method/variable names and then make use of language constructs if we need to invert that somewhere.</p>
-
+</code></pre></div><p>I&rsquo;ve come across a few other examples and the underlying theme is that I find it much easier to reason about code which is written using positive method/variable names and then make use of language constructs if we need to invert that somewhere.</p>
 <p>I find it takes me much longer to understand methods which refer to the negative and every time I come back to them in the future I have to reason through each line slowly to make sure I understand what&rsquo;s going on.</p>
 
     <div id="social-bar">

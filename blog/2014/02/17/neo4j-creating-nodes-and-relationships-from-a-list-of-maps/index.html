@@ -23,9 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Creating nodes and relationships from a list of maps" />
         
-          <meta name="twitter:description" content="Last week Alistair and I were porting some Neo4j cypher queries from 1.8 to 2.0 and one of the queries we had to change was an interesting one that created a bunch of relationships from a list/array of maps.
-In the query we had a user &#39;Mark&#39; and wanted to create &#39;FRIENDS_WITH&#39; relationships to Peter and Michael.
-  The application passed in a list of maps representing Peter and Michael as a parameter but if we remove the parameters the query looked like this:" />
+          <meta name="twitter:description" content="MERGE (me:User {userId: 1} ) SET me.name = &quot;Mark&quot; FOREACH (f IN [{userId: 2, name: &quot;Michael&quot;}, {userId: 3, name: &quot;Peter&quot;}] | MERGE (u:User {userId: f.userId}) SET u = f MERGE (me)-[:FRIENDS_WITH]-&gt;(u)) MERGE (me:User { userId: {userId} }) SET me.name = {name} FOREACH(f IN {friends} | MERGE (u:User {userId: f.userId }) SET u = f MERGE (me)-[:FRIENDS_WITH]-&gt;(u)) public class ListsOfMapsCypher { public static void main( String[] args ) { ObjectNode request = JsonNodeFactory." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/02/17/neo4j-creating-nodes-and-relationships-from-a-list-of-maps/" />
 
@@ -36,9 +34,7 @@ In the query we had a user &#39;Mark&#39; and wanted to create &#39;FRIENDS_WITH
         <title> Neo4j: Creating nodes and relationships from a list of maps &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Last week Alistair and I were porting some Neo4j cypher queries from 1.8 to 2.0 and one of the queries we had to change was an interesting one that created a bunch of relationships from a list/array of maps.
-In the query we had a user &#39;Mark&#39; and wanted to create &#39;FRIENDS_WITH&#39; relationships to Peter and Michael.
-  The application passed in a list of maps representing Peter and Michael as a parameter but if we remove the parameters the query looked like this:" />
+        <meta name="description" content="MERGE (me:User {userId: 1} ) SET me.name = &quot;Mark&quot; FOREACH (f IN [{userId: 2, name: &quot;Michael&quot;}, {userId: 3, name: &quot;Peter&quot;}] | MERGE (u:User {userId: f.userId}) SET u = f MERGE (me)-[:FRIENDS_WITH]-&gt;(u)) MERGE (me:User { userId: {userId} }) SET me.name = {name} FOREACH(f IN {friends} | MERGE (u:User {userId: f.userId }) SET u = f MERGE (me)-[:FRIENDS_WITH]-&gt;(u)) public class ListsOfMapsCypher { public static void main( String[] args ) { ObjectNode request = JsonNodeFactory." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,10 +63,8 @@ In the query we had a user &#39;Mark&#39; and wanted to create &#39;FRIENDS_WITH
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-02-17",
-        "description": "Last week Alistair and I were porting some Neo4j cypher queries from 1.8 to 2.0 and one of the queries we had to change was an interesting one that created a bunch of relationships from a list/array of maps.
-In the query we had a user 'Mark' and wanted to create 'FRIENDS_WITH' relationships to Peter and Michael.
-  The application passed in a list of maps representing Peter and Michael as a parameter but if we remove the parameters the query looked like this:",
-        "wordCount": 359
+        "description": "MERGE (me:User {userId: 1} ) SET me.name = \x26quot;Mark\x26quot; FOREACH (f IN [{userId: 2, name: \x26quot;Michael\x26quot;}, {userId: 3, name: \x26quot;Peter\x26quot;}] | MERGE (u:User {userId: f.userId}) SET u = f MERGE (me)-[:FRIENDS_WITH]-\x26gt;(u)) MERGE (me:User { userId: {userId} }) SET me.name = {name} FOREACH(f IN {friends} | MERGE (u:User {userId: f.userId }) SET u = f MERGE (me)-[:FRIENDS_WITH]-\x26gt;(u)) public class ListsOfMapsCypher { public static void main( String[] args ) { ObjectNode request = JsonNodeFactory.",
+        "wordCount":  193 
     }
     </script>
     
@@ -181,102 +175,81 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Creating nodes and relationships from a list of maps</h1>
-    <p>Last week <a href="https://twitter.com/apcj">Alistair</a> and I were porting some Neo4j cypher queries from 1.8 to 2.0 and one of the queries we had to change was an interesting one that created a bunch of relationships from a list/array of maps.</p>
-
-<p>In the query we had a user 'Mark' and wanted to create 'FRIENDS_WITH' relationships to Peter and Michael.</p>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2014/02/2014-02-17_13-39-08.png" alt="2014 02 17 13 39 08" title="2014-02-17_13-39-08.png" border="0" width="600" height="89" />
-</div>
-
-<p>The application passed in a list of maps representing Peter and Michael as a parameter but if we remove the parameters the query looked like this:</p>
-
-<pre><code class="language-cypher">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MERGE (me:User {userId: 1} )
 SET me.name = &quot;Mark&quot;
 FOREACH (f IN [{userId: 2, name: &quot;Michael&quot;}, {userId: 3, name: &quot;Peter&quot;}] | 
     MERGE (u:User {userId: f.userId})
     SET u = f
     MERGE (me)-[:FRIENDS_WITH]-&gt;(u))
-</code></pre>
-
-<p>We first ensure that a user with 'id' of 1 exists in the database and then make sure their name is set to 'Mark'. After we've done that we iterate over a list of maps containing Mark's friends and ensure there is a 'FRIENDS_WITH' relationship from Mark to them.</p>
-
-<p>The parameterised version of that query looks like this:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MERGE (me:User { userId: {userId} }) 
 SET me.name = {name} 
 FOREACH(f IN {friends} | 
     MERGE (u:User {userId: f.userId }) 
     SET u = f 
     MERGE (me)-[:FRIENDS_WITH]-&gt;(u))
-</code></pre>
+</code></pre><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ListsOfMapsCypher</span>
+<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span> String<span style="color:#f92672">[]</span> args <span style="color:#f92672">)</span>
+    <span style="color:#f92672">{</span>
+        ObjectNode request <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">objectNode</span><span style="color:#f92672">();</span>
+        request<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;query&#34;</span><span style="color:#f92672">,</span>
+                <span style="color:#e6db74">&#34;MERGE (me:User { userId: {userId} }) &#34;</span> <span style="color:#f92672">+</span>
+                <span style="color:#e6db74">&#34;SET me.name = {name} &#34;</span> <span style="color:#f92672">+</span>
+                <span style="color:#e6db74">&#34;FOREACH(f IN {friends} | &#34;</span> <span style="color:#f92672">+</span>
+                    <span style="color:#e6db74">&#34;MERGE (u:User {userId: f.userId }) &#34;</span> <span style="color:#f92672">+</span>
+                    <span style="color:#e6db74">&#34;SET u = f &#34;</span> <span style="color:#f92672">+</span>
+                    <span style="color:#e6db74">&#34;MERGE (me)-[:FRIENDS_WITH]-&gt;(u)) &#34;</span><span style="color:#f92672">);</span>
 
-<p>We can then execute that query using Jersey:</p>
+        ObjectNode params <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">objectNode</span><span style="color:#f92672">();</span>
+        params<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;userId&#34;</span><span style="color:#f92672">,</span> 1<span style="color:#f92672">);</span>
+        params<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Mark&#34;</span><span style="color:#f92672">);</span>
 
-<pre><code class="language-java">
-public class ListsOfMapsCypher
-{
-    public static void main( String[] args )
-    {
-        ObjectNode request = JsonNodeFactory.instance.objectNode();
-        request.put(&quot;query&quot;,
-                &quot;MERGE (me:User { userId: {userId} }) &quot; +
-                &quot;SET me.name = {name} &quot; +
-                &quot;FOREACH(f IN {friends} | &quot; +
-                    &quot;MERGE (u:User {userId: f.userId }) &quot; +
-                    &quot;SET u = f &quot; +
-                    &quot;MERGE (me)-[:FRIENDS_WITH]-&gt;(u)) &quot;);
+        ArrayNode friends <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">arrayNode</span><span style="color:#f92672">();</span>
 
-        ObjectNode params = JsonNodeFactory.instance.objectNode();
-        params.put(&quot;userId&quot;, 1);
-        params.put(&quot;name&quot;, &quot;Mark&quot;);
+        ObjectNode friend1 <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">objectNode</span><span style="color:#f92672">();</span>
+        friend1<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;userId&#34;</span><span style="color:#f92672">,</span> 2 <span style="color:#f92672">);</span>
+        friend1<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Michael&#34;</span> <span style="color:#f92672">);</span>
+        friends<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span> friend1 <span style="color:#f92672">);</span>
 
-        ArrayNode friends = JsonNodeFactory.instance.arrayNode();
+        ObjectNode friend2 <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">objectNode</span><span style="color:#f92672">();</span>
+        friend2<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;userId&#34;</span><span style="color:#f92672">,</span> 3 <span style="color:#f92672">);</span>
+        friend2<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Peter&#34;</span> <span style="color:#f92672">);</span>
+        friends<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span> friend2 <span style="color:#f92672">);</span>
 
-        ObjectNode friend1 = JsonNodeFactory.instance.objectNode();
-        friend1.put( &quot;userId&quot;, 2 );
-        friend1.put( &quot;name&quot;, &quot;Michael&quot; );
-        friends.add( friend1 );
+        params<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;friends&#34;</span><span style="color:#f92672">,</span> friends <span style="color:#f92672">);</span>
 
-        ObjectNode friend2 = JsonNodeFactory.instance.objectNode();
-        friend2.put( &quot;userId&quot;, 3 );
-        friend2.put( &quot;name&quot;, &quot;Peter&quot; );
-        friends.add( friend2 );
+        request<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;params&#34;</span><span style="color:#f92672">,</span> params <span style="color:#f92672">);</span>
 
-        params.put(&quot;friends&quot;, friends );
-
-        request.put(&quot;params&quot;, params );
-
-        ClientResponse clientResponse = client()
-                .resource( &quot;http://localhost:7474/db/data/cypher&quot; )
-                .accept( MediaType.APPLICATION_JSON )
-                .entity( request, MediaType.APPLICATION_JSON_TYPE )
-                .post( ClientResponse.class );
+        ClientResponse clientResponse <span style="color:#f92672">=</span> client<span style="color:#f92672">()</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">resource</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;http://localhost:7474/db/data/cypher&#34;</span> <span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span> MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span> <span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">entity</span><span style="color:#f92672">(</span> request<span style="color:#f92672">,</span> MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON_TYPE</span> <span style="color:#f92672">)</span>
+                <span style="color:#f92672">.</span><span style="color:#a6e22e">post</span><span style="color:#f92672">(</span> ClientResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span> <span style="color:#f92672">);</span>
 
 
-        System.out.println(clientResponse.getEntity( String.class ));
-    }
+        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>clientResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">getEntity</span><span style="color:#f92672">(</span> String<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span> <span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
 
-    private static Client client()
-    {
-        DefaultClientConfig defaultClientConfig = new DefaultClientConfig();
-        defaultClientConfig.getClasses().add(JacksonJsonProvider.class);
-        return Client.create(defaultClientConfig);
-    }
-}
-</code></pre>
-
-<p>We can then write a query to check Mark and his friends were persisted:</p>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2014/02/2014-02-17_14-10-12.png" alt="2014 02 17 14 10 12" title="2014-02-17_14-10-12.png" border="0" width="600" height="434" />
-</div>
-
-<p>And that's it!</p>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Client <span style="color:#a6e22e">client</span><span style="color:#f92672">()</span>
+    <span style="color:#f92672">{</span>
+        DefaultClientConfig defaultClientConfig <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> DefaultClientConfig<span style="color:#f92672">();</span>
+        defaultClientConfig<span style="color:#f92672">.</span><span style="color:#a6e22e">getClasses</span><span style="color:#f92672">().</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>JacksonJsonProvider<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> Client<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>defaultClientConfig<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -311,7 +284,7 @@ public class ListsOfMapsCypher
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/02/17/neo4j-creating-nodes-and-relationships-from-a-list-of-maps/&amp;title=Neo4j%3a%20Creating%20nodes%20and%20relationships%20from%20a%20list%20of%20maps&amp;summary=Last%20week%20Alistair%20and%20I%20were%20porting%20some%20Neo4j%20cypher%20queries%20from%201.8%20to%202.0%20and%20one%20of%20the%20queries%20we%20had%20to%20change%20was%20an%20interesting%20one%20that%20created%20a%20bunch%20of%20relationships%20from%20a%20list%2farray%20of%20maps.%0aIn%20the%20query%20we%20had%20a%20user%20%27Mark%27%20and%20wanted%20to%20create%20%27FRIENDS_WITH%27%20relationships%20to%20Peter%20and%20Michael.%0a%20%20The%20application%20passed%20in%20a%20list%20of%20maps%20representing%20Peter%20and%20Michael%20as%20a%20parameter%20but%20if%20we%20remove%20the%20parameters%20the%20query%20looked%20like%20this%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/02/17/neo4j-creating-nodes-and-relationships-from-a-list-of-maps/&amp;title=Neo4j%3a%20Creating%20nodes%20and%20relationships%20from%20a%20list%20of%20maps&amp;summary=MERGE%20%28me%3aUser%20%7buserId%3a%201%7d%20%29%20SET%20me.name%20%3d%20%26quot%3bMark%26quot%3b%20FOREACH%20%28f%20IN%20%5b%7buserId%3a%202%2c%20name%3a%20%26quot%3bMichael%26quot%3b%7d%2c%20%7buserId%3a%203%2c%20name%3a%20%26quot%3bPeter%26quot%3b%7d%5d%20%7c%20MERGE%20%28u%3aUser%20%7buserId%3a%20f.userId%7d%29%20SET%20u%20%3d%20f%20MERGE%20%28me%29-%5b%3aFRIENDS_WITH%5d-%26gt%3b%28u%29%29%20MERGE%20%28me%3aUser%20%7b%20userId%3a%20%7buserId%7d%20%7d%29%20SET%20me.name%20%3d%20%7bname%7d%20FOREACH%28f%20IN%20%7bfriends%7d%20%7c%20MERGE%20%28u%3aUser%20%7buserId%3a%20f.userId%20%7d%29%20SET%20u%20%3d%20f%20MERGE%20%28me%29-%5b%3aFRIENDS_WITH%5d-%26gt%3b%28u%29%29%20public%20class%20ListsOfMapsCypher%20%7b%20public%20static%20void%20main%28%20String%5b%5d%20args%20%29%20%7b%20ObjectNode%20request%20%3d%20JsonNodeFactory...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

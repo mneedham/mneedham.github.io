@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: The football transfers graph" />
         
-          <meta name="twitter:description" content="Given we&#39;re still in pre season transfer madness as far as European football is concerned I thought it&#39;d be interesting to put together a football transfers graph to see whether there are any interesting insights to be had.  It took me a while to find an appropriate source but I eventually came across transfermarkt.co.uk which contains transfers going back at least as far as the start of the Premier League in 1992." />
+          <meta name="twitter:description" content="$ head -n 10 data/transfers.csv player,from_team,from_team_id,to_team,to_team_id,fee,season Martin Keown,Everton,29,Arsenal FC,11,&#34;2,10 Mill. £&#34;,1992-1993 John Jensen,Bröndby IF,206,Arsenal FC,11,&#34;1,12 Mill. £&#34;,1992-1993 Alan Miller,Birmingham,337,Arsenal FC,11,,1992-1993 Jim Will,Sheffield Utd.,350,Arsenal FC,11,,1992-1993 David Rocastle,Arsenal FC,11,Leeds,399,&#34;1,68 Mill. £&#34;,1992-1993 Perry Groves,Arsenal FC,11,Southampton FC,180,595 Th. £,1992-1993 Ty Gooden,Arsenal FC,11,Wycombe Wand.,2805,?,1992-1993 Geraint Williams,Derby,22,Ipswich Town,677,525 Th. £,1992-1993 Jason Winters,Chelsea U21,9250,Ipswich Town,677,?,1992-1993 create index on :Team(id); create index on :Season(name); create index on :Transfer(description); create index on :Player(name); // teams load csv with headers from &quot;file:///Users/markneedham/projects/football-transfers/data/teams." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/07/16/neo4j-the-football-transfers-graph/" />
 
@@ -33,7 +33,7 @@
         <title> Neo4j: The football transfers graph &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Given we&#39;re still in pre season transfer madness as far as European football is concerned I thought it&#39;d be interesting to put together a football transfers graph to see whether there are any interesting insights to be had.  It took me a while to find an appropriate source but I eventually came across transfermarkt.co.uk which contains transfers going back at least as far as the start of the Premier League in 1992." />
+        <meta name="description" content="$ head -n 10 data/transfers.csv player,from_team,from_team_id,to_team,to_team_id,fee,season Martin Keown,Everton,29,Arsenal FC,11,&#34;2,10 Mill. £&#34;,1992-1993 John Jensen,Bröndby IF,206,Arsenal FC,11,&#34;1,12 Mill. £&#34;,1992-1993 Alan Miller,Birmingham,337,Arsenal FC,11,,1992-1993 Jim Will,Sheffield Utd.,350,Arsenal FC,11,,1992-1993 David Rocastle,Arsenal FC,11,Leeds,399,&#34;1,68 Mill. £&#34;,1992-1993 Perry Groves,Arsenal FC,11,Southampton FC,180,595 Th. £,1992-1993 Ty Gooden,Arsenal FC,11,Wycombe Wand.,2805,?,1992-1993 Geraint Williams,Derby,22,Ipswich Town,677,525 Th. £,1992-1993 Jason Winters,Chelsea U21,9250,Ipswich Town,677,?,1992-1993 create index on :Team(id); create index on :Season(name); create index on :Transfer(description); create index on :Player(name); // teams load csv with headers from &quot;file:///Users/markneedham/projects/football-transfers/data/teams." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +62,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-07-16",
-        "description": "Given we're still in pre season transfer madness as far as European football is concerned I thought it'd be interesting to put together a football transfers graph to see whether there are any interesting insights to be had.  It took me a while to find an appropriate source but I eventually came across transfermarkt.co.uk which contains transfers going back at least as far as the start of the Premier League in 1992.",
-        "wordCount": 1425
+        "description": "$ head -n 10 data\/transfers.csv player,from_team,from_team_id,to_team,to_team_id,fee,season Martin Keown,Everton,29,Arsenal FC,11,\x26#34;2,10 Mill. £\x26#34;,1992-1993 John Jensen,Bröndby IF,206,Arsenal FC,11,\x26#34;1,12 Mill. £\x26#34;,1992-1993 Alan Miller,Birmingham,337,Arsenal FC,11,,1992-1993 Jim Will,Sheffield Utd.,350,Arsenal FC,11,,1992-1993 David Rocastle,Arsenal FC,11,Leeds,399,\x26#34;1,68 Mill. £\x26#34;,1992-1993 Perry Groves,Arsenal FC,11,Southampton FC,180,595 Th. £,1992-1993 Ty Gooden,Arsenal FC,11,Wycombe Wand.,2805,?,1992-1993 Geraint Williams,Derby,22,Ipswich Town,677,525 Th. £,1992-1993 Jason Winters,Chelsea U21,9250,Ipswich Town,677,?,1992-1993 create index on :Team(id); create index on :Season(name); create index on :Transfer(description); create index on :Player(name); \/\/ teams load csv with headers from \x26quot;file:\/\/\/Users\/markneedham\/projects\/football-transfers\/data\/teams.",
+        "wordCount":  1134 
     }
     </script>
     
@@ -172,52 +172,30 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: The football transfers graph</h1>
-    <p>Given we're still in <a href="http://www.bbc.co.uk/sport/0/football/33531715">pre season</a> <a href="http://www.bbc.co.uk/sport/0/football/33528451">transfer madness</a> as far as European football is concerned I thought it'd be interesting to put together a football transfers graph to see whether there are any interesting insights to be had.
-</p>
-
-<p>
-It took me a while to find an appropriate source but I eventually came across <a href="http://www.transfermarkt.co.uk/premier-league/sommertransfers/wettbewerb/GB1/saison_id/2015">transfermarkt.co.uk</a> which contains transfers going back at least as far as the start of the Premier League in 1992.
-</p>
-
-<p>
-I wrote a quick Python script to create a CSV file of all the transfers. This is what the file looks like:
-</p>
-
-<pre><code class="language-bash">
-$ head -n 10 data/transfers.csv
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ head -n <span style="color:#ae81ff">10</span> data/transfers.csv
 player,from_team,from_team_id,to_team,to_team_id,fee,season
-Martin Keown,Everton,29,Arsenal FC,11,&quot;2,10 Mill. £&quot;,1992-1993
-John Jensen,Bröndby IF,206,Arsenal FC,11,&quot;1,12 Mill. £&quot;,1992-1993
+Martin Keown,Everton,29,Arsenal FC,11,<span style="color:#e6db74">&#34;2,10 Mill. £&#34;</span>,1992-1993
+John Jensen,Bröndby IF,206,Arsenal FC,11,<span style="color:#e6db74">&#34;1,12 Mill. £&#34;</span>,1992-1993
 Alan Miller,Birmingham,337,Arsenal FC,11,,1992-1993
 Jim Will,Sheffield Utd.,350,Arsenal FC,11,,1992-1993
-David Rocastle,Arsenal FC,11,Leeds,399,&quot;1,68 Mill. £&quot;,1992-1993
+David Rocastle,Arsenal FC,11,Leeds,399,<span style="color:#e6db74">&#34;1,68 Mill. £&#34;</span>,1992-1993
 Perry Groves,Arsenal FC,11,Southampton FC,180,595 Th. £,1992-1993
 Ty Gooden,Arsenal FC,11,Wycombe Wand.,2805,?,1992-1993
 Geraint Williams,Derby,22,Ipswich Town,677,525 Th. £,1992-1993
 Jason Winters,Chelsea U21,9250,Ipswich Town,677,?,1992-1993
-</code></pre>
-
-<p>
-I'm going to create the following graph and then we'll write some queries which explore chains of transfers involving players and clubs.
-</p>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2015/07/2015-07-15_07-28-11.png" alt="2015 07 15 07 28 11" title="2015-07-15_07-28-11.png" border="0" width="599" height="309" />
-</div>
-
-<p>
-I wrote a few import scripts using Neo4j's <a href="http://neo4j.com/docs/stable/query-load-csv.html">LOAD CSV</a> command, having set up the appropriate indexes first:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 create index on :Team(id);
 create index on :Season(name);
 create index on :Transfer(description);
 create index on :Player(name);
-</code></pre>
-
-<pre><code class="language-cypher">
+</code></pre><pre><code class="language-cypher" data-lang="cypher">
 // teams
 load csv with headers from &quot;file:///Users/markneedham/projects/football-transfers/data/teams.csv&quot; as row
 merge (team:Team {id: toint(row.team_id)})
@@ -254,37 +232,18 @@ UNWIND range(0, length(transfers)-2) AS idx
 WITH player, transfers[idx] AS t1, transfers[idx +1] AS t2
 WITH player, t1.t AS t1, t2.t AS t2
 MERGE (t1)-[:NEXT]-&gt;(t2);
-</code></pre>
-
-<p><P>All the files and scripts are on <a href="https://gist.github.com/mneedham/2c0b28ebe2314cb5eab5">this gist</a> if you want to play around with the data. The only thing you&rsquo;ll need to change is the file path on each of the &lsquo;LOAD CSV&rsquo; lines.
-</p></p>
-
-<p>
-The 'connect transfers' query is a bit more complicated than the others - in that one we're first ordering the transfers in ascending order grouped by player and then <a href="http://www.markhneedham.com/blog/2015/06/04/neo4j-cypher-step-by-step-to-creating-a-linked-list-of-adjacent-nodes-using-unwind/">creating a linked list</a> of a player's transfers.
-</p>
-
-<p>
-Now that we've got the data loaded let's find out which player was transferred the most:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 match path = (:Transfer)-[:NEXT*0..]-&gt;(transfer:Transfer)
 where NOT (transfer)-[:NEXT]-&gt;()
 RETURN path 
 ORDER BY LENGTH(path) DESC
 LIMIT 1
-</code></pre>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2015/07/graph-22.png" alt="Graph  22" title="graph (22).png" border="0" width="599" height="251" />
-</div>
-
-<p>
-Which other players have moved teams frequently?
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 match path = (first:Transfer)-[:NEXT*0..]-&gt;(transfer:Transfer),
              (player)&lt;-[:PLAYER]-(transfer)
 where NOT ((transfer)-[:NEXT]-&gt;()) AND NOT ((first)&lt;-[:NEXT]-())
@@ -307,11 +266,8 @@ LIMIT 10
 ==&gt; | &quot;Don Hutchison&quot;  | 4                 |
 ==&gt; +--------------------------------------+
 ==&gt; 10 rows
-</code></pre>
-
-<p>What are the most frequent combinations of clubs involved in transfers?</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 match (from)&lt;-[:FROM_TEAM]-(t:Transfer)-[:TO_TEAM]-&gt;(to), (t)-[:PLAYER]-&gt;(p)
 RETURN from.name, to.name, COUNT(*) AS times, COLLECT(p.name) AS players
 ORDER BY times DESC
@@ -332,13 +288,8 @@ LIMIT 10
 ==&gt; | &quot;Portsmouth FC&quot;     | &quot;Stoke City&quot;          | 8     | [&quot;Kevin Harper&quot;,&quot;Lewis Buxton&quot;,&quot;Anthony Pulis&quot;,&quot;Vincent Péricard&quot;,&quot;Asmir Begovic&quot;,&quot;Marc Wilson&quot;,&quot;Elliot Wheeler&quot;,&quot;Alex Grant&quot;]                                                                             |
 ==&gt; +------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ==&gt; 10 rows
-</code></pre>
-
-<p>
-Are there ever situations where players get transferred in both directions?
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 match (from)&lt;-[:FROM_TEAM]-(t:Transfer)-[:TO_TEAM]-&gt;(to), (t)-[:PLAYER]-&gt;(player)
 where id(from) &lt; id(to)
 WITH from, to, COUNT(*) AS times, COLLECT(player.name) AS players
@@ -361,11 +312,8 @@ LIMIT 10
 ==&gt; | &quot;Blackburn Rovers&quot;  | &quot;Southampton FC&quot;      | 5     | 6             | [&quot;David Speedie&quot;,&quot;Stuart Ripley&quot;,&quot;James Beattie&quot;,&quot;Kevin Davies&quot;,&quot;Zak Jones&quot;]                                                                                                                               | [&quot;Zak Jones&quot;,&quot;Egil Östenstad&quot;,&quot;Kevin Davies&quot;,&quot;Alan Shearer&quot;,&quot;Jeff Kenna&quot;,&quot;Tim Flowers&quot;]                                                                                            |
 ==&gt; | &quot;AFC Bournemouth&quot;   | &quot;West Ham United&quot;     | 3     | 8             | [&quot;Keith Rowland&quot;,&quot;Paul Mitchell&quot;,&quot;Scott Mean&quot;]                                                                                                                                                             | [&quot;Steve Jones&quot;,&quot;Matt Holland&quot;,&quot;Mohammed Berthé&quot;,&quot;Scott Mean&quot;,&quot;Paul Mitchell&quot;,&quot;Jamie Victory&quot;,&quot;Mark Watson&quot;,&quot;Stephen Purches&quot;]                                                      |
 ==&gt; +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-</code></pre>
-
-<p>Any players who go back to the same club they were at previously?</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 match (player:Player)&lt;-[:PLAYER]-(t1:Transfer)-[:FROM_TEAM]-&gt;(from)&lt;-[:TO_TEAM]-(t2:Transfer)-[:FROM_TEAM]-&gt;(to),
       (t2)-[:PLAYER]-&gt;(player), (t1)-[:TO_TEAM]-&gt;(to)
 WHERE ID(to) &lt; ID(from)
@@ -389,11 +337,7 @@ LIMIT 10
 ==&gt; | &quot;Gary McAllister&quot; | [&quot;Liverpool FC ⥄ Coventry City&quot;]                                |
 ==&gt; | &quot;Lee Bowyer&quot;      | [&quot;West Ham United ⥄ Newcastle United&quot;]                          |
 ==&gt; +-------------------------------------------------------------------------------------+
-</code></pre>
-
-<p>
-That's all I've got for now - if you can think of any other interesting avenues to explore let me know and I'll take a look. 
-</p>
+</code></pre><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -428,7 +372,7 @@ That's all I've got for now - if you can think of any other interesting avenues 
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/07/16/neo4j-the-football-transfers-graph/&amp;title=Neo4j%3a%20The%20football%20transfers%20graph&amp;summary=Given%20we%27re%20still%20in%20pre%20season%20transfer%20madness%20as%20far%20as%20European%20football%20is%20concerned%20I%20thought%20it%27d%20be%20interesting%20to%20put%20together%20a%20football%20transfers%20graph%20to%20see%20whether%20there%20are%20any%20interesting%20insights%20to%20be%20had.%20%20It%20took%20me%20a%20while%20to%20find%20an%20appropriate%20source%20but%20I%20eventually%20came%20across%20transfermarkt.co.uk%20which%20contains%20transfers%20going%20back%20at%20least%20as%20far%20as%20the%20start%20of%20the%20Premier%20League%20in%201992...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/07/16/neo4j-the-football-transfers-graph/&amp;title=Neo4j%3a%20The%20football%20transfers%20graph&amp;summary=%24%20head%20-n%2010%20data%2ftransfers.csv%20player%2cfrom_team%2cfrom_team_id%2cto_team%2cto_team_id%2cfee%2cseason%20Martin%20Keown%2cEverton%2c29%2cArsenal%20FC%2c11%2c%26%2334%3b2%2c10%20Mill.%20%c2%a3%26%2334%3b%2c1992-1993%20John%20Jensen%2cBr%c3%b6ndby%20IF%2c206%2cArsenal%20FC%2c11%2c%26%2334%3b1%2c12%20Mill.%20%c2%a3%26%2334%3b%2c1992-1993%20Alan%20Miller%2cBirmingham%2c337%2cArsenal%20FC%2c11%2c%2c1992-1993%20Jim%20Will%2cSheffield%20Utd.%2c350%2cArsenal%20FC%2c11%2c%2c1992-1993%20David%20Rocastle%2cArsenal%20FC%2c11%2cLeeds%2c399%2c%26%2334%3b1%2c68%20Mill.%20%c2%a3%26%2334%3b%2c1992-1993%20Perry%20Groves%2cArsenal%20FC%2c11%2cSouthampton%20FC%2c180%2c595%20Th.%20%c2%a3%2c1992-1993%20Ty%20Gooden%2cArsenal%20FC%2c11%2cWycombe%20Wand.%2c2805%2c%3f%2c1992-1993%20Geraint%20Williams%2cDerby%2c22%2cIpswich%20Town%2c677%2c525%20Th.%20%c2%a3%2c1992-1993%20Jason%20Winters%2cChelsea%20U21%2c9250%2cIpswich%20Town%2c677%2c%3f%2c1992-1993%20create%20index%20on%20%3aTeam%28id%29%3b%20create%20index%20on%20%3aSeason%28name%29%3b%20create%20index%20on%20%3aTransfer%28description%29%3b%20create%20index%20on%20%3aPlayer%28name%29%3b%20%2f%2f%20teams%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2f%2f%2fUsers%2fmarkneedham%2fprojects%2ffootball-transfers%2fdata%2fteams...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

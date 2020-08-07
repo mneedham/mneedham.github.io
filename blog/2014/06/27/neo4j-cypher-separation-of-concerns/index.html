@@ -22,9 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Cypher - Separation of concerns" />
         
-          <meta name="twitter:description" content="While preparing my talk on building Neo4j backed applications with Clojure I realised that some of the queries I&#39;d written were incredibly complicated and went against anything I&#39;d learnt about separating different concerns.
-One example of this was the query I used to generate the data for the following page of the meetup application I&#39;ve been working on:
-    Depending on the selected tab you can choose to see the people signed up for the meetup and the date that they signed up or the topics that those people are interested in." />
+          <meta name="twitter:description" content="MATCH (event:Event {id: {eventId}})-[:HELD_AT]-&gt;(venue) OPTIONAL MATCH (event)&lt;-[:TO]-(rsvp)&lt;-[:RSVPD]-(person) OPTIONAL MATCH (person)-[:INTERESTED_IN]-&gt;(topic) WHERE ()-[:HAS_TOPIC]-&gt;(topic) WITH event, venue, rsvp, person, COLLECT(topic) as topics ORDER BY rsvp.time OPTIONAL MATCH (rsvp)&lt;-[:NEXT]-(initial) WITH event, venue, COLLECT({rsvp: rsvp, initial: initial, person: person, topics: topics}) AS responses WITH event, venue, [response in responses WHERE response.initial is null AND response.rsvp.response = &quot;yes&quot;] as attendees, [response in responses WHERE NOT response.initial is null] as dropouts, responses UNWIND([response in attendees | response." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/06/27/neo4j-cypher-separation-of-concerns/" />
 
@@ -35,9 +33,7 @@ One example of this was the query I used to generate the data for the following 
         <title> Neo4j: Cypher - Separation of concerns &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="While preparing my talk on building Neo4j backed applications with Clojure I realised that some of the queries I&#39;d written were incredibly complicated and went against anything I&#39;d learnt about separating different concerns.
-One example of this was the query I used to generate the data for the following page of the meetup application I&#39;ve been working on:
-    Depending on the selected tab you can choose to see the people signed up for the meetup and the date that they signed up or the topics that those people are interested in." />
+        <meta name="description" content="MATCH (event:Event {id: {eventId}})-[:HELD_AT]-&gt;(venue) OPTIONAL MATCH (event)&lt;-[:TO]-(rsvp)&lt;-[:RSVPD]-(person) OPTIONAL MATCH (person)-[:INTERESTED_IN]-&gt;(topic) WHERE ()-[:HAS_TOPIC]-&gt;(topic) WITH event, venue, rsvp, person, COLLECT(topic) as topics ORDER BY rsvp.time OPTIONAL MATCH (rsvp)&lt;-[:NEXT]-(initial) WITH event, venue, COLLECT({rsvp: rsvp, initial: initial, person: person, topics: topics}) AS responses WITH event, venue, [response in responses WHERE response.initial is null AND response.rsvp.response = &quot;yes&quot;] as attendees, [response in responses WHERE NOT response.initial is null] as dropouts, responses UNWIND([response in attendees | response." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,10 +62,8 @@ One example of this was the query I used to generate the data for the following 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-06-27",
-        "description": "While preparing my talk on building Neo4j backed applications with Clojure I realised that some of the queries I'd written were incredibly complicated and went against anything I'd learnt about separating different concerns.
-One example of this was the query I used to generate the data for the following page of the meetup application I've been working on:
-    Depending on the selected tab you can choose to see the people signed up for the meetup and the date that they signed up or the topics that those people are interested in.",
-        "wordCount": 597
+        "description": "MATCH (event:Event {id: {eventId}})-[:HELD_AT]-\x26gt;(venue) OPTIONAL MATCH (event)\x26lt;-[:TO]-(rsvp)\x26lt;-[:RSVPD]-(person) OPTIONAL MATCH (person)-[:INTERESTED_IN]-\x26gt;(topic) WHERE ()-[:HAS_TOPIC]-\x26gt;(topic) WITH event, venue, rsvp, person, COLLECT(topic) as topics ORDER BY rsvp.time OPTIONAL MATCH (rsvp)\x26lt;-[:NEXT]-(initial) WITH event, venue, COLLECT({rsvp: rsvp, initial: initial, person: person, topics: topics}) AS responses WITH event, venue, [response in responses WHERE response.initial is null AND response.rsvp.response = \x26quot;yes\x26quot;] as attendees, [response in responses WHERE NOT response.initial is null] as dropouts, responses UNWIND([response in attendees | response.",
+        "wordCount":  281 
     }
     </script>
     
@@ -178,31 +172,16 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Separation of concerns</h1>
-    <p>While preparing <a href="https://skillsmatter.com/skillscasts/5385-analysing-london-s-nosql-meetups-using-clojure-neocons-luminus">my talk on building Neo4j backed applications with Clojure</a> I realised that some of the queries I'd written were incredibly complicated and went against anything I'd learnt about separating different concerns.</p>
-
-<p>One example of this was the query I used to generate the data for the following page of the meetup application I've been working on:</p>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2014/06/2014-06-27_08-19-34.png" alt="2014 06 27 08 19 34" title="2014-06-27_08-19-34.png" border="0" width="600" height="283" />
-</div>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2014/06/2014-06-27_08-31-13.png" alt="2014 06 27 08 31 13" title="2014-06-27_08-31-13.png" border="0" width="600" height="334" /></div>
-
-<p>Depending on the selected tab you can choose to see the people signed up for the meetup and the date that they signed up or the topics that those people are interested in.</p>
-
-<p>For reference, this is an outline of the schema of the graph behind the application:</p>
-
-<div>
-
-<img src="https://markhneedham.com/blog/
-/uploads/2014/06/2014-06-27_11-51-00.png" alt="2014 06 27 11 51 00" title="2014-06-27_11-51-00.png" border="0" width="600" height="393" /></div>
-
-<p>This was my initial query to get the data:</p>
-
-<pre><code class="language-cypher">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (event:Event {id: {eventId}})-[:HELD_AT]-&gt;(venue)
 OPTIONAL MATCH (event)&lt;-[:TO]-(rsvp)&lt;-[:RSVPD]-(person)
 OPTIONAL MATCH (person)-[:INTERESTED_IN]-&gt;(topic) WHERE ()-[:HAS_TOPIC]-&gt;(topic)
@@ -216,27 +195,18 @@ UNWIND([response in attendees | response.topics]) AS topics
 UNWIND(topics) AS topic
 WITH event, venue, attendees, dropouts, {id: topic.id, name:topic.name, freq:COUNT(*)} AS t
 RETURN event, venue, attendees, dropouts, COLLECT(t) AS topics
-</code></pre>
-
-<p>The first two lines of the query works out which people have RSVP'd to a particular event, the 3rd line captures the topics they're interested in as long as the topic is linked to at least one of the NoSQL London groups.</p>
-
-<p>We then optionally capture their initial RSVP in case they've changed it before doing a bit of data manipulation to group everything together.</p>
-
-<p>If we run a slight variation of that which only shows a few of the topics, attendees and dropouts this is the type of result we get:</p>
-
-<pre><code class="language-bash">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| event.name                               | venue.name      | [a IN attendees[0..5] | a.person.name]                                 | [d in dropouts[0..5] | d.person.name]                              | topics[0..5]                                                                                                                                                                                                                                                    |
+| event.name                               | venue.name      | <span style="color:#f92672">[</span>a IN attendees<span style="color:#f92672">[</span>0..5<span style="color:#f92672">]</span> | a.person.name<span style="color:#f92672">]</span>                                 | <span style="color:#f92672">[</span>d in dropouts<span style="color:#f92672">[</span>0..5<span style="color:#f92672">]</span> | d.person.name<span style="color:#f92672">]</span>                              | topics<span style="color:#f92672">[</span>0..5<span style="color:#f92672">]</span>                                                                                                                                                                                                                                                    |
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| &quot;Building Neo4j backed web applications&quot; | &quot;Skills Matter&quot; | [&quot;Mark Needham&quot;,&quot;Alistair Jones&quot;,&quot;Jim Webber&quot;,&quot;Axel Morgner&quot;,&quot;Ramesh&quot;] | [&quot;Frank Gibson&quot;,&quot;Keith Hinde&quot;,&quot;Richard Mason&quot;,&quot;Ollie Glass&quot;,&quot;Tom&quot;] | [{id -&gt; 10538, name -&gt; &quot;Business Intelligence&quot;, freq -&gt; 3},{id -&gt; 61680, name -&gt; &quot;HBase&quot;, freq -&gt; 3},{id -&gt; 61679, name -&gt; &quot;Hive&quot;, freq -&gt; 2},{id -&gt; 193021, name -&gt; &quot;Graph Databases&quot;, freq -&gt; 12},{id -&gt; 85951, name -&gt; &quot;JavaScript Frameworks&quot;, freq -&gt; 10}] |
+| <span style="color:#e6db74">&#34;Building Neo4j backed web applications&#34;</span> | <span style="color:#e6db74">&#34;Skills Matter&#34;</span> | <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;Mark Needham&#34;</span>,<span style="color:#e6db74">&#34;Alistair Jones&#34;</span>,<span style="color:#e6db74">&#34;Jim Webber&#34;</span>,<span style="color:#e6db74">&#34;Axel Morgner&#34;</span>,<span style="color:#e6db74">&#34;Ramesh&#34;</span><span style="color:#f92672">]</span> | <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;Frank Gibson&#34;</span>,<span style="color:#e6db74">&#34;Keith Hinde&#34;</span>,<span style="color:#e6db74">&#34;Richard Mason&#34;</span>,<span style="color:#e6db74">&#34;Ollie Glass&#34;</span>,<span style="color:#e6db74">&#34;Tom&#34;</span><span style="color:#f92672">]</span> | <span style="color:#f92672">[{</span>id -&gt; 10538, name -&gt; <span style="color:#e6db74">&#34;Business Intelligence&#34;</span>, freq -&gt; 3<span style="color:#f92672">}</span>,<span style="color:#f92672">{</span>id -&gt; 61680, name -&gt; <span style="color:#e6db74">&#34;HBase&#34;</span>, freq -&gt; 3<span style="color:#f92672">}</span>,<span style="color:#f92672">{</span>id -&gt; 61679, name -&gt; <span style="color:#e6db74">&#34;Hive&#34;</span>, freq -&gt; 2<span style="color:#f92672">}</span>,<span style="color:#f92672">{</span>id -&gt; 193021, name -&gt; <span style="color:#e6db74">&#34;Graph Databases&#34;</span>, freq -&gt; 12<span style="color:#f92672">}</span>,<span style="color:#f92672">{</span>id -&gt; 85951, name -&gt; <span style="color:#e6db74">&#34;JavaScript Frameworks&#34;</span>, freq -&gt; 10<span style="color:#f92672">}]</span> |
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-</code></pre>
-
-<p>The problem is we've mixed together two different concerns - the <strong>attendees</strong> to a meetup and the <strong>topics</strong> they're interested in - which made the query quite hard to understand when I came back to it a couple of months later.</p>
-
-<p>Instead what we can do is split the query in two and make two different calls to the server. We then end up with the following:</p>
-
-<pre><code class="language-cypher">
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 // Get the event + attendees + dropouts
 MATCH (event:Event {id: {eventId}})-[:HELD_AT]-&gt;(venue)
 OPTIONAL MATCH (event)&lt;-[:TO]-(rsvp)&lt;-[:RSVPD]-(person)
@@ -248,17 +218,13 @@ WITH event, venue,
                            AND response.rsvp.response = &quot;yes&quot;] as attendees,
     [response in responses WHERE NOT response.initial is null] as dropouts
 RETURN event, venue, attendees, dropouts
-</code></pre>
-
-<pre><code class="language-cypher">
+</code></pre><pre><code class="language-cypher" data-lang="cypher">
 // Get the topics the attendees are interested in
 MATCH (event:Event {id: {eventId}})
 MATCH (event)&lt;-[:TO]-(rsvp {response: &quot;yes&quot;})&lt;-[:RSVPD]-(person)-[:INTERESTED_IN]-&gt;(topic)
 WHERE ()-[:HAS_TOPIC]-&gt;(topic)
 RETURN topic.id AS id, topic.name AS name, COUNT(*) AS freq
-</code></pre>
-
-<p>The first query is still a bit complex but that's because there's a bit of tricky logic to distinguish people who signed up and dropped out. However, the second query is now quite easy to read and expresses it's intent very clearly.</p>
+</code></pre><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -293,7 +259,7 @@ RETURN topic.id AS id, topic.name AS name, COUNT(*) AS freq
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/06/27/neo4j-cypher-separation-of-concerns/&amp;title=Neo4j%3a%20Cypher%20-%20Separation%20of%20concerns&amp;summary=While%20preparing%20my%20talk%20on%20building%20Neo4j%20backed%20applications%20with%20Clojure%20I%20realised%20that%20some%20of%20the%20queries%20I%27d%20written%20were%20incredibly%20complicated%20and%20went%20against%20anything%20I%27d%20learnt%20about%20separating%20different%20concerns.%0aOne%20example%20of%20this%20was%20the%20query%20I%20used%20to%20generate%20the%20data%20for%20the%20following%20page%20of%20the%20meetup%20application%20I%27ve%20been%20working%20on%3a%0a%20%20%20%20Depending%20on%20the%20selected%20tab%20you%20can%20choose%20to%20see%20the%20people%20signed%20up%20for%20the%20meetup%20and%20the%20date%20that%20they%20signed%20up%20or%20the%20topics%20that%20those%20people%20are%20interested%20in...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/06/27/neo4j-cypher-separation-of-concerns/&amp;title=Neo4j%3a%20Cypher%20-%20Separation%20of%20concerns&amp;summary=MATCH%20%28event%3aEvent%20%7bid%3a%20%7beventId%7d%7d%29-%5b%3aHELD_AT%5d-%26gt%3b%28venue%29%20OPTIONAL%20MATCH%20%28event%29%26lt%3b-%5b%3aTO%5d-%28rsvp%29%26lt%3b-%5b%3aRSVPD%5d-%28person%29%20OPTIONAL%20MATCH%20%28person%29-%5b%3aINTERESTED_IN%5d-%26gt%3b%28topic%29%20WHERE%20%28%29-%5b%3aHAS_TOPIC%5d-%26gt%3b%28topic%29%20WITH%20event%2c%20venue%2c%20rsvp%2c%20person%2c%20COLLECT%28topic%29%20as%20topics%20ORDER%20BY%20rsvp.time%20OPTIONAL%20MATCH%20%28rsvp%29%26lt%3b-%5b%3aNEXT%5d-%28initial%29%20WITH%20event%2c%20venue%2c%20COLLECT%28%7brsvp%3a%20rsvp%2c%20initial%3a%20initial%2c%20person%3a%20person%2c%20topics%3a%20topics%7d%29%20AS%20responses%20WITH%20event%2c%20venue%2c%20%5bresponse%20in%20responses%20WHERE%20response.initial%20is%20null%20AND%20response.rsvp.response%20%3d%20%26quot%3byes%26quot%3b%5d%20as%20attendees%2c%20%5bresponse%20in%20responses%20WHERE%20NOT%20response.initial%20is%20null%5d%20as%20dropouts%2c%20responses%20UNWIND%28%5bresponse%20in%20attendees%20%7c%20response...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

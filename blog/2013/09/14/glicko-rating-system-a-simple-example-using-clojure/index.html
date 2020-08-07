@@ -23,8 +23,11 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Glicko Rating System: A simple example using Clojure" />
         
-          <meta name="twitter:description" content="A couple of weeks ago I wrote about the Elo Rating system and when reading more about it I learnt that one of its weaknesses is that it doesn&#39;t take into account the reliability of a players&#39; rating.
-For example, a player may not have played for a long time. When they next play a match we shouldn&#39;t assume that the accuracy of that rating is the same as for another player with the same rating but who plays regularly." />
+          <meta name="twitter:description" content="If one player&rsquo;s rating increases by x, the opponent&rsquo;s rating does not usually decrease by x as in the Elo system.
+In fact, in the Glicko system, the amount by which the opponent&rsquo;s rating decreases is governed by both players&rsquo; RD&rsquo;s.
+where:
+where:
+(ns ranking-algorithms.glicko (:require [clojure.math.numeric-tower :as math])) (def q (/ (java.lang.Math/log 10) 400)) (defn g [rd] (/ 1 (java.lang.Math/sqrt (&#43; 1 (/ (* 3 (math/expt q 2) (math/expt rd 2)) (math/expt ( ." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/09/14/glicko-rating-system-a-simple-example-using-clojure/" />
 
@@ -35,8 +38,11 @@ For example, a player may not have played for a long time. When they next play a
         <title> Glicko Rating System: A simple example using Clojure &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="A couple of weeks ago I wrote about the Elo Rating system and when reading more about it I learnt that one of its weaknesses is that it doesn&#39;t take into account the reliability of a players&#39; rating.
-For example, a player may not have played for a long time. When they next play a match we shouldn&#39;t assume that the accuracy of that rating is the same as for another player with the same rating but who plays regularly." />
+        <meta name="description" content="If one player&rsquo;s rating increases by x, the opponent&rsquo;s rating does not usually decrease by x as in the Elo system.
+In fact, in the Glicko system, the amount by which the opponent&rsquo;s rating decreases is governed by both players&rsquo; RD&rsquo;s.
+where:
+where:
+(ns ranking-algorithms.glicko (:require [clojure.math.numeric-tower :as math])) (def q (/ (java.lang.Math/log 10) 400)) (defn g [rd] (/ 1 (java.lang.Math/sqrt (&#43; 1 (/ (* 3 (math/expt q 2) (math/expt rd 2)) (math/expt ( ." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,9 +71,8 @@ For example, a player may not have played for a long time. When they next play a
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-09-14",
-        "description": "A couple of weeks ago I wrote about the Elo Rating system and when reading more about it I learnt that one of its weaknesses is that it doesn't take into account the reliability of a players' rating.
-For example, a player may not have played for a long time. When they next play a match we shouldn't assume that the accuracy of that rating is the same as for another player with the same rating but who plays regularly.",
-        "wordCount": 1062
+        "description": "If one player\x26rsquo;s rating increases by x, the opponent\x26rsquo;s rating does not usually decrease by x as in the Elo system.\nIn fact, in the Glicko system, the amount by which the opponent\x26rsquo;s rating decreases is governed by both players\x26rsquo; RD\x26rsquo;s.\nwhere:\nwhere:\n(ns ranking-algorithms.glicko (:require [clojure.math.numeric-tower :as math])) (def q (\/ (java.lang.Math\/log 10) 400)) (defn g [rd] (\/ 1 (java.lang.Math\/sqrt (\x2b 1 (\/ (* 3 (math\/expt q 2) (math\/expt rd 2)) (math\/expt ( .",
+        "wordCount":  340 
     }
     </script>
     
@@ -178,207 +183,127 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Glicko Rating System: A simple example using Clojure</h1>
-    <p>A couple of weeks ago I wrote about the <a href="http://www.markhneedham.com/blog/2013/08/31/elo-rating-system-ranking-champions-league-teams-using-clojure/">Elo Rating system</a> and when reading more about it I learnt that one of its weaknesses is that it doesn't take into account the reliability of a players' rating.</p>
-
-<p>For example, a player may not have played for a long time. When they next play a match we shouldn't assume that the accuracy of that rating is the same as for another player with the same rating but who plays regularly.</p>
-
-<p>Mark Glickman wrote the <a href="http://www.glicko.net/glicko/glicko.pdf">Glicko Rating System</a> to take the uncertainty into account by introducing a 'ratings deviation' (RD). A low RD indicates that a player competes frequently and a higher RD indicates that they don't.</p>
-
-<p>One other difference between Glicko and Elo is the following:</p>
-
-<blockquote>
-It is interesting to note that, in the Glicko system, rating changes are not balanced as they usually are in the Elo system. 
-
-If one player's rating increases by x, the opponent's rating does not usually decrease by x as in the Elo system. 
-
-In fact, in the Glicko system, the amount by which the opponent's rating decreases is governed by both players' RD's.
-</blockquote>
-
-<p>The RD value effectively tells us the range in which the player's actual rating probably exists. i.e. a 95% confidence interval.</p>
-
-<p>e.g. if a player has a rating of 1850 and a RD of 50 then the interval is 1750 - 1950 or <cite>(Rating - 2*RD)</cite> - <cite>(Rating + 2*RD)</cite></p>
- 
-
-<p>The algorithm has 2 steps:</p>
-
-<ol>
-<li>Determine a rating and RD for each player at the onset of the rating period. If the player is unrated use a value of 1500 and RD of 350. If they do have a rating we'll calculate the new RD from the old RD using this formula:
-
-<div align="center">
-<img src="https://markhneedham.com/blog/
-/uploads/2013/09/glicko-rd.jpg" alt="Glicko rd" title="glicko-rd.jpg" border="0" width="213" height="45" />
-</div>
-
-where:
-
-<ul>
-<li>t is the number of rating periods since last competition (e.g., if the player
-competed in the most recent rating period, t = 1) </li>
-<li>c is a constant that governs the increase in uncertainty over time.</li>
-</ul>
-
-</li>
-<li>Update each players rating and RD separately using the following formula:
-
-<div align="center">
-<img src="https://markhneedham.com/blog/
-/uploads/2013/09/glicko.jpg" alt="Glicko" title="glicko.jpg" border="0" width="561" height="326" />
-</div>
-
-where:
-
-<ul>
-<li>r is the player's pre-period rating</li>
-<li>RD is the player's pre-period ratings deviation</li>
-<li>r<sub>1</sub>, r<sub>2</sub>,...,r<sub>m</sub> are the pre-period ratings of their opponents</li>
-<li>RD<sub>1</sub>, RD<sub>2</sub>,...,RD<sub>m</sub> are the pre-period ratings deviations of their opponents</li>
-<li>s<sub>1</sub>, s<sub>2</sub>,...,2<sub>m</sub> are the scores against the opponents. 1 is a win, 1/2 is a draw, 0 is a defeat.</li>
-<li>r' is the player's post-period rating</li>
-<li>RD' is the player's post-period ratings deviation</li>
-</ul>
-</li>
-</ol>
-
-<p>The <a href="http://www.glicko.net/glicko/glicko.pdf">paper</a> provides an example to follow and includes the intermediate workings which made it easier to build the algorithm one function at a time.</p>
-
-<p>The <cite>q</cite> function was the simplest to implement so I created that and the <cite>g</cite> function at the same time:</p>
-
-<pre><code class="language-lisp">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>If one player&rsquo;s rating increases by x, the opponent&rsquo;s rating does not usually decrease by x as in the Elo system.</p>
+<p>In fact, in the Glicko system, the amount by which the opponent&rsquo;s rating decreases is governed by both players&rsquo; RD&rsquo;s.</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>where:</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>where:</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (ns ranking-algorithms.glicko
-  (:require [clojure.math.numeric-tower :as math]))
+  (<span style="color:#e6db74">:require</span> [clojure.math.numeric-tower <span style="color:#e6db74">:as</span> math]))
 
 (def q
-  (/ (java.lang.Math/log 10) 400))
+  (<span style="color:#a6e22e">/</span> (java.lang.Math/log <span style="color:#ae81ff">10</span>) <span style="color:#ae81ff">400</span>))
 
 (defn g [rd]
-  (/ 1
-     (java.lang.Math/sqrt (+ 1
-                             (/ (* 3 (math/expt q 2) (math/expt rd 2))
-                                (math/expt ( . Math PI) 2))))))
-</code></pre>
-
-<p>We can use the following table to check we get the right results when we call it.:</p>
-
-<div align="center">
-
-<img src="https://markhneedham.com/blog/
-/uploads/2013/09/glicko-table.jpg" alt="Glicko table" title="glicko-table.jpg" border="0" width="419" height="103" /></div>
-
-<pre><code class="language-lisp">
-&gt; (g 30)
-0.9954980060779481
-&gt; (g 100)
-0.953148974234587
-&gt; (g 300)
-0.7242354637384434
-</code></pre>
-
-<p>The next easiest function to write was the <cite>E</cite> function:</p>
-
-<pre><code class="language-lisp">
+  (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1</span>
+     (java.lang.Math/sqrt (<span style="color:#a6e22e">+</span> <span style="color:#ae81ff">1</span>
+                             (<span style="color:#a6e22e">/</span> (<span style="color:#a6e22e">*</span> <span style="color:#ae81ff">3</span> (math/expt q <span style="color:#ae81ff">2</span>) (math/expt rd <span style="color:#ae81ff">2</span>))
+                                (math/expt ( <span style="color:#f92672">.</span> Math PI) <span style="color:#ae81ff">2</span>))))))
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (g <span style="color:#ae81ff">30</span>)
+<span style="color:#ae81ff">0.9954980060779481</span>
+<span style="color:#a6e22e">&gt;</span> (g <span style="color:#ae81ff">100</span>)
+<span style="color:#ae81ff">0.953148974234587</span>
+<span style="color:#a6e22e">&gt;</span> (g <span style="color:#ae81ff">300</span>)
+<span style="color:#ae81ff">0.7242354637384434</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defn e [rating opponent-rating opponent-rd]
-  (/ 1
-     (+ 1
-        (math/expt 10 (/ (* (- (g opponent-rd))
-                            (- rating opponent-rating))
-                         400)))))
-</code></pre>
-
-<p>And if we test that assuming that we have a rating of 1500 with a RD of 200:</p>
-
-<pre><code class="language-lisp">
-&gt; (e 1500 1400 30)
-0.639467736007921
-&gt; (e 1500 1550 100)
-0.43184235355955686
-&gt; (e 1500 1700 300)
-0.30284072524764
-</code></pre>
-
-<p>Finally we need to write the <cite>d<sup>2</sup></cite> supporting function:</p>
-
-<pre><code class="language-lisp">
+  (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1</span>
+     (<span style="color:#a6e22e">+</span> <span style="color:#ae81ff">1</span>
+        (math/expt <span style="color:#ae81ff">10</span> (<span style="color:#a6e22e">/</span> (<span style="color:#a6e22e">*</span> (<span style="color:#a6e22e">-</span> (g opponent-rd))
+                            (<span style="color:#a6e22e">-</span> rating opponent-rating))
+                         <span style="color:#ae81ff">400</span>)))))
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (e <span style="color:#ae81ff">1500</span> <span style="color:#ae81ff">1400</span> <span style="color:#ae81ff">30</span>)
+<span style="color:#ae81ff">0.639467736007921</span>
+<span style="color:#a6e22e">&gt;</span> (e <span style="color:#ae81ff">1500</span> <span style="color:#ae81ff">1550</span> <span style="color:#ae81ff">100</span>)
+<span style="color:#ae81ff">0.43184235355955686</span>
+<span style="color:#a6e22e">&gt;</span> (e <span style="color:#ae81ff">1500</span> <span style="color:#ae81ff">1700</span> <span style="color:#ae81ff">300</span>)
+<span style="color:#ae81ff">0.30284072524764</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defn d2 [opponents]
-  (/ 1  (* (math/expt q 2)
-           (reduce process-opponent 0 opponents))))
+  (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1</span>  (<span style="color:#a6e22e">*</span> (math/expt q <span style="color:#ae81ff">2</span>)
+           (<span style="color:#a6e22e">reduce</span> process-opponent <span style="color:#ae81ff">0</span> opponents))))
 
 (defn process-opponent [total opponent]
-  (let [{:keys [g e]} opponent]
-    (+ total (* (math/expt g 2) e (- 1 e)))))
-</code></pre>
-
-<p>In this function we need to sum a combination of the <cite>g</cite> and <cite>e</cite> values we calculated earlier for each opponent so we can use a reduce over a collection of those values for each opponent to do that:</p>
-
-<pre><code class="language-lisp">
-&gt; (d2 [{:g (g 30) :e (e 1500 1400 30)} 
-       {:g (g 100) :e (e 1500 1550 100)} 
-       {:g (g 300) :e (e 1500 1700 300)}])
-53685.74290197874
-</code></pre>
-
-<p>I get a slightly different value for this function which I think is because I didn't round the intermediate values to 2 decimal places as the example does.</p>
-
-<p>Now we can introduce the <cite>r'</cite> function which returns our ranking after taking the matches against these opponents into account:</p>
-
-<pre><code class="language-lisp">
+  (<span style="color:#66d9ef">let</span> [{:keys [g e]} opponent]
+    (<span style="color:#a6e22e">+</span> total (<span style="color:#a6e22e">*</span> (math/expt g <span style="color:#ae81ff">2</span>) e (<span style="color:#a6e22e">-</span> <span style="color:#ae81ff">1</span> e)))))
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (d2 [{:g (g <span style="color:#ae81ff">30</span>) <span style="color:#e6db74">:e</span> (e <span style="color:#ae81ff">1500</span> <span style="color:#ae81ff">1400</span> <span style="color:#ae81ff">30</span>)} 
+       {:g (g <span style="color:#ae81ff">100</span>) <span style="color:#e6db74">:e</span> (e <span style="color:#ae81ff">1500</span> <span style="color:#ae81ff">1550</span> <span style="color:#ae81ff">100</span>)} 
+       {:g (g <span style="color:#ae81ff">300</span>) <span style="color:#e6db74">:e</span> (e <span style="color:#ae81ff">1500</span> <span style="color:#ae81ff">1700</span> <span style="color:#ae81ff">300</span>)}])
+<span style="color:#ae81ff">53685.74290197874</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defn update-ranking [ranking-delta opponent]
-  (let [{:keys [ranking opponent-ranking opponent-ranking-rd score]} opponent]
-    (+ ranking-delta
-       (* (g opponent-ranking-rd)
-          (- score (e ranking opponent-ranking opponent-ranking-rd))))))
+  (<span style="color:#66d9ef">let</span> [{:keys [ranking opponent-ranking opponent-ranking-rd score]} opponent]
+    (<span style="color:#a6e22e">+</span> ranking-delta
+       (<span style="color:#a6e22e">*</span> (g opponent-ranking-rd)
+          (<span style="color:#a6e22e">-</span> score (e ranking opponent-ranking opponent-ranking-rd))))))
 
 (defn g-and-e
-  [ranking {o-rd :opponent-ranking-rd o-ranking :opponent-ranking}]
-  {:g (g o-rd) :e (e ranking o-ranking o-rd)})
+  [ranking {o-rd <span style="color:#e6db74">:opponent-ranking-rd</span> o-ranking <span style="color:#e6db74">:opponent-ranking}]</span>
+  {:g (g o-rd) <span style="color:#e6db74">:e</span> (e ranking o-ranking o-rd)})
 
 (defn ranking-after-round
-  [{ ranking :ranking rd :ranking-rd opponents :opponents}]  
-  (+ ranking
-     (* (/ q
-           (+ (/ 1 (math/expt rd 2))
-              (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))
-        (reduce update-ranking 0 (map #(assoc-in % [:ranking] ranking) opponents)))))
-</code></pre>
-
-<p>One thing I wasn't sure about here was the use of <cite>partial</cite> which is a bit of a Haskell idiom. I'm not sure what the favoured approach is in Clojure land yet.</p>
-
-<p>If we execute that function we get the expected result:</p>
-
-<pre><code class="language-lisp">
-&gt; (ranking-after-round { :ranking 1500 
-                         :ranking-rd 200 
-                         :opponents[{:opponent-ranking 1400 :opponent-ranking-rd 30 :score 1} 
-                                    {:opponent-ranking 1550 :opponent-ranking-rd 100 :score 0} 
-                                    {:opponent-ranking 1700 :opponent-ranking-rd 300 :score 0}]})
-1464.1064627569112
-</code></pre>
-
-<p>The only function missing now is <cite>RD'</cite> which returns our RD after taking these matches into account:</p>
-
-<pre><code class="language-lisp">
+  [{ ranking <span style="color:#e6db74">:ranking</span> rd <span style="color:#e6db74">:ranking-rd</span> opponents <span style="color:#e6db74">:opponents}]</span>  
+  (<span style="color:#a6e22e">+</span> ranking
+     (<span style="color:#a6e22e">*</span> (<span style="color:#a6e22e">/</span> q
+           (<span style="color:#a6e22e">+</span> (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1</span> (math/expt rd <span style="color:#ae81ff">2</span>))
+              (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1</span> (d2 (<span style="color:#a6e22e">map</span> (partial g-and-e ranking) opponents)))))
+        (<span style="color:#a6e22e">reduce</span> update-ranking <span style="color:#ae81ff">0</span> (<span style="color:#a6e22e">map</span> <span style="color:#f92672">#(</span>assoc-in % [:ranking] ranking) opponents)))))
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (ranking-after-round { <span style="color:#e6db74">:ranking</span> <span style="color:#ae81ff">1500</span> 
+                         <span style="color:#e6db74">:ranking-rd</span> <span style="color:#ae81ff">200</span> 
+                         <span style="color:#e6db74">:opponents[{:opponent-ranking</span> <span style="color:#ae81ff">1400</span> <span style="color:#e6db74">:opponent-ranking-rd</span> <span style="color:#ae81ff">30</span> <span style="color:#e6db74">:score</span> 1} 
+                                    {:opponent-ranking <span style="color:#ae81ff">1550</span> <span style="color:#e6db74">:opponent-ranking-rd</span> <span style="color:#ae81ff">100</span> <span style="color:#e6db74">:score</span> 0} 
+                                    {:opponent-ranking <span style="color:#ae81ff">1700</span> <span style="color:#e6db74">:opponent-ranking-rd</span> <span style="color:#ae81ff">300</span> <span style="color:#e6db74">:score</span> 0}]})
+<span style="color:#ae81ff">1464.1064627569112</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defn rd-after-round
-  [{ ranking :ranking rd :ranking-rd opponents :opponents}]
-  (java.lang.Math/sqrt (/ 1 (+ (/ 1 (math/expt rd 2)
+  [{ ranking <span style="color:#e6db74">:ranking</span> rd <span style="color:#e6db74">:ranking-rd</span> opponents <span style="color:#e6db74">:opponents}]</span>
+  (java.lang.Math/sqrt (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1</span> (<span style="color:#a6e22e">+</span> (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1</span> (math/expt rd <span style="color:#ae81ff">2</span>)
                                   )
-                               (/ 1 (d2 (map (partial g-and-e ranking) opponents)))))))
-</code></pre>
-
-<p>If we execute that function we get the expected result and we're done!</p>
-
-<pre><code class="language-lisp">
-&gt; (rd-after-round { :ranking 1500 
-                    :ranking-rd 200 
-                    :opponents[{:opponent-ranking 1400 :opponent-ranking-rd 30 :score 1} 
-                               {:opponent-ranking 1550 :opponent-ranking-rd 100 :score 0} 
-                               {:opponent-ranking 1700 :opponent-ranking-rd 300 :score 0}]})
-151.39890244796933
-</code></pre>
-
-<p>The next step is to run this algorithm against the football data and see if its results differ to the ones I got with the Elo algorithm.</p>
-
-<p>I'm still not quite sure what I should set the rating period to. My initial thinking was that the rating period could be a season but that would mean that a team's rating only really makes sense after a few seasons of matches.</p>
-
-<p>The <a href="https://github.com/mneedham/ranking-algorithms/blob/master/src/ranking_algorithms/glicko.clj">code is on github </a>if you want to play with it and if you have any suggestions on how to make the code more idiomatic I'd love to hear them.</p>
+                               (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1</span> (d2 (<span style="color:#a6e22e">map</span> (partial g-and-e ranking) opponents)))))))
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (rd-after-round { <span style="color:#e6db74">:ranking</span> <span style="color:#ae81ff">1500</span> 
+                    <span style="color:#e6db74">:ranking-rd</span> <span style="color:#ae81ff">200</span> 
+                    <span style="color:#e6db74">:opponents[{:opponent-ranking</span> <span style="color:#ae81ff">1400</span> <span style="color:#e6db74">:opponent-ranking-rd</span> <span style="color:#ae81ff">30</span> <span style="color:#e6db74">:score</span> 1} 
+                               {:opponent-ranking <span style="color:#ae81ff">1550</span> <span style="color:#e6db74">:opponent-ranking-rd</span> <span style="color:#ae81ff">100</span> <span style="color:#e6db74">:score</span> 0} 
+                               {:opponent-ranking <span style="color:#ae81ff">1700</span> <span style="color:#e6db74">:opponent-ranking-rd</span> <span style="color:#ae81ff">300</span> <span style="color:#e6db74">:score</span> 0}]})
+<span style="color:#ae81ff">151.39890244796933</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -413,7 +338,7 @@ where:
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/09/14/glicko-rating-system-a-simple-example-using-clojure/&amp;title=Glicko%20Rating%20System%3a%20A%20simple%20example%20using%20Clojure&amp;summary=A%20couple%20of%20weeks%20ago%20I%20wrote%20about%20the%20Elo%20Rating%20system%20and%20when%20reading%20more%20about%20it%20I%20learnt%20that%20one%20of%20its%20weaknesses%20is%20that%20it%20doesn%27t%20take%20into%20account%20the%20reliability%20of%20a%20players%27%20rating.%0aFor%20example%2c%20a%20player%20may%20not%20have%20played%20for%20a%20long%20time.%20When%20they%20next%20play%20a%20match%20we%20shouldn%27t%20assume%20that%20the%20accuracy%20of%20that%20rating%20is%20the%20same%20as%20for%20another%20player%20with%20the%20same%20rating%20but%20who%20plays%20regularly...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/09/14/glicko-rating-system-a-simple-example-using-clojure/&amp;title=Glicko%20Rating%20System%3a%20A%20simple%20example%20using%20Clojure&amp;summary=If%20one%20player%26rsquo%3bs%20rating%20increases%20by%20x%2c%20the%20opponent%26rsquo%3bs%20rating%20does%20not%20usually%20decrease%20by%20x%20as%20in%20the%20Elo%20system.%0aIn%20fact%2c%20in%20the%20Glicko%20system%2c%20the%20amount%20by%20which%20the%20opponent%26rsquo%3bs%20rating%20decreases%20is%20governed%20by%20both%20players%26rsquo%3b%20RD%26rsquo%3bs.%0awhere%3a%0awhere%3a%0a%28ns%20ranking-algorithms.glicko%20%28%3arequire%20%5bclojure.math.numeric-tower%20%3aas%20math%5d%29%29%20%28def%20q%20%28%2f%20%28java.lang.Math%2flog%2010%29%20400%29%29%20%28defn%20g%20%5brd%5d%20%28%2f%201%20%28java.lang.Math%2fsqrt%20%28%2b%201%20%28%2f%20%28%2a%203%20%28math%2fexpt%20q%202%29%20%28math%2fexpt%20rd%202%29%29%20%28math%2fexpt%20%28%20...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

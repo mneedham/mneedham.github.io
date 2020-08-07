@@ -64,9 +64,8 @@ It&rsquo;s important to ensure that our unit tests are actually testing somethin
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-09-21",
-        "description": "During J.B. Rainsberger&rsquo;s presentation at Agile 2009 titled &lsquo;Integration tests are a scam&rsquo; he suggests that having lots of integrationt tests covering our code can give us a false sense of confidence that we are testing our code and I think the same can happen with unit tests as well if we&rsquo;re not careful how we write them.
-It&rsquo;s important to ensure that our unit tests are actually testing something useful otherwise the cost of writing and maintaining them will outweigh the benefits that we derive from doing so.",
-        "wordCount": 771
+        "description": "During J.B. Rainsberger\x26rsquo;s presentation at Agile 2009 titled \x26lsquo;Integration tests are a scam\x26rsquo; he suggests that having lots of integrationt tests covering our code can give us a false sense of confidence that we are testing our code and I think the same can happen with unit tests as well if we\x26rsquo;re not careful how we write them.\nIt\x26rsquo;s important to ensure that our unit tests are actually testing something useful otherwise the cost of writing and maintaining them will outweigh the benefits that we derive from doing so.",
+        "wordCount":  624 
     }
     </script>
     
@@ -175,104 +174,74 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">TDD: Tests that give us a false confidence of coverage</h1>
-    <p>During J.B. Rainsberger&rsquo;s presentation at Agile 2009 titled &lsquo;<a href="http://www.infoq.com/presentations/integration-tests-scam">Integration tests are a scam</a>&rsquo; he suggests that having lots of integrationt tests covering our code can give us a false sense of confidence that we are testing our code and I think the same can happen with unit tests as well if we&rsquo;re not careful how we write them.</p>
-
+    <p>During J.B. Rainsberger&rsquo;s presentation at Agile 2009 titled &lsquo;<!-- raw HTML omitted -->Integration tests are a scam<!-- raw HTML omitted -->&rsquo; he suggests that having lots of integrationt tests covering our code can give us a false sense of confidence that we are testing our code and I think the same can happen with unit tests as well if we&rsquo;re not careful how we write them.</p>
 <p>It&rsquo;s important to ensure that our unit tests are actually testing something useful otherwise the cost of writing and maintaining them will outweigh the benefits that we derive from doing so.</p>
-
 <p>I&rsquo;ve come across two type of test recently which don&rsquo;t test an awful lot but can lead us to thinking our code is well covered at the unit level if we just glance at the test names and don&rsquo;t take the time to examine exactly what&rsquo;s going on which is what seems to happen a lot of the time.</p>
-
-<p><h3>Only testing for &lsquo;IsNotNull&rsquo;</h3>
-I think testing that a value we want to do some assertions against isn&rsquo;t null is a great start since it can help us avoid null reference exceptions in our tests but it&rsquo;s only the first assertion that we want to make, not the only one!</p>
-
+<!-- raw HTML omitted -->
 <p>The name of these tests is nearly always misleading and it often seems like these tests are a work in progress but one which never gets finished.</p>
-
 <p>The following is not unusual:</p>
-
-<pre><code class="language-csharp">
-[Test]
-public void ShouldPopulateParentModelOnAction()
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">[Test]</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldPopulateParentModelOnAction()
 {
-	var someController = new SomeController(...);
+	<span style="color:#66d9ef">var</span> someController = <span style="color:#66d9ef">new</span> SomeController(...);
 
-	// There'd probably be more casting to actually retrieve the actual model 
-	// but we'll ignore that for the sake of this example
-	var parentModel = someController.SomeAction();
+	<span style="color:#75715e">// There&#39;d probably be more casting to actually retrieve the actual model 
+</span><span style="color:#75715e"></span>	<span style="color:#75715e">// but we&#39;ll ignore that for the sake of this example
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> parentModel = someController.SomeAction();
 
 	Assert.IsNotNull(parentModel);
 }
-</code></pre>
-
-<p>The problem I have with this type of test is that the name suggests we have completely tested that the controller action is correctly populating the model but in reality all we&rsquo;re testing is that we got a model and not that its contents are accurate.</p>
-
+</code></pre></div><p>The problem I have with this type of test is that the name suggests we have completely tested that the controller action is correctly populating the model but in reality all we&rsquo;re testing is that we got a model and not that its contents are accurate.</p>
 <p>It&rsquo;s surprisingly easy when skimming through tests to not even notice that this is the case.</p>
-
 <p>The danger we&rsquo;re toying with by doing this is that others might assume that this area of the code is tested and subsequently do refactorings around this code assuming that the tests are providing a safety net when in actual fact they aren&rsquo;t.</p>
-
 <p>Certainly sometimes &lsquo;IsNotNull&rsquo; is all we care about and in those cases it&rsquo;s fine just to test for that but I think that most of the time it&rsquo;s just a lazy way out of properly testing a piece of code.</p>
-
-<p><h3>Testing expectations on stubs</h3>
-I&rsquo;m not sure if this is just a Rhino Mocks problem but I&rsquo;ve come across quite a few tests recently which make expectations on stubs and then sometimes verify those expectations.</p>
-
+<!-- raw HTML omitted -->
 <p>Most of the time the creation of the stubbed dependency is hidden away in a setup method so the tests wouldn&rsquo;t be quite as clear cut as this but this is what&rsquo;s happening:</p>
-
-<pre><code class="language-csharp">
-[Test]
-public void ShouldRetrieveSomeValuesFromTheRepository()
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">[Test]</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldRetrieveSomeValuesFromTheRepository()
 {
-	var theRepository = MockRepository.GenerateStub&lt;ITheRepository&gt;();
-	theRepository.Expect(r =&gt; r.SomeMethod()).Return(&quot;someValue&quot;);
+	<span style="color:#66d9ef">var</span> theRepository = MockRepository.GenerateStub&lt;ITheRepository&gt;();
+	theRepository.Expect(r =&gt; r.SomeMethod()).Return(<span style="color:#e6db74">&#34;someValue&#34;</span>);
 	
-	var systemUnderTest = new SystemUnderTest(theRepository);
+	<span style="color:#66d9ef">var</span> systemUnderTest = <span style="color:#66d9ef">new</span> SystemUnderTest(theRepository);
 
 	systemUnderTest.DoSomething();
 }
-</code></pre>
-
-<p>or</p>
-
-<pre><code class="language-csharp">
-[Test]
-public void ShouldRetrieveSomeValuesFromTheRepository()
+</code></pre></div><p>or</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">[Test]</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldRetrieveSomeValuesFromTheRepository()
 {
-	var theRepository = MockRepository.GenerateStub&lt;ITheRepository&gt;();
-	theRepository.Expect(r =&gt; r.SomeMethod()).Return(&quot;someValue&quot;);
+	<span style="color:#66d9ef">var</span> theRepository = MockRepository.GenerateStub&lt;ITheRepository&gt;();
+	theRepository.Expect(r =&gt; r.SomeMethod()).Return(<span style="color:#e6db74">&#34;someValue&#34;</span>);
 	
-	var systemUnderTest = new SystemUnderTest(theRepository);
+	<span style="color:#66d9ef">var</span> systemUnderTest = <span style="color:#66d9ef">new</span> SystemUnderTest(theRepository);
 
 	systemUnderTest.DoSomething();
 
 	theRepository.VerifyAllExpectations();
 }
-</code></pre>
-
-<p>The problem with both of these tests is that they aren&rsquo;t doing anything useful for us.</p>
-
-<p>From <a href="http://www.markhneedham.com/blog/2009/07/28/reading-code-rhino-mocks/">my understanding of the Rhino Mocks code</a> what we are effectively doing is creating a stub on &lsquo;theRepository&rsquo; which will return a value of &lsquo;someValue&rsquo; the first time that &lsquo;SomeMethod&rsquo; is called on it. The &lsquo;VerifyAllExpectations just falls through and does nothing because we&rsquo;ve created a stub and not a mock.</p>
-
+</code></pre></div><p>The problem with both of these tests is that they aren&rsquo;t doing anything useful for us.</p>
+<p>From <!-- raw HTML omitted -->my understanding of the Rhino Mocks code<!-- raw HTML omitted --> what we are effectively doing is creating a stub on &lsquo;theRepository&rsquo; which will return a value of &lsquo;someValue&rsquo; the first time that &lsquo;SomeMethod&rsquo; is called on it. The &lsquo;VerifyAllExpectations just falls through and does nothing because we&rsquo;ve created a stub and not a mock.</p>
 <p>We could just as easily not call any method on the system under test and we&rsquo;d still get a green bar.</p>
-
 <p>If we intend to test the way that the system under test interacts with its dependencies then we want to make sure we&rsquo;ve actually created a mock and then ensure that we check that the expectations have actually been called.</p>
-
 <p>The test above could become a bit more like this for that purpose:</p>
-
-<pre><code class="language-csharp">
-[Test]
-public void ShouldRetrieveSomeValuesFromTheRepository()
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">[Test]</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldRetrieveSomeValuesFromTheRepository()
 {
-	var theRepository = MockRepository.GenerateMock&lt;ITheRepository&gt;();
-	theRepository.Expect(r =&gt; r.SomeMethod()).Return(&quot;someValue&quot;);
+	<span style="color:#66d9ef">var</span> theRepository = MockRepository.GenerateMock&lt;ITheRepository&gt;();
+	theRepository.Expect(r =&gt; r.SomeMethod()).Return(<span style="color:#e6db74">&#34;someValue&#34;</span>);
 	
-	var systemUnderTest = new SystemUnderTest(theRepository);
+	<span style="color:#66d9ef">var</span> systemUnderTest = <span style="color:#66d9ef">new</span> SystemUnderTest(theRepository);
 
 	systemUnderTest.DoSomething();
 
 	theRepository.VerifyAllExpectations();
 }
-</code></pre>
-
-<p><h3>In summary</h3>
-I&rsquo;ve previously just ignored tests like this and just got on with what I was doing but I think it&rsquo;s important to try and clean them up so that they can make a greater contribution to our testing efforts - Uncle Bob&rsquo;s Boy Scout Rule applies here - leave the tests in a better state than you found them.</p>
-
+</code></pre></div><!-- raw HTML omitted -->
 <p>That way we can move towards having justifiable confidence that we can make changes to our code without fear that we&rsquo;ve broken some piece of functionality.</p>
 
     <div id="social-bar">

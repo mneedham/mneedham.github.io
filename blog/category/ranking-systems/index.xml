@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Ranking Systems on Mark Needham</title>
@@ -17,8 +17,7 @@
       <pubDate>Mon, 30 Sep 2013 20:26:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/30/elo-rating-system-ranking-champions-league-teams-using-clojure-part-2/</guid>
-      <description>A few weeks ago I wrote about ranking Champions League teams using the Elo Rating algorithm, and since I wrote that post I&#39;ve collated data for 10 years worth of matches so I thought an update was in order.
-After extracting the details of all those matches I saved them to a JSON file so that I wouldn&#39;t have to parse the HTML pages every time I tweaked the algorithm. This should also make it easier for other people to play with the data.</description>
+      <description>(ns ranking-algorithms.uefa (:require [clj-time.format :as f]) (:require [clojure.data.json :as json])) (defn as-date [date-field] (f/parse (f/formatter &amp;#34;dd MMM YYYY&amp;#34;) date-field )) (defn date-aware-value-reader [key value] (if (= key :date) (as-date value) value)) (defn read-from-file [file] (json/read-str (slurp file) :value-fn date-aware-value-reader :key-fn keyword)) &amp;gt; (def the-matches (read-from-file &amp;#34;data/cl-matches-2013.json&amp;#34;)) #&amp;#39;ranking-algorithms.uefa/the-matches &amp;gt; (count the-matches) 213 (comment &amp;#34;other functions excluded for brevity&amp;#34;) (defn format-for-printing [all-matches idx [team ranking &amp;amp; [rd]]] (let [team-matches (show-matches team all-matches)] (merge {:rank (inc idx) :team team :ranking ranking :rd rd :round (performance team-matches)} (match-record team-matches)))) (defn print-top-teams ([number all-matches] (print-top-teams number all-matches {})) ([number all-matches base-rankings] (clojure.</description>
     </item>
     
     <item>
@@ -27,8 +26,11 @@ After extracting the details of all those matches I saved them to a JSON file so
       <pubDate>Sat, 14 Sep 2013 21:02:30 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/14/glicko-rating-system-a-simple-example-using-clojure/</guid>
-      <description>A couple of weeks ago I wrote about the Elo Rating system and when reading more about it I learnt that one of its weaknesses is that it doesn&#39;t take into account the reliability of a players&#39; rating.
-For example, a player may not have played for a long time. When they next play a match we shouldn&#39;t assume that the accuracy of that rating is the same as for another player with the same rating but who plays regularly.</description>
+      <description>If one player&amp;rsquo;s rating increases by x, the opponent&amp;rsquo;s rating does not usually decrease by x as in the Elo system.
+In fact, in the Glicko system, the amount by which the opponent&amp;rsquo;s rating decreases is governed by both players&amp;rsquo; RD&amp;rsquo;s.
+where:
+where:
+(ns ranking-algorithms.glicko (:require [clojure.math.numeric-tower :as math])) (def q (/ (java.lang.Math/log 10) 400)) (defn g [rd] (/ 1 (java.lang.Math/sqrt (+ 1 (/ (* 3 (math/expt q 2) (math/expt rd 2)) (math/expt ( .</description>
     </item>
     
     <item>
@@ -37,9 +39,7 @@ For example, a player may not have played for a long time. When they next play a
       <pubDate>Sat, 31 Aug 2013 13:01:16 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/31/elo-rating-system-ranking-champions-league-teams-using-clojure/</guid>
-      <description>As I mentioned in an earlier blog post I&#39;ve been learning about ranking systems and one of the first ones I came across was the Elo rating system which is most famously used to rank chess players.
-The Elo rating system uses the following formula to work out a player/team&#39;s ranking after they&#39;ve participated in a match:
- R&#39; = R + K * (S - E)  R&#39; is the new rating R is the old rating K is a maximum value for increase or decrease of rating (16 or 32 for ELO) S is the score for a game E is the expected score for a game  I converted that formula into the following Clojure functions:</description>
+      <description>(defn ranking-after-win [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (+ ranking (* importance (- 1 (expected ranking opponent-ranking) )))) (defn ranking-after-loss [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (+ ranking (* importance (- 0 (expected ranking opponent-ranking) )))) (defn expected [my-ranking opponent-ranking] (/ 1.0 (+ 1 (math/expt 10 (/ (- opponent-ranking my-ranking) 400))))) &amp;gt; (ranking-after-win { :ranking 1200 :opponent-ranking 1500 :importance 32 }) 1227.1686541692377 &amp;gt; (expected 1200 1500) 0.15097955721132328 (defn top-teams [number matches] (let [teams-with-rankings (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams matches)))] (take number (sort-by (fn [x] (:points (val x))) &amp;gt; (seq (reduce process-match teams-with-rankings matches)))))) (defn process-match [ts match] (let [{:keys [home away home_score away_score]} match] (cond (&amp;gt; home_score away_score) (-&amp;gt; ts (update-in [home :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (&amp;gt; away_score home_score) (-&amp;gt; ts (update-in [home :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (= home_score away_score) ts))) &amp;gt; (take 5 all-matches) ({:home &amp;#34;Tampere&amp;#34;, :away &amp;#34;Pyunik Erewan&amp;#34;, :home_score 0, :away_score 4} {:home &amp;#34;Pyunik Erewan&amp;#34;, :away &amp;#34;Tampere&amp;#34;, :home_score 2, :away_score 0} {:home &amp;#34;Skonto Riga&amp;#34;, :away &amp;#34;Barry Town&amp;#34;, :home_score 5, :away_score 0} {:home &amp;#34;Barry Town&amp;#34;, :away &amp;#34;Skonto Riga&amp;#34;, :home_score 0, :away_score 1} {:home &amp;#34;Portadown&amp;#34;, :away &amp;#34;Belshina Bobruisk&amp;#34;, :home_score 0, :away_score 0}) &amp;gt; (extract-teams (take 5 all-matches)) #{&amp;#34;Portadown&amp;#34; &amp;#34;Tampere&amp;#34; &amp;#34;Pyunik Erewan&amp;#34; &amp;#34;Barry Town&amp;#34; &amp;#34;Skonto Riga&amp;#34;} &amp;gt; (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches))) (&amp;#34;Portadown&amp;#34; {:points 1200} &amp;#34;Tampere&amp;#34; {:points 1200} &amp;#34;Pyunik Erewan&amp;#34; {:points 1200} &amp;#34;Barry Town&amp;#34; {:points 1200} &amp;#34;Skonto Riga&amp;#34; {:points 1200}) &amp;gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches)))) {&amp;#34;Portadown&amp;#34; {:points 1200}, &amp;#34;Tampere&amp;#34; {:points 1200}, &amp;#34;Pyunik Erewan&amp;#34; {:points 1200}, &amp;#34;Barry Town&amp;#34; {:points 1200}, &amp;#34;Skonto Riga&amp;#34; {:points 1200}} &amp;gt; (top-teams 10 all-matches) ([&amp;#34;CF Barcelona&amp;#34; {:points 1343.</description>
     </item>
     
     <item>
@@ -48,9 +48,8 @@ The Elo rating system uses the following formula to work out a player/team&#39;s
       <pubDate>Sat, 24 Aug 2013 11:05:58 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/24/ranking-systems-what-ive-learnt-so-far/</guid>
-      <description>I often go off on massive tangents reading all about a new topic but don&#39;t record what I&#39;ve read so if I go back to the topic again in the future I have to start from scratch which is quite frustrating.
-In this instance after playing around with calculating the eigenvector centrality of a sub graph I learnt that this algorithm can also be used in ranking systems.
-I started off by reading a paper written by James Keener about the Perron-Frobenius Theorem and the ranking of American football teams.</description>
+      <description>Players start out with an average rating which then increases/decreases based on games they take part in. If they beat someone much more highly ranked then they&amp;rsquo;d gain a lot of points whereas losing to someone similarly ranked wouldn&amp;rsquo;t affect their ranking too much.
+I came across a version used to rank country football teams. and the algorithm is quite well described in Christopher Allen&amp;rsquo;s article on competitive ranking systems.This algorithm therefore introduces the concept of a ratings deviation (RD) to measure uncertainty in a rating.</description>
     </item>
     
   </channel>

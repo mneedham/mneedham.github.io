@@ -62,16 +62,14 @@ In C# code when we&rsquo;re querying a dictionary to check that a value exists 
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "C#/F#: Using .NET framework classes",
+        "headline": "C#\/F#: Using .NET framework classes",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-06-16",
-        "description": "I was recently discussing F# with a couple of colleagues and one thing that came up is the slightly different ways that we might choose to interact with certain .NET framework classes compared to how we use those same classes in C# code.
-One of those where I see potential for different use is the Dictionary class.
-In C# code when we&rsquo;re querying a dictionary to check that a value exists before we try to extract it we might typically do this:",
-        "wordCount": 441
+        "description": "I was recently discussing F# with a couple of colleagues and one thing that came up is the slightly different ways that we might choose to interact with certain .NET framework classes compared to how we use those same classes in C# code.\nOne of those where I see potential for different use is the Dictionary class.\nIn C# code when we\x26rsquo;re querying a dictionary to check that a value exists before we try to extract it we might typically do this:",
+        "wordCount":  439 
     }
     </script>
     
@@ -185,63 +183,47 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">C#/F#: Using .NET framework classes</h1>
     <p>I was recently discussing F# with a couple of colleagues and one thing that came up is the slightly different ways that we might choose to interact with certain .NET framework classes compared to how we use those same classes in C# code.</p>
-
 <p>One of those where I see potential for different use is the Dictionary class.</p>
-
 <p>In C# code when we&rsquo;re querying a dictionary to check that a value exists before we try to extract it we might typically do this:</p>
-
-<pre><code class="language-csharp">
-public string GetValueBy(string key) 
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> GetValueBy(<span style="color:#66d9ef">string</span> key) 
 {
-	var dictionary = new Dictionary&lt;string, string&gt;() { {&quot;key&quot;, &quot;value&quot; } };
+	<span style="color:#66d9ef">var</span> dictionary = <span style="color:#66d9ef">new</span> Dictionary&lt;<span style="color:#66d9ef">string</span>, <span style="color:#66d9ef">string</span>&gt;() { {<span style="color:#e6db74">&#34;key&#34;</span>, <span style="color:#e6db74">&#34;value&#34;</span> } };
 
-	if(dictionary.ContainsKey(key)) 
+	<span style="color:#66d9ef">if</span>(dictionary.ContainsKey(key)) 
 	{
-		return dictionary[key];
+		<span style="color:#66d9ef">return</span> dictionary[key];
 	}	 
-	return &quot;&quot;; // maybe we'd do something else here but for the sake of this we return the empty string
-}	
-</code></pre>
-
-<p>There is an alternative way to do this but it makes use of the &lsquo;out&rsquo; keyword so it&rsquo;s generally frowned upon.</p>
-
-<pre><code class="language-csharp">
-public string GetValueBy(string key)
+	<span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;&#34;</span>; <span style="color:#75715e">// maybe we&#39;d do something else here but for the sake of this we return the empty string
+</span><span style="color:#75715e"></span>}	
+</code></pre></div><p>There is an alternative way to do this but it makes use of the &lsquo;out&rsquo; keyword so it&rsquo;s generally frowned upon.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> GetValueBy(<span style="color:#66d9ef">string</span> key)
 {
-	var dictionary = new Dictionary&lt;string, string&gt;() {{&quot;key&quot;, &quot;value&quot;}};
-	string value = &quot;&quot;;
-	dictionary.TryGetValue(key, out value);
-	return value;
+	<span style="color:#66d9ef">var</span> dictionary = <span style="color:#66d9ef">new</span> Dictionary&lt;<span style="color:#66d9ef">string</span>, <span style="color:#66d9ef">string</span>&gt;() {{<span style="color:#e6db74">&#34;key&#34;</span>, <span style="color:#e6db74">&#34;value&#34;</span>}};
+	<span style="color:#66d9ef">string</span> <span style="color:#66d9ef">value</span> = <span style="color:#e6db74">&#34;&#34;</span>;
+	dictionary.TryGetValue(key, <span style="color:#66d9ef">out</span> <span style="color:#66d9ef">value</span>);
+	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">value</span>;
 }
-</code></pre>
-
-<p>In F# when we make use of a method which effectively defines a second return parameter by using the &lsquo;out&rsquo; keyword the return value of that method becomes a tuple containing that value.</p>
-
+</code></pre></div><p>In F# when we make use of a method which effectively defines a second return parameter by using the &lsquo;out&rsquo; keyword the return value of that method becomes a tuple containing that value.</p>
 <p>For example when querying Dictionary:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">open</span> System.Collections.<span style="color:#a6e22e">Generic</span>
+<span style="color:#66d9ef">open</span> <span style="color:#a6e22e">System</span>
+<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">Globalization</span>
 
-<pre><code class="language-ocaml">
-open System.Collections.Generic
-open System
-open System.Globalization
-
-let testDictionary = 
-    let builder = new Dictionary&lt;string, string&gt;()
-    builder.Add(&quot;key1&quot;, &quot;value&quot;)
+<span style="color:#66d9ef">let</span> testDictionary <span style="color:#f92672">=</span> 
+    <span style="color:#66d9ef">let</span> builder <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Dictionary</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">string</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">string</span><span style="color:#f92672">&gt;</span>()
+    builder<span style="color:#f92672">.</span><span style="color:#a6e22e">Add</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;key1&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;value&#34;</span><span style="color:#f92672">)</span>
     builder
 
-let getByKey key =
-    let result, value =  testDictionary.TryGetValue(key)
-    if(result) then value result else &quot;&quot;
-</code></pre>
-
-<p>The return type of TryGetValue is &lsquo;bool * string&rsquo; in this case and by assigning that result to two different values we can get the appropriate values. This is certainly a time when <a href="http://www.markhneedham.com/blog/2009/06/02/f-tuples-dont-seem-to-express-intent-well/">tuples</a> are really useful for simplifying our code.</p>
-
-<p>We could have made use of an &lsquo;out&rsquo; parameter as we did in C# but I think it&rsquo;s much easier to just use the tuple. Dustin Campbell <a href="http://diditwith.net/2008/01/29/WhyILoveFResultTuples.aspx">describes the other ways we could extract a value from a dictionary on his blog</a>.</p>
-
-<p>It&rsquo;s not significantly more concise code wise compared to the C# way of doing things although from a brief look at the way that the Dictionary code works in <a href="http://www.red-gate.com/products/reflector/">Reflector</a> theoretically we are making less calls to the underlying data structure to get the value from it.</p>
-
+<span style="color:#66d9ef">let</span> getByKey key <span style="color:#f92672">=</span>
+    <span style="color:#66d9ef">let</span> result<span style="color:#f92672">,</span> <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span>  testDictionary<span style="color:#f92672">.</span><span style="color:#a6e22e">TryGetValue</span><span style="color:#f92672">(</span>key<span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>result<span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">value</span> result <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#34;&#34;</span>
+</code></pre></div><p>The return type of TryGetValue is &lsquo;bool * string&rsquo; in this case and by assigning that result to two different values we can get the appropriate values. This is certainly a time when <!-- raw HTML omitted -->tuples<!-- raw HTML omitted --> are really useful for simplifying our code.</p>
+<p>We could have made use of an &lsquo;out&rsquo; parameter as we did in C# but I think it&rsquo;s much easier to just use the tuple. Dustin Campbell <!-- raw HTML omitted -->describes the other ways we could extract a value from a dictionary on his blog<!-- raw HTML omitted -->.</p>
+<p>It&rsquo;s not significantly more concise code wise compared to the C# way of doing things although from a brief look at the way that the Dictionary code works in <!-- raw HTML omitted -->Reflector<!-- raw HTML omitted --> theoretically we are making less calls to the underlying data structure to get the value from it.</p>
 <p>I tried timing 100,000 accesses to a dictionary with each approach to see if the total time would be significantly different but there wasn&rsquo;t any noticeable difference.</p>
-
 <p>There are other &lsquo;Try&hellip;&rsquo; methods defined in the base class library - DateTime for example has some more - which I&rsquo;ve never used in C# so I&rsquo;d be intrigued to see whether other languages that run on the CLR will make use of these methods.</p>
 
     <div id="social-bar">

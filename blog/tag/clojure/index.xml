@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Clojure on Mark Needham</title>
+    <title>clojure on Mark Needham</title>
     <link>https://markhneedham.com/blog/tag/clojure/</link>
-    <description>Recent content in Clojure on Mark Needham</description>
+    <description>Recent content in clojure on Mark Needham</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 24 Jan 2016 22:01:43 +0000</lastBuildDate>
@@ -17,7 +17,7 @@
       <pubDate>Sun, 24 Jan 2016 22:01:43 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/01/24/clojure-first-steps-with-reducers/</guid>
-      <description>I&#39;ve been playing around with Clojure a bit today in preparation for a talk I&#39;m giving next week and found myself writing the following code to apply the same function to three different scores: (defn log2 [n] (/ (Math/log n) (Math/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (+ (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961   I&#39;d forgotten about folding over a collection but quickly remembered that I could achieve the same result with the following code: (reduce #(+ %1 (score-item %2)) 0 [12 13 5]) 9.</description>
+      <description>(defn log2 [n] (/ (Math/log n) (Math/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (+ (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961 (reduce #(+ %1 (score-item %2)) 0 [12 13 5]) 9.60733031374961 (reduce #(+ %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (require &amp;#39;[clojure.core.reducers :as r]) (r/reduce #(+ %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (-&amp;gt;&amp;gt;[12 13 5 6] (map score-item) (filter #(&amp;gt; % 3))) (3.</description>
     </item>
     
     <item>
@@ -26,8 +26,7 @@
       <pubDate>Sun, 29 Jun 2014 02:56:53 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/06/29/neo4j-cypher-vs-clojure-for-group-by-and-sorting/</guid>
-      <description>One of the points that I emphasised during my talk on building Neo4j backed applications using Clojure last week is understanding when to use Cypher to solve a problem and when to use the programming language.
-A good example of this is in the meetup application I&#39;ve been working on. I have a collection of events and want to display past events in descending order and future events in ascending order.</description>
+      <description>CREATE (event1:Event {name: &amp;quot;Future Event 1&amp;quot;, timestamp: 1414002772427 }) CREATE (event2:Event {name: &amp;quot;Future Event 2&amp;quot;, timestamp: 1424002772427 }) CREATE (event3:Event {name: &amp;quot;Future Event 3&amp;quot;, timestamp: 1416002772427 }) CREATE (event4:Event {name: &amp;quot;Past Event 1&amp;quot;, timestamp: 1403002772427 }) CREATE (event5:Event {name: &amp;quot;Past Event 2&amp;quot;, timestamp: 1402002772427 }) $ MATCH (e:Event) RETURN e; ==&amp;gt; +------------------------------------------------------------+ ==&amp;gt; | e | ==&amp;gt; +------------------------------------------------------------+ ==&amp;gt; | Node[15414]{name:&amp;quot;Future Event 1&amp;quot;,timestamp:1414002772427} | ==&amp;gt; | Node[15415]{name:&amp;quot;Future Event 2&amp;quot;,timestamp:1424002772427} | ==&amp;gt; | Node[15416]{name:&amp;quot;Future Event 3&amp;quot;,timestamp:1416002772427} | ==&amp;gt; | Node[15417]{name:&amp;quot;Past Event 1&amp;quot;,timestamp:1403002772427} | ==&amp;gt; | Node[15418]{name:&amp;quot;Past Event 2&amp;quot;,timestamp:1402002772427} | ==&amp;gt; +------------------------------------------------------------+ ==&amp;gt; 5 rows ==&amp;gt; 13 ms (def sorted-query &amp;#34;MATCH (e:Event) WITH COLLECT(e) AS events WITH [e IN events WHERE e.</description>
     </item>
     
     <item>
@@ -36,10 +35,7 @@ A good example of this is in the meetup application I&#39;ve been working on. I 
       <pubDate>Sat, 31 May 2014 00:03:48 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/05/31/clojure-destructuring-group-bys-output/</guid>
-      <description>One of my favourite features of Clojure is that it allows you to destructure a data structure into values that are a bit easier to work with.
-I often find myself referring to Jay Fields&#39; article which contains several examples showing the syntax and is a good starting point.
-One recent use of destructuring I had was where I was working with a vector containing events like this:
-user&amp;gt; (def events [{:name &amp;quot;e1&amp;quot; :timestamp 123} {:name &amp;quot;e2&amp;quot; :timestamp 456} {:name &amp;quot;e3&amp;quot; :timestamp 789}])  I wanted to split the events in two - those containing events with a timestamp greater than 123 and those less than or equal to 123.</description>
+      <description>user&amp;gt; (def events [{:name &amp;#34;e1&amp;#34; :timestamp 123} {:name &amp;#34;e2&amp;#34; :timestamp 456} {:name &amp;#34;e3&amp;#34; :timestamp 789}]) user&amp;gt; (group-by #(&amp;gt; (-&amp;gt;&amp;gt; % :timestamp) 123) events) {false [{:name &amp;#34;e1&amp;#34;, :timestamp 123}], true [{:name &amp;#34;e2&amp;#34;, :timestamp 456} {:name &amp;#34;e3&amp;#34;, :timestamp 789}]} user&amp;gt; (let [{upcoming true past false} (group-by #(&amp;gt; (-&amp;gt;&amp;gt; % :timestamp) 123) events)] (println upcoming) (println past)) [{:name e2, :timestamp 456} {:name e3, :timestamp 789}] [{:name e1, :timestamp 123}] nil </description>
     </item>
     
     <item>
@@ -48,8 +44,7 @@ user&amp;gt; (def events [{:name &amp;quot;e1&amp;quot; :timestamp 123} {:name &
       <pubDate>Sat, 24 May 2014 00:12:56 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/05/24/clojure-create-a-directory/</guid>
-      <description>I spent much longer than I should have done trying to work out how to create a directory in Clojure as part of an import script I&#39;m working out so for my future self this is how you do it:
-(.mkdir (java.io.File. &amp;quot;/path/to/dir/to/create&amp;quot;))  I&#39;m creating a directory which contains today&#39;s date so I&#39;d want something like &#39;members-2014-05-24&#39; if I was running it today. The clj-time library is very good for working with dates.</description>
+      <description>(.mkdir (java.io.File. &amp;#34;/path/to/dir/to/create&amp;#34;)) (ns neo4j-meetup.core (:require [clj-time.format :as f])) (def format-as-year-month-day (f/formatter &amp;#34;yyyy-MM-dd&amp;#34;)) (defn create-directory-for-today [] (let [date (f/unparse format-as-year-month-day (t/now))] (.mkdir (java.io.File. (str &amp;#34;data/members-&amp;#34; date))))) </description>
     </item>
     
     <item>
@@ -58,8 +53,7 @@ user&amp;gt; (def events [{:name &amp;quot;e1&amp;quot; :timestamp 123} {:name &
       <pubDate>Wed, 30 Apr 2014 00:20:46 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/04/30/clojure-paging-meetup-data-using-lazy-sequences/</guid>
-      <description>I&#39;ve been playing around with the meetup API to do some analysis on the Neo4j London meetup and one thing I wanted to do was download all the members of the group. A feature of the meetup API is that each end point will only allow you to return a maximum of 200 records so I needed to make use of offsets and paging to retrieve everybody.
- It seemed like a good chance to use some lazy sequences to keep track of the offsets and then stop making calls to the API once I wasn&#39;t retrieving any more results.</description>
+      <description>(defn unchunk [s] (when (seq s) (lazy-seq (cons (first s) (unchunk (next s)))))) (defn offsets [] (unchunk (range))) (defn get-all [api-fn] (flatten (take-while seq (map #(api-fn {:perpage 200 :offset % :orderby &amp;#34;name&amp;#34;}) (offsets))))) (:require [clj-http.client :as client]) (defn members [{perpage :perpage offset :offset orderby :orderby}] (-&amp;gt;&amp;gt; (client/get (str &amp;#34;https://api.meetup.com/2/members?page=&amp;#34; perpage &amp;#34;&amp;amp;offset=&amp;#34; offset &amp;#34;&amp;amp;orderby=&amp;#34; orderby &amp;#34;&amp;amp;group_urlname=&amp;#34; MEETUP_NAME &amp;#34;&amp;amp;key=&amp;#34; MEETUP_KEY) {:as :json}) :body :results)) (defn all-members [] (get-all members)) </description>
     </item>
     
     <item>
@@ -68,10 +62,7 @@ user&amp;gt; (def events [{:name &amp;quot;e1&amp;quot; :timestamp 123} {:name &
       <pubDate>Sat, 26 Apr 2014 07:50:46 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/04/26/clojure-clj-time-formatting-a-date-timestamp-with-day-suffixes-e-g-1st-2nd-3rd/</guid>
-      <description>I&#39;ve been using the clj-time library recently - a Clojure wrapper around Joda Time - and one thing I wanted to do is format a date with day suffixes e.g. 1st, 2nd, 3rd.
-I started with the following timestamp:
-1309368600000  The first step was to convert that into a DateTime object like so:
-user&amp;gt; (require &#39;[clj-time.coerce :as c]) user&amp;gt; (c/from-long 1309368600000) #&amp;lt;DateTime 2011-06-29T17:30:00.000Z&amp;gt;  I wanted to output that date in the following format:</description>
+      <description>1309368600000 user&amp;gt; (require &amp;#39;[clj-time.coerce :as c]) user&amp;gt; (c/from-long 1309368600000) #&amp;lt;DateTime 2011-06-29T17:30:00.000Z&amp;gt; 29th June 2011 user&amp;gt; (require &amp;#39;[clj-time.format :as f]) nil user&amp;gt; (f/unparse (f/formatter &amp;#34;d MMMM yyyy&amp;#34;) (c/from-long 1309368600000)) &amp;#34;29 June 2011&amp;#34; (defn day-suffix [day] (let [stripped-day (if (&amp;lt; day 20) day (mod day 10))] (cond (= stripped-day 1) &amp;#34;st&amp;#34; (= stripped-day 2) &amp;#34;nd&amp;#34; (= stripped-day 3) &amp;#34;rd&amp;#34; :else &amp;#34;th&amp;#34;))) user&amp;gt; (def my-time (c/from-long 1309368600000)) #&amp;#39;user/my-time user&amp;gt; (def day (read-string (f/unparse (f/formatter &amp;#34;d&amp;#34;) my-time))) #&amp;#39;user/day user&amp;gt; (str day (day-suffix day) &amp;#34; &amp;#34; (f/unparse (f/formatter &amp;#34;MMMM yyyy&amp;#34;) my-time)) &amp;#34;29th June 2011&amp;#34; </description>
     </item>
     
     <item>
@@ -80,9 +71,7 @@ user&amp;gt; (require &#39;[clj-time.coerce :as c]) user&amp;gt; (c/from-long 13
       <pubDate>Sun, 06 Apr 2014 22:07:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/04/06/clojure-not-so-lazy-sequences-a-k-a-chunking-behaviour/</guid>
-      <description>I&#39;ve been playing with Clojure over the weekend and got caught out by the behaviour of lazy sequences due to chunking - something which was obvious to experienced Clojurians although not me.
-I had something similar to the following bit of code which I expected to only evaluate the first item of the infinite sequence that the range function generates:
-&amp;gt; (take 1 (map (fn [x] (println (str &amp;quot;printing...&amp;quot; x))) (range))) (printing.</description>
+      <description>&amp;gt; (take 1 (map (fn [x] (println (str &amp;#34;printing...&amp;#34; x))) (range))) (printing...0 printing...1 printing...2 printing...3 printing...4 printing...5 printing...6 printing...7 printing...8 printing...9 printing...10 printing...11 printing...12 printing...13 printing...14 printing...15 printing...16 printing...17 printing...18 printing...19 printing...20 printing...21 printing...22 printing...23 printing...24 printing...25 printing...26 printing...27 printing...28 printing...29 printing...30 printing...31 nil) (defn unchunk [s] (when (seq s) (lazy-seq (cons (first s) (unchunk (next s)))))) &amp;gt; (take 1 (map (fn [x] (println (str &amp;#34;printing...&amp;#34; x))) (unchunk (range)))) (printing...0 nil) </description>
     </item>
     
     <item>
@@ -91,8 +80,7 @@ I had something similar to the following bit of code which I expected to only ev
       <pubDate>Mon, 30 Sep 2013 20:26:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/30/elo-rating-system-ranking-champions-league-teams-using-clojure-part-2/</guid>
-      <description>A few weeks ago I wrote about ranking Champions League teams using the Elo Rating algorithm, and since I wrote that post I&#39;ve collated data for 10 years worth of matches so I thought an update was in order.
-After extracting the details of all those matches I saved them to a JSON file so that I wouldn&#39;t have to parse the HTML pages every time I tweaked the algorithm. This should also make it easier for other people to play with the data.</description>
+      <description>(ns ranking-algorithms.uefa (:require [clj-time.format :as f]) (:require [clojure.data.json :as json])) (defn as-date [date-field] (f/parse (f/formatter &amp;#34;dd MMM YYYY&amp;#34;) date-field )) (defn date-aware-value-reader [key value] (if (= key :date) (as-date value) value)) (defn read-from-file [file] (json/read-str (slurp file) :value-fn date-aware-value-reader :key-fn keyword)) &amp;gt; (def the-matches (read-from-file &amp;#34;data/cl-matches-2013.json&amp;#34;)) #&amp;#39;ranking-algorithms.uefa/the-matches &amp;gt; (count the-matches) 213 (comment &amp;#34;other functions excluded for brevity&amp;#34;) (defn format-for-printing [all-matches idx [team ranking &amp;amp; [rd]]] (let [team-matches (show-matches team all-matches)] (merge {:rank (inc idx) :team team :ranking ranking :rd rd :round (performance team-matches)} (match-record team-matches)))) (defn print-top-teams ([number all-matches] (print-top-teams number all-matches {})) ([number all-matches base-rankings] (clojure.</description>
     </item>
     
     <item>
@@ -101,9 +89,7 @@ After extracting the details of all those matches I saved them to a JSON file so
       <pubDate>Thu, 26 Sep 2013 19:11:29 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/26/clojure-writing-json-to-a-file-exception-dont-know-how-to-write-json-of-class-org-joda-time-datetime/</guid>
-      <description>As I mentioned in an earlier post I&#39;ve been transforming Clojure hash&#39;s into JSON strings using data.json but ran into trouble while trying to parse a hash which contained a Joda Time DateTime instance.
-The date in question was constructed like this:
-(ns json-date-example (:require [clj-time.format :as f]) (:require [clojure.data.json :as json])) (defn as-date [date-field] (f/parse (f/formatter &amp;quot;dd MMM YYYY&amp;quot;) date-field )) (def my-date (as-date &amp;quot;18 Mar 2012&amp;quot;))  And when I tried to convert a hash containing that object into a string I got the following exception:</description>
+      <description>(ns json-date-example (:require [clj-time.format :as f]) (:require [clojure.data.json :as json])) (defn as-date [date-field] (f/parse (f/formatter &amp;#34;dd MMM YYYY&amp;#34;) date-field )) (def my-date (as-date &amp;#34;18 Mar 2012&amp;#34;)) &amp;gt; (json/write-str {:date my-date)}) java.lang.Exception: Don&amp;#39;t know how to write JSON of class org.joda.time.DateTime at clojure.data.json$write_generic.invoke (json.clj:367) clojure.data.json$eval2818$fn__2819$G__2809__2826.invoke (json.clj:284) clojure.data.json$write_object.invoke (json.clj:333) clojure.data.json$eval2818$fn__2819$G__2809__2826.invoke (json.clj:284) clojure.data.json$write.doInvoke (json.clj:450) clojure.lang.RestFn.invoke (RestFn.java:425) (defn as-date-string [date] (f/unparse (f/formatter &amp;#34;dd MMM YYYY&amp;#34;) date)) (defn date-aware-value-writer [key value] (if (= key :date) (as-date-string value) value)) &amp;gt; (json/write-str {:date my-date} :value-fn date-aware-value-writer) &amp;#34;{\&amp;#34;date\&amp;#34;:\&amp;#34;18 Mar 2012\&amp;#34;}&amp;#34; (defn date-aware-value-reader [key value] (if (= key :date) (as-date value) value)) &amp;gt; (json/read-str &amp;#34;{\&amp;#34;date\&amp;#34;:\&amp;#34;18 Mar 2012\&amp;#34;}&amp;#34; :value-fn date-aware-value-reader :key-fn keyword) {:date #&amp;lt;DateTime 2012-03-18T00:00:00.</description>
     </item>
     
     <item>
@@ -112,9 +98,7 @@ The date in question was constructed like this:
       <pubDate>Thu, 26 Sep 2013 07:47:34 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/26/clojure-writing-json-to-a-filereading-json-from-a-file/</guid>
-      <description>A few weeks ago I described how I&#39;d scraped football matches using Clojure&#39;s Enlive, and the next step after translating the HTML representation into a Clojure map was to save it as a JSON document.
-I decided to follow a two step process to achieve this:
- Convert hash to JSON string Write JSON string to file  I imagine there&#39;s probably a way to convert the hash to a stream and pipe that into a file but my JSON document isn&#39;t very large so I think this way is ok for now.</description>
+      <description>&amp;gt; (require &amp;#39;[clojure.data.json :as json]) nil &amp;gt; (json/write-str { :key1 &amp;#34;val1&amp;#34; :key2 &amp;#34;val2&amp;#34; }) &amp;#34;{\&amp;#34;key2\&amp;#34;:\&amp;#34;val2\&amp;#34;,\&amp;#34;key1\&amp;#34;:\&amp;#34;val1\&amp;#34;}&amp;#34; &amp;gt; (use &amp;#39;clojure.java.io) &amp;gt; (with-open [wrtr (writer &amp;#34;/tmp/test.json&amp;#34;)] (.write wrtr (json/write-str {:key1 &amp;#34;val1&amp;#34; :key2 &amp;#34;val2&amp;#34;}))) &amp;gt; (spit &amp;#34;/tmp/test.json&amp;#34; (json/write-str {:key1 &amp;#34;val1&amp;#34; :key2 &amp;#34;val2&amp;#34;})) &amp;gt; (json/read-str (slurp &amp;#34;/tmp/test.json&amp;#34;)) {&amp;#34;key2&amp;#34; &amp;#34;val2&amp;#34;, &amp;#34;key1&amp;#34; &amp;#34;val1&amp;#34;} &amp;gt; (defn string-keys-to-symbols [map] (reduce #(assoc %1 (-&amp;gt; (key %2) keyword) (val %2)) {} map)) &amp;gt; (string-keys-to-symbols (json/read-str (slurp &amp;#34;/tmp/test.json&amp;#34;))) {:key1 &amp;#34;val1&amp;#34;, :key2 &amp;#34;val2&amp;#34;} &amp;gt; (json/read-str (slurp &amp;#34;/tmp/test.</description>
     </item>
     
     <item>
@@ -123,9 +107,7 @@ I decided to follow a two step process to achieve this:
       <pubDate>Mon, 23 Sep 2013 21:42:12 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/23/clojure-anonymous-functions-using-short-notation-and-the-arityexception-wrong-number-of-args-0-passed-to-persistentvector/</guid>
-      <description>In the time I&#39;ve spent playing around with Clojure one thing I&#39;ve always got confused by is the error message you get when trying to return a vector using the anonymous function shorthand.
-For example, if we want function which creates a vector with the values 1, 2, and the argument passed into the function we could write the following:
-&amp;gt; ((fn [x] [1 2 x]) 6) [1 2 6]  However, when I tried to convert it to the shorthand &#39;#()&#39; syntax I got the following exception:</description>
+      <description>&amp;gt; ((fn [x] [1 2 x]) 6) [1 2 6] &amp;gt; (#([1 2 %]) 6) clojure.lang.ArityException: Wrong number of args (0) passed to: PersistentVector AFn.java:437 clojure.lang.AFn.throwArity AFn.java:35 clojure.lang.AFn.invoke NO_SOURCE_FILE:1 user/eval575[fn] NO_SOURCE_FILE:1 user/eval575 #() becomes (fn [arg1 arg2] (...)) #(([1 2 %]) 6) becomes ((fn [arg] ([1 2 arg])) 6) &amp;gt; ([1 2 6] 2) 6 &amp;gt; (#(identity [1 2 %]) 6) [1 2 6] &amp;gt; (#(-&amp;gt; [1 2 %]) 6) [1 2 6] </description>
     </item>
     
     <item>
@@ -134,9 +116,7 @@ For example, if we want function which creates a vector with the values 1, 2, an
       <pubDate>Sun, 22 Sep 2013 23:07:04 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/22/clojureemacsnrepl-stacktrace-less-error-messages/</guid>
-      <description>Ever since I started using the Emacs + nrepl combination to play around with Clojure I&#39;ve been getting fairly non descript error messages whenever I pass the wrong parameters to a function.
-For example if I try to update a non existent key in a form I get a Null Pointer Exception:
-&amp;gt; (update-in {} [:mark] inc) NullPointerException clojure.lang.Numbers.ops (Numbers.java:942)  In this case it&#39;s clear that the hash doesn&#39;t have a key &#39;:mark&#39; so the function blows up.</description>
+      <description>&amp;gt; (update-in {} [:mark] inc) NullPointerException clojure.lang.Numbers.ops (Numbers.java:942) ~/.emacs.d/init.el(setq nrepl-popup-stacktraces nil) (setq nrepl-popup-stacktraces-in-repl t) &amp;gt; (update-in {} [:mark] inc) java.lang.NullPointerException: Numbers.java:942 clojure.lang.Numbers.ops Numbers.java:110 clojure.lang.Numbers.inc core.clj:863 clojure.core/inc AFn.java:161 clojure.lang.AFn.applyToHelper AFn.java:151 clojure.lang.AFn.applyTo core.clj:603 clojure.core/apply core.clj:5472 clojure.core/update-in RestFn.java:445 clojure.lang.RestFn.invoke NO_SOURCE_FILE:1 user/eval9 ... &amp;gt; (inc nil) java.lang.NullPointerException: Numbers.java:942 clojure.lang.Numbers.ops Numbers.java:110 clojure.lang.Numbers.inc NO_SOURCE_FILE:1 user/eval14 ... </description>
     </item>
     
     <item>
@@ -145,9 +125,7 @@ For example if I try to update a non existent key in a form I get a Null Pointer
       <pubDate>Sun, 22 Sep 2013 21:23:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/22/clojureemacsnrepl-ctrl-x-ctrl-e-leads-to-filenotfoundexception-could-not-locate-on-classpath/</guid>
-      <description>I&#39;ve been playing around with Clojure using Emacs and nrepl recently and my normal work flow is to write some code in Emacs and then have it evaluated in nrepl by typing Ctrl X + Ctrl E at the end of the function.
-I tried this once recently and got the following exception instead of a successful evaluation:
-FileNotFoundException Could not locate ranking_algorithms/ranking__init.class or ranking_algorithms/ranking.clj on classpath: clojure.lang.RT.load (RT.java:432)  I was a bit surprised because I had nrepl running already (via (Meta + X) + Enter + nrepl-jack-in) and I&#39;d only ever seen that exception refer to dependencies which weren&#39;t in my project.</description>
+      <description>FileNotFoundException Could not locate ranking_algorithms/ranking__init.class or ranking_algorithms/ranking.clj on classpath: clojure.lang.RT.load (RT.java:432) $ lein repl nREPL server started on port 52265 REPL-y 0.1.0-beta10 Clojure 1.4.0 Exit: Control+D or (exit) or (quit) Commands: (user/help) Docs: (doc function-name-here) (find-doc &amp;#34;part-of-name-here&amp;#34;) Source: (source function-name-here) (user/sourcery function-name-here) Javadoc: (javadoc java-object-or-class-here) Examples from clojuredocs.org: [clojuredocs or cdoc] (user/clojuredocs name-here) (user/clojuredocs &amp;#34;ns-here&amp;#34; &amp;#34;name-here&amp;#34;) </description>
     </item>
     
     <item>
@@ -156,10 +134,7 @@ FileNotFoundException Could not locate ranking_algorithms/ranking__init.class or
       <pubDate>Sun, 22 Sep 2013 18:54:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/22/clojure-stripping-all-the-whitespace/</guid>
-      <description>When putting together data sets to play around with, one of the more boring tasks is stripping out characters that you&#39;re not interested in and more often than not those characters are white spaces.
-Since I&#39;ve been building data sets using Clojure I wanted to write a function that would do this for me.
-I started out with the following string:
-(def word &amp;quot; with a little bit of space we can make it through the night &amp;quot;)  which I wanted to format in such a way that there would be a maximum of one space between each word.</description>
+      <description>(def word &amp;#34; with a little bit of space we can make it through the night &amp;#34;) &amp;gt; (clojure.string/trim word) &amp;#34;with a little bit of space we can make it through the night&amp;#34; &amp;gt; (clojure.string/join &amp;#34; &amp;#34; (filter #(not (clojure.string/blank? %)) (clojure.string/split word #&amp;#34; &amp;#34;))) &amp;#34;with a little bit of space we can make it through the night&amp;#34; &amp;gt; (-&amp;gt;&amp;gt; (clojure.string/split word #&amp;#34; &amp;#34;) (filter #(not (clojure.string/blank? %))) (clojure.string/join &amp;#34; &amp;#34;)) &amp;#34;with a little bit of space we can make it through the night&amp;#34; (defn split-on-space [word] (clojure.</description>
     </item>
     
     <item>
@@ -168,10 +143,7 @@ I started out with the following string:
       <pubDate>Fri, 20 Sep 2013 21:13:01 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/20/clojure-converting-an-arrayset-into-a-hash-map/</guid>
-      <description>When I was implementing the Elo Rating algorithm a few weeks ago one thing I needed to do was come up with a base ranking for each team.
-I started out with a set of teams that looked like this:
-(def teams #{ &amp;quot;Man Utd&amp;quot; &amp;quot;Man City&amp;quot; &amp;quot;Arsenal&amp;quot; &amp;quot;Chelsea&amp;quot;})  and I wanted to transform that into a map from the team to their ranking e.g.
-Man Utd -&amp;gt; {:points 1200} Man City -&amp;gt; {:points 1200} Arsenal -&amp;gt; {:points 1200} Chelsea -&amp;gt; {:points 1200}  I had read the documentation of array-map, a function which can be used to transform a collection of pairs into a map, and it seemed like it might do the trick.</description>
+      <description>(def teams #{ &amp;#34;Man Utd&amp;#34; &amp;#34;Man City&amp;#34; &amp;#34;Arsenal&amp;#34; &amp;#34;Chelsea&amp;#34;}) Man Utd -&amp;gt; {:points 1200} Man City -&amp;gt; {:points 1200} Arsenal -&amp;gt; {:points 1200} Chelsea -&amp;gt; {:points 1200} &amp;gt; (mapcat (fn [x] [x {:points 1200}]) teams) (&amp;#34;Chelsea&amp;#34; {:points 1200} &amp;#34;Man City&amp;#34; {:points 1200} &amp;#34;Arsenal&amp;#34; {:points 1200} &amp;#34;Man Utd&amp;#34; {:points 1200}) &amp;gt; (array-map &amp;#34;Chelsea&amp;#34; {:points 1200} &amp;#34;Man City&amp;#34; {:points 1200} &amp;#34;Arsenal&amp;#34; {:points 1200} &amp;#34;Man Utd&amp;#34; {:points 1200}) (&amp;#34;Chelsea&amp;#34; {:points 1200} &amp;#34;Man City&amp;#34; {:points 1200} &amp;#34;Arsenal&amp;#34; {:points 1200} &amp;#34;Man Utd&amp;#34; {:points 1200}) &amp;gt; (apply array-map [&amp;#34;Chelsea&amp;#34; {:points 1200} &amp;#34;Man City&amp;#34; {:points 1200} &amp;#34;Arsenal&amp;#34; {:points 1200} &amp;#34;Man Utd&amp;#34; {:points 1200}]) {&amp;#34;Chelsea&amp;#34; {:points 1200}, &amp;#34;Man City&amp;#34; {:points 1200}, &amp;#34;Arsenal&amp;#34; {:points 1200}, &amp;#34;Man Utd&amp;#34; {:points 1200}} &amp;gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) teams)) {&amp;#34;Man Utd&amp;#34; {:points 1200}, &amp;#34;Man City&amp;#34; {:points 1200}, &amp;#34;Arsenal&amp;#34; {:points 1200}, &amp;#34;Chelsea&amp;#34; {:points 1200}} &amp;gt; (mapcat vector teams (repeat {:points 1200})) (&amp;#34;Chelsea&amp;#34; {:points 1200} &amp;#34;Man City&amp;#34; {:points 1200} &amp;#34;Arsenal&amp;#34; {:points 1200} &amp;#34;Man Utd&amp;#34; {:points 1200}) &amp;gt; (apply array-map (mapcat vector teams (repeat {:points 1200}))) {&amp;#34;Chelsea&amp;#34; {:points 1200}, &amp;#34;Man City&amp;#34; {:points 1200}, &amp;#34;Arsenal&amp;#34; {:points 1200}, &amp;#34;Man Utd&amp;#34; {:points 1200}} &amp;gt; (apply assoc {} (mapcat vector teams (repeat {:points 1200}))) {&amp;#34;Man Utd&amp;#34; {:points 1200}, &amp;#34;Arsenal&amp;#34; {:points 1200}, &amp;#34;Man City&amp;#34; {:points 1200}, &amp;#34;Chelsea&amp;#34; {:points 1200}} &amp;gt; (into {} [[&amp;#34;Chelsea&amp;#34; {:points 1200}] [&amp;#34;Man City&amp;#34; {:points 1200}] [&amp;#34;Arsenal&amp;#34; {:points 1200}] [&amp;#34;Man Utd&amp;#34; {:points 1200}] ]) &amp;gt; (into {} (map vector teams (repeat {:points 1200}))) {&amp;#34;Chelsea&amp;#34; {:points 1200}, &amp;#34;Man City&amp;#34; {:points 1200}, &amp;#34;Arsenal&amp;#34; {:points 1200}, &amp;#34;Man Utd&amp;#34; {:points 1200}} &amp;gt; (zipmap teams (repeat {:points 1200})) {&amp;#34;Man Utd&amp;#34; {:points 1200}, &amp;#34;Arsenal&amp;#34; {:points 1200}, &amp;#34;Man City&amp;#34; {:points 1200}, &amp;#34;Chelsea&amp;#34; {:points 1200}} </description>
     </item>
     
     <item>
@@ -180,10 +152,7 @@ Man Utd -&amp;gt; {:points 1200} Man City -&amp;gt; {:points 1200} Arsenal -&amp
       <pubDate>Fri, 20 Sep 2013 07:00:01 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/20/clojure-converting-a-string-to-a-date/</guid>
-      <description>I wanted to do some date manipulation in Clojure recently and figured that since clj-time is a wrapper around Joda Time it&#39;d probably do the trick.
-The first thing we need to do is add the dependency to our project file and then run lein reps to pull down the appropriate JARs. The project file should look something like this:
-project.clj
-(defproject ranking-algorithms &amp;quot;0.1.0-SNAPSHOT&amp;quot; :license {:name &amp;quot;Eclipse Public License&amp;quot; :url &amp;quot;http://www.</description>
+      <description>project.clj(defproject ranking-algorithms &amp;#34;0.1.0-SNAPSHOT&amp;#34; :license {:name &amp;#34;Eclipse Public License&amp;#34; :url &amp;#34;http://www.eclipse.org/legal/epl-v10.html&amp;#34;} :dependencies [[org.clojure/clojure &amp;#34;1.4.0&amp;#34;] [clj-time &amp;#34;0.6.0&amp;#34;]]) &amp;gt; (require &amp;#39;(clj-time [format :as f])) (def string-date &amp;#34;18 September 2012&amp;#34;) &amp;gt; (f/show-formatters) ... :hour-minute 06:45 :hour-minute-second 06:45:22 :hour-minute-second-fraction 06:45:22.473 :hour-minute-second-ms 06:45:22.473 :mysql 2013-09-20 06:45:22 :ordinal-date 2013-263 :ordinal-date-time 2013-263T06:45:22.473Z :ordinal-date-time-no-ms 2013-263T06:45:22Z :rfc822 Fri, 20 Sep 2013 06:45:22 +0000 ... &amp;gt; (f/parse (f/formatter &amp;#34;dd MMM YYYY&amp;#34;) string-date) #&amp;lt;DateTime 2012-09-18T00:00:00.000Z&amp;gt; </description>
     </item>
     
     <item>
@@ -192,9 +161,7 @@ project.clj
       <pubDate>Thu, 19 Sep 2013 23:57:49 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/19/clojure-see-every-step-of-a-reduce/</guid>
-      <description>Last year I wrote about a Haskell function called scanl which returned the intermediate steps of a fold over a collection and last week I realised that I needed a similar function in Clojure to analyse a reduce I&#39;d written.
-A simple reduce which adds together the numbers 1-10 would look like this:
-&amp;gt; (reduce + 0 (range 1 11)) 55  If we want to see the intermediate values of this function called then instead of using reduce there&#39;s a function called reductions which gives us exactly what we want:</description>
+      <description>&amp;gt; (reduce + 0 (range 1 11)) 55 &amp;gt; (reductions + 0 (range 1 11)) (0 1 3 6 10 15 21 28 36 45 55) (def initial-team-rankings { &amp;#34;Man Utd&amp;#34; {:points 1200} &amp;#34;Man City&amp;#34; {:points 1300}}) (defn update-team-rankings [teams year] (reduce (fn [ts [team _]] (update-in ts [team :points] inc)) teams teams)) &amp;gt; (reduce update-team-rankings initial-team-rankings (range 2004 2013)) {&amp;#34;Man City&amp;#34; {:points 1309}, &amp;#34;Man Utd&amp;#34; {:points 1209}} &amp;gt; (nth (reductions update-team-rankings initial-team-rankings (range 2004 2013)) 3) {&amp;#34;Man City&amp;#34; {:points 1303}, &amp;#34;Man Utd&amp;#34; {:points 1203}} (def final-rankings (zipmap (range 2003 2013) (reductions update-team-rankings initial-team-rankings (range 2004 2013)))) &amp;gt; (get final-rankings 2006) {&amp;#34;Man City&amp;#34; {:points 1303}, &amp;#34;Man Utd&amp;#34; {:points 1203}} </description>
     </item>
     
     <item>
@@ -203,9 +170,7 @@ A simple reduce which adds together the numbers 1-10 would look like this:
       <pubDate>Tue, 17 Sep 2013 01:03:37 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/17/clojure-merge-two-maps-but-only-keep-the-keys-of-one-of-them/</guid>
-      <description>I&#39;ve been playing around with Clojure maps recently and I wanted to merge two maps of rankings where the rankings in the second map overrode those in the first while only keeping the teams from the first map.
-The merge function overrides keys in earlier maps but also adds keys that only appear in later maps. For example, if we merge the following maps:
-&amp;gt; (merge {&amp;quot;Man. United&amp;quot; 1500 &amp;quot;Man. City&amp;quot; 1400} {&amp;quot;Man.</description>
+      <description>&amp;gt; (merge {&amp;#34;Man. United&amp;#34; 1500 &amp;#34;Man. City&amp;#34; 1400} {&amp;#34;Man. United&amp;#34; 1550 &amp;#34;Arsenal&amp;#34; 1450}) {&amp;#34;Arsenal&amp;#34; 1450, &amp;#34;Man. United&amp;#34; 1550, &amp;#34;Man. City&amp;#34; 1400} (defn merge-rankings [initial-rankings override-rankings] (merge initial-rankings (into {} (filter #(contains? initial-rankings (key %)) override-rankings)))) &amp;gt; (merge-rankings {&amp;#34;Man. United&amp;#34; 1500 &amp;#34;Man. City&amp;#34; 1400} {&amp;#34;Man. United&amp;#34; 1550 &amp;#34;Arsenal&amp;#34; 1450}) {&amp;#34;Man. United&amp;#34; 1550, &amp;#34;Man. City&amp;#34; 1400} (defn merge-rankings [initial-rankings override-rankings] (select-keys (merge initial-rankings override-rankings) (map key initial-rankings))) (defn merge-rankings [initial-rankings override-rankings] (select-keys (merge initial-rankings override-rankings) (keys initial-rankings))) (defn merge-keep-left [left right] (select-keys (merge left right) (keys left))) </description>
     </item>
     
     <item>
@@ -214,9 +179,7 @@ The merge function overrides keys in earlier maps but also adds keys that only a
       <pubDate>Tue, 17 Sep 2013 00:24:48 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/17/clojure-updating-keys-in-a-map/</guid>
-      <description>I&#39;ve been playing with Clojure over the last few weeks and as a result I&#39;ve been using a lot of maps to represent the data.
-For example if we have the following map of teams to Glicko ratings and ratings deviations:
-(def teams { &amp;quot;Man. United&amp;quot; {:points 1500 :rd 350} &amp;quot;Man. City&amp;quot; {:points 1450 :rd 300} })  We might want to increase Man. United&#39;s points score by one for which we could use the update-in function:</description>
+      <description>(def teams { &amp;#34;Man. United&amp;#34; {:points 1500 :rd 350} &amp;#34;Man. City&amp;#34; {:points 1450 :rd 300} }) &amp;gt; (update-in teams [&amp;#34;Man. United&amp;#34; :points] inc) {&amp;#34;Man. United&amp;#34; {:points 1501, :rd 350}, &amp;#34;Man. City&amp;#34; {:points 1450, :rd 300}} &amp;gt; (assoc-in teams [&amp;#34;Man. United&amp;#34; :points] 1) {&amp;#34;Man. United&amp;#34; {:points 1, :rd 350}, &amp;#34;Man. City&amp;#34; {:points 1450, :rd 300}} (-&amp;gt; teams (assoc-in [&amp;#34;Man. United&amp;#34; :points] 1600) (assoc-in [&amp;#34;Man. United&amp;#34; :rd] 200)) {&amp;#34;Man. United&amp;#34; {:points 1600, :rd 200}, &amp;#34;Man.</description>
     </item>
     
     <item>
@@ -225,9 +188,7 @@ For example if we have the following map of teams to Glicko ratings and ratings 
       <pubDate>Sat, 14 Sep 2013 01:24:51 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/14/clojure-all-things-regex/</guid>
-      <description>I&#39;ve been doing some scrapping of web pages recently using Clojure and Enlive and as part of that I&#39;ve had to write regular expressions to extract the data I&#39;m interested in.
-On my travels I&#39;ve come across a few different functions and I&#39;m never sure which is the right one to use so I thought I&#39;d document what I&#39;ve tried for future me.
-Check if regex matches The first regex I wrote was while scrapping the Champions League results from the Rec.</description>
+      <description>Real Madrid-Juventus Turijn 2 - 1 53’Nedved 0-1, 66&amp;#39;Xavi Hernández 1-1, 114’Zalayeta 1-2 [a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9] (defn recognise-match? [row] (not (clojure.string/blank? (re-matches #&amp;#34;[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]&amp;#34; row)))) &amp;gt; (recognise-match? &amp;#34;Real Madrid-Juventus Turijn 2 - 1&amp;#34;) true &amp;gt; (recognise-match? &amp;#34;53’Nedved 0-1, 66&amp;#39;Xavi Hernández 1-1, 114’Zalayeta 1-2&amp;#34;) false &amp;gt; (recognise-match? &amp;#34;Real Madrid-Juventus Turijn 2 - 1 abc&amp;#34;) false (defn recognise-match? [row] (not (clojure.string/blank? (re-find #&amp;#34;[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]&amp;#34; row)))) &amp;gt; (recognise-match? &amp;#34;Real Madrid-Juventus Turijn 2 - 1 abc&amp;#34;) true &amp;gt; (first (re-seq #&amp;#34;([a-zA-Z\s]+)-([a-zA-Z\s]+) ([0-9])[\s]?</description>
     </item>
     
     <item>
@@ -236,9 +197,7 @@ Check if regex matches The first regex I wrote was while scrapping the Champions
       <pubDate>Sat, 31 Aug 2013 13:01:16 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/31/elo-rating-system-ranking-champions-league-teams-using-clojure/</guid>
-      <description>As I mentioned in an earlier blog post I&#39;ve been learning about ranking systems and one of the first ones I came across was the Elo rating system which is most famously used to rank chess players.
-The Elo rating system uses the following formula to work out a player/team&#39;s ranking after they&#39;ve participated in a match:
- R&#39; = R + K * (S - E)  R&#39; is the new rating R is the old rating K is a maximum value for increase or decrease of rating (16 or 32 for ELO) S is the score for a game E is the expected score for a game  I converted that formula into the following Clojure functions:</description>
+      <description>(defn ranking-after-win [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (+ ranking (* importance (- 1 (expected ranking opponent-ranking) )))) (defn ranking-after-loss [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (+ ranking (* importance (- 0 (expected ranking opponent-ranking) )))) (defn expected [my-ranking opponent-ranking] (/ 1.0 (+ 1 (math/expt 10 (/ (- opponent-ranking my-ranking) 400))))) &amp;gt; (ranking-after-win { :ranking 1200 :opponent-ranking 1500 :importance 32 }) 1227.1686541692377 &amp;gt; (expected 1200 1500) 0.15097955721132328 (defn top-teams [number matches] (let [teams-with-rankings (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams matches)))] (take number (sort-by (fn [x] (:points (val x))) &amp;gt; (seq (reduce process-match teams-with-rankings matches)))))) (defn process-match [ts match] (let [{:keys [home away home_score away_score]} match] (cond (&amp;gt; home_score away_score) (-&amp;gt; ts (update-in [home :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (&amp;gt; away_score home_score) (-&amp;gt; ts (update-in [home :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (= home_score away_score) ts))) &amp;gt; (take 5 all-matches) ({:home &amp;#34;Tampere&amp;#34;, :away &amp;#34;Pyunik Erewan&amp;#34;, :home_score 0, :away_score 4} {:home &amp;#34;Pyunik Erewan&amp;#34;, :away &amp;#34;Tampere&amp;#34;, :home_score 2, :away_score 0} {:home &amp;#34;Skonto Riga&amp;#34;, :away &amp;#34;Barry Town&amp;#34;, :home_score 5, :away_score 0} {:home &amp;#34;Barry Town&amp;#34;, :away &amp;#34;Skonto Riga&amp;#34;, :home_score 0, :away_score 1} {:home &amp;#34;Portadown&amp;#34;, :away &amp;#34;Belshina Bobruisk&amp;#34;, :home_score 0, :away_score 0}) &amp;gt; (extract-teams (take 5 all-matches)) #{&amp;#34;Portadown&amp;#34; &amp;#34;Tampere&amp;#34; &amp;#34;Pyunik Erewan&amp;#34; &amp;#34;Barry Town&amp;#34; &amp;#34;Skonto Riga&amp;#34;} &amp;gt; (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches))) (&amp;#34;Portadown&amp;#34; {:points 1200} &amp;#34;Tampere&amp;#34; {:points 1200} &amp;#34;Pyunik Erewan&amp;#34; {:points 1200} &amp;#34;Barry Town&amp;#34; {:points 1200} &amp;#34;Skonto Riga&amp;#34; {:points 1200}) &amp;gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches)))) {&amp;#34;Portadown&amp;#34; {:points 1200}, &amp;#34;Tampere&amp;#34; {:points 1200}, &amp;#34;Pyunik Erewan&amp;#34; {:points 1200}, &amp;#34;Barry Town&amp;#34; {:points 1200}, &amp;#34;Skonto Riga&amp;#34; {:points 1200}} &amp;gt; (top-teams 10 all-matches) ([&amp;#34;CF Barcelona&amp;#34; {:points 1343.</description>
     </item>
     
     <item>
@@ -247,9 +206,7 @@ The Elo rating system uses the following formula to work out a player/team&#39;s
       <pubDate>Fri, 30 Aug 2013 12:23:21 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/30/clojure-handling-state-by-updating-a-vector-inside-an-atom/</guid>
-      <description>As I mentioned in a previous blog post, I&#39;ve been learning about ranking algorithms and I wanted to apply them to a series of football matches to see who the strongest team was.
-Before that, however, I wanted to sketch out the functions that I&#39;d need to do this and I started with the following collections of matches and team rankings:
-(def m [{:home &amp;quot;Manchester United&amp;quot;, :away &amp;quot;Manchester City&amp;quot;, :home_score 1, :away_score 0} {:home &amp;quot;Manchester United&amp;quot;, :away &amp;quot;Manchester City&amp;quot;, :home_score 2, :away_score 0}]) (def teams [ {:name &amp;quot;Manchester United&amp;quot; :points 1200} {:name &amp;quot;Manchester City&amp;quot; :points 1200} ])  I wanted to iterate over the matches and make the appropriate updates to the teams&#39; rankings depending on the result of the match.</description>
+      <description>(def m [{:home &amp;#34;Manchester United&amp;#34;, :away &amp;#34;Manchester City&amp;#34;, :home_score 1, :away_score 0} {:home &amp;#34;Manchester United&amp;#34;, :away &amp;#34;Manchester City&amp;#34;, :home_score 2, :away_score 0}]) (def teams [ {:name &amp;#34;Manchester United&amp;#34; :points 1200} {:name &amp;#34;Manchester City&amp;#34; :points 1200} ]) (def t (atom teams)) &amp;gt; (map #(if (= &amp;#34;Manchester United&amp;#34; (:name %)) (assoc % :points 1500) %) teams) [{:name &amp;#34;Manchester United&amp;#34;, :points 1500} {:name &amp;#34;Manchester City&amp;#34;, :points 1200}] &amp;gt; (swap! t (fn [teams] (map #(if (= &amp;#34;Manchester United&amp;#34; (:name %)) (assoc % :points 1500) %) teams))) ({:name &amp;#34;Manchester United&amp;#34;, :points 1500} {:name &amp;#34;Manchester City&amp;#34;, :points 1200}) &amp;gt; @t [{:name &amp;#34;Manchester United&amp;#34;, :points 1500} {:name &amp;#34;Manchester City&amp;#34;, :points 1200}] (defn update-teams [teams team1 new-score1 team2 new-score2] (vec (map #(cond (= team1 (:name %)) (assoc % :points new-score1) (= team2 (:name %)) (assoc % :points new-score2) :else %) teams))) &amp;gt; (map (fn [match] (swap!</description>
     </item>
     
     <item>
@@ -258,9 +215,7 @@ Before that, however, I wanted to sketch out the functions that I&#39;d need to 
       <pubDate>Mon, 26 Aug 2013 17:58:58 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/26/clojureenlive-screen-scraping-a-html-file-from-disk/</guid>
-      <description>I wanted to play around with some Champions League data and I came across the Rec Sport Soccer Statistics Foundation which has collected results of all matches since the tournament started in 1955.
-I wanted to get a list of all the matches for a specific season so I started out by downloading the file:
-$ pwd /tmp/football $ wget http://www.rsssf.com/ec/ec200203det.html  The next step was to load that page and then run a CSS selector over it to extract the matches.</description>
+      <description>$ pwd /tmp/football $ wget http://www.rsssf.com/ec/ec200203det.html (ns ranking-algorithms.parse (:use [net.cgrand.enlive-html])) (defn fetch-page [file-path] (html-resource (java.io.StringReader. (slurp file-path)))) (defn matches [file] (-&amp;gt;&amp;gt; file fetch-page extract-rows (map extract-content) (filter recognise-match?))) (defn extract-rows [page] (select page [:div.Section1 :p :span])) (defn extract-content [row] (first (get row :content))) (defn recognise-match? [row] (and (string? row) (re-matches #&amp;#34;[a-zA-Z\s]+-[a-zA-Z\s]+ [0-9][\s]?.[\s]?[0-9]&amp;#34; row))) &amp;gt; (matches &amp;#34;/tmp/football/ec200203det.html&amp;#34;) ( ... &amp;#34;Lokomotiv\nMoskou-Borussia Dortmund 1 - 2&amp;#34; &amp;#34;Borussia\nDortmund-AC Milan 0 - 1&amp;#34; &amp;#34;Real\nMadrid-Lokomotiv Moskou 2 - 2&amp;#34; &amp;#34;Real\nMadrid-Borussia Dortmund 2 - 1&amp;#34; &amp;#34;AC Milan-Lokomotiv\nMoskou 1 - 0&amp;#34; &amp;#34;Borussia Dortmund-Real\nMadrid 1 - 1&amp;#34; &amp;#34;Lokomotiv\nMoskou-AC Milan 0 - 1&amp;#34; .</description>
     </item>
     
     <item>
@@ -269,9 +224,7 @@ $ pwd /tmp/football $ wget http://www.rsssf.com/ec/ec200203det.html  The next st
       <pubDate>Sun, 17 Mar 2013 20:21:10 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/17/clojurejava-interop-the-doto-macro/</guid>
-      <description>I recently wrote about some code I&#39;ve been playing with to import neo4j spatial data and while looking to simplify the code I came across the doto macro.
-The doto macro allows us to chain method calls on an initial object and then returns the resulting object. e.g.
-(doto (new java.util.HashMap) (.put &amp;quot;a&amp;quot; 1) (.put &amp;quot;b&amp;quot; 2)) -&amp;gt; {a=1, b=2}  In our case this comes in quite useful in the function used to create a stadium node which initially reads like this:~~~ ~~~lisp (defn create-stadium-node [db line] (let [stadium-node (.</description>
+      <description>(doto (new java.util.HashMap) (.put &amp;#34;a&amp;#34; 1) (.put &amp;#34;b&amp;#34; 2)) -&amp;gt; {a=1, b=2} (defn create-stadium-node [db line] (let [stadium-node (.. db createNode)] (.. stadium-node (setProperty &amp;#34;wkt&amp;#34; (format &amp;#34;POINT(%s %s)&amp;#34; (:long line) (:lat line)))) (.. stadium-node (setProperty &amp;#34;name&amp;#34; (:stadium line))) stadium-node)) (defn create-stadium-node [db line] (doto (.. db createNode) (.setProperty &amp;#34;wkt&amp;#34; (format &amp;#34;POINT(%s %s)&amp;#34; (:long line) (:lat line))) (.setProperty &amp;#34;name&amp;#34; (:stadium line)))) # the end of our main function (.. tx success) (.</description>
     </item>
     
     <item>
@@ -280,9 +233,7 @@ The doto macro allows us to chain method calls on an initial object and then ret
       <pubDate>Sun, 17 Mar 2013 18:56:36 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/17/clojurejava-interop-importing-neo4j-spatial-data/</guid>
-      <description>I wrote a post about a week ago where I described how I&#39;d added football stadiums to my football graph using neo4j spatial and after I&#39;d done that I wanted to put it into my import script along with the rest of the data.
-I thought leiningen would probably work quite well for this as you can point it at a Java class and have it be executed.
-To start with I had to change the import code slightly to link stadiums to teams which have already been added to the graph:</description>
+      <description>package main.java; // imports excluded  public class StadiumsImport { public static void main(String[] args) throws IOException { List&amp;lt;String&amp;gt; lines = readFile(&amp;#34;data/stadiums.csv&amp;#34;); EmbeddedGraphDatabase db = new EmbeddedGraphDatabase(&amp;#34;neo4j-community-1.9.M04/data/graph.db&amp;#34;); Index&amp;lt;Node&amp;gt; stadiumsIndex = createSpatialIndex(db, &amp;#34;stadiumsLocation&amp;#34;); Transaction tx = db.beginTx(); for (String stadium : lines) { String[] columns = stadium.split(&amp;#34;,&amp;#34;); Index&amp;lt;Node&amp;gt; teamsIndex = db.index().forNodes(&amp;#34;teams&amp;#34;); String team = columns[1].replaceAll(&amp;#34;\&amp;#34;&amp;#34;,&amp;#34;&amp;#34;); Node teamNode = teamsIndex.get(&amp;#34;name&amp;#34;, team).getSingle(); if(teamNode != null) { Node stadiumNode = db.createNode(); stadiumNode.setProperty(&amp;#34;wkt&amp;#34;, String.format(&amp;#34;POINT(%s %s)&amp;#34;, columns[4], columns[3])); stadiumNode.</description>
     </item>
     
     <item>
@@ -291,8 +242,7 @@ To start with I had to change the import code slightly to link stadiums to teams
       <pubDate>Fri, 11 Jan 2013 00:40:49 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/01/11/clojure-reading-and-writing-a-reasonably-sized-file/</guid>
-      <description>In a post a couple of days ago I described some code I&#39;d written in R to find out all the features with zero variance in the Kaggle Digit Recognizer data set and yesterday I started working on some code to remove those features.
-Jen and I had previously written some code to parse the training data in Clojure so I thought I&#39;d try and adapt that to write out a new file without the unwanted pixels.</description>
+      <description>(defn get-pixels [pix] (map #( Integer/parseInt %) pix)) (defn create-tuple [[ head &amp;amp; rem]] {:pixels (get-pixels rem) :label head}) (defn tuples [rows] (map create-tuple rows)) (defn parse-row [row] (map #(clojure.string/split % #&amp;#34;,&amp;#34;) row)) (defn read-raw [path n] (with-open [reader (clojure.java.io/reader path)] (vec (take n (rest (line-seq reader)))))) (def read-train-set-raw (partial read-raw &amp;#34;data/train.csv&amp;#34;)) (def parsed-rows (tuples (parse-row (read-train-set-raw 42000)))) (def dead-to-us-pixels [0 1 2 3 4 5 6 7 8 9 10 11 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 52 53 54 55 56 57 82 83 84 85 111 112 139 140 141 168 196 392 420 421 448 476 532 560 644 645 671 672 673 699 700 701 727 728 729 730 731 754 755 756 757 758 759 760 780 781 782 783]) (defn in?</description>
     </item>
     
     <item>
@@ -301,9 +251,9 @@ Jen and I had previously written some code to parse the training data in Clojure
       <pubDate>Tue, 06 Nov 2012 12:42:36 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/11/06/clojure-thread-last-vs-thread-first/</guid>
-      <description>In many of the Clojure examples that I&amp;rsquo;ve come across the thread last (-&amp;gt;&amp;gt;) macro is used to make it easier (for people from a non lispy background!) to see the transformations that the initial data structure is going through.
+      <description>In many of the Clojure examples that I&amp;rsquo;ve come across the thread last (-&amp;raquo;)macro is used to make it easier (for people from a non lispy background!) to see the transformations that the initial data structure is going through.
 In one of my recent posts I showed how Jen &amp;amp; I had rewritten Mahout&amp;rsquo;s entropy function in Clojure:
-(defn calculate-entropy [counts data-size] (-&amp;gt;&amp;gt; counts (remove #{0}) (map (partial individual-entropy data-size)) (reduce +)))  Here we are using the thread last operator to first pass counts as the last argument of the remove function on the next line, then to pass the result of that to the map function on the next line and so on.</description>
+(defn calculate-entropy [counts data-size] (-&amp;gt;&amp;gt; counts (remove #{0}) (map (partial individual-entropy data-size)) (reduce +))) Here we are using the thread last operator to first pass countsas the last argument of the removefunction on the next line, then to pass the result of that to the mapfunction on the next line and so on.</description>
     </item>
     
     <item>
@@ -312,7 +262,7 @@ In one of my recent posts I showed how Jen &amp;amp; I had rewritten Mahout&amp;
       <pubDate>Wed, 31 Oct 2012 08:41:09 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/31/emacsclojure-starting-out-with-paredit/</guid>
-      <description>I&amp;rsquo;ve been complaining recently to Jen and Bruce about the lack of a beginner&amp;rsquo;s guide to emacs paredit mode which seems to be the defacto approach for people working with Clojure and both pointed me to the paredit cheat sheet.
+      <description>I&amp;rsquo;ve been complaining recently to Jenand Bruceabout the lack of a beginner&amp;rsquo;s guide to emacs paredit modewhich seems to be the defacto approach for people working with Clojure and both pointed me to the paredit cheat sheet.
 While it&amp;rsquo;s very comprehensive, I found that it&amp;rsquo;s a little overwhelming for a complete newbie like myself.
 I therefore thought it&amp;rsquo;d be useful to write a bit about a couple of things that I&amp;rsquo;ve picked up from pairing with Jen on little bits of Clojure over the last couple of months.</description>
     </item>
@@ -323,9 +273,10 @@ I therefore thought it&amp;rsquo;d be useful to write a bit about a couple of th
       <pubDate>Tue, 30 Oct 2012 22:46:34 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/30/clojure-mahouts-entropy-function/</guid>
-      <description>As I mentioned in a couple of previous posts Jen and I have been playing around with Mahout random forests and for a few hours last week we spent some time looking through the code to see how it worked.
+      <description>As I mentioned in a coupleof previous postsJenand I have been playing around with Mahout random forestsand for a few hours last week we spent some time looking through the code to see how it worked.
 In particular we came across an entropy function which is used to determine how good a particular &amp;lsquo;split&amp;rsquo; point in a decision tree is going to be.
-I quite like the following definition:  The level of certainty of a particular decision can be measured as a number from 1 (completely uncertain) to 0 (completely certain).</description>
+I quite like the following definition:
+Information Theory (developed by Claude Shannon 1948) defines this value of uncertainty as entropy, a probability-based measure used to calculate the amount of uncertainty.</description>
     </item>
     
     <item>
@@ -334,8 +285,8 @@ I quite like the following definition:  The level of certainty of a particular d
       <pubDate>Sat, 31 Dec 2011 17:47:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/12/31/clojure-casting-to-a-java-class-or-not/</guid>
-      <description>I have a bit of Java code for working out the final destination of a URL assuming that there might be one redirect which looks like this:
-private String resolveUrl(String url) { try { HttpURLConnection con = (HttpURLConnection) (new URL(url).openConnection()); con.setInstanceFollowRedirects(false); con.connect(); int responseCode = con.getResponseCode(); if (String.valueOf(responseCode).startsWith(&amp;quot;3&amp;quot;)) { return con.getHeaderField(&amp;quot;Location&amp;quot;); } } catch (IOException e) { return url; } return url; }  I need to cast to HttpURLConnection on the first line so that I can make the call to setInstanceFollowRedirects which isn&amp;rsquo;t available on URLConnection.</description>
+      <description>I have a bit of Java code for working out the final destination of a URLassuming that there might be one redirect which looks like this:
+private String resolveUrl(String url) { try { HttpURLConnection con = (HttpURLConnection) (new URL(url).openConnection()); con.setInstanceFollowRedirects(false); con.connect(); int responseCode = con.getResponseCode(); if (String.valueOf(responseCode).startsWith(&amp;#34;3&amp;#34;)) { return con.getHeaderField(&amp;#34;Location&amp;#34;); } } catch (IOException e) { return url; } return url; } I need to cast to HttpURLConnectionon the first line so that I can make the call to setInstanceFollowRedirectswhich isn&amp;rsquo;t available on URLConnection.</description>
     </item>
     
     <item>
@@ -344,9 +295,9 @@ private String resolveUrl(String url) { try { HttpURLConnection con = (HttpURLCo
       <pubDate>Tue, 27 Dec 2011 12:48:17 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/12/27/leiningen-using-goose-via-a-local-maven-repository/</guid>
-      <description>I&amp;rsquo;ve been playing around a little bit with goose - a HTML content/article extractor - originally in Java but later in clojure where I needed to work out how to include goose and all its dependencies via Leiningen.
+      <description>I&amp;rsquo;ve been playing around a little bit with goose- a HTML content/article extractor - originally in Java but later in clojure where I needed to work out how to include goose and all its dependencies via Leiningen.
 goose isn&amp;rsquo;t included in a Maven repository so I needed to create a local repository, something which I&amp;rsquo;ve got stuck on in the past.
-Luckily Paul Gross has written a cool blog post explaining how his team got past this problem.</description>
+Luckily Paul Gross has written a cool blog postexplaining how his team got past this problem.</description>
     </item>
     
     <item>
@@ -355,9 +306,10 @@ Luckily Paul Gross has written a cool blog post explaining how his team got past
       <pubDate>Wed, 30 Nov 2011 02:25:52 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/11/30/xp-day-visualizing-whats-happening-on-our-project/</guid>
-      <description>Another presentation that I gave at XP Day was one covering some visualisations Liz, Uday and I have created from various data we have about our project, gathered from Git, Go and Mingle.
-Visualisations  View more presentations from Mark Needham   These were some of the things that I learned from doing the presentation:
- The various graphs I presented in the talk have a resolution of 1680 x 1050 which is a much higher resolution than what was available on the projector.</description>
+      <description>Another presentation that I gave at XP Day was one covering some visualisations Liz, Udayand I have created from various data we have about our project, gathered from Git, Go and Mingle.
+These were some of the things that I learned from doing the presentation:
+As a result it was necessary to scroll up and down/side to side when demonstrating each visualisationso that people could actually see them.
+Either I need to work out how to get the resolution of the projector higher or be able to shrink the images to the right size so they&amp;rsquo;d fit more naturally.</description>
     </item>
     
     <item>
@@ -366,8 +318,8 @@ Visualisations  View more presentations from Mark Needham   These were some of t
       <pubDate>Sun, 31 Jul 2011 21:40:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/07/31/clojure-getting-caught-out-by-lazy-collections/</guid>
-      <description>Most of the work that I&amp;rsquo;ve done with Clojure has involved running a bunch of functions directly in the REPL or through Leiningen&amp;rsquo;s run target which led to me getting caught out when I created a JAR and tried to run that.
-As I mentioned a few weeks ago I&amp;rsquo;ve been rewriting part of our system in Clojure to see how the design would differ and a couple of levels down the Clojure version comprises of applying a map function over a collection of documents.</description>
+      <description>Most of the work that I&amp;rsquo;ve done with Clojure has involved running a bunch of functions directly in the REPL or through Leiningen&amp;rsquo;s runtarget which led to me getting caught out when I created a JAR and tried to run that.
+As I mentioned a few weeks agoI&amp;rsquo;ve been rewriting part of our system in Clojure to see how the design would differ and a couple of levels down the Clojure version comprises of applying a map function over a collection of documents.</description>
     </item>
     
     <item>
@@ -376,9 +328,9 @@ As I mentioned a few weeks ago I&amp;rsquo;ve been rewriting part of our system 
       <pubDate>Wed, 20 Jul 2011 20:28:17 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/07/20/clojure-creating-xml-document-with-namespaces/</guid>
-      <description>As I mentioned in an earlier post we&amp;rsquo;ve been parsing XML documents with the Clojure zip-filter API and the next thing we needed to do was create a new XML document containing elements which needed to be inside a namespace.
+      <description>As I mentioned in an earlier post we&amp;rsquo;ve been parsing XML documents with the Clojure zip-filter APIand the next thing we needed to do was create a new XML document containing elements which needed to be inside a namespace.
 We wanted to end up with a document which looked something like this:
-&amp;lt;root&amp;gt; &amp;lt;mynamespace:foo xmlns:mynamespace=&amp;quot;http://www.magicalurlfornamespace.com&amp;quot;&amp;gt; &amp;lt;mynamespace:bar&amp;gt;baz&amp;lt;/mynamespace:bar&amp;gt; &amp;lt;/mynamespace:foo&amp;gt; &amp;lt;/root&amp;gt;  We can make use of lazy-xml/emit to output an XML string from some sort of input?</description>
+&amp;lt;root&amp;gt; &amp;lt;mynamespace:foo xmlns:mynamespace=&amp;#34;http://www.magicalurlfornamespace.com&amp;#34;&amp;gt; &amp;lt;mynamespace:bar&amp;gt;baz&amp;lt;/mynamespace:bar&amp;gt; &amp;lt;/mynamespace:foo&amp;gt; &amp;lt;/root&amp;gt; We can make use of lazy-xml/emitto output an XML string from some sort of input?</description>
     </item>
     
     <item>
@@ -387,9 +339,9 @@ We wanted to end up with a document which looked something like this:
       <pubDate>Sat, 16 Jul 2011 22:19:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/07/16/clojure-extracting-child-elements-from-an-xml-document-with-zip-filter/</guid>
-      <description>I&amp;rsquo;ve been following Nurullah Akkaya&amp;rsquo;s blog post about navigating XML documents using the Clojure zip-filter API and I came across an interesting problem in a document I&amp;rsquo;m parsing which goes beyond what&amp;rsquo;s covered in his post.
-Nurullah provides a neat zip-str function which we can use to convert an XML string into a zipper object:
-(require &#39;[clojure.zip :as zip] &#39;[clojure.xml :as xml]) (use &#39;[clojure.contrib.zip-filter.xml]) (defn zip-str [s] (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.</description>
+      <description>I&amp;rsquo;ve been following Nurullah Akkaya&amp;rsquo;s blog postabout navigating XML documents using the Clojure zip-filterAPI and I came across an interesting problem in a document I&amp;rsquo;m parsing which goes beyond what&amp;rsquo;s covered in his post.
+Nurullah provides a neat zip-strfunction which we can use to convert an XML string into a zipper object:
+(require &amp;#39;[clojure.zip :as zip] &amp;#39;[clojure.xml :as xml]) (use &amp;#39;[clojure.contrib.zip-filter.xml]) (defn zip-str [s] (zip/xml-zip (xml/parse (java.io.ByteArrayInputStream. (.getBytes s))))) The fragment of the document I&amp;rsquo;m parsing looks like this:</description>
     </item>
     
     <item>
@@ -398,8 +350,9 @@ Nurullah provides a neat zip-str function which we can use to convert an XML str
       <pubDate>Sun, 10 Jul 2011 22:21:16 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/07/10/clojure-language-as-thought-shaper/</guid>
-      <description>I recently read an interesting article by Tom Van Cutsem where he describes some of the goals that influence the design of programming languages and one which stood out to me is that of viewing &amp;lsquo;language as a thought shaper&amp;rsquo;:
- Language as thought shaper: to induce a paradigm shift in how one should structure software (changing the &#34;path of least resistance&#34;).   To quote Alan Perlis: &#34;a language that doesn&#39;t affect the way you think about programming, is not worth knowing.</description>
+      <description>I recently read an interesting article by Tom Van Cutsemwhere he describes some of the goals that influence the design of programming languages and one which stood out to me is that of viewing &amp;lsquo;language as a thought shaper&amp;rsquo;:
+The goal of a thought shaper language is to change the way a programmer thinks about structuring his or her program.
+I&amp;rsquo;ve been rewriting part of the current system that I&amp;rsquo;m working on in Clojure in my spare time to see how the design would differ and it&amp;rsquo;s interesting to see that it&amp;rsquo;s quite different.</description>
     </item>
     
     <item>
@@ -408,9 +361,9 @@ Nurullah provides a neat zip-str function which we can use to convert an XML str
       <pubDate>Sun, 03 Jul 2011 22:50:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/07/03/clojure-equivalent-to-scalas-flatmapcs-selectmany/</guid>
-      <description>I&amp;rsquo;ve been playing around with Clojure a bit over the weekend and one thing I got stuck with was working out how to achieve the functionality provided by Scala&amp;rsquo;s flatMap or C#&amp;rsquo;s SelectMany methods on collections.
+      <description>I&amp;rsquo;ve been playing around with Clojure a bit over the weekend and one thing I got stuck with was working out how to achieve the functionality provided by Scala&amp;rsquo;s flatMapor C#&amp;lsquo;s SelectManymethods on collections.
 I had a collection of zip files and wanted to transform that into a collection of all the file entries in those files.
-If we just use map then we&amp;rsquo;ll end up with a collection of collections which is more difficult to deal with going forward.</description>
+If we just use mapthen we&amp;rsquo;ll end up with a collection of collections which is more difficult to deal with going forward.</description>
     </item>
     
     <item>
@@ -431,8 +384,8 @@ I want to create a macro which takes in one argument and then prints hello and t
       
       <guid>https://markhneedham.com/blog/2009/12/12/clojure-forgetting-the-brackets/</guid>
       <description>I&amp;rsquo;ve been playing around with macros over the last few days and while writing a simple one forgot to include the brackets to make it evaluate correctly:
-(defmacro say-hello [person] println &amp;quot;Hello&amp;quot; person)  This macro doesn&amp;rsquo;t even expand like I thought it would:
-user=&amp;gt; (macroexpand-1 &#39;(say-hello blah)) blah  That seemed a bit strange to me but I eventually realised that I&amp;rsquo;d missed off the brackets around &amp;lsquo;println&amp;rsquo; and the arguments following it which would have resulted in &amp;lsquo;println&amp;rsquo; being evaluated with those arguments.</description>
+(defmacro say-hello [person] println &amp;#34;Hello&amp;#34; person) This macro doesn&amp;rsquo;t even expand like I thought it would:
+user=&amp;gt; (macroexpand-1 &amp;#39;(say-hello blah)) blah That seemed a bit strange to me but I eventually realised that I&amp;rsquo;d missed off the brackets around &amp;lsquo;println&amp;rsquo; and the arguments following it which would have resulted in &amp;lsquo;println&amp;rsquo; being evaluated with those arguments.</description>
     </item>
     
     <item>
@@ -455,7 +408,7 @@ A simple example of using &amp;lsquo;when-let&amp;rsquo; would be:</description>
       <guid>https://markhneedham.com/blog/2009/12/06/clojure-unit-testing-in-the-repl/</guid>
       <description>One thing which I think is great about coding with F# is the quick feedback that we can get by defining and then testing out functions in the REPL.
 We can do the same thing in Clojure but it&amp;rsquo;s even better because we can also define and run unit tests which I think is pretty neat.
-Nurullah Akkaya has a good post which describes how to use clojure.test, a testing framework written by Stuart Sierra so I&amp;rsquo;ve been using that to define some tests cases for the little RSS feed parser that I&amp;rsquo;m writing.</description>
+Nurullah Akkaya has a good post which describes how to use clojure.test, a testing framework written by Stuart Sierraso I&amp;rsquo;ve been using that to define some tests cases for the little RSS feed parser that I&amp;rsquo;m writing.</description>
     </item>
     
     <item>
@@ -464,9 +417,10 @@ Nurullah Akkaya has a good post which describes how to use clojure.test, a testi
       <pubDate>Mon, 30 Nov 2009 18:33:55 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2009/11/30/clojure-parsing-an-rss-feed/</guid>
-      <description>I&amp;rsquo;ve been playing around with a little script in Clojure to parse the ThoughtWorks Blogs RSS feed and then create a tweet for each of them which contains a link to the blog post and the person&amp;rsquo;s Twitter ID if they have one.
+      <description>I&amp;rsquo;ve been playing around with a little script in Clojure to parse the ThoughtWorks Blogs RSS feedand then create a tweet for each of them which contains a link to the blog post and the person&amp;rsquo;s Twitter ID if they have one.
 It&amp;rsquo;s not finished yet but I&amp;rsquo;m finding the way that we parse documents like this in Clojure quite intriguing.
-The xml to parse looks roughly like this:</description>
+The xml to parse looks roughly like this:
+&amp;lt;rss version=&amp;#34;2.</description>
     </item>
     
     <item>
@@ -478,7 +432,7 @@ The xml to parse looks roughly like this:</description>
       <description>In my continued playing around with Clojure I came across the &amp;lsquo;apply&amp;rsquo; function which is used when we want to call another function with a number of arguments but have actually been given a single argument which contains the argument list.
 The example that I&amp;rsquo;ve been trying to understand is applying &amp;lsquo;str&amp;rsquo; to a collection of values.
 I started off with the following:
-(str [1 2 3]) =&amp;gt; &amp;quot;[1 2 3]&amp;quot;  This just returns the string representation of the vector that we passed it, but what we actually want is to get an output of &amp;ldquo;123&amp;rdquo;.</description>
+(str [1 2 3]) =&amp;gt; &amp;#34;[1 2 3]&amp;#34; This just returns the string representation of the vector that we passed it, but what we actually want is to get an output of &amp;ldquo;123&amp;rdquo;.</description>
     </item>
     
     <item>
@@ -489,7 +443,7 @@ I started off with the following:
       <guid>https://markhneedham.com/blog/2009/11/23/writing-a-java-function-in-clojure/</guid>
       <description>A function that we had to write in Java on a project that I worked on recently needed to indicate whether there was a gap in a series of data points or not.
 If there were gaps at the beginning or end of the sequence then that was fine but gaps in the middle of the sequence were not.
-null, 1, 2, 3 =&amp;gt; no gaps 1, 2, 3, null =&amp;gt; no gaps 1, null, 2, 3 =&amp;gt; gaps  The Java version looked a bit like this:</description>
+null, 1, 2, 3 =&amp;gt; no gaps 1, 2, 3, null =&amp;gt; no gaps 1, null, 2, 3 =&amp;gt; gaps The Java version looked a bit like this:</description>
     </item>
     
     <item>
@@ -500,7 +454,7 @@ null, 1, 2, 3 =&amp;gt; no gaps 1, 2, 3, null =&amp;gt; no gaps 1, null, 2, 3 =&
       <guid>https://markhneedham.com/blog/2009/11/21/clojure-checking-for-a-nil-value-in-a-collection/</guid>
       <description>Something which I wanted to do recently was write a function that would indicate whether a collection contained a nil value.
 I initially incorrectly thought the &amp;lsquo;contains?&amp;rsquo; function was the one that I wanted:
-(contains? &#39;(1 nil 2 3) nil) =&amp;gt; false  I thought it would work the same as the Java equivalent but that function actually checks whether a key exists in a collection rather than a value. It&amp;rsquo;s more useful when dealing with maps.</description>
+(contains? &amp;#39;(1 nil 2 3) nil) =&amp;gt; false I thought it would work the same as the Java equivalent but that function actually checks whether a key exists in a collection rather than a value. It&amp;rsquo;s more useful when dealing with maps.</description>
     </item>
     
     <item>
@@ -510,7 +464,9 @@ I initially incorrectly thought the &amp;lsquo;contains?&amp;rsquo; function was
       
       <guid>https://markhneedham.com/blog/2009/11/20/clojure-a-few-things-ive-been-tripping-up-on/</guid>
       <description>In my continued playing with Clojure I&amp;rsquo;m noticing a few things that I keep getting confused about.
-The meaning of parentheses Much like Keith Bennett I&#39;m not used to parentheses playing such an important role in the way that an expression gets evaluated. As I understand it if an expression is enclosed in parentheses then that means it will be evaluated as a function. For example I spent quite a while trying to work out why the following code kept throwing a class cast exception: ~~~lisp (if (true) 1 0) ~~~ If you run that code in the REPL you&#39;ll get the following exception because &#39;true&#39; isn&#39;t a function and therefore can&#39;t be applied as such: ~~~text java.</description>
+As I understand it if an expression is enclosed in parentheses then that means it will be evaluated as a function.
+For example I spent quite a while trying to work out why the following code kept throwing a class cast exception:
+(if (true) 1 0) If you run that code in the REPL you&amp;rsquo;ll get the following exception because &amp;lsquo;true&amp;rsquo; isn&amp;rsquo;t a function and therefore can&amp;rsquo;t be applied as such:</description>
     </item>
     
     <item>
@@ -522,7 +478,8 @@ The meaning of parentheses Much like Keith Bennett I&#39;m not used to parenthes
       <description>I&amp;rsquo;m working through Stuart Halloway&amp;rsquo;s &amp;lsquo;Programming Clojure&amp;rsquo; book and I just got to the section where it first mentions recursive functions.
 It&amp;rsquo;s a simple function to countdown from a given number to zero and then return that sequence.
 This was one of the examples from the book:
-(defn countdown [result x] (if (zero? x) result (recur (conj result x) (dec x))))  That function could then be called like this:</description>
+(defn countdown [result x] (if (zero? x) result (recur (conj result x) (dec x)))) That function could then be called like this:
+(countdown [] 5) I wanted to see what the function would look if we didn&amp;rsquo;t have the empty vector as a parameter.</description>
     </item>
     
   </channel>

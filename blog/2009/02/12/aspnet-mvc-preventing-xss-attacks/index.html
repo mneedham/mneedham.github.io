@@ -65,9 +65,8 @@ The solution Steve details works the opposite way to other solutions I have hear
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-02-12",
-        "description": "XSS(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&rsquo;re working with the ASP.NET MVC framework Steve Sanderson has written a great post on how to protect yourself from this.
-The solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated.",
-        "wordCount": 495
+        "description": "XSS(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you\x26rsquo;re working with the ASP.NET MVC framework Steve Sanderson has written a great post on how to protect yourself from this.\nThe solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated.",
+        "wordCount":  487 
     }
     </script>
     
@@ -178,64 +177,44 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">ASP.NET MVC: Preventing XSS attacks</h1>
-    <p><a href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS</a>(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&rsquo;re working with the ASP.NET MVC framework Steve Sanderson has written a <a href="http://blog.codeville.net/2007/12/19/aspnet-mvc-prevent-xss-with-automatic-html-encoding/">great post on how to protect yourself from this</a>.</p>
-
+    <p><!-- raw HTML omitted -->XSS<!-- raw HTML omitted -->(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&rsquo;re working with the ASP.NET MVC framework Steve Sanderson has written a <!-- raw HTML omitted -->great post on how to protect yourself from this<!-- raw HTML omitted -->.</p>
 <p>The solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated.</p>
-
 <p>The benefit of this approach is that when we add new things to our page in the future we don&rsquo;t need to worry that we might have inadvertently reintroduced a security problem.</p>
-
-<h3>Excluding aspx code from being encoded </h3>
-
+<!-- raw HTML omitted -->
 <p>After setting up the encoding we came up against the problem of how to exclude HTML that we are generating from our aspx templates that we don&rsquo;t want HTML encoded.</p>
-
 <p>This was a particular problem with our use of the HtmlHelper and UrlHelper provided with the framework.</p>
-
 <p>Since the majority of the methods we use are extension methods on these classes we didn&rsquo;t find it that easy to work out how to proxy those calls (we couldn&rsquo;t just override the methods since they aren&rsquo;t actually on HtmlHelper!) to our own RawHtmlHelper which could cast the result to RawHtml and therefore allow it to be rendered by the page.</p>
-
 <p>The aim was to minimise the amount of things that we had to change. The worst case solution would be to have to go through all our aspx files and change every call to a Helper method to a new encoded version of the same method.</p>
-
-<p>Luckily the <a href="">new</a> keyword comes to the rescue and allows us to hack around the problem.</p>
-
+<p>Luckily the <!-- raw HTML omitted -->new<!-- raw HTML omitted --> keyword comes to the rescue and allows us to hack around the problem.</p>
 <p>We hooked into the page lifecycle to create a new version of the Html property which returned our RawHtmlHelper.</p>
-
-<pre><code class="language-csharp">
-public class BaseViewPage&lt;TModel&gt; : ViewPage&lt;TModel&gt; where TModel = class
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BaseViewPage</span>&lt;TModel&gt; : ViewPage&lt;TModel&gt; <span style="color:#66d9ef">where</span> TModel = <span style="color:#66d9ef">class</span>
 {
-	public override void InitHelpers() 
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> InitHelpers() 
 	{
-		base.Html = new RawHtmlHelper(..);
-		base.Url = new RawUrlHelper(...);
+		<span style="color:#66d9ef">base</span>.Html = <span style="color:#66d9ef">new</span> RawHtmlHelper(..);
+		<span style="color:#66d9ef">base</span>.Url = <span style="color:#66d9ef">new</span> RawUrlHelper(...);
 	}
 
-	public new RawHtmlHelper Html 
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">new</span> RawHtmlHelper Html 
 	{
-		get { return (RawHtmlHelper) base.Html; }
+		<span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> (RawHtmlHelper) <span style="color:#66d9ef">base</span>.Html; }
 	}
 }
-</code></pre>
-
-<pre><code class="language-csharp">
-public class RawHtmlHelper : HtmlHelper 
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RawHtmlHelper</span> : HtmlHelper 
 {
-	public RawHtml TextBox(string name, object value)
+	<span style="color:#66d9ef">public</span> RawHtml TextBox(<span style="color:#66d9ef">string</span> name, <span style="color:#66d9ef">object</span> <span style="color:#66d9ef">value</span>)
 	{
-		return (RawHtml) ((HtmlHelper)this).TextBox(name, value);
+		<span style="color:#66d9ef">return</span> (RawHtml) ((HtmlHelper)<span style="color:#66d9ef">this</span>).TextBox(name, <span style="color:#66d9ef">value</span>);
 	}
 }
-</code></pre>
-
-<p>In our aspx page we don&rsquo;t need to make any changes to our code in order for it to now use the RawHtmlHelper method instead of the HtmlHelper method.</p>
-
-<pre><code class="language-text">
-&lt;%= Html.TextBox(&quot;name&quot;, &quot;value&quot;) %&gt;
-</code></pre>
-
-<p>The only other change was to make each of our aspx code behind classes inherit from BaseViewPage so that they receive the new Html property.</p>
-
-<h3>Overall</h3>
-
+</code></pre></div><p>In our aspx page we don&rsquo;t need to make any changes to our code in order for it to now use the RawHtmlHelper method instead of the HtmlHelper method.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+&lt;%= Html.TextBox(&#34;name&#34;, &#34;value&#34;) %&gt;
+</code></pre></div><p>The only other change was to make each of our aspx code behind classes inherit from BaseViewPage so that they receive the new Html property.</p>
+<!-- raw HTML omitted -->
 <p>There is way too much casting for my liking in this solution but I&rsquo;m not sure if a better solution exists other than creating our own version of the helper methods named &lsquo;RawTextBox&rsquo;, &lsquo;RawRadioButton&rsquo; and so on.</p>
-
 <p>The amount of work with that approach would be almost the same except if we have used the original HtmlHelper anywhere then we need to go and change all those too - exactly the problem we were trying to solve with the above solution.</p>
 
     <div id="social-bar">

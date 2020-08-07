@@ -64,9 +64,8 @@ Ideally we want to put the impersonator in a place where we can easily turn it o
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-08-19",
-        "description": "One of the other interesting problems that we&rsquo;ve come across while making use of different impersonators in our build process, and which Julio mentions at the end of his comment on Gil Zilberfeld&rsquo;s blog post, is trying to work out where the correct place for the impersonator is.
-Ideally we want to put the impersonator in a place where we can easily turn it on or off depending on whether we want to use the impersonator or the real end point.",
-        "wordCount": 975
+        "description": "One of the other interesting problems that we\x26rsquo;ve come across while making use of different impersonators in our build process, and which Julio mentions at the end of his comment on Gil Zilberfeld\x26rsquo;s blog post, is trying to work out where the correct place for the impersonator is.\nIdeally we want to put the impersonator in a place where we can easily turn it on or off depending on whether we want to use the impersonator or the real end point.",
+        "wordCount":  844 
     }
     </script>
     
@@ -175,66 +174,34 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Impersonators: Finding the enabling point</h1>
-    <p>One of the other interesting problems that we&rsquo;ve come across while making use of different impersonators in our build process, and which <a href="http://blog.typemock.com/2009/08/by-any-other-name.html#comment-14998269">Julio mentions at the end of his comment on Gil Zilberfeld&rsquo;s blog post</a>,  is trying to work out where the correct place for the impersonator is.</p>
-
+    <p>One of the other interesting problems that we&rsquo;ve come across while making use of different impersonators in our build process, and which <!-- raw HTML omitted -->Julio mentions at the end of his comment on Gil Zilberfeld&rsquo;s blog post<!-- raw HTML omitted -->,  is trying to work out where the correct place for the impersonator is.</p>
 <p>Ideally we want to put the impersonator in a place where we can easily turn it on or off depending on whether we want to use the impersonator or the real end point. In fact if we aren&rsquo;t able to do this then it is perhaps the case that we haven&rsquo;t actually created an impersonator at all.</p>
-
-<p>I like to use the term &lsquo;<strong>enabling point</strong>&rsquo;, which I learnt from Michael Feathers in his chapter on <a href="http://www.markhneedham.com/blog/2009/06/21/seams-some-thoughts/">seams</a> in <a href="http://www.amazon.co.uk/Working-Effectively-Legacy-Robert-Martin/dp/0131177052/ref=sr_1_1?ie=UTF8&qid=1250602607&sr=8-1">Working Effectively With Legacy Code</a>, to describe <strong>the place where we can make the decision to use the impersonator or the real end point</strong>.</p>
-
+<p>I like to use the term &lsquo;<!-- raw HTML omitted -->enabling point<!-- raw HTML omitted -->&rsquo;, which I learnt from Michael Feathers in his chapter on <!-- raw HTML omitted -->seams<!-- raw HTML omitted --> in <!-- raw HTML omitted -->Working Effectively With Legacy Code<!-- raw HTML omitted -->, to describe <!-- raw HTML omitted -->the place where we can make the decision to use the impersonator or the real end point<!-- raw HTML omitted -->.</p>
 <p>Ideally this will probably be determined by changing a simple setting in a configuration file.</p>
-
 <p>If you choose the wrong enabling point the &lsquo;impersonator&rsquo; may not actually help you that much and it might even become such a hindrance that you stop using it and just accept the problems we can have when we have to integrate against real end points all the way through our build process.</p>
-
-<p>On the way to making use of the <a href="http://martinfowler.com/bliki/SelfInitializingFake.html">self initializing fake</a> on my current project we tried/thought about some other approaches which we thought might be able to ease the pain of integrating directly against the service layer which were quite unstable at the time.</p>
-
+<p>On the way to making use of the <!-- raw HTML omitted -->self initializing fake<!-- raw HTML omitted --> on my current project we tried/thought about some other approaches which we thought might be able to ease the pain of integrating directly against the service layer which were quite unstable at the time.</p>
 <p>We were often losing 4 or 5 hours a day due to the website being unusable without this integration point working.</p>
-
-<h3>Stubs</h3>
-
+<!-- raw HTML omitted -->
 <p>The first thought was that perhaps we could just integrate against a stub of each of the services in our development environment and then inject either the stub or real service into our code through dependency injection.</p>
-
 <p>Julio points out quite an important flaw with this approach:</p>
-
-<blockquote>
-It happens that the results of those tests have very limited value, as they're not actually validating if the system actually integrates correctly with its environment.
-</blockquote>
-
-<p>If there was a change to the structure of the xml being returned we wouldn&rsquo;t know about this until we actually ran a test against the real integration point and our <a href="http://www.markhneedham.com/blog/2009/07/20/coding-quick-feedback/">feedback cycle</a> is now fairly slow.</p>
-
+<!-- raw HTML omitted -->
+<p>If there was a change to the structure of the xml being returned we wouldn&rsquo;t know about this until we actually ran a test against the real integration point and our <!-- raw HTML omitted -->feedback cycle<!-- raw HTML omitted --> is now fairly slow.</p>
 <p>In addition we would be returning a canned set of results from data that we had setup and the maintenance of this canned data just becomes a real pain after a while.</p>
-
-<h3>The internal cache</h3>
-
-<p>The first approach that we tried involved intercepting the requests/responses of each of the service calls from inside the application itself by making use of <a href="http://unity.codeplex.com/Thread/View.aspx?ThreadId=63680">interceptors injected from our DI container</a> around the classes which made the calls.</p>
-
+<!-- raw HTML omitted -->
+<p>The first approach that we tried involved intercepting the requests/responses of each of the service calls from inside the application itself by making use of <!-- raw HTML omitted -->interceptors injected from our DI container<!-- raw HTML omitted --> around the classes which made the calls.</p>
 <p>We eventually managed to get this working to a stage where we could save the requests and responses to disk and then make use of this data when the services weren&rsquo;t working.</p>
-
 <p>The problem with this approach was that we were configuring it by configuring a &lsquo;UseCache&rsquo; property in our configuration file which I think was probably a sign that we were doing something wrong, the problem being that we made use of the &lsquo;UseCache&rsquo; property in our production code.</p>
-
 <p>We only setup the recording part of the process to record the requests and responses from our service tests when run as part of the build and then saved those results onto a remote server.</p>
-
 <p>Another step we needed to do to make use of the &lsquo;impersonator&rsquo; was therefore to copy those files across to the local machine and put them into the &lsquo;cache directory&rsquo; which was another configurable property.</p>
-
 <p>Although it only took maybe 5 minutes to do this it became quite annoying after a while. If we have found a good enabling point then it should be really easy to switch to using it which wasn&rsquo;t the case here.</p>
-
-<p>In addition we know had all this impersonating code inside our main solution and it became more and more complex as we tried to make it more useful - another lesson here was that <strong>if we&rsquo;re going to write an impersonator, that code should be outside of our main application</strong>.</p>
-
-<p><h3>Self Initializing Fake</h3>
-The self initializing fake is our current approach and the nice thing about this approach is that it&rsquo;s really easy to switch back and forth between this and the real end point - all you need to do is change the &lsquo;ServiceUrl&rsquo; value in the configuration file!</p>
-
+<p>In addition we know had all this impersonating code inside our main solution and it became more and more complex as we tried to make it more useful - another lesson here was that <!-- raw HTML omitted -->if we&rsquo;re going to write an impersonator, that code should be outside of our main application<!-- raw HTML omitted -->.</p>
+<!-- raw HTML omitted -->
 <p>The self initializing fake is a recording proxy which sits on our CI server and captures the requests and responses to/from the service and then stores those results in memory.</p>
-
 <p>If you make the same request again it returns the response from its store instead of sending that request through to the service layer.</p>
-
 <p>The code for the self initializing fake is outside of our main solution - in fact it&rsquo;s actually written in Ruby and the application is in C#.</p>
-
-<p><h3>In summary</h3>
-From my experience it&rsquo;s quite important to make use of impersonators of our integration points if we are to get a stable environment to run against but we can cause ourselves a lot of pain if we pick the wrong enabling point for that impersonator.</p>
-
+<!-- raw HTML omitted -->
 <p>The key seems to be that it should be minimal effort to enable an impersonator and we shouldn&rsquo;t need to make any changes to our production code in order to do so.</p>
-
 <p>From working with some other impersonators I think it is also important that we shouldn&rsquo;t have to make any changes to our test code in order to use an impersonator either.</p>
-
 <p>If we find ourselves having to do something that seems crazy with impersonators it might well be worth considering whether we have the right enabling point.</p>
 
     <div id="social-bar">

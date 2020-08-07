@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Aws on Mark Needham</title>
+    <title>aws on Mark Needham</title>
     <link>https://markhneedham.com/blog/tag/aws/</link>
-    <description>Recent content in Aws on Mark Needham</description>
+    <description>Recent content in aws on Mark Needham</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 30 Sep 2017 21:23:11 +0000</lastBuildDate>
@@ -17,7 +17,7 @@
       <pubDate>Sat, 30 Sep 2017 21:23:11 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/09/30/aws-spinning-up-a-neo4j-instance-with-apoc-installed/</guid>
-      <description>One of the first things I do after installing Neo4j is install the APOC library, but I find it&#39;s a bit of a manual process when spinning up a server on AWS so I wanted to simplify it a bit.  There&#39;s already a Neo4j AMI which installs Neo4j 3.2.0 and my colleague Michael pointed out that we could download APOC into the correct folder by writing a script and sending it as UserData.</description>
+      <description>#!/bin/bash curl -L https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases/download/3.2.0.3/apoc-3.2.0.3-all.jar -O sudo cp apoc-3.2.0.3-all.jar /var/lib/neo4j/plugins/ $ node neo4j-with-apoc.js Creating a Neo4j server Key pair created. Save this to a file - you&amp;#39;ll need to use it if you want to ssh into the Neo4j server -----BEGIN RSA PRIVATE KEY----- &amp;lt;Private key details&amp;gt; -----END RSA PRIVATE KEY----- Created Group Id:&amp;lt;Group Id&amp;gt; Opened Neo4j ports Instance Id: &amp;lt;Instance Id&amp;gt; Your Neo4j server is now ready! You&amp;#39;ll need to login to the server and change the default password: https://ec2-ip-address.</description>
     </item>
     
     <item>
@@ -26,7 +26,7 @@
       <pubDate>Sat, 30 Sep 2017 07:51:29 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/09/30/serverless-building-mini-producerconsumer-data-pipeline-aws-sns/</guid>
-      <description>I wanted to create a little data pipeline with Serverless whose main use would be to run once a day, call an API, and load that data into a database.  It&#39;s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.  I created the following pair of lambdas that communicate with each other via an SNS topic.</description>
+      <description>service: marks-blog frameworkVersion: &amp;#34;&amp;gt;=1.2.0 &amp;lt;2.0.0&amp;#34; provider: name: aws runtime: python3.6 timeout: 180 iamRoleStatements: - Effect: &amp;#39;Allow&amp;#39; Action: - &amp;#34;sns:Publish&amp;#34; Resource: - ${self:custom.BlogTopic} custom: BlogTopic: Fn::Join: - &amp;#34;:&amp;#34; - - arn - aws - sns - Ref: AWS::Region - Ref: AWS::AccountId - marks-blog-topic functions: message-consumer: name: MessageConsumer handler: handler.consumer events: - sns: topicName: marks-blog-topic displayName: Topic to process events message-producer: name: MessageProducer handler: handler.producer events: - schedule: rate(1 day) import boto3 import json import datetime from datetime import timezone def producer(event, context): sns = boto3.</description>
     </item>
     
     <item>
@@ -35,7 +35,7 @@
       <pubDate>Fri, 29 Sep 2017 06:09:58 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/09/29/serverless-s3-s3bucketpermissions-action-does-not-apply-to-any-resources-in-statement/</guid>
-      <description>I&#39;ve been playing around with S3 buckets with Serverless, and recently wrote the following code to create an S3 bucket and put a file into that bucket: const AWS = require(&amp;quot;aws-sdk&amp;quot;); let regionParams = { &#39;region&#39;: &#39;us-east-1&#39; } let s3 = new AWS.S3(regionParams); let s3BucketName = &amp;quot;marks-blog-bucket&amp;quot;; console.log(&amp;quot;Creating bucket: &amp;quot; + s3BucketName); let bucketParams = { Bucket: s3BucketName, ACL: &amp;quot;public-read&amp;quot; }; s3.createBucket(bucketParams).promise() .then(console.log) .catch(console.error); var putObjectParams = { Body: &amp;quot;&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h1&amp;gt;Hello blog!</description>
+      <description>const AWS = require(&amp;#34;aws-sdk&amp;#34;); let regionParams = { &amp;#39;region&amp;#39;: &amp;#39;us-east-1&amp;#39; } let s3 = new AWS.S3(regionParams); let s3BucketName = &amp;#34;marks-blog-bucket&amp;#34;; console.log(&amp;#34;Creating bucket: &amp;#34; + s3BucketName); let bucketParams = { Bucket: s3BucketName, ACL: &amp;#34;public-read&amp;#34; }; s3.createBucket(bucketParams).promise() .then(console.log) .catch(console.error); var putObjectParams = { Body: &amp;#34;&amp;lt;html&amp;gt;&amp;lt;body&amp;gt;&amp;lt;h1&amp;gt;Hello blog!&amp;lt;/h1&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;&amp;#34;, Bucket: s3BucketName, Key: &amp;#34;blog.html&amp;#34; }; s3.putObject(putObjectParams).promise() .then(console.log) .catch(console.error); $ curl --head --silent https://s3.amazonaws.com/marks-blog-bucket/blog.html HTTP/1.1 403 Forbidden x-amz-request-id: 512FE36798C0BE4D x-amz-id-2: O1ELGMJ0jjs11WCrNiVNF2z2ssRgtO4+M4H2QQB5025HjIpC54VId0eKZryYeBYN8Pvb8GsolTQ= Content-Type: application/xml Transfer-Encoding: chunked Date: Fri, 29 Sep 2017 05:42:03 GMT Server: AmazonS3 service: marks-blog frameworkVersion: &amp;#34;&amp;gt;=1.</description>
     </item>
     
     <item>
@@ -44,7 +44,7 @@
       <pubDate>Thu, 03 Aug 2017 17:24:16 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/08/03/aws-lambda-libld-linux-2-bad-elf-interpreter-no-file-directory/</guid>
-      <description>I&#39;ve been working on an AWS lambda job to convert a HTML page to PDF using a Python wrapper around the wkhtmltopdf library but ended up with the following error when I tried to execute it: b&#39;/bin/sh: ./binary/wkhtmltopdf: /lib/ld-linux.so.2: bad ELF interpreter: No such file or directory\n&#39;: Exception Traceback (most recent call last): File &amp;quot;/var/task/handler.py&amp;quot;, line 33, in generate_certificate wkhtmltopdf(local_html_file_name, local_pdf_file_name) File &amp;quot;/var/task/lib/wkhtmltopdf.py&amp;quot;, line 64, in wkhtmltopdf wkhp.render() File &amp;quot;/var/task/lib/wkhtmltopdf.</description>
+      <description>b&amp;#39;/bin/sh: ./binary/wkhtmltopdf: /lib/ld-linux.so.2: bad ELF interpreter: No such file or directory\n&amp;#39;: Exception Traceback (most recent call last): File &amp;#34;/var/task/handler.py&amp;#34;, line 33, in generate_certificate wkhtmltopdf(local_html_file_name, local_pdf_file_name) File &amp;#34;/var/task/lib/wkhtmltopdf.py&amp;#34;, line 64, in wkhtmltopdf wkhp.render() File &amp;#34;/var/task/lib/wkhtmltopdf.py&amp;#34;, line 56, in render raise Exception(stderr) Exception: b&amp;#39;/bin/sh: ./binary/wkhtmltopdf: /lib/ld-linux.so.2: bad ELF interpreter: No such file or directory\n&amp;#39; </description>
     </item>
     
     <item>
@@ -53,7 +53,7 @@
       <pubDate>Wed, 05 Apr 2017 23:49:45 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/04/05/aws-lambda-programatically-scheduling-a-cloudwatchevent/</guid>
-      <description>I recently wrote a blog post showing how to create a Python &#39;Hello World&#39; AWS lambda function and manually invoke it, but what I really wanted to do was have it run automatically every hour.  To achieve that in AWS Lambda land we need to create a CloudWatch Event. The documentation describes them as follows:  Using simple rules that you can quickly set up, you can match events and route them to one or more target functions or streams.</description>
+      <description>import boto3 lambda_client = boto3.client(&amp;#39;lambda&amp;#39;) events_client = boto3.client(&amp;#39;events&amp;#39;) fn_name = &amp;#34;HelloWorld&amp;#34; fn_role = &amp;#39;arn:aws:iam::[your-aws-id]:role/lambda_basic_execution&amp;#39; fn_response = lambda_client.create_function( FunctionName=fn_name, Runtime=&amp;#39;python2.7&amp;#39;, Role=fn_role, Handler=&amp;#34;{0}.lambda_handler&amp;#34;.format(fn_name), Code={&amp;#39;ZipFile&amp;#39;: open(&amp;#34;{0}.zip&amp;#34;.format(fn_name), &amp;#39;rb&amp;#39;).read(), }, ) fn_arn = fn_response[&amp;#39;FunctionArn&amp;#39;] frequency = &amp;#34;rate(1 hour)&amp;#34; name = &amp;#34;{0}-Trigger&amp;#34;.format(fn_name) rule_response = events_client.put_rule( Name=name, ScheduleExpression=frequency, State=&amp;#39;ENABLED&amp;#39;, ) lambda_client.add_permission( FunctionName=fn_name, StatementId=&amp;#34;{0}-Event&amp;#34;.format(name), Action=&amp;#39;lambda:InvokeFunction&amp;#39;, Principal=&amp;#39;events.amazonaws.com&amp;#39;, SourceArn=rule_response[&amp;#39;RuleArn&amp;#39;], ) events_client.put_targets( Rule=name, Targets=[ { &amp;#39;Id&amp;#39;: &amp;#34;1&amp;#34;, &amp;#39;Arn&amp;#39;: fn_arn, }, ] ) $ aws events list-rules --query &amp;#34;Rules[?Name==&amp;#39;HelloWorld-Trigger&amp;#39;]&amp;#34; [ { &amp;#34;State&amp;#34;: &amp;#34;ENABLED&amp;#34;, &amp;#34;ScheduleExpression&amp;#34;: &amp;#34;rate(1 hour)&amp;#34;, &amp;#34;Name&amp;#34;: &amp;#34;HelloWorld-Trigger&amp;#34;, &amp;#34;Arn&amp;#34;: &amp;#34;arn:aws:events:us-east-1:[your-aws-id]:rule/HelloWorld-Trigger&amp;#34; } ] $ aws events list-targets-by-rule --rule HelloWorld-Trigger { &amp;#34;Targets&amp;#34;: [ { &amp;#34;Id&amp;#34;: &amp;#34;1&amp;#34;, &amp;#34;Arn&amp;#34;: &amp;#34;arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld&amp;#34; } ] } $ aws lambda get-policy --function-name HelloWorld { &amp;#34;Policy&amp;#34;: &amp;#34;{\&amp;#34;Version\&amp;#34;:\&amp;#34;2012-10-17\&amp;#34;,\&amp;#34;Id\&amp;#34;:\&amp;#34;default\&amp;#34;,\&amp;#34;Statement\&amp;#34;:[{\&amp;#34;Sid\&amp;#34;:\&amp;#34;HelloWorld-Trigger-Event\&amp;#34;,\&amp;#34;Effect\&amp;#34;:\&amp;#34;Allow\&amp;#34;,\&amp;#34;Principal\&amp;#34;:{\&amp;#34;Service\&amp;#34;:\&amp;#34;events.</description>
     </item>
     
     <item>
@@ -62,7 +62,7 @@
       <pubDate>Sun, 02 Apr 2017 22:11:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/04/02/aws-lambda-programatically-create-a-python-hello-world-function/</guid>
-      <description>I&#39;ve been playing around with AWS Lambda over the last couple of weeks and I wanted to automate the creation of these functions and all their surrounding config. Let&#39;s say we have the following Hello World function: ~~~python def lambda_handler(event, context): print(&#34;Hello world&#34;) ~~~  To upload it to AWS we need to put it inside a zip file so let&#39;s do that: $ zip HelloWorld.zip HelloWorld.py  $ unzip -l HelloWorld.</description>
+      <description>def lambda_handler(event, context): print(&amp;#34;Hello world&amp;#34;) $ zip HelloWorld.zip HelloWorld.py $ unzip -l HelloWorld.zip Archive: HelloWorld.zip Length Date Time Name -------- ---- ---- ---- 61 04-02-17 22:04 HelloWorld.py -------- ------- 61 1 file import boto3 lambda_client = boto3.client(&amp;#39;lambda&amp;#39;) fn_name = &amp;#34;HelloWorld&amp;#34; fn_role = &amp;#39;arn:aws:iam::[your-aws-id]:role/lambda_basic_execution&amp;#39; lambda_client.create_function( FunctionName=fn_name, Runtime=&amp;#39;python2.7&amp;#39;, Role=fn_role, Handler=&amp;#34;{0}.lambda_handler&amp;#34;.format(fn_name), Code={&amp;#39;ZipFile&amp;#39;: open(&amp;#34;{0}.zip&amp;#34;.format(fn_name), &amp;#39;rb&amp;#39;).read(), }, ) $ aws ec2 describe-security-groups --query &amp;#39;SecurityGroups[0].OwnerId&amp;#39; --output text 123456789012 $ python CreateHelloWorld.py </description>
     </item>
     
     <item>
@@ -71,8 +71,7 @@
       <pubDate>Tue, 30 Jul 2013 16:20:16 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/07/30/s3cmd-put-fails-with-connection-reset-by-peer-for-large-files/</guid>
-      <description>I recently wanted to copy some large files from an AWS instance into an S3 bucket using s3cmd but ended up with the following error when trying to use the &#39;put&#39; command:
-$ s3cmd put /mnt/ebs/myfile.tar s3://mybucket.somewhere.com /mnt/ebs/myfile.tar -&amp;gt; s3://mybucket.somewhere.com/myfile.tar [1 of 1] 1077248 of 12185313280 0% in 1s 937.09 kB/s failed WARNING: Upload failed: /myfile.tar ([Errno 104] Connection reset by peer) WARNING: Retrying on lower speed (throttle=0.00) WARNING: Waiting 3 sec.</description>
+      <description>$ s3cmd put /mnt/ebs/myfile.tar s3://mybucket.somewhere.com /mnt/ebs/myfile.tar -&amp;gt; s3://mybucket.somewhere.com/myfile.tar [1 of 1] 1077248 of 12185313280 0% in 1s 937.09 kB/s failed WARNING: Upload failed: /myfile.tar ([Errno 104] Connection reset by peer) WARNING: Retrying on lower speed (throttle=0.00) WARNING: Waiting 3 sec... /mnt/ebs/myfile.tar -&amp;gt; s3://mybucket.somewhere.com/myfile.tar [1 of 1] 1183744 of 12185313280 0% in 1s 1062.18 kB/s failed WARNING: Upload failed: /myfile.tar ([Errno 104] Connection reset by peer) WARNING: Retrying on lower speed (throttle=0.</description>
     </item>
     
     <item>
@@ -81,10 +80,7 @@ $ s3cmd put /mnt/ebs/myfile.tar s3://mybucket.somewhere.com /mnt/ebs/myfile.tar 
       <pubDate>Thu, 21 Mar 2013 22:39:02 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/21/wiring-up-an-amazon-s3-bucket-to-a-cname-entry-the-specified-bucket-does-not-exist/</guid>
-      <description>Jason and I were setting up an internal static website using an S3 bucket a couple of days ago and wanted to point a more friendly domain name at it.
-We initially called our bucket &#39;static-site&#39; and then created a CNAME entry using zerigo to point our sub domain at the bucket.
-The mapping was something like this:
-our-subdomain.somedomain.com -&amp;gt; static-site.s3-website-eu-west-1.amazonaws.com  When we tried to access the site through our-subdomain.</description>
+      <description>our-subdomain.somedomain.com -&amp;gt; static-site.s3-website-eu-west-1.amazonaws.com &amp;lt;Error&amp;gt; &amp;lt;Code&amp;gt;NoSuchBucket&amp;lt;/Code&amp;gt; &amp;lt;Message&amp;gt;The specified bucket does not exist&amp;lt;/Message&amp;gt; &amp;lt;BucketName&amp;gt;&amp;lt;/BucketName&amp;gt; &amp;lt;RequestId&amp;gt;&amp;lt;/RequestId&amp;gt; &amp;lt;HostId&amp;gt; our-subdomain.somedomain.com -&amp;gt; our-subdomain.somedomain.com.s3-website-eu-west-1.amazonaws.com </description>
     </item>
     
   </channel>

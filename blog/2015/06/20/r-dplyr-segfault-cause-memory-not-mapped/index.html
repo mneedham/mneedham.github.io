@@ -23,7 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: dplyr - segfault cause &#39;memory not mapped&#39;" />
         
-          <meta name="twitter:description" content="In my continued playing around with web logs in R I wanted to process the logs for a day and see what the most popular URIs were.  I first read in all the lines using the read_lines function in readr and put the vector it produced into a data frame so I could process it using dplyr. library(readr) dlines = data.frame(column = read_lines(&quot;~/projects/logs/2015-06-18-22-docs&quot;))   In the previous post I showed some code to extract the URI from a log line." />
+          <meta name="twitter:description" content="library(readr) dlines = data.frame(column = read_lines(&#34;~/projects/logs/2015-06-18-22-docs&#34;)) extract_uri = function(log) { parts = str_extract_all(log, &#34;\&#34;[^\&#34;]*\&#34;&#34;) return(lapply(parts, function(p) str_match(p[1], &#34;GET (.*) HTTP&#34;)[2] %&gt;% as.character)) } library(dplyr) pages_viewed = dlines %&gt;% mutate(uri = extract_uri(column)) %&gt;% count(uri) %&gt;% arrange(desc(n)) segfault cause &#39;memory not mapped&#39; ## Error in eval(expr, envir, enclos): cannot group column uri, of class &#39;list&#39; extract_uri = function(log) { parts = str_extract_all(log, &#34;\&#34;[^\&#34;]*\&#34;&#34;) return(unlist(lapply(parts, function(p) str_match(p[1], &#34;GET (.*) HTTP&#34;)[2] %&gt;% as.character))) } " />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/06/20/r-dplyr-segfault-cause-memory-not-mapped/" />
 
@@ -34,7 +34,7 @@
         <title> R: dplyr - segfault cause &#39;memory not mapped&#39; &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="In my continued playing around with web logs in R I wanted to process the logs for a day and see what the most popular URIs were.  I first read in all the lines using the read_lines function in readr and put the vector it produced into a data frame so I could process it using dplyr. library(readr) dlines = data.frame(column = read_lines(&quot;~/projects/logs/2015-06-18-22-docs&quot;))   In the previous post I showed some code to extract the URI from a log line." />
+        <meta name="description" content="library(readr) dlines = data.frame(column = read_lines(&#34;~/projects/logs/2015-06-18-22-docs&#34;)) extract_uri = function(log) { parts = str_extract_all(log, &#34;\&#34;[^\&#34;]*\&#34;&#34;) return(lapply(parts, function(p) str_match(p[1], &#34;GET (.*) HTTP&#34;)[2] %&gt;% as.character)) } library(dplyr) pages_viewed = dlines %&gt;% mutate(uri = extract_uri(column)) %&gt;% count(uri) %&gt;% arrange(desc(n)) segfault cause &#39;memory not mapped&#39; ## Error in eval(expr, envir, enclos): cannot group column uri, of class &#39;list&#39; extract_uri = function(log) { parts = str_extract_all(log, &#34;\&#34;[^\&#34;]*\&#34;&#34;) return(unlist(lapply(parts, function(p) str_match(p[1], &#34;GET (.*) HTTP&#34;)[2] %&gt;% as.character))) } " />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -57,14 +57,14 @@
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "R: dplyr - segfault cause &#39;memory not mapped&#39;",
+        "headline": "R: dplyr - segfault cause \x27memory not mapped\x27",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-06-20",
-        "description": "In my continued playing around with web logs in R I wanted to process the logs for a day and see what the most popular URIs were.  I first read in all the lines using the read_lines function in readr and put the vector it produced into a data frame so I could process it using dplyr. library(readr) dlines = data.frame(column = read_lines(&quot;~/projects/logs/2015-06-18-22-docs&quot;))   In the previous post I showed some code to extract the URI from a log line.",
-        "wordCount": 285
+        "description": "library(readr) dlines = data.frame(column = read_lines(\x26#34;~\/projects\/logs\/2015-06-18-22-docs\x26#34;)) extract_uri = function(log) { parts = str_extract_all(log, \x26#34;\\\x26#34;[^\\\x26#34;]*\\\x26#34;\x26#34;) return(lapply(parts, function(p) str_match(p[1], \x26#34;GET (.*) HTTP\x26#34;)[2] %\x26gt;% as.character)) } library(dplyr) pages_viewed = dlines %\x26gt;% mutate(uri = extract_uri(column)) %\x26gt;% count(uri) %\x26gt;% arrange(desc(n)) segfault cause \x26#39;memory not mapped\x26#39; ## Error in eval(expr, envir, enclos): cannot group column uri, of class \x26#39;list\x26#39; extract_uri = function(log) { parts = str_extract_all(log, \x26#34;\\\x26#34;[^\\\x26#34;]*\\\x26#34;\x26#34;) return(unlist(lapply(parts, function(p) str_match(p[1], \x26#34;GET (.*) HTTP\x26#34;)[2] %\x26gt;% as.character))) } ",
+        "wordCount":  70 
     }
     </script>
     
@@ -175,68 +175,38 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: dplyr - segfault cause &#39;memory not mapped&#39;</h1>
-    <p>
-In my <a href="http://www.markhneedham.com/blog/2015/06/19/r-regex-capturing-multiple-matches-of-the-same-group/">continued playing around with web logs in R</a> I wanted to process the logs for a day and see what the most popular URIs were.
-</p>
-
-<p>
-I first read in all the lines using the <cite>read_lines</cite> function in readr and put the vector it produced into a data frame so I could process it using dplyr.
-</p>
-
-<pre><code class="language-r">
-library(readr)
-dlines = data.frame(column = read_lines(&quot;~/projects/logs/2015-06-18-22-docs&quot;))
-</code></pre>
-
-<p>
-In the previous post I showed some code to extract the URI from a log line. I extracted this code out into a function and adapted it so that I could pass in a list of values instead of a single value:
-</p>
-
-<pre><code class="language-r">
-extract_uri = function(log) {
-  parts = str_extract_all(log, &quot;\&quot;[^\&quot;]*\&quot;&quot;)
-  return(lapply(parts, function(p) str_match(p[1], &quot;GET (.*) HTTP&quot;)[2] %&gt;% as.character))
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">library</span>(readr)
+dlines <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>(column <span style="color:#f92672">=</span> <span style="color:#a6e22e">read_lines</span>(<span style="color:#e6db74">&#34;~/projects/logs/2015-06-18-22-docs&#34;</span>))
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+extract_uri <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(log) {
+  parts <span style="color:#f92672">=</span> <span style="color:#a6e22e">str_extract_all</span>(log, <span style="color:#e6db74">&#34;\&#34;[^\&#34;]*\&#34;&#34;</span>)
+  <span style="color:#a6e22e">return</span>(<span style="color:#a6e22e">lapply</span>(parts, <span style="color:#a6e22e">function</span>(p) <span style="color:#a6e22e">str_match</span>(p[1], <span style="color:#e6db74">&#34;GET (.*) HTTP&#34;</span>)[2] <span style="color:#f92672">%&gt;%</span> as.character))
 }
-</code></pre>
-
-<p>
-Next I ran the following function to count the number of times each URI appeared in the logs:
-</p>
-
-<pre><code class="language-r">
-library(dplyr)
-pages_viewed = dlines %&gt;%
-  mutate(uri  = extract_uri(column)) %&gt;% 
-  count(uri) %&gt;%
-  arrange(desc(n))
-</code></pre>
-
-<p>This crashed my R process with the following error message:</p>
-
-<pre><code class="language-r">
-segfault cause 'memory not mapped' 
-</code></pre>
-
-<p>I narrowed it down to a problem when doing a group by operation on the 'uri' field and came across <a href="https://github.com/hadley/dplyr/issues/322">this post</a> which suggested that it was handled more cleanly in more recently version of dplyr.</p>
-
-<p>I upgraded to 0.4.2 and tried again:</p>
-
-<pre><code class="language-R">
-## Error in eval(expr, envir, enclos): cannot group column uri, of class 'list'
-</code></pre>
-
-<p>
-That makes more sense. We're probably returning a list from <cite>extract_uri</cite> rather than a vector which would fit nicely back into the data frame. That's fixed easily enough by unlisting the result:
-</p>
-
-<pre><code class="language-r">
-extract_uri = function(log) {
-  parts = str_extract_all(log, &quot;\&quot;[^\&quot;]*\&quot;&quot;)
-  return(unlist(lapply(parts, function(p) str_match(p[1], &quot;GET (.*) HTTP&quot;)[2] %&gt;% as.character)))
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">library</span>(dplyr)
+pages_viewed <span style="color:#f92672">=</span> dlines <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">mutate</span>(uri  <span style="color:#f92672">=</span> <span style="color:#a6e22e">extract_uri</span>(column)) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">count</span>(uri) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">arrange</span>(<span style="color:#a6e22e">desc</span>(n))
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+segfault cause <span style="color:#e6db74">&#39;memory not mapped&#39;</span> 
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R">
+<span style="color:#75715e">## Error in eval(expr, envir, enclos): cannot group column uri, of class &#39;list&#39;</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+extract_uri <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(log) {
+  parts <span style="color:#f92672">=</span> <span style="color:#a6e22e">str_extract_all</span>(log, <span style="color:#e6db74">&#34;\&#34;[^\&#34;]*\&#34;&#34;</span>)
+  <span style="color:#a6e22e">return</span>(<span style="color:#a6e22e">unlist</span>(<span style="color:#a6e22e">lapply</span>(parts, <span style="color:#a6e22e">function</span>(p) <span style="color:#a6e22e">str_match</span>(p[1], <span style="color:#e6db74">&#34;GET (.*) HTTP&#34;</span>)[2] <span style="color:#f92672">%&gt;%</span> as.character)))
 }
-</code></pre>
-
-<p>And now when we run the count function it's happy again, good times!</p>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -271,7 +241,7 @@ extract_uri = function(log) {
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/06/20/r-dplyr-segfault-cause-memory-not-mapped/&amp;title=R%3a%20dplyr%20-%20segfault%20cause%20%27memory%20not%20mapped%27&amp;summary=In%20my%20continued%20playing%20around%20with%20web%20logs%20in%20R%20I%20wanted%20to%20process%20the%20logs%20for%20a%20day%20and%20see%20what%20the%20most%20popular%20URIs%20were.%20%20I%20first%20read%20in%20all%20the%20lines%20using%20the%20read_lines%20function%20in%20readr%20and%20put%20the%20vector%20it%20produced%20into%20a%20data%20frame%20so%20I%20could%20process%20it%20using%20dplyr.%20library%28readr%29%20dlines%20%3d%20data.frame%28column%20%3d%20read_lines%28%26quot%3b~%2fprojects%2flogs%2f2015-06-18-22-docs%26quot%3b%29%29%20%20%20In%20the%20previous%20post%20I%20showed%20some%20code%20to%20extract%20the%20URI%20from%20a%20log%20line...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/06/20/r-dplyr-segfault-cause-memory-not-mapped/&amp;title=R%3a%20dplyr%20-%20segfault%20cause%20%27memory%20not%20mapped%27&amp;summary=library%28readr%29%20dlines%20%3d%20data.frame%28column%20%3d%20read_lines%28%26%2334%3b~%2fprojects%2flogs%2f2015-06-18-22-docs%26%2334%3b%29%29%20extract_uri%20%3d%20function%28log%29%20%7b%20parts%20%3d%20str_extract_all%28log%2c%20%26%2334%3b%5c%26%2334%3b%5b%5e%5c%26%2334%3b%5d%2a%5c%26%2334%3b%26%2334%3b%29%20return%28lapply%28parts%2c%20function%28p%29%20str_match%28p%5b1%5d%2c%20%26%2334%3bGET%20%28.%2a%29%20HTTP%26%2334%3b%29%5b2%5d%20%25%26gt%3b%25%20as.character%29%29%20%7d%20library%28dplyr%29%20pages_viewed%20%3d%20dlines%20%25%26gt%3b%25%20mutate%28uri%20%3d%20extract_uri%28column%29%29%20%25%26gt%3b%25%20count%28uri%29%20%25%26gt%3b%25%20arrange%28desc%28n%29%29%20segfault%20cause%20%26%2339%3bmemory%20not%20mapped%26%2339%3b%20%23%23%20Error%20in%20eval%28expr%2c%20envir%2c%20enclos%29%3a%20cannot%20group%20column%20uri%2c%20of%20class%20%26%2339%3blist%26%2339%3b%20extract_uri%20%3d%20function%28log%29%20%7b%20parts%20%3d%20str_extract_all%28log%2c%20%26%2334%3b%5c%26%2334%3b%5b%5e%5c%26%2334%3b%5d%2a%5c%26%2334%3b%26%2334%3b%29%20return%28unlist%28lapply%28parts%2c%20function%28p%29%20str_match%28p%5b1%5d%2c%20%26%2334%3bGET%20%28.%2a%29%20HTTP%26%2334%3b%29%5b2%5d%20%25%26gt%3b%25%20as.character%29%29%29%20%7d%20..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

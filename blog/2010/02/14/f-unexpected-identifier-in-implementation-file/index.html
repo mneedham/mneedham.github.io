@@ -68,11 +68,8 @@ namespace Twitter module RetrieveLinks open System.Net open System.IO open Syste
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-02-14",
-        "description": "I&rsquo;ve been playing around with some F# code this evening and one of the bits of code needs to make a HTTP call and return the result.
-I wrote this code and then tried to make use of the &lsquo;Async.RunSynchronously&rsquo; function to execute the call.
-The code I had looked roughly like this:
-namespace Twitter module RetrieveLinks open System.Net open System.IO open System.Web open Microsoft.FSharp.Control let AsyncHttp (url:string) = async { let request = HttpWebRequest.",
-        "wordCount": 403
+        "description": "I\x26rsquo;ve been playing around with some F# code this evening and one of the bits of code needs to make a HTTP call and return the result.\nI wrote this code and then tried to make use of the \x26lsquo;Async.RunSynchronously\x26rsquo; function to execute the call.\nThe code I had looked roughly like this:\nnamespace Twitter module RetrieveLinks open System.Net open System.IO open System.Web open Microsoft.FSharp.Control let AsyncHttp (url:string) = async { let request = HttpWebRequest.",
+        "wordCount":  362 
     }
     </script>
     
@@ -182,79 +179,56 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">F#: Unexpected identifier in implementation file</h1>
     <p>I&rsquo;ve been playing around with some F# code this evening and one of the bits of code needs to make a HTTP call and return the result.</p>
-
 <p>I wrote this code and then tried to make use of the &lsquo;Async.RunSynchronously&rsquo; function to execute the call.</p>
-
 <p>The code I had looked roughly like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+namespace <span style="color:#a6e22e">Twitter</span>
 
-<pre><code class="language-ocaml">
-namespace Twitter
-
-module RetrieveLinks
-    open System.Net
-    open System.IO
-    open System.Web
-    open Microsoft.FSharp.Control
+<span style="color:#66d9ef">module</span> <span style="color:#a6e22e">RetrieveLinks</span>
+    <span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">Net</span>
+    <span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">IO</span>
+    <span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">Web</span>
+    <span style="color:#66d9ef">open</span> Microsoft.FSharp.<span style="color:#a6e22e">Control</span>
     
-    let AsyncHttp (url:string) = async {
-        let request =  HttpWebRequest.Create(url)
-        let! response = request.AsyncGetResponse()
-        let stream = response.GetResponseStream()
-        use reader = new StreamReader(stream  )
-        return! reader.AsyncReadToEnd() }
+    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">AsyncHttp</span> <span style="color:#f92672">(</span>url<span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> async <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">let</span> request <span style="color:#f92672">=</span>  HttpWebRequest.<span style="color:#a6e22e">Create</span><span style="color:#f92672">(</span>url<span style="color:#f92672">)</span>
+        <span style="color:#66d9ef">let</span><span style="color:#f92672">!</span> response <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">AsyncGetResponse</span>()
+        <span style="color:#66d9ef">let</span> stream <span style="color:#f92672">=</span> response<span style="color:#f92672">.</span><span style="color:#a6e22e">GetResponseStream</span>()
+        use reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">StreamReader</span><span style="color:#f92672">(</span>stream  <span style="color:#f92672">)</span>
+        return<span style="color:#f92672">!</span> reader<span style="color:#f92672">.</span><span style="color:#a6e22e">AsyncReadToEnd</span>() <span style="color:#f92672">}</span>
 
-    let getData =
-        let request = &quot;http://some.url&quot;
-        AsyncHttp &lt;| request
+    <span style="color:#66d9ef">let</span> getData <span style="color:#f92672">=</span>
+        <span style="color:#66d9ef">let</span> request <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://some.url&#34;</span>
+        <span style="color:#a6e22e">AsyncHttp</span> <span style="color:#f92672">&lt;|</span> request
 
-	Async.RunSynchronously getData
-</code></pre>
-
-<p>The problem was I was getting the following error on the last line:</p>
-
-<pre><code class="language-text">
+	Async.<span style="color:#a6e22e">RunSynchronously</span> getData
+</code></pre></div><p>The problem was I was getting the following error on the last line:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 Error	3	Unexpected identifier in implementation file
-</code></pre>
-
-<p>I&rsquo;ve seen that error before and it often means that you haven&rsquo;t imported a reference correctly and hence the compiler doesn&rsquo;t know what you&rsquo;re trying to refer to.</p>
-
+</code></pre></div><p>I&rsquo;ve seen that error before and it often means that you haven&rsquo;t imported a reference correctly and hence the compiler doesn&rsquo;t know what you&rsquo;re trying to refer to.</p>
 <p>In this case I was fairly sure all my references were correct and I was still getting the same error when I used the full namespace to &lsquo;Async.RunSynchronously&rsquo; which seemed to suggest I&rsquo;d done something else wrong.</p>
-
 <p>After comparing this file with another one which was quite similar but didn&rsquo;t throw this error I realised that I&rsquo;d left of the &lsquo;=&rsquo; after the module definition. Putting that in solved the problem.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+namespace <span style="color:#a6e22e">Twitter</span>
 
-<pre><code class="language-ocaml">
-namespace Twitter
-
-module RetrieveLinks = 
-	// and so on
-</code></pre>
-
-<p>As I understand it if we don&rsquo;t use the &lsquo;=&rsquo; then we&rsquo;ve created a top level module declaration and if we do use the &lsquo;=&rsquo; then we&rsquo;ve created a local module declaration.</p>
-
-<p><a href="http://msdn.microsoft.com/en-us/library/dd233221(VS.100).aspx">From MSDN</a>:</p>
-
-<blockquote>
-You do not have to indent declarations in a top-level module. You do have to indent all declarations in local modules. In a local module declaration, only the declarations that are indented under that module declaration are part of the module.
-</blockquote>
-
+<span style="color:#66d9ef">module</span> <span style="color:#a6e22e">RetrieveLinks</span> <span style="color:#f92672">=</span> 
+	<span style="color:#f92672">//</span> <span style="color:#f92672">and</span> so on
+</code></pre></div><p>As I understand it if we don&rsquo;t use the &lsquo;=&rsquo; then we&rsquo;ve created a top level module declaration and if we do use the &lsquo;=&rsquo; then we&rsquo;ve created a local module declaration.</p>
+<p><!-- raw HTML omitted -->From MSDN<!-- raw HTML omitted -->:</p>
+<!-- raw HTML omitted -->
 <p>Given this understanding another way to solve my problem would be to remove the indentation of the functions inside the module like so:</p>
-
-<pre><code class="language-ocaml">
-module RetrieveLinks
-open System.Net
-open System.IO
-open System.Web
-open Microsoft.FSharp.Control
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">module</span> <span style="color:#a6e22e">RetrieveLinks</span>
+<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">Net</span>
+<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">IO</span>
+<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">Web</span>
+<span style="color:#66d9ef">open</span> Microsoft.FSharp.<span style="color:#a6e22e">Control</span>
     
-// and so on until...
+<span style="color:#f92672">//</span> <span style="color:#f92672">and</span> so on until<span style="color:#f92672">...</span>
         
-Async.RunSynchronously getData
-</code></pre>
-
-<p>That compiles as expected.</p>
-
+Async.<span style="color:#a6e22e">RunSynchronously</span> getData
+</code></pre></div><p>That compiles as expected.</p>
 <p>From reading the MSDN page it would suggest that in my first example I&rsquo;d created a top level module declaration but indenting the code inside that module somehow meant that the &lsquo;Async.RunSynchronously&rsquo; function wasn&rsquo;t recognised.</p>
-
 <p>I don&rsquo;t quite understand why that is so if anyone can enlighten me that would be cool!</p>
 
     <div id="social-bar">

@@ -64,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-08-11",
-        "description": "In my continued work with Serverless and AWS Lambda I ran into a problem when trying to call a HTTP gateway.  My project looked like this:  serverless.yaml service: http-gateway frameworkVersion: &quot;&gt;=1.2.0 &lt;2.0.0&quot; provider: name: aws runtime: python3.6 timeout: 180 functions: no-op: name: NoOp handler: handler.noop events: - http: POST noOp   handler.py def noop(event, context): return &quot;hello&quot;   Let's deploy to AWS: $ serverless deploy Serverless: Packaging service.",
-        "wordCount": 261
+        "description": "service: http-gateway frameworkVersion: \x26#34;\x26gt;=1.2.0 \x26lt;2.0.0\x26#34; provider: name: aws runtime: python3.6 timeout: 180 functions: no-op: name: NoOp handler: handler.noop events: - http: POST noOp def noop(event, context): return \x26#34;hello\x26#34; $ serverless deploy Serverless: Packaging service... Serverless: Excluding development dependencies... Serverless: Uploading CloudFormation file to S3... Serverless: Uploading artifacts... Serverless: Uploading service .zip file to S3 (179 B)... Serverless: Validating template... Serverless: Updating Stack... Serverless: Checking Stack update progress... .............. Serverless: Stack update finished.",
+        "wordCount":  149 
     }
     </script>
     
@@ -178,22 +178,13 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Serverless: AWS HTTP Gateway - 502 Bad Gateway</h1>
-    <p>
-In my continued work with Serverless and AWS Lambda I ran into a problem when trying to call a <a href="https://serverless.com/framework/docs/providers/aws/events/apigateway/">HTTP gateway</a>.
-</p>
-
-<p>
-My project looked like this:
-</p>
-
-<p>
-<em>serverless.yaml</em>
-</p>
-
-<pre><code class="language-text">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 service: http-gateway
 
-frameworkVersion: &quot;&gt;=1.2.0 &lt;2.0.0&quot;
+frameworkVersion: &#34;&gt;=1.2.0 &lt;2.0.0&#34;
 
 provider:
   name: aws
@@ -206,28 +197,18 @@ functions:
       handler: handler.noop
       events:
         - http: POST noOp
-</code></pre>
-
-<p>
-<em>handler.py</em>
-</p>
-
-<pre><code class="language-python">
-def noop(event, context):
-    return &quot;hello&quot;
-</code></pre>
-
-<p>
-Let's deploy to AWS:
-</p>
-
-<pre><code class="language-bash">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">noop</span>(event, context):
+    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;hello&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ serverless  deploy
 Serverless: Packaging service...
 Serverless: Excluding development dependencies...
 Serverless: Uploading CloudFormation file to S3...
 Serverless: Uploading artifacts...
-Serverless: Uploading service .zip file to S3 (179 B)...
+Serverless: Uploading service .zip file to S3 <span style="color:#f92672">(</span><span style="color:#ae81ff">179</span> B<span style="color:#f92672">)</span>...
 Serverless: Validating template...
 Serverless: Updating Stack...
 Serverless: Checking Stack update progress...
@@ -243,59 +224,31 @@ endpoints:
   POST - https://29nb5rmmd0.execute-api.us-east-1.amazonaws.com/dev/noOp
 functions:
   no-op: http-gateway-dev-no-op
-</code></pre>
-
-<p>
-And now we'll try and call it using cURL:
-</p>
-
-<pre><code class="language-bash">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ curl -X POST https://29nb5rmmd0.execute-api.us-east-1.amazonaws.com/dev/noOp
-{&quot;message&quot;: &quot;Internal server error&quot;}
-</code></pre>
-
-<p>
-That didn't work so well, what do the logs have to say?
-</p>
-
-<pre><code class="language-bash">
+<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Internal server error&#34;</span><span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ serverless  logs --function no-op	
 START RequestId: 64ab69b0-7d8f-11e7-9db5-13b228cd4cb6 Version: $LATEST
 END RequestId: 64ab69b0-7d8f-11e7-9db5-13b228cd4cb6
-REPORT RequestId: 64ab69b0-7d8f-11e7-9db5-13b228cd4cb6	Duration: 0.27 ms	Billed Duration: 100 ms 	Memory Size: 1024 MB	Max Memory Used: 21 MB
-</code></pre>
-
-<p>
-So the function is completely fine. It turns out I'm not very good at reading the manual and should have been returning <a href="https://medium.com/@jconning/tutorial-aws-lambda-with-api-gateway-36a8513ec8e3">a map instead of a string</a>:
-</p>
-
-<blockquote>
-API Gateway expects to see a json map with keys “body”, “headers”, and “statusCode”.
-</blockquote>
-
-<p>Let's update our handler function and re-deploy.</p>
-
-<pre><code class="language-python">
-def noop(event, context):
-    return {
-        &quot;body&quot;: &quot;hello&quot;,
-        &quot;headers&quot;: {},
-        &quot;statusCode&quot;: 200
+REPORT RequestId: 64ab69b0-7d8f-11e7-9db5-13b228cd4cb6	Duration: 0.27 ms	Billed Duration: <span style="color:#ae81ff">100</span> ms 	Memory Size: <span style="color:#ae81ff">1024</span> MB	Max Memory Used: <span style="color:#ae81ff">21</span> MB
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">noop</span>(event, context):
+    <span style="color:#66d9ef">return</span> {
+        <span style="color:#e6db74">&#34;body&#34;</span>: <span style="color:#e6db74">&#34;hello&#34;</span>,
+        <span style="color:#e6db74">&#34;headers&#34;</span>: {},
+        <span style="color:#e6db74">&#34;statusCode&#34;</span>: <span style="color:#ae81ff">200</span>
         }
-</code></pre>
-
-<p>
-Now we're ready to try the endpoint again:
-</p>
-
-<pre><code class="language-bash">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ curl -X POST https://29nb5rmmd0.execute-api.us-east-1.amazonaws.com/dev/noOp
 hello
-</code></pre>
-
-<p>
-Much better!
-</p>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -330,7 +283,7 @@ Much better!
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/08/11/serverless-aws-http-gateway-502-bad-gateway/&amp;title=Serverless%3a%20AWS%20HTTP%20Gateway%20-%20502%20Bad%20Gateway&amp;summary=In%20my%20continued%20work%20with%20Serverless%20and%20AWS%20Lambda%20I%20ran%20into%20a%20problem%20when%20trying%20to%20call%20a%20HTTP%20gateway.%20%20My%20project%20looked%20like%20this%3a%20%20serverless.yaml%20service%3a%20http-gateway%20frameworkVersion%3a%20%26quot%3b%26gt%3b%3d1.2.0%20%26lt%3b2.0.0%26quot%3b%20provider%3a%20name%3a%20aws%20runtime%3a%20python3.6%20timeout%3a%20180%20functions%3a%20no-op%3a%20name%3a%20NoOp%20handler%3a%20handler.noop%20events%3a%20-%20http%3a%20POST%20noOp%20%20%20handler.py%20def%20noop%28event%2c%20context%29%3a%20return%20%26quot%3bhello%26quot%3b%20%20%20Let%27s%20deploy%20to%20AWS%3a%20%24%20serverless%20deploy%20Serverless%3a%20Packaging%20service...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/08/11/serverless-aws-http-gateway-502-bad-gateway/&amp;title=Serverless%3a%20AWS%20HTTP%20Gateway%20-%20502%20Bad%20Gateway&amp;summary=service%3a%20http-gateway%20frameworkVersion%3a%20%26%2334%3b%26gt%3b%3d1.2.0%20%26lt%3b2.0.0%26%2334%3b%20provider%3a%20name%3a%20aws%20runtime%3a%20python3.6%20timeout%3a%20180%20functions%3a%20no-op%3a%20name%3a%20NoOp%20handler%3a%20handler.noop%20events%3a%20-%20http%3a%20POST%20noOp%20def%20noop%28event%2c%20context%29%3a%20return%20%26%2334%3bhello%26%2334%3b%20%24%20serverless%20deploy%20Serverless%3a%20Packaging%20service...%20Serverless%3a%20Excluding%20development%20dependencies...%20Serverless%3a%20Uploading%20CloudFormation%20file%20to%20S3...%20Serverless%3a%20Uploading%20artifacts...%20Serverless%3a%20Uploading%20service%20.zip%20file%20to%20S3%20%28179%20B%29...%20Serverless%3a%20Validating%20template...%20Serverless%3a%20Updating%20Stack...%20Serverless%3a%20Checking%20Stack%20update%20progress...%20..............%20Serverless%3a%20Stack%20update%20finished...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

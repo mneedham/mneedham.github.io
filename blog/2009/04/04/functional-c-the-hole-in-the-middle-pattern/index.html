@@ -23,7 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Functional C#: The hole in the middle pattern" />
         
-          <meta name="twitter:description" content="While reading Real World Functional Programming I came across an interesting pattern that I have noticed in some code bases recently which I liked but didn&rsquo;t know had been given a name!
+          <meta name="twitter:description" content="While reading Real World Functional ProgrammingI came across an interesting pattern that I have noticed in some code bases recently which I liked but didn&rsquo;t know had been given a name!
 The hole in the middle pattern, coined by Brian Hurt, shows a cool way of using higher order functions in order to reuse code in cases where the code typically looks something like this:
 public void SomeServiceCall() { var serviceClient = CreateServiceClient(); try { serviceClient." />
         
@@ -36,7 +36,7 @@ public void SomeServiceCall() { var serviceClient = CreateServiceClient(); try {
         <title> Functional C#: The hole in the middle pattern &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="While reading Real World Functional Programming I came across an interesting pattern that I have noticed in some code bases recently which I liked but didn&rsquo;t know had been given a name!
+        <meta name="description" content="While reading Real World Functional ProgrammingI came across an interesting pattern that I have noticed in some code bases recently which I liked but didn&rsquo;t know had been given a name!
 The hole in the middle pattern, coined by Brian Hurt, shows a cool way of using higher order functions in order to reuse code in cases where the code typically looks something like this:
 public void SomeServiceCall() { var serviceClient = CreateServiceClient(); try { serviceClient." />
     
@@ -67,10 +67,8 @@ public void SomeServiceCall() { var serviceClient = CreateServiceClient(); try {
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-04-04",
-        "description": "While reading Real World Functional Programming I came across an interesting pattern that I have noticed in some code bases recently which I liked but didn&rsquo;t know had been given a name!
-The hole in the middle pattern, coined by Brian Hurt, shows a cool way of using higher order functions in order to reuse code in cases where the code typically looks something like this:
-public void SomeServiceCall() { var serviceClient = CreateServiceClient(); try { serviceClient.",
-        "wordCount": 264
+        "description": "While reading Real World Functional ProgrammingI came across an interesting pattern that I have noticed in some code bases recently which I liked but didn\x26rsquo;t know had been given a name!\nThe hole in the middle pattern, coined by Brian Hurt, shows a cool way of using higher order functions in order to reuse code in cases where the code typically looks something like this:\npublic void SomeServiceCall() { var serviceClient = CreateServiceClient(); try { serviceClient.",
+        "wordCount":  263 
     }
     </script>
     
@@ -181,59 +179,49 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Functional C#: The hole in the middle pattern</h1>
-    <p>While reading <a href="http://manning.com/petricek/">Real World Functional Programming</a> I came across an interesting pattern that I have noticed in some code bases recently which I liked but didn&rsquo;t know had been given a name!</p>
-
-<p>The <a href="http://enfranchisedmind.com/blog/posts/the-hole-in-the-middle-pattern/">hole in the middle pattern</a>, coined by Brian Hurt, shows a cool way of using higher order functions in order to reuse code in cases where the code typically looks something like this:</p>
-
-<pre><code class="language-csharp">
-public void SomeServiceCall() 
+    <p>While reading <!-- raw HTML omitted -->Real World Functional Programming<!-- raw HTML omitted --> I came across an interesting pattern that I have noticed in some code bases recently which I liked but didn&rsquo;t know had been given a name!</p>
+<p>The <!-- raw HTML omitted -->hole in the middle pattern<!-- raw HTML omitted -->, coined by Brian Hurt, shows a cool way of using higher order functions in order to reuse code in cases where the code typically looks something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> SomeServiceCall() 
 {
-	var serviceClient = CreateServiceClient();
+	<span style="color:#66d9ef">var</span> serviceClient = CreateServiceClient();
 
-	try 
+	<span style="color:#66d9ef">try</span> 
 	{
 		serviceClient.MakeMethodCall();
 	}
-	catch(SomeServiceException someServiceException) 
+	<span style="color:#66d9ef">catch</span>(SomeServiceException someServiceException) 
 	{
-		// Handle exception
-	}
-	finally 
+		<span style="color:#75715e">// Handle exception
+</span><span style="color:#75715e"></span>	}
+	<span style="color:#66d9ef">finally</span> 
 	{
 		serviceClient.Close();
 	}
 }
-</code></pre>
-
-<p>The first and the third lines (initialisation and finalisation) are always the same but the service.MakeMethodCall() varies depending on which service we are using. The more services we have the more boring it gets writing out the same code over and over again.</p>
-
+</code></pre></div><p>The first and the third lines (initialisation and finalisation) are always the same but the service.MakeMethodCall() varies depending on which service we are using. The more services we have the more boring it gets writing out the same code over and over again.</p>
 <p>In C# 3.0 we could reuse code in this situation by passing in a lambda expression which calls that method, allowing us to vary the important part of the method call while keeping the scaffolding the same.</p>
-
-<pre><code class="language-csharp">
-public void SomeServiceCall(Action&lt;TServiceClient&gt; callService) 
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> SomeServiceCall(Action&lt;TServiceClient&gt; callService) 
 {
-	var serviceClient = CreateServiceClient();
+	<span style="color:#66d9ef">var</span> serviceClient = CreateServiceClient();
 
-	try 
+	<span style="color:#66d9ef">try</span> 
 	{
 		callService(serviceClient);
 	}
-	catch(SomeServiceException someServiceException) 
+	<span style="color:#66d9ef">catch</span>(SomeServiceException someServiceException) 
 	{
-		// Handle exception
-	}
-	finally 
+		<span style="color:#75715e">// Handle exception
+</span><span style="color:#75715e"></span>	}
+	<span style="color:#66d9ef">finally</span> 
 	{
 		serviceClient.Close();
 	}
 }
-</code></pre>
-
-<pre><code class="language-csharp">
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
 SomeServiceCall(service =&gt; service.SomeMethodCall()) 
-</code></pre>
-
-<p>One of the things I&rsquo;ve noticed with the ability to pass in functions to methods is that sometimes we end up making the code really difficult to read by doing so but when we&rsquo;re dealing with services this seems to be one of the best and most obvious uses of Actions/Funcs in C# 3.0 and it leads to a more reusable and easy to understand API.</p>
+</code></pre></div><p>One of the things I&rsquo;ve noticed with the ability to pass in functions to methods is that sometimes we end up making the code really difficult to read by doing so but when we&rsquo;re dealing with services this seems to be one of the best and most obvious uses of Actions/Funcs in C# 3.0 and it leads to a more reusable and easy to understand API.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -268,7 +256,7 @@ SomeServiceCall(service =&gt; service.SomeMethodCall())
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/04/04/functional-c-the-hole-in-the-middle-pattern/&amp;title=Functional%20C%23%3a%20The%20hole%20in%20the%20middle%20pattern&amp;summary=While%20reading%20Real%20World%20Functional%20Programming%20I%20came%20across%20an%20interesting%20pattern%20that%20I%20have%20noticed%20in%20some%20code%20bases%20recently%20which%20I%20liked%20but%20didn%26rsquo%3bt%20know%20had%20been%20given%20a%20name%21%0aThe%20hole%20in%20the%20middle%20pattern%2c%20coined%20by%20Brian%20Hurt%2c%20shows%20a%20cool%20way%20of%20using%20higher%20order%20functions%20in%20order%20to%20reuse%20code%20in%20cases%20where%20the%20code%20typically%20looks%20something%20like%20this%3a%0apublic%20void%20SomeServiceCall%28%29%20%7b%20var%20serviceClient%20%3d%20CreateServiceClient%28%29%3b%20try%20%7b%20serviceClient...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/04/04/functional-c-the-hole-in-the-middle-pattern/&amp;title=Functional%20C%23%3a%20The%20hole%20in%20the%20middle%20pattern&amp;summary=While%20reading%20Real%20World%20Functional%20ProgrammingI%20came%20across%20an%20interesting%20pattern%20that%20I%20have%20noticed%20in%20some%20code%20bases%20recently%20which%20I%20liked%20but%20didn%26rsquo%3bt%20know%20had%20been%20given%20a%20name%21%0aThe%20hole%20in%20the%20middle%20pattern%2c%20coined%20by%20Brian%20Hurt%2c%20shows%20a%20cool%20way%20of%20using%20higher%20order%20functions%20in%20order%20to%20reuse%20code%20in%20cases%20where%20the%20code%20typically%20looks%20something%20like%20this%3a%0apublic%20void%20SomeServiceCall%28%29%20%7b%20var%20serviceClient%20%3d%20CreateServiceClient%28%29%3b%20try%20%7b%20serviceClient...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

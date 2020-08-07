@@ -22,8 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Java 8: Lambda Expressions vs Auto Closeable" />
         
-          <meta name="twitter:description" content="If you used earlier versions of Neo4j via its Java API with Java 6 you probably have code similar to the following to ensure write operations happen within a transaction:
-public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &quot;/tmp/tx-style-test&quot;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.beginTx(); try { db.createNode(); tx.success(); } finally { tx.close(); } } }  In Neo4j 2." />
+          <meta name="twitter:description" content="public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &#34;/tmp/tx-style-test&#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.beginTx(); try { db.createNode(); tx.success(); } finally { tx.close(); } } } public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &#34;/tmp/tx-style-test&#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); try ( Transaction tx = db." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/02/26/java-8-lambda-expressions-vs-auto-closeable/" />
 
@@ -34,8 +33,7 @@ public class StylesOfTx { public static void main( String[] args ) throws IOExce
         <title> Java 8: Lambda Expressions vs Auto Closeable &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="If you used earlier versions of Neo4j via its Java API with Java 6 you probably have code similar to the following to ensure write operations happen within a transaction:
-public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &quot;/tmp/tx-style-test&quot;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.beginTx(); try { db.createNode(); tx.success(); } finally { tx.close(); } } }  In Neo4j 2." />
+        <meta name="description" content="public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &#34;/tmp/tx-style-test&#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.beginTx(); try { db.createNode(); tx.success(); } finally { tx.close(); } } } public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &#34;/tmp/tx-style-test&#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); try ( Transaction tx = db." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,9 +62,8 @@ public class StylesOfTx { public static void main( String[] args ) throws IOExce
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-02-26",
-        "description": "If you used earlier versions of Neo4j via its Java API with Java 6 you probably have code similar to the following to ensure write operations happen within a transaction:
-public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &quot;/tmp/tx-style-test&quot;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.beginTx(); try { db.createNode(); tx.success(); } finally { tx.close(); } } }  In Neo4j 2.",
-        "wordCount": 366
+        "description": "public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = \x26#34;\/tmp\/tx-style-test\x26#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.beginTx(); try { db.createNode(); tx.success(); } finally { tx.close(); } } } public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = \x26#34;\/tmp\/tx-style-test\x26#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); try ( Transaction tx = db.",
+        "wordCount":  148 
     }
     </script>
     
@@ -175,89 +172,77 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Java 8: Lambda Expressions vs Auto Closeable</h1>
-    <p>If you used earlier versions of Neo4j via its Java API with Java 6 you probably have code similar to the following to ensure write operations happen within a transaction:</p>
+    <!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StylesOfTx</span>
+<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span> String<span style="color:#f92672">[]</span> args <span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException
+    <span style="color:#f92672">{</span>
+        String path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/tmp/tx-style-test&#34;</span><span style="color:#f92672">;</span>
+        FileUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">deleteRecursively</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span>path<span style="color:#f92672">));</span>
 
-<pre><code class="language-java">
-public class StylesOfTx
-{
-    public static void main( String[] args ) throws IOException
-    {
-        String path = &quot;/tmp/tx-style-test&quot;;
-        FileUtils.deleteRecursively(new File(path));
+        GraphDatabaseService db <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GraphDatabaseFactory<span style="color:#f92672">().</span><span style="color:#a6e22e">newEmbeddedDatabase</span><span style="color:#f92672">(</span> path <span style="color:#f92672">);</span>
 
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path );
+        Transaction tx <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">beginTx</span><span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">try</span> 
+        <span style="color:#f92672">{</span>
+            db<span style="color:#f92672">.</span><span style="color:#a6e22e">createNode</span><span style="color:#f92672">();</span>
+            tx<span style="color:#f92672">.</span><span style="color:#a6e22e">success</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span> 
+        <span style="color:#66d9ef">finally</span> 
+        <span style="color:#f92672">{</span>
+            tx<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StylesOfTx</span>
+<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span> String<span style="color:#f92672">[]</span> args <span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException
+    <span style="color:#f92672">{</span>
+        String path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/tmp/tx-style-test&#34;</span><span style="color:#f92672">;</span>
+        FileUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">deleteRecursively</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span>path<span style="color:#f92672">));</span>
 
-        Transaction tx = db.beginTx();
-        try 
-        {
-            db.createNode();
-            tx.success();
-        } 
-        finally 
-        {
-            tx.close();
-        }
-    }
-}
-</code></pre>
+        GraphDatabaseService db <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GraphDatabaseFactory<span style="color:#f92672">().</span><span style="color:#a6e22e">newEmbeddedDatabase</span><span style="color:#f92672">(</span> path <span style="color:#f92672">);</span>
 
-<p>In Neo4j 2.0 Transaction started extending <a href="http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html">AutoCloseable</a> which meant that you could use 'try with resources' and the 'close' method would be automatically called when the block finished:</p>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">(</span> Transaction tx <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">beginTx</span><span style="color:#f92672">()</span> <span style="color:#f92672">)</span>
+        <span style="color:#f92672">{</span>
+            Node node <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">createNode</span><span style="color:#f92672">();</span>
+            tx<span style="color:#f92672">.</span><span style="color:#a6e22e">success</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StylesOfTx</span>
+<span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span> String<span style="color:#f92672">[]</span> args <span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException
+    <span style="color:#f92672">{</span>
+        String path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/tmp/tx-style-test&#34;</span><span style="color:#f92672">;</span>
+        FileUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">deleteRecursively</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span>path<span style="color:#f92672">));</span>
 
-<pre><code class="language-java">
-public class StylesOfTx
-{
-    public static void main( String[] args ) throws IOException
-    {
-        String path = &quot;/tmp/tx-style-test&quot;;
-        FileUtils.deleteRecursively(new File(path));
+        GraphDatabaseService db <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GraphDatabaseFactory<span style="color:#f92672">().</span><span style="color:#a6e22e">newEmbeddedDatabase</span><span style="color:#f92672">(</span> path <span style="color:#f92672">);</span>
 
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path );
+        Db<span style="color:#f92672">.</span><span style="color:#a6e22e">withinTransaction</span><span style="color:#f92672">(</span>db<span style="color:#f92672">,</span> neo4jDb <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">{</span>
+            Node node <span style="color:#f92672">=</span> neo4jDb<span style="color:#f92672">.</span><span style="color:#a6e22e">createNode</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">});</span>
+    <span style="color:#f92672">}</span>
 
-        try ( Transaction tx = db.beginTx() )
-        {
-            Node node = db.createNode();
-            tx.success();
-        }
-    }
-}
-</code></pre>
-
-<p>This works quite well although it's still possible to have transactions hanging around in an application when people don't use this syntax - the old style is still permissible.</p>
-
-<p>In <a href="http://pragprog.com/book/vsjava8/functional-programming-in-java">Venkat Subramaniam's Java 8 book</a> he suggests an alternative approach where we use a lambda based approach:</p>
-
-<pre><code class="language-java">
-public class StylesOfTx
-{
-    public static void main( String[] args ) throws IOException
-    {
-        String path = &quot;/tmp/tx-style-test&quot;;
-        FileUtils.deleteRecursively(new File(path));
-
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path );
-
-        Db.withinTransaction(db, neo4jDb -&gt; {
-            Node node = neo4jDb.createNode();
-        });
-    }
-
-    static class Db {
-        public static void withinTransaction(GraphDatabaseService db, Consumer&lt;GraphDatabaseService&gt; fn) {
-            try ( Transaction tx = db.beginTx() )
-            {
-                fn.accept(db);
-                tx.success();
-            }
-        }
-    }
-}
-</code></pre>
-
-<p>The 'withinTransaction' function would actually go on GraphDatabaseService or similar rather than being on that Db class but it was easier to put it on there for this example.</p>
-
-<p>A disadvantage of this style is that you don't have explicit control over the transaction for handling the failure case - it's assumed that if 'tx.success()' isn't called then the transaction failed and it's rolled back. I'm not sure what % of use cases actually need such fine grained control though.</p>
-
-<p>Brian Hurt refers to this as the '<a href="http://www.markhneedham.com/blog/2009/04/04/functional-c-the-hole-in-the-middle-pattern/">hole in the middle pattern</a>' and I imagine we'll start seeing more code of this ilk once Java 8 is released and becomes more widely used.</p>
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Db</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">withinTransaction</span><span style="color:#f92672">(</span>GraphDatabaseService db<span style="color:#f92672">,</span> Consumer<span style="color:#f92672">&lt;</span>GraphDatabaseService<span style="color:#f92672">&gt;</span> fn<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">try</span> <span style="color:#f92672">(</span> Transaction tx <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">beginTx</span><span style="color:#f92672">()</span> <span style="color:#f92672">)</span>
+            <span style="color:#f92672">{</span>
+                fn<span style="color:#f92672">.</span><span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span>db<span style="color:#f92672">);</span>
+                tx<span style="color:#f92672">.</span><span style="color:#a6e22e">success</span><span style="color:#f92672">();</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -292,7 +277,7 @@ public class StylesOfTx
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/02/26/java-8-lambda-expressions-vs-auto-closeable/&amp;title=Java%208%3a%20Lambda%20Expressions%20vs%20Auto%20Closeable&amp;summary=If%20you%20used%20earlier%20versions%20of%20Neo4j%20via%20its%20Java%20API%20with%20Java%206%20you%20probably%20have%20code%20similar%20to%20the%20following%20to%20ensure%20write%20operations%20happen%20within%20a%20transaction%3a%0apublic%20class%20StylesOfTx%20%7b%20public%20static%20void%20main%28%20String%5b%5d%20args%20%29%20throws%20IOException%20%7b%20String%20path%20%3d%20%26quot%3b%2ftmp%2ftx-style-test%26quot%3b%3b%20FileUtils.deleteRecursively%28new%20File%28path%29%29%3b%20GraphDatabaseService%20db%20%3d%20new%20GraphDatabaseFactory%28%29.newEmbeddedDatabase%28%20path%20%29%3b%20Transaction%20tx%20%3d%20db.beginTx%28%29%3b%20try%20%7b%20db.createNode%28%29%3b%20tx.success%28%29%3b%20%7d%20finally%20%7b%20tx.close%28%29%3b%20%7d%20%7d%20%7d%20%20In%20Neo4j%202...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/02/26/java-8-lambda-expressions-vs-auto-closeable/&amp;title=Java%208%3a%20Lambda%20Expressions%20vs%20Auto%20Closeable&amp;summary=public%20class%20StylesOfTx%20%7b%20public%20static%20void%20main%28%20String%5b%5d%20args%20%29%20throws%20IOException%20%7b%20String%20path%20%3d%20%26%2334%3b%2ftmp%2ftx-style-test%26%2334%3b%3b%20FileUtils.deleteRecursively%28new%20File%28path%29%29%3b%20GraphDatabaseService%20db%20%3d%20new%20GraphDatabaseFactory%28%29.newEmbeddedDatabase%28%20path%20%29%3b%20Transaction%20tx%20%3d%20db.beginTx%28%29%3b%20try%20%7b%20db.createNode%28%29%3b%20tx.success%28%29%3b%20%7d%20finally%20%7b%20tx.close%28%29%3b%20%7d%20%7d%20%7d%20public%20class%20StylesOfTx%20%7b%20public%20static%20void%20main%28%20String%5b%5d%20args%20%29%20throws%20IOException%20%7b%20String%20path%20%3d%20%26%2334%3b%2ftmp%2ftx-style-test%26%2334%3b%3b%20FileUtils.deleteRecursively%28new%20File%28path%29%29%3b%20GraphDatabaseService%20db%20%3d%20new%20GraphDatabaseFactory%28%29.newEmbeddedDatabase%28%20path%20%29%3b%20try%20%28%20Transaction%20tx%20%3d%20db...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

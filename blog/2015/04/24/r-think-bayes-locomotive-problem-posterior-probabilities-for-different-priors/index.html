@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Think Bayes Locomotive Problem - Posterior probabilities for different priors" />
         
-          <meta name="twitter:description" content="In my continued reading of Think Bayes the next problem to tackle is the Locomotive problem which is defined thus:  A railroad numbers its locomotives in order 1..N. One day you see a locomotive with the number 60. Estimate how many loco- motives the railroad has.   The interesting thing about this question is that it initially seems that we don&#39;t have enough information to come up with any sort of answer." />
+          <meta name="twitter:description" content="One day you see a locomotive with the number 60. Estimate how many loco- motives the railroad has.
+library(dplyr) possibleValues = 1:1000 observations = c(60) l = list(value = possibleValues, observation = observations) df = expand.grid(l) &gt; df %&gt;% head() value observation 1 1 60 2 2 60 3 3 60 4 4 60 5 5 60 6 6 60 prior = 1 / length(possibleValues) df = df %&gt;% mutate(score = ifelse(value &lt; observation, 0, 1/value)) &gt; df %&gt;% sample_n(10) value observation score 179 179 60 0." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/04/24/r-think-bayes-locomotive-problem-posterior-probabilities-for-different-priors/" />
 
@@ -33,7 +34,8 @@
         <title> R: Think Bayes Locomotive Problem - Posterior probabilities for different priors &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="In my continued reading of Think Bayes the next problem to tackle is the Locomotive problem which is defined thus:  A railroad numbers its locomotives in order 1..N. One day you see a locomotive with the number 60. Estimate how many loco- motives the railroad has.   The interesting thing about this question is that it initially seems that we don&#39;t have enough information to come up with any sort of answer." />
+        <meta name="description" content="One day you see a locomotive with the number 60. Estimate how many loco- motives the railroad has.
+library(dplyr) possibleValues = 1:1000 observations = c(60) l = list(value = possibleValues, observation = observations) df = expand.grid(l) &gt; df %&gt;% head() value observation 1 1 60 2 2 60 3 3 60 4 4 60 5 5 60 6 6 60 prior = 1 / length(possibleValues) df = df %&gt;% mutate(score = ifelse(value &lt; observation, 0, 1/value)) &gt; df %&gt;% sample_n(10) value observation score 179 179 60 0." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-04-24",
-        "description": "In my continued reading of Think Bayes the next problem to tackle is the Locomotive problem which is defined thus:  A railroad numbers its locomotives in order 1..N. One day you see a locomotive with the number 60. Estimate how many loco- motives the railroad has.   The interesting thing about this question is that it initially seems that we don't have enough information to come up with any sort of answer.",
-        "wordCount": 867
+        "description": "One day you see a locomotive with the number 60. Estimate how many loco- motives the railroad has.\nlibrary(dplyr) possibleValues = 1:1000 observations = c(60) l = list(value = possibleValues, observation = observations) df = expand.grid(l) \x26gt; df %\x26gt;% head() value observation 1 1 60 2 2 60 3 3 60 4 4 60 5 5 60 6 6 60 prior = 1 \/ length(possibleValues) df = df %\x26gt;% mutate(score = ifelse(value \x26lt; observation, 0, 1\/value)) \x26gt; df %\x26gt;% sample_n(10) value observation score 179 179 60 0.",
+        "wordCount":  459 
     }
     </script>
     
@@ -172,213 +174,144 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Think Bayes Locomotive Problem - Posterior probabilities for different priors</h1>
-    <p>
-In my continued reading of Think Bayes the next problem to tackle is the <a href="http://www.greenteapress.com/thinkbayes/train2.py">Locomotive problem</a> which is defined thus:
-</p>
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>One day you see a locomotive with the number 60. Estimate how many loco- motives the railroad has.</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">library</span>(dplyr)
 
-<blockquote>
-A railroad numbers its locomotives in order 1..N. 
+possibleValues <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1000</span>
+observations <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>)
 
-One day you see a locomotive with the number 60. Estimate how many loco- motives the railroad has. 
-</blockquote>
+l <span style="color:#f92672">=</span> <span style="color:#a6e22e">list</span>(value <span style="color:#f92672">=</span> possibleValues, observation <span style="color:#f92672">=</span> observations)
+df <span style="color:#f92672">=</span> <span style="color:#a6e22e">expand.grid</span>(l) 
 
-<p>
-The interesting thing about this question is that it initially seems that we don't have enough information to come up with any sort of answer. However, we can get an estimate if we come up with a prior to work with.
-</p>
-
-<p>
-The simplest prior is to assume that there's one railroad operator with  between say 1 and 1000 railroads with an equal probability of each size.
-</p>
-
-<p>
-We can then write similar code as with the <a href="http://www.markhneedham.com/blog/2015/04/22/r-replacing-for-loops-with-data-frames/">dice problem</a> to update the prior based on the trains we've seen. 
-</p>
-
-<p>First we'll create a data frame which captures the product of 'number of locomotives' and the observations of locomotives that we've seen (in this case we've only seen one locomotive with number '60':)</p>
-
-<pre><code class="language-r">
-library(dplyr)
-
-possibleValues = 1:1000
-observations = c(60)
-
-l = list(value = possibleValues, observation = observations)
-df = expand.grid(l) 
-
-&gt; df %&gt;% head()
+<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">head</span>()
   value observation
-1     1          60
-2     2          60
-3     3          60
-4     4          60
-5     5          60
-6     6          60
-</code></pre>
+<span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">1</span>          <span style="color:#ae81ff">60</span>
+<span style="color:#ae81ff">2</span>     <span style="color:#ae81ff">2</span>          <span style="color:#ae81ff">60</span>
+<span style="color:#ae81ff">3</span>     <span style="color:#ae81ff">3</span>          <span style="color:#ae81ff">60</span>
+<span style="color:#ae81ff">4</span>     <span style="color:#ae81ff">4</span>          <span style="color:#ae81ff">60</span>
+<span style="color:#ae81ff">5</span>     <span style="color:#ae81ff">5</span>          <span style="color:#ae81ff">60</span>
+<span style="color:#ae81ff">6</span>     <span style="color:#ae81ff">6</span>          <span style="color:#ae81ff">60</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+prior <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>  <span style="color:#f92672">/</span> <span style="color:#a6e22e">length</span>(possibleValues)
+df <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(score <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(value <span style="color:#f92672">&lt;</span> observation, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span>value))
 
-<p>
-Next we want to add a column which represents the probability that the observed locomotive could have come from a particular fleet. If the number of railroads is less than 60 then we have a 0 probability, otherwise we have 1 / numberOfRailroadsInFleet:
-</p>
-
-<pre><code class="language-r">
-prior = 1  / length(possibleValues)
-df = df %&gt;% mutate(score = ifelse(value &lt; observation, 0, 1/value))
-
-&gt; df %&gt;% sample_n(10)
+<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sample_n</span>(<span style="color:#ae81ff">10</span>)
      value observation       score
-179    179          60 0.005586592
-1001  1001          60 0.000999001
-400    400          60 0.002500000
-438    438          60 0.002283105
-667    667          60 0.001499250
-661    661          60 0.001512859
-284    284          60 0.003521127
-233    233          60 0.004291845
-917    917          60 0.001090513
-173    173          60 0.005780347
-</code></pre>
+<span style="color:#ae81ff">179</span>    <span style="color:#ae81ff">179</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.005586592</span>
+<span style="color:#ae81ff">1001</span>  <span style="color:#ae81ff">1001</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.000999001</span>
+<span style="color:#ae81ff">400</span>    <span style="color:#ae81ff">400</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.002500000</span>
+<span style="color:#ae81ff">438</span>    <span style="color:#ae81ff">438</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.002283105</span>
+<span style="color:#ae81ff">667</span>    <span style="color:#ae81ff">667</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.001499250</span>
+<span style="color:#ae81ff">661</span>    <span style="color:#ae81ff">661</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.001512859</span>
+<span style="color:#ae81ff">284</span>    <span style="color:#ae81ff">284</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.003521127</span>
+<span style="color:#ae81ff">233</span>    <span style="color:#ae81ff">233</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.004291845</span>
+<span style="color:#ae81ff">917</span>    <span style="color:#ae81ff">917</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.001090513</span>
+<span style="color:#ae81ff">173</span>    <span style="color:#ae81ff">173</span>          <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">0.005780347</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+weightedDf <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">group_by</span>(value) <span style="color:#f92672">%&gt;%</span> 
+  <span style="color:#a6e22e">summarise</span>(aggScore <span style="color:#f92672">=</span> prior <span style="color:#f92672">*</span> <span style="color:#a6e22e">prod</span>(score)) <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">ungroup</span>() <span style="color:#f92672">%&gt;%</span>
+  <span style="color:#a6e22e">mutate</span>(weighted <span style="color:#f92672">=</span> aggScore <span style="color:#f92672">/</span> <span style="color:#a6e22e">sum</span>(aggScore))
 
-<p>
-To find the probability of each fleet size we write the following code:
-</p>
-
-<pre><code class="language-r">
-weightedDf = df %&gt;% 
-  group_by(value) %&gt;% 
-  summarise(aggScore = prior * prod(score)) %&gt;%
-  ungroup() %&gt;%
-  mutate(weighted = aggScore / sum(aggScore))
-
-&gt; weightedDf %&gt;% sample_n(10)
-Source: local data frame [10 x 3]
+<span style="color:#f92672">&gt;</span> weightedDf <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sample_n</span>(<span style="color:#ae81ff">10</span>)
+Source<span style="color:#f92672">:</span> local data frame [10 x <span style="color:#ae81ff">3</span>]
 
    value     aggScore     weighted
-1    906 1.102650e-06 0.0003909489
-2    262 3.812981e-06 0.0013519072
-3    994 1.005031e-06 0.0003563377
-4    669 1.493275e-06 0.0005294465
-5    806 1.239455e-06 0.0004394537
-6    673 1.484400e-06 0.0005262997
-7    416 2.401445e-06 0.0008514416
-8    624 1.600963e-06 0.0005676277
-9     40 0.000000e+00 0.0000000000
-10   248 4.028230e-06 0.0014282246
-</code></pre>
-
-<p>
-Let's plot the data frame to see how the probability varies for each fleet size:
-</p>
-
-<pre><code class="language-r">
-library(ggplot2)
-ggplot(aes(x = value, y = weighted), data = weightedDf) + 
-  geom_line(color=&quot;dark blue&quot;)
-</code></pre>
-
-<div>
-
-<img src="https://markhneedham.com/blog/
-/uploads/2015/04/2015-04-25_00-25-47.png" alt="2015 04 25 00 25 47" title="2015-04-25_00-25-47.png" border="0" width="500"  /></div>
-
-<p>
-The most likely choice is a fleet size of 60 based on this diagram but an alternative would be to find the mean of the posterior which we can do like so:
-</p>
-
-<pre><code class="language-r">
-&gt; weightedDf %&gt;% mutate(mean = value * weighted) %&gt;% select(mean) %&gt;% sum()
-[1] 333.6561
-</code></pre>
-
-<p>
-Now let's create a function with all that code in so we can play around with some different priors and observations:
-</p>
-
-<pre><code class="language-R">
-meanOfPosterior = function(values, observations) {
-  l = list(value = values, observation = observations)   
-  df = expand.grid(l) %&gt;% mutate(score = ifelse(value &lt; observation, 0, 1/value))
+<span style="color:#ae81ff">1</span>    <span style="color:#ae81ff">906</span> <span style="color:#ae81ff">1.102650e-06</span> <span style="color:#ae81ff">0.0003909489</span>
+<span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">262</span> <span style="color:#ae81ff">3.812981e-06</span> <span style="color:#ae81ff">0.0013519072</span>
+<span style="color:#ae81ff">3</span>    <span style="color:#ae81ff">994</span> <span style="color:#ae81ff">1.005031e-06</span> <span style="color:#ae81ff">0.0003563377</span>
+<span style="color:#ae81ff">4</span>    <span style="color:#ae81ff">669</span> <span style="color:#ae81ff">1.493275e-06</span> <span style="color:#ae81ff">0.0005294465</span>
+<span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">806</span> <span style="color:#ae81ff">1.239455e-06</span> <span style="color:#ae81ff">0.0004394537</span>
+<span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">673</span> <span style="color:#ae81ff">1.484400e-06</span> <span style="color:#ae81ff">0.0005262997</span>
+<span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">416</span> <span style="color:#ae81ff">2.401445e-06</span> <span style="color:#ae81ff">0.0008514416</span>
+<span style="color:#ae81ff">8</span>    <span style="color:#ae81ff">624</span> <span style="color:#ae81ff">1.600963e-06</span> <span style="color:#ae81ff">0.0005676277</span>
+<span style="color:#ae81ff">9</span>     <span style="color:#ae81ff">40</span> <span style="color:#ae81ff">0.000000e+00</span> <span style="color:#ae81ff">0.0000000000</span>
+<span style="color:#ae81ff">10</span>   <span style="color:#ae81ff">248</span> <span style="color:#ae81ff">4.028230e-06</span> <span style="color:#ae81ff">0.0014282246</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">library</span>(ggplot2)
+<span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> value, y <span style="color:#f92672">=</span> weighted), data <span style="color:#f92672">=</span> weightedDf) <span style="color:#f92672">+</span> 
+  <span style="color:#a6e22e">geom_line</span>(color<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;dark blue&#34;</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> weightedDf <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(mean <span style="color:#f92672">=</span> value <span style="color:#f92672">*</span> weighted) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(mean) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sum</span>()
+[1] <span style="color:#ae81ff">333.6561</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R">
+meanOfPosterior <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(values, observations) {
+  l <span style="color:#f92672">=</span> <span style="color:#a6e22e">list</span>(value <span style="color:#f92672">=</span> values, observation <span style="color:#f92672">=</span> observations)   
+  df <span style="color:#f92672">=</span> <span style="color:#a6e22e">expand.grid</span>(l) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(score <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(value <span style="color:#f92672">&lt;</span> observation, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span>value))
   
-  prior = 1  / length(possibleValues)
-  weightedDf = df %&gt;% 
-    group_by(value) %&gt;% 
-    summarise(aggScore = prior * prod(score)) %&gt;%
-    ungroup() %&gt;%
-    mutate(weighted = aggScore / sum(aggScore))
+  prior <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>  <span style="color:#f92672">/</span> <span style="color:#a6e22e">length</span>(possibleValues)
+  weightedDf <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> 
+    <span style="color:#a6e22e">group_by</span>(value) <span style="color:#f92672">%&gt;%</span> 
+    <span style="color:#a6e22e">summarise</span>(aggScore <span style="color:#f92672">=</span> prior <span style="color:#f92672">*</span> <span style="color:#a6e22e">prod</span>(score)) <span style="color:#f92672">%&gt;%</span>
+    <span style="color:#a6e22e">ungroup</span>() <span style="color:#f92672">%&gt;%</span>
+    <span style="color:#a6e22e">mutate</span>(weighted <span style="color:#f92672">=</span> aggScore <span style="color:#f92672">/</span> <span style="color:#a6e22e">sum</span>(aggScore))
   
-  return (weightedDf %&gt;% mutate(mean = value * weighted) %&gt;% select(mean) %&gt;% sum()) 
+  <span style="color:#a6e22e">return </span>(weightedDf <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(mean <span style="color:#f92672">=</span> value <span style="color:#f92672">*</span> weighted) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(mean) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sum</span>()) 
 }
-</code></pre>
-
-<p>
-If we update our observed railroads to have numbers 60, 30 and 90 we'd get the following means of posteriors assuming different priors:
-</p>
-
-<pre><code class="language-r">
-&gt; meanOfPosterior(1:500, c(60, 30, 90))
-[1] 151.8496
-&gt; meanOfPosterior(1:1000, c(60, 30, 90))
-[1] 164.3056
-&gt; meanOfPosterior(1:2000, c(60, 30, 90))
-[1] 171.3382
-</code></pre>
-
-<p>
-At the moment the function assumes that we always want to have a uniform prior i.e. every option has an equal opportunity of being chosen, but we might want to vary the prior to see how different assumptions influence the posterior.
-</p>
-
-<p>We can refactor the function to take in values & priors instead of calculating the priors in the function:</p>
-
-<pre><code class="language-R">
-meanOfPosterior = function(values, priors, observations) {
-  priorDf = data.frame(value = values, prior = priors)
-  l = list(value = priorDf$value, observation = observations)
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">500</span>, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">151.8496</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1000</span>, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">164.3056</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2000</span>, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">171.3382</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R">
+meanOfPosterior <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(values, priors, observations) {
+  priorDf <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>(value <span style="color:#f92672">=</span> values, prior <span style="color:#f92672">=</span> priors)
+  l <span style="color:#f92672">=</span> <span style="color:#a6e22e">list</span>(value <span style="color:#f92672">=</span> priorDf<span style="color:#f92672">$</span>value, observation <span style="color:#f92672">=</span> observations)
   
-  df = merge(expand.grid(l), priorDf, by.x = &quot;value&quot;, by.y = &quot;value&quot;) %&gt;% 
-    mutate(score = ifelse(value &lt; observation, 0, 1 / value))
+  df <span style="color:#f92672">=</span> <span style="color:#a6e22e">merge</span>(<span style="color:#a6e22e">expand.grid</span>(l), priorDf, by.x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;value&#34;</span>, by.y <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;value&#34;</span>) <span style="color:#f92672">%&gt;%</span> 
+    <span style="color:#a6e22e">mutate</span>(score <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(value <span style="color:#f92672">&lt;</span> observation, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span> <span style="color:#f92672">/</span> value))
   
-  df %&gt;% 
-    group_by(value) %&gt;% 
-    summarise(aggScore = max(prior) * prod(score)) %&gt;%
-    ungroup() %&gt;%
-    mutate(weighted = aggScore / sum(aggScore)) %&gt;%
-    mutate(mean = value * weighted) %&gt;%
-    select(mean) %&gt;%
-    sum()
+  df <span style="color:#f92672">%&gt;%</span> 
+    <span style="color:#a6e22e">group_by</span>(value) <span style="color:#f92672">%&gt;%</span> 
+    <span style="color:#a6e22e">summarise</span>(aggScore <span style="color:#f92672">=</span> <span style="color:#a6e22e">max</span>(prior) <span style="color:#f92672">*</span> <span style="color:#a6e22e">prod</span>(score)) <span style="color:#f92672">%&gt;%</span>
+    <span style="color:#a6e22e">ungroup</span>() <span style="color:#f92672">%&gt;%</span>
+    <span style="color:#a6e22e">mutate</span>(weighted <span style="color:#f92672">=</span> aggScore <span style="color:#f92672">/</span> <span style="color:#a6e22e">sum</span>(aggScore)) <span style="color:#f92672">%&gt;%</span>
+    <span style="color:#a6e22e">mutate</span>(mean <span style="color:#f92672">=</span> value <span style="color:#f92672">*</span> weighted) <span style="color:#f92672">%&gt;%</span>
+    <span style="color:#a6e22e">select</span>(mean) <span style="color:#f92672">%&gt;%</span>
+    <span style="color:#a6e22e">sum</span>()
 }
-</code></pre>
-
-<p>
-Now let's check we get the same posterior means for the uniform priors:
-</p>
-
-<pre><code class="language-r">
-&gt; meanOfPosterior(1:500,  1/length(1:500), c(60, 30, 90))
-[1] 151.8496
-&gt; meanOfPosterior(1:1000, 1/length(1:1000), c(60, 30, 90))
-[1] 164.3056
-&gt; meanOfPosterior(1:2000, 1/length(1:2000), c(60, 30, 90))
-[1] 171.3382
-</code></pre>
-
-<p>
-Now if instead of a uniform prior let's use a power law one where the assumption is that smaller fleets are more likely:
-</p>
-
-<pre><code class="language-r">
-&gt; meanOfPosterior(1:500,  sapply(1:500,  function(x) x ** -1), c(60, 30, 90))
-[1] 130.7085
-&gt; meanOfPosterior(1:1000, sapply(1:1000, function(x) x ** -1), c(60, 30, 90))
-[1] 133.2752
-&gt; meanOfPosterior(1:2000, sapply(1:2000, function(x) x ** -1), c(60, 30, 90))
-[1] 133.9975
-&gt; meanOfPosterior(1:5000, sapply(1:5000, function(x) x ** -1), c(60, 30, 90))
-[1] 134.212
-&gt; meanOfPosterior(1:10000, sapply(1:10000, function(x) x ** -1), c(60, 30, 90))
-[1] 134.2435
-</code></pre>
-
-<p>
-Now we get very similar posterior means which converge on 134 and so that's our best prediction.
-</p>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">500</span>,  <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#a6e22e">length</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">500</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">151.8496</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1000</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#a6e22e">length</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1000</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">164.3056</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2000</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#a6e22e">length</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2000</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">171.3382</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">500</span>,  <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">500</span>,  <span style="color:#a6e22e">function</span>(x) x <span style="color:#f92672">**</span> <span style="color:#ae81ff">-1</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">130.7085</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1000</span>, <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1000</span>, <span style="color:#a6e22e">function</span>(x) x <span style="color:#f92672">**</span> <span style="color:#ae81ff">-1</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">133.2752</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2000</span>, <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2000</span>, <span style="color:#a6e22e">function</span>(x) x <span style="color:#f92672">**</span> <span style="color:#ae81ff">-1</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">133.9975</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">5000</span>, <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">5000</span>, <span style="color:#a6e22e">function</span>(x) x <span style="color:#f92672">**</span> <span style="color:#ae81ff">-1</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">134.212</span>
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">meanOfPosterior</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">10000</span>, <span style="color:#a6e22e">sapply</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">10000</span>, <span style="color:#a6e22e">function</span>(x) x <span style="color:#f92672">**</span> <span style="color:#ae81ff">-1</span>), <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">60</span>, <span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">90</span>))
+[1] <span style="color:#ae81ff">134.2435</span>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -413,7 +346,7 @@ Now we get very similar posterior means which converge on 134 and so that's our 
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/04/24/r-think-bayes-locomotive-problem-posterior-probabilities-for-different-priors/&amp;title=R%3a%20Think%20Bayes%20Locomotive%20Problem%20-%20Posterior%20probabilities%20for%20different%20priors&amp;summary=In%20my%20continued%20reading%20of%20Think%20Bayes%20the%20next%20problem%20to%20tackle%20is%20the%20Locomotive%20problem%20which%20is%20defined%20thus%3a%20%20A%20railroad%20numbers%20its%20locomotives%20in%20order%201..N.%20One%20day%20you%20see%20a%20locomotive%20with%20the%20number%2060.%20Estimate%20how%20many%20loco-%20motives%20the%20railroad%20has.%20%20%20The%20interesting%20thing%20about%20this%20question%20is%20that%20it%20initially%20seems%20that%20we%20don%27t%20have%20enough%20information%20to%20come%20up%20with%20any%20sort%20of%20answer...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/04/24/r-think-bayes-locomotive-problem-posterior-probabilities-for-different-priors/&amp;title=R%3a%20Think%20Bayes%20Locomotive%20Problem%20-%20Posterior%20probabilities%20for%20different%20priors&amp;summary=One%20day%20you%20see%20a%20locomotive%20with%20the%20number%2060.%20Estimate%20how%20many%20loco-%20motives%20the%20railroad%20has.%0alibrary%28dplyr%29%20possibleValues%20%3d%201%3a1000%20observations%20%3d%20c%2860%29%20l%20%3d%20list%28value%20%3d%20possibleValues%2c%20observation%20%3d%20observations%29%20df%20%3d%20expand.grid%28l%29%20%26gt%3b%20df%20%25%26gt%3b%25%20head%28%29%20value%20observation%201%201%2060%202%202%2060%203%203%2060%204%204%2060%205%205%2060%206%206%2060%20prior%20%3d%201%20%2f%20length%28possibleValues%29%20df%20%3d%20df%20%25%26gt%3b%25%20mutate%28score%20%3d%20ifelse%28value%20%26lt%3b%20observation%2c%200%2c%201%2fvalue%29%29%20%26gt%3b%20df%20%25%26gt%3b%25%20sample_n%2810%29%20value%20observation%20score%20179%20179%2060%200...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

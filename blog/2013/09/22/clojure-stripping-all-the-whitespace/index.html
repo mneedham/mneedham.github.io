@@ -22,10 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Clojure: Stripping all the whitespace" />
         
-          <meta name="twitter:description" content="When putting together data sets to play around with, one of the more boring tasks is stripping out characters that you&#39;re not interested in and more often than not those characters are white spaces.
-Since I&#39;ve been building data sets using Clojure I wanted to write a function that would do this for me.
-I started out with the following string:
-(def word &quot; with a little bit of space we can make it through the night &quot;)  which I wanted to format in such a way that there would be a maximum of one space between each word." />
+          <meta name="twitter:description" content="(def word &#34; with a little bit of space we can make it through the night &#34;) &gt; (clojure.string/trim word) &#34;with a little bit of space we can make it through the night&#34; &gt; (clojure.string/join &#34; &#34; (filter #(not (clojure.string/blank? %)) (clojure.string/split word #&#34; &#34;))) &#34;with a little bit of space we can make it through the night&#34; &gt; (-&gt;&gt; (clojure.string/split word #&#34; &#34;) (filter #(not (clojure.string/blank? %))) (clojure.string/join &#34; &#34;)) &#34;with a little bit of space we can make it through the night&#34; (defn split-on-space [word] (clojure." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/09/22/clojure-stripping-all-the-whitespace/" />
 
@@ -36,10 +33,7 @@ I started out with the following string:
         <title> Clojure: Stripping all the whitespace &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="When putting together data sets to play around with, one of the more boring tasks is stripping out characters that you&#39;re not interested in and more often than not those characters are white spaces.
-Since I&#39;ve been building data sets using Clojure I wanted to write a function that would do this for me.
-I started out with the following string:
-(def word &quot; with a little bit of space we can make it through the night &quot;)  which I wanted to format in such a way that there would be a maximum of one space between each word." />
+        <meta name="description" content="(def word &#34; with a little bit of space we can make it through the night &#34;) &gt; (clojure.string/trim word) &#34;with a little bit of space we can make it through the night&#34; &gt; (clojure.string/join &#34; &#34; (filter #(not (clojure.string/blank? %)) (clojure.string/split word #&#34; &#34;))) &#34;with a little bit of space we can make it through the night&#34; &gt; (-&gt;&gt; (clojure.string/split word #&#34; &#34;) (filter #(not (clojure.string/blank? %))) (clojure.string/join &#34; &#34;)) &#34;with a little bit of space we can make it through the night&#34; (defn split-on-space [word] (clojure." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -68,11 +62,8 @@ I started out with the following string:
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-09-22",
-        "description": "When putting together data sets to play around with, one of the more boring tasks is stripping out characters that you're not interested in and more often than not those characters are white spaces.
-Since I've been building data sets using Clojure I wanted to write a function that would do this for me.
-I started out with the following string:
-(def word &quot; with a little bit of space we can make it through the night &quot;)  which I wanted to format in such a way that there would be a maximum of one space between each word.",
-        "wordCount": 352
+        "description": "(def word \x26#34; with a little bit of space we can make it through the night \x26#34;) \x26gt; (clojure.string\/trim word) \x26#34;with a little bit of space we can make it through the night\x26#34; \x26gt; (clojure.string\/join \x26#34; \x26#34; (filter #(not (clojure.string\/blank? %)) (clojure.string\/split word #\x26#34; \x26#34;))) \x26#34;with a little bit of space we can make it through the night\x26#34; \x26gt; (-\x26gt;\x26gt; (clojure.string\/split word #\x26#34; \x26#34;) (filter #(not (clojure.string\/blank? %))) (clojure.string\/join \x26#34; \x26#34;)) \x26#34;with a little bit of space we can make it through the night\x26#34; (defn split-on-space [word] (clojure.",
+        "wordCount":  114 
     }
     </script>
     
@@ -181,61 +172,40 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Clojure: Stripping all the whitespace</h1>
-    <p>When putting together data sets to play around with, one of the more boring tasks is stripping out characters that you're not interested in and more often than not those characters are white spaces.</p>
-
-<p>Since I've been building data sets using Clojure I wanted to write a function that would do this for me.</p>
-
-<p>I started out with the following string:</p>
-
-<pre><code class="language-lisp">
-(def word &quot; with a  little bit of space we can make it through the night  &quot;)
-</code></pre>
-
-<p>which I wanted to format in such a way that there would be a maximum of one space between each word.</p>
-
-<p>I start out by using the <cite><a href="http://clojure.github.io/clojure/clojure.string-api.html#clojure.string/trim">trim</a></cite> function but that only removes white space from the beginning and end of a string:</p>
-
-<pre><code class="language-lisp">
-&gt; (clojure.string/trim word)
-&quot;with a  little bit of space we can make it through the night&quot;
-</code></pre>
-
-<p>I wanted to get rid of the space in between 'a' and 'little' as well so I wrote the following code to split on a space and filter out any excess spaces that still remained before joining the words back together:</p>
-
-<pre><code class="language-lisp">
-&gt; (clojure.string/join &quot; &quot; 
-                       (filter #(not (clojure.string/blank? %)) 
-                               (clojure.string/split word #&quot; &quot;)))
-&quot;with a little bit of space we can make it through the night&quot;
-</code></pre>
-
-<p>I wanted to try and make it a bit easier to read by using the <a href="http://clojuredocs.org/clojure_core/clojure.core/-%3E%3E">thread last (->>) macro</a> but that didn't work as well as I'd hoped because <cite>clojure.string/split</cite> doesn't take the string in as its last parameter:</p>
-
-<pre><code class="language-lisp">
-&gt;  (-&gt;&gt; (clojure.string/split word #&quot; &quot;) 
-   (filter #(not (clojure.string/blank? %))) 
-   (clojure.string/join &quot; &quot;))
-&quot;with a little bit of space we can make it through the night&quot;
-</code></pre>
-
-<p>I worked around it by creating a specific function for splitting on a space:</p>
-
-<pre><code class="language-lisp">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+(def word <span style="color:#e6db74">&#34; with a  little bit of space we can make it through the night  &#34;</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (clojure.string/trim word)
+<span style="color:#e6db74">&#34;with a  little bit of space we can make it through the night&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (clojure.string/join <span style="color:#e6db74">&#34; &#34;</span> 
+                       (filter <span style="color:#f92672">#(</span><span style="color:#a6e22e">not</span> (clojure.string/blank? %)) 
+                               (clojure.string/split word <span style="color:#ae81ff">#&#34; &#34;</span>)))
+<span style="color:#e6db74">&#34;with a little bit of space we can make it through the night&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span>  (-&gt;&gt; (clojure.string/split word <span style="color:#ae81ff">#&#34; &#34;</span>) 
+   (filter <span style="color:#f92672">#(</span><span style="color:#a6e22e">not</span> (clojure.string/blank? %))) 
+   (clojure.string/join <span style="color:#e6db74">&#34; &#34;</span>))
+<span style="color:#e6db74">&#34;with a little bit of space we can make it through the night&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defn split-on-space [word] 
-  (clojure.string/split word #&quot;\s&quot;))
-</code></pre>
-
-<p>which means we can now chain everything together nicely:</p>
-
-<pre><code class="language-lisp">
-&gt;  (-&gt;&gt; word 
+  (clojure.string/split word <span style="color:#ae81ff">#&#34;\s&#34;</span>))
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span>  (-&gt;&gt; word 
         split-on-space 
-        (filter #(not (clojure.string/blank? %))) 
-        (clojure.string/join &quot; &quot;))
-&quot;with a little bit of space we can make it through the night&quot;
-</code></pre>
-
-<p>I couldn't find a cleaner way to do this but I'm sure there is one and my googling just isn't up to scratch so do let me know in the comments!</p>
+        (filter <span style="color:#f92672">#(</span><span style="color:#a6e22e">not</span> (clojure.string/blank? %))) 
+        (clojure.string/join <span style="color:#e6db74">&#34; &#34;</span>))
+<span style="color:#e6db74">&#34;with a little bit of space we can make it through the night&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -270,7 +240,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/09/22/clojure-stripping-all-the-whitespace/&amp;title=Clojure%3a%20Stripping%20all%20the%20whitespace&amp;summary=When%20putting%20together%20data%20sets%20to%20play%20around%20with%2c%20one%20of%20the%20more%20boring%20tasks%20is%20stripping%20out%20characters%20that%20you%27re%20not%20interested%20in%20and%20more%20often%20than%20not%20those%20characters%20are%20white%20spaces.%0aSince%20I%27ve%20been%20building%20data%20sets%20using%20Clojure%20I%20wanted%20to%20write%20a%20function%20that%20would%20do%20this%20for%20me.%0aI%20started%20out%20with%20the%20following%20string%3a%0a%28def%20word%20%26quot%3b%20with%20a%20little%20bit%20of%20space%20we%20can%20make%20it%20through%20the%20night%20%26quot%3b%29%20%20which%20I%20wanted%20to%20format%20in%20such%20a%20way%20that%20there%20would%20be%20a%20maximum%20of%20one%20space%20between%20each%20word...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/09/22/clojure-stripping-all-the-whitespace/&amp;title=Clojure%3a%20Stripping%20all%20the%20whitespace&amp;summary=%28def%20word%20%26%2334%3b%20with%20a%20little%20bit%20of%20space%20we%20can%20make%20it%20through%20the%20night%20%26%2334%3b%29%20%26gt%3b%20%28clojure.string%2ftrim%20word%29%20%26%2334%3bwith%20a%20little%20bit%20of%20space%20we%20can%20make%20it%20through%20the%20night%26%2334%3b%20%26gt%3b%20%28clojure.string%2fjoin%20%26%2334%3b%20%26%2334%3b%20%28filter%20%23%28not%20%28clojure.string%2fblank%3f%20%25%29%29%20%28clojure.string%2fsplit%20word%20%23%26%2334%3b%20%26%2334%3b%29%29%29%20%26%2334%3bwith%20a%20little%20bit%20of%20space%20we%20can%20make%20it%20through%20the%20night%26%2334%3b%20%26gt%3b%20%28-%26gt%3b%26gt%3b%20%28clojure.string%2fsplit%20word%20%23%26%2334%3b%20%26%2334%3b%29%20%28filter%20%23%28not%20%28clojure.string%2fblank%3f%20%25%29%29%29%20%28clojure.string%2fjoin%20%26%2334%3b%20%26%2334%3b%29%29%20%26%2334%3bwith%20a%20little%20bit%20of%20space%20we%20can%20make%20it%20through%20the%20night%26%2334%3b%20%28defn%20split-on-space%20%5bword%5d%20%28clojure...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

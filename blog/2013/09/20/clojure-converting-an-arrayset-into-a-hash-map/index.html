@@ -22,10 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Clojure: Converting an array/set into a hash map" />
         
-          <meta name="twitter:description" content="When I was implementing the Elo Rating algorithm a few weeks ago one thing I needed to do was come up with a base ranking for each team.
-I started out with a set of teams that looked like this:
-(def teams #{ &quot;Man Utd&quot; &quot;Man City&quot; &quot;Arsenal&quot; &quot;Chelsea&quot;})  and I wanted to transform that into a map from the team to their ranking e.g.
-Man Utd -&gt; {:points 1200} Man City -&gt; {:points 1200} Arsenal -&gt; {:points 1200} Chelsea -&gt; {:points 1200}  I had read the documentation of array-map, a function which can be used to transform a collection of pairs into a map, and it seemed like it might do the trick." />
+          <meta name="twitter:description" content="(def teams #{ &#34;Man Utd&#34; &#34;Man City&#34; &#34;Arsenal&#34; &#34;Chelsea&#34;}) Man Utd -&gt; {:points 1200} Man City -&gt; {:points 1200} Arsenal -&gt; {:points 1200} Chelsea -&gt; {:points 1200} &gt; (mapcat (fn [x] [x {:points 1200}]) teams) (&#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}) &gt; (array-map &#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}) (&#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}) &gt; (apply array-map [&#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}]) {&#34;Chelsea&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man Utd&#34; {:points 1200}} &gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) teams)) {&#34;Man Utd&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Chelsea&#34; {:points 1200}} &gt; (mapcat vector teams (repeat {:points 1200})) (&#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}) &gt; (apply array-map (mapcat vector teams (repeat {:points 1200}))) {&#34;Chelsea&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man Utd&#34; {:points 1200}} &gt; (apply assoc {} (mapcat vector teams (repeat {:points 1200}))) {&#34;Man Utd&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Chelsea&#34; {:points 1200}} &gt; (into {} [[&#34;Chelsea&#34; {:points 1200}] [&#34;Man City&#34; {:points 1200}] [&#34;Arsenal&#34; {:points 1200}] [&#34;Man Utd&#34; {:points 1200}] ]) &gt; (into {} (map vector teams (repeat {:points 1200}))) {&#34;Chelsea&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man Utd&#34; {:points 1200}} &gt; (zipmap teams (repeat {:points 1200})) {&#34;Man Utd&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Chelsea&#34; {:points 1200}} " />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/09/20/clojure-converting-an-arrayset-into-a-hash-map/" />
 
@@ -36,10 +33,7 @@ Man Utd -&gt; {:points 1200} Man City -&gt; {:points 1200} Arsenal -&gt; {:point
         <title> Clojure: Converting an array/set into a hash map &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="When I was implementing the Elo Rating algorithm a few weeks ago one thing I needed to do was come up with a base ranking for each team.
-I started out with a set of teams that looked like this:
-(def teams #{ &quot;Man Utd&quot; &quot;Man City&quot; &quot;Arsenal&quot; &quot;Chelsea&quot;})  and I wanted to transform that into a map from the team to their ranking e.g.
-Man Utd -&gt; {:points 1200} Man City -&gt; {:points 1200} Arsenal -&gt; {:points 1200} Chelsea -&gt; {:points 1200}  I had read the documentation of array-map, a function which can be used to transform a collection of pairs into a map, and it seemed like it might do the trick." />
+        <meta name="description" content="(def teams #{ &#34;Man Utd&#34; &#34;Man City&#34; &#34;Arsenal&#34; &#34;Chelsea&#34;}) Man Utd -&gt; {:points 1200} Man City -&gt; {:points 1200} Arsenal -&gt; {:points 1200} Chelsea -&gt; {:points 1200} &gt; (mapcat (fn [x] [x {:points 1200}]) teams) (&#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}) &gt; (array-map &#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}) (&#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}) &gt; (apply array-map [&#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}]) {&#34;Chelsea&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man Utd&#34; {:points 1200}} &gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) teams)) {&#34;Man Utd&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Chelsea&#34; {:points 1200}} &gt; (mapcat vector teams (repeat {:points 1200})) (&#34;Chelsea&#34; {:points 1200} &#34;Man City&#34; {:points 1200} &#34;Arsenal&#34; {:points 1200} &#34;Man Utd&#34; {:points 1200}) &gt; (apply array-map (mapcat vector teams (repeat {:points 1200}))) {&#34;Chelsea&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man Utd&#34; {:points 1200}} &gt; (apply assoc {} (mapcat vector teams (repeat {:points 1200}))) {&#34;Man Utd&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Chelsea&#34; {:points 1200}} &gt; (into {} [[&#34;Chelsea&#34; {:points 1200}] [&#34;Man City&#34; {:points 1200}] [&#34;Arsenal&#34; {:points 1200}] [&#34;Man Utd&#34; {:points 1200}] ]) &gt; (into {} (map vector teams (repeat {:points 1200}))) {&#34;Chelsea&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man Utd&#34; {:points 1200}} &gt; (zipmap teams (repeat {:points 1200})) {&#34;Man Utd&#34; {:points 1200}, &#34;Arsenal&#34; {:points 1200}, &#34;Man City&#34; {:points 1200}, &#34;Chelsea&#34; {:points 1200}} " />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,17 +56,14 @@ Man Utd -&gt; {:points 1200} Man City -&gt; {:points 1200} Arsenal -&gt; {:point
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "Clojure: Converting an array/set into a hash map",
+        "headline": "Clojure: Converting an array\/set into a hash map",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-09-20",
-        "description": "When I was implementing the Elo Rating algorithm a few weeks ago one thing I needed to do was come up with a base ranking for each team.
-I started out with a set of teams that looked like this:
-(def teams #{ &quot;Man Utd&quot; &quot;Man City&quot; &quot;Arsenal&quot; &quot;Chelsea&quot;})  and I wanted to transform that into a map from the team to their ranking e.g.
-Man Utd -&gt; {:points 1200} Man City -&gt; {:points 1200} Arsenal -&gt; {:points 1200} Chelsea -&gt; {:points 1200}  I had read the documentation of array-map, a function which can be used to transform a collection of pairs into a map, and it seemed like it might do the trick.",
-        "wordCount": 527
+        "description": "(def teams #{ \x26#34;Man Utd\x26#34; \x26#34;Man City\x26#34; \x26#34;Arsenal\x26#34; \x26#34;Chelsea\x26#34;}) Man Utd -\x26gt; {:points 1200} Man City -\x26gt; {:points 1200} Arsenal -\x26gt; {:points 1200} Chelsea -\x26gt; {:points 1200} \x26gt; (mapcat (fn [x] [x {:points 1200}]) teams) (\x26#34;Chelsea\x26#34; {:points 1200} \x26#34;Man City\x26#34; {:points 1200} \x26#34;Arsenal\x26#34; {:points 1200} \x26#34;Man Utd\x26#34; {:points 1200}) \x26gt; (array-map \x26#34;Chelsea\x26#34; {:points 1200} \x26#34;Man City\x26#34; {:points 1200} \x26#34;Arsenal\x26#34; {:points 1200} \x26#34;Man Utd\x26#34; {:points 1200}) (\x26#34;Chelsea\x26#34; {:points 1200} \x26#34;Man City\x26#34; {:points 1200} \x26#34;Arsenal\x26#34; {:points 1200} \x26#34;Man Utd\x26#34; {:points 1200}) \x26gt; (apply array-map [\x26#34;Chelsea\x26#34; {:points 1200} \x26#34;Man City\x26#34; {:points 1200} \x26#34;Arsenal\x26#34; {:points 1200} \x26#34;Man Utd\x26#34; {:points 1200}]) {\x26#34;Chelsea\x26#34; {:points 1200}, \x26#34;Man City\x26#34; {:points 1200}, \x26#34;Arsenal\x26#34; {:points 1200}, \x26#34;Man Utd\x26#34; {:points 1200}} \x26gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) teams)) {\x26#34;Man Utd\x26#34; {:points 1200}, \x26#34;Man City\x26#34; {:points 1200}, \x26#34;Arsenal\x26#34; {:points 1200}, \x26#34;Chelsea\x26#34; {:points 1200}} \x26gt; (mapcat vector teams (repeat {:points 1200})) (\x26#34;Chelsea\x26#34; {:points 1200} \x26#34;Man City\x26#34; {:points 1200} \x26#34;Arsenal\x26#34; {:points 1200} \x26#34;Man Utd\x26#34; {:points 1200}) \x26gt; (apply array-map (mapcat vector teams (repeat {:points 1200}))) {\x26#34;Chelsea\x26#34; {:points 1200}, \x26#34;Man City\x26#34; {:points 1200}, \x26#34;Arsenal\x26#34; {:points 1200}, \x26#34;Man Utd\x26#34; {:points 1200}} \x26gt; (apply assoc {} (mapcat vector teams (repeat {:points 1200}))) {\x26#34;Man Utd\x26#34; {:points 1200}, \x26#34;Arsenal\x26#34; {:points 1200}, \x26#34;Man City\x26#34; {:points 1200}, \x26#34;Chelsea\x26#34; {:points 1200}} \x26gt; (into {} [[\x26#34;Chelsea\x26#34; {:points 1200}] [\x26#34;Man City\x26#34; {:points 1200}] [\x26#34;Arsenal\x26#34; {:points 1200}] [\x26#34;Man Utd\x26#34; {:points 1200}] ]) \x26gt; (into {} (map vector teams (repeat {:points 1200}))) {\x26#34;Chelsea\x26#34; {:points 1200}, \x26#34;Man City\x26#34; {:points 1200}, \x26#34;Arsenal\x26#34; {:points 1200}, \x26#34;Man Utd\x26#34; {:points 1200}} \x26gt; (zipmap teams (repeat {:points 1200})) {\x26#34;Man Utd\x26#34; {:points 1200}, \x26#34;Arsenal\x26#34; {:points 1200}, \x26#34;Man City\x26#34; {:points 1200}, \x26#34;Chelsea\x26#34; {:points 1200}} ",
+        "wordCount":  263 
     }
     </script>
     
@@ -181,95 +172,57 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Clojure: Converting an array/set into a hash map</h1>
-    <p>When I was <a href="http://www.markhneedham.com/blog/2013/08/31/elo-rating-system-ranking-champions-league-teams-using-clojure/">implementing the Elo Rating algorithm</a> a few weeks ago one thing I needed to do was come up with a base ranking for each team.</p>
-
-<p>I started out with a set of teams that looked like this:</p>
-
-<pre><code class="language-lisp">
-(def teams #{ &quot;Man Utd&quot; &quot;Man City&quot; &quot;Arsenal&quot; &quot;Chelsea&quot;})
-</code></pre>
-
-<p>and I wanted to transform that into a map from the team to their ranking e.g.</p>
-
-<pre><code class="language-text">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+(def teams <span style="color:#960050;background-color:#1e0010">#</span>{ <span style="color:#e6db74">&#34;Man Utd&#34;</span> <span style="color:#e6db74">&#34;Man City&#34;</span> <span style="color:#e6db74">&#34;Arsenal&#34;</span> <span style="color:#e6db74">&#34;Chelsea&#34;</span>})
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 Man Utd -&gt; {:points 1200}
 Man City -&gt; {:points 1200}
 Arsenal -&gt; {:points 1200}
 Chelsea -&gt; {:points 1200}
-</code></pre>
-
-<p>I had read the documentation of <cite><a href="http://clojuredocs.org/clojure_core/1.2.0/clojure.core/array-map">array-map</a></cite>, a function which can be used to transform a collection of pairs into a map, and it seemed like it might do the trick.</p>
-
-<p>I started out by building an array of pairs using <cite><a href="http://clojuredocs.org/clojure_core/1.2.0/clojure.core/mapcat">mapcat</a></cite>:</p>
-
-<pre><code class="language-lisp">
-&gt; (mapcat (fn [x] [x {:points 1200}]) teams)
-(&quot;Chelsea&quot; {:points 1200} &quot;Man City&quot; {:points 1200} &quot;Arsenal&quot; {:points 1200} &quot;Man Utd&quot; {:points 1200})
-</code></pre>
-
-<p><cite>array-map</cite> constructs a map from pairs of values e.g.</p>
-
-<pre><code class="language-lisp">
-&gt; (array-map &quot;Chelsea&quot; {:points 1200} &quot;Man City&quot; {:points 1200} &quot;Arsenal&quot; {:points 1200} &quot;Man Utd&quot; {:points 1200})
-(&quot;Chelsea&quot; {:points 1200} &quot;Man City&quot; {:points 1200} &quot;Arsenal&quot; {:points 1200} &quot;Man Utd&quot; {:points 1200})
-</code></pre>
-
-<p>Since we have a collection of pairs rather than individual pairs we need to use the <cite><a href="http://clojuredocs.org/clojure_core/1.2.0/clojure.core/apply">apply</a></cite> function as well:</p>
-
-<pre><code class="language-lisp">
-&gt; (apply array-map [&quot;Chelsea&quot; {:points 1200} &quot;Man City&quot; {:points 1200} &quot;Arsenal&quot; {:points 1200} &quot;Man Utd&quot; {:points 1200}])
-{&quot;Chelsea&quot; {:points 1200}, &quot;Man City&quot; {:points 1200}, &quot;Arsenal&quot; {:points 1200}, &quot;Man Utd&quot; {:points 1200}}
-</code></pre>
-
-<p>And if we put it all together we end up with the following:</p>
-
-<pre><code class="language-lisp">
-&gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) teams))
-{&quot;Man Utd&quot;  {:points 1200}, &quot;Man City&quot; {:points 1200}, &quot;Arsenal&quot;  {:points 1200}, &quot;Chelsea&quot;  {:points 1200}}
-</code></pre>
-
-<p>It works but the function we pass to <cite>mapcat</cite> feels a bit clunky. Since we just need to create a collection of team/ranking pairs we can use the <cite><a href="http://clojuredocs.org/clojure_core/clojure.core/vector">vector</a></cite> and <cite><a href="http://clojuredocs.org/clojure_core/clojure.core/repeat">repeat</a></cite> functions to build that up instead:</p>
-
-<pre><code class="language-lisp">
-&gt; (mapcat vector teams (repeat {:points 1200}))
-(&quot;Chelsea&quot; {:points 1200} &quot;Man City&quot; {:points 1200} &quot;Arsenal&quot; {:points 1200} &quot;Man Utd&quot; {:points 1200})
-</code></pre>
-
-<p>And if we put the <cite>apply array-map</cite> code back in we still get the desired result:</p>
-
-<pre><code class="language-lisp">
-&gt; (apply array-map (mapcat vector teams (repeat {:points 1200})))
-{&quot;Chelsea&quot; {:points 1200}, &quot;Man City&quot; {:points 1200}, &quot;Arsenal&quot; {:points 1200}, &quot;Man Utd&quot; {:points 1200}}
-</code></pre>
-
-<p>Alternatively we could use <cite><a href="http://clojuredocs.org/clojure_core/clojure.core/assoc">assoc</a></cite> like this:</p>
-
-<pre><code class="language-lisp">
-&gt; (apply assoc {} (mapcat vector teams (repeat {:points 1200})))
-{&quot;Man Utd&quot; {:points 1200}, &quot;Arsenal&quot; {:points 1200}, &quot;Man City&quot; {:points 1200}, &quot;Chelsea&quot; {:points 1200}}
-</code></pre>
-
-<p>I also came across the <cite><a href="http://clojuredocs.org/clojure_core/clojure.core/into">into</a></cite> function which seemed useful but took in a collection of vectors:</p>
-
-<pre><code class="language-lisp">
-&gt; (into {} [[&quot;Chelsea&quot; {:points 1200}] [&quot;Man City&quot; {:points 1200}] [&quot;Arsenal&quot; {:points 1200}] [&quot;Man Utd&quot; {:points 1200}] ])
-</code></pre>
-
-<p>We therefore need to change the code to use <cite>map</cite> instead of <cite>mapcat</cite>:</p>
-
-<pre><code class="language-lisp">
-&gt; (into {} (map vector teams (repeat {:points 1200})))
-{&quot;Chelsea&quot; {:points 1200}, &quot;Man City&quot; {:points 1200}, &quot;Arsenal&quot; {:points 1200}, &quot;Man Utd&quot; {:points 1200}}
-</code></pre>
-
-<p>However, my favourite version so far uses the <cite><a href="http://clojuredocs.org/clojure_core/clojure.core/zipmap">zipmap</a></cite> function like so:</p>
-
-<pre><code class="language-lisp">
-&gt; (zipmap teams (repeat {:points 1200}))
-{&quot;Man Utd&quot; {:points 1200}, &quot;Arsenal&quot; {:points 1200}, &quot;Man City&quot; {:points 1200}, &quot;Chelsea&quot; {:points 1200}}
-</code></pre>
-
-<p>I'm sure there are other ways to do this as well so if you know any let me know in the comments.</p>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (mapcat (fn [x] [x {:points 1200}]) teams)
+(<span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200})
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (array-map <span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200})
+(<span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200})
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">apply</span> array-map [<span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200}])
+{<span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">apply</span> array-map (mapcat (fn [x] [x {:points 1200}]) teams))
+{<span style="color:#e6db74">&#34;Man Utd&#34;</span>  {:points 1200}, <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Arsenal&#34;</span>  {:points 1200}, <span style="color:#e6db74">&#34;Chelsea&#34;</span>  {:points 1200}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (mapcat <span style="color:#a6e22e">vector</span> teams (repeat {:points 1200}))
+(<span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200})
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">apply</span> array-map (mapcat <span style="color:#a6e22e">vector</span> teams (repeat {:points 1200})))
+{<span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">apply</span> <span style="color:#a6e22e">assoc</span> {} (mapcat <span style="color:#a6e22e">vector</span> teams (repeat {:points 1200})))
+{<span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (into {} [[<span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200}] [<span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200}] [<span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200}] [<span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200}] ])
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (into {} (<span style="color:#a6e22e">map</span> <span style="color:#a6e22e">vector</span> teams (repeat {:points 1200})))
+{<span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (zipmap teams (repeat {:points 1200}))
+{<span style="color:#e6db74">&#34;Man Utd&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Man City&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Chelsea&#34;</span> {:points 1200}}
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -304,7 +257,7 @@ Chelsea -&gt; {:points 1200}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/09/20/clojure-converting-an-arrayset-into-a-hash-map/&amp;title=Clojure%3a%20Converting%20an%20array%2fset%20into%20a%20hash%20map&amp;summary=When%20I%20was%20implementing%20the%20Elo%20Rating%20algorithm%20a%20few%20weeks%20ago%20one%20thing%20I%20needed%20to%20do%20was%20come%20up%20with%20a%20base%20ranking%20for%20each%20team.%0aI%20started%20out%20with%20a%20set%20of%20teams%20that%20looked%20like%20this%3a%0a%28def%20teams%20%23%7b%20%26quot%3bMan%20Utd%26quot%3b%20%26quot%3bMan%20City%26quot%3b%20%26quot%3bArsenal%26quot%3b%20%26quot%3bChelsea%26quot%3b%7d%29%20%20and%20I%20wanted%20to%20transform%20that%20into%20a%20map%20from%20the%20team%20to%20their%20ranking%20e.g.%0aMan%20Utd%20-%26gt%3b%20%7b%3apoints%201200%7d%20Man%20City%20-%26gt%3b%20%7b%3apoints%201200%7d%20Arsenal%20-%26gt%3b%20%7b%3apoints%201200%7d%20Chelsea%20-%26gt%3b%20%7b%3apoints%201200%7d%20%20I%20had%20read%20the%20documentation%20of%20array-map%2c%20a%20function%20which%20can%20be%20used%20to%20transform%20a%20collection%20of%20pairs%20into%20a%20map%2c%20and%20it%20seemed%20like%20it%20might%20do%20the%20trick...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/09/20/clojure-converting-an-arrayset-into-a-hash-map/&amp;title=Clojure%3a%20Converting%20an%20array%2fset%20into%20a%20hash%20map&amp;summary=%28def%20teams%20%23%7b%20%26%2334%3bMan%20Utd%26%2334%3b%20%26%2334%3bMan%20City%26%2334%3b%20%26%2334%3bArsenal%26%2334%3b%20%26%2334%3bChelsea%26%2334%3b%7d%29%20Man%20Utd%20-%26gt%3b%20%7b%3apoints%201200%7d%20Man%20City%20-%26gt%3b%20%7b%3apoints%201200%7d%20Arsenal%20-%26gt%3b%20%7b%3apoints%201200%7d%20Chelsea%20-%26gt%3b%20%7b%3apoints%201200%7d%20%26gt%3b%20%28mapcat%20%28fn%20%5bx%5d%20%5bx%20%7b%3apoints%201200%7d%5d%29%20teams%29%20%28%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%29%20%26gt%3b%20%28array-map%20%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%29%20%28%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%29%20%26gt%3b%20%28apply%20array-map%20%5b%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%5d%29%20%7b%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%7d%20%26gt%3b%20%28apply%20array-map%20%28mapcat%20%28fn%20%5bx%5d%20%5bx%20%7b%3apoints%201200%7d%5d%29%20teams%29%29%20%7b%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%7d%20%26gt%3b%20%28mapcat%20vector%20teams%20%28repeat%20%7b%3apoints%201200%7d%29%29%20%28%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%29%20%26gt%3b%20%28apply%20array-map%20%28mapcat%20vector%20teams%20%28repeat%20%7b%3apoints%201200%7d%29%29%29%20%7b%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%7d%20%26gt%3b%20%28apply%20assoc%20%7b%7d%20%28mapcat%20vector%20teams%20%28repeat%20%7b%3apoints%201200%7d%29%29%29%20%7b%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%7d%20%26gt%3b%20%28into%20%7b%7d%20%5b%5b%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%5d%20%5b%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%5d%20%5b%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%5d%20%5b%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%5d%20%5d%29%20%26gt%3b%20%28into%20%7b%7d%20%28map%20vector%20teams%20%28repeat%20%7b%3apoints%201200%7d%29%29%29%20%7b%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%7d%20%26gt%3b%20%28zipmap%20teams%20%28repeat%20%7b%3apoints%201200%7d%29%29%20%7b%26%2334%3bMan%20Utd%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bArsenal%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bMan%20City%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bChelsea%26%2334%3b%20%7b%3apoints%201200%7d%7d%20..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

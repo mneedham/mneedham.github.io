@@ -23,7 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Kubernetes: Simulating a network partition" />
         
-          <meta name="twitter:description" content="A couple of weeks ago I wrote a post explaining how to create a Neo4j causal cluster using Kubernetes and ... the I wanted to work out how to simulate a network partition which would put the leader on the minority side and force an election.  We&#39;ve done this on our internal tooling on AWS using the iptables command but unfortunately that isn&#39;t available in my container, which only has the utilities provided by BusyBox." />
+          <meta name="twitter:description" content="$ kubectl get pods NAME READY STATUS RESTARTS AGE neo4j-0 1/1 Running 0 6h neo4j-1 1/1 Running 0 6h neo4j-2 1/1 Running 0 6h $ kubectl exec neo4j-0 -- ls -alh /sbin/route lrwxrwxrwx 1 root root 12 Oct 18 18:58 /sbin/route -&gt; /bin/busybox $ kubectl exec neo4j-0 -- bin/cypher-shell &#34;CALL dbms.cluster.role()&#34; role &#34;FOLLOWER&#34; Bye! $ kubectl exec neo4j-1 -- bin/cypher-shell &#34;CALL dbms.cluster.role()&#34; role &#34;FOLLOWER&#34; Bye! $ kubectl exec neo4j-2 -- bin/cypher-shell &#34;CALL dbms." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/12/04/kubernetes-simulating-a-network-partition/" />
 
@@ -34,7 +34,7 @@
         <title> Kubernetes: Simulating a network partition &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="A couple of weeks ago I wrote a post explaining how to create a Neo4j causal cluster using Kubernetes and ... the I wanted to work out how to simulate a network partition which would put the leader on the minority side and force an election.  We&#39;ve done this on our internal tooling on AWS using the iptables command but unfortunately that isn&#39;t available in my container, which only has the utilities provided by BusyBox." />
+        <meta name="description" content="$ kubectl get pods NAME READY STATUS RESTARTS AGE neo4j-0 1/1 Running 0 6h neo4j-1 1/1 Running 0 6h neo4j-2 1/1 Running 0 6h $ kubectl exec neo4j-0 -- ls -alh /sbin/route lrwxrwxrwx 1 root root 12 Oct 18 18:58 /sbin/route -&gt; /bin/busybox $ kubectl exec neo4j-0 -- bin/cypher-shell &#34;CALL dbms.cluster.role()&#34; role &#34;FOLLOWER&#34; Bye! $ kubectl exec neo4j-1 -- bin/cypher-shell &#34;CALL dbms.cluster.role()&#34; role &#34;FOLLOWER&#34; Bye! $ kubectl exec neo4j-2 -- bin/cypher-shell &#34;CALL dbms." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +63,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-12-04",
-        "description": "A couple of weeks ago I wrote a post explaining how to create a Neo4j causal cluster using Kubernetes and ... the I wanted to work out how to simulate a network partition which would put the leader on the minority side and force an election.  We've done this on our internal tooling on AWS using the iptables command but unfortunately that isn't available in my container, which only has the utilities provided by BusyBox.",
-        "wordCount": 704
+        "description": "$ kubectl get pods NAME READY STATUS RESTARTS AGE neo4j-0 1\/1 Running 0 6h neo4j-1 1\/1 Running 0 6h neo4j-2 1\/1 Running 0 6h $ kubectl exec neo4j-0 -- ls -alh \/sbin\/route lrwxrwxrwx 1 root root 12 Oct 18 18:58 \/sbin\/route -\x26gt; \/bin\/busybox $ kubectl exec neo4j-0 -- bin\/cypher-shell \x26#34;CALL dbms.cluster.role()\x26#34; role \x26#34;FOLLOWER\x26#34; Bye! $ kubectl exec neo4j-1 -- bin\/cypher-shell \x26#34;CALL dbms.cluster.role()\x26#34; role \x26#34;FOLLOWER\x26#34; Bye! $ kubectl exec neo4j-2 -- bin\/cypher-shell \x26#34;CALL dbms.",
+        "wordCount":  390 
     }
     </script>
     
@@ -175,161 +175,102 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Kubernetes: Simulating a network partition</h1>
-    <p>A couple of weeks ago I wrote <a href="http://www.markhneedham.com/blog/2016/11/25/kubernetes-spinning-up-a-neo4j-3-1-causal-cluster/">a post explaining how to create a Neo4j causal cluster using Kubernetes</a> and ... the I wanted to work out how to simulate a network partition which would put the leader on the minority side and force an election.
-</p>
-
-<p>
-We've done this on our internal tooling on AWS using the <cite><a href="https://en.wikipedia.org/wiki/Iptables">iptables</a></cite> command but unfortunately that isn't available in my container, which only has the utilities provided by <a href="https://busybox.net/about.html">BusyBox</a>.
-</p>
-
-<p>Luckily one of these is <cite>route</cite> command which will allow us to achieve the same thing.</p>
-
-<p>
-To recap, I have 3 Neo4j pods up and running:
-</p>
-
-<pre><code class="language-bash">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ kubectl get pods
 NAME      READY     STATUS    RESTARTS   AGE
-neo4j-0   1/1       Running   0          6h
-neo4j-1   1/1       Running   0          6h
-neo4j-2   1/1       Running   0          6h
-</code></pre>
-
-<p>And we can check that the <cite>route</cite> command is available:</p>
-
-<pre><code class="language-bash">
+neo4j-0   1/1       Running   <span style="color:#ae81ff">0</span>          6h
+neo4j-1   1/1       Running   <span style="color:#ae81ff">0</span>          6h
+neo4j-2   1/1       Running   <span style="color:#ae81ff">0</span>          6h
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ kubectl exec neo4j-0 -- ls -alh /sbin/route 
-lrwxrwxrwx    1 root     root          12 Oct 18 18:58 /sbin/route -&gt; /bin/busybox
-</code></pre>
-
-<p>Let's have a look what role each server is currently playing:</p>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-0 -- bin/cypher-shell &quot;CALL dbms.cluster.role()&quot;
+lrwxrwxrwx    <span style="color:#ae81ff">1</span> root     root          <span style="color:#ae81ff">12</span> Oct <span style="color:#ae81ff">18</span> 18:58 /sbin/route -&gt; /bin/busybox
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-0 -- bin/cypher-shell <span style="color:#e6db74">&#34;CALL dbms.cluster.role()&#34;</span>
 role
-&quot;FOLLOWER&quot;
+<span style="color:#e6db74">&#34;FOLLOWER&#34;</span>
 
 Bye!
-</code></pre>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-1 -- bin/cypher-shell &quot;CALL dbms.cluster.role()&quot;
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-1 -- bin/cypher-shell <span style="color:#e6db74">&#34;CALL dbms.cluster.role()&#34;</span>
 role
-&quot;FOLLOWER&quot;
+<span style="color:#e6db74">&#34;FOLLOWER&#34;</span>
 
 Bye!
-</code></pre>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-2 -- bin/cypher-shell &quot;CALL dbms.cluster.role()&quot;
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-2 -- bin/cypher-shell <span style="color:#e6db74">&#34;CALL dbms.cluster.role()&#34;</span>
 role
-&quot;LEADER&quot;
+<span style="color:#e6db74">&#34;LEADER&#34;</span>
 
 Bye!
-</code></pre>
-
-<p>
-Slight aside: I'm able to call <cite>cypher-shell</cite> without a user and password because I've disable authorisation by putting the following in <cite>conf/neo4j.conf</cite>:
-</p>
-
-<pre><code class="language-text">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 dbms.connector.bolt.enabled=true
-</code></pre>
-
-<p>
-Back to the network partitioning...we need to partition away <cite>neo4j-2</cite> from the other two servers which we can do by running the following commands:
-</p>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-2 -- route add -host neo4j-0.neo4j.default.svc.cluster.local reject &amp;&amp; \
-  kubectl exec neo4j-2 -- route add -host neo4j-1.neo4j.default.svc.cluster.local reject &amp;&amp; \
-  kubectl exec neo4j-0 -- route add -host neo4j-2.neo4j.default.svc.cluster.local reject &amp;&amp; \
-  kubectl exec neo4j-1 -- route add -host neo4j-2.neo4j.default.svc.cluster.local reject
-</code></pre>
-
-<p>If we look at the logs of neo4j-2 we can see that it's stepped down after being disconnected from the other two servers:
-</p>
-
-<pre><code class="language-text">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-2 -- route add -host neo4j-0.neo4j.default.svc.cluster.local reject <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  kubectl exec neo4j-2 -- route add -host neo4j-1.neo4j.default.svc.cluster.local reject <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  kubectl exec neo4j-0 -- route add -host neo4j-2.neo4j.default.svc.cluster.local reject <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  kubectl exec neo4j-1 -- route add -host neo4j-2.neo4j.default.svc.cluster.local reject
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 $ kubectl exec neo4j-2 -- cat logs/debug.log
 ...
 2016-12-04 11:30:10.186+0000 INFO  [o.n.c.c.c.RaftMachine] Moving to FOLLOWER state after not receiving heartbeat responses in this election timeout period. Heartbeats received: []
 ...
-</code></pre>
-
-<p>
-Who's taken over as leader?
-</p>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-0 -- bin/cypher-shell &quot;CALL dbms.cluster.role()&quot;
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-0 -- bin/cypher-shell <span style="color:#e6db74">&#34;CALL dbms.cluster.role()&#34;</span>
 role
-&quot;LEADER&quot;
+<span style="color:#e6db74">&#34;LEADER&#34;</span>
 
 Bye!
-</code></pre>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-1 -- bin/cypher-shell &quot;CALL dbms.cluster.role()&quot;
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-1 -- bin/cypher-shell <span style="color:#e6db74">&#34;CALL dbms.cluster.role()&#34;</span>
 role
-&quot;FOLLOWER&quot;
+<span style="color:#e6db74">&#34;FOLLOWER&#34;</span>
 
 Bye!
-</code></pre>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-2 -- bin/cypher-shell &quot;CALL dbms.cluster.role()&quot;
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-2 -- bin/cypher-shell <span style="color:#e6db74">&#34;CALL dbms.cluster.role()&#34;</span>
 role
-&quot;FOLLOWER&quot;
+<span style="color:#e6db74">&#34;FOLLOWER&#34;</span>
 
 Bye!
-</code></pre>
-
-<p>Looks like neo4j-0! Let's put some data into the database:</p>
- 
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-0 -- bin/cypher-shell &quot;CREATE (:Person {name: 'Mark'})&quot;
-Added 1 nodes, Set 1 properties, Added 1 labels
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-0 -- bin/cypher-shell <span style="color:#e6db74">&#34;CREATE (:Person {name: &#39;Mark&#39;})&#34;</span>
+Added <span style="color:#ae81ff">1</span> nodes, Set <span style="color:#ae81ff">1</span> properties, Added <span style="color:#ae81ff">1</span> labels
 
 Bye!
-</code></pre>
-
-<p>Let's check if that node made it to the other two servers. We'd expect it to be on neo4j-1 but not on neo4j-2:</p>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-1 -- bin/cypher-shell &quot;MATCH (p:Person) RETURN p&quot;
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-1 -- bin/cypher-shell <span style="color:#e6db74">&#34;MATCH (p:Person) RETURN p&#34;</span>
 p
-(:Person {name: &quot;Mark&quot;})
+<span style="color:#f92672">(</span>:Person <span style="color:#f92672">{</span>name: <span style="color:#e6db74">&#34;Mark&#34;</span><span style="color:#f92672">})</span>
 
 Bye!
-</code></pre>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-2 -- bin/cypher-shell &quot;MATCH (p:Person) RETURN p&quot;
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-2 -- bin/cypher-shell <span style="color:#e6db74">&#34;MATCH (p:Person) RETURN p&#34;</span>
 
 
 Bye!
-</code></pre>
-
-<p>On neo4j-2 we'll repeatedly see these types of entries in the log as its election timeout triggers but fails to get any responses to the vote requests it sends out:</p>
-
-<pre><code class="language-text">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 $ kubectl exec neo4j-2 -- cat logs/debug.log
 ...
 2016-12-04 11:32:56.735+0000 INFO  [o.n.c.c.c.RaftMachine] Election timeout triggered
 2016-12-04 11:32:56.736+0000 INFO  [o.n.c.c.c.RaftMachine] Election started with vote request: Vote.Request from MemberId{ca9b954c} {term=11521, candidate=MemberId{ca9b954c}, lastAppended=68, lastLogTerm=11467} and members: [MemberId{484178c4}, MemberId{0acdb8dd}, MemberId{ca9b954c}]
 ...
-</code></pre>
-
-<p>We can see those vote requests by looking at the <cite>raft-messages.log</cite> which can be enabled by setting the following property in <cite>conf/neo4j.conf</cite>:</p>
-
-<pre><code class="language-text">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 causal_clustering.raft_messages_log_enable=true
-</code></pre>
-
-<pre><code class="language-text">
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 $ kubectl exec neo4j-2 -- cat logs/raft-messages.log
 ...
 11:33:42.101 --&gt;MemberId{484178c4}: Request: Vote.Request from MemberId{ca9b954c} {term=11537, candidate=MemberId{ca9b954c}, lastAppended=68, lastLogTerm=11467}
@@ -341,30 +282,20 @@ $ kubectl exec neo4j-2 -- cat logs/raft-messages.log
 11:33:48.362 --&gt;MemberId{484178c4}: Request: Vote.Request from MemberId{ca9b954c} {term=11539, candidate=MemberId{ca9b954c}, lastAppended=68, lastLogTerm=11467}
 11:33:48.362 --&gt;MemberId{0acdb8dd}: Request: Vote.Request from MemberId{ca9b954c} {term=11539, candidate=MemberId{ca9b954c}, lastAppended=68, lastLogTerm=11467}
 ...
-</code></pre>
-
-<p>
-To 'heal' the network partition we just need to delete all the commands we ran earlier:
-</p>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-2 -- route delete neo4j-0.neo4j.default.svc.cluster.local reject &amp;&amp; \
-  kubectl exec neo4j-2 -- route delete neo4j-1.neo4j.default.svc.cluster.local reject &amp;&amp; \
-  kubectl exec neo4j-0 -- route delete neo4j-2.neo4j.default.svc.cluster.local reject &amp;&amp; \
-  kubectl exec neo4j-1 -- route delete neo4j-2.neo4j.default.svc.cluster.local reject
-</code></pre>
-
-<p>Now let's check that neo4j-2 now has the node that we created earlier:</p>
-
-<pre><code class="language-bash">
-$ kubectl exec neo4j-2 -- bin/cypher-shell &quot;MATCH (p:Person) RETURN p&quot;
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-2 -- route delete neo4j-0.neo4j.default.svc.cluster.local reject <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  kubectl exec neo4j-2 -- route delete neo4j-1.neo4j.default.svc.cluster.local reject <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  kubectl exec neo4j-0 -- route delete neo4j-2.neo4j.default.svc.cluster.local reject <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  kubectl exec neo4j-1 -- route delete neo4j-2.neo4j.default.svc.cluster.local reject
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ kubectl exec neo4j-2 -- bin/cypher-shell <span style="color:#e6db74">&#34;MATCH (p:Person) RETURN p&#34;</span>
 p
-(:Person {name: &quot;Mark&quot;})
+<span style="color:#f92672">(</span>:Person <span style="color:#f92672">{</span>name: <span style="color:#e6db74">&#34;Mark&#34;</span><span style="color:#f92672">})</span>
 
 Bye!
-</code></pre>
-
-<p>That's all for now!</p>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -399,7 +330,7 @@ Bye!
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/12/04/kubernetes-simulating-a-network-partition/&amp;title=Kubernetes%3a%20Simulating%20a%20network%20partition&amp;summary=A%20couple%20of%20weeks%20ago%20I%20wrote%20a%20post%20explaining%20how%20to%20create%20a%20Neo4j%20causal%20cluster%20using%20Kubernetes%20and%20...%20the%20I%20wanted%20to%20work%20out%20how%20to%20simulate%20a%20network%20partition%20which%20would%20put%20the%20leader%20on%20the%20minority%20side%20and%20force%20an%20election.%20%20We%27ve%20done%20this%20on%20our%20internal%20tooling%20on%20AWS%20using%20the%20iptables%20command%20but%20unfortunately%20that%20isn%27t%20available%20in%20my%20container%2c%20which%20only%20has%20the%20utilities%20provided%20by%20BusyBox...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/12/04/kubernetes-simulating-a-network-partition/&amp;title=Kubernetes%3a%20Simulating%20a%20network%20partition&amp;summary=%24%20kubectl%20get%20pods%20NAME%20READY%20STATUS%20RESTARTS%20AGE%20neo4j-0%201%2f1%20Running%200%206h%20neo4j-1%201%2f1%20Running%200%206h%20neo4j-2%201%2f1%20Running%200%206h%20%24%20kubectl%20exec%20neo4j-0%20--%20ls%20-alh%20%2fsbin%2froute%20lrwxrwxrwx%201%20root%20root%2012%20Oct%2018%2018%3a58%20%2fsbin%2froute%20-%26gt%3b%20%2fbin%2fbusybox%20%24%20kubectl%20exec%20neo4j-0%20--%20bin%2fcypher-shell%20%26%2334%3bCALL%20dbms.cluster.role%28%29%26%2334%3b%20role%20%26%2334%3bFOLLOWER%26%2334%3b%20Bye%21%20%24%20kubectl%20exec%20neo4j-1%20--%20bin%2fcypher-shell%20%26%2334%3bCALL%20dbms.cluster.role%28%29%26%2334%3b%20role%20%26%2334%3bFOLLOWER%26%2334%3b%20Bye%21%20%24%20kubectl%20exec%20neo4j-2%20--%20bin%2fcypher-shell%20%26%2334%3bCALL%20dbms...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

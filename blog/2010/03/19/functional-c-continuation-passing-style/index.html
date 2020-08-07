@@ -23,9 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Functional C#: Continuation Passing Style" />
         
-          <meta name="twitter:description" content="Partly inspired by my colleague Alex Scordellis&rsquo; recent post about lambda passing style I spent some time trying out a continuation passing style style on some of the code in one of our controllers to see how different the code would look compared to its current top to bottom imperative style.
+          <meta name="twitter:description" content="Partly inspired by my colleague Alex Scordellis&rsquo; recent post about lambda passing styleI spent some time trying out a continuation passing stylestyle on some of the code in one of our controllers to see how different the code would look compared to its current top to bottom imperative style.
 We had code similar to the following:
-public ActionResult Submit(string id, FormCollection form) { var shoppingBasket = CreateShoppingBasketFrom(id, form); if (!" />
+public ActionResult Submit(string id, FormCollection form) { var shoppingBasket = CreateShoppingBasketFrom(id, form); if (!validator.IsValid(shoppingBasket, ModelState)) { return RedirectToAction(&#34;index&#34;, &#34;ShoppingBasket&#34;, new { shoppingBasket." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/03/19/functional-c-continuation-passing-style/" />
 
@@ -36,9 +36,9 @@ public ActionResult Submit(string id, FormCollection form) { var shoppingBasket 
         <title> Functional C#: Continuation Passing Style &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Partly inspired by my colleague Alex Scordellis&rsquo; recent post about lambda passing style I spent some time trying out a continuation passing style style on some of the code in one of our controllers to see how different the code would look compared to its current top to bottom imperative style.
+        <meta name="description" content="Partly inspired by my colleague Alex Scordellis&rsquo; recent post about lambda passing styleI spent some time trying out a continuation passing stylestyle on some of the code in one of our controllers to see how different the code would look compared to its current top to bottom imperative style.
 We had code similar to the following:
-public ActionResult Submit(string id, FormCollection form) { var shoppingBasket = CreateShoppingBasketFrom(id, form); if (!" />
+public ActionResult Submit(string id, FormCollection form) { var shoppingBasket = CreateShoppingBasketFrom(id, form); if (!validator.IsValid(shoppingBasket, ModelState)) { return RedirectToAction(&#34;index&#34;, &#34;ShoppingBasket&#34;, new { shoppingBasket." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,10 +67,8 @@ public ActionResult Submit(string id, FormCollection form) { var shoppingBasket 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-03-19",
-        "description": "Partly inspired by my colleague Alex Scordellis&rsquo; recent post about lambda passing style I spent some time trying out a continuation passing style style on some of the code in one of our controllers to see how different the code would look compared to its current top to bottom imperative style.
-We had code similar to the following:
-public ActionResult Submit(string id, FormCollection form) { var shoppingBasket = CreateShoppingBasketFrom(id, form); if (!",
-        "wordCount": 550
+        "description": "Partly inspired by my colleague Alex Scordellis\x26rsquo; recent post about lambda passing styleI spent some time trying out a continuation passing stylestyle on some of the code in one of our controllers to see how different the code would look compared to its current top to bottom imperative style.\nWe had code similar to the following:\npublic ActionResult Submit(string id, FormCollection form) { var shoppingBasket = CreateShoppingBasketFrom(id, form); if (!validator.IsValid(shoppingBasket, ModelState)) { return RedirectToAction(\x26#34;index\x26#34;, \x26#34;ShoppingBasket\x26#34;, new { shoppingBasket.",
+        "wordCount":  548 
     }
     </script>
     
@@ -181,94 +179,80 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Functional C#: Continuation Passing Style</h1>
-    <p>Partly inspired by <a href="http://alexscordellis.blogspot.com/2010/03/lambda-passing-style-for-access-to.html?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed:+alexscordellis+(Alex+Scordellis)">my colleague Alex Scordellis&rsquo; recent post about lambda passing style</a> I spent some time trying out a <a href="http://www.markhneedham.com/blog/2009/06/22/f-continuation-passing-style/">continuation passing style</a> style on some of the code in one of our controllers to see how different the code would look compared to its current top to bottom imperative style.</p>
-
+    <p>Partly inspired by <!-- raw HTML omitted -->my colleague Alex Scordellis&rsquo; recent post about lambda passing style<!-- raw HTML omitted --> I spent some time trying out a <!-- raw HTML omitted -->continuation passing style<!-- raw HTML omitted --> style on some of the code in one of our controllers to see how different the code would look compared to its current top to bottom imperative style.</p>
 <p>We had code similar to the following:</p>
-
-<pre><code class="language-csharp">
-public ActionResult Submit(string id, FormCollection form)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> ActionResult Submit(<span style="color:#66d9ef">string</span> id, FormCollection form)
 {
-	var shoppingBasket = CreateShoppingBasketFrom(id, form);
+	<span style="color:#66d9ef">var</span> shoppingBasket = CreateShoppingBasketFrom(id, form);
 
-	if (!validator.IsValid(shoppingBasket, ModelState))
+	<span style="color:#66d9ef">if</span> (!validator.IsValid(shoppingBasket, ModelState))
 	{
-	    return RedirectToAction(&quot;index&quot;, &quot;ShoppingBasket&quot;, new { shoppingBasket.Id });
+	    <span style="color:#66d9ef">return</span> RedirectToAction(<span style="color:#e6db74">&#34;index&#34;</span>, <span style="color:#e6db74">&#34;ShoppingBasket&#34;</span>, <span style="color:#66d9ef">new</span> { shoppingBasket.Id });
 	}
-	try
+	<span style="color:#66d9ef">try</span>
 	{
 	    shoppingBasket.User = userService.CreateAccountOrLogIn(shoppingBasket);
 	}
-	catch (NoAccountException)
+	<span style="color:#66d9ef">catch</span> (NoAccountException)
 	{
-	    ModelState.AddModelError(&quot;Password&quot;, &quot;User name/email address was incorrect - please re-enter&quot;);
-	    return RedirectToAction(&quot;index&quot;, &quot;&quot;ShoppingBasket&quot;, new { Id = new Guid(id) });
-	}
+	    ModelState.AddModelError(<span style="color:#e6db74">&#34;Password&#34;</span>, <span style="color:#e6db74">&#34;User name/email address was incorrect - please re-enter&#34;</span>);
+	    <span style="color:#66d9ef">return</span> RedirectToAction(<span style="color:#e6db74">&#34;index&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>ShoppingBasket<span style="color:#e6db74">&#34;, new { Id = new Guid(id) });
+</span><span style="color:#e6db74"></span>	}
 
 	UpdateShoppingBasket(shoppingBasket);
-	return RedirectToAction(&quot;index&quot;, &quot;Purchase&quot;, new { Id = shoppingBasket.Id });
+	<span style="color:#66d9ef">return</span> RedirectToAction(<span style="color:#e6db74">&#34;index&#34;</span>, <span style="color:#e6db74">&#34;Purchase&#34;</span>, <span style="color:#66d9ef">new</span> { Id = shoppingBasket.Id });
 }
-</code></pre>
-
-<p>The user selects some products that they want to buy and then just before they click to go through to the payment page we have the option for them to login if they are an existing user.</p>
-
+</code></pre></div><p>The user selects some products that they want to buy and then just before they click to go through to the payment page we have the option for them to login if they are an existing user.</p>
 <p>This code handles the server side validation of the shopping basket and tries to login the user. If it fails then we return to the original page with an error message. If not then we forward them to the payment page.</p>
-
 <p>With a continuation passing style we move away from the imperative style of programming whereby we call a function, get a result and then do something with that result to a style where we call a function and pass it a continuation/block of code which represents the rest of the program. After it has calculated the result it should call the continuation.</p>
-
 <p>If we apply that style to the above code we end up with the following:</p>
-
-<pre><code class="language-csharp">
-public ActionResult Submit(string id, FormCollection form)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> ActionResult Submit(<span style="color:#66d9ef">string</span> id, FormCollection form)
 {
-	var shoppingBasket = CreateShoppingBasketFrom(id, form);
-	return IsValid(shoppingBasket, ModelState,
-					() =&gt; RedirectToAction(&quot;index&quot;, &quot;ShoppingBasket&quot;, new { shoppingBasket.Id} ),
+	<span style="color:#66d9ef">var</span> shoppingBasket = CreateShoppingBasketFrom(id, form);
+	<span style="color:#66d9ef">return</span> IsValid(shoppingBasket, ModelState,
+					() =&gt; RedirectToAction(<span style="color:#e6db74">&#34;index&#34;</span>, <span style="color:#e6db74">&#34;ShoppingBasket&#34;</span>, <span style="color:#66d9ef">new</span> { shoppingBasket.Id} ),
 					() =&gt; LoginUser(shoppingBasket, 
 							() =&gt;
 								{
-									ModelState.AddModelError(&quot;Password&quot;, &quot;User name/email address was incorrect - please re-enter&quot;);
-									return RedirectToAction(&quot;index&quot;, &quot;&quot;ShoppingBasket&quot;, new { Id = new Guid(id) });
-								},
+									ModelState.AddModelError(<span style="color:#e6db74">&#34;Password&#34;</span>, <span style="color:#e6db74">&#34;User name/email address was incorrect - please re-enter&#34;</span>);
+									<span style="color:#66d9ef">return</span> RedirectToAction(<span style="color:#e6db74">&#34;index&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>ShoppingBasket<span style="color:#e6db74">&#34;, new { Id = new Guid(id) });
+</span><span style="color:#e6db74"></span>								},
 							user =&gt; 
 								{
 									shoppingBasket.User = user;
 									UpdateShoppingBasket(shoppingBasket);
-									return RedirectToAction(&quot;index&quot;, &quot;Purchase&quot;, new { Id = shoppingBasket.Id });
+									<span style="color:#66d9ef">return</span> RedirectToAction(<span style="color:#e6db74">&#34;index&#34;</span>, <span style="color:#e6db74">&#34;Purchase&#34;</span>, <span style="color:#66d9ef">new</span> { Id = shoppingBasket.Id });
 								}));
 }
 
 
-private RedirectToRouteResult IsValid(ShoppingBasket shoppingBasket, ModelStateDictionary modelState, Func&lt;RedirectToRouteResult&gt; failureFn, Func&lt;RedirectToRouteResult&gt; successFn)
+<span style="color:#66d9ef">private</span> RedirectToRouteResult IsValid(ShoppingBasket shoppingBasket, ModelStateDictionary modelState, Func&lt;RedirectToRouteResult&gt; failureFn, Func&lt;RedirectToRouteResult&gt; successFn)
 {
 
-	return validator.IsValid(shoppingBasket, modelState) ? successFn() : failureFn();
+	<span style="color:#66d9ef">return</span> validator.IsValid(shoppingBasket, modelState) ? successFn() : failureFn();
 }
 
-private RedirectToRouteResult LoginUser(ShoppingBasket shoppingBasket, Func&lt;RedirectToRouteResult&gt; failureFn, Func&lt;User,RedirectToRouteResult&gt; successFn)
+<span style="color:#66d9ef">private</span> RedirectToRouteResult LoginUser(ShoppingBasket shoppingBasket, Func&lt;RedirectToRouteResult&gt; failureFn, Func&lt;User,RedirectToRouteResult&gt; successFn)
 {
-	User user = null;
-	try
+	User user = <span style="color:#66d9ef">null</span>;
+	<span style="color:#66d9ef">try</span>
 	{
 	    user = userService.CreateAccountOrLogIn(shoppingBasket);
 	}
 
-	catch (NoAccountException)
+	<span style="color:#66d9ef">catch</span> (NoAccountException)
 	{
-		return failureFn();
+		<span style="color:#66d9ef">return</span> failureFn();
 	}
 
-	return successFn(user);
+	<span style="color:#66d9ef">return</span> successFn(user);
 }
-</code></pre>
-
-<p>The common theme in this code seemed to be that there we both success and failure paths for the code to follow depending on the result of a function so I passed in both success and failure continuations.</p>
-
+</code></pre></div><p>The common theme in this code seemed to be that there we both success and failure paths for the code to follow depending on the result of a function so I passed in both success and failure continuations.</p>
 <p>I quite like the fact that the try/catch block is no longer in the main method and the different things that are happening in this code now seem grouped together more than they were before.</p>
-
 <p>In general though the way that I read the code doesn&rsquo;t seem that different.</p>
-
 <p>Instead of following the flow of logic in the code from top to bottom we just need to follow it from left to right instead and since that&rsquo;s not as natural the code is more complicated than it was before.</p>
-
 <p>I do understand how the code works more than I did before I started playing before this but I&rsquo;m not yet convinced this is a better approach to designing code in C#.</p>
 
     <div id="social-bar">
@@ -304,7 +288,7 @@ private RedirectToRouteResult LoginUser(ShoppingBasket shoppingBasket, Func&lt;R
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/19/functional-c-continuation-passing-style/&amp;title=Functional%20C%23%3a%20Continuation%20Passing%20Style&amp;summary=Partly%20inspired%20by%20my%20colleague%20Alex%20Scordellis%26rsquo%3b%20recent%20post%20about%20lambda%20passing%20style%20I%20spent%20some%20time%20trying%20out%20a%20continuation%20passing%20style%20style%20on%20some%20of%20the%20code%20in%20one%20of%20our%20controllers%20to%20see%20how%20different%20the%20code%20would%20look%20compared%20to%20its%20current%20top%20to%20bottom%20imperative%20style.%0aWe%20had%20code%20similar%20to%20the%20following%3a%0apublic%20ActionResult%20Submit%28string%20id%2c%20FormCollection%20form%29%20%7b%20var%20shoppingBasket%20%3d%20CreateShoppingBasketFrom%28id%2c%20form%29%3b%20if%20%28%21..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/19/functional-c-continuation-passing-style/&amp;title=Functional%20C%23%3a%20Continuation%20Passing%20Style&amp;summary=Partly%20inspired%20by%20my%20colleague%20Alex%20Scordellis%26rsquo%3b%20recent%20post%20about%20lambda%20passing%20styleI%20spent%20some%20time%20trying%20out%20a%20continuation%20passing%20stylestyle%20on%20some%20of%20the%20code%20in%20one%20of%20our%20controllers%20to%20see%20how%20different%20the%20code%20would%20look%20compared%20to%20its%20current%20top%20to%20bottom%20imperative%20style.%0aWe%20had%20code%20similar%20to%20the%20following%3a%0apublic%20ActionResult%20Submit%28string%20id%2c%20FormCollection%20form%29%20%7b%20var%20shoppingBasket%20%3d%20CreateShoppingBasketFrom%28id%2c%20form%29%3b%20if%20%28%21validator.IsValid%28shoppingBasket%2c%20ModelState%29%29%20%7b%20return%20RedirectToAction%28%26%2334%3bindex%26%2334%3b%2c%20%26%2334%3bShoppingBasket%26%2334%3b%2c%20new%20%7b%20shoppingBasket...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

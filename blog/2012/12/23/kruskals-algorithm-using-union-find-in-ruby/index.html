@@ -24,9 +24,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Kruskal&#39;s Algorithm using union find in Ruby" />
         
-          <meta name="twitter:description" content="I recently wrote a blog post describing my implementation of Kruskal&#39;s algorithm - a greedy algorithm using to find a minimum spanning tree (MST) of a graph - and while it does the job it&#39;s not particularly quick.
-It takes 20 seconds to calculate the MST for a 500 node, ~2000 edge graph.
-One way that we can improve the performance of the algorithm is by storing the MST in a union find/disjoint set data structure." />
+          <meta name="twitter:description" content="class UnionFind def initialize(n) @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders } end def connected?(id1,id2) @leaders[id1] == @leaders[id2] end def union(id1,id2) leader_1, leader_2 = @leaders[id1], @leaders[id2] @leaders.map! {|i| (i == leader_1) ? leader_2 : i } end end &gt; uf = UnionFind.new 5 =&gt; #&lt;UnionFind:0x45e5a9b3 @leaders=[nil, 1, 2, 3, 4, 5]&gt; &gt; uf.connected?(1,2) =&gt; false &gt; uf.union(1,2) =&gt; [nil, 2, 2, 3, 4, 5] &gt; uf.union(2,3) =&gt; [nil, 3, 3, 3, 4, 5] set = UnionFind." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/12/23/kruskals-algorithm-using-union-find-in-ruby/" />
 
@@ -37,9 +35,7 @@ One way that we can improve the performance of the algorithm is by storing the M
         <title> Kruskal&#39;s Algorithm using union find in Ruby &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I recently wrote a blog post describing my implementation of Kruskal&#39;s algorithm - a greedy algorithm using to find a minimum spanning tree (MST) of a graph - and while it does the job it&#39;s not particularly quick.
-It takes 20 seconds to calculate the MST for a 500 node, ~2000 edge graph.
-One way that we can improve the performance of the algorithm is by storing the MST in a union find/disjoint set data structure." />
+        <meta name="description" content="class UnionFind def initialize(n) @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders } end def connected?(id1,id2) @leaders[id1] == @leaders[id2] end def union(id1,id2) leader_1, leader_2 = @leaders[id1], @leaders[id2] @leaders.map! {|i| (i == leader_1) ? leader_2 : i } end end &gt; uf = UnionFind.new 5 =&gt; #&lt;UnionFind:0x45e5a9b3 @leaders=[nil, 1, 2, 3, 4, 5]&gt; &gt; uf.connected?(1,2) =&gt; false &gt; uf.union(1,2) =&gt; [nil, 2, 2, 3, 4, 5] &gt; uf.union(2,3) =&gt; [nil, 3, 3, 3, 4, 5] set = UnionFind." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,16 +58,14 @@ One way that we can improve the performance of the algorithm is by storing the M
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "Kruskal&#39;s Algorithm using union find in Ruby",
+        "headline": "Kruskal\x27s Algorithm using union find in Ruby",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-12-23",
-        "description": "I recently wrote a blog post describing my implementation of Kruskal's algorithm - a greedy algorithm using to find a minimum spanning tree (MST) of a graph - and while it does the job it's not particularly quick.
-It takes 20 seconds to calculate the MST for a 500 node, ~2000 edge graph.
-One way that we can improve the performance of the algorithm is by storing the MST in a union find/disjoint set data structure.",
-        "wordCount": 745
+        "description": "class UnionFind def initialize(n) @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders } end def connected?(id1,id2) @leaders[id1] == @leaders[id2] end def union(id1,id2) leader_1, leader_2 = @leaders[id1], @leaders[id2] @leaders.map! {|i| (i == leader_1) ? leader_2 : i } end end \x26gt; uf = UnionFind.new 5 =\x26gt; #\x26lt;UnionFind:0x45e5a9b3 @leaders=[nil, 1, 2, 3, 4, 5]\x26gt; \x26gt; uf.connected?(1,2) =\x26gt; false \x26gt; uf.union(1,2) =\x26gt; [nil, 2, 2, 3, 4, 5] \x26gt; uf.union(2,3) =\x26gt; [nil, 3, 3, 3, 4, 5] set = UnionFind.",
+        "wordCount":  137 
     }
     </script>
     
@@ -184,139 +178,73 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Kruskal&#39;s Algorithm using union find in Ruby</h1>
-    <p>I recently wrote a blog post describing <a href="http://www.markhneedham.com/blog/2012/12/23/kruskals-algorithm-in-ruby/">my implementation</a> of <a href="http://en.wikipedia.org/wiki/Kruskal's_algorithm">Kruskal's algorithm</a> - a greedy algorithm using to find a minimum spanning tree (MST) of a graph - and while it does the job it's not particularly quick.</p>
- 
-
-<p>It takes 20 seconds to calculate the MST for a 500 node, ~2000 edge graph.</p>
-
-<p>One way that we can improve the performance of the algorithm is by storing the MST in a union find/<a href="http://en.wikipedia.org/wiki/Disjoint-set_data_structure">disjoint set</a> data structure.</p>
-
-<p>To refresh, Kruskal's algorithm does the following:</p>
-
-<ul>
-<li>sort edges <cite>E</cite> in order of increasing cost</li>
-<li>let <cite>T</cite> = minimum spanning tree, <cite>m</cite> = number of edges</li>
-<li>for <cite>i</cite>=1 to <cite>m</cite>:
-<ul>
-<li>let <cite>e</cite> = selected edge <cite>(u,v)</cite></li>
-<li>if there's no way to go between <cite>u</cite> and <cite>v</cite> using edges in <cite>T</cite>:
-<ul>
-<li>add <cite>e</cite> to <cite>T</cite></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>return <cite>T</cite></li>
-</ul>
-
-<p>In the first version of the algorithm we stored the MST in an array and then we did a depth first search to check that adding an edge to the array wasn't going to create a cycle which would mean we no longer had an MST.</p>
-
-<p>As I understand it the way that we use the union find data structure is that we start out with <cite>n</cite> connected components i.e. every node is in its own connected component.</p>
-
-<p>We then merge these components together as we come across new edges which connect nodes in different components until we only have one component left at which point we should have our MST.</p>
-
-<ul>
-<li>sort edges <cite>E</cite> in order of increasing cost</li>
-<li>initialise union-find <cite>uf</cite> with <cite>n</cite> connected components</li>
-<li>let <cite>T</cite> = minimum spanning tree, <cite>m</cite> = number of edges</li>
-<li>for <cite>i</cite>=1 to <cite>m</cite>:
-<ul>
-<li>let <cite>e</cite> = selected edge <cite>(u,v)</cite></li>
-<li>if <cite>u</cite> and <cite>v</cite> not in same connected component in <cite>uf</cite>:
-<ul>
-<li>merge <cite>u</cite> and <cite>v</cite> into same connected component in <cite>uf</cite></li>
-<li>add <cite>e</cite> to <cite>T</cite></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>return <cite>T</cite></li>
-</ul>
-
-<p>I came across <a href="https://github.com/mluckeneder/Union-Find-Ruby">this bit of code</a> written by Michael Luckeneder which implements the union find data structure in Ruby and adapted that slightly to fit the nomenclature used in the <a href="https://class.coursera.org/algo2-2012-001/class">Algorithms 2</a> videos.</p>
-
-<p>The union find data structure looks like this:</p>
-
-<pre><code class="language-ruby">
-class UnionFind
-  def initialize(n)
-    @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders }
-  end
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UnionFind</span>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>(n)
+    @leaders <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">.</span>upto(n)<span style="color:#f92672">.</span>inject(<span style="color:#f92672">[]</span>) { <span style="color:#f92672">|</span>leaders, i<span style="color:#f92672">|</span> leaders<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> i; leaders }
+  <span style="color:#66d9ef">end</span>
   
-  def connected?(id1,id2)
-    @leaders[id1] == @leaders[id2]
-  end
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">connected?</span>(id1,id2)
+    @leaders<span style="color:#f92672">[</span>id1<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> @leaders<span style="color:#f92672">[</span>id2<span style="color:#f92672">]</span>
+  <span style="color:#66d9ef">end</span>
   
-  def union(id1,id2)
-    leader_1, leader_2 = @leaders[id1], @leaders[id2]
-    @leaders.map! {|i| (i == leader_1) ? leader_2 : i }
-  end
-end
-</code></pre>
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">union</span>(id1,id2)
+    leader_1, leader_2 <span style="color:#f92672">=</span> @leaders<span style="color:#f92672">[</span>id1<span style="color:#f92672">]</span>, @leaders<span style="color:#f92672">[</span>id2<span style="color:#f92672">]</span>
+    @leaders<span style="color:#f92672">.</span>map! {<span style="color:#f92672">|</span>i<span style="color:#f92672">|</span> (i <span style="color:#f92672">==</span> leader_1) ? leader_2 : i }
+  <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">end</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+<span style="color:#f92672">&gt;</span> uf <span style="color:#f92672">=</span> <span style="color:#66d9ef">UnionFind</span><span style="color:#f92672">.</span>new <span style="color:#ae81ff">5</span>
+<span style="color:#f92672">=&gt;</span> <span style="color:#75715e">#&lt;UnionFind:0x45e5a9b3 @leaders=[nil, 1, 2, 3, 4, 5]&gt;</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+<span style="color:#f92672">&gt;</span> uf<span style="color:#f92672">.</span>connected?(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>)
+<span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">false</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+<span style="color:#f92672">&gt;</span> uf<span style="color:#f92672">.</span>union(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>)
+<span style="color:#f92672">=&gt;</span> <span style="color:#f92672">[</span><span style="color:#66d9ef">nil</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span><span style="color:#f92672">]</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+<span style="color:#f92672">&gt;</span> uf<span style="color:#f92672">.</span>union(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>)
+<span style="color:#f92672">=&gt;</span> <span style="color:#f92672">[</span><span style="color:#66d9ef">nil</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span><span style="color:#f92672">]</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+set <span style="color:#f92672">=</span> <span style="color:#66d9ef">UnionFind</span><span style="color:#f92672">.</span>new number_of_nodes
 
-<p>We have two methods:</p>
+@minimum_spanning_tree <span style="color:#f92672">=</span> <span style="color:#f92672">[]</span>
 
-<ul>
-<li><cite>connected?</cite> which we use to check whether or not two nodes are in the same connected component.</li>
-<li><cite>union</cite> which we use to put two nodes into the same connected component.</li>
-</ul>
-
-<p>The way it's implemented is that we have a collection of 'leaders' and initially each node is its own leader. As we find edges which belong in the MST we call <cite>union</cite> passing the two nodes as arguments. After this method executes every node which has the same leader as the first node will now instead have the same leader as the second node.</p>
-
-<p>For example if we have a simple graph with edges 1 -> 2 -> 3 -> 4 -> 5 our initial union find data structure would look like this:</p>
-
-<pre><code class="language-ruby">
-&gt; uf = UnionFind.new 5
-=&gt; #&lt;UnionFind:0x45e5a9b3 @leaders=[nil, 1, 2, 3, 4, 5]&gt;
-</code></pre>
-
-<p>At this stage each node is in its own connected component but if we process the edge 1 -> 2 we'd first check if those two nodes were already in the same connected component:</p>
-
-<pre><code class="language-ruby">
-&gt; uf.connected?(1,2)
-=&gt; false
-</code></pre>
-
-<p>Given that they aren't we can call <cite>union</cite>:</p>
-
-<pre><code class="language-ruby">
-&gt; uf.union(1,2)
-=&gt; [nil, 2, 2, 3, 4, 5]
-</code></pre>
-
-<p>As we can see from the output nodes 1 & 2 now both have the same leader since they are in the same connected component while  the other nodes still remain on their own.</p>
-
-<p>We could then process the 2 -> 3 edge which would put nodes 1, 2 & 3 together:</p>
-
-<pre><code class="language-ruby">
-&gt; uf.union(2,3)
-=&gt; [nil, 3, 3, 3, 4, 5]
-</code></pre>
-
-<p>The outline for Kruskal's algorithm which makes use of this data structure is like so:</p>
-
-<pre><code class="language-ruby">
-set = UnionFind.new number_of_nodes
-
-@minimum_spanning_tree = []
-
-edges = file.drop(1).
-        map { |x| x.gsub(/\n/, &quot;&quot;).split(&quot; &quot;).map(&amp;:to_i) }.
-        map { |one, two, weight| { :from =&gt; one, :to =&gt; two, :weight =&gt; weight}}.
-        sort_by { |x| x[:weight]}
+edges <span style="color:#f92672">=</span> file<span style="color:#f92672">.</span>drop(<span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>
+        map { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x<span style="color:#f92672">.</span>gsub(<span style="color:#e6db74">/\n/</span>, <span style="color:#e6db74">&#34;&#34;</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34; &#34;</span>)<span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span><span style="color:#e6db74">:to_i</span>) }<span style="color:#f92672">.</span>
+        map { <span style="color:#f92672">|</span>one, two, weight<span style="color:#f92672">|</span> { <span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> one, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> two, <span style="color:#e6db74">:weight</span> <span style="color:#f92672">=&gt;</span> weight}}<span style="color:#f92672">.</span>
+        sort_by { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x<span style="color:#f92672">[</span><span style="color:#e6db74">:weight</span><span style="color:#f92672">]</span>}
                      
-edges.each do |edge|
-  if !set.connected?(edge[:from], edge[:to])
-    @minimum_spanning_tree &lt;&lt; edge 
-    set.union(edge[:from], edge[:to])
-  end  
-end
+edges<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>edge<span style="color:#f92672">|</span>
+  <span style="color:#66d9ef">if</span> <span style="color:#f92672">!</span>set<span style="color:#f92672">.</span>connected?(edge<span style="color:#f92672">[</span><span style="color:#e6db74">:from</span><span style="color:#f92672">]</span>, edge<span style="color:#f92672">[</span><span style="color:#e6db74">:to</span><span style="color:#f92672">]</span>)
+    @minimum_spanning_tree <span style="color:#f92672">&lt;&lt;</span> edge 
+    set<span style="color:#f92672">.</span>union(edge<span style="color:#f92672">[</span><span style="color:#e6db74">:from</span><span style="color:#f92672">]</span>, edge<span style="color:#f92672">[</span><span style="color:#e6db74">:to</span><span style="color:#f92672">]</span>)
+  <span style="color:#66d9ef">end</span>  
+<span style="color:#66d9ef">end</span>
 
-puts &quot;MST: #{@minimum_spanning_tree}&quot;
-puts &quot;Cost: #{@minimum_spanning_tree.inject(0) { |acc, x| acc + x[:weight]}}&quot;
-</code></pre>
-
-<p>This version of the algorithm runs in 1.9 seconds, a significant improvement on the initial version. The <a href="https://github.com/mneedham/algorithms2/blob/master/kruskals_union_set.rb">full code is on github</a> as usual!</p>
+puts <span style="color:#e6db74">&#34;MST: </span><span style="color:#e6db74">#{</span>@minimum_spanning_tree<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+puts <span style="color:#e6db74">&#34;Cost: </span><span style="color:#e6db74">#{</span>@minimum_spanning_tree<span style="color:#f92672">.</span>inject(<span style="color:#ae81ff">0</span>) <span style="color:#e6db74">{</span> <span style="color:#f92672">|</span>acc, x<span style="color:#f92672">|</span> acc <span style="color:#f92672">+</span> x<span style="color:#f92672">[</span><span style="color:#e6db74">:weight</span><span style="color:#f92672">]</span><span style="color:#e6db74">}}</span><span style="color:#e6db74">&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -351,7 +279,7 @@ puts &quot;Cost: #{@minimum_spanning_tree.inject(0) { |acc, x| acc + x[:weight]}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/23/kruskals-algorithm-using-union-find-in-ruby/&amp;title=Kruskal%27s%20Algorithm%20using%20union%20find%20in%20Ruby&amp;summary=I%20recently%20wrote%20a%20blog%20post%20describing%20my%20implementation%20of%20Kruskal%27s%20algorithm%20-%20a%20greedy%20algorithm%20using%20to%20find%20a%20minimum%20spanning%20tree%20%28MST%29%20of%20a%20graph%20-%20and%20while%20it%20does%20the%20job%20it%27s%20not%20particularly%20quick.%0aIt%20takes%2020%20seconds%20to%20calculate%20the%20MST%20for%20a%20500%20node%2c%20~2000%20edge%20graph.%0aOne%20way%20that%20we%20can%20improve%20the%20performance%20of%20the%20algorithm%20is%20by%20storing%20the%20MST%20in%20a%20union%20find%2fdisjoint%20set%20data%20structure...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/23/kruskals-algorithm-using-union-find-in-ruby/&amp;title=Kruskal%27s%20Algorithm%20using%20union%20find%20in%20Ruby&amp;summary=class%20UnionFind%20def%20initialize%28n%29%20%40leaders%20%3d%201.upto%28n%29.inject%28%5b%5d%29%20%7b%20%7cleaders%2c%20i%7c%20leaders%5bi%5d%20%3d%20i%3b%20leaders%20%7d%20end%20def%20connected%3f%28id1%2cid2%29%20%40leaders%5bid1%5d%20%3d%3d%20%40leaders%5bid2%5d%20end%20def%20union%28id1%2cid2%29%20leader_1%2c%20leader_2%20%3d%20%40leaders%5bid1%5d%2c%20%40leaders%5bid2%5d%20%40leaders.map%21%20%7b%7ci%7c%20%28i%20%3d%3d%20leader_1%29%20%3f%20leader_2%20%3a%20i%20%7d%20end%20end%20%26gt%3b%20uf%20%3d%20UnionFind.new%205%20%3d%26gt%3b%20%23%26lt%3bUnionFind%3a0x45e5a9b3%20%40leaders%3d%5bnil%2c%201%2c%202%2c%203%2c%204%2c%205%5d%26gt%3b%20%26gt%3b%20uf.connected%3f%281%2c2%29%20%3d%26gt%3b%20false%20%26gt%3b%20uf.union%281%2c2%29%20%3d%26gt%3b%20%5bnil%2c%202%2c%202%2c%203%2c%204%2c%205%5d%20%26gt%3b%20uf.union%282%2c3%29%20%3d%26gt%3b%20%5bnil%2c%203%2c%203%2c%203%2c%204%2c%205%5d%20set%20%3d%20UnionFind...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

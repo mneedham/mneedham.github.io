@@ -23,7 +23,7 @@
         <meta name="twitter:title" content="ASP.NET MVC: Driving partials by convention" />
         
           <meta name="twitter:description" content="I like to have conventions in the code I write - I find it makes the code i write much cleaner which still providing flexibility.
-One of the conventions that Jeremy Miller coined for working with ASP.NET MVC applications is that of using one model per controller method aka &ldquo;The Thunderdome principle&rdquo;. I think we can take this further by having one model per partial that we use inside our views." />
+One of the conventions that Jeremy Miller coined for working with ASP.NET MVC applications is that of using one model per controller method aka &quot;The Thunderdome principle&quot;. I think we can take this further by having one model per partialthat we use inside our views." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/02/21/aspnet-mvc-driving-partials-by-convention/" />
 
@@ -35,7 +35,7 @@ One of the conventions that Jeremy Miller coined for working with ASP.NET MVC ap
 
     
         <meta name="description" content="I like to have conventions in the code I write - I find it makes the code i write much cleaner which still providing flexibility.
-One of the conventions that Jeremy Miller coined for working with ASP.NET MVC applications is that of using one model per controller method aka &ldquo;The Thunderdome principle&rdquo;. I think we can take this further by having one model per partial that we use inside our views." />
+One of the conventions that Jeremy Miller coined for working with ASP.NET MVC applications is that of using one model per controller method aka &quot;The Thunderdome principle&quot;. I think we can take this further by having one model per partialthat we use inside our views." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,9 +64,8 @@ One of the conventions that Jeremy Miller coined for working with ASP.NET MVC ap
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-02-21",
-        "description": "I like to have conventions in the code I write - I find it makes the code i write much cleaner which still providing flexibility.
-One of the conventions that Jeremy Miller coined for working with ASP.NET MVC applications is that of using one model per controller method aka &ldquo;The Thunderdome principle&rdquo;. I think we can take this further by having one model per partial that we use inside our views.",
-        "wordCount": 315
+        "description": "I like to have conventions in the code I write - I find it makes the code i write much cleaner which still providing flexibility.\nOne of the conventions that Jeremy Miller coined for working with ASP.NET MVC applications is that of using one model per controller method aka \x26quot;The Thunderdome principle\x26quot;. I think we can take this further by having one model per partialthat we use inside our views.",
+        "wordCount":  314 
     }
     </script>
     
@@ -176,54 +175,41 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">ASP.NET MVC: Driving partials by convention</h1>
     <p>I like to have conventions in the code I write - I find it makes the code i write much cleaner which still providing flexibility.</p>
-
-<p>One of the conventions that Jeremy Miller coined for working with ASP.NET MVC applications is that of using one model per controller method aka <a href="http://codebetter.com/blogs/jeremy.miller/archive/2008/10/23/our-opinions-on-the-asp-net-mvc-introducing-the-thunderdome-principle.aspx">&ldquo;The Thunderdome principle&rdquo;</a>. I think we can take this further by having one model per <a href="http://bradwilson.typepad.com/blog/2008/08/partial-renderi.html">partial</a> that we use inside our views.</p>
-
+<p>One of the conventions that Jeremy Miller coined for working with ASP.NET MVC applications is that of using one model per controller method aka <!-- raw HTML omitted -->&quot;The Thunderdome principle&quot;<!-- raw HTML omitted -->. I think we can take this further by having one model per <!-- raw HTML omitted -->partial<!-- raw HTML omitted --> that we use inside our views.</p>
 <p>The benefit of having a model especially for a partial is that we remove confusion about data available to populate our controls by restricting the amount of data we actually have. It also makes more sense from a conceptual point of view.</p>
-
 <p>Given this approach it started to become quite annoying having to type the following code all the time.</p>
-
-<pre><code class="language-csharp">
-&lt;% Html.RenderPartial(&quot;_Foo&quot;, new FooModel()); %&gt;
-</code></pre>
-
-<p>We realised that a neater approach would be if we could just pass in the model and it would work out which partial needed to be rendered, assuming the convention that each model is only used on one partial.</p>
-
-<p>We are using strongly typed models on our views so the code behind in each of the partials extends ViewPage<T>, making it possible to work out the partial we want to load by looking up the model.</p>
-
-<pre><code class="language-csharp">
-public static class HtmlHelperExtensions
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+&lt;% Html.RenderPartial(<span style="color:#e6db74">&#34;_Foo&#34;</span>, <span style="color:#66d9ef">new</span> FooModel()); %&gt;
+</code></pre></div><p>We realised that a neater approach would be if we could just pass in the model and it would work out which partial needed to be rendered, assuming the convention that each model is only used on one partial.</p>
+<p>We are using strongly typed models on our views so the code behind in each of the partials extends ViewPage<!-- raw HTML omitted -->, making it possible to work out the partial we want to load by looking up the model.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">HtmlHelperExtensions</span>
 {
-    public static void RenderPartialFrom(this HtmlHelper htmlHelper,  object model)
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> RenderPartialFrom(<span style="color:#66d9ef">this</span> HtmlHelper htmlHelper,  <span style="color:#66d9ef">object</span> model)
     {
-        var thePartial = FindMeThePartial(model);
+        <span style="color:#66d9ef">var</span> thePartial = FindMeThePartial(model);
         htmlHelper.RenderPartial(thePartial, model);
     }
 
-    private static string FindMeThePartial&lt;T&gt;(T model) where T : class
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">string</span> FindMeThePartial&lt;T&gt;(T model) <span style="color:#66d9ef">where</span> T : <span style="color:#66d9ef">class</span>
     {
-        var projectAssembly = Assembly.Load(&quot;Project&quot;);
-        var types = projectAssembly.GetTypes();
+        <span style="color:#66d9ef">var</span> projectAssembly = Assembly.Load(<span style="color:#e6db74">&#34;Project&#34;</span>);
+        <span style="color:#66d9ef">var</span> types = projectAssembly.GetTypes();
 
-        foreach (var type in types)
+        <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> type <span style="color:#66d9ef">in</span> types)
         {
-            if (type.BaseType == typeof(ViewPage&lt;T&gt;))
+            <span style="color:#66d9ef">if</span> (type.BaseType == <span style="color:#66d9ef">typeof</span>(ViewPage&lt;T&gt;))
             {
-                return type.Name;
+                <span style="color:#66d9ef">return</span> type.Name;
             }
         }
-        return string.Empty;
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">string</span>.Empty;
     }
 }
-</code></pre>
-
-<p>You can then refer to this in views like so:</p>
-
-<pre><code class="language-csharp">
-&lt;% Html.RenderPartialFrom(new FooModel()); %&gt;
-</code></pre>
-
-<p>Obviously it takes the first result it finds, so the convention we have is that each model should only be used on one partial which I think is a reasonable idea.</p>
+</code></pre></div><p>You can then refer to this in views like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+&lt;% Html.RenderPartialFrom(<span style="color:#66d9ef">new</span> FooModel()); %&gt;
+</code></pre></div><p>Obviously it takes the first result it finds, so the convention we have is that each model should only be used on one partial which I think is a reasonable idea.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -258,7 +244,7 @@ public static class HtmlHelperExtensions
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/02/21/aspnet-mvc-driving-partials-by-convention/&amp;title=ASP.NET%20MVC%3a%20Driving%20partials%20by%20convention&amp;summary=I%20like%20to%20have%20conventions%20in%20the%20code%20I%20write%20-%20I%20find%20it%20makes%20the%20code%20i%20write%20much%20cleaner%20which%20still%20providing%20flexibility.%0aOne%20of%20the%20conventions%20that%20Jeremy%20Miller%20coined%20for%20working%20with%20ASP.NET%20MVC%20applications%20is%20that%20of%20using%20one%20model%20per%20controller%20method%20aka%20%26ldquo%3bThe%20Thunderdome%20principle%26rdquo%3b.%20I%20think%20we%20can%20take%20this%20further%20by%20having%20one%20model%20per%20partial%20that%20we%20use%20inside%20our%20views...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/02/21/aspnet-mvc-driving-partials-by-convention/&amp;title=ASP.NET%20MVC%3a%20Driving%20partials%20by%20convention&amp;summary=I%20like%20to%20have%20conventions%20in%20the%20code%20I%20write%20-%20I%20find%20it%20makes%20the%20code%20i%20write%20much%20cleaner%20which%20still%20providing%20flexibility.%0aOne%20of%20the%20conventions%20that%20Jeremy%20Miller%20coined%20for%20working%20with%20ASP.NET%20MVC%20applications%20is%20that%20of%20using%20one%20model%20per%20controller%20method%20aka%20%26quot%3bThe%20Thunderdome%20principle%26quot%3b.%20I%20think%20we%20can%20take%20this%20further%20by%20having%20one%20model%20per%20partialthat%20we%20use%20inside%20our%20views...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

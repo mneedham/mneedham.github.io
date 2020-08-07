@@ -66,10 +66,8 @@ We wanted to try and find out the statistics of who&rsquo;d been pairing with ea
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2011-09-07",
-        "description": "I&rsquo;ve been working my way slowly through the O&rsquo;Reilly &lsquo;Mastering Regular Expressions&rsquo; book and recently read about the non capturing match operator which came in useful for some Git log parsing I&rsquo;ve been doing.
-On the project I&rsquo;m working on we all commit as the same user and then put our names at the beginning of the commit message.
-We wanted to try and find out the statistics of who&rsquo;d been pairing with each other and therefore needed to extract the pairs from commits.",
-        "wordCount": 343
+        "description": "I\x26rsquo;ve been working my way slowly through the O\x26rsquo;Reilly \x26lsquo;Mastering Regular Expressions\x26rsquo; book and recently read about the non capturing match operator which came in useful for some Git log parsing I\x26rsquo;ve been doing.\nOn the project I\x26rsquo;m working on we all commit as the same user and then put our names at the beginning of the commit message.\nWe wanted to try and find out the statistics of who\x26rsquo;d been pairing with each other and therefore needed to extract the pairs from commits.",
+        "wordCount":  331 
     }
     </script>
     
@@ -178,68 +176,39 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Learning Regular Expressions: Non capturing match</h1>
-    <p>I&rsquo;ve been working my way slowly through the O&rsquo;Reilly &lsquo;<a href="http://www.amazon.co.uk/Mastering-Regular-Expressions-Jeffrey-Friedl/dp/0596528124/ref=sr_1_2?ie=UTF8&qid=1315428243&sr=8-2">Mastering Regular Expressions</a>&rsquo; book and recently read about the non capturing match operator which came in useful for some Git log parsing I&rsquo;ve been doing.</p>
-
+    <p>I&rsquo;ve been working my way slowly through the O&rsquo;Reilly &lsquo;<!-- raw HTML omitted -->Mastering Regular Expressions<!-- raw HTML omitted -->&rsquo; book and recently read about the non capturing match operator which came in useful for some Git log parsing I&rsquo;ve been doing.</p>
 <p>On the project I&rsquo;m working on we all commit as the same user and then put our names at the beginning of the commit message.</p>
-
 <p>We wanted to try and find out the statistics of who&rsquo;d been pairing with each other and therefore needed to extract the pairs from commits.</p>
-
 <p>Unfortunately everyone writes their names in a slightly different way so the regular expression which I used to parse each commit needed to try and handle that.</p>
-
 <p>For example these are some of the ways that commit messages start:</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 Uday/Charles #67 did some stuff
 mark,suzuki more stuff
 pat, tom: very important stuff
 Uday:Marc #87 stuff
-</code></pre>
-
-<p>The separator between the names is different in each case but in the majority of cases can be satisfied by the following regular expression:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>The separator between the names is different in each case but in the majority of cases can be satisfied by the following regular expression:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 ([\/,][ ]?|:)
-</code></pre>
-
-<p>It&rsquo;s either:</p>
-
-<ul>
-<li>A forward slash or comma followed by an optional space</li>
-<li>A colon</li>
-</ul>
-
+</code></pre></div><p>It&rsquo;s either:</p>
+<!-- raw HTML omitted -->
 <p>Since I want to express the fact that the separator can be one thing or the other I need to group those two things together in parentheses.</p>
-
 <p>Unfortunately that means that the separator will be included in the array of captures that we have when parsing the commit.</p>
-
 <p>I only wanted to have the names of the two people included in that array.</p>
-
 <p>The non capturing match operator &lsquo;(?:&rsquo; allows us to match against the expected separator without actually capturing it:</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 (?:[\/,][ ]?|:)
-</code></pre>
-
-<p>That regular expression is part of a much larger/probably over complicated one which also helps to capture the names of the people pairing:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>That regular expression is part of a much larger/probably over complicated one which also helps to capture the names of the people pairing:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 var pairRegex = /^\[?([\w-]+)[ ]?[^\/, ]*(?:[\/,][ ]?|:)([\w-]+)\]?[^\/]*[\s:]/
-</code></pre>
-
-<p>Using the regex with the non capturing match gives us:</p>
-
-<pre><code class="language-text">
-&quot;charles/mark: adios to play, hello scalatra&quot;.match(pairRegex)
-[&quot;charles/mark: adios to play, hello &quot;, &quot;charles&quot;, &quot;mark&quot;]
-</code></pre>
-
-<p>Whereas if we used a normal capture we&rsquo;d also capture the &lsquo;/&rsquo;:</p>
-
-<pre><code class="language-text">
-&quot;charles/mark: adios to play, hello scalatra&quot;.match(pairRegex)
-[&quot;charles/mark: adios to play, hello &quot;, &quot;charles&quot;, &quot;/&quot;, &quot;mark&quot;]
-</code></pre>
-
+</code></pre></div><p>Using the regex with the non capturing match gives us:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+&#34;charles/mark: adios to play, hello scalatra&#34;.match(pairRegex)
+[&#34;charles/mark: adios to play, hello &#34;, &#34;charles&#34;, &#34;mark&#34;]
+</code></pre></div><p>Whereas if we used a normal capture we&rsquo;d also capture the &lsquo;/':</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+&#34;charles/mark: adios to play, hello scalatra&#34;.match(pairRegex)
+[&#34;charles/mark: adios to play, hello &#34;, &#34;charles&#34;, &#34;/&#34;, &#34;mark&#34;]
+</code></pre></div>
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">

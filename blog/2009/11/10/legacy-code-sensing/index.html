@@ -67,10 +67,8 @@ On the projects I&rsquo;ve worked on we&rsquo;ve tended to run into problems wit
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-11-10",
-        "description": "In &lsquo;Working Effectively With Legacy Code&rsquo; Michael Feathers describes two reasons for wanting to break dependencies in our code - to allow separation and sensing.
-The former describes the need to get a piece of code into a test harness while the latter describes the need to assert whether that piece of code is doing what we want it to.
-On the projects I&rsquo;ve worked on we&rsquo;ve tended to run into problems with the latter more frequently and Matt and I actually ran into this problem when we were refactoring some code into a role based interface approach.",
-        "wordCount": 617
+        "description": "In \x26lsquo;Working Effectively With Legacy Code\x26rsquo; Michael Feathers describes two reasons for wanting to break dependencies in our code - to allow separation and sensing.\nThe former describes the need to get a piece of code into a test harness while the latter describes the need to assert whether that piece of code is doing what we want it to.\nOn the projects I\x26rsquo;ve worked on we\x26rsquo;ve tended to run into problems with the latter more frequently and Matt and I actually ran into this problem when we were refactoring some code into a role based interface approach.",
+        "wordCount":  617 
     }
     </script>
     
@@ -181,139 +179,113 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Legacy Code: Sensing</h1>
-    <p>In &lsquo;<a href="http://www.amazon.com/gp/product/0131177052?ie=UTF8&tag=marneesblo-20&linkCode=as2&camp=1789&creative=390957&creativeASIN=0131177052">Working Effectively With Legacy Code</a>&rsquo; Michael Feathers describes two reasons for wanting to break dependencies in our code - to allow <a href="http://www.markhneedham.com/blog/2009/10/20/book-club-working-effectively-with-legacy-code-chapters-34-5-michael-feathers/">separation and sensing</a>.</p>
-
+    <p>In &lsquo;<!-- raw HTML omitted -->Working Effectively With Legacy Code<!-- raw HTML omitted -->&rsquo; Michael Feathers describes two reasons for wanting to break dependencies in our code - to allow <!-- raw HTML omitted -->separation and sensing<!-- raw HTML omitted -->.</p>
 <p>The former describes the need to get a piece of code into a test harness while the latter describes the need to assert whether that piece of code is doing what we want it to.</p>
-
-<p>On the projects I&rsquo;ve worked on we&rsquo;ve tended to run into problems with the latter more frequently and Matt and I actually ran into this problem when we were <a href="http://www.markhneedham.com/blog/2009/10/18/coding-role-based-interfaces/">refactoring some code into a role based interface approach</a>.</p>
-
+<p>On the projects I&rsquo;ve worked on we&rsquo;ve tended to run into problems with the latter more frequently and Matt and I actually ran into this problem when we were <!-- raw HTML omitted -->refactoring some code into a role based interface approach<!-- raw HTML omitted -->.</p>
 <p>We started with the following code:</p>
-
-<pre><code class="language-csharp">
-public class ApplicationController : Controller
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ApplicationController</span> : Controller
 {
-	public string BusinessType
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> BusinessType
 	{
-		get { return GetType().Replace(&quot;Controller&quot;, &quot;&quot;); }
+		<span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> GetType().Replace(<span style="color:#e6db74">&#34;Controller&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>); }
 	}
  
-	public override void OnActionExecuting(ActionExecutingContext context) 
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnActionExecuting(ActionExecutingContext context) 
 	{
-    		base.OnActionExecuting(context);
-		ViewData[&quot;SomeViewDataKey&quot;] = CreateThatViewDataStuff();
+    		<span style="color:#66d9ef">base</span>.OnActionExecuting(context);
+		ViewData[<span style="color:#e6db74">&#34;SomeViewDataKey&#34;</span>] = CreateThatViewDataStuff();
 	}
  
-	private ViewDataStuff CreateThatViewDataStuff()
+	<span style="color:#66d9ef">private</span> ViewDataStuff CreateThatViewDataStuff()
 	{
-		return new ViewDataStuff 
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ViewDataStuff 
 		{
 			Content = BuildContent()
-			// and so on
-		};
+			<span style="color:#75715e">// and so on
+</span><span style="color:#75715e"></span>		};
 	}
  
-	private IContent BuildContent()
+	<span style="color:#66d9ef">private</span> IContent BuildContent()
 	{
-		if(BusinessType == &quot;BusinessType1&quot;)
+		<span style="color:#66d9ef">if</span>(BusinessType == <span style="color:#e6db74">&#34;BusinessType1&#34;</span>)
 		{
-			return CreateContentForBusinessType1();
+			<span style="color:#66d9ef">return</span> CreateContentForBusinessType1();
 		}
-		else if(BusinessType == &quot;BusinessType2&quot;)
+		<span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(BusinessType == <span style="color:#e6db74">&#34;BusinessType2&#34;</span>)
 		{
-			return CreateContentForBusinessType2();
+			<span style="color:#66d9ef">return</span> CreateContentForBusinessType2();
 		}
-		else
+		<span style="color:#66d9ef">else</span>
 		{
-			return CreateContentForEveryOtherBusinessType();
+			<span style="color:#66d9ef">return</span> CreateContentForEveryOtherBusinessType();
 		}
 	}
 }
-</code></pre>
-
-<p>The &lsquo;BuildContent&rsquo; method is the one that we&rsquo;re really interested in here but it&rsquo;s a private method on the controller so we currently don&rsquo;t have an easy way to assert that it&rsquo;s being created correctly.</p>
-
+</code></pre></div><p>The &lsquo;BuildContent&rsquo; method is the one that we&rsquo;re really interested in here but it&rsquo;s a private method on the controller so we currently don&rsquo;t have an easy way to assert that it&rsquo;s being created correctly.</p>
 <p>In order to test that functionality more easily we decided to make the method public so we could just call it directly.</p>
-
 <p>We wanted to do this so that we could write some tests around this bit of functionality before we refactored it so that we could be sure we hadn&rsquo;t broken the way it worked while doing so.</p>
-
-<p>As <a href="http://hamletdarcy.blogspot.com/2009/06/forgotten-refactorings.html">Hamlet D&rsquo;Arcy points out, if we&rsquo;re going to call it refactoring then we need to make sure that we&rsquo;re protected by tests</a>. Otherwise we&rsquo;re just changing stuff.</p>
-
-<pre><code class="language-csharp">
-[Test]
-public void ShouldCreateContent()
+<p>As <!-- raw HTML omitted -->Hamlet D&rsquo;Arcy points out, if we&rsquo;re going to call it refactoring then we need to make sure that we&rsquo;re protected by tests<!-- raw HTML omitted -->. Otherwise we&rsquo;re just changing stuff.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">[Test]</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldCreateContent()
 {
-	var someRepository = MockRepository.CreateMock&lt;ISomeRepository&gt;();
+	<span style="color:#66d9ef">var</span> someRepository = MockRepository.CreateMock&lt;ISomeRepository&gt;();
 
-	var controller = new BusinessType1Controller(someRepository);
+	<span style="color:#66d9ef">var</span> controller = <span style="color:#66d9ef">new</span> BusinessType1Controller(someRepository);
 
-	someRepository.Expect(s =&gt; s.GetBusinessType1Message()).Return(&quot;someValue&quot;);
+	someRepository.Expect(s =&gt; s.GetBusinessType1Message()).Return(<span style="color:#e6db74">&#34;someValue&#34;</span>);
 
-	var content = controller.BuildContent();
+	<span style="color:#66d9ef">var</span> content = controller.BuildContent();
 
-	// and so on	
-}
-</code></pre>
-
-<p>We did the same for the other business types as well.</p>
-
+	<span style="color:#75715e">// and so on	
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>We did the same for the other business types as well.</p>
 <p>I normally don&rsquo;t like making private methods public but we didn&rsquo;t intend to checkin our code until the refactoring was complete at which point the method would be made private again.</p>
-
 <p>The code ended up something like this:</p>
-
-<pre><code class="language-csharp">
-public class BusinessType1Controller : ApplicationController
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BusinessType1Controller</span> : ApplicationController
 {
-	public override IContent CreateContent()
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> IContent CreateContent()
 	{
-		return new BusinessType1Content(someRepository);
+		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> BusinessType1Content(someRepository);
 	}
 }
-</code></pre>
-
-<pre><code class="language-csharp">
-public class BusinessType1Content : IContent
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BusinessType1Content</span> : IContent
 {
-	private readonly ISomeRepository someRepository;
+	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> ISomeRepository someRepository;
 
-	public BusinessType1Content(ISomeRepository someRepository)
+	<span style="color:#66d9ef">public</span> BusinessType1Content(ISomeRepository someRepository)
 	{
-		this.someRepository = someRepository;
+		<span style="color:#66d9ef">this</span>.someRepository = someRepository;
 	}
 
-	public string GetMessage()
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> GetMessage()
 	{
-		// this would be a different repository call for other business types
-		return someRepository. GetBusinessType1Message();
+		<span style="color:#75715e">// this would be a different repository call for other business types
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">return</span> someRepository. GetBusinessType1Message();
 	}
 }
-</code></pre>
-
-<p>We were able to create a test against the business types directly instead of having to write a test against the controller:</p>
-
-<pre><code class="language-csharp">
-[Test]
-public void ShouldCreateContent()
+</code></pre></div><p>We were able to create a test against the business types directly instead of having to write a test against the controller:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">[Test]</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldCreateContent()
 {
-	var someRepository = MockRepository.CreateMock&lt;ISomeRepository&gt;();
+	<span style="color:#66d9ef">var</span> someRepository = MockRepository.CreateMock&lt;ISomeRepository&gt;();
 
-	var content = new Content(someRepository);
+	<span style="color:#66d9ef">var</span> content = <span style="color:#66d9ef">new</span> Content(someRepository);
 
-	someRepository.Expect(s =&gt; s.GetBusinessType1Message()).Return(&quot;someValue&quot;);
+	someRepository.Expect(s =&gt; s.GetBusinessType1Message()).Return(<span style="color:#e6db74">&#34;someValue&#34;</span>);
 
-	var message = controller.GetMessage();
+	<span style="color:#66d9ef">var</span> message = controller.GetMessage();
 
-	// and so on	
-}
-</code></pre>
-
-<p>Having got these new tests passing the ones we&rsquo;d written against &lsquo;BuildContent&rsquo; now also worked and since they were effectively testing the same thing we were able to get rid of them and make &lsquo;BuildContent&rsquo; private again.</p>
-
+	<span style="color:#75715e">// and so on	
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>Having got these new tests passing the ones we&rsquo;d written against &lsquo;BuildContent&rsquo; now also worked and since they were effectively testing the same thing we were able to get rid of them and make &lsquo;BuildContent&rsquo; private again.</p>
 <p>Despite the fact that I was initially reluctant to expose the &lsquo;BuildContent&rsquo; method this approach seemed to work out reasonably well.</p>
-
 <p>An alternative approach would have been to create a test only ApplicationController and then create a method on that which called the &lsquo;OnActionExecuting&rsquo; method.</p>
-
 <p>We&rsquo;ve done that to test some other things and it would have allowed us to test the creation of &lsquo;Content&rsquo; in a more roundabout way without needing to make &lsquo;BuildContent&rsquo; public.</p>
-
 <p>The additional effort involved in doing that for not much gain means that given a similar situation in the future I&rsquo;d probably use just make the method public again!</p>
 
     <div id="social-bar">

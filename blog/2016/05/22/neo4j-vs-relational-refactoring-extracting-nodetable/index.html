@@ -22,9 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j vs Relational: Refactoring - Extracting node/table" />
         
-          <meta name="twitter:description" content="In my previous blog post I showed how to add a new property/field to a node with a label/record in a table for a football transfers dataset that I&#39;ve been playing with. After introducing this &#39;nationality&#39; property I realised that I now had some duplication in the model:
-
-   players.nationality and clubs.country are referring to the same countries but they&#39;ve both got them stored as strings so we can&#39;t ensure the integrity of our countries and ensure that we&#39;re referring to the same country." />
+          <meta name="twitter:description" content="CREATE TABLE countries ( &#34;code&#34; character varying(3) NOT NULL PRIMARY KEY, &#34;name&#34; character varying(50) NOT NULL ); INSERT INTO countries VALUES(&#39;MNE&#39;, &#39;Montenegro&#39;); INSERT INTO countries VALUES(&#39;SWZ&#39;, &#39;Swaziland&#39;); ... ALTER TABLE clubs ADD COLUMN country_id character varying(3) REFERENCES countries(code); UPDATE clubs AS cl SET country_id = c.code FROM clubs INNER JOIN countries AS c ON c.name = clubs.country WHERE cl.id = clubs.id; ALTER TABLE clubs DROP COLUMN country; ALTER TABLE players ADD COLUMN country_id character varying(3) REFERENCES countries(code); UPDATE players AS p SET country_id = c." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/05/22/neo4j-vs-relational-refactoring-extracting-nodetable/" />
 
@@ -35,9 +33,7 @@
         <title> Neo4j vs Relational: Refactoring - Extracting node/table &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="In my previous blog post I showed how to add a new property/field to a node with a label/record in a table for a football transfers dataset that I&#39;ve been playing with. After introducing this &#39;nationality&#39; property I realised that I now had some duplication in the model:
-
-   players.nationality and clubs.country are referring to the same countries but they&#39;ve both got them stored as strings so we can&#39;t ensure the integrity of our countries and ensure that we&#39;re referring to the same country." />
+        <meta name="description" content="CREATE TABLE countries ( &#34;code&#34; character varying(3) NOT NULL PRIMARY KEY, &#34;name&#34; character varying(50) NOT NULL ); INSERT INTO countries VALUES(&#39;MNE&#39;, &#39;Montenegro&#39;); INSERT INTO countries VALUES(&#39;SWZ&#39;, &#39;Swaziland&#39;); ... ALTER TABLE clubs ADD COLUMN country_id character varying(3) REFERENCES countries(code); UPDATE clubs AS cl SET country_id = c.code FROM clubs INNER JOIN countries AS c ON c.name = clubs.country WHERE cl.id = clubs.id; ALTER TABLE clubs DROP COLUMN country; ALTER TABLE players ADD COLUMN country_id character varying(3) REFERENCES countries(code); UPDATE players AS p SET country_id = c." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -60,16 +56,14 @@
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "Neo4j vs Relational: Refactoring - Extracting node/table",
+        "headline": "Neo4j vs Relational: Refactoring - Extracting node\/table",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-05-22",
-        "description": "In my previous blog post I showed how to add a new property/field to a node with a label/record in a table for a football transfers dataset that I've been playing with. After introducing this 'nationality' property I realised that I now had some duplication in the model:
-
-   players.nationality and clubs.country are referring to the same countries but they've both got them stored as strings so we can't ensure the integrity of our countries and ensure that we're referring to the same country.",
-        "wordCount": 426
+        "description": "CREATE TABLE countries ( \x26#34;code\x26#34; character varying(3) NOT NULL PRIMARY KEY, \x26#34;name\x26#34; character varying(50) NOT NULL ); INSERT INTO countries VALUES(\x26#39;MNE\x26#39;, \x26#39;Montenegro\x26#39;); INSERT INTO countries VALUES(\x26#39;SWZ\x26#39;, \x26#39;Swaziland\x26#39;); ... ALTER TABLE clubs ADD COLUMN country_id character varying(3) REFERENCES countries(code); UPDATE clubs AS cl SET country_id = c.code FROM clubs INNER JOIN countries AS c ON c.name = clubs.country WHERE cl.id = clubs.id; ALTER TABLE clubs DROP COLUMN country; ALTER TABLE players ADD COLUMN country_id character varying(3) REFERENCES countries(code); UPDATE players AS p SET country_id = c.",
+        "wordCount":  152 
     }
     </script>
     
@@ -178,149 +172,85 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j vs Relational: Refactoring - Extracting node/table</h1>
-    <p>In my <a href="http://www.markhneedham.com/blog/2016/05/22/neo4j-vs-relational-refactoring-add-a-new-fieldproperty/">previous blog post</a> I showed how to add a new property/field to a node with a label/record in a table for a football transfers dataset that I've been playing with. 
-</p>
-
-<p>After introducing this 'nationality' property I realised that I now had some duplication in the model:</p>
-
-<p></p></p>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2016/05/2016-05-22_10-15-15.png" alt="2016 05 22 10 15 15" title="2016-05-22_10-15-15.png" border="0" width="401" height="191" />
-</div>
-
-<p>
-<cite>players.nationality</cite> and <cite>clubs.country</cite> are referring to the same countries but they've both got them stored as strings so we can't ensure the integrity of our countries and ensure that we're referring to the same country.
-</p>
-
-<p>We have the same issue in the graph model as well:</p>
-
-<div>
-
-<img src="https://markhneedham.com/blog/
-/uploads/2016/05/2016-05-22_10-40-40.png" alt="2016 05 22 10 40 40" title="2016-05-22_10-40-40.png" border="0" width="401" /></div>
-
-<p>This time <cite>Player.nationality</cite> and <cite>Club.country</cite> refer to the same countries.</p>
- 
-
-<p>We can solve our problem by introducing a countries table in the relational model and a set of nodes with a 'Country' label in the graph model. Let's start with relational.
-</p>
-
-<p>This is the model we're driving towards:</p>
-
-<div>
-
-<img src="https://markhneedham.com/blog/
-/uploads/2016/05/2016-05-22_10-50-43.png" alt="2016 05 22 10 50 43" title="2016-05-22_10-50-43.png" border="0" width="395" height="196" />
-</div>
-
-<p>The first thing we need to do is create a countries table and populate it:</p>
-
-<pre><code class="language-sql">
-CREATE TABLE countries (
-    &quot;code&quot; character varying(3) NOT NULL PRIMARY KEY,
-    &quot;name&quot; character varying(50) NOT NULL
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> countries (
+    <span style="color:#e6db74">&#34;code&#34;</span> character varying(<span style="color:#ae81ff">3</span>) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span> <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span>,
+    <span style="color:#e6db74">&#34;name&#34;</span> character varying(<span style="color:#ae81ff">50</span>) <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>
 );
-</code></pre>
-
-<pre><code class="language-sql">
-INSERT INTO countries VALUES('MNE', 'Montenegro');
-INSERT INTO countries VALUES('SWZ', 'Swaziland');
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> countries <span style="color:#66d9ef">VALUES</span>(<span style="color:#e6db74">&#39;MNE&#39;</span>, <span style="color:#e6db74">&#39;Montenegro&#39;</span>);
+<span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> countries <span style="color:#66d9ef">VALUES</span>(<span style="color:#e6db74">&#39;SWZ&#39;</span>, <span style="color:#e6db74">&#39;Swaziland&#39;</span>);
 ...
-</code></pre>
-
-<p>
-Next let's update the clubs table to reference the countries table:
-</p>
-
-<pre><code class="language-sql">
-ALTER TABLE clubs
-ADD COLUMN country_id character varying(3)
-REFERENCES countries(code);
-</code></pre>
-
-<p>And let's run a query to populate that column:</p>
-
-<pre><code class="language-sql">
-UPDATE clubs AS cl
-SET country_id = c.code
-FROM clubs
-INNER JOIN countries AS c 
-ON c.name = clubs.country
-WHERE cl.id = clubs.id;
-</code></pre>
-
-<p>This query iterates over all the clubs, queries the country table to find the country id for that row and then stores it in the 'country_id' field. Finally we can remove the 'country' field: </p>
-
-<pre><code class="language-sql">
-ALTER TABLE clubs
-DROP COLUMN country;
-</code></pre>
-
-<p>Now we do the same drill for the players table:</p>
-
-<pre><code class="language-sql">
-ALTER TABLE players
-ADD COLUMN country_id character varying(3)
-REFERENCES countries(code);
-</code></pre>
-
-<pre><code class="language-sql">
-UPDATE players AS p
-SET country_id = c.code
-FROM players
-INNER JOIN countries AS c 
-ON c.name = players.nationality
-WHERE p.id = players.id;
-</code></pre>
-
-<pre><code class="language-sql">
-ALTER TABLE players
-DROP COLUMN nationality;
-</code></pre>
-
-<p>Now it's time for the graph. This is the model we want to get to:</p>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2016/05/2016-05-22_10-51-49.png" alt="2016 05 22 10 51 49" title="2016-05-22_10-51-49.png" border="0" width="334" height="218" />
-</div>
-
-<p>
-First we'll create the countries:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">TABLE</span> clubs
+<span style="color:#66d9ef">ADD</span> <span style="color:#66d9ef">COLUMN</span> country_id character varying(<span style="color:#ae81ff">3</span>)
+<span style="color:#66d9ef">REFERENCES</span> countries(code);
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">UPDATE</span> clubs <span style="color:#66d9ef">AS</span> cl
+<span style="color:#66d9ef">SET</span> country_id <span style="color:#f92672">=</span> <span style="color:#66d9ef">c</span>.code
+<span style="color:#66d9ef">FROM</span> clubs
+<span style="color:#66d9ef">INNER</span> <span style="color:#66d9ef">JOIN</span> countries <span style="color:#66d9ef">AS</span> <span style="color:#66d9ef">c</span> 
+<span style="color:#66d9ef">ON</span> <span style="color:#66d9ef">c</span>.name <span style="color:#f92672">=</span> clubs.country
+<span style="color:#66d9ef">WHERE</span> cl.id <span style="color:#f92672">=</span> clubs.id;
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">TABLE</span> clubs
+<span style="color:#66d9ef">DROP</span> <span style="color:#66d9ef">COLUMN</span> country;
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">TABLE</span> players
+<span style="color:#66d9ef">ADD</span> <span style="color:#66d9ef">COLUMN</span> country_id character varying(<span style="color:#ae81ff">3</span>)
+<span style="color:#66d9ef">REFERENCES</span> countries(code);
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">UPDATE</span> players <span style="color:#66d9ef">AS</span> p
+<span style="color:#66d9ef">SET</span> country_id <span style="color:#f92672">=</span> <span style="color:#66d9ef">c</span>.code
+<span style="color:#66d9ef">FROM</span> players
+<span style="color:#66d9ef">INNER</span> <span style="color:#66d9ef">JOIN</span> countries <span style="color:#66d9ef">AS</span> <span style="color:#66d9ef">c</span> 
+<span style="color:#66d9ef">ON</span> <span style="color:#66d9ef">c</span>.name <span style="color:#f92672">=</span> players.nationality
+<span style="color:#66d9ef">WHERE</span> p.id <span style="color:#f92672">=</span> players.id;
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
+<span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">TABLE</span> players
+<span style="color:#66d9ef">DROP</span> <span style="color:#66d9ef">COLUMN</span> nationality;
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 CREATE CONSTRAINT ON (c:Country)
 ASSERT c.id IS UNIQUE
-</code></pre>
-
-<pre><code class="language-cypher">
+</code></pre><pre><code class="language-cypher" data-lang="cypher">
 LOAD CSV WITH HEADERS FROM &quot;file:///countries.csv&quot;
 AS row
 MERGE (country:Country {id: row.countryCode})
 ON CREATE SET country.name = row.country
-</code></pre>
-
-<p>And now let's get clubs and players to point at those countries nodes and get rid of their respective nationality/country properties:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 MATCH (club:Club)
 MATCH (country:Country {name: club.country})
 MERGE (club)-[:PART_OF]-&gt;(country)
 REMOVE club.country
-</code></pre>
-
-<pre><code class="language-cypher">
+</code></pre><pre><code class="language-cypher" data-lang="cypher">
 MATCH (player:Player)
 MATCH (country:Country {name: player.nationality})
 MERGE (player)-[:PLAYS_FOR]-&gt;(country)
 REMOVE player.nationality
-</code></pre>
-
-<p>And that's it, we can now write queries against our new model.</p>
+</code></pre><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -355,7 +285,7 @@ REMOVE player.nationality
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/05/22/neo4j-vs-relational-refactoring-extracting-nodetable/&amp;title=Neo4j%20vs%20Relational%3a%20Refactoring%20-%20Extracting%20node%2ftable&amp;summary=In%20my%20previous%20blog%20post%20I%20showed%20how%20to%20add%20a%20new%20property%2ffield%20to%20a%20node%20with%20a%20label%2frecord%20in%20a%20table%20for%20a%20football%20transfers%20dataset%20that%20I%27ve%20been%20playing%20with.%20After%20introducing%20this%20%27nationality%27%20property%20I%20realised%20that%20I%20now%20had%20some%20duplication%20in%20the%20model%3a%0a%0a%20%20%20players.nationality%20and%20clubs.country%20are%20referring%20to%20the%20same%20countries%20but%20they%27ve%20both%20got%20them%20stored%20as%20strings%20so%20we%20can%27t%20ensure%20the%20integrity%20of%20our%20countries%20and%20ensure%20that%20we%27re%20referring%20to%20the%20same%20country...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/05/22/neo4j-vs-relational-refactoring-extracting-nodetable/&amp;title=Neo4j%20vs%20Relational%3a%20Refactoring%20-%20Extracting%20node%2ftable&amp;summary=CREATE%20TABLE%20countries%20%28%20%26%2334%3bcode%26%2334%3b%20character%20varying%283%29%20NOT%20NULL%20PRIMARY%20KEY%2c%20%26%2334%3bname%26%2334%3b%20character%20varying%2850%29%20NOT%20NULL%20%29%3b%20INSERT%20INTO%20countries%20VALUES%28%26%2339%3bMNE%26%2339%3b%2c%20%26%2339%3bMontenegro%26%2339%3b%29%3b%20INSERT%20INTO%20countries%20VALUES%28%26%2339%3bSWZ%26%2339%3b%2c%20%26%2339%3bSwaziland%26%2339%3b%29%3b%20...%20ALTER%20TABLE%20clubs%20ADD%20COLUMN%20country_id%20character%20varying%283%29%20REFERENCES%20countries%28code%29%3b%20UPDATE%20clubs%20AS%20cl%20SET%20country_id%20%3d%20c.code%20FROM%20clubs%20INNER%20JOIN%20countries%20AS%20c%20ON%20c.name%20%3d%20clubs.country%20WHERE%20cl.id%20%3d%20clubs.id%3b%20ALTER%20TABLE%20clubs%20DROP%20COLUMN%20country%3b%20ALTER%20TABLE%20players%20ADD%20COLUMN%20country_id%20character%20varying%283%29%20REFERENCES%20countries%28code%29%3b%20UPDATE%20players%20AS%20p%20SET%20country_id%20%3d%20c...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

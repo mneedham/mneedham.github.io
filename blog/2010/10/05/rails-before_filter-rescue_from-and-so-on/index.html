@@ -67,10 +67,8 @@ As a result I&rsquo;m getting much more in the habit of checking for the before 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-10-05",
-        "description": "One thing I&rsquo;ve noticed while browsing our Rails code base is that the first entry point inside a controller is much less frequently the method corresponding to the action than it would be with a C# ASP.NET MVC application.
-The concept of filters exists in ASP.NET MVC but on the projects I&rsquo;ve worked on they&rsquo;ve been used significantly less than before filters would be in a Rails application.
-As a result I&rsquo;m getting much more in the habit of checking for the before filters in the ApplicationController when an action isn&rsquo;t working as expected to try and figure out what&rsquo;s going on.",
-        "wordCount": 302
+        "description": "One thing I\x26rsquo;ve noticed while browsing our Rails code base is that the first entry point inside a controller is much less frequently the method corresponding to the action than it would be with a C# ASP.NET MVC application.\nThe concept of filters exists in ASP.NET MVC but on the projects I\x26rsquo;ve worked on they\x26rsquo;ve been used significantly less than before filters would be in a Rails application.\nAs a result I\x26rsquo;m getting much more in the habit of checking for the before filters in the ApplicationController when an action isn\x26rsquo;t working as expected to try and figure out what\x26rsquo;s going on.",
+        "wordCount":  302 
     }
     </script>
     
@@ -182,32 +180,21 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Rails: before_filter, rescue_from and so on</h1>
     <p>One thing I&rsquo;ve noticed while browsing our Rails code base is that the first entry point inside a controller is much less frequently the method corresponding to the action than it would be with a C# ASP.NET MVC application.</p>
-
 <p>The concept of filters exists in ASP.NET MVC but on the projects I&rsquo;ve worked on they&rsquo;ve been used significantly less than before filters would be in a Rails application.</p>
-
 <p>As a result I&rsquo;m getting much more in the habit of checking for the before filters in the ApplicationController when an action isn&rsquo;t working as expected to try and figure out what&rsquo;s going on.</p>
-
 <p>One which caught us out the other day is the &lsquo;rescue_from&rsquo; method which gets mixed in from Rescuable.</p>
-
 <p>Every single time we tried to login we were just getting redirected back to the login page again with no exception being reported anywhere.</p>
-
 <p>Eventually we realised that the InvalidAuthenticityToken exception was being thrown because we somehow had a different token stored in our browser&rsquo;s cookie than was in the form.</p>
-
 <p>Since our LoginController extends the ApplicationController, the following logic was being used to handle the exception:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ApplicationController</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ActionController</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Base</span>
+   rescue_from <span style="color:#66d9ef">ActionController</span><span style="color:#f92672">::</span><span style="color:#66d9ef">InvalidAuthenticityToken</span>, <span style="color:#e6db74">:with</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">:redirect_to_referer</span>
 
-<pre><code class="language-ruby">
-class ApplicationController &lt; ActionController::Base
-   rescue_from ActionController::InvalidAuthenticityToken, :with =&gt; :redirect_to_referer
-
-  def redirect_to_referer_or_path
-    redirect_to request.referer
-  end
-</code></pre>
-
-<p>We initially didn&rsquo;t spot it because it was hidden away between a whole load of other before filters and includes of modules.</p>
-
+  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">redirect_to_referer_or_path</span>
+    redirect_to request<span style="color:#f92672">.</span>referer
+  <span style="color:#66d9ef">end</span>
+</code></pre></div><p>We initially didn&rsquo;t spot it because it was hidden away between a whole load of other before filters and includes of modules.</p>
 <p>The convention as far as I can tell is to try and keep as little code as possible inside the action method and handle common logic - such as looking up a user based on an id or handling exceptions - in filters.</p>
-
 <p>It helps to keep the code inside actions pretty clean and remove duplication but I just need to remember to check both the action and the top of the class for any filters when investigating problems.</p>
 
     <div id="social-bar">

@@ -24,8 +24,8 @@
         <meta name="twitter:title" content="Functional Programming: Handling the Options" />
         
           <meta name="twitter:description" content="A couple of weeks ago Channing Walton tweeted the following:
- Every time you call get on an Option a kitten dies.  As Channing points out in the comments he was referring to unguarded calls to &lsquo;get&rsquo; which would lead to an exception if the Option was empty, therefore pretty much defeating the point of using an Option in the first place!
-We&rsquo;re using Dan Bodart&rsquo;s totallylazy library on the application I&rsquo;m currently working on and in fact were calling &lsquo;get&rsquo; on an Option so I wanted to see if we could get rid of it." />
+As Channing points out in the comments he was referring to unguarded calls to &lsquo;get&rsquo; which would lead to an exception if the Option was empty, therefore pretty much defeating the point of using an Option in the first place!
+We&rsquo;re using Dan Bodart&rsquo;s totallylazylibrary on the application I&rsquo;m currently working on and in fact were calling &lsquo;get&rsquo; on an Option so I wanted to see if we could get rid of it." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/03/21/functional-programming-handling-the-options/" />
 
@@ -37,8 +37,8 @@ We&rsquo;re using Dan Bodart&rsquo;s totallylazy library on the application I&rs
 
     
         <meta name="description" content="A couple of weeks ago Channing Walton tweeted the following:
- Every time you call get on an Option a kitten dies.  As Channing points out in the comments he was referring to unguarded calls to &lsquo;get&rsquo; which would lead to an exception if the Option was empty, therefore pretty much defeating the point of using an Option in the first place!
-We&rsquo;re using Dan Bodart&rsquo;s totallylazy library on the application I&rsquo;m currently working on and in fact were calling &lsquo;get&rsquo; on an Option so I wanted to see if we could get rid of it." />
+As Channing points out in the comments he was referring to unguarded calls to &lsquo;get&rsquo; which would lead to an exception if the Option was empty, therefore pretty much defeating the point of using an Option in the first place!
+We&rsquo;re using Dan Bodart&rsquo;s totallylazylibrary on the application I&rsquo;m currently working on and in fact were calling &lsquo;get&rsquo; on an Option so I wanted to see if we could get rid of it." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,10 +67,8 @@ We&rsquo;re using Dan Bodart&rsquo;s totallylazy library on the application I&rs
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-03-21",
-        "description": "A couple of weeks ago Channing Walton tweeted the following:
- Every time you call get on an Option a kitten dies.  As Channing points out in the comments he was referring to unguarded calls to &lsquo;get&rsquo; which would lead to an exception if the Option was empty, therefore pretty much defeating the point of using an Option in the first place!
-We&rsquo;re using Dan Bodart&rsquo;s totallylazy library on the application I&rsquo;m currently working on and in fact were calling &lsquo;get&rsquo; on an Option so I wanted to see if we could get rid of it.",
-        "wordCount": 363
+        "description": "A couple of weeks ago Channing Walton tweeted the following:\nAs Channing points out in the comments he was referring to unguarded calls to \x26lsquo;get\x26rsquo; which would lead to an exception if the Option was empty, therefore pretty much defeating the point of using an Option in the first place!\nWe\x26rsquo;re using Dan Bodart\x26rsquo;s totallylazylibrary on the application I\x26rsquo;m currently working on and in fact were calling \x26lsquo;get\x26rsquo; on an Option so I wanted to see if we could get rid of it.",
+        "wordCount":  351 
     }
     </script>
     
@@ -181,66 +179,49 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Functional Programming: Handling the Options</h1>
-    <p>A couple of weeks ago <a href="https://twitter.com/#!/channingwalton/status/177662437905010688">Channing Walton tweeted the following</a>:</p>
-
-<blockquote>
-Every time you call get on an Option a kitten dies.
-</blockquote>
-
+    <p>A couple of weeks ago <!-- raw HTML omitted -->Channing Walton tweeted the following<!-- raw HTML omitted -->:</p>
+<!-- raw HTML omitted -->
 <p>As Channing points out in the comments he was referring to unguarded calls to &lsquo;get&rsquo; which would lead to an exception if the Option was empty, therefore pretty much defeating the point of using an Option in the first place!</p>
-
-<p>We&rsquo;re using Dan Bodart&rsquo;s <a href="http://code.google.com/p/totallylazy/">totallylazy</a> library on the application I&rsquo;m currently working on and in fact were calling &lsquo;get&rsquo; on an Option so I wanted to see if we could get rid of it.</p>
-
+<p>We&rsquo;re using Dan Bodart&rsquo;s <!-- raw HTML omitted -->totallylazy<!-- raw HTML omitted --> library on the application I&rsquo;m currently working on and in fact were calling &lsquo;get&rsquo; on an Option so I wanted to see if we could get rid of it.</p>
 <p>The code in question is used to work out a price based on a base value and an increment value, both of which are optional.</p>
-
 <p>I&rsquo;ve re-created some tests to show roughly how it works:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#a6e22e">@Test</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">myOptionsExample</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    Assert<span style="color:#f92672">.</span><span style="color:#a6e22e">assertThat</span><span style="color:#f92672">(</span>calculate<span style="color:#f92672">(</span>Option<span style="color:#f92672">.&lt;</span>Double<span style="color:#f92672">&gt;</span>none<span style="color:#f92672">(),</span> Option<span style="color:#f92672">.&lt;</span>Double<span style="color:#f92672">&gt;</span>none<span style="color:#f92672">(),</span> 20<span style="color:#f92672">),</span> is<span style="color:#f92672">(</span>Option<span style="color:#f92672">.&lt;</span>Double<span style="color:#f92672">&gt;</span>none<span style="color:#f92672">()));</span>
+    Assert<span style="color:#f92672">.</span><span style="color:#a6e22e">assertThat</span><span style="color:#f92672">(</span>calculate<span style="color:#f92672">(</span>Option<span style="color:#f92672">.&lt;</span>Double<span style="color:#f92672">&gt;</span>none<span style="color:#f92672">(),</span> Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>12<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">),</span> 20<span style="color:#f92672">),</span> is<span style="color:#f92672">(</span>Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>240<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">)));</span>
+    Assert<span style="color:#f92672">.</span><span style="color:#a6e22e">assertThat</span><span style="color:#f92672">(</span>calculate<span style="color:#f92672">(</span>Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>50<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">),</span> Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>12<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">),</span> 20<span style="color:#f92672">),</span> is<span style="color:#f92672">(</span>Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>290<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">)));</span>
+    Assert<span style="color:#f92672">.</span><span style="color:#a6e22e">assertThat</span><span style="color:#f92672">(</span>calculate<span style="color:#f92672">(</span>Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>50<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">),</span> Option<span style="color:#f92672">.&lt;</span>Double<span style="color:#f92672">&gt;</span>none<span style="color:#f92672">(),</span> 20<span style="color:#f92672">),</span> is<span style="color:#f92672">(</span>Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>50<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">)));</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">private</span> Option<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">calculate</span><span style="color:#f92672">(</span>Option<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> base<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> Option<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> increment<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> multiplier<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>base<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">()</span> <span style="color:#f92672">&amp;&amp;</span> increment<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> Option<span style="color:#f92672">.</span><span style="color:#a6e22e">none</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
 
-<pre><code class="language-java">
-@Test
-public void myOptionsExample() {
-    Assert.assertThat(calculate(Option.&lt;Double&gt;none(), Option.&lt;Double&gt;none(), 20), is(Option.&lt;Double&gt;none()));
-    Assert.assertThat(calculate(Option.&lt;Double&gt;none(), Option.some(12.0), 20), is(Option.some(240.0)));
-    Assert.assertThat(calculate(Option.some(50.0), Option.some(12.0), 20), is(Option.some(290.0)));
-    Assert.assertThat(calculate(Option.some(50.0), Option.&lt;Double&gt;none(), 20), is(Option.some(50.0)));
-}
-</code></pre>
+    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>increment<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">()){</span>
+        <span style="color:#66d9ef">return</span> base<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
 
-<pre><code class="language-java">
-private Option&lt;Double&gt; calculate(Option&lt;Double&gt; base, final Option&lt;Double&gt; increment, final int multiplier) {
-    if(base.isEmpty() &amp;&amp; increment.isEmpty()) {
-        return Option.none();
-    }
+    <span style="color:#66d9ef">double</span> baseBit <span style="color:#f92672">=</span> base<span style="color:#f92672">.</span><span style="color:#a6e22e">getOrElse</span><span style="color:#f92672">(</span>0<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">double</span> incrementBit <span style="color:#f92672">=</span> increment<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">()</span> <span style="color:#f92672">*</span> multiplier<span style="color:#f92672">;</span>
 
-    if(increment.isEmpty()){
-        return base;
-    }
+    <span style="color:#66d9ef">return</span> Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>baseBit <span style="color:#f92672">+</span> incrementBit<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>We can get rid of the &lsquo;increment.isEmpty()&rsquo; line by making use of a &lsquo;getOrElse&rsquo; a few lines later like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">private</span> Option<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">calculate</span><span style="color:#f92672">(</span>Option<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> base<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> Option<span style="color:#f92672">&lt;</span>Double<span style="color:#f92672">&gt;</span> increment<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> multiplier<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>base<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">()</span> <span style="color:#f92672">&amp;&amp;</span> increment<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> Option<span style="color:#f92672">.</span><span style="color:#a6e22e">none</span><span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
 
-    double baseBit = base.getOrElse(0.0);
-    double incrementBit = increment.get() * multiplier;
+    <span style="color:#66d9ef">double</span> baseBit <span style="color:#f92672">=</span> base<span style="color:#f92672">.</span><span style="color:#a6e22e">getOrElse</span><span style="color:#f92672">(</span>0<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">double</span> incrementBit <span style="color:#f92672">=</span> increment<span style="color:#f92672">.</span><span style="color:#a6e22e">getOrElse</span><span style="color:#f92672">(</span>0<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">)</span> <span style="color:#f92672">*</span> multiplier<span style="color:#f92672">;</span>
 
-    return Option.some(baseBit + incrementBit);
-}
-</code></pre>
-
-<p>We can get rid of the &lsquo;increment.isEmpty()&rsquo; line by making use of a &lsquo;getOrElse&rsquo; a few lines later like so:</p>
-
-<pre><code class="language-java">
-private Option&lt;Double&gt; calculate(Option&lt;Double&gt; base, final Option&lt;Double&gt; increment, final int multiplier) {
-    if(base.isEmpty() &amp;&amp; increment.isEmpty()) {
-        return Option.none();
-    }
-
-    double baseBit = base.getOrElse(0.0);
-    double incrementBit = increment.getOrElse(0.0) * multiplier;
-
-    return Option.some(baseBit + incrementBit);
-}
-</code></pre>
-
-<p>In Scala we can often make use of a for expression when combining Options but I&rsquo;m not sure it would help in this case because we want to return a &lsquo;Some&rsquo; if either of the Options has a value and only return a &lsquo;None&rsquo; if they&rsquo;re both empty.</p>
-
+    <span style="color:#66d9ef">return</span> Option<span style="color:#f92672">.</span><span style="color:#a6e22e">some</span><span style="color:#f92672">(</span>baseBit <span style="color:#f92672">+</span> incrementBit<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>In Scala we can often make use of a for expression when combining Options but I&rsquo;m not sure it would help in this case because we want to return a &lsquo;Some&rsquo; if either of the Options has a value and only return a &lsquo;None&rsquo; if they&rsquo;re both empty.</p>
 <p>I can&rsquo;t figure out how to get rid of that opening if statement - I tried pushing the options into a list and then calling &lsquo;foldLeft&rsquo; on that to sum up the components but we still have the problem of how to deal with returning a &lsquo;None&rsquo; when the list is empty.</p>
-
 <p>If you know how to simplify that code either using totallylazy or another language please let me know in the comments!</p>
 
     <div id="social-bar">
@@ -276,7 +257,7 @@ private Option&lt;Double&gt; calculate(Option&lt;Double&gt; base, final Option&l
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/03/21/functional-programming-handling-the-options/&amp;title=Functional%20Programming%3a%20Handling%20the%20Options&amp;summary=A%20couple%20of%20weeks%20ago%20Channing%20Walton%20tweeted%20the%20following%3a%0a%20Every%20time%20you%20call%20get%20on%20an%20Option%20a%20kitten%20dies.%20%20As%20Channing%20points%20out%20in%20the%20comments%20he%20was%20referring%20to%20unguarded%20calls%20to%20%26lsquo%3bget%26rsquo%3b%20which%20would%20lead%20to%20an%20exception%20if%20the%20Option%20was%20empty%2c%20therefore%20pretty%20much%20defeating%20the%20point%20of%20using%20an%20Option%20in%20the%20first%20place%21%0aWe%26rsquo%3bre%20using%20Dan%20Bodart%26rsquo%3bs%20totallylazy%20library%20on%20the%20application%20I%26rsquo%3bm%20currently%20working%20on%20and%20in%20fact%20were%20calling%20%26lsquo%3bget%26rsquo%3b%20on%20an%20Option%20so%20I%20wanted%20to%20see%20if%20we%20could%20get%20rid%20of%20it...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/03/21/functional-programming-handling-the-options/&amp;title=Functional%20Programming%3a%20Handling%20the%20Options&amp;summary=A%20couple%20of%20weeks%20ago%20Channing%20Walton%20tweeted%20the%20following%3a%0aAs%20Channing%20points%20out%20in%20the%20comments%20he%20was%20referring%20to%20unguarded%20calls%20to%20%26lsquo%3bget%26rsquo%3b%20which%20would%20lead%20to%20an%20exception%20if%20the%20Option%20was%20empty%2c%20therefore%20pretty%20much%20defeating%20the%20point%20of%20using%20an%20Option%20in%20the%20first%20place%21%0aWe%26rsquo%3bre%20using%20Dan%20Bodart%26rsquo%3bs%20totallylazylibrary%20on%20the%20application%20I%26rsquo%3bm%20currently%20working%20on%20and%20in%20fact%20were%20calling%20%26lsquo%3bget%26rsquo%3b%20on%20an%20Option%20so%20I%20wanted%20to%20see%20if%20we%20could%20get%20rid%20of%20it...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

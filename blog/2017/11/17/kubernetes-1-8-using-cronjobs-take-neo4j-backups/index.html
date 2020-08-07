@@ -65,9 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-11-17",
-        "description": "With the release of Kubernetes 1.8 Cronjobs have graduated to beta, which means we can now more easily run Neo4j backup jobs against Kubernetes clusters. Before we learn how to write a Cronjob let's first create a local Kubernetes cluster and deploy Neo4j.
-Spinup Kubernetes & Helm minikube start --memory 8192 helm init &amp;&amp; kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system  Deploy a Neo4j cluster helm repo add incubator https://kubernetes-charts-incubator.",
-        "wordCount": 665
+        "description": "minikube start --memory 8192 helm init \x26amp;\x26amp; kubectl rollout status -w deployment\/tiller-deploy --namespace=kube-system helm repo add incubator https:\/\/kubernetes-charts-incubator.storage.googleapis.com\/ helm install incubator\/neo4j --name neo-helm --wait --set authEnabled=false,core.extraVars.NEO4J_dbms_backup_address=0.0.0.0:6362 kubectl exec neo-helm-neo4j-core-0 \\  -- bin\/cypher-shell --format verbose \\  \x26#34;CALL dbms.cluster.overview() YIELD id, role RETURN id, role\x26#34; \x2b-----------------------------------------------------\x2b | id | role | \x2b-----------------------------------------------------\x2b | \x26#34;0b3bfe6c-6a68-4af5-9dd2-e96b564df6e5\x26#34; | \x26#34;LEADER\x26#34; | | \x26#34;09e9bee8-bdc5-4e95-926c-16ea8213e6e7\x26#34; | \x26#34;FOLLOWER\x26#34; | | \x26#34;859b9b56-9bfc-42ae-90c3-02cedacfe720\x26#34; | \x26#34;FOLLOWER\x26#34; | \x2b-----------------------------------------------------\x2b kubectl exec neo-helm-neo4j-core-0 \\  -- bin\/cypher-shell --format verbose \\  \x26#34;UNWIND range(0,1000) AS id CREATE (:Person {id: id})\x26#34; 0 rows available after 653 ms, consumed after another 0 ms Added 1001 nodes, Set 1001 properties, Added 1001 labels kind: PersistentVolumeClaim apiVersion: v1 metadata: name: backupdir-neo4j labels: app: neo4j-backup spec: accessModes: - ReadWriteOnce resources: requests: storage: 10Gi --- apiVersion: batch\/v1beta1 kind: CronJob metadata: name: neo4j-backup spec: schedule: \x26#34;*\/1 * * * *\x26#34; jobTemplate: spec: template: spec: volumes: - name: backupdir-neo4j persistentVolumeClaim: claimName: backupdir-neo4j containers: - name: neo4j-backup image: neo4j:3.",
+        "wordCount":  396 
     }
     </script>
     
@@ -182,208 +181,143 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Kubernetes 1.8: Using Cronjobs to take Neo4j backups</h1>
-    <p>
-With the <a href="http://blog.kubernetes.io/2017/09/kubernetes-18-security-workloads-and.html">release of Kubernetes 1.8</a> Cronjobs have graduated to beta, which means we can now more easily run Neo4j backup jobs against Kubernetes clusters.
-</p>
-
-<p>Before we learn how to write a Cronjob let's first create a local Kubernetes cluster and deploy Neo4j.</p>
-
-<h2>Spinup Kubernetes & Helm</h2>
-
-<pre><code class="language-bash">
-minikube start --memory 8192
-helm init &amp;&amp; kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system
-</code></pre>
-
-<h2>Deploy a Neo4j cluster</h2>
-
-<pre><code class="language-bash">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+minikube start --memory <span style="color:#ae81ff">8192</span>
+helm init <span style="color:#f92672">&amp;&amp;</span> kubectl rollout status -w deployment/tiller-deploy --namespace<span style="color:#f92672">=</span>kube-system
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
-helm install incubator/neo4j --name neo-helm --wait --set authEnabled=false,core.extraVars.NEO4J_dbms_backup_address=0.0.0.0:6362
-</code></pre>
-
-<h2>Populate our cluster with data</h2>
-
-<p>We can run the following command to check our cluster is ready:</p>
-
-<pre><code class="language-bash">
-kubectl exec neo-helm-neo4j-core-0 \
-  -- bin/cypher-shell --format verbose \
-  &quot;CALL dbms.cluster.overview() YIELD id, role RETURN id, role&quot;
+helm install incubator/neo4j --name neo-helm --wait --set authEnabled<span style="color:#f92672">=</span>false,core.extraVars.NEO4J_dbms_backup_address<span style="color:#f92672">=</span>0.0.0.0:6362
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+kubectl exec neo-helm-neo4j-core-0 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  -- bin/cypher-shell --format verbose <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  <span style="color:#e6db74">&#34;CALL dbms.cluster.overview() YIELD id, role RETURN id, role&#34;</span>
 
 +-----------------------------------------------------+
 | id                                     | role       |
 +-----------------------------------------------------+
-| &quot;0b3bfe6c-6a68-4af5-9dd2-e96b564df6e5&quot; | &quot;LEADER&quot;   |
-| &quot;09e9bee8-bdc5-4e95-926c-16ea8213e6e7&quot; | &quot;FOLLOWER&quot; |
-| &quot;859b9b56-9bfc-42ae-90c3-02cedacfe720&quot; | &quot;FOLLOWER&quot; |
+| <span style="color:#e6db74">&#34;0b3bfe6c-6a68-4af5-9dd2-e96b564df6e5&#34;</span> | <span style="color:#e6db74">&#34;LEADER&#34;</span>   |
+| <span style="color:#e6db74">&#34;09e9bee8-bdc5-4e95-926c-16ea8213e6e7&#34;</span> | <span style="color:#e6db74">&#34;FOLLOWER&#34;</span> |
+| <span style="color:#e6db74">&#34;859b9b56-9bfc-42ae-90c3-02cedacfe720&#34;</span> | <span style="color:#e6db74">&#34;FOLLOWER&#34;</span> |
 +-----------------------------------------------------+
-</code></pre>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+kubectl exec neo-helm-neo4j-core-0 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  -- bin/cypher-shell --format verbose <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  <span style="color:#e6db74">&#34;UNWIND range(0,1000) AS id CREATE (:Person {id: id})&#34;</span>
 
-<p>
-Now let's create some data:
-</p>
-
-<pre><code class="language-bash">
-kubectl exec neo-helm-neo4j-core-0 \
-  -- bin/cypher-shell --format verbose \
-  &quot;UNWIND range(0,1000) AS id CREATE (:Person {id: id})&quot;
-
-0 rows available after 653 ms, consumed after another 0 ms
-Added 1001 nodes, Set 1001 properties, Added 1001 labels
-</code></pre>
-
-<p>
-Now that our Neo4j cluster is running and contains data we want to take regular backups. 
-</p>
-
-<h2>Neo4j backups</h2>
-
-<p>
-The <a href="https://neo4j.com/docs/operations-manual/current/backup/perform-backup/">Neo4j backup tool</a> supports full and incremental backups.
-</p>
-
-<h3>Full backup</h3>
-
-<p>
-A full backup streams a copy of the store files to the backup location and any transactions that happened during the backup. Those transactions are then applied to the backed up copy of the database.
-</p>
-
-<h3>Incremental backup</h3>
-
-<p>
-An incremental backup is triggered if there is already a Neo4j database in the backup location. In this case there will be no copying of store files. Instead the tool will copy any new transactions from Neo4j and apply them to the backup.
-</p>
-
-<h3>Backup Cronjob</h3>
-
-<p>
-We will use a <a href="https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/">Cronjob</a> to execute a backup. In the example below we attach a PersistentVolumeClaim to our Cronjob so that we can see both of the backup scenarios in action.
-</p>
-
-<pre><code class="language-yaml">
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: backupdir-neo4j
-  labels:
-    app: neo4j-backup
-spec:
-  accessModes:
+<span style="color:#ae81ff">0</span> rows available after <span style="color:#ae81ff">653</span> ms, consumed after another <span style="color:#ae81ff">0</span> ms
+Added <span style="color:#ae81ff">1001</span> nodes, Set <span style="color:#ae81ff">1001</span> properties, Added <span style="color:#ae81ff">1001</span> labels
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">
+<span style="color:#66d9ef">kind</span>: PersistentVolumeClaim
+<span style="color:#66d9ef">apiVersion</span>: v1
+<span style="color:#66d9ef">metadata</span>:
+  <span style="color:#66d9ef">name</span>: backupdir-neo4j
+  <span style="color:#66d9ef">labels</span>:
+    <span style="color:#66d9ef">app</span>: neo4j-backup
+<span style="color:#66d9ef">spec</span>:
+  <span style="color:#66d9ef">accessModes</span>:
     - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
+  <span style="color:#66d9ef">resources</span>:
+    <span style="color:#66d9ef">requests</span>:
+      <span style="color:#66d9ef">storage</span>: 10Gi
 ---
-apiVersion: batch/v1beta1
-kind: CronJob
-metadata:
-  name: neo4j-backup
-spec:
-  schedule: &quot;*/1 * * * *&quot;
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          volumes:
-            - name: backupdir-neo4j
-              persistentVolumeClaim:
-                claimName: backupdir-neo4j
-          containers:
-            - name: neo4j-backup
-              image: neo4j:3.3.0-enterprise
-              env:
-                - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
-                  value: &quot;yes&quot;
-              volumeMounts:
-              - name: backupdir-neo4j
-                mountPath: /tmp
-              command: [&quot;bin/neo4j-admin&quot;,  &quot;backup&quot;, &quot;--backup-dir&quot;, &quot;/tmp&quot;, &quot;--name&quot;, &quot;backup&quot;, &quot;--from&quot;, &quot;neo-helm-neo4j-core-2.neo-helm-neo4j.default.svc.cluster.local:6362&quot;]
-          restartPolicy: OnFailure
-</code></pre>
-
-<p>
-
-</p>
-
-<pre><code class="language-bash">
+<span style="color:#66d9ef">apiVersion</span>: batch/v1beta1
+<span style="color:#66d9ef">kind</span>: CronJob
+<span style="color:#66d9ef">metadata</span>:
+  <span style="color:#66d9ef">name</span>: neo4j-backup
+<span style="color:#66d9ef">spec</span>:
+  <span style="color:#66d9ef">schedule</span>: <span style="color:#e6db74">&#34;*/1 * * * *&#34;</span>
+  <span style="color:#66d9ef">jobTemplate</span>:
+    <span style="color:#66d9ef">spec</span>:
+      <span style="color:#66d9ef">template</span>:
+        <span style="color:#66d9ef">spec</span>:
+          <span style="color:#66d9ef">volumes</span>:
+            - <span style="color:#66d9ef">name</span>: backupdir-neo4j
+              <span style="color:#66d9ef">persistentVolumeClaim</span>:
+                <span style="color:#66d9ef">claimName</span>: backupdir-neo4j
+          <span style="color:#66d9ef">containers</span>:
+            - <span style="color:#66d9ef">name</span>: neo4j-backup
+              <span style="color:#66d9ef">image</span>: neo4j:<span style="color:#ae81ff">3.3.0</span>-enterprise
+              <span style="color:#66d9ef">env</span>:
+                - <span style="color:#66d9ef">name</span>: NEO4J_ACCEPT_LICENSE_AGREEMENT
+                  <span style="color:#66d9ef">value</span>: <span style="color:#e6db74">&#34;yes&#34;</span>
+              <span style="color:#66d9ef">volumeMounts</span>:
+              - <span style="color:#66d9ef">name</span>: backupdir-neo4j
+                <span style="color:#66d9ef">mountPath</span>: /tmp
+              <span style="color:#66d9ef">command</span>: [<span style="color:#e6db74">&#34;bin/neo4j-admin&#34;</span>,  <span style="color:#e6db74">&#34;backup&#34;</span>, <span style="color:#e6db74">&#34;--backup-dir&#34;</span>, <span style="color:#e6db74">&#34;/tmp&#34;</span>, <span style="color:#e6db74">&#34;--name&#34;</span>, <span style="color:#e6db74">&#34;backup&#34;</span>, <span style="color:#e6db74">&#34;--from&#34;</span>, <span style="color:#e6db74">&#34;neo-helm-neo4j-core-2.neo-helm-neo4j.default.svc.cluster.local:6362&#34;</span>]
+          <span style="color:#66d9ef">restartPolicy</span>: OnFailure
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ kubectl apply -f cronjob.yaml 
-cronjob &quot;neo4j-backup&quot; created
-</code></pre>
-
-<pre><code class="language-bash">
+cronjob <span style="color:#e6db74">&#34;neo4j-backup&#34;</span> created
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 kubectl get jobs -w
 NAME                      DESIRED   SUCCESSFUL   AGE
-neo4j-backup-1510940940   1         1            34s
-</code></pre>
-
-<p>
-Now let's view the logs from the job:
-</p>
-
-<pre><code class="language-bash">
-kubectl logs $(kubectl get pods -a --selector=job-name=neo4j-backup-1510940940 --output=jsonpath={.items..metadata.name})
+neo4j-backup-1510940940   <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>            34s
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+kubectl logs <span style="color:#66d9ef">$(</span>kubectl get pods -a --selector<span style="color:#f92672">=</span>job-name<span style="color:#f92672">=</span>neo4j-backup-1510940940 --output<span style="color:#f92672">=</span>jsonpath<span style="color:#f92672">={</span>.items..metadata.name<span style="color:#f92672">}</span><span style="color:#66d9ef">)</span>
 
 Doing full backup...
-2017-11-17 17:49:05.920+0000 INFO [o.n.c.s.StoreCopyClient] Copying neostore.nodestore.db.labels
+2017-11-17 17:49:05.920+0000 INFO <span style="color:#f92672">[</span>o.n.c.s.StoreCopyClient<span style="color:#f92672">]</span> Copying neostore.nodestore.db.labels
 ...
-2017-11-17 17:49:06.038+0000 INFO [o.n.c.s.StoreCopyClient] Copied neostore.labelscanstore.db 48.00 kB
-2017-11-17 17:49:06.038+0000 INFO [o.n.c.s.StoreCopyClient] Done, copied 18 files
-2017-11-17 17:49:06.094+0000 INFO [o.n.b.BackupService] Start recovering store
-2017-11-17 17:49:07.669+0000 INFO [o.n.b.BackupService] Finish recovering store
+2017-11-17 17:49:06.038+0000 INFO <span style="color:#f92672">[</span>o.n.c.s.StoreCopyClient<span style="color:#f92672">]</span> Copied neostore.labelscanstore.db 48.00 kB
+2017-11-17 17:49:06.038+0000 INFO <span style="color:#f92672">[</span>o.n.c.s.StoreCopyClient<span style="color:#f92672">]</span> Done, copied <span style="color:#ae81ff">18</span> files
+2017-11-17 17:49:06.094+0000 INFO <span style="color:#f92672">[</span>o.n.b.BackupService<span style="color:#f92672">]</span> Start recovering store
+2017-11-17 17:49:07.669+0000 INFO <span style="color:#f92672">[</span>o.n.b.BackupService<span style="color:#f92672">]</span> Finish recovering store
 Doing consistency check...
-2017-11-17 17:49:07.716+0000 INFO [o.n.k.i.s.f.RecordFormatSelector] Selected RecordFormat:StandardV3_2[v0.A.8] record format from store /tmp/backup
-2017-11-17 17:49:07.716+0000 INFO [o.n.k.i.s.f.RecordFormatSelector] Format not configured. Selected format from the store: RecordFormat:StandardV3_2[v0.A.8]
-2017-11-17 17:49:07.755+0000 INFO [o.n.m.MetricsExtension] Initiating metrics...
+2017-11-17 17:49:07.716+0000 INFO <span style="color:#f92672">[</span>o.n.k.i.s.f.RecordFormatSelector<span style="color:#f92672">]</span> Selected RecordFormat:StandardV3_2<span style="color:#f92672">[</span>v0.A.8<span style="color:#f92672">]</span> record format from store /tmp/backup
+2017-11-17 17:49:07.716+0000 INFO <span style="color:#f92672">[</span>o.n.k.i.s.f.RecordFormatSelector<span style="color:#f92672">]</span> Format not configured. Selected format from the store: RecordFormat:StandardV3_2<span style="color:#f92672">[</span>v0.A.8<span style="color:#f92672">]</span>
+2017-11-17 17:49:07.755+0000 INFO <span style="color:#f92672">[</span>o.n.m.MetricsExtension<span style="color:#f92672">]</span> Initiating metrics...
 ....................  10%
 ...
 .................... 100%
 Backup complete.
-</code></pre>
-
-<p>
-All good so far. Now let's create more data:
-</p>
-
-<pre><code class="language-bash">
-kubectl exec neo-helm-neo4j-core-0 \
-  -- bin/cypher-shell --format verbose \
-  &quot;UNWIND range(0,1000) AS id CREATE (:Person {id: id})&quot;
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+kubectl exec neo-helm-neo4j-core-0 <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  -- bin/cypher-shell --format verbose <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>  <span style="color:#e6db74">&#34;UNWIND range(0,1000) AS id CREATE (:Person {id: id})&#34;</span>
 
 
-0 rows available after 114 ms, consumed after another 0 ms
-Added 1001 nodes, Set 1001 properties, Added 1001 labels
-</code></pre>
-
-<p>
-And wait for another backup job to run:
-</p>
-
-<pre><code class="language-bash">
+<span style="color:#ae81ff">0</span> rows available after <span style="color:#ae81ff">114</span> ms, consumed after another <span style="color:#ae81ff">0</span> ms
+Added <span style="color:#ae81ff">1001</span> nodes, Set <span style="color:#ae81ff">1001</span> properties, Added <span style="color:#ae81ff">1001</span> labels
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 kubectl get jobs -w
 NAME                      DESIRED   SUCCESSFUL   AGE
-neo4j-backup-1510941180   1         1            2m
-neo4j-backup-1510941240   1         1            1m
-neo4j-backup-1510941300   1         1            17s
-</code></pre>
-
-<pre><code class="language-bash">
-kubectl logs $(kubectl get pods -a --selector=job-name=neo4j-backup-1510941300 --output=jsonpath={.items..metadata.name})
+neo4j-backup-1510941180   <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>            2m
+neo4j-backup-1510941240   <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>            1m
+neo4j-backup-1510941300   <span style="color:#ae81ff">1</span>         <span style="color:#ae81ff">1</span>            17s
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+kubectl logs <span style="color:#66d9ef">$(</span>kubectl get pods -a --selector<span style="color:#f92672">=</span>job-name<span style="color:#f92672">=</span>neo4j-backup-1510941300 --output<span style="color:#f92672">=</span>jsonpath<span style="color:#f92672">={</span>.items..metadata.name<span style="color:#f92672">}</span><span style="color:#66d9ef">)</span>
 
 Destination is not empty, doing incremental backup...
 Doing consistency check...
-2017-11-17 17:55:07.958+0000 INFO [o.n.k.i.s.f.RecordFormatSelector] Selected RecordFormat:StandardV3_2[v0.A.8] record format from store /tmp/backup
-2017-11-17 17:55:07.959+0000 INFO [o.n.k.i.s.f.RecordFormatSelector] Format not configured. Selected format from the store: RecordFormat:StandardV3_2[v0.A.8]
-2017-11-17 17:55:07.995+0000 INFO [o.n.m.MetricsExtension] Initiating metrics...
+2017-11-17 17:55:07.958+0000 INFO <span style="color:#f92672">[</span>o.n.k.i.s.f.RecordFormatSelector<span style="color:#f92672">]</span> Selected RecordFormat:StandardV3_2<span style="color:#f92672">[</span>v0.A.8<span style="color:#f92672">]</span> record format from store /tmp/backup
+2017-11-17 17:55:07.959+0000 INFO <span style="color:#f92672">[</span>o.n.k.i.s.f.RecordFormatSelector<span style="color:#f92672">]</span> Format not configured. Selected format from the store: RecordFormat:StandardV3_2<span style="color:#f92672">[</span>v0.A.8<span style="color:#f92672">]</span>
+2017-11-17 17:55:07.995+0000 INFO <span style="color:#f92672">[</span>o.n.m.MetricsExtension<span style="color:#f92672">]</span> Initiating metrics...
 ....................  10%
 ...
 .................... 100%
 Backup complete.
-</code></pre>
-
-<p>
-If we were to extend this job further we could have it copy each backup it takes to an S3 bucket but I'll leave that for another day.
-</p>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -418,7 +352,7 @@ If we were to extend this job further we could have it copy each backup it takes
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/11/17/kubernetes-1-8-using-cronjobs-take-neo4j-backups/&amp;title=Kubernetes%201.8%3a%20Using%20Cronjobs%20to%20take%20Neo4j%20backups&amp;summary=With%20the%20release%20of%20Kubernetes%201.8%20Cronjobs%20have%20graduated%20to%20beta%2c%20which%20means%20we%20can%20now%20more%20easily%20run%20Neo4j%20backup%20jobs%20against%20Kubernetes%20clusters.%20Before%20we%20learn%20how%20to%20write%20a%20Cronjob%20let%27s%20first%20create%20a%20local%20Kubernetes%20cluster%20and%20deploy%20Neo4j.%0aSpinup%20Kubernetes%20%26%20Helm%20minikube%20start%20--memory%208192%20helm%20init%20%26amp%3b%26amp%3b%20kubectl%20rollout%20status%20-w%20deployment%2ftiller-deploy%20--namespace%3dkube-system%20%20Deploy%20a%20Neo4j%20cluster%20helm%20repo%20add%20incubator%20https%3a%2f%2fkubernetes-charts-incubator...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/11/17/kubernetes-1-8-using-cronjobs-take-neo4j-backups/&amp;title=Kubernetes%201.8%3a%20Using%20Cronjobs%20to%20take%20Neo4j%20backups&amp;summary=minikube%20start%20--memory%208192%20helm%20init%20%26amp%3b%26amp%3b%20kubectl%20rollout%20status%20-w%20deployment%2ftiller-deploy%20--namespace%3dkube-system%20helm%20repo%20add%20incubator%20https%3a%2f%2fkubernetes-charts-incubator.storage.googleapis.com%2f%20helm%20install%20incubator%2fneo4j%20--name%20neo-helm%20--wait%20--set%20authEnabled%3dfalse%2ccore.extraVars.NEO4J_dbms_backup_address%3d0.0.0.0%3a6362%20kubectl%20exec%20neo-helm-neo4j-core-0%20%5c%20%20--%20bin%2fcypher-shell%20--format%20verbose%20%5c%20%20%26%2334%3bCALL%20dbms.cluster.overview%28%29%20YIELD%20id%2c%20role%20RETURN%20id%2c%20role%26%2334%3b%20%2b-----------------------------------------------------%2b%20%7c%20id%20%7c%20role%20%7c%20%2b-----------------------------------------------------%2b%20%7c%20%26%2334%3b0b3bfe6c-6a68-4af5-9dd2-e96b564df6e5%26%2334%3b%20%7c%20%26%2334%3bLEADER%26%2334%3b%20%7c%20%7c%20%26%2334%3b09e9bee8-bdc5-4e95-926c-16ea8213e6e7%26%2334%3b%20%7c%20%26%2334%3bFOLLOWER%26%2334%3b%20%7c%20%7c%20%26%2334%3b859b9b56-9bfc-42ae-90c3-02cedacfe720%26%2334%3b%20%7c%20%26%2334%3bFOLLOWER%26%2334%3b%20%7c%20%2b-----------------------------------------------------%2b%20kubectl%20exec%20neo-helm-neo4j-core-0%20%5c%20%20--%20bin%2fcypher-shell%20--format%20verbose%20%5c%20%20%26%2334%3bUNWIND%20range%280%2c1000%29%20AS%20id%20CREATE%20%28%3aPerson%20%7bid%3a%20id%7d%29%26%2334%3b%200%20rows%20available%20after%20653%20ms%2c%20consumed%20after%20another%200%20ms%20Added%201001%20nodes%2c%20Set%201001%20properties%2c%20Added%201001%20labels%20kind%3a%20PersistentVolumeClaim%20apiVersion%3a%20v1%20metadata%3a%20name%3a%20backupdir-neo4j%20labels%3a%20app%3a%20neo4j-backup%20spec%3a%20accessModes%3a%20-%20ReadWriteOnce%20resources%3a%20requests%3a%20storage%3a%2010Gi%20---%20apiVersion%3a%20batch%2fv1beta1%20kind%3a%20CronJob%20metadata%3a%20name%3a%20neo4j-backup%20spec%3a%20schedule%3a%20%26%2334%3b%2a%2f1%20%2a%20%2a%20%2a%20%2a%26%2334%3b%20jobTemplate%3a%20spec%3a%20template%3a%20spec%3a%20volumes%3a%20-%20name%3a%20backupdir-neo4j%20persistentVolumeClaim%3a%20claimName%3a%20backupdir-neo4j%20containers%3a%20-%20name%3a%20neo4j-backup%20image%3a%20neo4j%3a3...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

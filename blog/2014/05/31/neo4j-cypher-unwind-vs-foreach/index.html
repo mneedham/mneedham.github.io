@@ -23,8 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Cypher - UNWIND vs FOREACH" />
         
-          <meta name="twitter:description" content="I&#39;ve written a couple of posts about the new UNWIND clause in Neo4j&#39;s cypher query language but I forgot about my favourite use of UNWIND, which is to get rid of some uses of FOREACH from our queries.
-Let&#39;s say we&#39;ve created a timetree up front and now have a series of events coming in that we want to create in the database and attach to the appropriate part of the timetree." />
+          <meta name="twitter:description" content="WITH [{name: &quot;Event 1&quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: &quot;Event 2&quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event.name}) MATCH (year:Year {year: event.timetree.year }), (year)-[:HAS_MONTH]-&gt;(month {month: event.timetree.month }), (month)-[:HAS_DAY]-&gt;(day {day: event.timetree.day }) CREATE (e)-[:HAPPENED_ON]-&gt;(day)) Invalid use of MATCH inside FOREACH (line 5, column 3) &quot; MATCH (year:Year {year: event.timetree.year }), &quot; ^ Neo.ClientError.Statement.InvalidSyntax WITH [{name: &quot;Event 1&quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: &quot;Event 2&quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/05/31/neo4j-cypher-unwind-vs-foreach/" />
 
@@ -35,8 +34,7 @@ Let&#39;s say we&#39;ve created a timetree up front and now have a series of eve
         <title> Neo4j: Cypher - UNWIND vs FOREACH &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&#39;ve written a couple of posts about the new UNWIND clause in Neo4j&#39;s cypher query language but I forgot about my favourite use of UNWIND, which is to get rid of some uses of FOREACH from our queries.
-Let&#39;s say we&#39;ve created a timetree up front and now have a series of events coming in that we want to create in the database and attach to the appropriate part of the timetree." />
+        <meta name="description" content="WITH [{name: &quot;Event 1&quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: &quot;Event 2&quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event.name}) MATCH (year:Year {year: event.timetree.year }), (year)-[:HAS_MONTH]-&gt;(month {month: event.timetree.month }), (month)-[:HAS_DAY]-&gt;(day {day: event.timetree.day }) CREATE (e)-[:HAPPENED_ON]-&gt;(day)) Invalid use of MATCH inside FOREACH (line 5, column 3) &quot; MATCH (year:Year {year: event.timetree.year }), &quot; ^ Neo.ClientError.Statement.InvalidSyntax WITH [{name: &quot;Event 1&quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: &quot;Event 2&quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,9 +63,8 @@ Let&#39;s say we&#39;ve created a timetree up front and now have a series of eve
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-05-31",
-        "description": "I've written a couple of posts about the new UNWIND clause in Neo4j's cypher query language but I forgot about my favourite use of UNWIND, which is to get rid of some uses of FOREACH from our queries.
-Let's say we've created a timetree up front and now have a series of events coming in that we want to create in the database and attach to the appropriate part of the timetree.",
-        "wordCount": 350
+        "description": "WITH [{name: \x26quot;Event 1\x26quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: \x26quot;Event 2\x26quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event.name}) MATCH (year:Year {year: event.timetree.year }), (year)-[:HAS_MONTH]-\x26gt;(month {month: event.timetree.month }), (month)-[:HAS_DAY]-\x26gt;(day {day: event.timetree.day }) CREATE (e)-[:HAPPENED_ON]-\x26gt;(day)) Invalid use of MATCH inside FOREACH (line 5, column 3) \x26quot; MATCH (year:Year {year: event.timetree.year }), \x26quot; ^ Neo.ClientError.Statement.InvalidSyntax WITH [{name: \x26quot;Event 1\x26quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: \x26quot;Event 2\x26quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event.",
+        "wordCount":  166 
     }
     </script>
     
@@ -178,13 +175,10 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - UNWIND vs FOREACH</h1>
-    <p>I've written a <a href="http://www.markhneedham.com/blog/2014/05/20/neo4j-2-0-creating-adjacency-matrices/">couple of</a> <a href="http://www.markhneedham.com/blog/2014/05/25/neo4j-2-1-passing-around-node-ids-vs-unwind/">posts</a> about the new <a href="http://docs.neo4j.org/chunked/milestone/query-unwind.html">UNWIND</a> clause in Neo4j's cypher query language but I forgot about my favourite use of UNWIND, which is to get rid of some uses of <a href="http://docs.neo4j.org/chunked/stable/query-foreach.html">FOREACH</a> from our queries.</p>
-
-<p>Let's say we've <a href="http://www.markhneedham.com/blog/2014/04/19/neo4j-cypher-creating-a-time-tree-down-to-the-day/">created a timetree up front</a> and now have a series of events coming in that we want to create in the database and attach to the appropriate part of the timetree.</p>
-
-<p>Before UNWIND existed we might try to write the following query using FOREACH:</p>
-
-<pre><code class="language-cypher">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [{name: &quot;Event 1&quot;, timetree: {day: 1, month: 1, year: 2014}}, 
       {name: &quot;Event 2&quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events
 FOREACH (event IN events | 
@@ -193,20 +187,14 @@ FOREACH (event IN events |
         (year)-[:HAS_MONTH]-&gt;(month {month: event.timetree.month }),
         (month)-[:HAS_DAY]-&gt;(day {day: event.timetree.day })
   CREATE (e)-[:HAPPENED_ON]-&gt;(day))
-</code></pre>
-
-<p>Unfortunately we can't use MATCH inside a FOREACH statement so we'll get the following error:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 Invalid use of MATCH inside FOREACH (line 5, column 3)
 &quot;  MATCH (year:Year {year: event.timetree.year }), &quot;
    ^
 Neo.ClientError.Statement.InvalidSyntax
-</code></pre>
-
-<p>We can work around this by using MERGE instead in the knowledge that it's never going to create anything because the timetree already exists:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [{name: &quot;Event 1&quot;, timetree: {day: 1, month: 1, year: 2014}}, 
       {name: &quot;Event 2&quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events
 FOREACH (event IN events | 
@@ -215,11 +203,8 @@ FOREACH (event IN events |
   MERGE (year)-[:HAS_MONTH]-&gt;(month {month: event.timetree.month })
   MERGE (month)-[:HAS_DAY]-&gt;(day {day: event.timetree.day })
   CREATE (e)-[:HAPPENED_ON]-&gt;(day))
-</code></pre>
-
-<p>If we replace the FOREACH with UNWIND we'd get the following:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [{name: &quot;Event 1&quot;, timetree: {day: 1, month: 1, year: 2014}}, 
       {name: &quot;Event 2&quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events
 UNWIND events AS event
@@ -229,11 +214,8 @@ MATCH (year:Year {year: timetree.year }),
       (year)-[:HAS_MONTH]-&gt;(month {month: timetree.month }),
       (month)-[:HAS_DAY]-&gt;(day {day: timetree.day })
 CREATE (e)-[:HAPPENED_ON]-&gt;(day)
-</code></pre>
-
-<p>Although the lines of code has slightly increased the query is now correct and we won't accidentally correct new parts of our time tree.<p> 
-
-<p>We could also pass on the event that we created to the next part of the query which wouldn't be the case when using FOREACH.</p>
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -268,7 +250,7 @@ CREATE (e)-[:HAPPENED_ON]-&gt;(day)
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/05/31/neo4j-cypher-unwind-vs-foreach/&amp;title=Neo4j%3a%20Cypher%20-%20UNWIND%20vs%20FOREACH&amp;summary=I%27ve%20written%20a%20couple%20of%20posts%20about%20the%20new%20UNWIND%20clause%20in%20Neo4j%27s%20cypher%20query%20language%20but%20I%20forgot%20about%20my%20favourite%20use%20of%20UNWIND%2c%20which%20is%20to%20get%20rid%20of%20some%20uses%20of%20FOREACH%20from%20our%20queries.%0aLet%27s%20say%20we%27ve%20created%20a%20timetree%20up%20front%20and%20now%20have%20a%20series%20of%20events%20coming%20in%20that%20we%20want%20to%20create%20in%20the%20database%20and%20attach%20to%20the%20appropriate%20part%20of%20the%20timetree...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/05/31/neo4j-cypher-unwind-vs-foreach/&amp;title=Neo4j%3a%20Cypher%20-%20UNWIND%20vs%20FOREACH&amp;summary=WITH%20%5b%7bname%3a%20%26quot%3bEvent%201%26quot%3b%2c%20timetree%3a%20%7bday%3a%201%2c%20month%3a%201%2c%20year%3a%202014%7d%7d%2c%20%7bname%3a%20%26quot%3bEvent%202%26quot%3b%2c%20timetree%3a%20%7bday%3a%202%2c%20month%3a%201%2c%20year%3a%202014%7d%7d%5d%20AS%20events%20FOREACH%20%28event%20IN%20events%20%7c%20CREATE%20%28e%3aEvent%20%7bname%3a%20event.name%7d%29%20MATCH%20%28year%3aYear%20%7byear%3a%20event.timetree.year%20%7d%29%2c%20%28year%29-%5b%3aHAS_MONTH%5d-%26gt%3b%28month%20%7bmonth%3a%20event.timetree.month%20%7d%29%2c%20%28month%29-%5b%3aHAS_DAY%5d-%26gt%3b%28day%20%7bday%3a%20event.timetree.day%20%7d%29%20CREATE%20%28e%29-%5b%3aHAPPENED_ON%5d-%26gt%3b%28day%29%29%20Invalid%20use%20of%20MATCH%20inside%20FOREACH%20%28line%205%2c%20column%203%29%20%26quot%3b%20MATCH%20%28year%3aYear%20%7byear%3a%20event.timetree.year%20%7d%29%2c%20%26quot%3b%20%5e%20Neo.ClientError.Statement.InvalidSyntax%20WITH%20%5b%7bname%3a%20%26quot%3bEvent%201%26quot%3b%2c%20timetree%3a%20%7bday%3a%201%2c%20month%3a%201%2c%20year%3a%202014%7d%7d%2c%20%7bname%3a%20%26quot%3bEvent%202%26quot%3b%2c%20timetree%3a%20%7bday%3a%202%2c%20month%3a%201%2c%20year%3a%202014%7d%7d%5d%20AS%20events%20FOREACH%20%28event%20IN%20events%20%7c%20CREATE%20%28e%3aEvent%20%7bname%3a%20event...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="TDD: Testing sub classes" />
         
-          <meta name="twitter:description" content="We ran into another interesting testing dilemma while refactoring the view model code which I described in an earlier post to the point where we have an abstract class and three sub classes which means that we now have 3 classes which did the same thing 80% of the time.
-As I mentioned in a post a couple of weeks ago one of the main refactorings that we did was to move some calls to dependency methods from the constructor and into properties so that those calls would only be made if necessary." />
+          <meta name="twitter:description" content="We ran into another interesting testing dilemma while refactoring the view model code which I described in an earlier post to the point where we have an abstract class and three sub classeswhich means that we now have 3 classes which did the same thing 80% of the time.
+As I mentioned in a post a couple of weeks agoone of the main refactorings that we did was to move some calls to dependency methods from the constructor and into properties so that those calls would only be made if necessary." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/09/13/tdd-testing-sub-classes/" />
 
@@ -34,8 +34,8 @@ As I mentioned in a post a couple of weeks ago one of the main refactorings that
         <title> TDD: Testing sub classes &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="We ran into another interesting testing dilemma while refactoring the view model code which I described in an earlier post to the point where we have an abstract class and three sub classes which means that we now have 3 classes which did the same thing 80% of the time.
-As I mentioned in a post a couple of weeks ago one of the main refactorings that we did was to move some calls to dependency methods from the constructor and into properties so that those calls would only be made if necessary." />
+        <meta name="description" content="We ran into another interesting testing dilemma while refactoring the view model code which I described in an earlier post to the point where we have an abstract class and three sub classeswhich means that we now have 3 classes which did the same thing 80% of the time.
+As I mentioned in a post a couple of weeks agoone of the main refactorings that we did was to move some calls to dependency methods from the constructor and into properties so that those calls would only be made if necessary." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,9 +64,8 @@ As I mentioned in a post a couple of weeks ago one of the main refactorings that
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-09-13",
-        "description": "We ran into another interesting testing dilemma while refactoring the view model code which I described in an earlier post to the point where we have an abstract class and three sub classes which means that we now have 3 classes which did the same thing 80% of the time.
-As I mentioned in a post a couple of weeks ago one of the main refactorings that we did was to move some calls to dependency methods from the constructor and into properties so that those calls would only be made if necessary.",
-        "wordCount": 458
+        "description": "We ran into another interesting testing dilemma while refactoring the view model code which I described in an earlier post to the point where we have an abstract class and three sub classeswhich means that we now have 3 classes which did the same thing 80% of the time.\nAs I mentioned in a post a couple of weeks agoone of the main refactorings that we did was to move some calls to dependency methods from the constructor and into properties so that those calls would only be made if necessary.",
+        "wordCount":  455 
     }
     </script>
     
@@ -175,42 +174,30 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">TDD: Testing sub classes</h1>
-    <p>We ran into another interesting testing dilemma while <a href="http://www.markhneedham.com/blog/2009/09/13/coding-an-abstract-classasp-net-mvc-dilemma/">refactoring the view model code which I described in an earlier post to the point where we have an abstract class and three sub classes</a> which means that we now have 3 classes which did the same thing 80% of the time.</p>
-
-<p>As <a href="http://www.markhneedham.com/blog/2009/09/02/coding-reduce-fields-delay-calculations/">I mentioned in a post a couple of weeks ago</a> one of the main refactorings that we did was to move some calls to dependency methods from the constructor and into properties so that those calls would only be made if necessary.</p>
-
+    <p>We ran into another interesting testing dilemma while <!-- raw HTML omitted -->refactoring the view model code which I described in an earlier post to the point where we have an abstract class and three sub classes<!-- raw HTML omitted --> which means that we now have 3 classes which did the same thing 80% of the time.</p>
+<p>As <!-- raw HTML omitted -->I mentioned in a post a couple of weeks ago<!-- raw HTML omitted --> one of the main refactorings that we did was to move some calls to dependency methods from the constructor and into properties so that those calls would only be made if necessary.</p>
 <p>After we&rsquo;d done this the code looked a bit like this:</p>
-
-<pre><code class="language-csharp">
-public abstract class ParentModel
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ParentModel</span>
 {
-	private readonly Dependency1 dependency1;
+	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> Dependency1 dependency1;
 
 	...
 
-	public decimal Field1 { get { return dependency1.Calculation1(); } }
-	public decimal Field2 { get { return dependency1.Calculation2(); } }
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">decimal</span> Field1 { <span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> dependency1.Calculation1(); } }
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">decimal</span> Field2 { <span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> dependency1.Calculation2(); } }
 }
 
-public class BusinessProcess1Model : ParentModel { }
-public class BusinessProcess2Model : ParentModel { }
-public class BusinessProcess3Model : ParentModel { }
-</code></pre>
-
-<p>We wanted to ensure that the tests we had around this code made sure that the correct calls were made to &lsquo;depedency1&rsquo; but because ParentModel is an abstract class the only way that we can do this is by testing one of its sub classes.</p>
-
-<p>The question is <strong>should we test this behaviour in each of the sub classes and therefore effectively test the same thing three times or do we just test it via one of the sub classes and assume that&rsquo;s enough?</strong></p>
-
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BusinessProcess1Model</span> : ParentModel { }
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BusinessProcess2Model</span> : ParentModel { }
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BusinessProcess3Model</span> : ParentModel { }
+</code></pre></div><p>We wanted to ensure that the tests we had around this code made sure that the correct calls were made to &lsquo;depedency1&rsquo; but because ParentModel is an abstract class the only way that we can do this is by testing one of its sub classes.</p>
+<p>The question is <!-- raw HTML omitted -->should we test this behaviour in each of the sub classes and therefore effectively test the same thing three times or do we just test it via one of the sub classes and assume that&rsquo;s enough?<!-- raw HTML omitted --></p>
 <p>Neither of the options seems really great although if we cared only about behaviour then we would test each of the sub classes independently and forget that the abstract class even exists for testing purposes.</p>
-
 <p>While the logic behind this argument is quite solid we would end up breaking 3 tests if we needed to refactor our code to call another method on that dependency for example.</p>
-
 <p>I suppose that makes sense in a way since we have actually changed the behaviour of all those classes but it seems to me that we only really need to know from one failing test that we&rsquo;ve broken something and anything beyond that is a bit wasteful.</p>
-
 <p>In C# it&rsquo;s not actually possible for &lsquo;Field1&rsquo; or &lsquo;Field2&rsquo; to be overriden with an alternate implementation unless we defined those properties as &lsquo;virtual&rsquo; on the &lsquo;ParentModel&rsquo; which we haven&rsquo;t done.</p>
-
 <p>We could however use the &lsquo;new&rsquo; keyword to redefine what those properties do if the callee had a reference directly to the sub class instead of to the abstract class which means it is possible for a call to &lsquo;Field1&rsquo; to not call &lsquo;dependency1&rsquo; which means that maybe we do need to test each of them individually.</p>
-
 <p>I&rsquo;m not sure which approach I prefer, neither seems better than the other in my mind.</p>
 
     <div id="social-bar">
@@ -246,7 +233,7 @@ public class BusinessProcess3Model : ParentModel { }
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/09/13/tdd-testing-sub-classes/&amp;title=TDD%3a%20Testing%20sub%20classes&amp;summary=We%20ran%20into%20another%20interesting%20testing%20dilemma%20while%20refactoring%20the%20view%20model%20code%20which%20I%20described%20in%20an%20earlier%20post%20to%20the%20point%20where%20we%20have%20an%20abstract%20class%20and%20three%20sub%20classes%20which%20means%20that%20we%20now%20have%203%20classes%20which%20did%20the%20same%20thing%2080%25%20of%20the%20time.%0aAs%20I%20mentioned%20in%20a%20post%20a%20couple%20of%20weeks%20ago%20one%20of%20the%20main%20refactorings%20that%20we%20did%20was%20to%20move%20some%20calls%20to%20dependency%20methods%20from%20the%20constructor%20and%20into%20properties%20so%20that%20those%20calls%20would%20only%20be%20made%20if%20necessary...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/09/13/tdd-testing-sub-classes/&amp;title=TDD%3a%20Testing%20sub%20classes&amp;summary=We%20ran%20into%20another%20interesting%20testing%20dilemma%20while%20refactoring%20the%20view%20model%20code%20which%20I%20described%20in%20an%20earlier%20post%20to%20the%20point%20where%20we%20have%20an%20abstract%20class%20and%20three%20sub%20classeswhich%20means%20that%20we%20now%20have%203%20classes%20which%20did%20the%20same%20thing%2080%25%20of%20the%20time.%0aAs%20I%20mentioned%20in%20a%20post%20a%20couple%20of%20weeks%20agoone%20of%20the%20main%20refactorings%20that%20we%20did%20was%20to%20move%20some%20calls%20to%20dependency%20methods%20from%20the%20constructor%20and%20into%20properties%20so%20that%20those%20calls%20would%20only%20be%20made%20if%20necessary...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

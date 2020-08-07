@@ -66,10 +66,8 @@ Equally it didn&rsquo;t seem like we should be passing that dependency into the 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-02-26",
-        "description": "Recently we wanted to create a domain object which needed to have an external dependency in order to do a calculation and we wanted to be able to stub out that dependency in our tests.
-Originally we were just new&rsquo;ing up the dependency inside the domain class but that makes it impossible to control it&rsquo;s value in a test.
-Equally it didn&rsquo;t seem like we should be passing that dependency into the constructor of the domain object since it&rsquo;s not a piece of state which defines the object, just something that it uses.",
-        "wordCount": 233
+        "description": "Recently we wanted to create a domain object which needed to have an external dependency in order to do a calculation and we wanted to be able to stub out that dependency in our tests.\nOriginally we were just new\x26rsquo;ing up the dependency inside the domain class but that makes it impossible to control it\x26rsquo;s value in a test.\nEqually it didn\x26rsquo;t seem like we should be passing that dependency into the constructor of the domain object since it\x26rsquo;s not a piece of state which defines the object, just something that it uses.",
+        "wordCount":  233 
     }
     </script>
     
@@ -179,58 +177,49 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Java: Faking a closure with a factory to create a domain object</h1>
     <p>Recently we wanted to create a domain object which needed to have an external dependency in order to do a calculation and we wanted to be able to stub out that dependency in our tests.</p>
-
 <p>Originally we were just new&rsquo;ing up the dependency inside the domain class but that makes it impossible to control it&rsquo;s value in a test.</p>
-
 <p>Equally it didn&rsquo;t seem like we should be passing that dependency into the constructor of the domain object since it&rsquo;s not a piece of state which defines the object, just something that it uses.</p>
-
 <p>We ended up with something similar to the following code where we have our domain object as an inner class:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FooFactory</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> RandomService randomService<span style="color:#f92672">;</span>
 
-<pre><code class="language-java">
-public class FooFactory {
-    private final RandomService randomService;
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">FooFactory</span><span style="color:#f92672">(</span>RandomService randomService<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">randomService</span> <span style="color:#f92672">=</span> randomService<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
 
-    public FooFactory(RandomService randomService) {
-        this.randomService = randomService;
-    }
+    <span style="color:#66d9ef">public</span> Foo <span style="color:#a6e22e">createFoo</span><span style="color:#f92672">(</span>String bar<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> baz<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Foo<span style="color:#f92672">(</span>bar<span style="color:#f92672">,</span> baz<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
 
-    public Foo createFoo(String bar, int baz) {
-        return new Foo(bar, baz);
-    }
+    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">private</span> String bar<span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> baz<span style="color:#f92672">;</span>
 
-    class Foo {
-        private String bar;
-        private int baz;
+        <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Foo</span><span style="color:#f92672">(</span>String bar<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> baz<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">bar</span> <span style="color:#f92672">=</span> bar<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">baz</span> <span style="color:#f92672">=</span> baz<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
 
-        public Foo(String bar, int baz) {
-            this.bar = bar;
-            this.baz = baz;
-        }
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">awesomeStuff</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">int</span> random <span style="color:#f92672">=</span> randomService<span style="color:#f92672">.</span><span style="color:#a6e22e">random</span><span style="color:#f92672">(</span>bar<span style="color:#f92672">,</span> baz<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">return</span> random <span style="color:#f92672">*</span> 3<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>A test on that code could then read like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FooFactoryTest</span> <span style="color:#f92672">{</span>
+    <span style="color:#a6e22e">@Test</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">createsAFoo</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        RandomService randomService <span style="color:#f92672">=</span> mock<span style="color:#f92672">(</span>RandomService<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        when<span style="color:#f92672">(</span>randomService<span style="color:#f92672">.</span><span style="color:#a6e22e">random</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;bar&#34;</span><span style="color:#f92672">,</span> 12<span style="color:#f92672">)).</span><span style="color:#a6e22e">thenReturn</span><span style="color:#f92672">(</span>13<span style="color:#f92672">);</span>
 
-        public int awesomeStuff() {
-            int random = randomService.random(bar, baz);
-            return random * 3;
-        }
-    }
-}
-</code></pre>
-
-<p>A test on that code could then read like this:</p>
-
-<pre><code class="language-java">
-public class FooFactoryTest {
-    @Test
-    public void createsAFoo() {
-        RandomService randomService = mock(RandomService.class);
-        when(randomService.random(&quot;bar&quot;, 12)).thenReturn(13);
-
-        FooFactory.Foo foo = new FooFactory(randomService).createFoo(&quot;bar&quot;, 12);
-        assertThat(foo.awesomeStuff(), equalTo(39));
-    }
-}
-</code></pre>
-
-<p>It&rsquo;s a bit of a verbose way of getting around the problem but it seems to work reasonably well.</p>
+        FooFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">Foo</span> foo <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FooFactory<span style="color:#f92672">(</span>randomService<span style="color:#f92672">).</span><span style="color:#a6e22e">createFoo</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;bar&#34;</span><span style="color:#f92672">,</span> 12<span style="color:#f92672">);</span>
+        assertThat<span style="color:#f92672">(</span>foo<span style="color:#f92672">.</span><span style="color:#a6e22e">awesomeStuff</span><span style="color:#f92672">(),</span> equalTo<span style="color:#f92672">(</span>39<span style="color:#f92672">));</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>It&rsquo;s a bit of a verbose way of getting around the problem but it seems to work reasonably well.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">

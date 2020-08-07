@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Word Count using a Dictionary" />
         
-          <meta name="twitter:description" content="Having spent some time unsuccessfully trying to make my F# attempt at the word count problem work I decided to follow the lead of the other examples I&rsquo;ve read and make use of a Dictionary to keep count of the words.
+          <meta name="twitter:description" content="Having spent some time unsuccessfully trying to make my F# attempt at the word count problemwork I decided to follow the lead of the other examples I&rsquo;ve read and make use of a Dictionary to keep count of the words.
 I originally thought that I might be having a problem with the downloading of the files and storing of those strings in memory so I tried to change that bit of code to be lazily evaluated:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/12/20/f-word-count-using-a-dictionary/" />
@@ -34,7 +34,7 @@ I originally thought that I might be having a problem with the downloading of th
         <title> F#: Word Count using a Dictionary &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Having spent some time unsuccessfully trying to make my F# attempt at the word count problem work I decided to follow the lead of the other examples I&rsquo;ve read and make use of a Dictionary to keep count of the words.
+        <meta name="description" content="Having spent some time unsuccessfully trying to make my F# attempt at the word count problemwork I decided to follow the lead of the other examples I&rsquo;ve read and make use of a Dictionary to keep count of the words.
 I originally thought that I might be having a problem with the downloading of the files and storing of those strings in memory so I tried to change that bit of code to be lazily evaluated:" />
     
 
@@ -64,9 +64,8 @@ I originally thought that I might be having a problem with the downloading of th
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-12-20",
-        "description": "Having spent some time unsuccessfully trying to make my F# attempt at the word count problem work I decided to follow the lead of the other examples I&rsquo;ve read and make use of a Dictionary to keep count of the words.
-I originally thought that I might be having a problem with the downloading of the files and storing of those strings in memory so I tried to change that bit of code to be lazily evaluated:",
-        "wordCount": 612
+        "description": "Having spent some time unsuccessfully trying to make my F# attempt at the word count problemwork I decided to follow the lead of the other examples I\x26rsquo;ve read and make use of a Dictionary to keep count of the words.\nI originally thought that I might be having a problem with the downloading of the files and storing of those strings in memory so I tried to change that bit of code to be lazily evaluated:",
+        "wordCount":  610 
     }
     </script>
     
@@ -175,81 +174,66 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Word Count using a Dictionary</h1>
-    <p>Having spent some time unsuccessfully trying to make <a href="http://www.markhneedham.com/blog/2009/12/18/f-word-count-a-somewhat-failed-attempt/">my F# attempt at the word count problem</a> work I decided to follow the lead of the other examples I&rsquo;ve read and make use of a Dictionary to keep count of the words.</p>
-
+    <p>Having spent some time unsuccessfully trying to make <!-- raw HTML omitted -->my F# attempt at the word count problem<!-- raw HTML omitted --> work I decided to follow the lead of the other examples I&rsquo;ve read and make use of a Dictionary to keep count of the words.</p>
 <p>I originally thought that I might be having a problem with the downloading of the files and storing of those strings in memory so I tried to change that bit of code to be lazily evaluated:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">let</span> downloadFile path <span style="color:#f92672">=</span> 
+    <span style="color:#66d9ef">lazy</span><span style="color:#f92672">(</span>use streamReader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">StreamReader</span><span style="color:#f92672">(</span>File.<span style="color:#a6e22e">OpenRead</span> path<span style="color:#f92672">)</span>
+    streamReader<span style="color:#f92672">.</span><span style="color:#a6e22e">ReadToEnd</span>()<span style="color:#f92672">)</span>   
+</code></pre></div><p>That didn&rsquo;t seem to make much difference though and it seemed like the StackOverflowException was happening on the &lsquo;List.fold&rsquo; line:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#66d9ef">let</span> wordCount <span style="color:#f92672">=</span> files <span style="color:#f92672">&gt;&gt;</span> 
+                List.map downloadFile <span style="color:#f92672">&gt;&gt;</span>
+                List.map words <span style="color:#f92672">&gt;&gt;</span>
+                List.fold <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> acc x <span style="color:#f92672">-&gt;</span> Seq.append acc x<span style="color:#f92672">)</span> Seq.empty <span style="color:#f92672">&gt;&gt;</span> 
+                Seq.groupBy <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">)</span> <span style="color:#f92672">&gt;&gt;</span> 
+                Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">,</span> sequence<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">,</span> Seq.length sequence<span style="color:#f92672">))</span>
+</code></pre></div><p>I couldn&rsquo;t see a way of changing the solution such that the current approach wouldn&rsquo;t need that line so I rewrote part of it ending up with the following solution:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
+<span style="color:#f92672">#</span>light
+<span style="color:#f92672">#</span>r <span style="color:#e6db74">&#34;FSharp.PowerPack&#34;</span>
+<span style="color:#66d9ef">open</span> <span style="color:#a6e22e">System</span>
+<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">IO</span>
+<span style="color:#66d9ef">open</span> System.Text.<span style="color:#a6e22e">RegularExpressions</span>
+<span style="color:#66d9ef">open</span> System.Collections.<span style="color:#a6e22e">Generic</span>
 
-<pre><code class="language-ocaml">
-let downloadFile path = 
-    lazy(use streamReader = new StreamReader(File.OpenRead path)
-    streamReader.ReadToEnd())   
-</code></pre>
-
-<p>That didn&rsquo;t seem to make much difference though and it seemed like the StackOverflowException was happening on the &lsquo;List.fold&rsquo; line:</p>
-
-<pre><code class="language-ocaml">
-let wordCount = files &gt;&gt; 
-                List.map downloadFile &gt;&gt;
-                List.map words &gt;&gt;
-                List.fold (fun acc x -&gt; Seq.append acc x) Seq.empty &gt;&gt; 
-                Seq.groupBy (fun x -&gt; x) &gt;&gt; 
-                Seq.map (fun (value, sequence) -&gt; (value, Seq.length sequence))
-</code></pre>
-
-<p>I couldn&rsquo;t see a way of changing the solution such that the current approach wouldn&rsquo;t need that line so I rewrote part of it ending up with the following solution:</p>
-
-<pre><code class="language-ocaml">
-#light
-#r &quot;FSharp.PowerPack&quot;
-open System
-open System.IO
-open System.Text.RegularExpressions
-open System.Collections.Generic
-
-let (|File|Directory|) path = if(Directory.Exists path) then Directory(path) else File(path)
-let getFileSystemEntries path = Directory.GetFileSystemEntries path |&gt; Array.to_list
+<span style="color:#66d9ef">let</span> <span style="color:#f92672">(|</span><span style="color:#a6e22e">File</span><span style="color:#f92672">|</span><span style="color:#a6e22e">Directory</span><span style="color:#f92672">|)</span> path <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>Directory.<span style="color:#a6e22e">Exists</span> path<span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span> <span style="color:#a6e22e">Directory</span><span style="color:#f92672">(</span>path<span style="color:#f92672">)</span> <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">File</span><span style="color:#f92672">(</span>path<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">let</span> getFileSystemEntries path <span style="color:#f92672">=</span> Directory.<span style="color:#a6e22e">GetFileSystemEntries</span> path <span style="color:#f92672">|&gt;</span> Array.to_list
  
-let files path = 
-    let rec inner fileSystemEntries files =
-        match fileSystemEntries with
-            | [] -&gt; files
-            | File path :: rest -&gt; inner rest (path :: files)  
-            | Directory path :: rest -&gt; inner (List.append rest (getFileSystemEntries path)) files  
-    inner (getFileSystemEntries path) []
+<span style="color:#66d9ef">let</span> files path <span style="color:#f92672">=</span> 
+    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">rec</span> inner fileSystemEntries files <span style="color:#f92672">=</span>
+        <span style="color:#66d9ef">match</span> fileSystemEntries <span style="color:#66d9ef">with</span>
+            <span style="color:#f92672">|</span> [] <span style="color:#f92672">-&gt;</span> files
+            <span style="color:#f92672">|</span> <span style="color:#a6e22e">File</span> path <span style="color:#f92672">::</span> rest <span style="color:#f92672">-&gt;</span> inner rest <span style="color:#f92672">(</span>path <span style="color:#f92672">::</span> files<span style="color:#f92672">)</span>  
+            <span style="color:#f92672">|</span> <span style="color:#a6e22e">Directory</span> path <span style="color:#f92672">::</span> rest <span style="color:#f92672">-&gt;</span> inner <span style="color:#f92672">(</span>List.append rest <span style="color:#f92672">(</span>getFileSystemEntries path<span style="color:#f92672">))</span> files  
+    inner <span style="color:#f92672">(</span>getFileSystemEntries path<span style="color:#f92672">)</span> []
  
-let download path = using (new StreamReader(File.OpenRead path)) (fun reader -&gt; reader.ReadToEnd())
-let writeTo (path:string) f = using (new StreamWriter(path)) (fun writer -&gt; f writer)
+<span style="color:#66d9ef">let</span> download path <span style="color:#f92672">=</span> using <span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> <span style="color:#a6e22e">StreamReader</span><span style="color:#f92672">(</span>File.<span style="color:#a6e22e">OpenRead</span> path<span style="color:#f92672">))</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> reader <span style="color:#f92672">-&gt;</span> reader<span style="color:#f92672">.</span><span style="color:#a6e22e">ReadToEnd</span>()<span style="color:#f92672">)</span>
+<span style="color:#66d9ef">let</span> writeTo <span style="color:#f92672">(</span>path<span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> f <span style="color:#f92672">=</span> using <span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> <span style="color:#a6e22e">StreamWriter</span><span style="color:#f92672">(</span>path<span style="color:#f92672">))</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> writer <span style="color:#f92672">-&gt;</span> f writer<span style="color:#f92672">)</span>
 
-let words input = Regex.Matches(input, &quot;\w+&quot;) |&gt; Seq.cast |&gt; Seq.map (fun (x:Match) -&gt; x.Value.ToLower()) 
-let apply (dict:Dictionary&lt;string,int&gt;) key f = if(dict.ContainsKey(key)) then dict.[key] &lt;- f dict.[key] else dict.[key] &lt;- f 0
+<span style="color:#66d9ef">let</span> words input <span style="color:#f92672">=</span> Regex.<span style="color:#a6e22e">Matches</span><span style="color:#f92672">(</span>input<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">w+&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Seq.cast <span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">:</span><span style="color:#a6e22e">Match</span><span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span>Value.<span style="color:#a6e22e">ToLower</span>()<span style="color:#f92672">)</span> 
+<span style="color:#66d9ef">let</span> apply <span style="color:#f92672">(</span>dict<span style="color:#f92672">:</span><span style="color:#a6e22e">Dictionary</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">string</span><span style="color:#f92672">,</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;)</span> key f <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>dict<span style="color:#f92672">.</span><span style="color:#a6e22e">ContainsKey</span><span style="color:#f92672">(</span>key<span style="color:#f92672">))</span> <span style="color:#66d9ef">then</span> dict<span style="color:#f92672">.[</span>key<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;-</span> f dict<span style="color:#f92672">.[</span>key<span style="color:#f92672">]</span> <span style="color:#66d9ef">else</span> dict<span style="color:#f92672">.[</span>key<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;-</span> f 0
  
-let startTime = DateTime.Now
-let dict = new Dictionary&lt;string, int&gt;()
+<span style="color:#66d9ef">let</span> startTime <span style="color:#f92672">=</span> DateTime.<span style="color:#a6e22e">Now</span>
+<span style="color:#66d9ef">let</span> dict <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Dictionary</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">string</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>()
 
-files &quot;Z:\\20_newsgroups&quot; |&gt; List.iter (fun file -&gt; download file |&gt; words |&gt; Seq.iter (fun word -&gt; apply dict word ((+) 1) )) 
+files <span style="color:#e6db74">&#34;Z:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">20_newsgroups&#34;</span> <span style="color:#f92672">|&gt;</span> List.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> file <span style="color:#f92672">-&gt;</span> download file <span style="color:#f92672">|&gt;</span> words <span style="color:#f92672">|&gt;</span> Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> word <span style="color:#f92672">-&gt;</span> apply dict word <span style="color:#f92672">((+)</span> 1<span style="color:#f92672">)</span> <span style="color:#f92672">))</span> 
 
-printfn &quot;Writing counts in alphabetical order&quot;
-writeTo &quot;C:\\results\\counts-alphabetical-fsharp.txt&quot; (fun out -&gt; 
-    dict |&gt; Seq.sortBy (fun x -&gt; x.Key) |&gt; Seq.iter (fun entry -&gt; out.WriteLine(entry.Key + &quot; &quot; + entry.Value.ToString())))
+printfn <span style="color:#e6db74">&#34;Writing counts in alphabetical order&#34;</span>
+writeTo <span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">results</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">counts-alphabetical-fsharp.txt&#34;</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> out <span style="color:#f92672">-&gt;</span> 
+    dict <span style="color:#f92672">|&gt;</span> Seq.sortBy <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Key</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> entry <span style="color:#f92672">-&gt;</span> out<span style="color:#f92672">.</span><span style="color:#a6e22e">WriteLine</span><span style="color:#f92672">(</span>entry<span style="color:#f92672">.</span><span style="color:#a6e22e">Key</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">+</span> entry<span style="color:#f92672">.</span>Value.<span style="color:#a6e22e">ToString</span>()<span style="color:#f92672">)))</span>
  
-printfn &quot;Writing counts in descending order&quot;
-writeTo &quot;C:\\results\\counts-descending-fsharp.txt&quot; (fun out -&gt; 
-    dict |&gt; Seq.sortBy (fun x -&gt; x.Value * -1) |&gt; Seq.iter (fun entry -&gt; out.WriteLine(entry.Key + &quot; &quot; + entry.Value.ToString())))
+printfn <span style="color:#e6db74">&#34;Writing counts in descending order&#34;</span>
+writeTo <span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">results</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">counts-descending-fsharp.txt&#34;</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> out <span style="color:#f92672">-&gt;</span> 
+    dict <span style="color:#f92672">|&gt;</span> Seq.sortBy <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">*</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> entry <span style="color:#f92672">-&gt;</span> out<span style="color:#f92672">.</span><span style="color:#a6e22e">WriteLine</span><span style="color:#f92672">(</span>entry<span style="color:#f92672">.</span><span style="color:#a6e22e">Key</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">+</span> entry<span style="color:#f92672">.</span>Value.<span style="color:#a6e22e">ToString</span>()<span style="color:#f92672">)))</span>
  
-let endTime = DateTime.Now
-printfn &quot;Finished in: %d seconds&quot; (endTime - startTime  ).Seconds
-</code></pre>
-
-<p>As I wrote about previously I found out that I could use the &lsquo;using&rsquo; function instead of the &lsquo;use&rsquo; keyword with the &lsquo;StreamWriter&rsquo; and &lsquo;StreamReader&rsquo; so those bits of code are a bit simplified.</p>
-
+<span style="color:#66d9ef">let</span> endTime <span style="color:#f92672">=</span> DateTime.<span style="color:#a6e22e">Now</span>
+printfn <span style="color:#e6db74">&#34;Finished in: %d seconds&#34;</span> <span style="color:#f92672">(</span>endTime <span style="color:#f92672">-</span> startTime  <span style="color:#f92672">).</span><span style="color:#a6e22e">Seconds</span>
+</code></pre></div><p>As I wrote about previously I found out that I could use the &lsquo;using&rsquo; function instead of the &lsquo;use&rsquo; keyword with the &lsquo;StreamWriter&rsquo; and &lsquo;StreamReader&rsquo; so those bits of code are a bit simplified.</p>
 <p>The way of interacting with dictionaries in F# doesn&rsquo;t seem as nice as in Ruby so I&rsquo;ve ended up with the somewhat verbose bit of code on line 23. Is there a cleaner way of doing that?</p>
-
 <p>By using a Dictionary I think it&rsquo;s now more difficult to parallelise the counting up of the words which was something I thought might be possible when I first came across the problem.</p>
-
-<p>This seems like the perfect problem for the <a href="http://en.wikipedia.org/wiki/MapReduce">MapReduce</a> approach although I&rsquo;m not quite sure about the implementation details.</p>
-
+<p>This seems like the perfect problem for the <!-- raw HTML omitted -->MapReduce<!-- raw HTML omitted --> approach although I&rsquo;m not quite sure about the implementation details.</p>
 <p>My thinking is that we&rsquo;d have a Dictionary for each node/actor and it would sum up the words in its file before passing the result to another actor which would be responsible for taking all the dictionaries and accumulating the word counts?</p>
-
 <p>This was an interesting problem for showing what happens if you try to store too much data in memory and it&rsquo;s something that I&rsquo;ve not come across before because I don&rsquo;t typically work with data sets that are this big.</p>
 
     <div id="social-bar">
@@ -285,7 +269,7 @@ printfn &quot;Finished in: %d seconds&quot; (endTime - startTime  ).Seconds
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/12/20/f-word-count-using-a-dictionary/&amp;title=F%23%3a%20Word%20Count%20using%20a%20Dictionary&amp;summary=Having%20spent%20some%20time%20unsuccessfully%20trying%20to%20make%20my%20F%23%20attempt%20at%20the%20word%20count%20problem%20work%20I%20decided%20to%20follow%20the%20lead%20of%20the%20other%20examples%20I%26rsquo%3bve%20read%20and%20make%20use%20of%20a%20Dictionary%20to%20keep%20count%20of%20the%20words.%0aI%20originally%20thought%20that%20I%20might%20be%20having%20a%20problem%20with%20the%20downloading%20of%20the%20files%20and%20storing%20of%20those%20strings%20in%20memory%20so%20I%20tried%20to%20change%20that%20bit%20of%20code%20to%20be%20lazily%20evaluated%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/12/20/f-word-count-using-a-dictionary/&amp;title=F%23%3a%20Word%20Count%20using%20a%20Dictionary&amp;summary=Having%20spent%20some%20time%20unsuccessfully%20trying%20to%20make%20my%20F%23%20attempt%20at%20the%20word%20count%20problemwork%20I%20decided%20to%20follow%20the%20lead%20of%20the%20other%20examples%20I%26rsquo%3bve%20read%20and%20make%20use%20of%20a%20Dictionary%20to%20keep%20count%20of%20the%20words.%0aI%20originally%20thought%20that%20I%20might%20be%20having%20a%20problem%20with%20the%20downloading%20of%20the%20files%20and%20storing%20of%20those%20strings%20in%20memory%20so%20I%20tried%20to%20change%20that%20bit%20of%20code%20to%20be%20lazily%20evaluated%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

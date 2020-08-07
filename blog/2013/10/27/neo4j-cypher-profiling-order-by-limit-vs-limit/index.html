@@ -22,8 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Cypher - Profiling ORDER BY LIMIT vs LIMIT" />
         
-          <meta name="twitter:description" content="Something I&#39;ve seen people get confused by when writing queries using Neo4j&#39;s cypher query language is the sometimes significant difference in query execution time when using &#39;LIMIT&#39; on its own compared to using it in combination with &#39;ORDER BY&#39;.
-The confusion is centred around the fact that at first glance it seems like the only thing different between these queries is the sorting of the rows but there&#39;s actually more to it." />
+          <meta name="twitter:description" content="$ MATCH n RETURN COUNT(n); ==&gt; &#43;----------&#43; ==&gt; | COUNT(n) | ==&gt; &#43;----------&#43; ==&gt; | 11442 | ==&gt; &#43;----------&#43; ==&gt; 1 row ==&gt; 1384 ms $ MATCH n RETURN n LIMIT 5; ==&gt; &#43;-------------------------------------------&#43; ==&gt; | n | ==&gt; &#43;-------------------------------------------&#43; ==&gt; | Node[0]{} | ==&gt; | Node[1]{name:&#34;Africa&#34;,node_id:&#34;1&#34;} | ==&gt; | Node[2]{name:&#34;Asia&#34;,node_id:&#34;2&#34;} | ==&gt; | Node[3]{name:&#34;Europe&#34;,node_id:&#34;3&#34;} | ==&gt; | Node[4]{name:&#34;North America&#34;,node_id:&#34;4&#34;} | ==&gt; &#43;-------------------------------------------&#43; ==&gt; 5 rows ==&gt; 38 ms $ MATCH n RETURN n ORDER BY ID(n) LIMIT 5; ==&gt; &#43;-------------------------------------------&#43; ==&gt; | n | ==&gt; &#43;-------------------------------------------&#43; ==&gt; | Node[0]{} | ==&gt; | Node[1]{name:&#34;Africa&#34;,node_id:&#34;1&#34;} | ==&gt; | Node[2]{name:&#34;Asia&#34;,node_id:&#34;2&#34;} | ==&gt; | Node[3]{name:&#34;Europe&#34;,node_id:&#34;3&#34;} | ==&gt; | Node[4]{name:&#34;North America&#34;,node_id:&#34;4&#34;} | ==&gt; &#43;-------------------------------------------&#43; ==&gt; 5 rows ==&gt; 157 ms $ PROFILE MATCH n RETURN n ORDER BY ID(n) LIMIT 5; ==&gt; ColumnFilter(symKeys=[&#34;n&#34;, &#34; UNNAMEDS1215244997&#34;], returnItemNames=[&#34;n&#34;], _rows=5, _db_hits=0) ==&gt; Top(orderBy=[&#34;SortItem(Cached( UNNAMEDS1215244997 of type Long),true)&#34;], limit=&#34;Literal(5)&#34;, _rows=5, _db_hits=0) ==&gt; Extract(symKeys=[&#34;n&#34;], exprKeys=[&#34; UNNAMEDS1215244997&#34;], _rows=11442, _db_hits=0) ==&gt; AllNodes(identifier=&#34;n&#34;, _rows=11442, _db_hits=11442) if (input." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/10/27/neo4j-cypher-profiling-order-by-limit-vs-limit/" />
 
@@ -34,8 +33,7 @@ The confusion is centred around the fact that at first glance it seems like the 
         <title> Neo4j: Cypher - Profiling ORDER BY LIMIT vs LIMIT &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Something I&#39;ve seen people get confused by when writing queries using Neo4j&#39;s cypher query language is the sometimes significant difference in query execution time when using &#39;LIMIT&#39; on its own compared to using it in combination with &#39;ORDER BY&#39;.
-The confusion is centred around the fact that at first glance it seems like the only thing different between these queries is the sorting of the rows but there&#39;s actually more to it." />
+        <meta name="description" content="$ MATCH n RETURN COUNT(n); ==&gt; &#43;----------&#43; ==&gt; | COUNT(n) | ==&gt; &#43;----------&#43; ==&gt; | 11442 | ==&gt; &#43;----------&#43; ==&gt; 1 row ==&gt; 1384 ms $ MATCH n RETURN n LIMIT 5; ==&gt; &#43;-------------------------------------------&#43; ==&gt; | n | ==&gt; &#43;-------------------------------------------&#43; ==&gt; | Node[0]{} | ==&gt; | Node[1]{name:&#34;Africa&#34;,node_id:&#34;1&#34;} | ==&gt; | Node[2]{name:&#34;Asia&#34;,node_id:&#34;2&#34;} | ==&gt; | Node[3]{name:&#34;Europe&#34;,node_id:&#34;3&#34;} | ==&gt; | Node[4]{name:&#34;North America&#34;,node_id:&#34;4&#34;} | ==&gt; &#43;-------------------------------------------&#43; ==&gt; 5 rows ==&gt; 38 ms $ MATCH n RETURN n ORDER BY ID(n) LIMIT 5; ==&gt; &#43;-------------------------------------------&#43; ==&gt; | n | ==&gt; &#43;-------------------------------------------&#43; ==&gt; | Node[0]{} | ==&gt; | Node[1]{name:&#34;Africa&#34;,node_id:&#34;1&#34;} | ==&gt; | Node[2]{name:&#34;Asia&#34;,node_id:&#34;2&#34;} | ==&gt; | Node[3]{name:&#34;Europe&#34;,node_id:&#34;3&#34;} | ==&gt; | Node[4]{name:&#34;North America&#34;,node_id:&#34;4&#34;} | ==&gt; &#43;-------------------------------------------&#43; ==&gt; 5 rows ==&gt; 157 ms $ PROFILE MATCH n RETURN n ORDER BY ID(n) LIMIT 5; ==&gt; ColumnFilter(symKeys=[&#34;n&#34;, &#34; UNNAMEDS1215244997&#34;], returnItemNames=[&#34;n&#34;], _rows=5, _db_hits=0) ==&gt; Top(orderBy=[&#34;SortItem(Cached( UNNAMEDS1215244997 of type Long),true)&#34;], limit=&#34;Literal(5)&#34;, _rows=5, _db_hits=0) ==&gt; Extract(symKeys=[&#34;n&#34;], exprKeys=[&#34; UNNAMEDS1215244997&#34;], _rows=11442, _db_hits=0) ==&gt; AllNodes(identifier=&#34;n&#34;, _rows=11442, _db_hits=11442) if (input." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,9 +62,8 @@ The confusion is centred around the fact that at first glance it seems like the 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-10-27",
-        "description": "Something I've seen people get confused by when writing queries using Neo4j's cypher query language is the sometimes significant difference in query execution time when using 'LIMIT' on its own compared to using it in combination with 'ORDER BY'.
-The confusion is centred around the fact that at first glance it seems like the only thing different between these queries is the sorting of the rows but there's actually more to it.",
-        "wordCount": 597
+        "description": "$ MATCH n RETURN COUNT(n); ==\x26gt; \x2b----------\x2b ==\x26gt; | COUNT(n) | ==\x26gt; \x2b----------\x2b ==\x26gt; | 11442 | ==\x26gt; \x2b----------\x2b ==\x26gt; 1 row ==\x26gt; 1384 ms $ MATCH n RETURN n LIMIT 5; ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; | n | ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; | Node[0]{} | ==\x26gt; | Node[1]{name:\x26#34;Africa\x26#34;,node_id:\x26#34;1\x26#34;} | ==\x26gt; | Node[2]{name:\x26#34;Asia\x26#34;,node_id:\x26#34;2\x26#34;} | ==\x26gt; | Node[3]{name:\x26#34;Europe\x26#34;,node_id:\x26#34;3\x26#34;} | ==\x26gt; | Node[4]{name:\x26#34;North America\x26#34;,node_id:\x26#34;4\x26#34;} | ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; 5 rows ==\x26gt; 38 ms $ MATCH n RETURN n ORDER BY ID(n) LIMIT 5; ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; | n | ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; | Node[0]{} | ==\x26gt; | Node[1]{name:\x26#34;Africa\x26#34;,node_id:\x26#34;1\x26#34;} | ==\x26gt; | Node[2]{name:\x26#34;Asia\x26#34;,node_id:\x26#34;2\x26#34;} | ==\x26gt; | Node[3]{name:\x26#34;Europe\x26#34;,node_id:\x26#34;3\x26#34;} | ==\x26gt; | Node[4]{name:\x26#34;North America\x26#34;,node_id:\x26#34;4\x26#34;} | ==\x26gt; \x2b-------------------------------------------\x2b ==\x26gt; 5 rows ==\x26gt; 157 ms $ PROFILE MATCH n RETURN n ORDER BY ID(n) LIMIT 5; ==\x26gt; ColumnFilter(symKeys=[\x26#34;n\x26#34;, \x26#34; UNNAMEDS1215244997\x26#34;], returnItemNames=[\x26#34;n\x26#34;], _rows=5, _db_hits=0) ==\x26gt; Top(orderBy=[\x26#34;SortItem(Cached( UNNAMEDS1215244997 of type Long),true)\x26#34;], limit=\x26#34;Literal(5)\x26#34;, _rows=5, _db_hits=0) ==\x26gt; Extract(symKeys=[\x26#34;n\x26#34;], exprKeys=[\x26#34; UNNAMEDS1215244997\x26#34;], _rows=11442, _db_hits=0) ==\x26gt; AllNodes(identifier=\x26#34;n\x26#34;, _rows=11442, _db_hits=11442) if (input.",
+        "wordCount":  318 
     }
     </script>
     
@@ -175,132 +172,107 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Profiling ORDER BY LIMIT vs LIMIT</h1>
-    <p>Something I've seen people get confused by when writing queries using Neo4j's cypher query language is the sometimes significant difference in query execution time when using 'LIMIT' on its own compared to using it in combination with 'ORDER BY'.</p>
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ MATCH n RETURN COUNT<span style="color:#f92672">(</span>n<span style="color:#f92672">)</span>;
 
-<p>The confusion is centred around the fact that at first glance it seems like the only thing different between these queries is the sorting of the rows but there's actually more to it.</p>
-
-<p>For example given a small graph with ~ 11,000 nodes...</p>
-
-<pre><code class="language-bash">
-$ MATCH n RETURN COUNT(n);
-
-==&gt; +----------+
-==&gt; | COUNT(n) |
-==&gt; +----------+
-==&gt; | 11442    |
-==&gt; +----------+
-==&gt; 1 row
-==&gt; 1384 ms
-</code></pre>
-
-<p>...we can return 5 random nodes really quickly with the following query:</p>
-
-<pre><code class="language-bash">
+<span style="color:#f92672">==</span>&gt; +----------+
+<span style="color:#f92672">==</span>&gt; | COUNT<span style="color:#f92672">(</span>n<span style="color:#f92672">)</span> |
+<span style="color:#f92672">==</span>&gt; +----------+
+<span style="color:#f92672">==</span>&gt; | <span style="color:#ae81ff">11442</span>    |
+<span style="color:#f92672">==</span>&gt; +----------+
+<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">1</span> row
+<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">1384</span> ms
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ MATCH n RETURN n LIMIT 5;
 
-==&gt; +-------------------------------------------+
-==&gt; | n                                         |
-==&gt; +-------------------------------------------+
-==&gt; | Node[0]{}                                 |
-==&gt; | Node[1]{name:&quot;Africa&quot;,node_id:&quot;1&quot;}        |
-==&gt; | Node[2]{name:&quot;Asia&quot;,node_id:&quot;2&quot;}          |
-==&gt; | Node[3]{name:&quot;Europe&quot;,node_id:&quot;3&quot;}        |
-==&gt; | Node[4]{name:&quot;North America&quot;,node_id:&quot;4&quot;} |
-==&gt; +-------------------------------------------+
-==&gt; 5 rows
-==&gt; 38 ms
-</code></pre>
+<span style="color:#f92672">==</span>&gt; +-------------------------------------------+
+<span style="color:#f92672">==</span>&gt; | n                                         |
+<span style="color:#f92672">==</span>&gt; +-------------------------------------------+
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>0<span style="color:#f92672">]{}</span>                                 |
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>1<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;Africa&#34;</span>,node_id:<span style="color:#e6db74">&#34;1&#34;</span><span style="color:#f92672">}</span>        |
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>2<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;Asia&#34;</span>,node_id:<span style="color:#e6db74">&#34;2&#34;</span><span style="color:#f92672">}</span>          |
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>3<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;Europe&#34;</span>,node_id:<span style="color:#e6db74">&#34;3&#34;</span><span style="color:#f92672">}</span>        |
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>4<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;North America&#34;</span>,node_id:<span style="color:#e6db74">&#34;4&#34;</span><span style="color:#f92672">}</span> |
+<span style="color:#f92672">==</span>&gt; +-------------------------------------------+
+<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">5</span> rows
+<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">38</span> ms
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ MATCH n RETURN n ORDER BY ID<span style="color:#f92672">(</span>n<span style="color:#f92672">)</span> LIMIT 5;
+<span style="color:#f92672">==</span>&gt; +-------------------------------------------+
+<span style="color:#f92672">==</span>&gt; | n                                         |
+<span style="color:#f92672">==</span>&gt; +-------------------------------------------+
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>0<span style="color:#f92672">]{}</span>                                 |
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>1<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;Africa&#34;</span>,node_id:<span style="color:#e6db74">&#34;1&#34;</span><span style="color:#f92672">}</span>        |
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>2<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;Asia&#34;</span>,node_id:<span style="color:#e6db74">&#34;2&#34;</span><span style="color:#f92672">}</span>          |
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>3<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;Europe&#34;</span>,node_id:<span style="color:#e6db74">&#34;3&#34;</span><span style="color:#f92672">}</span>        |
+<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>4<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;North America&#34;</span>,node_id:<span style="color:#e6db74">&#34;4&#34;</span><span style="color:#f92672">}</span> |
+<span style="color:#f92672">==</span>&gt; +-------------------------------------------+
+<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">5</span> rows
+<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">157</span> ms
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
+$ PROFILE MATCH n RETURN n ORDER BY ID<span style="color:#f92672">(</span>n<span style="color:#f92672">)</span> LIMIT 5;
 
-<p>However, if we order those nodes by ID first then it'll take a bit longer:</p>
+<span style="color:#f92672">==</span>&gt; ColumnFilter<span style="color:#f92672">(</span>symKeys<span style="color:#f92672">=[</span><span style="color:#e6db74">&#34;n&#34;</span>, <span style="color:#e6db74">&#34;  UNNAMEDS1215244997&#34;</span><span style="color:#f92672">]</span>, returnItemNames<span style="color:#f92672">=[</span><span style="color:#e6db74">&#34;n&#34;</span><span style="color:#f92672">]</span>, _rows<span style="color:#f92672">=</span>5, _db_hits<span style="color:#f92672">=</span>0<span style="color:#f92672">)</span>
+<span style="color:#f92672">==</span>&gt; Top<span style="color:#f92672">(</span>orderBy<span style="color:#f92672">=[</span><span style="color:#e6db74">&#34;SortItem(Cached(  UNNAMEDS1215244997 of type Long),true)&#34;</span><span style="color:#f92672">]</span>, limit<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Literal(5)&#34;</span>, _rows<span style="color:#f92672">=</span>5, _db_hits<span style="color:#f92672">=</span>0<span style="color:#f92672">)</span>
+<span style="color:#f92672">==</span>&gt;   Extract<span style="color:#f92672">(</span>symKeys<span style="color:#f92672">=[</span><span style="color:#e6db74">&#34;n&#34;</span><span style="color:#f92672">]</span>, exprKeys<span style="color:#f92672">=[</span><span style="color:#e6db74">&#34;  UNNAMEDS1215244997&#34;</span><span style="color:#f92672">]</span>, _rows<span style="color:#f92672">=</span>11442, _db_hits<span style="color:#f92672">=</span>0<span style="color:#f92672">)</span>
+<span style="color:#f92672">==</span>&gt;     AllNodes<span style="color:#f92672">(</span>identifier<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;n&#34;</span>, _rows<span style="color:#f92672">=</span>11442, _db_hits<span style="color:#f92672">=</span>11442<span style="color:#f92672">)</span>
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>input<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">)</span>
+      Iterator<span style="color:#f92672">.</span><span style="color:#a6e22e">empty</span>
+    <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+      val first <span style="color:#f92672">=</span> input<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">()</span>
+      val count <span style="color:#f92672">=</span> countExpression<span style="color:#f92672">(</span>first<span style="color:#f92672">).</span><span style="color:#a6e22e">asInstanceOf</span><span style="color:#f92672">[</span>Number<span style="color:#f92672">].</span><span style="color:#a6e22e">intValue</span><span style="color:#f92672">()</span>
 
-<pre><code class="language-bash">
-$ MATCH n RETURN n ORDER BY ID(n) LIMIT 5;
-==&gt; +-------------------------------------------+
-==&gt; | n                                         |
-==&gt; +-------------------------------------------+
-==&gt; | Node[0]{}                                 |
-==&gt; | Node[1]{name:&quot;Africa&quot;,node_id:&quot;1&quot;}        |
-==&gt; | Node[2]{name:&quot;Asia&quot;,node_id:&quot;2&quot;}          |
-==&gt; | Node[3]{name:&quot;Europe&quot;,node_id:&quot;3&quot;}        |
-==&gt; | Node[4]{name:&quot;North America&quot;,node_id:&quot;4&quot;} |
-==&gt; +-------------------------------------------+
-==&gt; 5 rows
-==&gt; 157 ms
-</code></pre>
+      val iter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HeadAndTail<span style="color:#f92672">(</span>first<span style="color:#f92672">,</span> input<span style="color:#f92672">)</span>
+      iter<span style="color:#f92672">.</span><span style="color:#a6e22e">foreach</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">case</span> ctx <span style="color:#f92672">=&gt;</span>
 
-<p>If we have a look at the profile of the second query we can see why this is:</p>
+          <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>size <span style="color:#f92672">&lt;</span> count<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            result <span style="color:#f92672">+=</span> ctx
+            size <span style="color:#f92672">+=</span> 1
 
-<pre><code class="language-bash">
-$ PROFILE MATCH n RETURN n ORDER BY ID(n) LIMIT 5;
-
-==&gt; ColumnFilter(symKeys=[&quot;n&quot;, &quot;  UNNAMEDS1215244997&quot;], returnItemNames=[&quot;n&quot;], _rows=5, _db_hits=0)
-==&gt; Top(orderBy=[&quot;SortItem(Cached(  UNNAMEDS1215244997 of type Long),true)&quot;], limit=&quot;Literal(5)&quot;, _rows=5, _db_hits=0)
-==&gt;   Extract(symKeys=[&quot;n&quot;], exprKeys=[&quot;  UNNAMEDS1215244997&quot;], _rows=11442, _db_hits=0)
-==&gt;     AllNodes(identifier=&quot;n&quot;, _rows=11442, _db_hits=11442)
-</code></pre>
-
-<p><cite>Top</cite> refers to <cite><a href="https://github.com/neo4j/neo4j/blob/master/community/cypher/src/main/scala/org/neo4j/cypher/internal/compiler/v2_0/pipes/TopPipe.scala">TopPipe</a></cite> and if we look at the <cite><a href="https://github.com/neo4j/neo4j/blob/master/community/cypher/src/main/scala/org/neo4j/cypher/internal/compiler/v2_0/pipes/TopPipe.scala#L34">internalCreateResults</a></cite> function we can see that the entire collection gets evaluated so that we can sort it correctly on line 63.</p>
-
-<pre><code class="language-java">
-    if (input.isEmpty)
-      Iterator.empty
-    else {
-      val first = input.next()
-      val count = countExpression(first).asInstanceOf[Number].intValue()
-
-      val iter = new HeadAndTail(first, input)
-      iter.foreach {
-        case ctx =&gt;
-
-          if (size &lt; count) {
-            result += ctx
-            size += 1
-
-            if (largerThanLast(ctx)) {
-              last = Some(ctx)
-            }
-          } else
-            if (!largerThanLast(ctx)) {
-              result -= last.get
-              result += ctx
-              result = result.sortWith((a, b) =&gt; compareBy(a, b, sortDescription)(state))
-              sorted = true
-              last = Some(result.last)
-            }
-      }
-    }
-</code></pre>
-
-<p>In this case it means that we load the next node but in a more complex query we'd have to evaluate a more complex pattern for every single match.</p>
-
-<p>On the other hand, if we don't have the 'ORDER BY' we use the <cite><a href="https://github.com/neo4j/neo4j/blob/master/community/cypher/src/main/scala/org/neo4j/cypher/internal/compiler/v2_0/pipes/SlicePipe.scala#L47">SlicePipe</a></cite> which does a <cite>take</cite> on the iterator which lazily retrieves the first 5 results in this instance:</p>
-
-<pre><code class="language-bash">
+            <span style="color:#a6e22e">if</span> <span style="color:#f92672">(</span>largerThanLast<span style="color:#f92672">(</span>ctx<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+              last <span style="color:#f92672">=</span> Some<span style="color:#f92672">(</span>ctx<span style="color:#f92672">)</span>
+            <span style="color:#f92672">}</span>
+          <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>largerThanLast<span style="color:#f92672">(</span>ctx<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+              result <span style="color:#f92672">-=</span> last<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span>
+              result <span style="color:#f92672">+=</span> ctx
+              result <span style="color:#f92672">=</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">sortWith</span><span style="color:#f92672">((</span>a<span style="color:#f92672">,</span> b<span style="color:#f92672">)</span> <span style="color:#f92672">=&gt;</span> compareBy<span style="color:#f92672">(</span>a<span style="color:#f92672">,</span> b<span style="color:#f92672">,</span> sortDescription<span style="color:#f92672">)(</span>state<span style="color:#f92672">))</span>
+              sorted <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>
+              last <span style="color:#f92672">=</span> Some<span style="color:#f92672">(</span>result<span style="color:#f92672">.</span><span style="color:#a6e22e">last</span><span style="color:#f92672">)</span>
+            <span style="color:#f92672">}</span>
+      <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ PROFILE MATCH n RETURN n LIMIT 5;
 
-==&gt; Slice(limit=&quot;Literal(5)&quot;, _rows=5, _db_hits=0)
-==&gt; AllNodes(identifier=&quot;n&quot;, _rows=5, _db_hits=5)
-</code></pre>
+<span style="color:#f92672">==</span>&gt; Slice<span style="color:#f92672">(</span>limit<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Literal(5)&#34;</span>, _rows<span style="color:#f92672">=</span>5, _db_hits<span style="color:#f92672">=</span>0<span style="color:#f92672">)</span>
+<span style="color:#f92672">==</span>&gt; AllNodes<span style="color:#f92672">(</span>identifier<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;n&#34;</span>, _rows<span style="color:#f92672">=</span>5, _db_hits<span style="color:#f92672">=</span>5<span style="color:#f92672">)</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+    <span style="color:#f92672">(</span>skip<span style="color:#f92672">,</span> limit<span style="color:#f92672">)</span> match <span style="color:#f92672">{</span>
+      <span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>Some<span style="color:#f92672">(</span>x<span style="color:#f92672">),</span> None<span style="color:#f92672">)</span> <span style="color:#f92672">=&gt;</span> sourceIter<span style="color:#f92672">.</span><span style="color:#a6e22e">drop</span><span style="color:#f92672">(</span>asInt<span style="color:#f92672">(</span>x<span style="color:#f92672">))</span>
+      <span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>None<span style="color:#f92672">,</span> Some<span style="color:#f92672">(</span>x<span style="color:#f92672">))</span> <span style="color:#f92672">=&gt;</span> sourceIter<span style="color:#f92672">.</span><span style="color:#a6e22e">take</span><span style="color:#f92672">(</span>asInt<span style="color:#f92672">(</span>x<span style="color:#f92672">))</span>
 
-<pre><code class="language-java">
-    (skip, limit) match {
-      case (Some(x), None) =&gt; sourceIter.drop(asInt(x))
-      case (None, Some(x)) =&gt; sourceIter.take(asInt(x))
+      <span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>Some<span style="color:#f92672">(</span>startAt<span style="color:#f92672">),</span> Some<span style="color:#f92672">(</span>count<span style="color:#f92672">))</span> <span style="color:#f92672">=&gt;</span>
+        val start <span style="color:#f92672">=</span> asInt<span style="color:#f92672">(</span>startAt<span style="color:#f92672">)</span>
+        sourceIter<span style="color:#f92672">.</span><span style="color:#a6e22e">slice</span><span style="color:#f92672">(</span>start<span style="color:#f92672">,</span> start <span style="color:#f92672">+</span> asInt<span style="color:#f92672">(</span>count<span style="color:#f92672">))</span>
 
-      case (Some(startAt), Some(count)) =&gt;
-        val start = asInt(startAt)
-        sourceIter.slice(start, start + asInt(count))
-
-      case (None, None) =&gt;
-        throw new ThisShouldNotHappenError(&quot;Andres Taylor&quot;, &quot;A slice pipe that doesn't slice should never exist.&quot;)
-    }
-</code></pre>
-
-<p>Now that we've drilled into the queries a bit more we can see that with the 'ORDER BY LIMIT' query many more paths need to be evaluated to make that possible.</p>
-
-<p>A common anti pattern is to return a result set containing 100s of thousands of rows and then using 'ORDER BY LIMIT' to filter that down to 10.</p>
-
-<p>In that case there might be a better way of modelling the data so that we have less rows coming back from our MATCH clause and <a href="http://blog.neo4j.org/2013/05/reloading-my-beergraph-using-in-graph.html">In graph indexes</a> are one such way of doing that.</p></p>
+      <span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>None<span style="color:#f92672">,</span> None<span style="color:#f92672">)</span> <span style="color:#f92672">=&gt;</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ThisShouldNotHappenError<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Andres Taylor&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;A slice pipe that doesn&#39;t slice should never exist.&#34;</span><span style="color:#f92672">)</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>In that case there might be a better way of modelling the data so that we have less rows coming back from our MATCH clause and <!-- raw HTML omitted -->In graph indexes<!-- raw HTML omitted --> are one such way of doing that.<!-- raw HTML omitted --></p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -335,7 +307,7 @@ $ PROFILE MATCH n RETURN n LIMIT 5;
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/27/neo4j-cypher-profiling-order-by-limit-vs-limit/&amp;title=Neo4j%3a%20Cypher%20-%20Profiling%20ORDER%20BY%20LIMIT%20vs%20LIMIT&amp;summary=Something%20I%27ve%20seen%20people%20get%20confused%20by%20when%20writing%20queries%20using%20Neo4j%27s%20cypher%20query%20language%20is%20the%20sometimes%20significant%20difference%20in%20query%20execution%20time%20when%20using%20%27LIMIT%27%20on%20its%20own%20compared%20to%20using%20it%20in%20combination%20with%20%27ORDER%20BY%27.%0aThe%20confusion%20is%20centred%20around%20the%20fact%20that%20at%20first%20glance%20it%20seems%20like%20the%20only%20thing%20different%20between%20these%20queries%20is%20the%20sorting%20of%20the%20rows%20but%20there%27s%20actually%20more%20to%20it...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/27/neo4j-cypher-profiling-order-by-limit-vs-limit/&amp;title=Neo4j%3a%20Cypher%20-%20Profiling%20ORDER%20BY%20LIMIT%20vs%20LIMIT&amp;summary=%24%20MATCH%20n%20RETURN%20COUNT%28n%29%3b%20%3d%3d%26gt%3b%20%2b----------%2b%20%3d%3d%26gt%3b%20%7c%20COUNT%28n%29%20%7c%20%3d%3d%26gt%3b%20%2b----------%2b%20%3d%3d%26gt%3b%20%7c%2011442%20%7c%20%3d%3d%26gt%3b%20%2b----------%2b%20%3d%3d%26gt%3b%201%20row%20%3d%3d%26gt%3b%201384%20ms%20%24%20MATCH%20n%20RETURN%20n%20LIMIT%205%3b%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20n%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20Node%5b0%5d%7b%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b1%5d%7bname%3a%26%2334%3bAfrica%26%2334%3b%2cnode_id%3a%26%2334%3b1%26%2334%3b%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b2%5d%7bname%3a%26%2334%3bAsia%26%2334%3b%2cnode_id%3a%26%2334%3b2%26%2334%3b%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b3%5d%7bname%3a%26%2334%3bEurope%26%2334%3b%2cnode_id%3a%26%2334%3b3%26%2334%3b%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b4%5d%7bname%3a%26%2334%3bNorth%20America%26%2334%3b%2cnode_id%3a%26%2334%3b4%26%2334%3b%7d%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%205%20rows%20%3d%3d%26gt%3b%2038%20ms%20%24%20MATCH%20n%20RETURN%20n%20ORDER%20BY%20ID%28n%29%20LIMIT%205%3b%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20n%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20Node%5b0%5d%7b%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b1%5d%7bname%3a%26%2334%3bAfrica%26%2334%3b%2cnode_id%3a%26%2334%3b1%26%2334%3b%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b2%5d%7bname%3a%26%2334%3bAsia%26%2334%3b%2cnode_id%3a%26%2334%3b2%26%2334%3b%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b3%5d%7bname%3a%26%2334%3bEurope%26%2334%3b%2cnode_id%3a%26%2334%3b3%26%2334%3b%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b4%5d%7bname%3a%26%2334%3bNorth%20America%26%2334%3b%2cnode_id%3a%26%2334%3b4%26%2334%3b%7d%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------%2b%20%3d%3d%26gt%3b%205%20rows%20%3d%3d%26gt%3b%20157%20ms%20%24%20PROFILE%20MATCH%20n%20RETURN%20n%20ORDER%20BY%20ID%28n%29%20LIMIT%205%3b%20%3d%3d%26gt%3b%20ColumnFilter%28symKeys%3d%5b%26%2334%3bn%26%2334%3b%2c%20%26%2334%3b%20UNNAMEDS1215244997%26%2334%3b%5d%2c%20returnItemNames%3d%5b%26%2334%3bn%26%2334%3b%5d%2c%20_rows%3d5%2c%20_db_hits%3d0%29%20%3d%3d%26gt%3b%20Top%28orderBy%3d%5b%26%2334%3bSortItem%28Cached%28%20UNNAMEDS1215244997%20of%20type%20Long%29%2ctrue%29%26%2334%3b%5d%2c%20limit%3d%26%2334%3bLiteral%285%29%26%2334%3b%2c%20_rows%3d5%2c%20_db_hits%3d0%29%20%3d%3d%26gt%3b%20Extract%28symKeys%3d%5b%26%2334%3bn%26%2334%3b%5d%2c%20exprKeys%3d%5b%26%2334%3b%20UNNAMEDS1215244997%26%2334%3b%5d%2c%20_rows%3d11442%2c%20_db_hits%3d0%29%20%3d%3d%26gt%3b%20AllNodes%28identifier%3d%26%2334%3bn%26%2334%3b%2c%20_rows%3d11442%2c%20_db_hits%3d11442%29%20if%20%28input...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

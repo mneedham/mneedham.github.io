@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Learning Android: Roboguice - Injecting context into PreferenceManager" />
         
-          <meta name="twitter:description" content="In my last post I showed how I&rsquo;d been able to write a test around saved preferences in my app by making use of a ShadowPreferenceManager but it seemed a bit hacky.
+          <meta name="twitter:description" content="In my last post I showed how I&rsquo;d been able to write a test around saved preferences in my app by making use of a ShadowPreferenceManagerbut it seemed a bit hacky.
 I didn&rsquo;t want to have to do that for every test where I dealt with preferences - I thought it&rsquo;d be better if I could wrap the preferences in an object of my own and then inject it where necessary." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/01/12/learning-android-roboguice-injecting-context-into-preferencemanager/" />
@@ -34,7 +34,7 @@ I didn&rsquo;t want to have to do that for every test where I dealt with prefere
         <title> Learning Android: Roboguice - Injecting context into PreferenceManager &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="In my last post I showed how I&rsquo;d been able to write a test around saved preferences in my app by making use of a ShadowPreferenceManager but it seemed a bit hacky.
+        <meta name="description" content="In my last post I showed how I&rsquo;d been able to write a test around saved preferences in my app by making use of a ShadowPreferenceManagerbut it seemed a bit hacky.
 I didn&rsquo;t want to have to do that for every test where I dealt with preferences - I thought it&rsquo;d be better if I could wrap the preferences in an object of my own and then inject it where necessary." />
     
 
@@ -64,9 +64,8 @@ I didn&rsquo;t want to have to do that for every test where I dealt with prefere
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-01-12",
-        "description": "In my last post I showed how I&rsquo;d been able to write a test around saved preferences in my app by making use of a ShadowPreferenceManager but it seemed a bit hacky.
-I didn&rsquo;t want to have to do that for every test where I dealt with preferences - I thought it&rsquo;d be better if I could wrap the preferences in an object of my own and then inject it where necessary.",
-        "wordCount": 313
+        "description": "In my last post I showed how I\x26rsquo;d been able to write a test around saved preferences in my app by making use of a ShadowPreferenceManagerbut it seemed a bit hacky.\nI didn\x26rsquo;t want to have to do that for every test where I dealt with preferences - I thought it\x26rsquo;d be better if I could wrap the preferences in an object of my own and then inject it where necessary.",
+        "wordCount":  304 
     }
     </script>
     
@@ -175,90 +174,74 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Learning Android: Roboguice - Injecting context into PreferenceManager</h1>
-    <p>In my last post I showed how I&rsquo;d been able to <a href="http://www.markhneedham.com/blog/2012/01/10/learning-android-testing-details-got-saved-to-sharedpreferences/">write a test around saved preferences in my app by making use of a ShadowPreferenceManager</a> but it seemed a bit hacky.</p>
-
+    <p>In my last post I showed how I&rsquo;d been able to <!-- raw HTML omitted -->write a test around saved preferences in my app by making use of a ShadowPreferenceManager<!-- raw HTML omitted --> but it seemed a bit hacky.</p>
 <p>I didn&rsquo;t want to have to do that for every test where I dealt with preferences - I thought it&rsquo;d be better if I could wrap the preferences in an object of my own and then inject it where necessary.</p>
-
 <p>Another benefit of taking this approach is that the interface of exactly what I&rsquo;m storing as user preferences.</p>
-
 <p>I wanted the class to be roughly like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserPreferences</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">userKey</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> getDefaultSharedPreferences<span style="color:#f92672">().</span><span style="color:#a6e22e">getString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user_key&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
 
-<pre><code class="language-java">
-public class UserPreferences {
-    public String userKey() {
-        return getDefaultSharedPreferences().getString(&quot;user_key&quot;, &quot;&quot;);
-    }
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">userSecret</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> getDefaultSharedPreferences<span style="color:#f92672">().</span><span style="color:#a6e22e">getString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user_secret&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
 
-    public String userSecret() {
-        return getDefaultSharedPreferences().getString(&quot;user_secret&quot;, &quot;&quot;);
-    }
+    <span style="color:#66d9ef">private</span> SharedPreferences <span style="color:#a6e22e">getDefaultSharedPreferences</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> PreferenceManager<span style="color:#f92672">.</span><span style="color:#a6e22e">getDefaultSharedPreferences</span><span style="color:#f92672">(</span>getContextHereSomehow<span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>Initially it wasn&rsquo;t entirely obvious how I could get a <!-- raw HTML omitted -->Context<!-- raw HTML omitted --> to pass to <!-- raw HTML omitted -->getDefaultSharedPreferences<!-- raw HTML omitted --> but I came across <!-- raw HTML omitted -->a blog post explaining how to do it<!-- raw HTML omitted -->.</p>
+<p>What we need to do is inject a <!-- raw HTML omitted -->Context<!-- raw HTML omitted --> object via the constructor of the class and decorate the constructor with the <!-- raw HTML omitted -->@Inject<!-- raw HTML omitted --> attribute so that Roboguice will resolve the dependency:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserPreferences</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> Context context<span style="color:#f92672">;</span>
 
-    private SharedPreferences getDefaultSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(getContextHereSomehow());
-    }
-}
-</code></pre>
+    <span style="color:#a6e22e">@Inject</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">UserPreferences</span><span style="color:#f92672">(</span>Context context<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">context</span> <span style="color:#f92672">=</span> context<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
 
-<p>Initially it wasn&rsquo;t entirely obvious how I could get a <cite>Context</cite> to pass to <cite>getDefaultSharedPreferences</cite> but I came across <a href="http://www.irasenthil.com/2011/09/how-to-inject-context-in-android-with.html">a blog post explaining how to do it</a>.</p>
+    <span style="color:#66d9ef">public</span> SharedPreferences <span style="color:#a6e22e">getDefaultSharedPreferences</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> PreferenceManager<span style="color:#f92672">.</span><span style="color:#a6e22e">getDefaultSharedPreferences</span><span style="color:#f92672">(</span>context<span style="color:#f92672">.</span><span style="color:#a6e22e">getApplicationContext</span><span style="color:#f92672">());</span>
+    <span style="color:#f92672">}</span>
 
-<p>What we need to do is inject a <cite>Context</cite> object via the constructor of the class and decorate the constructor with the <cite>@Inject</cite> attribute so that Roboguice will resolve the dependency:</p>
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">userKey</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> getDefaultSharedPreferences<span style="color:#f92672">().</span><span style="color:#a6e22e">getString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user_key&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
 
-<pre><code class="language-java">
-public class UserPreferences {
-    private Context context;
+    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">userSecret</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> getDefaultSharedPreferences<span style="color:#f92672">().</span><span style="color:#a6e22e">getString</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;user_secret&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>We never have to explicitly setup a binding for <!-- raw HTML omitted -->Context<!-- raw HTML omitted --> in our Roboguice because it&rsquo;s already been done for us in <!-- raw HTML omitted -->RoboModule<!-- raw HTML omitted --> which is instantiated by <!-- raw HTML omitted -->RoboApplication<!-- raw HTML omitted --> which we extend like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TweetBoardApplication</span> <span style="color:#66d9ef">extends</span> RoboApplication <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> Module module <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RobolectricSampleModule<span style="color:#f92672">();</span>
 
-    @Inject
-    public UserPreferences(Context context) {
-        this.context = context;
-    }
+    <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addApplicationModules</span><span style="color:#f92672">(</span>List<span style="color:#f92672">&lt;</span>Module<span style="color:#f92672">&gt;</span> modules<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        modules<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>module<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
 
-    public SharedPreferences getDefaultSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-    }
-
-    public String userKey() {
-        return getDefaultSharedPreferences().getString(&quot;user_key&quot;, &quot;&quot;);
-    }
-
-    public String userSecret() {
-        return getDefaultSharedPreferences().getString(&quot;user_secret&quot;, &quot;&quot;);
-    }
-}
-</code></pre>
-
-<p>We never have to explicitly setup a binding for <cite>Context</cite> in our Roboguice because it&rsquo;s already been done for us in <a href="https://github.com/abombss/roboguice/blob/master/roboguice/src/main/java/roboguice/config/RoboModule.java">RoboModule</a> which is instantiated by <a href="https://github.com/abombss/roboguice/blob/master/roboguice/src/main/java/roboguice/application/RoboApplication.java">RoboApplication</a> which we extend like so:</p>
-
-<pre><code class="language-java">
-public class TweetBoardApplication extends RoboApplication {
-    private Module module = new RobolectricSampleModule();
-
-    @Override protected void addApplicationModules(List&lt;Module&gt; modules) {
-        modules.add(module);
-    }
-
-    public void setModule(Module module) {
-        this.module = module;
-    }
-}
-</code></pre>
-
-<p>We then hook <cite>TweetBoardApplication</cite> up in the AndroidManifest.xml file like this:</p>
-
-<pre><code class="language-xml">
-&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
-          package=&quot;com.pivotallabs&quot;
-          android:versionCode=&quot;1&quot;
-          android:versionName=&quot;1.0&quot;&gt;
-    &lt;application
-            android:label=&quot;@string/app_name&quot;
-            android:theme=&quot;@android:style/Theme.Light.NoTitleBar&quot;
-            android:icon=&quot;@drawable/app_icon&quot;
-            android:name=&quot;TweetBoardApplication&quot;&gt;
-   &lt;/application&gt;
-&lt;/manifest&gt;
-</code></pre>
-
-<p>And that&rsquo;s it!</p>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setModule</span><span style="color:#f92672">(</span>Module module<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">module</span> <span style="color:#f92672">=</span> module<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>We then hook <!-- raw HTML omitted -->TweetBoardApplication<!-- raw HTML omitted --> up in the AndroidManifest.xml file like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">
+<span style="color:#f92672">&lt;manifest</span> <span style="color:#a6e22e">xmlns:android=</span><span style="color:#e6db74">&#34;http://schemas.android.com/apk/res/android&#34;</span>
+          <span style="color:#a6e22e">package=</span><span style="color:#e6db74">&#34;com.pivotallabs&#34;</span>
+          <span style="color:#a6e22e">android:versionCode=</span><span style="color:#e6db74">&#34;1&#34;</span>
+          <span style="color:#a6e22e">android:versionName=</span><span style="color:#e6db74">&#34;1.0&#34;</span><span style="color:#f92672">&gt;</span>
+    <span style="color:#f92672">&lt;application</span>
+            <span style="color:#a6e22e">android:label=</span><span style="color:#e6db74">&#34;@string/app_name&#34;</span>
+            <span style="color:#a6e22e">android:theme=</span><span style="color:#e6db74">&#34;@android:style/Theme.Light.NoTitleBar&#34;</span>
+            <span style="color:#a6e22e">android:icon=</span><span style="color:#e6db74">&#34;@drawable/app_icon&#34;</span>
+            <span style="color:#a6e22e">android:name=</span><span style="color:#e6db74">&#34;TweetBoardApplication&#34;</span><span style="color:#f92672">&gt;</span>
+   <span style="color:#f92672">&lt;/application&gt;</span>
+<span style="color:#f92672">&lt;/manifest&gt;</span>
+</code></pre></div><p>And that&rsquo;s it!</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -293,7 +276,7 @@ public class TweetBoardApplication extends RoboApplication {
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/01/12/learning-android-roboguice-injecting-context-into-preferencemanager/&amp;title=Learning%20Android%3a%20Roboguice%20-%20Injecting%20context%20into%20PreferenceManager&amp;summary=In%20my%20last%20post%20I%20showed%20how%20I%26rsquo%3bd%20been%20able%20to%20write%20a%20test%20around%20saved%20preferences%20in%20my%20app%20by%20making%20use%20of%20a%20ShadowPreferenceManager%20but%20it%20seemed%20a%20bit%20hacky.%0aI%20didn%26rsquo%3bt%20want%20to%20have%20to%20do%20that%20for%20every%20test%20where%20I%20dealt%20with%20preferences%20-%20I%20thought%20it%26rsquo%3bd%20be%20better%20if%20I%20could%20wrap%20the%20preferences%20in%20an%20object%20of%20my%20own%20and%20then%20inject%20it%20where%20necessary...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/01/12/learning-android-roboguice-injecting-context-into-preferencemanager/&amp;title=Learning%20Android%3a%20Roboguice%20-%20Injecting%20context%20into%20PreferenceManager&amp;summary=In%20my%20last%20post%20I%20showed%20how%20I%26rsquo%3bd%20been%20able%20to%20write%20a%20test%20around%20saved%20preferences%20in%20my%20app%20by%20making%20use%20of%20a%20ShadowPreferenceManagerbut%20it%20seemed%20a%20bit%20hacky.%0aI%20didn%26rsquo%3bt%20want%20to%20have%20to%20do%20that%20for%20every%20test%20where%20I%20dealt%20with%20preferences%20-%20I%20thought%20it%26rsquo%3bd%20be%20better%20if%20I%20could%20wrap%20the%20preferences%20in%20an%20object%20of%20my%20own%20and%20then%20inject%20it%20where%20necessary...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

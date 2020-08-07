@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Featuring engineering for a linear model" />
         
-          <meta name="twitter:description" content="I previously wrote about a linear model I created to predict how many people would RSVP &#39;yes&#39; to a meetup event and having not found much correlation between any of my independent variables and RSVPs was a bit stuck.  As luck would have it I bumped into Antonios at a meetup a month ago and he offered to take a look at what I&#39;d tried so far and give me some tips on how to progress." />
+          <meta name="twitter:description" content="&gt; df = read.csv(&#34;/tmp/membersWithGroupCounts.csv&#34;) &gt; df$eventTime = as.POSIXct(df$eventTime) &gt; df %&gt;% sample_n(10) %&gt;% select(event.name, g.name, eventTime, groupMembers, rsvps) event.name g.name eventTime groupMembers rsvps 23 Scoring Models, Apache Drill for querying structured &amp; unstructured data Data Science London 2014-09-18 18:30:00 3466 159 421 London Office Hours London MongoDB User Group 2012-08-22 17:00:00 468 6 304 MongoDB University Study Group London Meet up London MongoDB User Group 2014-07-16 17:00:00 1256 23 43 December Meetup London ElasticSearch User Group 2014-12-10 18:30:00 721 126 222 Intro to Graphs Neo4j - London User Group 2014-09-03 18:30:00 1453 39 207 Intro to Machine Learning with Scikit-Learn Women in Data 2014-11-11 18:15:00 574 41 168 NoSQL panel and LevelDB &#43; Node." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/12/28/r-featuring-engineering-for-a-linear-model/" />
 
@@ -33,7 +33,7 @@
         <title> R: Featuring engineering for a linear model &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I previously wrote about a linear model I created to predict how many people would RSVP &#39;yes&#39; to a meetup event and having not found much correlation between any of my independent variables and RSVPs was a bit stuck.  As luck would have it I bumped into Antonios at a meetup a month ago and he offered to take a look at what I&#39;d tried so far and give me some tips on how to progress." />
+        <meta name="description" content="&gt; df = read.csv(&#34;/tmp/membersWithGroupCounts.csv&#34;) &gt; df$eventTime = as.POSIXct(df$eventTime) &gt; df %&gt;% sample_n(10) %&gt;% select(event.name, g.name, eventTime, groupMembers, rsvps) event.name g.name eventTime groupMembers rsvps 23 Scoring Models, Apache Drill for querying structured &amp; unstructured data Data Science London 2014-09-18 18:30:00 3466 159 421 London Office Hours London MongoDB User Group 2012-08-22 17:00:00 468 6 304 MongoDB University Study Group London Meet up London MongoDB User Group 2014-07-16 17:00:00 1256 23 43 December Meetup London ElasticSearch User Group 2014-12-10 18:30:00 721 126 222 Intro to Graphs Neo4j - London User Group 2014-09-03 18:30:00 1453 39 207 Intro to Machine Learning with Scikit-Learn Women in Data 2014-11-11 18:15:00 574 41 168 NoSQL panel and LevelDB &#43; Node." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +62,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-12-28",
-        "description": "I previously wrote about a linear model I created to predict how many people would RSVP 'yes' to a meetup event and having not found much correlation between any of my independent variables and RSVPs was a bit stuck.  As luck would have it I bumped into Antonios at a meetup a month ago and he offered to take a look at what I'd tried so far and give me some tips on how to progress.",
-        "wordCount": 1131
+        "description": "\x26gt; df = read.csv(\x26#34;\/tmp\/membersWithGroupCounts.csv\x26#34;) \x26gt; df$eventTime = as.POSIXct(df$eventTime) \x26gt; df %\x26gt;% sample_n(10) %\x26gt;% select(event.name, g.name, eventTime, groupMembers, rsvps) event.name g.name eventTime groupMembers rsvps 23 Scoring Models, Apache Drill for querying structured \x26amp; unstructured data Data Science London 2014-09-18 18:30:00 3466 159 421 London Office Hours London MongoDB User Group 2012-08-22 17:00:00 468 6 304 MongoDB University Study Group London Meet up London MongoDB User Group 2014-07-16 17:00:00 1256 23 43 December Meetup London ElasticSearch User Group 2014-12-10 18:30:00 721 126 222 Intro to Graphs Neo4j - London User Group 2014-09-03 18:30:00 1453 39 207 Intro to Machine Learning with Scikit-Learn Women in Data 2014-11-11 18:15:00 574 41 168 NoSQL panel and LevelDB \x2b Node.",
+        "wordCount":  277 
     }
     </script>
     
@@ -172,205 +172,100 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Featuring engineering for a linear model</h1>
-    <p>
-I previously wrote about <a href="http://www.markhneedham.com/blog/2014/09/30/r-a-first-attempt-at-linear-regression/">a linear model</a> I created to predict how many people would RSVP 'yes' to a meetup event and having not found much correlation between any of my independent variables and RSVPs was a bit stuck.
-</p>
-
-<p>
-As luck would have it I bumped into <a href="https://twitter.com/tonkouts">Antonios</a> at a meetup a month ago and he offered to take a look at what I'd tried so far and give me some tips on how to progress.
-</p>
-
-<p>
-The first thing he pointed out is that that all my features were related to date/time and that I should try and generate some other features. He suggested I start with the following:</p>
-
-<ul>
-<li>
-info about organisers (quantify popularity of organisers, how many people work for them)
-</li>
-
-<li>
-info about the venue (how many people fit there, how far it is from the centre of the city)
-</li>
-
-<li>number of tweets for the event, during X days before the event</li>
-</ul>
-
-<p>
-I'd read a lot on <a href="http://www.kaggle.com/c/acquire-valued-shoppers-challenge/forums/t/7688/feature-engineering-and-beat-the-benchmark-0-59347">Kaggle</a> <a href="http://www.quora.com/What-do-top-Kaggle-competitors-focus-on">forums</a> about how feature engineering was the most important part of building statistical models but it didn't click what that meant until Antonios pointed it out.
-</p>
-
-<p>The first thing I decided to do was bring in the data for all London's NoSQL meetups rather than just the Neo4j one to give myself a bit more data to work with.</p>
-
-<h3>Group Membership</h3>
-
-<p>
-Having done that, it seemed from visual inspection that the meetup groups with the most members (i.e. Data Science London, Big Data London) seemed to get the biggest turnouts.</p>
- 
-
-<p>
-I thought it'd be interesting to see what the correlation was between group membership and RSVPs so this was the first new feature I added.</p>
-
-<p>
-I generated this feature by a combination of a Neo4j query and R code which resulted in <a href="https://gist.github.com/mneedham/6be0c807674f229ad34c">this data frame as CSV file</a>.
-</p>
-
-<p>We can quickly preview it to see some of the events and the group membership at that time:</p>
-
-<pre><code class="language-r">
-&gt; df = read.csv(&quot;/tmp/membersWithGroupCounts.csv&quot;)
-&gt; df$eventTime = as.POSIXct(df$eventTime)
-&gt; df %&gt;% sample_n(10) %&gt;% select(event.name, g.name, eventTime, groupMembers, rsvps)
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">=</span> <span style="color:#a6e22e">read.csv</span>(<span style="color:#e6db74">&#34;/tmp/membersWithGroupCounts.csv&#34;</span>)
+<span style="color:#f92672">&gt;</span> df<span style="color:#f92672">$</span>eventTime <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.POSIXct</span>(df<span style="color:#f92672">$</span>eventTime)
+<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sample_n</span>(<span style="color:#ae81ff">10</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(event.name, g.name, eventTime, groupMembers, rsvps)
 
                                                                   event.name                                   g.name           eventTime groupMembers rsvps
-23  Scoring Models, Apache Drill for querying structured &amp; unstructured data                      Data Science London 2014-09-18 18:30:00         3466   159
-421                                                      London Office Hours                London MongoDB User Group 2012-08-22 17:00:00          468     6
-304                            MongoDB University Study Group London Meet up                London MongoDB User Group 2014-07-16 17:00:00         1256    23
-43                                                           December Meetup          London ElasticSearch User Group 2014-12-10 18:30:00          721   126
-222                                                          Intro to Graphs                Neo4j - London User Group 2014-09-03 18:30:00         1453    39
-207                              Intro to Machine Learning with Scikit-Learn                            Women in Data 2014-11-11 18:15:00          574    41
-168                                        NoSQL panel and LevelDB + Node.js                             London NoSQL 2014-04-15 18:30:00          183    51
-443                                                      London Office Hours                London MongoDB User Group 2012-11-29 17:00:00          590     3
-79                                  Apache Cassandra 1.2 with Jonathan Ellis                         Cassandra London 2013-03-06 19:00:00          399    95
-362                                                          Span conference Span: scalable and distributed computing 2014-10-28 09:00:00           67    13
-</code></pre>
-
-<p>
-
-</p>
-
-<p>
-One thing I found difficult was finding features specific to an event - I'm not sure how much that matters. I generated features for the venue or group much more easily.
-</p>
-
-<p>
-First let's see if there's actually any correlation between these two variables by plotting them:
-</p>
-
-<pre><code class="language-r">
-ggplot(aes(x = groupMembers, y = rsvps), data = df) + 
-  geom_point()
-</code></pre>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2014/12/2014-12-28_21-02-21.png" alt="2014 12 28 21 02 21" title="2014-12-28_21-02-21.png" border="0" width="515" height="448" />
-</div>
-
-<p>
-It looks like there's a positive correlation between these two variables but let's create a single variable linear model to see how much of the variation is explained:
-</p>
-
-<pre><code class="language-r">
-&gt; fit = lm(rsvps ~ groupMembers, data = df)
-&gt; fit$coef
- (Intercept) groupMembers 
- 20.03579637   0.05382738 
-</code></pre>
-
-<p>Our linear model equation is therefore:</p>
-
-<blockquote>
-rsvps = 20.03579637 + 0.05382738(groupMembers)
-</blockquote>
-
-<p>Let's see how well correlated our predicted RSVPs and actual RSVPs are:</p>
-
-<pre><code class="language-r">
-&gt; df$predictedRSVPs = predict(fit, df)
-&gt; with(df, cor(rsvps, predictedRSVPs))
-[1] 0.6263096
-</code></pre>
-
-<p>
-Not too bad! There is quite a strong correlation between these variables although it's not perfect.
-</p>
-
-<h3>Hours into the day</h3>
-
-<p>In my first model I'd treated time as a categorical variable but Antonios pointed out that it's often easier to understand the relationship between variables if they're both continuos so I transformed the event time like so:</p>
-
-<pre><code class="language-r">
-df$hoursIntoDay = as.numeric(df$eventTime - trunc(df$eventTime, &quot;day&quot;), units=&quot;hours&quot;)
-</code></pre>
-
-<p>
-Let's see how that plots against the RSVP count:
-</p>
-
-<pre><code class="language-r">
-ggplot(aes(x = hoursIntoDay, y = rsvps), data = df) + 
-  geom_point()
-</code></pre>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2014/12/2014-12-28_21-27-48.png" alt="2014 12 28 21 27 48" title="2014-12-28_21-27-48.png" border="0" width="510" height="442" />
-</div>
-
-<p>
-It's a bit more difficult to see a trend here as there are quite discrete times at which events happen and the majority start at 6.30 or 7.00. Nevertheless let's build a linear model with just this variable:
-</p>
-
-<pre><code class="language-r">
-&gt; fit = lm(rsvps ~ hoursIntoDay, data = df)
-&gt; fit$coef
- (Intercept) hoursIntoDay 
-   -18.79895      4.12984 
-&gt; 
-&gt; df$predictedRSVPs = predict(fit, df)
-&gt; with(df, cor(rsvps, predictedRSVPs))
-[1] 0.181472
-</code></pre>
-
-<h3>Distance from the centre of London</h3>
-
-<p>Next up I tried a feature based on the location of the venue that the events were held at. The hypothesis was that if a venue was closer to the centre of London then people would be more likely to attend.</p>
-
-<p>To calculate this distance I used the <cite>distHaversine</cite> function from the geosphere package <a href="http://www.markhneedham.com/blog/2014/12/22/r-vectorising-all-the-things/">as shown in a previous blog post</a>.</p>
-
-<p>Let's have a look at the graph for that variable:</p>
-
-<pre><code class="language-r">
-ggplot(aes(x = distanceFromCentre, y = rsvps), data = df) + 
-  geom_point()
-</code></pre>
-
-<div>
-<img src="https://markhneedham.com/blog/
-/uploads/2014/12/2014-12-28_21-37-41.png" alt="2014 12 28 21 37 41" title="2014-12-28_21-37-41.png" border="0" width="512" height="441" /></div>
-
-<p>It's hard to tell much from this plot, mainly because a majority of the points are clustered around the 2,500 metre mark which represents Shoreditch venues. Let's plug it into a linear model and see what we come up with:</p>
-
-<pre><code class="language-r">
-&gt; fit = lm(rsvps ~ distanceFromCentre, data = df)
-&gt; fit$coef
-       (Intercept) distanceFromCentre 
-      57.243646619       -0.001310492 
-&gt; 
-&gt; df$predictedRSVPs = predict(fit, df)
-&gt; with(df, cor(rsvps, predictedRSVPs))
-[1] 0.02999708
-</code></pre>
-
-<p>Interestingly there's barely any correlation here which was surprising to me. I tried combining this variable in a multiple variable model with the others but it still didn't have much impact so I think we'll park this one for now.</p>
-
-<p>This is as much as I've done at the moment and despite spending quite a bit of time on it I still haven't really explained very much of the variation in RSVP rates! 
-</p>
-
-<p>I have managed to identify some ways that I was able to come up with new features to try out though:
-
-<ul>
-<li>Read what other people are doing e.g. I have some ideas for lag variables (e.g. how many people went to your previous meetup) having read about <a href="http://people.duke.edu/~rnau/regexbaseball.htm">this baseball linear model</a>
-<li>Talk to other people about your model - they often have ideas you wouldn't think of being too deep into the problem.</li>
-<li>Look at what data you already have and try and incorporate that and see where it leads</li>
-</ul>
-
-<p>
-The next avenue I started exploring is topic modelling as I have a hypothesis that people RSVP for events based on the content of talks but I'm not sure of the best way to go about that.</p>
- 
-
-<p>My current thinking is to pull out some topics/terms by following the example from <a href="https://github.com/johnmyleswhite/ML_for_Hackers/blob/master/06-Regularization/chapter06.R">Chapter 6</a> of <a href="http://www.amazon.com/Machine-Learning-Hackers-Drew-Conway/dp/1449303714">Machine Learning for Hackers</a>.
-</p>
+<span style="color:#ae81ff">23</span>  Scoring Models, Apache Drill for querying structured <span style="color:#f92672">&amp;</span> unstructured data                      Data Science London <span style="color:#ae81ff">2014-09-18</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>         <span style="color:#ae81ff">3466</span>   <span style="color:#ae81ff">159</span>
+<span style="color:#ae81ff">421</span>                                                      London Office Hours                London MongoDB User Group <span style="color:#ae81ff">2012-08-22</span> <span style="color:#ae81ff">17</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>          <span style="color:#ae81ff">468</span>     <span style="color:#ae81ff">6</span>
+<span style="color:#ae81ff">304</span>                            MongoDB University Study Group London Meet up                London MongoDB User Group <span style="color:#ae81ff">2014-07-16</span> <span style="color:#ae81ff">17</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>         <span style="color:#ae81ff">1256</span>    <span style="color:#ae81ff">23</span>
+<span style="color:#ae81ff">43</span>                                                           December Meetup          London ElasticSearch User Group <span style="color:#ae81ff">2014-12-10</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>          <span style="color:#ae81ff">721</span>   <span style="color:#ae81ff">126</span>
+<span style="color:#ae81ff">222</span>                                                          Intro to Graphs                Neo4j <span style="color:#f92672">-</span> London User Group <span style="color:#ae81ff">2014-09-03</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>         <span style="color:#ae81ff">1453</span>    <span style="color:#ae81ff">39</span>
+<span style="color:#ae81ff">207</span>                              Intro to Machine Learning with Scikit<span style="color:#f92672">-</span>Learn                            Women in Data <span style="color:#ae81ff">2014-11-11</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">15</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>          <span style="color:#ae81ff">574</span>    <span style="color:#ae81ff">41</span>
+<span style="color:#ae81ff">168</span>                                        NoSQL panel and LevelDB <span style="color:#f92672">+</span> Node.js                             London NoSQL <span style="color:#ae81ff">2014-04-15</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>          <span style="color:#ae81ff">183</span>    <span style="color:#ae81ff">51</span>
+<span style="color:#ae81ff">443</span>                                                      London Office Hours                London MongoDB User Group <span style="color:#ae81ff">2012-11-29</span> <span style="color:#ae81ff">17</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>          <span style="color:#ae81ff">590</span>     <span style="color:#ae81ff">3</span>
+<span style="color:#ae81ff">79</span>                                  Apache Cassandra <span style="color:#ae81ff">1.2</span> with Jonathan Ellis                         Cassandra London <span style="color:#ae81ff">2013-03-06</span> <span style="color:#ae81ff">19</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>          <span style="color:#ae81ff">399</span>    <span style="color:#ae81ff">95</span>
+<span style="color:#ae81ff">362</span>                                                          Span conference Span<span style="color:#f92672">:</span> scalable and distributed computing <span style="color:#ae81ff">2014-10-28</span> <span style="color:#ae81ff">09</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>           <span style="color:#ae81ff">67</span>    <span style="color:#ae81ff">13</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> groupMembers, y <span style="color:#f92672">=</span> rsvps), data <span style="color:#f92672">=</span> df) <span style="color:#f92672">+</span> 
+  <span style="color:#a6e22e">geom_point</span>()
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> fit <span style="color:#f92672">=</span> <span style="color:#a6e22e">lm</span>(rsvps <span style="color:#f92672">~</span> groupMembers, data <span style="color:#f92672">=</span> df)
+<span style="color:#f92672">&gt;</span> fit<span style="color:#f92672">$</span><span style="color:#a6e22e">coef
+</span><span style="color:#a6e22e"> </span>(Intercept) groupMembers 
+ <span style="color:#ae81ff">20.03579637</span>   <span style="color:#ae81ff">0.05382738</span> 
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> df<span style="color:#f92672">$</span>predictedRSVPs <span style="color:#f92672">=</span> <span style="color:#a6e22e">predict</span>(fit, df)
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">with</span>(df, <span style="color:#a6e22e">cor</span>(rsvps, predictedRSVPs))
+[1] <span style="color:#ae81ff">0.6263096</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+df<span style="color:#f92672">$</span>hoursIntoDay <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.numeric</span>(df<span style="color:#f92672">$</span>eventTime <span style="color:#f92672">-</span> <span style="color:#a6e22e">trunc</span>(df<span style="color:#f92672">$</span>eventTime, <span style="color:#e6db74">&#34;day&#34;</span>), units<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;hours&#34;</span>)
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> hoursIntoDay, y <span style="color:#f92672">=</span> rsvps), data <span style="color:#f92672">=</span> df) <span style="color:#f92672">+</span> 
+  <span style="color:#a6e22e">geom_point</span>()
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> fit <span style="color:#f92672">=</span> <span style="color:#a6e22e">lm</span>(rsvps <span style="color:#f92672">~</span> hoursIntoDay, data <span style="color:#f92672">=</span> df)
+<span style="color:#f92672">&gt;</span> fit<span style="color:#f92672">$</span><span style="color:#a6e22e">coef
+</span><span style="color:#a6e22e"> </span>(Intercept) hoursIntoDay 
+   <span style="color:#ae81ff">-18.79895</span>      <span style="color:#ae81ff">4.12984</span> 
+<span style="color:#f92672">&gt;</span> 
+<span style="color:#f92672">&gt;</span> df<span style="color:#f92672">$</span>predictedRSVPs <span style="color:#f92672">=</span> <span style="color:#a6e22e">predict</span>(fit, df)
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">with</span>(df, <span style="color:#a6e22e">cor</span>(rsvps, predictedRSVPs))
+[1] <span style="color:#ae81ff">0.181472</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> distanceFromCentre, y <span style="color:#f92672">=</span> rsvps), data <span style="color:#f92672">=</span> df) <span style="color:#f92672">+</span> 
+  <span style="color:#a6e22e">geom_point</span>()
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
+<span style="color:#f92672">&gt;</span> fit <span style="color:#f92672">=</span> <span style="color:#a6e22e">lm</span>(rsvps <span style="color:#f92672">~</span> distanceFromCentre, data <span style="color:#f92672">=</span> df)
+<span style="color:#f92672">&gt;</span> fit<span style="color:#f92672">$</span><span style="color:#a6e22e">coef
+</span><span style="color:#a6e22e">       </span>(Intercept) distanceFromCentre 
+      <span style="color:#ae81ff">57.243646619</span>       <span style="color:#ae81ff">-0.001310492</span> 
+<span style="color:#f92672">&gt;</span> 
+<span style="color:#f92672">&gt;</span> df<span style="color:#f92672">$</span>predictedRSVPs <span style="color:#f92672">=</span> <span style="color:#a6e22e">predict</span>(fit, df)
+<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">with</span>(df, <span style="color:#a6e22e">cor</span>(rsvps, predictedRSVPs))
+[1] <span style="color:#ae81ff">0.02999708</span>
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -405,7 +300,7 @@ The next avenue I started exploring is topic modelling as I have a hypothesis th
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/12/28/r-featuring-engineering-for-a-linear-model/&amp;title=R%3a%20Featuring%20engineering%20for%20a%20linear%20model&amp;summary=I%20previously%20wrote%20about%20a%20linear%20model%20I%20created%20to%20predict%20how%20many%20people%20would%20RSVP%20%27yes%27%20to%20a%20meetup%20event%20and%20having%20not%20found%20much%20correlation%20between%20any%20of%20my%20independent%20variables%20and%20RSVPs%20was%20a%20bit%20stuck.%20%20As%20luck%20would%20have%20it%20I%20bumped%20into%20Antonios%20at%20a%20meetup%20a%20month%20ago%20and%20he%20offered%20to%20take%20a%20look%20at%20what%20I%27d%20tried%20so%20far%20and%20give%20me%20some%20tips%20on%20how%20to%20progress...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/12/28/r-featuring-engineering-for-a-linear-model/&amp;title=R%3a%20Featuring%20engineering%20for%20a%20linear%20model&amp;summary=%26gt%3b%20df%20%3d%20read.csv%28%26%2334%3b%2ftmp%2fmembersWithGroupCounts.csv%26%2334%3b%29%20%26gt%3b%20df%24eventTime%20%3d%20as.POSIXct%28df%24eventTime%29%20%26gt%3b%20df%20%25%26gt%3b%25%20sample_n%2810%29%20%25%26gt%3b%25%20select%28event.name%2c%20g.name%2c%20eventTime%2c%20groupMembers%2c%20rsvps%29%20event.name%20g.name%20eventTime%20groupMembers%20rsvps%2023%20Scoring%20Models%2c%20Apache%20Drill%20for%20querying%20structured%20%26amp%3b%20unstructured%20data%20Data%20Science%20London%202014-09-18%2018%3a30%3a00%203466%20159%20421%20London%20Office%20Hours%20London%20MongoDB%20User%20Group%202012-08-22%2017%3a00%3a00%20468%206%20304%20MongoDB%20University%20Study%20Group%20London%20Meet%20up%20London%20MongoDB%20User%20Group%202014-07-16%2017%3a00%3a00%201256%2023%2043%20December%20Meetup%20London%20ElasticSearch%20User%20Group%202014-12-10%2018%3a30%3a00%20721%20126%20222%20Intro%20to%20Graphs%20Neo4j%20-%20London%20User%20Group%202014-09-03%2018%3a30%3a00%201453%2039%20207%20Intro%20to%20Machine%20Learning%20with%20Scikit-Learn%20Women%20in%20Data%202014-11-11%2018%3a15%3a00%20574%2041%20168%20NoSQL%20panel%20and%20LevelDB%20%2b%20Node...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

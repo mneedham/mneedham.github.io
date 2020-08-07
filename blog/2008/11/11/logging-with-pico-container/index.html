@@ -23,8 +23,8 @@
         <meta name="twitter:title" content="Logging with Pico Container" />
         
           <meta name="twitter:description" content="One thing that we&rsquo;ve been working on recently is the logging for our current code base.
-Nearly all the objects in our system are being created by Pico Container so we decided that writing an interceptor that hooked into Pico Container would be the easiest way to intercept and log any exceptions throw from our code.
-Our initial Googling led us to the AOP Style Interception page on the Pico website which detailed how we could create a static proxy for a class that we put in the container." />
+Nearly all the objects in our system are being created by Pico Containerso we decided that writing an interceptor that hooked into Pico Container would be the easiest way to intercept and log any exceptions throw from our code.
+Our initial Googling led us to the AOP Style Interceptionpage on the Pico website which detailed how we could create a static proxy for a class that we put in the container." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2008/11/11/logging-with-pico-container/" />
 
@@ -36,8 +36,8 @@ Our initial Googling led us to the AOP Style Interception page on the Pico websi
 
     
         <meta name="description" content="One thing that we&rsquo;ve been working on recently is the logging for our current code base.
-Nearly all the objects in our system are being created by Pico Container so we decided that writing an interceptor that hooked into Pico Container would be the easiest way to intercept and log any exceptions throw from our code.
-Our initial Googling led us to the AOP Style Interception page on the Pico website which detailed how we could create a static proxy for a class that we put in the container." />
+Nearly all the objects in our system are being created by Pico Containerso we decided that writing an interceptor that hooked into Pico Container would be the easiest way to intercept and log any exceptions throw from our code.
+Our initial Googling led us to the AOP Style Interceptionpage on the Pico website which detailed how we could create a static proxy for a class that we put in the container." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,10 +66,8 @@ Our initial Googling led us to the AOP Style Interception page on the Pico websi
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2008-11-11",
-        "description": "One thing that we&rsquo;ve been working on recently is the logging for our current code base.
-Nearly all the objects in our system are being created by Pico Container so we decided that writing an interceptor that hooked into Pico Container would be the easiest way to intercept and log any exceptions throw from our code.
-Our initial Googling led us to the AOP Style Interception page on the Pico website which detailed how we could create a static proxy for a class that we put in the container.",
-        "wordCount": 445
+        "description": "One thing that we\x26rsquo;ve been working on recently is the logging for our current code base.\nNearly all the objects in our system are being created by Pico Containerso we decided that writing an interceptor that hooked into Pico Container would be the easiest way to intercept and log any exceptions throw from our code.\nOur initial Googling led us to the AOP Style Interceptionpage on the Pico website which detailed how we could create a static proxy for a class that we put in the container.",
+        "wordCount":  442 
     }
     </script>
     
@@ -179,134 +177,115 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Logging with Pico Container</h1>
     <p>One thing that we&rsquo;ve been working on recently is the logging for our current code base.</p>
-
-<p>Nearly all the objects in our system are being created by <a href="http://picocontainer.org/">Pico Container</a> so we decided that writing an interceptor that hooked into Pico Container would be the easiest way to intercept and log any exceptions throw from our code.</p>
-
-<p>Our initial Googling led us to the <a href="http://picocontainer.org/interception.html">AOP Style Interception</a> page on the Pico website which detailed how we could create a static proxy for a class that we put in the container.</p>
-
+<p>Nearly all the objects in our system are being created by <!-- raw HTML omitted -->Pico Container<!-- raw HTML omitted --> so we decided that writing an interceptor that hooked into Pico Container would be the easiest way to intercept and log any exceptions throw from our code.</p>
+<p>Our initial Googling led us to the <!-- raw HTML omitted -->AOP Style Interception<!-- raw HTML omitted --> page on the Pico website which detailed how we could create a static proxy for a class that we put in the container.</p>
 <p>The code to do this was as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+        DefaultPicoContainer pico <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> DefaultPicoContainer<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Intercepting<span style="color:#f92672">());</span>
+        pico<span style="color:#f92672">.</span><span style="color:#a6e22e">addComponent</span><span style="color:#f92672">(</span>Interceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">,</span> ConcreteInterceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        Intercepted intercepted <span style="color:#f92672">=</span> pico<span style="color:#f92672">.</span><span style="color:#a6e22e">getComponentAdapter</span><span style="color:#f92672">(</span>Interceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">).</span><span style="color:#a6e22e">findAdapterOfType</span><span style="color:#f92672">(</span>Intercepted<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        intercepted<span style="color:#f92672">.</span><span style="color:#a6e22e">addPreInvocation</span><span style="color:#f92672">(</span>Interceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> InterceptableReporter<span style="color:#f92672">(</span>intercepted<span style="color:#f92672">.</span><span style="color:#a6e22e">getController</span><span style="color:#f92672">()));</span>
+        intercepted<span style="color:#f92672">.</span><span style="color:#a6e22e">addPostInvocation</span><span style="color:#f92672">(</span>Interceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> InterceptableReporter<span style="color:#f92672">(</span>intercepted<span style="color:#f92672">.</span><span style="color:#a6e22e">getController</span><span style="color:#f92672">()));</span>
 
-<pre><code class="language-java">
-        DefaultPicoContainer pico = new DefaultPicoContainer(new Intercepting());
-        pico.addComponent(Interceptable.class, ConcreteInterceptable.class);
-        Intercepted intercepted = pico.getComponentAdapter(Interceptable.class).findAdapterOfType(Intercepted.class);
-        intercepted.addPreInvocation(Interceptable.class, new InterceptableReporter(intercepted.getController()));
-        intercepted.addPostInvocation(Interceptable.class, new InterceptableReporter(intercepted.getController()));
+        Interceptable a1 <span style="color:#f92672">=</span> pico<span style="color:#f92672">.</span><span style="color:#a6e22e">getComponent</span><span style="color:#f92672">(</span>Interceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        a1<span style="color:#f92672">.</span><span style="color:#a6e22e">methodThatThrowsException</span><span style="color:#f92672">();</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">Interceptable</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">methodThatThrowsException</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">InterceptableReporter</span> <span style="color:#66d9ef">implements</span> Interceptable <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">private</span> Intercepted<span style="color:#f92672">.</span><span style="color:#a6e22e">Controller</span> controller<span style="color:#f92672">;</span>
 
-        Interceptable a1 = pico.getComponent(Interceptable.class);
-        a1.methodThatThrowsException();
-</code></pre>
-
-<pre><code class="language-java">
-public interface Interceptable {
-    void methodThatThrowsException();
-}
-</code></pre>
-
-<pre><code class="language-java">
-    private static class InterceptableReporter implements Interceptable {
-        private Intercepted.Controller controller;
-
-        public InterceptableReporter(Intercepted.Controller controller) {
-            this.controller = controller;
-        }
+        <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">InterceptableReporter</span><span style="color:#f92672">(</span>Intercepted<span style="color:#f92672">.</span><span style="color:#a6e22e">Controller</span> controller<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">controller</span> <span style="color:#f92672">=</span> controller<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
 
 
-        public void methodThatThrowsException() {
-            System.out.println(&quot;error happened&quot;);
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">methodThatThrowsException</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;error happened&#34;</span><span style="color:#f92672">);</span>
 
-        }
-    }
-</code></pre>
-
-<p>While this approach works, the problem is that we need to define an individual proxy for every class that we want to intercept. It works as  a strategy if we just need to intercept a few classes but not on a larger scale.</p>
-
-<p>Luckily it is possible to create a <a href="http://lizdouglass.wordpress.com/2008/08/31/small-things-amuse-small%E2%80%A6-hmph-well-anyway%E2%80%A6/">dynamic proxy</a> on the container so that we can intercept all the objects without having to create a static proxy for each one.</p>
-
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+</code></pre></div><p>While this approach works, the problem is that we need to define an individual proxy for every class that we want to intercept. It works as  a strategy if we just need to intercept a few classes but not on a larger scale.</p>
+<p>Luckily it is possible to create a <!-- raw HTML omitted -->dynamic proxy<!-- raw HTML omitted --> on the container so that we can intercept all the objects without having to create a static proxy for each one.</p>
 <p>The code to do this was as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+        DefaultPicoContainer pico <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> DefaultPicoContainer<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> LoggingAwareByDefault<span style="color:#f92672">());</span>
+        pico<span style="color:#f92672">.</span><span style="color:#a6e22e">addComponent</span><span style="color:#f92672">(</span>Interceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">,</span> ConcreteInterceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
 
-<pre><code class="language-java">
-        DefaultPicoContainer pico = new DefaultPicoContainer(new LoggingAwareByDefault());
-        pico.addComponent(Interceptable.class, ConcreteInterceptable.class);
+        Interceptable interceptable <span style="color:#f92672">=</span> pico<span style="color:#f92672">.</span><span style="color:#a6e22e">getComponent</span><span style="color:#f92672">(</span>Interceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        interceptable<span style="color:#f92672">.</span><span style="color:#a6e22e">methodThatThrowsException</span><span style="color:#f92672">();</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#f92672">import</span> org.apache.commons.logging.LogFactory<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.Characteristics<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.ComponentAdapter<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.ComponentMonitor<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.LifecycleStrategy<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.Parameter<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.behaviors.AbstractBehaviorFactory<span style="color:#f92672">;</span>
 
-        Interceptable interceptable = pico.getComponent(Interceptable.class);
-        interceptable.methodThatThrowsException();
-</code></pre>
+<span style="color:#f92672">import</span> java.util.Properties<span style="color:#f92672">;</span>
 
-<pre><code class="language-java">
-import org.apache.commons.logging.LogFactory;
-import org.picocontainer.Characteristics;
-import org.picocontainer.ComponentAdapter;
-import org.picocontainer.ComponentMonitor;
-import org.picocontainer.LifecycleStrategy;
-import org.picocontainer.Parameter;
-import org.picocontainer.behaviors.AbstractBehaviorFactory;
-
-import java.util.Properties;
-
-public class LoggingAwareByDefault extends AbstractBehaviorFactory {
-    private static final String DO_NOT_LOG_NAME = &quot;support-team-opt-out&quot;;
-    public static final Properties DO_NOT_LOG = Characteristics
-            .immutable(DO_NOT_LOG_NAME, Characteristics.TRUE);
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LoggingAwareByDefault</span> <span style="color:#66d9ef">extends</span> AbstractBehaviorFactory <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> String DO_NOT_LOG_NAME <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;support-team-opt-out&#34;</span><span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> Properties DO_NOT_LOG <span style="color:#f92672">=</span> Characteristics
+            <span style="color:#f92672">.</span><span style="color:#a6e22e">immutable</span><span style="color:#f92672">(</span>DO_NOT_LOG_NAME<span style="color:#f92672">,</span> Characteristics<span style="color:#f92672">.</span><span style="color:#a6e22e">TRUE</span><span style="color:#f92672">);</span>
 
 
-    public &lt;T&gt; ComponentAdapter&lt;T&gt; createComponentAdapter(ComponentMonitor componentMonitor,
-                                                          LifecycleStrategy lifecycleStrategy,
-                                                          Properties componentProperties,
-                                                          Object componentKey, Class&lt;T&gt; componentImplementation,
-                                                          Parameter... parameters) {
-        if (removePropertiesIfPresent(componentProperties, DO_NOT_LOG)) {
-            return super.createComponentAdapter(componentMonitor, lifecycleStrategy, componentProperties, componentKey,
-                    componentImplementation, parameters);
-        } else {
-            return new LoggingAware&lt;T&gt;(super.createComponentAdapter(componentMonitor,
-                    lifecycleStrategy, componentProperties, componentKey,
-                    componentImplementation, parameters));
-        }
+    <span style="color:#66d9ef">public</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> ComponentAdapter<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createComponentAdapter</span><span style="color:#f92672">(</span>ComponentMonitor componentMonitor<span style="color:#f92672">,</span>
+                                                          LifecycleStrategy lifecycleStrategy<span style="color:#f92672">,</span>
+                                                          Properties componentProperties<span style="color:#f92672">,</span>
+                                                          Object componentKey<span style="color:#f92672">,</span> Class<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> componentImplementation<span style="color:#f92672">,</span>
+                                                          Parameter<span style="color:#f92672">...</span> parameters<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>removePropertiesIfPresent<span style="color:#f92672">(</span>componentProperties<span style="color:#f92672">,</span> DO_NOT_LOG<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">createComponentAdapter</span><span style="color:#f92672">(</span>componentMonitor<span style="color:#f92672">,</span> lifecycleStrategy<span style="color:#f92672">,</span> componentProperties<span style="color:#f92672">,</span> componentKey<span style="color:#f92672">,</span>
+                    componentImplementation<span style="color:#f92672">,</span> parameters<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> LoggingAware<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;(</span><span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">createComponentAdapter</span><span style="color:#f92672">(</span>componentMonitor<span style="color:#f92672">,</span>
+                    lifecycleStrategy<span style="color:#f92672">,</span> componentProperties<span style="color:#f92672">,</span> componentKey<span style="color:#f92672">,</span>
+                    componentImplementation<span style="color:#f92672">,</span> parameters<span style="color:#f92672">));</span>
+        <span style="color:#f92672">}</span>
 
-    }
-}
-</code></pre>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#f92672">import</span> org.apache.commons.logging.Log<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.ComponentAdapter<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.ComponentMonitor<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.PicoContainer<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> org.picocontainer.behaviors.HiddenImplementation<span style="color:#f92672">;</span>
 
-<pre><code class="language-java">
-import org.apache.commons.logging.Log;
-import org.picocontainer.ComponentAdapter;
-import org.picocontainer.ComponentMonitor;
-import org.picocontainer.PicoContainer;
-import org.picocontainer.behaviors.HiddenImplementation;
+<span style="color:#f92672">import</span> java.lang.reflect.InvocationTargetException<span style="color:#f92672">;</span>
+<span style="color:#f92672">import</span> java.lang.reflect.Method<span style="color:#f92672">;</span>
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LoggingAware</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">extends</span> HiddenImplementation <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">LoggingAware</span><span style="color:#f92672">(</span>ComponentAdapter delegate<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">super</span><span style="color:#f92672">(</span>delegate<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
 
-public class LoggingAware&lt;T&gt; extends HiddenImplementation {
-    public LoggingAware(ComponentAdapter delegate) {
-        super(delegate);
-    }
+    <span style="color:#66d9ef">protected</span> Object <span style="color:#a6e22e">invokeMethod</span><span style="color:#f92672">(</span>Object componentInstance<span style="color:#f92672">,</span> Method method<span style="color:#f92672">,</span> Object<span style="color:#f92672">[]</span> args<span style="color:#f92672">,</span> PicoContainer container<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throws</span> Throwable <span style="color:#f92672">{</span>
+        ComponentMonitor componentMonitor <span style="color:#f92672">=</span> currentMonitor<span style="color:#f92672">();</span>
+        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            componentMonitor<span style="color:#f92672">.</span><span style="color:#a6e22e">invoking</span><span style="color:#f92672">(</span>container<span style="color:#f92672">,</span> <span style="color:#66d9ef">this</span><span style="color:#f92672">,</span> method<span style="color:#f92672">,</span> componentInstance<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">long</span> startTime <span style="color:#f92672">=</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">currentTimeMillis</span><span style="color:#f92672">();</span>
+            Object object <span style="color:#f92672">=</span> method<span style="color:#f92672">.</span><span style="color:#a6e22e">invoke</span><span style="color:#f92672">(</span>componentInstance<span style="color:#f92672">,</span> args<span style="color:#f92672">);</span>
+            componentMonitor<span style="color:#f92672">.</span><span style="color:#a6e22e">invoked</span><span style="color:#f92672">(</span>container<span style="color:#f92672">,</span>
+                                     <span style="color:#66d9ef">this</span><span style="color:#f92672">,</span>
+                                     method<span style="color:#f92672">,</span> componentInstance<span style="color:#f92672">,</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">currentTimeMillis</span><span style="color:#f92672">()</span> <span style="color:#f92672">-</span> startTime<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">return</span> object<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">final</span> InvocationTargetException ite<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            componentMonitor<span style="color:#f92672">.</span><span style="color:#a6e22e">invocationFailed</span><span style="color:#f92672">(</span>method<span style="color:#f92672">,</span> componentInstance<span style="color:#f92672">,</span> ite<span style="color:#f92672">);</span>
 
-    protected Object invokeMethod(Object componentInstance, Method method, Object[] args, PicoContainer container)
-            throws Throwable {
-        ComponentMonitor componentMonitor = currentMonitor();
-        try {
-            componentMonitor.invoking(container, this, method, componentInstance);
-            long startTime = System.currentTimeMillis();
-            Object object = method.invoke(componentInstance, args);
-            componentMonitor.invoked(container,
-                                     this,
-                                     method, componentInstance, System.currentTimeMillis() - startTime);
-            return object;
-        } catch (final InvocationTargetException ite) {
-            componentMonitor.invocationFailed(method, componentInstance, ite);
+            <span style="color:#75715e">// log the error
+</span><span style="color:#75715e"></span>
+            <span style="color:#66d9ef">throw</span> ite<span style="color:#f92672">.</span><span style="color:#a6e22e">getTargetException</span><span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
 
-            // log the error
-
-            throw ite.getTargetException();
-        }
-
-    }
-}
-</code></pre>
-
-<p>From what I recall from looking at the source code I think in order to create a proxy around an object it needs to implement an interface otherwise the proxy will not be created.</p>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>From what I recall from looking at the source code I think in order to create a proxy around an object it needs to implement an interface otherwise the proxy will not be created.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -341,7 +320,7 @@ public class LoggingAware&lt;T&gt; extends HiddenImplementation {
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/11/11/logging-with-pico-container/&amp;title=Logging%20with%20Pico%20Container&amp;summary=One%20thing%20that%20we%26rsquo%3bve%20been%20working%20on%20recently%20is%20the%20logging%20for%20our%20current%20code%20base.%0aNearly%20all%20the%20objects%20in%20our%20system%20are%20being%20created%20by%20Pico%20Container%20so%20we%20decided%20that%20writing%20an%20interceptor%20that%20hooked%20into%20Pico%20Container%20would%20be%20the%20easiest%20way%20to%20intercept%20and%20log%20any%20exceptions%20throw%20from%20our%20code.%0aOur%20initial%20Googling%20led%20us%20to%20the%20AOP%20Style%20Interception%20page%20on%20the%20Pico%20website%20which%20detailed%20how%20we%20could%20create%20a%20static%20proxy%20for%20a%20class%20that%20we%20put%20in%20the%20container...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/11/11/logging-with-pico-container/&amp;title=Logging%20with%20Pico%20Container&amp;summary=One%20thing%20that%20we%26rsquo%3bve%20been%20working%20on%20recently%20is%20the%20logging%20for%20our%20current%20code%20base.%0aNearly%20all%20the%20objects%20in%20our%20system%20are%20being%20created%20by%20Pico%20Containerso%20we%20decided%20that%20writing%20an%20interceptor%20that%20hooked%20into%20Pico%20Container%20would%20be%20the%20easiest%20way%20to%20intercept%20and%20log%20any%20exceptions%20throw%20from%20our%20code.%0aOur%20initial%20Googling%20led%20us%20to%20the%20AOP%20Style%20Interceptionpage%20on%20the%20Pico%20website%20which%20detailed%20how%20we%20could%20create%20a%20static%20proxy%20for%20a%20class%20that%20we%20put%20in%20the%20container...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

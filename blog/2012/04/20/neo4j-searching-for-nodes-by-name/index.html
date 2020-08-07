@@ -65,9 +65,8 @@ The solution I came up was to create a Lucene index with an entry for each node 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-04-20",
-        "description": "As I mentioned in a post a few days ago I&rsquo;ve been graphing connections between ThoughtWorks people using neo4j and wanted to build auto complete functionality so I can search for the names of people in the graph.
-The solution I came up was to create a Lucene index with an entry for each node and a common property on each document in the index so that I&rsquo;d be able to get all the index entries easily.",
-        "wordCount": 324
+        "description": "As I mentioned in a post a few days ago I\x26rsquo;ve been graphing connections between ThoughtWorks people using neo4j and wanted to build auto complete functionality so I can search for the names of people in the graph.\nThe solution I came up was to create a Lucene index with an entry for each node and a common property on each document in the index so that I\x26rsquo;d be able to get all the index entries easily.",
+        "wordCount":  323 
     }
     </script>
     
@@ -179,42 +178,24 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">neo4J: Searching for nodes by name</h1>
     <p>As I mentioned in a post a few days ago I&rsquo;ve been graphing connections between ThoughtWorks people using neo4j and wanted to build auto complete functionality so I can search for the names of people in the graph.</p>
-
 <p>The solution I came up was to create a Lucene index with an entry for each node and a common property on each document in the index so that I&rsquo;d be able to get all the index entries easily.</p>
-
-<p>I created the index like this, using the <a href="https://github.com/maxdemarzi/neography/blob/master/lib/neography/rest.rb">neography gem</a>:</p>
-
-<pre><code class="language-ruby">
-Neography::Rest.new.add_node_to_index(&quot;people&quot;, &quot;type&quot;, &quot;person&quot;, node)
-</code></pre>
-
-<p>I can then get all the names like this:</p>
-
-<pre><code class="language-ruby">
-all_people = Neography::Rest.new.get_index(&quot;people&quot;, &quot;type&quot;, &quot;person&quot;).map { |n| n[&quot;data&quot;][&quot;name&quot;] }
-</code></pre>
-
-<p>It seemed like there must be a better way to do this and <a href="http://twitter.com/#!/mesirii">Michael Hunger</a> was kind enough to show me a couple of cleaner solutions.</p>
-
+<p>I created the index like this, using the <!-- raw HTML omitted -->neography gem<!-- raw HTML omitted -->:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+<span style="color:#66d9ef">Neography</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Rest</span><span style="color:#f92672">.</span>new<span style="color:#f92672">.</span>add_node_to_index(<span style="color:#e6db74">&#34;people&#34;</span>, <span style="color:#e6db74">&#34;type&#34;</span>, <span style="color:#e6db74">&#34;person&#34;</span>, node)
+</code></pre></div><p>I can then get all the names like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+all_people <span style="color:#f92672">=</span> <span style="color:#66d9ef">Neography</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Rest</span><span style="color:#f92672">.</span>new<span style="color:#f92672">.</span>get_index(<span style="color:#e6db74">&#34;people&#34;</span>, <span style="color:#e6db74">&#34;type&#34;</span>, <span style="color:#e6db74">&#34;person&#34;</span>)<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>n<span style="color:#f92672">|</span> n<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">]</span> }
+</code></pre></div><p>It seemed like there must be a better way to do this and <!-- raw HTML omitted -->Michael Hunger<!-- raw HTML omitted --> was kind enough to show me a couple of cleaner solutions.</p>
 <p>One way is to query the initial index rather than creating a new one:</p>
-
-<pre><code class="language-ruby">
-all_people = Neography::Rest.new.find_node_index(&quot;people&quot;, &quot;name:*&quot;).map { |n| n[&quot;data&quot;][&quot;name&quot;] }
-</code></pre>
-
-<p>The &lsquo;find_node_index&rsquo; method allows us to pass in a Lucene query which gets <a href="http://docs.neo4j.org/chunked/stable/rest-api-indexes.html#rest-api-find-node-by-query">executed via neo4j&rsquo;s REST API</a>. In this case we&rsquo;re using a wild card query on the &lsquo;name&rsquo; property so it will return all documents.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+all_people <span style="color:#f92672">=</span> <span style="color:#66d9ef">Neography</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Rest</span><span style="color:#f92672">.</span>new<span style="color:#f92672">.</span>find_node_index(<span style="color:#e6db74">&#34;people&#34;</span>, <span style="color:#e6db74">&#34;name:*&#34;</span>)<span style="color:#f92672">.</span>map { <span style="color:#f92672">|</span>n<span style="color:#f92672">|</span> n<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">]</span> }
+</code></pre></div><p>The &lsquo;find_node_index&rsquo; method allows us to pass in a Lucene query which gets <!-- raw HTML omitted -->executed via neo4j&rsquo;s REST API<!-- raw HTML omitted -->. In this case we&rsquo;re using a wild card query on the &lsquo;name&rsquo; property so it will return all documents.</p>
 <p>This way of getting all the names seemed to be much more intensive than my other approach and when I ran it a few times in a row I was getting OutOfMemory errors. My graph only has a few thousand nodes in it so I&rsquo;m not sure why that is yet.</p>
-
 <p>I think it should be possible to query the Lucene index directly with the partial name but I was struggling to get spaces in the search term to encode correctly and was getting back no results.</p>
-
 <p>Another approach is to use a cypher query to get a collection of all the nodes:</p>
-
-<pre><code class="language-ruby">
-all_people = Neography::Rest.new.execute_query(&quot;start n=node(*) return n&quot;)[&quot;data&quot;].map { |n| n[0][&quot;data&quot;][&quot;name&quot;] }
-</code></pre>
-
-<p>I imagine this approach wouldn&rsquo;t scale with graph size but for my graph it works just fine.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+all_people <span style="color:#f92672">=</span> <span style="color:#66d9ef">Neography</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Rest</span><span style="color:#f92672">.</span>new<span style="color:#f92672">.</span>execute_query(<span style="color:#e6db74">&#34;start n=node(*) return n&#34;</span>)<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">].</span>map { <span style="color:#f92672">|</span>n<span style="color:#f92672">|</span> n<span style="color:#f92672">[</span><span style="color:#ae81ff">0</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">]</span> }
+</code></pre></div><p>I imagine this approach wouldn&rsquo;t scale with graph size but for my graph it works just fine.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">

@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Refactoring: Removing duplication more safely" />
         
-          <meta name="twitter:description" content="One of the most important things that I&rsquo;ve learnt from the coding dojo sessions that we&rsquo;ve been running over the last six months is the importance of small step refactorings.
-Granted we have been trying to take some of the practices to the extreme but the basic idea of trying to keep the tests green for as much time as well as keeping our code in a state where it still compiles (in a static language) is very useful no matter what code we&rsquo;re working on." />
+          <meta name="twitter:description" content="One of the most important things that I&rsquo;ve learnt from the coding dojo sessionsthat we&rsquo;ve been running over the last six months is the importance of small step refactorings.
+Granted we have been trying to take some of the practices to the extreme but the basic idea of trying to keep the tests greenfor as much time as well as keeping our code in a state where it still compiles (in a static language) is very useful no matter what code we&rsquo;re working on." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/05/26/refactoring-removing-duplication-more-safely/" />
 
@@ -35,8 +35,8 @@ Granted we have been trying to take some of the practices to the extreme but the
         <title> Refactoring: Removing duplication more safely &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="One of the most important things that I&rsquo;ve learnt from the coding dojo sessions that we&rsquo;ve been running over the last six months is the importance of small step refactorings.
-Granted we have been trying to take some of the practices to the extreme but the basic idea of trying to keep the tests green for as much time as well as keeping our code in a state where it still compiles (in a static language) is very useful no matter what code we&rsquo;re working on." />
+        <meta name="description" content="One of the most important things that I&rsquo;ve learnt from the coding dojo sessionsthat we&rsquo;ve been running over the last six months is the importance of small step refactorings.
+Granted we have been trying to take some of the practices to the extreme but the basic idea of trying to keep the tests greenfor as much time as well as keeping our code in a state where it still compiles (in a static language) is very useful no matter what code we&rsquo;re working on." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,9 +65,8 @@ Granted we have been trying to take some of the practices to the extreme but the
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-05-26",
-        "description": "One of the most important things that I&rsquo;ve learnt from the coding dojo sessions that we&rsquo;ve been running over the last six months is the importance of small step refactorings.
-Granted we have been trying to take some of the practices to the extreme but the basic idea of trying to keep the tests green for as much time as well as keeping our code in a state where it still compiles (in a static language) is very useful no matter what code we&rsquo;re working on.",
-        "wordCount": 765
+        "description": "One of the most important things that I\x26rsquo;ve learnt from the coding dojo sessionsthat we\x26rsquo;ve been running over the last six months is the importance of small step refactorings.\nGranted we have been trying to take some of the practices to the extreme but the basic idea of trying to keep the tests greenfor as much time as well as keeping our code in a state where it still compiles (in a static language) is very useful no matter what code we\x26rsquo;re working on.",
+        "wordCount":  761 
     }
     </script>
     
@@ -178,73 +177,49 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Refactoring: Removing duplication more safely</h1>
-    <p>One of the most important things that I&rsquo;ve learnt from the <a href="http://www.markhneedham.com/blog/category/coding-dojo/">coding dojo sessions</a> that we&rsquo;ve been running over the last six months is the importance of <a href="http://www.markhneedham.com/blog/2009/05/15/coding-dojo-14-rock-scissors-paper-tdd-as-if-you-meant-it/">small step refactorings</a>.</p>
-
-<p>Granted we have been trying to take some of the practices to the extreme but the basic idea of trying to <strong>keep the tests green</strong> for as much time as well as <strong>keeping our code in a state where it still compiles </strong>(in a static language) is very useful no matter what code we&rsquo;re working on.</p>
-
+    <p>One of the most important things that I&rsquo;ve learnt from the <!-- raw HTML omitted -->coding dojo sessions<!-- raw HTML omitted --> that we&rsquo;ve been running over the last six months is the importance of <!-- raw HTML omitted -->small step refactorings<!-- raw HTML omitted -->.</p>
+<p>Granted we have been trying to take some of the practices to the extreme but the basic idea of trying to <!-- raw HTML omitted -->keep the tests green<!-- raw HTML omitted --> for as much time as well as <!-- raw HTML omitted -->keeping our code in a state where it still compiles <!-- raw HTML omitted -->(in a static language) is very useful no matter what code we&rsquo;re working on.</p>
 <p>Recently a colleague and I were doing some work on our code base to try and remove some duplication - we had two classes which were doing pretty much the same thing but they were named just slightly differently.</p>
-
 <p>The implementation was also slightly different - one was a list containing objects with Key and Value properties on and the other was a dictionary/map of key/value pairs.</p>
-
 <p>We spent a bit of time checking that we hadn&rsquo;t misunderstood what these two different classes were doing and having convinced ourselves that we knew what was going on decided to get rid of one of them - one was used in around 50% more places than the other so we decided to keep that one.</p>
-
 <p>We now needed to replace the usages of the other one.</p>
-
 <p>My pre-coding dojo refactoring approach would have been to just find the first place that the one we wanted to replace was being used, delete that and then let the compiler guide me to replacing all its usages and then do that with the second usage and so on.</p>
-
 <p>The problem with this approach is that we would probably have had the code in a state where it didn&rsquo;t compile for maybe half an hour, leading to a situation where we would be unable to run our tests for any of this time which would mean that we would lose confidence that the changes we were making actually worked.</p>
-
 <p>The approach we therefore took was to add in the class we wanted to keep side by side with the one we wanted to get rid of and slowly move our tests across to setup data for that.</p>
-
 <p>We therefore ended up with code looking a bit like this to start with:</p>
-
-<pre><code class="language-csharp">
-public class IHaveUsages
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IHaveUsages</span>
 {
-	public IDictionary&lt;OldType, string&gt; OldType { get; set; }
-	public IList&lt;NewType&gt; OldType2 { get; set; }
+	<span style="color:#66d9ef">public</span> IDictionary&lt;OldType, <span style="color:#66d9ef">string</span>&gt; OldType { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
+	<span style="color:#66d9ef">public</span> IList&lt;NewType&gt; OldType2 { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
 }
-</code></pre>
-
-<p>When changing tests we took the approach of commenting out the old setup code to start with so that we could see exactly what was going on in the setup and then delete it once we had done so. I&rsquo;ve written previously about my <a href="http://www.markhneedham.com/blog/2009/01/17/the-danger-of-commenting-out-code/">dislike for commented code</a> but we were using it in this case as a mechanism to guide our refactoring and we didn&rsquo;t ever check the code in with these comments in so I think it was a reasonable approach.</p>
-
-<pre><code class="language-csharp">
-[Test]
-public void SomeTest()
+</code></pre></div><p>When changing tests we took the approach of commenting out the old setup code to start with so that we could see exactly what was going on in the setup and then delete it once we had done so. I&rsquo;ve written previously about my <!-- raw HTML omitted -->dislike for commented code<!-- raw HTML omitted --> but we were using it in this case as a mechanism to guide our refactoring and we didn&rsquo;t ever check the code in with these comments in so I think it was a reasonable approach.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">[Test]</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> SomeTest()
 {
-	// some test stuff
-	new IHaveUsages 
+	<span style="color:#75715e">// some test stuff
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">new</span> IHaveUsages 
 	{
-		// OldType = new Dictionary&lt;OldType, string&gt; {{new OldType(&quot;key&quot;), &quot;value&quot;}},
-		OldType2 = new List&lt;NewType&gt; { new NewType { Key = &quot;key&quot;, Value = &quot;value&quot; } } 
+		<span style="color:#75715e">// OldType = new Dictionary&lt;OldType, string&gt; {{new OldType(&#34;key&#34;), &#34;value&#34;}},
+</span><span style="color:#75715e"></span>		OldType2 = <span style="color:#66d9ef">new</span> List&lt;NewType&gt; { <span style="color:#66d9ef">new</span> NewType { Key = <span style="color:#e6db74">&#34;key&#34;</span>, Value = <span style="color:#e6db74">&#34;value&#34;</span> } } 
 	}
 }
-</code></pre>
-
-<p>The intention was to try and reduce the number of places that OldType was being used until the point where there were none left which would allow us to safely remove it.</p>
-
+</code></pre></div><p>The intention was to try and reduce the number of places that OldType was being used until the point where there were none left which would allow us to safely remove it.</p>
 <p>Once we had made that change to the test setup we needed to make the changes in the class using that data to get our green bar back.</p>
-
 <p>On a couple of occasions we found methods in the production code which took in the OldType as a parameter. In order to refactor these areas we decided to take a copy of the method and renamed it slightly before re-implementing it using the NewType.</p>
-
-<pre><code class="language-csharp">
-private void OldMethod(OldType oldType) 
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> OldMethod(OldType oldType) 
 {
-	// Do some stuff
-}
-</code></pre>
-
-<pre><code class="language-csharp">
-private void OldMethod2(NewType newType) 
+	<span style="color:#75715e">// Do some stuff
+</span><span style="color:#75715e"></span>}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> OldMethod2(NewType newType) 
 {
-	// replicate what's being done in DoSomeStuffOn
-}
-</code></pre>
-
-<p>We then looked for the usages of &lsquo;OldMethod&rsquo; and replaced those with calls to &lsquo;OldMethod2&rsquo;, also ensuring that we passed in NewType to the method instead of OldType.</p>
-
-<p>I&rsquo;m intrigued as to whether there is an even better way to perform this refactoring - when I chatted with <a href="http://pilchardfriendly.wordpress.com/">Nick</a> about this he suggested that it might have been even easier to create a temporary inheritance hierarchy with NewType extending OldType. We could then just change any calls which use OldType to use NewType before eventually getting rid of OldType.</p>
-
+	<span style="color:#75715e">// replicate what&#39;s being done in DoSomeStuffOn
+</span><span style="color:#75715e"></span>}
+</code></pre></div><p>We then looked for the usages of &lsquo;OldMethod&rsquo; and replaced those with calls to &lsquo;OldMethod2&rsquo;, also ensuring that we passed in NewType to the method instead of OldType.</p>
+<p>I&rsquo;m intrigued as to whether there is an even better way to perform this refactoring - when I chatted with <!-- raw HTML omitted -->Nick<!-- raw HTML omitted --> about this he suggested that it might have been even easier to create a temporary inheritance hierarchy with NewType extending OldType. We could then just change any calls which use OldType to use NewType before eventually getting rid of OldType.</p>
 <p>I haven&rsquo;t tried this approach out yet but if it makes our feedback cycle quicker and chances of failing less then I&rsquo;m all for it.</p>
 
     <div id="social-bar">
@@ -280,7 +255,7 @@ private void OldMethod2(NewType newType)
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/05/26/refactoring-removing-duplication-more-safely/&amp;title=Refactoring%3a%20Removing%20duplication%20more%20safely&amp;summary=One%20of%20the%20most%20important%20things%20that%20I%26rsquo%3bve%20learnt%20from%20the%20coding%20dojo%20sessions%20that%20we%26rsquo%3bve%20been%20running%20over%20the%20last%20six%20months%20is%20the%20importance%20of%20small%20step%20refactorings.%0aGranted%20we%20have%20been%20trying%20to%20take%20some%20of%20the%20practices%20to%20the%20extreme%20but%20the%20basic%20idea%20of%20trying%20to%20keep%20the%20tests%20green%20for%20as%20much%20time%20as%20well%20as%20keeping%20our%20code%20in%20a%20state%20where%20it%20still%20compiles%20%28in%20a%20static%20language%29%20is%20very%20useful%20no%20matter%20what%20code%20we%26rsquo%3bre%20working%20on...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/05/26/refactoring-removing-duplication-more-safely/&amp;title=Refactoring%3a%20Removing%20duplication%20more%20safely&amp;summary=One%20of%20the%20most%20important%20things%20that%20I%26rsquo%3bve%20learnt%20from%20the%20coding%20dojo%20sessionsthat%20we%26rsquo%3bve%20been%20running%20over%20the%20last%20six%20months%20is%20the%20importance%20of%20small%20step%20refactorings.%0aGranted%20we%20have%20been%20trying%20to%20take%20some%20of%20the%20practices%20to%20the%20extreme%20but%20the%20basic%20idea%20of%20trying%20to%20keep%20the%20tests%20greenfor%20as%20much%20time%20as%20well%20as%20keeping%20our%20code%20in%20a%20state%20where%20it%20still%20compiles%20%28in%20a%20static%20language%29%20is%20very%20useful%20no%20matter%20what%20code%20we%26rsquo%3bre%20working%20on...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -23,7 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Algorithms: Flood Fill in Haskell" />
         
-          <meta name="twitter:description" content="Flood fill is an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&rsquo;ll use a two dimensional array.
+          <meta name="twitter:description" content="Flood fillis an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&rsquo;ll use a two dimensional array.
 The idea is that we decide that we want to change the colour of one of the cells in the array and have its immediate neighbours who share its initial colour have their colour changed too i.e. the colour floods its way through the grid." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/04/07/algorithms-flood-fill-in-haskell/" />
@@ -35,7 +35,7 @@ The idea is that we decide that we want to change the colour of one of the cells
         <title> Algorithms: Flood Fill in Haskell &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Flood fill is an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&rsquo;ll use a two dimensional array.
+        <meta name="description" content="Flood fillis an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&rsquo;ll use a two dimensional array.
 The idea is that we decide that we want to change the colour of one of the cells in the array and have its immediate neighbours who share its initial colour have their colour changed too i.e. the colour floods its way through the grid." />
     
 
@@ -65,9 +65,8 @@ The idea is that we decide that we want to change the colour of one of the cells
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-04-07",
-        "description": "Flood fill is an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&rsquo;ll use a two dimensional array.
-The idea is that we decide that we want to change the colour of one of the cells in the array and have its immediate neighbours who share its initial colour have their colour changed too i.e. the colour floods its way through the grid.",
-        "wordCount": 632
+        "description": "Flood fillis an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we\x26rsquo;ll use a two dimensional array.\nThe idea is that we decide that we want to change the colour of one of the cells in the array and have its immediate neighbours who share its initial colour have their colour changed too i.e. the colour floods its way through the grid.",
+        "wordCount":  556 
     }
     </script>
     
@@ -178,89 +177,54 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Algorithms: Flood Fill in Haskell</h1>
-    <p><a href="http://en.wikipedia.org/wiki/Flood_fill">Flood fill</a> is an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&rsquo;ll use a two dimensional array.</p>
-
+    <p><!-- raw HTML omitted -->Flood fill<!-- raw HTML omitted --> is an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&rsquo;ll use a two dimensional array.</p>
 <p>The idea is that we decide that we want to change the colour of one of the cells in the array and have its immediate neighbours who share its initial colour have their colour changed too i.e. the colour floods its way through the grid.</p>
-
 <p>The algorithm is described on Wikipedia like so:</p>
-
-<blockquote>
-Flood-fill (node, target-color, replacement-color):
-<ol>
-<li>If the color of node is not equal to target-color, return.</li>
-<li>Set the color of node to replacement-color.</li>
-<li>
-    <ul>
-    <li>Perform Flood-fill (one step to the west of node, target-color, replacement-color).</li>
-    <li>Perform Flood-fill (one step to the east of node, target-color, replacement-color).</li>
-    <li>Perform Flood-fill (one step to the north of node, target-color, replacement-color).</li>
-    <li>Perform Flood-fill (one step to the south of node, target-color, replacement-color).</li>
-    </ul>
-</li>
-<li>Return.</li>
-</blockquote>
-
+<!-- raw HTML omitted -->
 <p>I decided to have a go at implementing it in Haskell and ended up with the following code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#66d9ef">import</span> Data.Array
+<span style="color:#66d9ef">data</span> <span style="color:#66d9ef">Colour</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">White</span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">Black</span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">Blue</span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">Green</span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">Red</span> <span style="color:#66d9ef">deriving</span> (<span style="color:#66d9ef">Show</span>, <span style="color:#66d9ef">Eq</span>) 
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#a6e22e">inBounds</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Array</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Colour</span> <span style="color:#f92672">-&gt;</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Bool</span>
+<span style="color:#a6e22e">inBounds</span> grid (x, y) <span style="color:#f92672">=</span> x <span style="color:#f92672">&gt;=</span> lowx <span style="color:#f92672">&amp;&amp;</span> x <span style="color:#f92672">&lt;=</span> highx <span style="color:#f92672">&amp;&amp;</span> y <span style="color:#f92672">&gt;=</span> lowy <span style="color:#f92672">&amp;&amp;</span> y <span style="color:#f92672">&lt;=</span> highy
+	<span style="color:#66d9ef">where</span> ((lowx, lowy), (highx, highy)) <span style="color:#f92672">=</span>  bounds grid
 
-<pre><code class="language-haskell">
-import Data.Array
-data Colour = White | Black | Blue | Green | Red deriving (Show, Eq) 
-</code></pre>
-
-<pre><code class="language-haskell">
-inBounds :: Array (Int, Int) Colour -&gt; (Int, Int) -&gt; Bool
-inBounds grid (x, y) = x &gt;= lowx &amp;&amp; x &lt;= highx &amp;&amp; y &gt;= lowy &amp;&amp; y &lt;= highy
-	where ((lowx, lowy), (highx, highy)) =  bounds grid
-
-replace :: Array (Int, Int) Colour -&gt; (Int, Int) -&gt; Colour -&gt; Array (Int, Int) Colour
-replace grid point replacement = if inBounds grid point then grid // [(point, replacement)] else grid
-~~~	
-
-~~~haskell
-
-floodFill :: Array (Int, Int) Colour -&gt;  (Int, Int) -&gt; Colour -&gt; Colour -&gt; Array (Int, Int) Colour
-floodFill grid point@(x, y) target replacement =
-  if((not $ inBounds grid point) ||  grid ! (x,y) /= target) then grid 
-  else 
+<span style="color:#a6e22e">replace</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Array</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Colour</span> <span style="color:#f92672">-&gt;</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Colour</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Array</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Colour</span>
+<span style="color:#a6e22e">replace</span> grid point replacement <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> inBounds grid point <span style="color:#66d9ef">then</span> grid <span style="color:#f92672">//</span> [(point, replacement)] <span style="color:#66d9ef">else</span> grid
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#a6e22e">floodFill</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Array</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Colour</span> <span style="color:#f92672">-&gt;</span>  (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Colour</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Colour</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Array</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Colour</span>
+<span style="color:#a6e22e">floodFill</span> grid point<span style="color:#f92672">@</span>(x, y) target replacement <span style="color:#f92672">=</span>
+  <span style="color:#66d9ef">if</span>((not <span style="color:#f92672">$</span> inBounds grid point) <span style="color:#f92672">||</span>  grid <span style="color:#f92672">!</span> (x,y) <span style="color:#f92672">/=</span> target) <span style="color:#66d9ef">then</span> grid 
+  <span style="color:#66d9ef">else</span> 
     gridNorth
-    where grid' = replace grid point replacement
-          gridEast = floodFill grid' (x+1, y) target replacement
-          gridWest = floodFill gridEast (x-1, y) target replacement
-          gridSouth = floodFill gridWest (x, y+1) target replacement
-          gridNorth = floodFill gridSouth (x, y-1) target replacement
-</code></pre>
-
-<p>Since we can&rsquo;t mutate the array, but only create new instances of it, we have to pass it onto the next recursive call such that the recursive call to the &lsquo;East&rsquo; passes its result to the one recursing to the &lsquo;West&rsquo; and so on.</p>
-
-<p>It seemed to be easier to check that the square we wanted to change was actually in the grid in the <cite>replace</cite> function rather than before calling it so I pushed the logic into there. The <cite><a href="http://cvs.haskell.org/Hugs/pages/libraries/base/Data-Array.html#v%3Abounds">bounds</a></cite> function was useful for allowing me to work out if we were still on the grid.</p>
-
+    <span style="color:#66d9ef">where</span> grid&#39; <span style="color:#f92672">=</span> replace grid point replacement
+          gridEast <span style="color:#f92672">=</span> floodFill grid&#39; (x<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, y) target replacement
+          gridWest <span style="color:#f92672">=</span> floodFill gridEast (x<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, y) target replacement
+          gridSouth <span style="color:#f92672">=</span> floodFill gridWest (x, y<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>) target replacement
+          gridNorth <span style="color:#f92672">=</span> floodFill gridSouth (x, y<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) target replacement
+</code></pre></div><p>Since we can&rsquo;t mutate the array, but only create new instances of it, we have to pass it onto the next recursive call such that the recursive call to the &lsquo;East&rsquo; passes its result to the one recursing to the &lsquo;West&rsquo; and so on.</p>
+<p>It seemed to be easier to check that the square we wanted to change was actually in the grid in the <!-- raw HTML omitted -->replace<!-- raw HTML omitted --> function rather than before calling it so I pushed the logic into there. The <!-- raw HTML omitted --><!-- raw HTML omitted -->bounds<!-- raw HTML omitted --><!-- raw HTML omitted --> function was useful for allowing me to work out if we were still on the grid.</p>
 <p>If we start with this grid:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#f92672">&gt;</span> printGrid <span style="color:#f92672">$</span> (toComplexArray [[<span style="color:#66d9ef">White</span>, <span style="color:#66d9ef">White</span>, <span style="color:#66d9ef">White</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>], [<span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">White</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>], [<span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Green</span>, <span style="color:#66d9ef">Green</span>], [<span style="color:#66d9ef">Green</span>, <span style="color:#66d9ef">Red</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Black</span>, <span style="color:#66d9ef">Black</span>], [<span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Green</span>, <span style="color:#66d9ef">Blue</span>]])
 
-<pre><code class="language-haskell">
-&gt; printGrid $ (toComplexArray [[White, White, White, Blue, Blue], [Blue, White, Blue, Blue, Blue], [Blue, Blue, Blue, Green, Green], [Green, Red, Blue, Black, Black], [Blue, Blue, Blue, Green, Blue]])
+<span style="color:#66d9ef">White</span> <span style="color:#66d9ef">White</span> <span style="color:#66d9ef">White</span> <span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Blue</span>
+<span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">White</span> <span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Blue</span>
+<span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Green</span> <span style="color:#66d9ef">Green</span>
+<span style="color:#66d9ef">Green</span> <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Black</span> <span style="color:#66d9ef">Black</span>
+<span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Blue</span>  <span style="color:#66d9ef">Green</span> <span style="color:#66d9ef">Blue</span>
+</code></pre></div><p>Let&rsquo;s say we want to change the &lsquo;Blue&rsquo; value on the second line down, third row across (position 1,2) in the array to be &lsquo;Red&rsquo;:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
+<span style="color:#f92672">&gt;</span> printGrid <span style="color:#f92672">$</span> floodFill (toComplexArray [[<span style="color:#66d9ef">White</span>, <span style="color:#66d9ef">White</span>, <span style="color:#66d9ef">White</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>], [<span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">White</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>], [<span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Green</span>, <span style="color:#66d9ef">Green</span>], [<span style="color:#66d9ef">Green</span>, <span style="color:#66d9ef">Red</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Black</span>, <span style="color:#66d9ef">Black</span>], [<span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Blue</span>, <span style="color:#66d9ef">Green</span>, <span style="color:#66d9ef">Blue</span>]]) (<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>) <span style="color:#66d9ef">Blue</span> <span style="color:#66d9ef">Red</span>
 
-White White White Blue  Blue
-Blue  White Blue  Blue  Blue
-Blue  Blue  Blue  Green Green
-Green Red   Blue  Black Black
-Blue  Blue  Blue  Green Blue
-</code></pre>
-
-<p>Let&rsquo;s say we want to change the &lsquo;Blue&rsquo; value on the second line down, third row across (position 1,2) in the array to be &lsquo;Red&rsquo;:</p>
-
-<pre><code class="language-haskell">
-&gt; printGrid $ floodFill (toComplexArray [[White, White, White, Blue, Blue], [Blue, White, Blue, Blue, Blue], [Blue, Blue, Blue, Green, Green], [Green, Red, Blue, Black, Black], [Blue, Blue, Blue, Green, Blue]]) (1,2) Blue Red
-
-White White White Red   Red
-Red   White Red   Red   Red
-Red   Red   Red   Green Green
-Green Red   Red   Black Black
-Red   Red   Red   Green Blue
-</code></pre>
-
-<p>The <cite>toComplexArray</cite> function is used to convert a list into an &lsquo;Array&rsquo; because it&rsquo;s much easier to create a list for testing purposes. The <a href="https://github.com/mneedham/haskell/blob/master/PrintArray.hs">code for that is on github</a> if you&rsquo;re interested.</p>
-
-<p>I described the <cite>printGrid</cite> function <a href="http://www.markhneedham.com/blog/2012/04/03/haskell-print-friendly-representation-of-an-array/">in my last post</a> and the rest of the code is on <a href="https://github.com/mneedham/haskell/blob/master/flood_fill.hs">my github haskell repository</a>.</p>
+<span style="color:#66d9ef">White</span> <span style="color:#66d9ef">White</span> <span style="color:#66d9ef">White</span> <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Red</span>
+<span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">White</span> <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Red</span>
+<span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Green</span> <span style="color:#66d9ef">Green</span>
+<span style="color:#66d9ef">Green</span> <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Black</span> <span style="color:#66d9ef">Black</span>
+<span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Red</span>   <span style="color:#66d9ef">Green</span> <span style="color:#66d9ef">Blue</span>
+</code></pre></div><p>The <!-- raw HTML omitted -->toComplexArray<!-- raw HTML omitted --> function is used to convert a list into an &lsquo;Array&rsquo; because it&rsquo;s much easier to create a list for testing purposes. The <!-- raw HTML omitted -->code for that is on github<!-- raw HTML omitted --> if you&rsquo;re interested.</p>
+<p>I described the <!-- raw HTML omitted -->printGrid<!-- raw HTML omitted --> function <!-- raw HTML omitted -->in my last post<!-- raw HTML omitted --> and the rest of the code is on <!-- raw HTML omitted -->my github haskell repository<!-- raw HTML omitted -->.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -295,7 +259,7 @@ Red   Red   Red   Green Blue
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/04/07/algorithms-flood-fill-in-haskell/&amp;title=Algorithms%3a%20Flood%20Fill%20in%20Haskell&amp;summary=Flood%20fill%20is%20an%20algorithm%20used%20to%20work%20out%20which%20nodes%20are%20connected%20to%20a%20certain%20node%20in%20a%20multi%20dimensional%20array.%20In%20this%20case%20we%26rsquo%3bll%20use%20a%20two%20dimensional%20array.%0aThe%20idea%20is%20that%20we%20decide%20that%20we%20want%20to%20change%20the%20colour%20of%20one%20of%20the%20cells%20in%20the%20array%20and%20have%20its%20immediate%20neighbours%20who%20share%20its%20initial%20colour%20have%20their%20colour%20changed%20too%20i.e.%20the%20colour%20floods%20its%20way%20through%20the%20grid...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/04/07/algorithms-flood-fill-in-haskell/&amp;title=Algorithms%3a%20Flood%20Fill%20in%20Haskell&amp;summary=Flood%20fillis%20an%20algorithm%20used%20to%20work%20out%20which%20nodes%20are%20connected%20to%20a%20certain%20node%20in%20a%20multi%20dimensional%20array.%20In%20this%20case%20we%26rsquo%3bll%20use%20a%20two%20dimensional%20array.%0aThe%20idea%20is%20that%20we%20decide%20that%20we%20want%20to%20change%20the%20colour%20of%20one%20of%20the%20cells%20in%20the%20array%20and%20have%20its%20immediate%20neighbours%20who%20share%20its%20initial%20colour%20have%20their%20colour%20changed%20too%20i.e.%20the%20colour%20floods%20its%20way%20through%20the%20grid...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

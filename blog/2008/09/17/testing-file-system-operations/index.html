@@ -28,7 +28,7 @@
         
           <meta name="twitter:description" content="On my previous project one of the areas that we needed to work out how to test was around interaction with the file system.
 The decision that we needed to make was whether we should unit test this type of functionality or whether it could just be covered by a functional test.
-To Unit Test One of the patterns to use when unit testing things like this is the Gateway pattern." />
+One of the patterns to use when unit testing things like this is the Gateway pattern. To quote Martin Fowler&rsquo;s Patterns of Enterprise Application Architecture" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2008/09/17/testing-file-system-operations/" />
 
@@ -41,7 +41,7 @@ To Unit Test One of the patterns to use when unit testing things like this is th
     
         <meta name="description" content="On my previous project one of the areas that we needed to work out how to test was around interaction with the file system.
 The decision that we needed to make was whether we should unit test this type of functionality or whether it could just be covered by a functional test.
-To Unit Test One of the patterns to use when unit testing things like this is the Gateway pattern." />
+One of the patterns to use when unit testing things like this is the Gateway pattern. To quote Martin Fowler&rsquo;s Patterns of Enterprise Application Architecture" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -70,10 +70,8 @@ To Unit Test One of the patterns to use when unit testing things like this is th
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2008-09-17",
-        "description": "On my previous project one of the areas that we needed to work out how to test was around interaction with the file system.
-The decision that we needed to make was whether we should unit test this type of functionality or whether it could just be covered by a functional test.
-To Unit Test One of the patterns to use when unit testing things like this is the Gateway pattern.",
-        "wordCount": 610
+        "description": "On my previous project one of the areas that we needed to work out how to test was around interaction with the file system.\nThe decision that we needed to make was whether we should unit test this type of functionality or whether it could just be covered by a functional test.\nOne of the patterns to use when unit testing things like this is the Gateway pattern. To quote Martin Fowler\x26rsquo;s Patterns of Enterprise Application Architecture",
+        "wordCount":  586 
     }
     </script>
     
@@ -191,66 +189,39 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Testing file system operations</h1>
     <p>On my previous project one of the areas that we needed to work out how to test was around interaction with the file system.</p>
-
 <p>The decision that we needed to make was whether we should unit test this type of functionality or whether it could just be covered by a functional test.</p>
-
-<h3>To Unit Test</h3>
-
-<p>One of the patterns to use when unit testing things like this is the <a href="http://www.martinfowler.com/eaaCatalog/gateway.html">Gateway pattern</a>. To quote Martin Fowler&rsquo;s Patterns of Enterprise Application Architecture</p>
-
-<blockquote>
-[A gateway is] An object that encapsulates access to an external system or resource.
-</blockquote>
-
+<!-- raw HTML omitted -->
+<p>One of the patterns to use when unit testing things like this is the <!-- raw HTML omitted -->Gateway pattern<!-- raw HTML omitted -->. To quote Martin Fowler&rsquo;s Patterns of Enterprise Application Architecture</p>
+<!-- raw HTML omitted -->
 <p>Therefore we would define an interface with the file operations that we intended to use in our code.</p>
-
-<pre><code class="language-csharp">
-public interface IFileGateway
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> IFileGateway
 {
-	bool Exists(string path);
+	<span style="color:#66d9ef">bool</span> Exists(<span style="color:#66d9ef">string</span> path);
 }
-</code></pre>
-
-<p>We can then mock/stub this out in a unit test and use an implementation of the gateway in the real application.</p>
-
-<pre><code class="language-csharp">
-public class FileGateway : IFileGateway
+</code></pre></div><p>We can then mock/stub this out in a unit test and use an implementation of the gateway in the real application.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FileGateway</span> : IFileGateway
 {
-    public bool Exists(string path)
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">bool</span> Exists(<span style="color:#66d9ef">string</span> path)
     {
-        return File.Exists(path);
+        <span style="color:#66d9ef">return</span> File.Exists(path);
     }
 }
-</code></pre>
-
-<p>In this case making the code more testable was remarkably easy. We can test the behaviour of the system without actually having any reliance on the file system which means we can potentially cut time from our test suite.</p>
-
+</code></pre></div><p>In this case making the code more testable was remarkably easy. We can test the behaviour of the system without actually having any reliance on the file system which means we can potentially cut time from our test suite.</p>
 <p>Additionally we are now shielded from the implementation of how we find out if a file exists. This provides flexibility if in the future files are stored on a cluster rather than a single machine, for example, and we need to have a different implementation of working out if a file exists.</p>
-
 <p>The disadvantage is that we have added another level of abstraction to the system which potentially adds complexity.</p>
-
-<h3>To Functional Test/To Not Test</h3>
-
+<!-- raw HTML omitted -->
 <p>The alternative approach is just to test the operation in a functional test or not bother testing this functionality at all.</p>
-
 <p>We could setup some dummy file locations for our test and then do various tests against these.</p>
-
 <p>This is probably marginally quicker than wrapping the calls to the file system behind an abstraction as suggested above.</p>
-
 <p>The problem is that this gain in speed is lost by the extra time it would take to run our build - we would now probably test more combinations since this bit of functionality is not covered at a lower level.</p>
-
 <p>We are also now tied to the file system for executing this operation so if we need to change this in the future there may now be multiple places where changes need to be made.</p>
-
 <p>The other option of course is to not bother testing this functionality. The logic behind this approach is that we know that File.Exists works because it is part of the .NET framework, why bother testing it?</p>
-
 <p>While this is true, it is the interaction with our system that we are interested in. We are not actually testing an API implementation - we want to know if a file exists or not. How this is worked out is irrelevant to us.</p>
-
 <p>Clearly we get a gain in speed of development if we don&rsquo;t test things like this - and we can probably make a reasonable attempt at explaining why it&rsquo;s not necessary. As with most things in software the trade off comes later on when we end up with the same problems we would have in just functional testing.</p>
-
-<h3>In Conclusion</h3>
-
+<!-- raw HTML omitted -->
 <p>I am not a fan of over engineering things for the sake of it and maybe the Gateway pattern approach to making this unit testable would be seen as that.</p>
-
 <p>I don&rsquo;t believe this is the case. The gains we get from having clearly defined boundaries of where we interact with external resources is invaluable and helps make our code more flexible, maintainable and open to change.</p>
 
     <div id="social-bar">
@@ -286,7 +257,7 @@ public class FileGateway : IFileGateway
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/09/17/testing-file-system-operations/&amp;title=Testing%20file%20system%20operations&amp;summary=On%20my%20previous%20project%20one%20of%20the%20areas%20that%20we%20needed%20to%20work%20out%20how%20to%20test%20was%20around%20interaction%20with%20the%20file%20system.%0aThe%20decision%20that%20we%20needed%20to%20make%20was%20whether%20we%20should%20unit%20test%20this%20type%20of%20functionality%20or%20whether%20it%20could%20just%20be%20covered%20by%20a%20functional%20test.%0aTo%20Unit%20Test%20One%20of%20the%20patterns%20to%20use%20when%20unit%20testing%20things%20like%20this%20is%20the%20Gateway%20pattern...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/09/17/testing-file-system-operations/&amp;title=Testing%20file%20system%20operations&amp;summary=On%20my%20previous%20project%20one%20of%20the%20areas%20that%20we%20needed%20to%20work%20out%20how%20to%20test%20was%20around%20interaction%20with%20the%20file%20system.%0aThe%20decision%20that%20we%20needed%20to%20make%20was%20whether%20we%20should%20unit%20test%20this%20type%20of%20functionality%20or%20whether%20it%20could%20just%20be%20covered%20by%20a%20functional%20test.%0aOne%20of%20the%20patterns%20to%20use%20when%20unit%20testing%20things%20like%20this%20is%20the%20Gateway%20pattern.%20To%20quote%20Martin%20Fowler%26rsquo%3bs%20Patterns%20of%20Enterprise%20Application%20Architecture..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

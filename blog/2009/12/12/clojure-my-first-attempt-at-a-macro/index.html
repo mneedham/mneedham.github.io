@@ -66,10 +66,8 @@ I want to create a macro which takes in one argument and then prints hello and t
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-12-12",
-        "description": "I&rsquo;m up to the chapter on using macros in Stuart Halloway&rsquo;s &lsquo;Programming Clojure&rsquo; book and since I&rsquo;ve never used a language which has macros in before I thought it&rsquo;d be cool to write one.
-In reality there&rsquo;s no reason to create a macro to do what I want to do but I wanted to keep the example simple so I could try and understand exactly how macros work.
-I want to create a macro which takes in one argument and then prints hello and the person&rsquo;s name.",
-        "wordCount": 591
+        "description": "I\x26rsquo;m up to the chapter on using macros in Stuart Halloway\x26rsquo;s \x26lsquo;Programming Clojure\x26rsquo; book and since I\x26rsquo;ve never used a language which has macros in before I thought it\x26rsquo;d be cool to write one.\nIn reality there\x26rsquo;s no reason to create a macro to do what I want to do but I wanted to keep the example simple so I could try and understand exactly how macros work.\nI want to create a macro which takes in one argument and then prints hello and the person\x26rsquo;s name.",
+        "wordCount":  586 
     }
     </script>
     
@@ -178,129 +176,76 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Clojure: My first attempt at a macro</h1>
-    <p>I&rsquo;m up to the chapter on using macros in Stuart Halloway&rsquo;s &lsquo;<a href="http://www.amazon.com/gp/product/1934356336?ie=UTF8&tag=marneesblo-20&linkCode=as2&camp=1789&creative=390957&creativeASIN=1934356336">Programming Clojure</a>&rsquo; book and since I&rsquo;ve never used a language which has macros in before I thought it&rsquo;d be cool to write one.</p>
-
+    <p>I&rsquo;m up to the chapter on using macros in Stuart Halloway&rsquo;s &lsquo;<!-- raw HTML omitted -->Programming Clojure<!-- raw HTML omitted -->&rsquo; book and since I&rsquo;ve never used a language which has macros in before I thought it&rsquo;d be cool to write one.</p>
 <p>In reality there&rsquo;s no reason to create a macro to do what I want to do but I wanted to keep the example simple so I could try and understand exactly how macros work.</p>
-
 <p>I want to create a macro which takes in one argument and then prints hello and the person&rsquo;s name.</p>
-
 <p>In the book Halloway suggests that we should start with the expression that we want to end up with, so this is what I want:</p>
-
-<pre><code class="language-lisp">
-(println &quot;Hello&quot; person)
-</code></pre>
-
-<p>My first attempt to do that was:</p>
-
-<pre><code class="language-lisp">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+(println <span style="color:#e6db74">&#34;Hello&#34;</span> person)
+</code></pre></div><p>My first attempt to do that was:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defmacro say-hello [person]
-  println &quot;Hello&quot; person)
-</code></pre>
-
-<p>I made the mistake of forgetting to include the brackets around the &lsquo;println&rsquo; expression so it doesn&rsquo;t actually pass &lsquo;&ldquo;Hello&rdquo;&rsquo; and &lsquo;person&rsquo; to &lsquo;println&rsquo;. Instead each symbol is evaluated individually.</p>
-
+  println <span style="color:#e6db74">&#34;Hello&#34;</span> person)
+</code></pre></div><p>I made the mistake of forgetting to include the brackets around the &lsquo;println&rsquo; expression so it doesn&rsquo;t actually pass &lsquo;&ldquo;Hello&rdquo;&rsquo; and &lsquo;person&rsquo; to &lsquo;println&rsquo;. Instead each symbol is evaluated individually.</p>
 <p>When we evaluate this in the REPL we therefore don&rsquo;t quite get what we want:</p>
-
-<pre><code class="language-text">
-user=&gt; (say-hello &quot;mark&quot;)          
-&quot;mark&quot;
-</code></pre>
-
-<p>Expanding the macro results in:</p>
-
-<pre><code class="language-text">
-user=&gt; (macroexpand-1 '(say-hello &quot;Mark&quot;))
-&quot;Mark&quot;
-</code></pre>
-
-<p>Which is the equivalent of doing this:</p>
-
-<pre><code class="language-text">
-user=&gt; (eval (do println &quot;hello&quot; &quot;Mark&quot;)) 
-&quot;Mark&quot;
-</code></pre>
-
-<p>As I <a href="http://www.markhneedham.com/blog/2009/12/12/clojure-forgetting-the-brackets/">wrote previously</a> this is because &lsquo;do&rsquo; evaluates each argument in order and then returns the last one which in this case is &ldquo;Mark&rdquo;.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+user=&gt; (say-hello &#34;mark&#34;)          
+&#34;mark&#34;
+</code></pre></div><p>Expanding the macro results in:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+user=&gt; (macroexpand-1 &#39;(say-hello &#34;Mark&#34;))
+&#34;Mark&#34;
+</code></pre></div><p>Which is the equivalent of doing this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+user=&gt; (eval (do println &#34;hello&#34; &#34;Mark&#34;)) 
+&#34;Mark&#34;
+</code></pre></div><p>As I <!-- raw HTML omitted -->wrote previously<!-- raw HTML omitted --> this is because &lsquo;do&rsquo; evaluates each argument in order and then returns the last one which in this case is &ldquo;Mark&rdquo;.</p>
 <p>I fixed that mistake and got the following:</p>
-
-<pre><code class="language-lisp">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defmacro say-hello [person]
-  (println &quot;Hello&quot; person))
-</code></pre>
-
-<p>Which returns the right result&hellip;</p>
-
-<pre><code class="language-lisp">
-user=&gt; (say-hello &quot;Mark&quot;)
+  (println <span style="color:#e6db74">&#34;Hello&#34;</span> person))
+</code></pre></div><p>Which returns the right result&hellip;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+user=&gt; (say-hello <span style="color:#e6db74">&#34;Mark&#34;</span>)
+Hello Mark
+<span style="color:#66d9ef">nil</span>
+</code></pre></div><p>&hellip;but actually evaluated the expression rather than expanding it because I didn&rsquo;t escape it correctly:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+user=&gt; (macroexpand-1 &#39;(say-hello &#34;Mark&#34;))
 Hello Mark
 nil
-</code></pre>
-
-<p>&hellip;but actually evaluated the expression rather than expanding it because I didn&rsquo;t escape it correctly:</p>
-
-<pre><code class="language-text">
-user=&gt; (macroexpand-1 '(say-hello &quot;Mark&quot;))
-Hello Mark
-nil
-</code></pre>
-
-<p>After these failures I decided to try and change one of the examples from the book instead of my trial and error approach.</p>
-
+</code></pre></div><p>After these failures I decided to try and change one of the examples from the book instead of my trial and error approach.</p>
 <p>One approach used is to build a list of Clojure symbols inside the macro definition:</p>
-
-<pre><code class="language-lisp">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defmacro say-hello [person]
-  (list println &quot;hello&quot; person))
-</code></pre>
-
-<pre><code class="language-text">
-user=&gt; (macroexpand-1 '(say-hello &quot;Mark&quot;))
-(#&lt;core$println__5440 clojure.core$println__5440@681ff4&gt; &quot;hello&quot; &quot;Mark&quot;)
-</code></pre>
-
-<p>This is pretty much what we want and although the <a href="http://twitter.com/ajlopez/statuses/6540996368">&lsquo;println&rsquo; symbol has been evaluated at macro expansion time</a> it doesn&rsquo;t actually make any difference to the way the macro works.</p>
-
+  (<span style="color:#a6e22e">list</span> println <span style="color:#e6db74">&#34;hello&#34;</span> person))
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+user=&gt; (macroexpand-1 &#39;(say-hello &#34;Mark&#34;))
+(#&lt;core$println__5440 clojure.core$println__5440@681ff4&gt; &#34;hello&#34; &#34;Mark&#34;)
+</code></pre></div><p>This is pretty much what we want and although the <!-- raw HTML omitted -->'println&rsquo; symbol has been evaluated at macro expansion time<!-- raw HTML omitted --> it doesn&rsquo;t actually make any difference to the way the macro works.</p>
 <p>We can fix that by escaping &lsquo;println&rsquo; so that it won&rsquo;t be evaluated until evaluation time:</p>
-
-<pre><code class="language-lisp">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defmacro say-hello [person]
-  (list 'println &quot;hello&quot; person))
-</code></pre>
-
-<pre><code class="language-text">
-user=&gt; (macroexpand-1 '(say-hello &quot;Mark&quot;))
-(println &quot;hello&quot; &quot;Mark&quot;)
-</code></pre>
-
-<p>I thought it should also be possible to quote(&lsquo;) the whole expression instead of building up the list:</p>
-
-<pre><code class="language-lisp">
+  (<span style="color:#a6e22e">list</span> <span style="color:#e6db74">&#39;println</span> <span style="color:#e6db74">&#34;hello&#34;</span> person))
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+user=&gt; (macroexpand-1 &#39;(say-hello &#34;Mark&#34;))
+(println &#34;hello&#34; &#34;Mark&#34;)
+</code></pre></div><p>I thought it should also be possible to quote(') the whole expression instead of building up the list:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defmacro say-hello [person] 
-  '(println &quot;hello&quot; person))
-</code></pre>
-
-<p>This expands correctly but when we try to use it this happens:</p>
-
-<pre><code class="language-text">
-user=&gt; (say-hello &quot;Mark&quot;)
+  <span style="color:#f92672">&#39;</span>(println <span style="color:#e6db74">&#34;hello&#34;</span> person))
+</code></pre></div><p>This expands correctly but when we try to use it this happens:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+user=&gt; (say-hello &#34;Mark&#34;)
 java.lang.Exception: Unable to resolve symbol: person in this context 
-</code></pre>
-
-<p>The problem is that when we use quote there is no evaluation of any of the symbols in the expression so <a href="http://twitter.com/patrickdlogan/statuses/6536320695">the symbol &lsquo;person&rsquo; is only evaluated at runtime and since it hasn&rsquo;t been bound to any value</a> we end up with the above error.</p>
-
+</code></pre></div><p>The problem is that when we use quote there is no evaluation of any of the symbols in the expression so <!-- raw HTML omitted -->the symbol &lsquo;person&rsquo; is only evaluated at runtime and since it hasn&rsquo;t been bound to any value<!-- raw HTML omitted --> we end up with the above error.</p>
 <p>If we want to use the approach of non evaluation then we need to make use of the backquote(`) which stops evaluation of anything unless it&rsquo;s preceded by a ~.</p>
-
-<pre><code class="language-lisp">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (defmacro a [person]
-  `(println &quot;hello&quot; ~person))
-</code></pre>
-
-<p>This allows us to  evaluate &lsquo;person&rsquo; at expand time and replace it with the appropriate value.</p>
-
+  <span style="color:#f92672">`</span>(println <span style="color:#e6db74">&#34;hello&#34;</span> ~person))
+</code></pre></div><p>This allows us to  evaluate &lsquo;person&rsquo; at expand time and replace it with the appropriate value.</p>
 <p>In hindsight the approach I took to write this macro was pretty ineffective although it&rsquo;s been quite interesting to see all the different ways that I&rsquo;ve found to mess up the writing of one!</p>
-
-<p>Thanks to <a href="http://twitter.com/ajlopez">A. J. Lopez</a>, <a href="http://twitter.com/patrickdlogan">Patrick Logan</a> and <a href="http://twitter.com/fogus">fogus</a> for helping me to understand all this a bit better than I did to start with!</p>
+<p>Thanks to <!-- raw HTML omitted -->A. J. Lopez<!-- raw HTML omitted -->, <!-- raw HTML omitted -->Patrick Logan<!-- raw HTML omitted --> and <!-- raw HTML omitted -->fogus<!-- raw HTML omitted --> for helping me to understand all this a bit better than I did to start with!</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">

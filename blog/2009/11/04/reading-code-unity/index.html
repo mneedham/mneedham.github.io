@@ -23,7 +23,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Reading Code: Unity" />
         
-          <meta name="twitter:description" content="I spent a bit of time reading some of the Unity code base recently and I decided to try out a variation of Michael Feathers &lsquo;Effect Sketching&rsquo; which my colleague Dave Cameron showed me.
+          <meta name="twitter:description" content="I spent a bit of time reading some of the Unitycode base recently and I decided to try out a variation of Michael Feathers &lsquo;Effect Sketching&rsquo; which my colleague Dave Cameronshowed me.
 &lsquo;Effect Sketching&rsquo; is a technique Feathers describes in &lsquo;Working Effectively With Legacy Code&rsquo; and the idea is that we sketch a diagram showing the interactions between the fields and methods in a specific class while browsing through the code." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/11/04/reading-code-unity/" />
@@ -35,7 +35,7 @@
         <title> Reading Code: Unity &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I spent a bit of time reading some of the Unity code base recently and I decided to try out a variation of Michael Feathers &lsquo;Effect Sketching&rsquo; which my colleague Dave Cameron showed me.
+        <meta name="description" content="I spent a bit of time reading some of the Unitycode base recently and I decided to try out a variation of Michael Feathers &lsquo;Effect Sketching&rsquo; which my colleague Dave Cameronshowed me.
 &lsquo;Effect Sketching&rsquo; is a technique Feathers describes in &lsquo;Working Effectively With Legacy Code&rsquo; and the idea is that we sketch a diagram showing the interactions between the fields and methods in a specific class while browsing through the code." />
     
 
@@ -65,9 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-11-04",
-        "description": "I spent a bit of time reading some of the Unity code base recently and I decided to try out a variation of Michael Feathers &lsquo;Effect Sketching&rsquo; which my colleague Dave Cameron showed me.
-&lsquo;Effect Sketching&rsquo; is a technique Feathers describes in &lsquo;Working Effectively With Legacy Code&rsquo; and the idea is that we sketch a diagram showing the interactions between the fields and methods in a specific class while browsing through the code.",
-        "wordCount": 801
+        "description": "I spent a bit of time reading some of the Unitycode base recently and I decided to try out a variation of Michael Feathers \x26lsquo;Effect Sketching\x26rsquo; which my colleague Dave Cameronshowed me.\n\x26lsquo;Effect Sketching\x26rsquo; is a technique Feathers describes in \x26lsquo;Working Effectively With Legacy Code\x26rsquo; and the idea is that we sketch a diagram showing the interactions between the fields and methods in a specific class while browsing through the code.",
+        "wordCount":  476 
     }
     </script>
     
@@ -178,102 +177,64 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Reading Code: Unity</h1>
-    <p>I spent a bit of time reading some of the <a href="http://www.codeplex.com/unity/">Unity</a> code base recently and I decided to try out a variation of Michael Feathers &lsquo;Effect Sketching&rsquo; which my colleague <a href="http://intwoplacesatonce.com/">Dave Cameron</a> showed me.</p>
-
-<p>&lsquo;Effect Sketching&rsquo; is a technique Feathers describes in &lsquo;<a href="http://www.amazon.co.uk/Working-Effectively-Legacy-Robert-Martin/dp/0131177052/ref=sr_1_1?ie=UTF8&s=books&qid=1256852443&sr=8-1">Working Effectively With Legacy Code</a>&rsquo; and the idea is that we  sketch a diagram showing the interactions between the fields and methods in a specific class while browsing through the code.</p>
-
+    <p>I spent a bit of time reading some of the <!-- raw HTML omitted -->Unity<!-- raw HTML omitted --> code base recently and I decided to try out a variation of Michael Feathers &lsquo;Effect Sketching&rsquo; which my colleague <!-- raw HTML omitted -->Dave Cameron<!-- raw HTML omitted --> showed me.</p>
+<p>&lsquo;Effect Sketching&rsquo; is a technique Feathers describes in &lsquo;<!-- raw HTML omitted -->Working Effectively With Legacy Code<!-- raw HTML omitted -->&rsquo; and the idea is that we  sketch a diagram showing the interactions between the fields and methods in a specific class while browsing through the code.</p>
 <p>Dave suggested doing a similar thing but with methods and classes instead while stepping through the code with the debugger.</p>
-
 <p>I set up this code to step my way through:</p>
-
-<pre><code class="language-csharp">
-var container = new UnityContainer();
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">var</span> container = <span style="color:#66d9ef">new</span> UnityContainer();
 
 container.AddNewExtension&lt;Interception&gt;();
-container.RegisterType(typeof (IIDProvider), typeof (HttpContextIDProvider));
-container.Configure&lt;Interception&gt;().SetDefaultInterceptorFor(typeof (GetPaymentBreakdownsService), new VirtualMethodInterceptor());
+container.RegisterType(<span style="color:#66d9ef">typeof</span> (IIDProvider), <span style="color:#66d9ef">typeof</span> (HttpContextIDProvider));
+container.Configure&lt;Interception&gt;().SetDefaultInterceptorFor(<span style="color:#66d9ef">typeof</span> (GetPaymentBreakdownsService), <span style="color:#66d9ef">new</span> VirtualMethodInterceptor());
 
-object resolve = container.Resolve(typeof (GetPaymentBreakdownsService));
-</code></pre>
-
-<p>These are some of my observations from this exercise:</p>
-
-<ul>
-<li>I found it was <strong>much easier for me to remember where I was in the call stack</strong> then normal. 
-
-I often get quite engrossed in the individual method calls on objects that I forget where the code actually started before it ended up in the current location. Whenever this happened I was able to refer to my sketch to remind myself of where the code had started from. </li>
-<li>Despite having the drawing I still got a bit lost when the <a href="http://unity.codeplex.com/sourcecontrol/changeset/view/38085?projectName=unity#616462">PolicyInjectionBehaviourDescriptor</a> made a call back to the container's Resolve method which meant that the code went through the same path that I'd just followed:
-
-
-~~~csharp
-
-public IInterceptionBehavior GetInterceptionBehavior(
+<span style="color:#66d9ef">object</span> resolve = container.Resolve(<span style="color:#66d9ef">typeof</span> (GetPaymentBreakdownsService));
+</code></pre></div><p>These are some of my observations from this exercise:</p>
+<!-- raw HTML omitted -->
+<p>I often get quite engrossed in the individual method calls on objects that I forget where the code actually started before it ended up in the current location. Whenever this happened I was able to refer to my sketch to remind myself of where the code had started from. <!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> IInterceptionBehavior GetInterceptionBehavior(
             IInterceptor interceptor,
             Type interceptedType,
             Type implementationType,
             IUnityContainer container)
         {
-            InjectionPolicy[] policies = container.Resolve<InjectionPolicy[]>();
-~~~
-
-I was getting really confused watching various different injection policies being resolved instead of the type I was trying to resolve!</li>
-<li>I've previously tried drawing diagrams which just contained the classes in a code base but I've found that including the methods that connect them makes it easier for me to understand what's going on.
-
-I've been drawing these diagrams out by hand but I thought I'd translate some of it into dot notation so that I could create a version using <a href="http://www.graphviz.org/">graphviz</a> to show on here.
-
-<img src="https://markhneedham.com/blog/
-/uploads/2009/11/unity.png" alt="unity.png" border="0" width="653" height="613" />
-
-The nodes in orange represent classes and the dotted line represents where an event was fired.
-</li>
-<li>I realised that I still need to spend more time reading code so that I know <strong>when to dive into an object and when the details are probably not important</strong>. At the moment I'm too prone to getting distracted by wanting to see how a specific method works instead of looking at those details later on when I actually need to know. </li>
-<li>I felt as I was reading the code that in a lot of places the <a href="http://www.markhneedham.com/blog/2009/01/02/f-option-types/">option type</a> from functional programming would have come in quite useful. There is often code similar to this bit from LifeTimeStrategy:
-
-
-~~~class
-
+            InjectionPolicy[] policies = container.Resolve&lt;InjectionPolicy[]&gt;();
+</code></pre></div><p>I was getting really confused watching various different injection policies being resolved instead of the type I was trying to resolve!<!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>I&rsquo;ve been drawing these diagrams out by hand but I thought I&rsquo;d translate some of it into dot notation so that I could create a version using <!-- raw HTML omitted -->graphviz<!-- raw HTML omitted --> to show on here.</p>
+<p><!-- raw HTML omitted --></p>
+<p>The nodes in orange represent classes and the dotted line represents where an event was fired.</p>
+<!-- raw HTML omitted -->
+<pre><code class="language-class" data-lang="class">
 object existing = lifetimePolicy.GetValue();
 if (existing != null)
 {
     context.Existing = existing;
     context.BuildComplete = true;
 }
-~~~
-
-Instead of existing returning a null it could return 'None' to indicate it hasn't been resolved yet.</li>
-<li>I've read about the '<a href="http://msdn.microsoft.com/en-us/library/9k7k7cf0.aspx">yield</a>' construct before but I've never seen a need to use it yet in any code I've written so it was interesting to see it being used quite frequently inside <a href="http://unity.codeplex.com/sourcecontrol/changeset/view/38085?projectName=unity#616459">PolicySet</a>:
-
-
-~~~csharp
-
-public IEnumerable<InjectionPolicy> GetPoliciesFor(MethodImplementationInfo member)
+</code></pre><p>Instead of existing returning a null it could return &lsquo;None&rsquo; to indicate it hasn&rsquo;t been resolved yet.<!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> IEnumerable&lt;InjectionPolicy&gt; GetPoliciesFor(MethodImplementationInfo member)
 {
-    foreach (InjectionPolicy policy in this)
+    <span style="color:#66d9ef">foreach</span> (InjectionPolicy policy <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">this</span>)
     {
-        if (policy.Matches(member))
+        <span style="color:#66d9ef">if</span> (policy.Matches(member))
         {
-            yield return policy;
+            <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">return</span> policy;
         }
     }
 }
-~~~
-From my understanding of this construct it seems like it acts in a similar way to a stream i.e. it's only evaluated when it's actually needed. </li>
-<li>In the '<a href="http://www.amazon.co.uk/Fundamentals-Object-oriented-Design-Object-Technology/dp/020169946X/ref=sr_1_1?ie=UTF8&s=books&qid=1257261364&sr=8-1">Fundamentals of Object Oriented Design in Uml</a>' Meilir Page Jones suggests that we might want to avoid replicated behaviour in our public APIs since it leads to greater complexity.
-
-This would therefore seem to suggest that having overloads of methods on an object is something to be avoided. Interestingly in this code base the overloads for 'UnityContainer' are actually defined as extension methods which then delegate back to 'UnityContainer' and pass in default values for unspecified parameters. 
-
-This seems like quite a neat way of getting around the problem since we keep the API clean while also providing users of the code an easy way to do so.</li>
-
-</ul>
-
-<p>On the subject of reading code I recently came across an <a href="http://designbygravity.wordpress.com/2009/10/23/how-to-read-other-peoples-code-and-why/">interesting post by designbygravity which describes some approaches for reading code more effectively</a>.</p>
-
+</code></pre></div><p>From my understanding of this construct it seems like it acts in a similar way to a stream i.e. it&rsquo;s only evaluated when it&rsquo;s actually needed. <!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>This would therefore seem to suggest that having overloads of methods on an object is something to be avoided. Interestingly in this code base the overloads for &lsquo;UnityContainer&rsquo; are actually defined as extension methods which then delegate back to &lsquo;UnityContainer&rsquo; and pass in default values for unspecified parameters.</p>
+<p>This seems like quite a neat way of getting around the problem since we keep the API clean while also providing users of the code an easy way to do so.<!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<p>On the subject of reading code I recently came across an <!-- raw HTML omitted -->interesting post by designbygravity which describes some approaches for reading code more effectively<!-- raw HTML omitted -->.</p>
 <p>In particular I really liked the section about not hating the code :</p>
-
-<blockquote>
-You can get sucked into hating the code, merely because it is not yours. Software people tend to be equipped with ample egos, and other people’s code can offend. But realize, their working code is better than your imagined code, because their working code exists right now. So put your ego aside and learn the code in front of you.
-</blockquote>
-
+<!-- raw HTML omitted -->
 <p>It&rsquo;s so easy to drift into this mindset but it&rsquo;s rarely helpful so if we can stop ourselves it&rsquo;s almost certainly beneficial.</p>
 
     <div id="social-bar">
@@ -309,7 +270,7 @@ You can get sucked into hating the code, merely because it is not yours. Softwar
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/11/04/reading-code-unity/&amp;title=Reading%20Code%3a%20Unity&amp;summary=I%20spent%20a%20bit%20of%20time%20reading%20some%20of%20the%20Unity%20code%20base%20recently%20and%20I%20decided%20to%20try%20out%20a%20variation%20of%20Michael%20Feathers%20%26lsquo%3bEffect%20Sketching%26rsquo%3b%20which%20my%20colleague%20Dave%20Cameron%20showed%20me.%0a%26lsquo%3bEffect%20Sketching%26rsquo%3b%20is%20a%20technique%20Feathers%20describes%20in%20%26lsquo%3bWorking%20Effectively%20With%20Legacy%20Code%26rsquo%3b%20and%20the%20idea%20is%20that%20we%20sketch%20a%20diagram%20showing%20the%20interactions%20between%20the%20fields%20and%20methods%20in%20a%20specific%20class%20while%20browsing%20through%20the%20code...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/11/04/reading-code-unity/&amp;title=Reading%20Code%3a%20Unity&amp;summary=I%20spent%20a%20bit%20of%20time%20reading%20some%20of%20the%20Unitycode%20base%20recently%20and%20I%20decided%20to%20try%20out%20a%20variation%20of%20Michael%20Feathers%20%26lsquo%3bEffect%20Sketching%26rsquo%3b%20which%20my%20colleague%20Dave%20Cameronshowed%20me.%0a%26lsquo%3bEffect%20Sketching%26rsquo%3b%20is%20a%20technique%20Feathers%20describes%20in%20%26lsquo%3bWorking%20Effectively%20With%20Legacy%20Code%26rsquo%3b%20and%20the%20idea%20is%20that%20we%20sketch%20a%20diagram%20showing%20the%20interactions%20between%20the%20fields%20and%20methods%20in%20a%20specific%20class%20while%20browsing%20through%20the%20code...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

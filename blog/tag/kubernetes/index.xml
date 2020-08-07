@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Kubernetes on Mark Needham</title>
+    <title>kubernetes on Mark Needham</title>
     <link>https://markhneedham.com/blog/tag/kubernetes/</link>
-    <description>Recent content in Kubernetes on Mark Needham</description>
+    <description>Recent content in kubernetes on Mark Needham</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 18 Nov 2017 12:44:37 +0000</lastBuildDate>
@@ -17,7 +17,7 @@
       <pubDate>Sat, 18 Nov 2017 12:44:37 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/11/18/kubernetes-copy-a-dataset-to-a-statefulsets-persistentvolume/</guid>
-      <description>In this post we&#39;ll learn how to copy an existing dataset to the PersistentVolumes used by a Neo4j cluster running on Kubernetes. Neo4j Clusters on Kubernetes  This posts assumes that we&#39;re familiar with deploying Neo4j on Kubernetes. I wrote an article on the Neo4j blog explaining this in more detail.  The StatefulSet we create for our core servers require persistent storage, achieved via the PersistentVolumeClaim (PVC) primitive. A Neo4j cluster containing 3 core servers would have the following PVCs: $ kubectl get pvc NAME STATUS VOLUME CAPACITY ACCESS MODES STORAGECLASS AGE datadir-neo-helm-neo4j-core-0 Bound pvc-043efa91-cc54-11e7-bfa5-080027ab9eac 10Gi RWO standard 45s datadir-neo-helm-neo4j-core-1 Bound pvc-1737755a-cc54-11e7-bfa5-080027ab9eac 10Gi RWO standard 13s datadir-neo-helm-neo4j-core-2 Bound pvc-18696bfd-cc54-11e7-bfa5-080027ab9eac 10Gi RWO standard 11s   Each of the PVCs has a corresponding PersistentVolume (PV) that satisifies it: $ kubectl get pv NAME CAPACITY ACCESS MODES RECLAIM POLICY STATUS CLAIM STORAGECLASS REASON AGE pvc-043efa91-cc54-11e7-bfa5-080027ab9eac 10Gi RWO Delete Bound default/datadir-neo-helm-neo4j-core-0 standard 41m pvc-1737755a-cc54-11e7-bfa5-080027ab9eac 10Gi RWO Delete Bound default/datadir-neo-helm-neo4j-core-1 standard 40m pvc-18696bfd-cc54-11e7-bfa5-080027ab9eac 10Gi RWO Delete Bound default/datadir-neo-helm-neo4j-core-2 standard 40m   The PVCs and PVs are usually created at the same time that we deploy our StatefulSet.</description>
+      <description>$ kubectl get pvc NAME STATUS VOLUME CAPACITY ACCESS MODES STORAGECLASS AGE datadir-neo-helm-neo4j-core-0 Bound pvc-043efa91-cc54-11e7-bfa5-080027ab9eac 10Gi RWO standard 45s datadir-neo-helm-neo4j-core-1 Bound pvc-1737755a-cc54-11e7-bfa5-080027ab9eac 10Gi RWO standard 13s datadir-neo-helm-neo4j-core-2 Bound pvc-18696bfd-cc54-11e7-bfa5-080027ab9eac 10Gi RWO standard 11s $ kubectl get pv NAME CAPACITY ACCESS MODES RECLAIM POLICY STATUS CLAIM STORAGECLASS REASON AGE pvc-043efa91-cc54-11e7-bfa5-080027ab9eac 10Gi RWO Delete Bound default/datadir-neo-helm-neo4j-core-0 standard 41m pvc-1737755a-cc54-11e7-bfa5-080027ab9eac 10Gi RWO Delete Bound default/datadir-neo-helm-neo4j-core-1 standard 40m pvc-18696bfd-cc54-11e7-bfa5-080027ab9eac 10Gi RWO Delete Bound default/datadir-neo-helm-neo4j-core-2 standard 40m #!</description>
     </item>
     
     <item>
@@ -26,8 +26,7 @@
       <pubDate>Fri, 17 Nov 2017 18:10:28 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/11/17/kubernetes-1-8-using-cronjobs-take-neo4j-backups/</guid>
-      <description>With the release of Kubernetes 1.8 Cronjobs have graduated to beta, which means we can now more easily run Neo4j backup jobs against Kubernetes clusters. Before we learn how to write a Cronjob let&#39;s first create a local Kubernetes cluster and deploy Neo4j.
-Spinup Kubernetes &amp; Helm minikube start --memory 8192 helm init &amp;amp;&amp;amp; kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system  Deploy a Neo4j cluster helm repo add incubator https://kubernetes-charts-incubator.</description>
+      <description>minikube start --memory 8192 helm init &amp;amp;&amp;amp; kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/ helm install incubator/neo4j --name neo-helm --wait --set authEnabled=false,core.extraVars.NEO4J_dbms_backup_address=0.0.0.0:6362 kubectl exec neo-helm-neo4j-core-0 \  -- bin/cypher-shell --format verbose \  &amp;#34;CALL dbms.cluster.overview() YIELD id, role RETURN id, role&amp;#34; +-----------------------------------------------------+ | id | role | +-----------------------------------------------------+ | &amp;#34;0b3bfe6c-6a68-4af5-9dd2-e96b564df6e5&amp;#34; | &amp;#34;LEADER&amp;#34; | | &amp;#34;09e9bee8-bdc5-4e95-926c-16ea8213e6e7&amp;#34; | &amp;#34;FOLLOWER&amp;#34; | | &amp;#34;859b9b56-9bfc-42ae-90c3-02cedacfe720&amp;#34; | &amp;#34;FOLLOWER&amp;#34; | +-----------------------------------------------------+ kubectl exec neo-helm-neo4j-core-0 \  -- bin/cypher-shell --format verbose \  &amp;#34;UNWIND range(0,1000) AS id CREATE (:Person {id: id})&amp;#34; 0 rows available after 653 ms, consumed after another 0 ms Added 1001 nodes, Set 1001 properties, Added 1001 labels kind: PersistentVolumeClaim apiVersion: v1 metadata: name: backupdir-neo4j labels: app: neo4j-backup spec: accessModes: - ReadWriteOnce resources: requests: storage: 10Gi --- apiVersion: batch/v1beta1 kind: CronJob metadata: name: neo4j-backup spec: schedule: &amp;#34;*/1 * * * *&amp;#34; jobTemplate: spec: template: spec: volumes: - name: backupdir-neo4j persistentVolumeClaim: claimName: backupdir-neo4j containers: - name: neo4j-backup image: neo4j:3.</description>
     </item>
     
     <item>
@@ -36,9 +35,7 @@ Spinup Kubernetes &amp; Helm minikube start --memory 8192 helm init &amp;amp;&am
       <pubDate>Sat, 21 Oct 2017 10:06:55 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/10/21/kubernetes-simple-example-pod-running/</guid>
-      <description>I recently needed to create a Kubernetes pod that would &#39;just sit there&#39; while I used kube cp to copy some files to a persistent volume to which it was bound. I started out with this naive pod spec:
- pod_no_while.yaml kind: Pod apiVersion: v1 metadata: name: marks-dummy-pod spec: containers: - name: marks-dummy-pod image: ubuntu restartPolicy: Never  Let&#39;s apply that template:
-$ kubectl apply -f pod_no_while.yaml pod &amp;quot;marks-dummy-pod&amp;quot; created   And let&#39;s check if we have any running pods: $ kubectl get pods No resources found, use --show-all to see completed objects.</description>
+      <description>kind: Pod apiVersion: v1 metadata: name: marks-dummy-pod spec: containers: - name: marks-dummy-pod image: ubuntu restartPolicy: Never $ kubectl apply -f pod_no_while.yaml pod &amp;#34;marks-dummy-pod&amp;#34; created $ kubectl get pods No resources found, use --show-all to see completed objects. $ kubectl get pods --show-all NAME READY STATUS RESTARTS AGE marks-dummy-pod 0/1 Completed 0 1m kind: Pod apiVersion: v1 metadata: name: marks-dummy-pod spec: containers: - name: marks-dummy-pod image: ubuntu command: [&amp;#34;/bin/bash&amp;#34;, &amp;#34;-ec&amp;#34;, &amp;#34;while :; do echo &amp;#39;.</description>
     </item>
     
     <item>
@@ -47,7 +44,7 @@ $ kubectl apply -f pod_no_while.yaml pod &amp;quot;marks-dummy-pod&amp;quot; cre
       <pubDate>Wed, 14 Jun 2017 08:49:06 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/06/14/kubernetes-node-pod/</guid>
-      <description>When running Kubernetes on a cloud provider, rather than locally using minikube, it&#39;s useful to know which node a pod is running on.  The normal command to list pods doesn&#39;t contain this information: $ kubectl get pod NAME READY STATUS RESTARTS AGE neo4j-core-0 1/1 Running 0 6m neo4j-core-1 1/1 Running 0 6m neo4j-core-2 1/1 Running 0 2m   I spent a while searching for a command that I could use before I came across Ta-Ching Chen&#39;s blog post while looking for something else.</description>
+      <description>$ kubectl get pod NAME READY STATUS RESTARTS AGE neo4j-core-0 1/1 Running 0 6m neo4j-core-1 1/1 Running 0 6m neo4j-core-2 1/1 Running 0 2m $ kubectl get pod -o wide NAME READY STATUS RESTARTS AGE IP NODE neo4j-core-0 1/1 Running 0 6m 10.32.3.6 gke-neo4j-cluster-default-pool-ded394fa-0kpw neo4j-core-1 1/1 Running 0 6m 10.32.3.7 gke-neo4j-cluster-default-pool-ded394fa-0kpw neo4j-core-2 1/1 Running 0 2m 10.32.0.10 gke-neo4j-cluster-default-pool-ded394fa-kp68 </description>
     </item>
     
     <item>
@@ -56,7 +53,7 @@ $ kubectl apply -f pod_no_while.yaml pod &amp;quot;marks-dummy-pod&amp;quot; cre
       <pubDate>Sun, 04 Dec 2016 12:37:49 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/12/04/kubernetes-simulating-a-network-partition/</guid>
-      <description>A couple of weeks ago I wrote a post explaining how to create a Neo4j causal cluster using Kubernetes and ... the I wanted to work out how to simulate a network partition which would put the leader on the minority side and force an election.  We&#39;ve done this on our internal tooling on AWS using the iptables command but unfortunately that isn&#39;t available in my container, which only has the utilities provided by BusyBox.</description>
+      <description>$ kubectl get pods NAME READY STATUS RESTARTS AGE neo4j-0 1/1 Running 0 6h neo4j-1 1/1 Running 0 6h neo4j-2 1/1 Running 0 6h $ kubectl exec neo4j-0 -- ls -alh /sbin/route lrwxrwxrwx 1 root root 12 Oct 18 18:58 /sbin/route -&amp;gt; /bin/busybox $ kubectl exec neo4j-0 -- bin/cypher-shell &amp;#34;CALL dbms.cluster.role()&amp;#34; role &amp;#34;FOLLOWER&amp;#34; Bye! $ kubectl exec neo4j-1 -- bin/cypher-shell &amp;#34;CALL dbms.cluster.role()&amp;#34; role &amp;#34;FOLLOWER&amp;#34; Bye! $ kubectl exec neo4j-2 -- bin/cypher-shell &amp;#34;CALL dbms.</description>
     </item>
     
     <item>
@@ -65,7 +62,7 @@ $ kubectl apply -f pod_no_while.yaml pod &amp;quot;marks-dummy-pod&amp;quot; cre
       <pubDate>Fri, 25 Nov 2016 16:55:56 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/11/25/kubernetes-spinning-up-a-neo4j-3-1-causal-cluster/</guid>
-      <description>A couple of weeks ago I wrote a blog post explaining how I&#39;d created a Neo4j causal cluster using docker containers directly and for my next pet project I wanted to use Kubernetes as an orchestration layer so that I could declaratively change the number of servers in my cluster.  I&#39;d never used Kubernetes before but I saw a presentation showing how to use it to create an Elastic cluster at the GDG Cloud meetup a couple of months ago.</description>
+      <description>for i in $(seq 0 2); do cat &amp;lt;&amp;lt;EOF | kubectl create -f - kind: PersistentVolume apiVersion: v1 metadata: name: pv${i} labels: type: local app: neo4j spec: capacity: storage: 1Gi accessModes: - ReadWriteOnce hostPath: path: &amp;#34;/tmp/${i}&amp;#34; EOF cat &amp;lt;&amp;lt;EOF | kubectl create -f - kind: PersistentVolumeClaim apiVersion: v1 metadata: name: datadir-neo4j-${i} labels: app: neo4j spec: accessModes: - ReadWriteOnce resources: requests: storage: 1Gi EOF done; $ kubectl get pv NAME CAPACITY ACCESSMODES STATUS CLAIM REASON AGE pv0 1Gi RWO Bound default/datadir-neo4j-0 7s pv1 1Gi RWO Bound default/datadir-neo4j-1 7s pv2 1Gi RWO Bound default/datadir-neo4j-2 7s $ kubectl get pvc NAME STATUS VOLUME CAPACITY ACCESSMODES AGE datadir-neo4j-0 Bound pv0 1Gi RWO 26s datadir-neo4j-1 Bound pv1 1Gi RWO 26s datadir-neo4j-2 Bound pv2 1Gi RWO 25s # Headless service to provide DNS lookup apiVersion: v1 kind: Service metadata: labels: app: neo4j name: neo4j spec: clusterIP: None ports: - port: 7474 selector: app: neo4j ---- # new API name apiVersion: &amp;#34;apps/v1alpha1&amp;#34; kind: PetSet metadata: name: neo4j spec: serviceName: neo4j replicas: 3 template: metadata: annotations: pod.</description>
     </item>
     
     <item>
@@ -74,8 +71,7 @@ $ kubectl apply -f pod_no_while.yaml pod &amp;quot;marks-dummy-pod&amp;quot; cre
       <pubDate>Tue, 22 Nov 2016 19:56:31 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/11/22/kubernetes-writing-hostname-to-a-file/</guid>
-      <description>Over the weekend I spent a bit of time playing around with Kubernetes and to get the hang of the technology I set myself the task of writing the hostname of the machine to a file.  I&#39;m using the excellent minikube tool to create a local Kubernetes cluster for my experiments so the first step is to spin that up:
-$ minikube start Starting local Kubernetes cluster... Kubectl is now configured to use the cluster.</description>
+      <description>$ minikube start Starting local Kubernetes cluster... Kubectl is now configured to use the cluster. apiVersion: v1 kind: Pod metadata: name: mark-super-simple-test-pod spec: containers: - name: test-container image: gcr.io/google_containers/busybox:1.24 command: [ &amp;#34;/bin/sh&amp;#34;, &amp;#34;-c&amp;#34;, &amp;#34;env&amp;#34; ] dnsPolicy: Default restartPolicy: Never $ kubectl create -f hostname_super_simple.yaml pod &amp;#34;mark-super-simple-test-pod&amp;#34; created $ kubectl logs mark-super-simple-test-pod KUBERNETES_SERVICE_PORT=443 KUBERNETES_PORT=tcp://10.0.0.1:443 HOSTNAME=mark-super-simple-test-pod SHLVL=1 HOME=/root KUBERNETES_PORT_443_TCP_ADDR=10.0.0.1 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin KUBERNETES_PORT_443_TCP_PORT=443 KUBERNETES_PORT_443_TCP_PROTO=tcp KUBERNETES_SERVICE_PORT_HTTPS=443 KUBERNETES_PORT_443_TCP=tcp://10.0.0.1:443 PWD=/ KUBERNETES_SERVICE_HOST=10.0.0.1 apiVersion: v1 kind: Pod metadata: name: mark-test-pod spec: containers: - name: test-container image: gcr.</description>
     </item>
     
   </channel>

@@ -58,15 +58,14 @@ Since several of the commands require having write access to &lsquo;root&rsquo; 
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "sudo, sudo -i &amp; sudo su",
+        "headline": "sudo, sudo -i \x26 sudo su",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-07-04",
-        "description": "On the project I&rsquo;m currently working on we&rsquo;re doing quite a bit of puppet and although we&rsquo;re using the puppet master approach in production &amp; test environments it&rsquo;s still useful to be able to run puppet headless to test changes locally.
-Since several of the commands require having write access to &lsquo;root&rsquo; folders we need to run &lsquo;puppet apply&rsquo; as a super user using sudo. We also need to run it in the context of some environment variables which the root user has.",
-        "wordCount": 518
+        "description": "On the project I\x26rsquo;m currently working on we\x26rsquo;re doing quite a bit of puppet and although we\x26rsquo;re using the puppet master approach in production \x26amp; test environments it\x26rsquo;s still useful to be able to run puppet headless to test changes locally.\nSince several of the commands require having write access to \x26lsquo;root\x26rsquo; folders we need to run \x26lsquo;puppet apply\x26rsquo; as a super user using sudo. We also need to run it in the context of some environment variables which the root user has.",
+        "wordCount":  407 
     }
     </script>
     
@@ -176,92 +175,51 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">sudo, sudo -i &amp; sudo su</h1>
     <p>On the project I&rsquo;m currently working on we&rsquo;re doing quite a bit of puppet and although we&rsquo;re using the puppet master approach in production &amp; test environments it&rsquo;s still useful to be able to run puppet headless to test changes locally.</p>
-
 <p>Since several of the commands require having write access to &lsquo;root&rsquo; folders we need to run &lsquo;puppet apply&rsquo; as a super user using sudo. We also need to run it in the context of some environment variables which the root user has.</p>
-
 <p>One way to do this would be to run the following command:</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 sudo su 
-</code></pre>
-
-<p>That runs the &lsquo;su&rsquo; command as root which means that we can <a href="https://twitter.com/rjhunter/status/220347921915314176">run root&rsquo;s shell as the root user</a> without needing to know the root password.</p>
-
+</code></pre></div><p>That runs the &lsquo;su&rsquo; command as root which means that we can <!-- raw HTML omitted -->run root&rsquo;s shell as the root user<!-- raw HTML omitted --> without needing to know the root password.</p>
 <p>The cool thing about using &lsquo;su&rsquo; like this is that it leaves us in the same directory that we were in before we ran the command.</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 mneedham@ubuntu:/home/mneedham/puppet$ sudo su
 root@ubuntu:/home/mneedham/puppet# 
-</code></pre>
-
-<p>If instead we want to be positioned in the root home directory we could use the following:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>If instead we want to be positioned in the root home directory we could use the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 mneedham@ubuntu:/home/mneedham/puppet$ sudo su -
 root@ubuntu:~# pwd
 /root
-</code></pre>
-
-<p>We can achieve a similar outcome using &lsquo;sudo -i&rsquo;, a flag I didn&rsquo;t know about until my colleague <a href="https://twitter.com/#!/philandstuff">Phil Potter</a> showed me:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>We can achieve a similar outcome using &lsquo;sudo -i&rsquo;, a flag I didn&rsquo;t know about until my colleague <!-- raw HTML omitted -->Phil Potter<!-- raw HTML omitted --> showed me:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 mneedham@ubuntu:/home/mneedham/puppet$ sudo -i
 root@ubuntu:~# pwd
 /root
-</code></pre>
-
-<blockquote>
--i [command]
-<p>
-The -i (simulate initial login) option runs the shell specified in the passwd(5) entry of the target user as a login shell.  This means that
-login-specific resource files such as .profile or .login will be read by the shell.  
-</p>
-
-<p>
-If a command is specified, it is passed to the shell for execution. Otherwise, an interactive shell is executed.  
-</p>
-
-<p>
-sudo attempts to change to that user's home directory before running the shell.  It also initializes the environment, leaving DISPLAY and TERM unchanged, setting HOME, SHELL, USER, LOGNAME, and PATH, as well as the contents of /etc/environment on Linux and AIX systems.  All other environment variables are removed.
-</p>
-
-</blockquote>
-
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 <p>Interestingly with &lsquo;sudo -i&rsquo; we can pass a command which will be executed in the root context which would be useful in this situation as we wouldn&rsquo;t need to keep switching to the root shell to run puppet.</p>
-
 <p>One of the things that changes if we&rsquo;re in the root shell is the value of $HOME so I started with that to check I was passing the command correctly:</p>
-
-<pre><code class="language-text">
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 mneedham@ubuntu:/home/mneedham/puppet$ sudo -i echo $HOME
 /home/mneedham
-</code></pre>
-
-<p>Unfortunately the echo statement is getting evaluated in the context of the current user&rsquo;s shell rather than the root shell and <a href="https://twitter.com/rjhunter/status/220286792346243072">my colleague Rob Hunter showed me the &lsquo;set -x&rsquo; tool/flag</a> so that I could figure out what was going on with the escaping in the shell:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>Unfortunately the echo statement is getting evaluated in the context of the current user&rsquo;s shell rather than the root shell and <!-- raw HTML omitted -->my colleague Rob Hunter showed me the &lsquo;set -x&rsquo; tool/flag<!-- raw HTML omitted --> so that I could figure out what was going on with the escaping in the shell:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 mneedham@ubuntu:/home/mneedham/puppet$ sudo -i echo $HOME
 + sudo -i echo /home/mneedham
 /home/mneedham
-</code></pre>
-
-<p>As we can see, the $HOME value is expanded too early so we need to escape it like so:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>As we can see, the $HOME value is expanded too early so we need to escape it like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 mneedham@ubuntu:/home/mneedham/puppet$ sudo -i echo \$HOME
-+ sudo -i echo '$HOME'
++ sudo -i echo &#39;$HOME&#39;
 /root
-</code></pre>
-
-<p>If we disable that flag:</p>
-
-<pre><code class="language-text">
+</code></pre></div><p>If we disable that flag:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
 mneedham@ubuntu:/home/mneedham/puppet$ set +x
 + set +x
 mneedham@ubuntu:/home/mneedham/puppet$ sudo -i echo \$HOME
 /root
-</code></pre>
-
-<p>We can see that $HOME is being evaluated in the root shell context and we can also call our &lsquo;puppet apply&rsquo; script in a similar vein.</p>
+</code></pre></div><p>We can see that $HOME is being evaluated in the root shell context and we can also call our &lsquo;puppet apply&rsquo; script in a similar vein.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">

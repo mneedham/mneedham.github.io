@@ -22,9 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Automapper: Don&#39;t forget Mapper.Reset() at the start" />
         
-          <meta name="twitter:description" content="I wrote about my first thoughts using Automapper last week and although I realised that it makes use of the static gateway pattern we ran into a problem where two consecutive calls to a method using AutoMapper always returned the same value for one of the mappings.
+          <meta name="twitter:description" content="I wrote about my first thoughts using Automapperlast week and although I realised that it makes use of the static gateway pattern we ran into a problem where two consecutive calls to a method using AutoMapper always returned the same value for one of the mappings.
 The code was roughly like this:
-public Bar CreateNewBar(Bar originalBar, string someNewValue) { Mapper.CreateMap&lt;Baz, Baz&gt;() .ForMember(x =&gt; x.Id, opts =&gt; opts.Ignore()) .ForMember(x =&gt; x." />
+public Bar CreateNewBar(Bar originalBar, string someNewValue) { Mapper.CreateMap&lt;Baz, Baz&gt;() .ForMember(x =&gt; x.Id, opts =&gt; opts.Ignore()) .ForMember(x =&gt; x.SomeProperty, opts =&gt; opts." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/01/27/automapper-dont-forget-mapper-reset-at-the-start/" />
 
@@ -35,9 +35,9 @@ public Bar CreateNewBar(Bar originalBar, string someNewValue) { Mapper.CreateMap
         <title> Automapper: Don&#39;t forget Mapper.Reset() at the start &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I wrote about my first thoughts using Automapper last week and although I realised that it makes use of the static gateway pattern we ran into a problem where two consecutive calls to a method using AutoMapper always returned the same value for one of the mappings.
+        <meta name="description" content="I wrote about my first thoughts using Automapperlast week and although I realised that it makes use of the static gateway pattern we ran into a problem where two consecutive calls to a method using AutoMapper always returned the same value for one of the mappings.
 The code was roughly like this:
-public Bar CreateNewBar(Bar originalBar, string someNewValue) { Mapper.CreateMap&lt;Baz, Baz&gt;() .ForMember(x =&gt; x.Id, opts =&gt; opts.Ignore()) .ForMember(x =&gt; x." />
+public Bar CreateNewBar(Bar originalBar, string someNewValue) { Mapper.CreateMap&lt;Baz, Baz&gt;() .ForMember(x =&gt; x.Id, opts =&gt; opts.Ignore()) .ForMember(x =&gt; x.SomeProperty, opts =&gt; opts." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -60,16 +60,14 @@ public Bar CreateNewBar(Bar originalBar, string someNewValue) { Mapper.CreateMap
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "Automapper: Don&#39;t forget Mapper.Reset() at the start",
+        "headline": "Automapper: Don\x27t forget Mapper.Reset() at the start",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-27",
-        "description": "I wrote about my first thoughts using Automapper last week and although I realised that it makes use of the static gateway pattern we ran into a problem where two consecutive calls to a method using AutoMapper always returned the same value for one of the mappings.
-The code was roughly like this:
-public Bar CreateNewBar(Bar originalBar, string someNewValue) { Mapper.CreateMap&lt;Baz, Baz&gt;() .ForMember(x =&gt; x.Id, opts =&gt; opts.Ignore()) .ForMember(x =&gt; x.",
-        "wordCount": 265
+        "description": "I wrote about my first thoughts using Automapperlast week and although I realised that it makes use of the static gateway pattern we ran into a problem where two consecutive calls to a method using AutoMapper always returned the same value for one of the mappings.\nThe code was roughly like this:\npublic Bar CreateNewBar(Bar originalBar, string someNewValue) { Mapper.CreateMap\x26lt;Baz, Baz\x26gt;() .ForMember(x =\x26gt; x.Id, opts =\x26gt; opts.Ignore()) .ForMember(x =\x26gt; x.SomeProperty, opts =\x26gt; opts.",
+        "wordCount":  263 
     }
     </script>
     
@@ -178,66 +176,51 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Automapper: Don&#39;t forget Mapper.Reset() at the start</h1>
-    <p>I wrote about <a href="http://www.markhneedham.com/blog/2010/01/22/automapper-first-thoughts/">my first thoughts using Automapper</a> last week and although I realised that it makes use of the static gateway pattern we ran into a problem where two consecutive calls to a method using AutoMapper always returned the same value for one of the mappings.</p>
-
+    <p>I wrote about <!-- raw HTML omitted -->my first thoughts using Automapper<!-- raw HTML omitted --> last week and although I realised that it makes use of the static gateway pattern we ran into a problem where two consecutive calls to a method using AutoMapper always returned the same value for one of the mappings.</p>
 <p>The code was roughly like this:</p>
-
-<pre><code class="language-csharp">
-public Bar CreateNewBar(Bar originalBar, string someNewValue)
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> Bar CreateNewBar(Bar originalBar, <span style="color:#66d9ef">string</span> someNewValue)
 {
 	Mapper.CreateMap&lt;Baz, Baz&gt;()
       .ForMember(x =&gt; x.Id, opts =&gt; opts.Ignore())
       .ForMember(x =&gt; x.SomeProperty, opts =&gt; opts.MapFrom(source =&gt; someNewValue));
 }
-</code></pre>
-
-<p>In our test everything worked fine because we were only calling the method once but when testing it out we were making multiple calls to the method and always receiving the same value for &lsquo;someNewValue&rsquo;.</p>
-
+</code></pre></div><p>In our test everything worked fine because we were only calling the method once but when testing it out we were making multiple calls to the method and always receiving the same value for &lsquo;someNewValue&rsquo;.</p>
 <p>I hadn&rsquo;t quite pieced together that each mapping was probably only created once for each source/destination pair. I thought it would be recreated each time but browsing through the code we can see that&rsquo;s what&rsquo;s going on:</p>
-
-<p><a href="http://code.google.com/p/automapperhome/source/browse/trunk/src/AutoMapper/Configuration.cs">Configuration.cs</a></p>
-
-<pre><code class="language-csharp">
-public IMappingExpression CreateMap(Type sourceType, Type destinationType)
+<p><!-- raw HTML omitted -->Configuration.cs<!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> IMappingExpression CreateMap(Type sourceType, Type destinationType)
 {
-   var typeMap = CreateTypeMap(sourceType, destinationType);
+   <span style="color:#66d9ef">var</span> typeMap = CreateTypeMap(sourceType, destinationType);
 
-   return new MappingExpression(typeMap, _serviceCtor);
+   <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> MappingExpression(typeMap, _serviceCtor);
 }
-</code></pre>
-
-<pre><code class="language-csharp">
-public TypeMap CreateTypeMap(Type source, Type destination)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> TypeMap CreateTypeMap(Type source, Type destination)
 {
    TypeMap typeMap = FindExplicitlyDefinedTypeMap(source, destination);
 				
-   if (typeMap == null)
+   <span style="color:#66d9ef">if</span> (typeMap == <span style="color:#66d9ef">null</span>)
    {
    ...
    }
-   return typeMap;
+   <span style="color:#66d9ef">return</span> typeMap;
 }
-</code></pre>
-
-<pre><code class="language-csharp">
-private TypeMap FindExplicitlyDefinedTypeMap(Type sourceType, Type destinationType)
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">private</span> TypeMap FindExplicitlyDefinedTypeMap(Type sourceType, Type destinationType)
 {
-   return _typeMaps.FirstOrDefault(x =&gt; x.DestinationType == destinationType &amp;&amp; x.SourceType == sourceType);
+   <span style="color:#66d9ef">return</span> _typeMaps.FirstOrDefault(x =&gt; x.DestinationType == destinationType &amp;&amp; x.SourceType == sourceType);
 }
-</code></pre>
-
-<p>We put a test which called the method &lsquo;CreateNewBar&rsquo; method twice to make sure that was actually the problem and then made use of the &lsquo;Reset&rsquo; method on &lsquo;Mapper&rsquo; to avoid the problem:</p>
-
-<pre><code class="language-csharp">
-public Bar CreateNewBar(Bar originalBar, string someNewValue)
+</code></pre></div><p>We put a test which called the method &lsquo;CreateNewBar&rsquo; method twice to make sure that was actually the problem and then made use of the &lsquo;Reset&rsquo; method on &lsquo;Mapper&rsquo; to avoid the problem:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> Bar CreateNewBar(Bar originalBar, <span style="color:#66d9ef">string</span> someNewValue)
 {
     Mapper.Reset();
 	Mapper.CreateMap&lt;Baz, Baz&gt;()
       .ForMember(x =&gt; x.Id, opts =&gt; opts.Ignore())
       .ForMember(x =&gt; x.SomeProperty, opts =&gt; opts.MapFrom(source =&gt; someNewValue));
 }
-</code></pre>
-
+</code></pre></div>
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -271,7 +254,7 @@ public Bar CreateNewBar(Bar originalBar, string someNewValue)
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/27/automapper-dont-forget-mapper-reset-at-the-start/&amp;title=Automapper%3a%20Don%27t%20forget%20Mapper.Reset%28%29%20at%20the%20start&amp;summary=I%20wrote%20about%20my%20first%20thoughts%20using%20Automapper%20last%20week%20and%20although%20I%20realised%20that%20it%20makes%20use%20of%20the%20static%20gateway%20pattern%20we%20ran%20into%20a%20problem%20where%20two%20consecutive%20calls%20to%20a%20method%20using%20AutoMapper%20always%20returned%20the%20same%20value%20for%20one%20of%20the%20mappings.%0aThe%20code%20was%20roughly%20like%20this%3a%0apublic%20Bar%20CreateNewBar%28Bar%20originalBar%2c%20string%20someNewValue%29%20%7b%20Mapper.CreateMap%26lt%3bBaz%2c%20Baz%26gt%3b%28%29%20.ForMember%28x%20%3d%26gt%3b%20x.Id%2c%20opts%20%3d%26gt%3b%20opts.Ignore%28%29%29%20.ForMember%28x%20%3d%26gt%3b%20x...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/27/automapper-dont-forget-mapper-reset-at-the-start/&amp;title=Automapper%3a%20Don%27t%20forget%20Mapper.Reset%28%29%20at%20the%20start&amp;summary=I%20wrote%20about%20my%20first%20thoughts%20using%20Automapperlast%20week%20and%20although%20I%20realised%20that%20it%20makes%20use%20of%20the%20static%20gateway%20pattern%20we%20ran%20into%20a%20problem%20where%20two%20consecutive%20calls%20to%20a%20method%20using%20AutoMapper%20always%20returned%20the%20same%20value%20for%20one%20of%20the%20mappings.%0aThe%20code%20was%20roughly%20like%20this%3a%0apublic%20Bar%20CreateNewBar%28Bar%20originalBar%2c%20string%20someNewValue%29%20%7b%20Mapper.CreateMap%26lt%3bBaz%2c%20Baz%26gt%3b%28%29%20.ForMember%28x%20%3d%26gt%3b%20x.Id%2c%20opts%20%3d%26gt%3b%20opts.Ignore%28%29%29%20.ForMember%28x%20%3d%26gt%3b%20x.SomeProperty%2c%20opts%20%3d%26gt%3b%20opts...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

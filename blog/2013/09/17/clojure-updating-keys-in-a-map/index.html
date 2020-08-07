@@ -22,9 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Clojure: Updating keys in a map" />
         
-          <meta name="twitter:description" content="I&#39;ve been playing with Clojure over the last few weeks and as a result I&#39;ve been using a lot of maps to represent the data.
-For example if we have the following map of teams to Glicko ratings and ratings deviations:
-(def teams { &quot;Man. United&quot; {:points 1500 :rd 350} &quot;Man. City&quot; {:points 1450 :rd 300} })  We might want to increase Man. United&#39;s points score by one for which we could use the update-in function:" />
+          <meta name="twitter:description" content="(def teams { &#34;Man. United&#34; {:points 1500 :rd 350} &#34;Man. City&#34; {:points 1450 :rd 300} }) &gt; (update-in teams [&#34;Man. United&#34; :points] inc) {&#34;Man. United&#34; {:points 1501, :rd 350}, &#34;Man. City&#34; {:points 1450, :rd 300}} &gt; (assoc-in teams [&#34;Man. United&#34; :points] 1) {&#34;Man. United&#34; {:points 1, :rd 350}, &#34;Man. City&#34; {:points 1450, :rd 300}} (-&gt; teams (assoc-in [&#34;Man. United&#34; :points] 1600) (assoc-in [&#34;Man. United&#34; :rd] 200)) {&#34;Man. United&#34; {:points 1600, :rd 200}, &#34;Man." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/09/17/clojure-updating-keys-in-a-map/" />
 
@@ -35,9 +33,7 @@ For example if we have the following map of teams to Glicko ratings and ratings 
         <title> Clojure: Updating keys in a map &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&#39;ve been playing with Clojure over the last few weeks and as a result I&#39;ve been using a lot of maps to represent the data.
-For example if we have the following map of teams to Glicko ratings and ratings deviations:
-(def teams { &quot;Man. United&quot; {:points 1500 :rd 350} &quot;Man. City&quot; {:points 1450 :rd 300} })  We might want to increase Man. United&#39;s points score by one for which we could use the update-in function:" />
+        <meta name="description" content="(def teams { &#34;Man. United&#34; {:points 1500 :rd 350} &#34;Man. City&#34; {:points 1450 :rd 300} }) &gt; (update-in teams [&#34;Man. United&#34; :points] inc) {&#34;Man. United&#34; {:points 1501, :rd 350}, &#34;Man. City&#34; {:points 1450, :rd 300}} &gt; (assoc-in teams [&#34;Man. United&#34; :points] 1) {&#34;Man. United&#34; {:points 1, :rd 350}, &#34;Man. City&#34; {:points 1450, :rd 300}} (-&gt; teams (assoc-in [&#34;Man. United&#34; :points] 1600) (assoc-in [&#34;Man. United&#34; :rd] 200)) {&#34;Man. United&#34; {:points 1600, :rd 200}, &#34;Man." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,10 +62,8 @@ For example if we have the following map of teams to Glicko ratings and ratings 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-09-17",
-        "description": "I've been playing with Clojure over the last few weeks and as a result I've been using a lot of maps to represent the data.
-For example if we have the following map of teams to Glicko ratings and ratings deviations:
-(def teams { &quot;Man. United&quot; {:points 1500 :rd 350} &quot;Man. City&quot; {:points 1450 :rd 300} })  We might want to increase Man. United's points score by one for which we could use the update-in function:",
-        "wordCount": 310
+        "description": "(def teams { \x26#34;Man. United\x26#34; {:points 1500 :rd 350} \x26#34;Man. City\x26#34; {:points 1450 :rd 300} }) \x26gt; (update-in teams [\x26#34;Man. United\x26#34; :points] inc) {\x26#34;Man. United\x26#34; {:points 1501, :rd 350}, \x26#34;Man. City\x26#34; {:points 1450, :rd 300}} \x26gt; (assoc-in teams [\x26#34;Man. United\x26#34; :points] 1) {\x26#34;Man. United\x26#34; {:points 1, :rd 350}, \x26#34;Man. City\x26#34; {:points 1450, :rd 300}} (-\x26gt; teams (assoc-in [\x26#34;Man. United\x26#34; :points] 1600) (assoc-in [\x26#34;Man. United\x26#34; :rd] 200)) {\x26#34;Man. United\x26#34; {:points 1600, :rd 200}, \x26#34;Man.",
+        "wordCount":  132 
     }
     </script>
     
@@ -178,63 +172,39 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Clojure: Updating keys in a map</h1>
-    <p>I've been playing with Clojure over the last few weeks and as a result I've been using a lot of maps to represent the data.</p>
-
-<p>For example if we have the following map of teams to <a href="http://www.glicko.net/glicko/glicko.pdf">Glicko</a> ratings and ratings deviations:</p>
-
-<pre><code class="language-lisp">
-(def teams { &quot;Man. United&quot; {:points 1500 :rd 350} 
-             &quot;Man. City&quot;   {:points 1450 :rd 300} })
-</code></pre>
-
-<p>We might want to increase Man. United's points score by one for which we could use the <cite><a href="http://clojuredocs.org/clojure_core/1.2.0/clojure.core/update-in">update-in</a></cite> function:</p>
-
-<pre><code class="language-lisp">
-&gt; (update-in teams [&quot;Man. United&quot; :points] inc)
-{&quot;Man. United&quot; {:points 1501, :rd 350}, &quot;Man. City&quot; {:points 1450, :rd 300}}
-</code></pre>
-
-<p>The 2nd argument to <cite>update-in</cite> is a nested associative structure i.e. a sequence of keys into the map in this instance.</p>
- 
-
-<p>If we wanted to reset Man. United's points score we could use <cite><a href="http://clojuredocs.org/clojure_core/clojure.core/assoc-in">assoc-in</a></cite>:</p>
-
-<pre><code class="language-lisp">
-&gt; (assoc-in teams [&quot;Man. United&quot; :points] 1)
-{&quot;Man. United&quot; {:points 1, :rd 350}, &quot;Man. City&quot; {:points 1450, :rd 300}}
-</code></pre>
-
-<p>If we want to update multiple keys at once then we can chain them using the <a href="http://clojuredocs.org/clojure_core/clojure.core/-%3E">-></a> (thread first) macro:</p>
-
-<pre><code class="language-lisp">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+(def teams { <span style="color:#e6db74">&#34;Man. United&#34;</span> {:points <span style="color:#ae81ff">1500</span> <span style="color:#e6db74">:rd</span> 350} 
+             <span style="color:#e6db74">&#34;Man. City&#34;</span>   {:points <span style="color:#ae81ff">1450</span> <span style="color:#e6db74">:rd</span> 300} })
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (update-in teams [<span style="color:#e6db74">&#34;Man. United&#34;</span> <span style="color:#e6db74">:points]</span> inc)
+{<span style="color:#e6db74">&#34;Man. United&#34;</span> {:points <span style="color:#ae81ff">1501</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 350}, <span style="color:#e6db74">&#34;Man. City&#34;</span> {:points <span style="color:#ae81ff">1450</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 300}}
+</code></pre></div><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (assoc-in teams [<span style="color:#e6db74">&#34;Man. United&#34;</span> <span style="color:#e6db74">:points]</span> <span style="color:#ae81ff">1</span>)
+{<span style="color:#e6db74">&#34;Man. United&#34;</span> {:points <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 350}, <span style="color:#e6db74">&#34;Man. City&#34;</span> {:points <span style="color:#ae81ff">1450</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 300}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
 (-&gt; teams
-    (assoc-in [&quot;Man. United&quot; :points] 1600)
-    (assoc-in [&quot;Man. United&quot; :rd] 200))
-{&quot;Man. United&quot; {:points 1600, :rd 200}, &quot;Man. City&quot; {:points 1450, :rd 300}}
-</code></pre>
-
-<p>If instead of replacing just one part of the value we want to replace the whole entry we could use <cite><a href="http://clojuredocs.org/clojure_core/clojure.core/assoc">assoc</a></cite> instead:</p>
-
-<pre><code class="language-lisp">
-&gt; (assoc teams &quot;Man. United&quot; {:points 1600 :rd 300})
-{&quot;Man. United&quot; {:points 1600, :rd 300}, &quot;Man. City&quot; {:points 1450, :rd 300}}
-</code></pre>
-
-<p><cite>assoc</cite> can also be used to add a new key/value to the map. e.g.</p>
-
-<pre><code class="language-lisp">
-&gt; (assoc teams &quot;Arsenal&quot; {:points 1500 :rd 330})
-{&quot;Man. United&quot; {:points 1500, :rd 350}, &quot;Arsenal&quot; {:points 1500, :rd 330}, &quot;Man. City&quot; {:points 1450, :rd 300}}
-</code></pre>
-
-<p><cite><a href="http://clojuredocs.org/clojure_core/clojure.core/dissoc">dissoc</a></cite> plays the opposite role and returns a new map without the specified keys:</p>
-
-<pre><code class="language-lisp">
-&gt; (dissoc teams &quot;Man. United&quot; &quot;Man. City&quot;)
+    (assoc-in [<span style="color:#e6db74">&#34;Man. United&#34;</span> <span style="color:#e6db74">:points]</span> <span style="color:#ae81ff">1600</span>)
+    (assoc-in [<span style="color:#e6db74">&#34;Man. United&#34;</span> <span style="color:#e6db74">:rd]</span> <span style="color:#ae81ff">200</span>))
+{<span style="color:#e6db74">&#34;Man. United&#34;</span> {:points <span style="color:#ae81ff">1600</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 200}, <span style="color:#e6db74">&#34;Man. City&#34;</span> {:points <span style="color:#ae81ff">1450</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 300}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">assoc</span> teams <span style="color:#e6db74">&#34;Man. United&#34;</span> {:points <span style="color:#ae81ff">1600</span> <span style="color:#e6db74">:rd</span> 300})
+{<span style="color:#e6db74">&#34;Man. United&#34;</span> {:points <span style="color:#ae81ff">1600</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 300}, <span style="color:#e6db74">&#34;Man. City&#34;</span> {:points <span style="color:#ae81ff">1450</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 300}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">assoc</span> teams <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points <span style="color:#ae81ff">1500</span> <span style="color:#e6db74">:rd</span> 330})
+{<span style="color:#e6db74">&#34;Man. United&#34;</span> {:points <span style="color:#ae81ff">1500</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 350}, <span style="color:#e6db74">&#34;Arsenal&#34;</span> {:points <span style="color:#ae81ff">1500</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 330}, <span style="color:#e6db74">&#34;Man. City&#34;</span> {:points <span style="color:#ae81ff">1450</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:rd</span> 300}}
+</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
+<span style="color:#a6e22e">&gt;</span> (dissoc teams <span style="color:#e6db74">&#34;Man. United&#34;</span> <span style="color:#e6db74">&#34;Man. City&#34;</span>)
 {}
-</code></pre>
-
-<p>And those are all the map based functions I've played around with so far...</p>
+</code></pre></div><!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -269,7 +239,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/09/17/clojure-updating-keys-in-a-map/&amp;title=Clojure%3a%20Updating%20keys%20in%20a%20map&amp;summary=I%27ve%20been%20playing%20with%20Clojure%20over%20the%20last%20few%20weeks%20and%20as%20a%20result%20I%27ve%20been%20using%20a%20lot%20of%20maps%20to%20represent%20the%20data.%0aFor%20example%20if%20we%20have%20the%20following%20map%20of%20teams%20to%20Glicko%20ratings%20and%20ratings%20deviations%3a%0a%28def%20teams%20%7b%20%26quot%3bMan.%20United%26quot%3b%20%7b%3apoints%201500%20%3ard%20350%7d%20%26quot%3bMan.%20City%26quot%3b%20%7b%3apoints%201450%20%3ard%20300%7d%20%7d%29%20%20We%20might%20want%20to%20increase%20Man.%20United%27s%20points%20score%20by%20one%20for%20which%20we%20could%20use%20the%20update-in%20function%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/09/17/clojure-updating-keys-in-a-map/&amp;title=Clojure%3a%20Updating%20keys%20in%20a%20map&amp;summary=%28def%20teams%20%7b%20%26%2334%3bMan.%20United%26%2334%3b%20%7b%3apoints%201500%20%3ard%20350%7d%20%26%2334%3bMan.%20City%26%2334%3b%20%7b%3apoints%201450%20%3ard%20300%7d%20%7d%29%20%26gt%3b%20%28update-in%20teams%20%5b%26%2334%3bMan.%20United%26%2334%3b%20%3apoints%5d%20inc%29%20%7b%26%2334%3bMan.%20United%26%2334%3b%20%7b%3apoints%201501%2c%20%3ard%20350%7d%2c%20%26%2334%3bMan.%20City%26%2334%3b%20%7b%3apoints%201450%2c%20%3ard%20300%7d%7d%20%26gt%3b%20%28assoc-in%20teams%20%5b%26%2334%3bMan.%20United%26%2334%3b%20%3apoints%5d%201%29%20%7b%26%2334%3bMan.%20United%26%2334%3b%20%7b%3apoints%201%2c%20%3ard%20350%7d%2c%20%26%2334%3bMan.%20City%26%2334%3b%20%7b%3apoints%201450%2c%20%3ard%20300%7d%7d%20%28-%26gt%3b%20teams%20%28assoc-in%20%5b%26%2334%3bMan.%20United%26%2334%3b%20%3apoints%5d%201600%29%20%28assoc-in%20%5b%26%2334%3bMan.%20United%26%2334%3b%20%3ard%5d%20200%29%29%20%7b%26%2334%3bMan.%20United%26%2334%3b%20%7b%3apoints%201600%2c%20%3ard%20200%7d%2c%20%26%2334%3bMan...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

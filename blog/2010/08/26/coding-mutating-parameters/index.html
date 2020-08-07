@@ -66,10 +66,8 @@ I think the most dangerous example of this is when we completely change the valu
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-08-26",
-        "description": "One of the earliest rules of thumb that I was taught by my colleagues is the idea that we should try and avoid mutating/changing values passed into a function as a parameter.
-The underlying reason as I understand it is that if you&rsquo;re just skimming through the code you wouldn&rsquo;t necessarily expect the values of incoming parameters to be different depending where in the function they&rsquo;re used.
-I think the most dangerous example of this is when we completely change the value of a parameter, like so:",
-        "wordCount": 501
+        "description": "One of the earliest rules of thumb that I was taught by my colleagues is the idea that we should try and avoid mutating\/changing values passed into a function as a parameter.\nThe underlying reason as I understand it is that if you\x26rsquo;re just skimming through the code you wouldn\x26rsquo;t necessarily expect the values of incoming parameters to be different depending where in the function they\x26rsquo;re used.\nI think the most dangerous example of this is when we completely change the value of a parameter, like so:",
+        "wordCount":  496 
     }
     </script>
     
@@ -179,98 +177,71 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Coding: Mutating parameters</h1>
     <p>One of the earliest rules of thumb that I was taught by my colleagues is the idea that we should try and avoid mutating/changing values passed into a function as a parameter.</p>
-
 <p>The underlying reason as I understand it is that if you&rsquo;re just skimming through the code you wouldn&rsquo;t necessarily expect the values of incoming parameters to be different depending where in the function they&rsquo;re used.</p>
-
 <p>I think the most dangerous example of this is when we completely change the value of a parameter, like so:</p>
-
-<pre><code class="language-java">
-public class SomeClass
-{
-	public BigDecimal doSomeCalculationsOn(BigDecimal value) {   
-		value = value.divide(new BigDecimal(&quot;3.2&quot;));
-		// some other calculation  on value...
-		// and we keep on re-assigning value until we return the value
-		return value;  
-	}
-}
-</code></pre>
-
-<p>In this case the function is really small so maybe it doesn&rsquo;t make that much difference readability wise but I still think it would be better if we didn&rsquo;t reassign the result of the calculation to &lsquo;value&rsquo; but instead used a new variable name.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomeClass</span>
+<span style="color:#f92672">{</span>
+	<span style="color:#66d9ef">public</span> BigDecimal <span style="color:#a6e22e">doSomeCalculationsOn</span><span style="color:#f92672">(</span>BigDecimal value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>   
+		value <span style="color:#f92672">=</span> value<span style="color:#f92672">.</span><span style="color:#a6e22e">divide</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BigDecimal<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;3.2&#34;</span><span style="color:#f92672">));</span>
+		<span style="color:#75715e">// some other calculation  on value...
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// and we keep on re-assigning value until we return the value
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">return</span> value<span style="color:#f92672">;</span>  
+	<span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>In this case the function is really small so maybe it doesn&rsquo;t make that much difference readability wise but I still think it would be better if we didn&rsquo;t reassign the result of the calculation to &lsquo;value&rsquo; but instead used a new variable name.</p>
 <p>It wouldn&rsquo;t require a very big change to do that:</p>
-
-<pre><code class="language-java">
-public class SomeClass
-{
-	public BigDecimal doSomeCalculationsOn(BigDecimal value) {   
-		BigDecimal newValue = value.divide(new BigDecimal(&quot;3.2&quot;));
-		// some other calculation  on newValue...
-		// and we keep on re-assigning newValue until we return the newValue
-		return newValue;  
-	}
-}
-</code></pre>
-
-<p>Unless the function in question is the <a href="http://en.wikipedia.org/wiki/Identity_function">identity function</a> I find it very weird when I read code which seems to return the same value that&rsquo;s been passed into the function.</p>
-
-<p>The other way that function parameters get changed is when we mutate the values directly. The <a href="http://www.markhneedham.com/blog/2010/01/23/coding-the-collecting-parameter-pattern/">collecting parameter pattern</a> is a good example of this.</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomeClass</span>
+<span style="color:#f92672">{</span>
+	<span style="color:#66d9ef">public</span> BigDecimal <span style="color:#a6e22e">doSomeCalculationsOn</span><span style="color:#f92672">(</span>BigDecimal value<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>   
+		BigDecimal newValue <span style="color:#f92672">=</span> value<span style="color:#f92672">.</span><span style="color:#a6e22e">divide</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> BigDecimal<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;3.2&#34;</span><span style="color:#f92672">));</span>
+		<span style="color:#75715e">// some other calculation  on newValue...
+</span><span style="color:#75715e"></span>		<span style="color:#75715e">// and we keep on re-assigning newValue until we return the newValue
+</span><span style="color:#75715e"></span>		<span style="color:#66d9ef">return</span> newValue<span style="color:#f92672">;</span>  
+	<span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>Unless the function in question is the <!-- raw HTML omitted -->identity function<!-- raw HTML omitted --> I find it very weird when I read code which seems to return the same value that&rsquo;s been passed into the function.</p>
+<p>The other way that function parameters get changed is when we mutate the values directly. The <!-- raw HTML omitted -->collecting parameter pattern<!-- raw HTML omitted --> is a good example of this.</p>
 <p>That seems to be a more common pattern and since the function names normally reveal intent better it&rsquo;s normally less confusing.</p>
-
-<p>It does become <a href="http://www.markhneedham.com/blog/2009/09/16/coding-watch-out-for-mutable-code/">more problematic if we&rsquo;re mutating an object in loads of places based on conditional statements because we can lose track of how many times it&rsquo;s been changed</a>.</p>
-
-<p>Interestingly some of the code for <a href="http://github.com/rails/rails/blob/master/actionpack">ActionPack</a> makes use of both of these approaches in the same function!</p>
-
-<p><a href="http://github.com/rails/rails/blob/master/actionpack/lib/action_view/helpers/form_options_helper.rb">form_options_helper.rb</a></p>
-
-<pre><code class="language-ruby">
-      def to_collection_select_tag(collection, value_method, text_method, options, html_options)
-        html_options = html_options.stringify_keys
+<p>It does become <!-- raw HTML omitted -->more problematic if we&rsquo;re mutating an object in loads of places based on conditional statements because we can lose track of how many times it&rsquo;s been changed<!-- raw HTML omitted -->.</p>
+<p>Interestingly some of the code for <!-- raw HTML omitted -->ActionPack<!-- raw HTML omitted --> makes use of both of these approaches in the same function!</p>
+<p><!-- raw HTML omitted -->form_options_helper.rb<!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+      <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">to_collection_select_tag</span>(collection, value_method, text_method, options, html_options)
+        html_options <span style="color:#f92672">=</span> html_options<span style="color:#f92672">.</span>stringify_keys
         add_default_name_and_id(html_options)
-        ...
+        <span style="color:#f92672">...</span>
         content_tag(
-          &quot;select&quot;, add_options(options_from_collection_for_select(collection, value_method, text_method, :selected =&gt; selected_value, :disabled =&gt; disabled_value), options, value), html_options
+          <span style="color:#e6db74">&#34;select&#34;</span>, add_options(options_from_collection_for_select(collection, value_method, text_method, <span style="color:#e6db74">:selected</span> <span style="color:#f92672">=&gt;</span> selected_value, <span style="color:#e6db74">:disabled</span> <span style="color:#f92672">=&gt;</span> disabled_value), options, value), html_options
         )
-      end
-</code></pre>
-
-<p><a href="http://github.com/rails/rails/blob/master/actionpack/lib/action_view/helpers/form_helper.rb">form_helper.rb</a></p>
-
-<pre><code class="language-ruby">
-        def add_default_name_and_id(options)
-          if options.has_key?(&quot;index&quot;)
-            options[&quot;name&quot;] ||= tag_name_with_index(options[&quot;index&quot;])
-          # and so on
-          end
-        end
-</code></pre>
-
-<p>I&rsquo;m not sure how exactly I&rsquo;d change that function so that it didn&rsquo;t mutate &lsquo;html_options&rsquo; but I&rsquo;m thinking perhaps something like this:</p>
-
-<pre><code class="language-ruby">
-	def create_html_options_with_default_name_and_id(html_options)
-          options = html_options.stringify_keys
-          if options.has_key?(&quot;index&quot;)
-            options[&quot;name&quot;] ||= tag_name_with_index(options[&quot;index&quot;])
-          # and so on
-	end
-</code></pre>
-
-<p>And we could then change the other method to call it like so:</p>
-
-<pre><code class="language-ruby">
-      def to_collection_select_tag(collection, value_method, text_method, options, html_options)
-	   html_options_with_defaults = create_html_options_with_default_name_and_id(html_options)
-        ...
+      <span style="color:#66d9ef">end</span>
+</code></pre></div><p><!-- raw HTML omitted -->form_helper.rb<!-- raw HTML omitted --></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+        <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add_default_name_and_id</span>(options)
+          <span style="color:#66d9ef">if</span> options<span style="color:#f92672">.</span>has_key?(<span style="color:#e6db74">&#34;index&#34;</span>)
+            options<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">]</span> <span style="color:#f92672">||=</span> tag_name_with_index(options<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;index&#34;</span><span style="color:#f92672">]</span>)
+          <span style="color:#75715e"># and so on</span>
+          <span style="color:#66d9ef">end</span>
+        <span style="color:#66d9ef">end</span>
+</code></pre></div><p>I&rsquo;m not sure how exactly I&rsquo;d change that function so that it didn&rsquo;t mutate &lsquo;html_options&rsquo; but I&rsquo;m thinking perhaps something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+	<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_html_options_with_default_name_and_id</span>(html_options)
+          options <span style="color:#f92672">=</span> html_options<span style="color:#f92672">.</span>stringify_keys
+          <span style="color:#66d9ef">if</span> options<span style="color:#f92672">.</span>has_key?(<span style="color:#e6db74">&#34;index&#34;</span>)
+            options<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">]</span> <span style="color:#f92672">||=</span> tag_name_with_index(options<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;index&#34;</span><span style="color:#f92672">]</span>)
+          <span style="color:#75715e"># and so on</span>
+	<span style="color:#66d9ef">end</span>
+</code></pre></div><p>And we could then change the other method to call it like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
+      <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">to_collection_select_tag</span>(collection, value_method, text_method, options, html_options)
+	   html_options_with_defaults <span style="color:#f92672">=</span> create_html_options_with_default_name_and_id(html_options)
+        <span style="color:#f92672">...</span>
         content_tag(
-          &quot;select&quot;, add_options(options_from_collection_for_select(collection, value_method, text_method, :selected =&gt; selected_value, :disabled =&gt; disabled_value), options, value), html_options_with_defaults
+          <span style="color:#e6db74">&#34;select&#34;</span>, add_options(options_from_collection_for_select(collection, value_method, text_method, <span style="color:#e6db74">:selected</span> <span style="color:#f92672">=&gt;</span> selected_value, <span style="color:#e6db74">:disabled</span> <span style="color:#f92672">=&gt;</span> disabled_value), options, value), html_options_with_defaults
         )
-      end
-</code></pre>
-
-<p>I guess you could argue that the new function is doing more than one thing but I don&rsquo;t think it&rsquo;s too bad.</p>
-
+      <span style="color:#66d9ef">end</span>
+</code></pre></div><p>I guess you could argue that the new function is doing more than one thing but I don&rsquo;t think it&rsquo;s too bad.</p>
 <p>Looking back on these code examples after writing about them I&rsquo;m not as confident that mutating parameters is as confusing as I originally thought&hellip;!</p>
 
     <div id="social-bar">

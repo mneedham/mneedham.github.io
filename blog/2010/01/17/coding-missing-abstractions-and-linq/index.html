@@ -65,9 +65,8 @@ As a result of this we quite frequently we end up with this code being in multip
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-17",
-        "description": "Something which I&rsquo;ve noticed quite a lot on the projects that I&rsquo;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.
-As a result of this we quite frequently we end up with this code being in multiple places and since it&rsquo;s usually not very much code the repetition goes unnoticed more than other types of duplication might do.",
-        "wordCount": 283
+        "description": "Something which I\x26rsquo;ve noticed quite a lot on the projects that I\x26rsquo;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.\nAs a result of this we quite frequently we end up with this code being in multiple places and since it\x26rsquo;s usually not very much code the repetition goes unnoticed more than other types of duplication might do.",
+        "wordCount":  282 
     }
     </script>
     
@@ -179,60 +178,45 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Coding: Missing abstractions and LINQ</h1>
     <p>Something which I&rsquo;ve noticed quite a lot on the projects that I&rsquo;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.</p>
-
 <p>As a result of this we quite frequently we end up with this code being in multiple places and since it&rsquo;s usually not very much code the repetition goes unnoticed more than other types of duplication might do.</p>
-
 <p>A typical example of this might be the following:</p>
-
-<pre><code class="language-csharp">
-public class SomeFooHolder
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomeFooHolder</span>
 {
-	public List&lt;Foo&gt; Foos { get; set }
+	<span style="color:#66d9ef">public</span> List&lt;Foo&gt; Foos { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span> }
 }
-</code></pre>
-
-<p>An example of how this might be used is like so:</p>
-
-<pre><code class="language-csharp">
-var someFooHolder = new FooHolder(...);
+</code></pre></div><p>An example of how this might be used is like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">var</span> someFooHolder = <span style="color:#66d9ef">new</span> FooHolder(...);
 someFooHolder.Foos.Select(f =&gt; f.Completed);
-</code></pre>
-
-<p>That code would typically be repeated in other places in the code where we want to get all the completed foos.</p>
-
+</code></pre></div><p>That code would typically be repeated in other places in the code where we want to get all the completed foos.</p>
 <p>Although it&rsquo;s a simple change, as a first step I prefer to make that concept more explicit by putting &lsquo;CompletedFoos&rsquo; on &lsquo;SomeFooHolder&rsquo;:</p>
-
-<pre><code class="language-csharp">
-public class SomeFooHolder
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomeFooHolder</span>
 {
-	public List&lt;Foo&gt; Foos { get; set; }
-	public List&lt;Foo&gt; CompletedFoos 
+	<span style="color:#66d9ef">public</span> List&lt;Foo&gt; Foos { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
+	<span style="color:#66d9ef">public</span> List&lt;Foo&gt; CompletedFoos 
 	{ 
-		get { return Foos.Select(f =&gt; f.Completed); }
+		<span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> Foos.Select(f =&gt; f.Completed); }
 	}
 }
-</code></pre>
-
-<p>Perhaps an even better solution would be to create an object &lsquo;Foos&rsquo; to encapsulate that logic further:</p>
-
-<pre><code class="language-csharp">
-public class Foos
+</code></pre></div><p>Perhaps an even better solution would be to create an object &lsquo;Foos&rsquo; to encapsulate that logic further:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foos</span>
 {
-	private readonly List&lt;Foo&gt; foos;
+	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> List&lt;Foo&gt; foos;
 
-	public Foos(List&lt;Foo&gt; foos)
+	<span style="color:#66d9ef">public</span> Foos(List&lt;Foo&gt; foos)
 	{
-		this.foos = new List&lt;Foo&gt;(foos.AsReadOnly());
+		<span style="color:#66d9ef">this</span>.foos = <span style="color:#66d9ef">new</span> List&lt;Foo&gt;(foos.AsReadOnly());
 	}
 
-	public Foos Completed
+	<span style="color:#66d9ef">public</span> Foos Completed
 	{
-		get { return new Foos(foos.Select(f =&gt; f.Completed)); }
+		<span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Foos(foos.Select(f =&gt; f.Completed)); }
 	}
 }
-</code></pre>
-
-<p>As I&rsquo;ve written about previously <a href="http://www.markhneedham.com/blog/2009/07/24/wrapping-collections-inheritance-vs-composition/">I prefer to wrap the list rather than extend it</a> as the API of &lsquo;Foos&rsquo; is more expressive since we don&rsquo;t have all the list operations available to any potential users of the class.</p>
+</code></pre></div><p>As I&rsquo;ve written about previously <!-- raw HTML omitted -->I prefer to wrap the list rather than extend it<!-- raw HTML omitted --> as the API of &lsquo;Foos&rsquo; is more expressive since we don&rsquo;t have all the list operations available to any potential users of the class.</p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">

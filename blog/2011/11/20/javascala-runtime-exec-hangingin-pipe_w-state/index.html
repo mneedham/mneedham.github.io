@@ -24,7 +24,7 @@
         
           <meta name="twitter:description" content="On the system that I&rsquo;m currently working on we have a data ingestion process which needs to take zip files, unzip them and then import their contents into the database.
 As a result we delegate from Scala code to the system unzip command like so:
-def extract { var command = &quot;unzip %s -d %s&quot; format(&quot;/file/to/unzip.zip&quot;, &quot;/place/to/unzip/to&quot;) var process: Process = null try { process = Runtime.getRuntime.exec(command) val exitCode = process." />
+def extract { var command = &#34;unzip %s -d %s&#34; format(&#34;/file/to/unzip.zip&#34;, &#34;/place/to/unzip/to&#34;) var process: Process = null try { process = Runtime.getRuntime.exec(command) val exitCode = process." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2011/11/20/javascala-runtime-exec-hangingin-pipe_w-state/" />
 
@@ -37,7 +37,7 @@ def extract { var command = &quot;unzip %s -d %s&quot; format(&quot;/file/to/unz
     
         <meta name="description" content="On the system that I&rsquo;m currently working on we have a data ingestion process which needs to take zip files, unzip them and then import their contents into the database.
 As a result we delegate from Scala code to the system unzip command like so:
-def extract { var command = &quot;unzip %s -d %s&quot; format(&quot;/file/to/unzip.zip&quot;, &quot;/place/to/unzip/to&quot;) var process: Process = null try { process = Runtime.getRuntime.exec(command) val exitCode = process." />
+def extract { var command = &#34;unzip %s -d %s&#34; format(&#34;/file/to/unzip.zip&#34;, &#34;/place/to/unzip/to&#34;) var process: Process = null try { process = Runtime.getRuntime.exec(command) val exitCode = process." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -60,16 +60,14 @@ def extract { var command = &quot;unzip %s -d %s&quot; format(&quot;/file/to/unz
     {
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "Java/Scala: Runtime.exec hanging/in &#39;pipe_w&#39; state",
+        "headline": "Java\/Scala: Runtime.exec hanging\/in \x27pipe_w\x27 state",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2011-11-20",
-        "description": "On the system that I&rsquo;m currently working on we have a data ingestion process which needs to take zip files, unzip them and then import their contents into the database.
-As a result we delegate from Scala code to the system unzip command like so:
-def extract { var command = &quot;unzip %s -d %s&quot; format(&quot;/file/to/unzip.zip&quot;, &quot;/place/to/unzip/to&quot;) var process: Process = null try { process = Runtime.getRuntime.exec(command) val exitCode = process.",
-        "wordCount": 455
+        "description": "On the system that I\x26rsquo;m currently working on we have a data ingestion process which needs to take zip files, unzip them and then import their contents into the database.\nAs a result we delegate from Scala code to the system unzip command like so:\ndef extract { var command = \x26#34;unzip %s -d %s\x26#34; format(\x26#34;\/file\/to\/unzip.zip\x26#34;, \x26#34;\/place\/to\/unzip\/to\x26#34;) var process: Process = null try { process = Runtime.getRuntime.exec(command) val exitCode = process.",
+        "wordCount":  424 
     }
     </script>
     
@@ -179,67 +177,49 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Java/Scala: Runtime.exec hanging/in &#39;pipe_w&#39; state</h1>
     <p>On the system that I&rsquo;m currently working on we have a data ingestion process which needs to take zip files, unzip them and then import their contents into the database.</p>
-
 <p>As a result we delegate from Scala code to the system unzip command like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
+<span style="color:#66d9ef">def</span> extract <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">var</span> command <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;unzip %s -d %s&#34;</span> format<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/file/to/unzip.zip&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;/place/to/unzip/to&#34;</span><span style="color:#f92672">)</span>
+  <span style="color:#66d9ef">var</span> process<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Process</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>
 
-<pre><code class="language-scala">
-def extract {
-  var command = &quot;unzip %s -d %s&quot; format(&quot;/file/to/unzip.zip&quot;, &quot;/place/to/unzip/to&quot;)
-  var process: Process = null
-
-  try {
-    process = Runtime.getRuntime.exec(command)
-    val exitCode = process.waitFor
-  } catch {
-    case e : Exception =&gt; // do some stuff
-  } finally {
-    // close the stream here
-  }
-}
-</code></pre>
-
-<p>We ran into a problem where the unzipping process was hanging and executing &lsquo;ps&rsquo; showed us that the &lsquo;unzip&rsquo; process was stuck in the &lsquo;pipe_w&rsquo; (pipe waiting) state which suggested that it was waiting for some sort of input.</p>
-
-<p>After a bit of googling <a href="http://duncan-cragg.org/blog/">Duncan</a> found <a href="http://vyvaks.wordpress.com/2006/05/27/does-runtimeexec-hangs-in-java/">this blog</a> which explained that we needed to process the output stream from our process otherwise it might end up hanging</p>
-
-<p>a.k.a. <a href="http://download.oracle.com/javase/1.4.2/docs/api/java/lang/Process.html">RTFM</a>:</p>
-
-<blockquote>
-The Runtime.exec methods may not work well for special processes on certain native platforms, such as native windowing processes, daemon processes, Win16/DOS processes on Microsoft Windows, or shell scripts. 
-
-The created subprocess does not have its own terminal or console. All its standard io (i.e. stdin, stdout, stderr) operations will be redirected to the parent process through three streams (Process.getOutputStream(), Process.getInputStream(), Process.getErrorStream()). 
-
-The parent process uses these streams to feed input to and get output from the subprocess. 
-
-Because some native platforms only provide limited buffer size for standard input and output streams, failure to promptly write the input stream or read the output stream of the subprocess may cause the subprocess to block, and even deadlock.
-</blockquote>
-
+  <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+    process <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Runtime</span><span style="color:#f92672">.</span>getRuntime<span style="color:#f92672">.</span>exec<span style="color:#f92672">(</span>command<span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">val</span> exitCode <span style="color:#66d9ef">=</span> process<span style="color:#f92672">.</span>waitFor
+  <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">case</span> e <span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Exception</span> <span style="color:#f92672">=&gt;</span> <span style="color:#75715e">// do some stuff
+</span><span style="color:#75715e"></span>  <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// close the stream here
+</span><span style="color:#75715e"></span>  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>We ran into a problem where the unzipping process was hanging and executing &lsquo;ps&rsquo; showed us that the &lsquo;unzip&rsquo; process was stuck in the &lsquo;pipe_w&rsquo; (pipe waiting) state which suggested that it was waiting for some sort of input.</p>
+<p>After a bit of googling <!-- raw HTML omitted -->Duncan<!-- raw HTML omitted --> found <!-- raw HTML omitted -->this blog<!-- raw HTML omitted --> which explained that we needed to process the output stream from our process otherwise it might end up hanging</p>
+<p>a.k.a. <!-- raw HTML omitted -->RTFM<!-- raw HTML omitted -->:</p>
+<!-- raw HTML omitted -->
+<p>The created subprocess does not have its own terminal or console. All its standard io (i.e. stdin, stdout, stderr) operations will be redirected to the parent process through three streams (Process.getOutputStream(), Process.getInputStream(), Process.getErrorStream()).</p>
+<p>The parent process uses these streams to feed input to and get output from the subprocess.</p>
+<p>Because some native platforms only provide limited buffer size for standard input and output streams, failure to promptly write the input stream or read the output stream of the subprocess may cause the subprocess to block, and even deadlock.</p>
+<!-- raw HTML omitted -->
 <p>For most of the zip files we presumably hadn&rsquo;t been reaching the limit of the buffer because the list of files being sent to STDOUT by &lsquo;unzip&rsquo; wasn&rsquo;t that high.</p>
-
 <p>In order to get around the problem we needed to gobble up the output stream from unzip like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
+<span style="color:#66d9ef">import</span> org.apache.commons.io.IOUtils
+<span style="color:#66d9ef">def</span> extract <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">var</span> command <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;unzip %s -d %s&#34;</span> format<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/file/to/unzip.zip&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;/place/to/unzip/to&#34;</span><span style="color:#f92672">)</span>
+  <span style="color:#66d9ef">var</span> process<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Process</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>
 
-<pre><code class="language-scala">
-import org.apache.commons.io.IOUtils
-def extract {
-  var command = &quot;unzip %s -d %s&quot; format(&quot;/file/to/unzip.zip&quot;, &quot;/place/to/unzip/to&quot;)
-  var process: Process = null
-
-  try {
-    process = Runtime.getRuntime.exec(command)
-    val thisVariableIsNeededToSuckDataFromUnzipDoNotRemove = &quot;Output: &quot; + IOUtils.readLines(process.getInputStream)
-    val exitCode = process.waitFor
-  } catch {
-    case e : Exception =&gt; // do some stuff
-  } finally {
-    // close the stream here
-  }
-}
-</code></pre>
-
-<p>We need to do the same thing with the error stream as well in case &lsquo;unzip&rsquo; ends up overflowing that buffer as well.</p>
-
+  <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+    process <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Runtime</span><span style="color:#f92672">.</span>getRuntime<span style="color:#f92672">.</span>exec<span style="color:#f92672">(</span>command<span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">val</span> thisVariableIsNeededToSuckDataFromUnzipDoNotRemove <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;Output: &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">IOUtils</span><span style="color:#f92672">.</span>readLines<span style="color:#f92672">(</span>process<span style="color:#f92672">.</span>getInputStream<span style="color:#f92672">)</span>
+    <span style="color:#66d9ef">val</span> exitCode <span style="color:#66d9ef">=</span> process<span style="color:#f92672">.</span>waitFor
+  <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">case</span> e <span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Exception</span> <span style="color:#f92672">=&gt;</span> <span style="color:#75715e">// do some stuff
+</span><span style="color:#75715e"></span>  <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// close the stream here
+</span><span style="color:#75715e"></span>  <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>We need to do the same thing with the error stream as well in case &lsquo;unzip&rsquo; ends up overflowing that buffer as well.</p>
 <p>On a couple of blog posts that we came across it was suggested that we should &lsquo;gobble up&rsquo; the output and error streams on separate threads but we weren&rsquo;t sure why exactly that was considered necessary&hellip;</p>
-
 <p>If anyone knows then please let me know in the comments.</p>
 
     <div id="social-bar">
@@ -275,7 +255,7 @@ def extract {
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/11/20/javascala-runtime-exec-hangingin-pipe_w-state/&amp;title=Java%2fScala%3a%20Runtime.exec%20hanging%2fin%20%27pipe_w%27%20state&amp;summary=On%20the%20system%20that%20I%26rsquo%3bm%20currently%20working%20on%20we%20have%20a%20data%20ingestion%20process%20which%20needs%20to%20take%20zip%20files%2c%20unzip%20them%20and%20then%20import%20their%20contents%20into%20the%20database.%0aAs%20a%20result%20we%20delegate%20from%20Scala%20code%20to%20the%20system%20unzip%20command%20like%20so%3a%0adef%20extract%20%7b%20var%20command%20%3d%20%26quot%3bunzip%20%25s%20-d%20%25s%26quot%3b%20format%28%26quot%3b%2ffile%2fto%2funzip.zip%26quot%3b%2c%20%26quot%3b%2fplace%2fto%2funzip%2fto%26quot%3b%29%20var%20process%3a%20Process%20%3d%20null%20try%20%7b%20process%20%3d%20Runtime.getRuntime.exec%28command%29%20val%20exitCode%20%3d%20process...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/11/20/javascala-runtime-exec-hangingin-pipe_w-state/&amp;title=Java%2fScala%3a%20Runtime.exec%20hanging%2fin%20%27pipe_w%27%20state&amp;summary=On%20the%20system%20that%20I%26rsquo%3bm%20currently%20working%20on%20we%20have%20a%20data%20ingestion%20process%20which%20needs%20to%20take%20zip%20files%2c%20unzip%20them%20and%20then%20import%20their%20contents%20into%20the%20database.%0aAs%20a%20result%20we%20delegate%20from%20Scala%20code%20to%20the%20system%20unzip%20command%20like%20so%3a%0adef%20extract%20%7b%20var%20command%20%3d%20%26%2334%3bunzip%20%25s%20-d%20%25s%26%2334%3b%20format%28%26%2334%3b%2ffile%2fto%2funzip.zip%26%2334%3b%2c%20%26%2334%3b%2fplace%2fto%2funzip%2fto%26%2334%3b%29%20var%20process%3a%20Process%20%3d%20null%20try%20%7b%20process%20%3d%20Runtime.getRuntime.exec%28command%29%20val%20exitCode%20%3d%20process...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

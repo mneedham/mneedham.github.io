@@ -22,7 +22,7 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: How do null values even work?" />
         
-          <meta name="twitter:description" content="Every now and then I find myself wanting to import a CSV file into Neo4j and I always get confused with how to handle the various null values that can lurk within.  Let&#39;s start with an example that doesn&#39;t have a CSV file in sight. Consider the following list and my attempt to only return null values: WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value = null RETURN value (no changes, no records)   Hmm that&#39;s weird." />
+          <meta name="twitter:description" content="WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value = null RETURN value (no changes, no records) WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value &lt;&gt; null RETURN value (no changes, no records) WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value RETURN value = null AS outcome ╒═══════╤═════════╕ │&quot;value&quot;│&quot;outcome&quot;│ ╞═══════╪═════════╡ │null │null │ ├───────┼─────────┤ │&quot;null&quot; │null │ ├───────┼─────────┤ │&quot;&quot; │null │ ├───────┼─────────┤ │&quot;Mark&quot; │null │ └───────┴─────────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value RETURN value = &quot;Mark&quot; AS outcome ╒═══════╤═════════╕ │&quot;value&quot;│&quot;outcome&quot;│ ╞═══════╪═════════╡ │null │null │ ├───────┼─────────┤ │&quot;null&quot; │false │ ├───────┼─────────┤ │&quot;&quot; │false │ ├───────┼─────────┤ │&quot;Mark&quot; │true │ └───────┴─────────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value is null RETURN value ╒═══════╕ │&quot;value&quot;│ ╞═══════╡ │null │ └───────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value is not null RETURN value ╒═══════╕ │&quot;value&quot;│ ╞═══════╡ │&quot;null&quot; │ ├───────┤ │&quot;&quot; │ ├───────┤ │&quot;Mark&quot; │ └───────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value &lt;&gt; &quot;&quot; RETURN value ╒═══════╕ │&quot;value&quot;│ ╞═══════╡ │&quot;null&quot; │ ├───────┤ │&quot;Mark&quot; │ └───────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value = &quot;&quot; RETURN value ╒═══════╕ │&quot;value&quot;│ ╞═══════╡ │&quot;&quot; │ └───────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value RETURN value, value = &quot;&quot; AS isEmpty, value &lt;&gt; &quot;&quot; AS isNotEmpty ╒═══════╤═════════╤════════════╕ │&quot;value&quot;│&quot;isEmpty&quot;│&quot;isNotEmpty&quot;│ ╞═══════╪═════════╪════════════╡ │null │null │null │ ├───────┼─────────┼────────────┤ │&quot;null&quot; │false │true │ ├───────┼─────────┼────────────┤ │&quot;&quot; │true │false │ ├───────┼─────────┼────────────┤ │&quot;Mark&quot; │false │true │ └───────┴─────────┴────────────┘ $ cat nulls." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2017/02/22/neo4j-null-values-even-work/" />
 
@@ -33,7 +33,7 @@
         <title> Neo4j: How do null values even work? &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Every now and then I find myself wanting to import a CSV file into Neo4j and I always get confused with how to handle the various null values that can lurk within.  Let&#39;s start with an example that doesn&#39;t have a CSV file in sight. Consider the following list and my attempt to only return null values: WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value = null RETURN value (no changes, no records)   Hmm that&#39;s weird." />
+        <meta name="description" content="WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value = null RETURN value (no changes, no records) WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value &lt;&gt; null RETURN value (no changes, no records) WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value RETURN value = null AS outcome ╒═══════╤═════════╕ │&quot;value&quot;│&quot;outcome&quot;│ ╞═══════╪═════════╡ │null │null │ ├───────┼─────────┤ │&quot;null&quot; │null │ ├───────┼─────────┤ │&quot;&quot; │null │ ├───────┼─────────┤ │&quot;Mark&quot; │null │ └───────┴─────────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value RETURN value = &quot;Mark&quot; AS outcome ╒═══════╤═════════╕ │&quot;value&quot;│&quot;outcome&quot;│ ╞═══════╪═════════╡ │null │null │ ├───────┼─────────┤ │&quot;null&quot; │false │ ├───────┼─────────┤ │&quot;&quot; │false │ ├───────┼─────────┤ │&quot;Mark&quot; │true │ └───────┴─────────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value is null RETURN value ╒═══════╕ │&quot;value&quot;│ ╞═══════╡ │null │ └───────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value is not null RETURN value ╒═══════╕ │&quot;value&quot;│ ╞═══════╡ │&quot;null&quot; │ ├───────┤ │&quot;&quot; │ ├───────┤ │&quot;Mark&quot; │ └───────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value &lt;&gt; &quot;&quot; RETURN value ╒═══════╕ │&quot;value&quot;│ ╞═══════╡ │&quot;null&quot; │ ├───────┤ │&quot;Mark&quot; │ └───────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value = &quot;&quot; RETURN value ╒═══════╕ │&quot;value&quot;│ ╞═══════╡ │&quot;&quot; │ └───────┘ WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value RETURN value, value = &quot;&quot; AS isEmpty, value &lt;&gt; &quot;&quot; AS isNotEmpty ╒═══════╤═════════╤════════════╕ │&quot;value&quot;│&quot;isEmpty&quot;│&quot;isNotEmpty&quot;│ ╞═══════╪═════════╪════════════╡ │null │null │null │ ├───────┼─────────┼────────────┤ │&quot;null&quot; │false │true │ ├───────┼─────────┼────────────┤ │&quot;&quot; │true │false │ ├───────┼─────────┼────────────┤ │&quot;Mark&quot; │false │true │ └───────┴─────────┴────────────┘ $ cat nulls." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +62,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-02-22",
-        "description": "Every now and then I find myself wanting to import a CSV file into Neo4j and I always get confused with how to handle the various null values that can lurk within.  Let's start with an example that doesn't have a CSV file in sight. Consider the following list and my attempt to only return null values: WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values UNWIND values AS value WITH value WHERE value = null RETURN value (no changes, no records)   Hmm that's weird.",
-        "wordCount": 779
+        "description": "WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value WITH value WHERE value = null RETURN value (no changes, no records) WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value WITH value WHERE value \x26lt;\x26gt; null RETURN value (no changes, no records) WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value RETURN value = null AS outcome ╒═══════╤═════════╕ │\x26quot;value\x26quot;│\x26quot;outcome\x26quot;│ ╞═══════╪═════════╡ │null │null │ ├───────┼─────────┤ │\x26quot;null\x26quot; │null │ ├───────┼─────────┤ │\x26quot;\x26quot; │null │ ├───────┼─────────┤ │\x26quot;Mark\x26quot; │null │ └───────┴─────────┘ WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value RETURN value = \x26quot;Mark\x26quot; AS outcome ╒═══════╤═════════╕ │\x26quot;value\x26quot;│\x26quot;outcome\x26quot;│ ╞═══════╪═════════╡ │null │null │ ├───────┼─────────┤ │\x26quot;null\x26quot; │false │ ├───────┼─────────┤ │\x26quot;\x26quot; │false │ ├───────┼─────────┤ │\x26quot;Mark\x26quot; │true │ └───────┴─────────┘ WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value WITH value WHERE value is null RETURN value ╒═══════╕ │\x26quot;value\x26quot;│ ╞═══════╡ │null │ └───────┘ WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value WITH value WHERE value is not null RETURN value ╒═══════╕ │\x26quot;value\x26quot;│ ╞═══════╡ │\x26quot;null\x26quot; │ ├───────┤ │\x26quot;\x26quot; │ ├───────┤ │\x26quot;Mark\x26quot; │ └───────┘ WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value WITH value WHERE value \x26lt;\x26gt; \x26quot;\x26quot; RETURN value ╒═══════╕ │\x26quot;value\x26quot;│ ╞═══════╡ │\x26quot;null\x26quot; │ ├───────┤ │\x26quot;Mark\x26quot; │ └───────┘ WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value WITH value WHERE value = \x26quot;\x26quot; RETURN value ╒═══════╕ │\x26quot;value\x26quot;│ ╞═══════╡ │\x26quot;\x26quot; │ └───────┘ WITH [null, \x26quot;null\x26quot;, \x26quot;\x26quot;, \x26quot;Mark\x26quot;] AS values UNWIND values AS value RETURN value, value = \x26quot;\x26quot; AS isEmpty, value \x26lt;\x26gt; \x26quot;\x26quot; AS isNotEmpty ╒═══════╤═════════╤════════════╕ │\x26quot;value\x26quot;│\x26quot;isEmpty\x26quot;│\x26quot;isNotEmpty\x26quot;│ ╞═══════╪═════════╪════════════╡ │null │null │null │ ├───────┼─────────┼────────────┤ │\x26quot;null\x26quot; │false │true │ ├───────┼─────────┼────────────┤ │\x26quot;\x26quot; │true │false │ ├───────┼─────────┼────────────┤ │\x26quot;Mark\x26quot; │false │true │ └───────┴─────────┴────────────┘ $ cat nulls.",
+        "wordCount":  353 
     }
     </script>
     
@@ -172,41 +172,25 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: How do null values even work?</h1>
-    <p>
-Every now and then I find myself wanting to import a CSV file into <a href="https://neo4j.com/developer/">Neo4j</a> and I always get confused with how to handle the various null values that can lurk within.
-</p>
-
-<p>
-Let's start with an example that doesn't have a CSV file in sight. Consider the following list and my attempt to only return null values:
-</p>
-
-<pre><code class="language-cypher">
+    <!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 WITH value WHERE value = null
 RETURN value
 
 (no changes, no records)
-</code></pre>
-
-<p>
-Hmm that's weird. I'd have expected that at least keep the first value in the collection. What about if we do the inverse? 
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 WITH value WHERE value &lt;&gt; null
 RETURN value
 
 (no changes, no records)
-</code></pre>
-
-<p>
-Still nothing! Let's try returning the output of our comparisons rather than filtering rows:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 RETURN value = null AS outcome
@@ -222,13 +206,8 @@ RETURN value = null AS outcome
 ├───────┼─────────┤
 │&quot;Mark&quot; │null     │
 └───────┴─────────┘
-</code></pre>
-
-<p>
-Ok so that isn't what we expected. Everything has an 'outcome' of 'null'! What about if we want to check whether the value is the string "Mark"?
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 RETURN value = &quot;Mark&quot; AS outcome
@@ -244,21 +223,10 @@ RETURN value = &quot;Mark&quot; AS outcome
 ├───────┼─────────┤
 │&quot;Mark&quot; │true     │
 └───────┴─────────┘
-</code></pre>
-
-<p>
-From executing this query we learn that if one side of a comparison is null then the return value is always going to be null.
-</p>
-
-<p>
-So how do we exclude a row if it's null? 
-</p>
-
-<p>
-It turns out we have to use the 'is' keyword rather than using the equality operator. Let's see what that looks like:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 WITH value WHERE value is null
@@ -269,13 +237,8 @@ RETURN value
 ╞═══════╡
 │null   │
 └───────┘
-</code></pre>
-
-<p>
-And the positive case:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 WITH value WHERE value is not null
@@ -290,13 +253,8 @@ RETURN value
 ├───────┤
 │&quot;Mark&quot; │
 └───────┘
-</code></pre>
-
-<p>
-What if we want to get rid of empty strings? 
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 WITH value WHERE value &lt;&gt; &quot;&quot;
@@ -309,13 +267,8 @@ RETURN value
 ├───────┤
 │&quot;Mark&quot; │
 └───────┘
-</code></pre>
-
-<p>
-Interestingly that also gets rid of the null value which I hadn't expected. But if we look for values matching the empty string:
-</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 WITH value WHERE value = &quot;&quot;
@@ -326,11 +279,8 @@ RETURN value
 ╞═══════╡
 │&quot;&quot;     │
 └───────┘
-</code></pre>
-
-<p>It's not there either! Hmm what's going on here:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 WITH [null, &quot;null&quot;, &quot;&quot;, &quot;Mark&quot;] AS values
 UNWIND values AS value
 RETURN value, value = &quot;&quot; AS isEmpty, value &lt;&gt; &quot;&quot; AS isNotEmpty
@@ -346,32 +296,18 @@ RETURN value, value = &quot;&quot; AS isEmpty, value &lt;&gt; &quot;&quot; AS is
 ├───────┼─────────┼────────────┤
 │&quot;Mark&quot; │false    │true        │
 └───────┴─────────┴────────────┘
-</code></pre>
-
-<p>
-null values seem to get filtered out for every type of equality match unless we explicitly check that a value 'is null'. 
-</p>
-
-<p>So how do we use this knowledge when we're parsing CSV files using Neo4j's <a href="https://neo4j.com/developer/guide-import-csv/">LOAD CSV</a> tool?</p>
-
-<p>
-Let's say we have a CSV file that looks like this:
-</p>
-
-<pre><code class="language-bash">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
 $ cat nulls.csv
 name,company
-&quot;Mark&quot;,
-&quot;Michael&quot;,&quot;&quot;
-&quot;Will&quot;,null
-&quot;Ryan&quot;,&quot;Neo4j&quot;
-</code></pre>
-
-<p>
-So none of the first three rows have a value for 'company'. I don't have any value at all, Michael has an empty string, and Will has a null value. Let's see how LOAD CSV interprets this:
-</p>
-
-<pre><code class="language-cypher">
+<span style="color:#e6db74">&#34;Mark&#34;</span>,
+<span style="color:#e6db74">&#34;Michael&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>
+<span style="color:#e6db74">&#34;Will&#34;</span>,null
+<span style="color:#e6db74">&#34;Ryan&#34;</span>,<span style="color:#e6db74">&#34;Neo4j&#34;</span>
+</code></pre></div><!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 load csv with headers from &quot;file:///nulls.csv&quot; AS row
 RETURN row
 
@@ -386,17 +322,10 @@ RETURN row
 ├─────────────────────────────────┤
 │{&quot;name&quot;:&quot;Ryan&quot;,&quot;company&quot;:&quot;Neo4j&quot;}│
 └─────────────────────────────────┘
-</code></pre>
-
-<p>
-We've got the full sweep of all the combinations from above. We'd like to create a <cite>Person</cite> node for each row but only create a <cite>Company</cite> node and associated 'WORKS_FOR' relationshp if an actual company is defined - we don't want to create a null company.</p>
-
-<p>So we only want to create a company node and 'WORKS_FOR' relationship for the Ryan row.
-</p>
-
-<p>The following query does the trick:</p>
-
-<pre><code class="language-cypher">
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<pre><code class="language-cypher" data-lang="cypher">
 load csv with headers from &quot;file:///nulls.csv&quot; AS row
 MERGE (p:Person {name: row.name})
 WITH p, row
@@ -405,23 +334,12 @@ MERGE (c:Company {name: row.company})
 MERGE (p)-[:WORKS_FOR]-&gt;(c)
 
 Added 5 labels, created 5 nodes, set 5 properties, created 1 relationship, statement completed in 117 ms.
-</code></pre>
-
-<p>And if we visualise what's been created:</p>
-
-<div>
-
-<img src="https://markhneedham.com/blog/
-/uploads/2017/02/graph-15.png" alt="Graph  15" title="Visualising the null graph" border="0" width="250"  />
-</div>
-
-<p>
-Perfect. Perhaps this behaviour is obvious but it always trips me up so hopefully it'll be useful to someone else as well!
-</p>
-
-<p>
-There's also a section on the Neo4j developer pages describing <a href="http://neo4j.com/docs/developer-manual/current/cypher/syntax/working-with-null/">even more null scenarios</a> that's worth checking out.
-</p>
+</code></pre><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -456,7 +374,7 @@ There's also a section on the Neo4j developer pages describing <a href="http://n
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/02/22/neo4j-null-values-even-work/&amp;title=Neo4j%3a%20How%20do%20null%20values%20even%20work%3f&amp;summary=Every%20now%20and%20then%20I%20find%20myself%20wanting%20to%20import%20a%20CSV%20file%20into%20Neo4j%20and%20I%20always%20get%20confused%20with%20how%20to%20handle%20the%20various%20null%20values%20that%20can%20lurk%20within.%20%20Let%27s%20start%20with%20an%20example%20that%20doesn%27t%20have%20a%20CSV%20file%20in%20sight.%20Consider%20the%20following%20list%20and%20my%20attempt%20to%20only%20return%20null%20values%3a%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20WITH%20value%20WHERE%20value%20%3d%20null%20RETURN%20value%20%28no%20changes%2c%20no%20records%29%20%20%20Hmm%20that%27s%20weird...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/02/22/neo4j-null-values-even-work/&amp;title=Neo4j%3a%20How%20do%20null%20values%20even%20work%3f&amp;summary=WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20WITH%20value%20WHERE%20value%20%3d%20null%20RETURN%20value%20%28no%20changes%2c%20no%20records%29%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20WITH%20value%20WHERE%20value%20%26lt%3b%26gt%3b%20null%20RETURN%20value%20%28no%20changes%2c%20no%20records%29%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20RETURN%20value%20%3d%20null%20AS%20outcome%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a4%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bvalue%26quot%3b%e2%94%82%26quot%3boutcome%26quot%3b%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%aa%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82null%20%e2%94%82null%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bnull%26quot%3b%20%e2%94%82null%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3b%26quot%3b%20%e2%94%82null%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bMark%26quot%3b%20%e2%94%82null%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%b4%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20RETURN%20value%20%3d%20%26quot%3bMark%26quot%3b%20AS%20outcome%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a4%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bvalue%26quot%3b%e2%94%82%26quot%3boutcome%26quot%3b%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%aa%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82null%20%e2%94%82null%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bnull%26quot%3b%20%e2%94%82false%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3b%26quot%3b%20%e2%94%82false%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bMark%26quot%3b%20%e2%94%82true%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%b4%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20WITH%20value%20WHERE%20value%20is%20null%20RETURN%20value%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bvalue%26quot%3b%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82null%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20WITH%20value%20WHERE%20value%20is%20not%20null%20RETURN%20value%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bvalue%26quot%3b%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%26quot%3bnull%26quot%3b%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3b%26quot%3b%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bMark%26quot%3b%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20WITH%20value%20WHERE%20value%20%26lt%3b%26gt%3b%20%26quot%3b%26quot%3b%20RETURN%20value%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bvalue%26quot%3b%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%26quot%3bnull%26quot%3b%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bMark%26quot%3b%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20WITH%20value%20WHERE%20value%20%3d%20%26quot%3b%26quot%3b%20RETURN%20value%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bvalue%26quot%3b%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%26quot%3b%26quot%3b%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20WITH%20%5bnull%2c%20%26quot%3bnull%26quot%3b%2c%20%26quot%3b%26quot%3b%2c%20%26quot%3bMark%26quot%3b%5d%20AS%20values%20UNWIND%20values%20AS%20value%20RETURN%20value%2c%20value%20%3d%20%26quot%3b%26quot%3b%20AS%20isEmpty%2c%20value%20%26lt%3b%26gt%3b%20%26quot%3b%26quot%3b%20AS%20isNotEmpty%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a4%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a4%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bvalue%26quot%3b%e2%94%82%26quot%3bisEmpty%26quot%3b%e2%94%82%26quot%3bisNotEmpty%26quot%3b%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%aa%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%aa%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82null%20%e2%94%82null%20%e2%94%82null%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bnull%26quot%3b%20%e2%94%82false%20%e2%94%82true%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3b%26quot%3b%20%e2%94%82true%20%e2%94%82false%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bMark%26quot%3b%20%e2%94%82false%20%e2%94%82true%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%b4%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%b4%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20%24%20cat%20nulls...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
