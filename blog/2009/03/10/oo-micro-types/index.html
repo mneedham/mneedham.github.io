@@ -70,7 +70,7 @@ The idea is fairly simple - all primitives and strings in our code are wrapped b
         },
         "datePublished": "2009-03-10",
         "description": "Micro or Tiny types present an approach to coding which seems to divide opinion in my experience, from those who think it\x26rsquo;s a brilliant idea to those who believe it\x26rsquo;s static typing gone mad.\nI fall into the former group.\nSo what is it?\nThe idea is fairly simple - all primitives and strings in our code are wrapped by a class, meaning that we never pass primitives around.In essence Rule #3 of Jeff Bay\x26rsquo;s Object Calisthenics.",
-        "wordCount":  589 
+        "wordCount":  599 
     }
     </script>
     
@@ -188,50 +188,50 @@ tbody tr pre {margin-bottom: 27px}
 <p>In essence Rule #3 of Jeff Bay&rsquo;s <!-- raw HTML omitted -->Object Calisthenics<!-- raw HTML omitted -->.</p>
 <p>As I mentioned on a previous post about <!-- raw HTML omitted -->wrapping dates<!-- raw HTML omitted -->, I was first introduced to the idea by <!-- raw HTML omitted -->Darren Hobbs<!-- raw HTML omitted --> as a way of making APIs easier for others to use.</p>
 <p>In the world of Java method signatures of 3rd party libraries with minimal Javadoc documentation tend to read like so when you look at their method signatures in your chosen editor.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-doSomething<span style="color:#f92672">(</span>string<span style="color:#f92672">,</span> string<span style="color:#f92672">,</span> string<span style="color:#f92672">,</span> string<span style="color:#f92672">)</span>
-</code></pre></div><p>The parameter name is sometimes not available meaning that it is now almost impossible to work out what each of those strings is supposed to represent - guesswork becomes the way forward!</p>
+<h2 id="source-java">[source, java]</h2>
+<h2 id="dosomethingstring-string-string-string">doSomething(string, string, string, string)</h2>
+<p>The parameter name is sometimes not available meaning that it is now almost impossible to work out what each of those strings is supposed to represent - guesswork becomes the way forward!</p>
 <p>I noticed an even more subtle example when working on a project last year where there was a method to transfer money between accounts. It looked like a bit like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">transferMoney</span><span style="color:#f92672">(</span>Account debitAccount<span style="color:#f92672">,</span> Account creditAccount<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-	<span style="color:#75715e">// code
-</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</code></pre></div><p>See how easy it would be to get those accounts the wrong way around and suddenly the money is going in the wrong direction!</p>
+<h2 id="source-java-1">[source, java]</h2>
+<h2 id="heading">public void transferMoney(Account debitAccount, Account creditAccount) {
+// code
+}</h2>
+<p>See how easy it would be to get those accounts the wrong way around and suddenly the money is going in the wrong direction!</p>
 <p>I always had to look twice to make sure we were doing the right thing - it was quite confusing.</p>
 <p>Using micro types we could solve this problem by wrapping account with a more specific class. The signature could potentially read like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">transferMoney</span><span style="color:#f92672">(</span>DebitAccount debitAccount<span style="color:#f92672">,</span> CreditAccount creditAccount<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-	<span style="color:#75715e">// code
-</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</code></pre></div><p>And the confusion has been removed.</p>
+<h2 id="source-java-2">[source, java]</h2>
+<h2 id="heading-1">public void transferMoney(DebitAccount debitAccount, CreditAccount creditAccount) {
+// code
+}</h2>
+<p>And the confusion has been removed.</p>
 <p>The cost of doing this is obviously that we need to write more code - for the above example maybe something like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DebitAccount</span> <span style="color:#f92672">{</span>
-	<span style="color:#66d9ef">private</span> Account debitAccount<span style="color:#f92672">;</span>
-
-	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">DebitAccount</span><span style="color:#f92672">(</span>Account debitAccount<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-		<span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">debitAccount</span> <span style="color:#f92672">=</span> debitAccount<span style="color:#f92672">;</span>
-	<span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>We&rsquo;d then delegate the necessary method calls through to the underlying Account although we probably don&rsquo;t need to expose as many methods as the normal account object would since we only care about it in this specific context.</p>
+<h2 id="source-java-3">[source, java]</h2>
+<p>public class DebitAccount {
+private Account debitAccount;</p>
+<pre><code>public DebitAccount(Account debitAccount) {
+    this.debitAccount = debitAccount;
+}
+</code></pre>
+<h2 id="heading-2">}</h2>
+<p>We&rsquo;d then delegate the necessary method calls through to the underlying Account although we probably don&rsquo;t need to expose as many methods as the normal account object would since we only care about it in this specific context.</p>
 <p>I had the opportunity to work on a project led by <!-- raw HTML omitted -->Nick<!-- raw HTML omitted --> for a couple of months last year where we were micro typing everything and I quite enjoyed it although opinion was again split.</p>
 <p>I felt it helped to keep behaviour and the data together and was constantly forcing you to open your mind to new abstractions.</p>
 <p>The other argument against the approach is that you are creating objects which have no behaviour.</p>
 <p>I find here that it depends what you classify as behaviour - for me if there is some logic around the way that a string is formatted when it is going to be displayed then that is behaviour and we should look to put that logic as close to the data as possible i.e. within the micro type.</p>
 <p>On that project each object rendered itself into a ViewData container which we accessed from our views.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Micro</span> <span style="color:#f92672">{</span>
-	<span style="color:#66d9ef">private</span> string micro<span style="color:#f92672">;</span>
+<h2 id="source-java-4">[source, java]</h2>
+<p>public class Micro {
+private string micro;</p>
+<pre><code>public Micro(string micro) {
+    this.micro = micro;
+}
 
-	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Micro</span><span style="color:#f92672">(</span>string micro<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-		<span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">micro</span> <span style="color:#f92672">=</span> micro<span style="color:#f92672">;</span>
-	<span style="color:#f92672">}</span>
-
-	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">renderTo</span><span style="color:#f92672">(</span>ViewData viewData<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-		viewData<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>micro<span style="color:#f92672">);</span>
-	<span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>If an object contained more than one piece of data it could then decide which bits needed to be rendered.</p>
+public void renderTo(ViewData viewData) {
+    viewData.add(micro);
+}
+</code></pre>
+<h2 id="heading-3">}</h2>
+<p>If an object contained more than one piece of data it could then decide which bits needed to be rendered.</p>
 <p>It&rsquo;s certainly not for everyone but it&rsquo;s an approach that I felt made coding much more enjoyable and code much easier to navigate.</p>
 
     <div id="social-bar">
