@@ -6,10 +6,19 @@
     <description>Recent content on Mark Needham</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 24 Aug 2020 00:21:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 29 Oct 2020 00:21:00 +0000</lastBuildDate>
     
 	<atom:link href="https://markhneedham.com/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Neo4j: Cypher - FOREACH vs CALL {} (subquery)</title>
+      <link>https://markhneedham.com/blog/2020/10/29/neo4j-foreach-call-subquery/</link>
+      <pubDate>Thu, 29 Oct 2020 00:21:00 +0000</pubDate>
+      
+      <guid>https://markhneedham.com/blog/2020/10/29/neo4j-foreach-call-subquery/</guid>
+      <description>:param list =&amp;gt; ({`0`: [7, 9], `1`: [2, 4, 5, 6, 8, 9], `2`: [0, 6, 8, 9], `3`: [1, 2, 6, 9], `4`: [1, 2, 3, 7], `5`: [8, 9], `6`: [2, 4, 5, 7, 8, 9], `7`: [0, 3, 4, 6, 8, 9], `8`: [1, 6, 9], `9`: [0, 1, 3, 5]})   UNWIND keys($list) AS key MERGE (n:Node {id: toInteger(key)}) FOREACH(item IN $list[key] | MERGE (m:Node {id: item}) MERGE (n)-[:CONNECTED_TO]-&amp;gt;(m) ) RETURN n.</description>
+    </item>
     
     <item>
       <title>Unix: Get file name without extension from file path</title>
@@ -3242,7 +3251,10 @@ The first thing I did was tweak the scraping script to pull out the sentences sp
       <pubDate>Sun, 28 Dec 2014 04:28:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/12/28/neo4j-2-1-6-cypher-foreach-slowness/</guid>
-      <description>$ schema Indexes ON :Person(id) ONLINE No constraints WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-&amp;gt;p); +-------------------+ | No data returned. | +-------------------+ Nodes created: 1002 Relationships created: 1001 Properties set: 1002 Labels added: 1002 19173 ms EmptyResult | +UpdateGraph(0) | +Eager | +UpdateGraph(1) | +Extract | +Null +----------------+------+---------+-------------+--------------------------------------+ | Operator | Rows | DbHits | Identifiers | Other | +----------------+------+---------+-------------+--------------------------------------+ | EmptyResult | 0 | 0 | | | | UpdateGraph(0) | 1 | 3015012 | | Foreach | | Eager | 1 | 0 | | | | UpdateGraph(1) | 1 | 5 | p, p | MergeNode; { AUTOINT2}; :Person(id) | | Extract | 1 | 0 | | friends | | Null | ?</description>
+      <description>A common problem that people have when using Neo4j for social network applications is updating a person with their newly imported friends.
+ We&amp;#8217;ll have an array of friends that we want to connect to a single Person node. Assuming the following schema&amp;#8230;&amp;#8203;
+ $ schema Indexes ON :Person(id) ONLINE No constraints   &amp;#8230;&amp;#8203;a simplified version would look like this:
+ WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-&amp;gt;p);   If we execute that on an empty database we&amp;#8217;ll see something like this:</description>
     </item>
     
     <item>
@@ -3935,7 +3947,8 @@ Attendees are encouraged to put their name and interests in both columns. From t
       <pubDate>Sat, 31 May 2014 14:19:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/05/31/neo4j-cypher-unwind-vs-foreach/</guid>
-      <description>WITH [{name: &amp;quot;Event 1&amp;quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: &amp;quot;Event 2&amp;quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event.name}) MATCH (year:Year {year: event.timetree.year }), (year)-[:HAS_MONTH]-&amp;gt;(month {month: event.timetree.month }), (month)-[:HAS_DAY]-&amp;gt;(day {day: event.timetree.day }) CREATE (e)-[:HAPPENED_ON]-&amp;gt;(day)) Invalid use of MATCH inside FOREACH (line 5, column 3) &amp;quot; MATCH (year:Year {year: event.timetree.year }), &amp;quot; ^ Neo.ClientError.Statement.InvalidSyntax WITH [{name: &amp;quot;Event 1&amp;quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: &amp;quot;Event 2&amp;quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event.</description>
+      <description>I&amp;#8217;ve written a couple of posts about the new UNWIND clause in Neo4j&amp;#8217;s cypher query language but I forgot about my favourite use of UNWIND, which is to get rid of some uses of FOREACH from our queries.
+ Let&amp;#8217;s say we&amp;#8217;ve created a timetree up front and now have a series of events coming in that we want to create in the database and attach to the appropriate part of the timetree.</description>
     </item>
     
     <item>
@@ -17797,15 +17810,6 @@ This week at TWU I&amp;rsquo;ve been playing around with some Ruby on Rails as I
       <guid>https://markhneedham.com/blog/2006/08/29/first-thoughts-on-ruby/</guid>
       <description>I&amp;rsquo;ve heard a lot about Ruby on Railsover the last couple of years but I&amp;rsquo;d never really been intrigued to get it set up on my machine and &amp;lsquo;have a play&amp;rsquo; with it so to speak.
 It turned out to be a relatively painless process and after following the instructions on the official siteI had it all setup within about half an hour which was a record for me for getting a development environment setup.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://markhneedham.com/blog/2020/10/29/neo4j-call-subquery/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://markhneedham.com/blog/2020/10/29/neo4j-call-subquery/</guid>
-      <description>:params list =&amp;gt; ({`0`: [7, 9], `1`: [2, 4, 5, 6, 8, 9], `2`: [0, 6, 8, 9], `3`: [1, 2, 6, 9], `4`: [1, 2, 3, 7], `5`: [8, 9], `6`: [2, 4, 5, 7, 8, 9], `7`: [0, 3, 4, 6, 8, 9], `8`: [1, 6, 9], `9`: [0, 1, 3, 5]})   UNWIND keys($list) AS key MERGE (n:Node {id: toInteger(key)}) WITH n AS node, key CALL { WITH key, node UNWIND $list[key] AS item MERGE (m:Node {id: item}) MERGE (node)-[:CONNECTED_TO]-&amp;gt;(m) RETURN count(*) } RETURN node.</description>
     </item>
     
   </channel>

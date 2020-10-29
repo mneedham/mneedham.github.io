@@ -23,7 +23,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j 2.1.6 - Cypher: FOREACH slowness" />
         
-          <meta name="twitter:description" content="$ schema Indexes ON :Person(id) ONLINE No constraints WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-&gt;p); &#43;-------------------&#43; | No data returned. | &#43;-------------------&#43; Nodes created: 1002 Relationships created: 1001 Properties set: 1002 Labels added: 1002 19173 ms EmptyResult | &#43;UpdateGraph(0) | &#43;Eager | &#43;UpdateGraph(1) | &#43;Extract | &#43;Null &#43;----------------&#43;------&#43;---------&#43;-------------&#43;--------------------------------------&#43; | Operator | Rows | DbHits | Identifiers | Other | &#43;----------------&#43;------&#43;---------&#43;-------------&#43;--------------------------------------&#43; | EmptyResult | 0 | 0 | | | | UpdateGraph(0) | 1 | 3015012 | | Foreach | | Eager | 1 | 0 | | | | UpdateGraph(1) | 1 | 5 | p, p | MergeNode; { AUTOINT2}; :Person(id) | | Extract | 1 | 0 | | friends | | Null | ?" />
+          <meta name="twitter:description" content="A common problem that people have when using Neo4j for social network applications is updating a person with their newly imported friends.
+ We&#8217;ll have an array of friends that we want to connect to a single Person node. Assuming the following schema&#8230;&#8203;
+ $ schema Indexes ON :Person(id) ONLINE No constraints   &#8230;&#8203;a simplified version would look like this:
+ WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-&gt;p);   If we execute that on an empty database we&#8217;ll see something like this:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/12/28/neo4j-2-1-6-cypher-foreach-slowness/" />
 
@@ -34,7 +37,10 @@
         <title> Neo4j 2.1.6 - Cypher: FOREACH slowness &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="$ schema Indexes ON :Person(id) ONLINE No constraints WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-&gt;p); &#43;-------------------&#43; | No data returned. | &#43;-------------------&#43; Nodes created: 1002 Relationships created: 1001 Properties set: 1002 Labels added: 1002 19173 ms EmptyResult | &#43;UpdateGraph(0) | &#43;Eager | &#43;UpdateGraph(1) | &#43;Extract | &#43;Null &#43;----------------&#43;------&#43;---------&#43;-------------&#43;--------------------------------------&#43; | Operator | Rows | DbHits | Identifiers | Other | &#43;----------------&#43;------&#43;---------&#43;-------------&#43;--------------------------------------&#43; | EmptyResult | 0 | 0 | | | | UpdateGraph(0) | 1 | 3015012 | | Foreach | | Eager | 1 | 0 | | | | UpdateGraph(1) | 1 | 5 | p, p | MergeNode; { AUTOINT2}; :Person(id) | | Extract | 1 | 0 | | friends | | Null | ?" />
+        <meta name="description" content="A common problem that people have when using Neo4j for social network applications is updating a person with their newly imported friends.
+ We&#8217;ll have an array of friends that we want to connect to a single Person node. Assuming the following schema&#8230;&#8203;
+ $ schema Indexes ON :Person(id) ONLINE No constraints   &#8230;&#8203;a simplified version would look like this:
+ WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-&gt;p);   If we execute that on an empty database we&#8217;ll see something like this:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +69,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-12-28",
-        "description": "$ schema Indexes ON :Person(id) ONLINE No constraints WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-\x26gt;p); \x2b-------------------\x2b | No data returned. | \x2b-------------------\x2b Nodes created: 1002 Relationships created: 1001 Properties set: 1002 Labels added: 1002 19173 ms EmptyResult | \x2bUpdateGraph(0) | \x2bEager | \x2bUpdateGraph(1) | \x2bExtract | \x2bNull \x2b----------------\x2b------\x2b---------\x2b-------------\x2b--------------------------------------\x2b | Operator | Rows | DbHits | Identifiers | Other | \x2b----------------\x2b------\x2b---------\x2b-------------\x2b--------------------------------------\x2b | EmptyResult | 0 | 0 | | | | UpdateGraph(0) | 1 | 3015012 | | Foreach | | Eager | 1 | 0 | | | | UpdateGraph(1) | 1 | 5 | p, p | MergeNode; { AUTOINT2}; :Person(id) | | Extract | 1 | 0 | | friends | | Null | ?",
-        "wordCount":  306 
+        "description": "A common problem that people have when using Neo4j for social network applications is updating a person with their newly imported friends.\n We\x26#8217;ll have an array of friends that we want to connect to a single Person node. Assuming the following schema\x26#8230;\x26#8203;\n $ schema Indexes ON :Person(id) ONLINE No constraints   \x26#8230;\x26#8203;a simplified version would look like this:\n WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-\x26gt;p);   If we execute that on an empty database we\x26#8217;ll see something like this:",
+        "wordCount":  477 
     }
     </script>
     
@@ -175,35 +181,55 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j 2.1.6 - Cypher: FOREACH slowness</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-$ schema
+    <div class="paragraph">
+<p>A common problem that people have when using Neo4j for social network applications is updating a person with their newly imported friends.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll have an array of friends that we want to connect to a single Person node. Assuming the following schema&#8230;&#8203;</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ schema
 Indexes
   ON :Person(id) ONLINE
 
-No constraints
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-WITH range (2,1002) AS friends
+No constraints</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>&#8230;&#8203;a simplified version would look like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH range (2,1002) AS friends
 MERGE (p:Person {id: 1})
 
 FOREACH(f IN friends |
   MERGE (friend:Person {id: f})
-  MERGE (friend)-[:FRIENDS]-&gt;p);
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-+-------------------+
+  MERGE (friend)-[:FRIENDS]-&gt;p);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we execute that on an empty database we&#8217;ll see something like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">+-------------------+
 | No data returned. |
 +-------------------+
 Nodes created: 1002
 Relationships created: 1001
 Properties set: 1002
 Labels added: 1002
-19173 ms
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-EmptyResult
+19173 ms</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This took much longer than we&#8217;d expect so let&#8217;s have a look at the PROFILE output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">EmptyResult
   |
   +UpdateGraph(0)
     |
@@ -224,27 +250,41 @@ EmptyResult
 | UpdateGraph(1) |    1 |       5 |        p, p | MergeNode; {  AUTOINT2}; :Person(id) |
 |        Extract |    1 |       0 |             |                              friends |
 |           Null |    ? |       ? |             |                                      |
-+----------------+------+---------+-------------+--------------------------------------+
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-WITH range (2,1002) AS friends
++----------------+------+---------+-------------+--------------------------------------+</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The &lt;cite&gt;DbHits&lt;/cite&gt; value on the 2nd row seems suspiciously high suggesting that FOREACH might not be making use of the &lt;cite&gt;Person#id&lt;/cite&gt; index and is instead scanning all &lt;cite&gt;Person&lt;/cite&gt; nodes each time.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not sure how to drill into that further but an alternative approach is to try out the same query but using UNWIND instead and checking the profile output of that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH range (2,1002) AS friends
 MERGE (p:Person {id: 1})
 WITH p, friends
 UNWIND friends AS f
 MERGE (friend:Person {id: f})
 MERGE (friend)-[:FRIENDS]-&gt;p;
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-+-------------------+
+----</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">+-------------------+
 | No data returned. |
 +-------------------+
 Nodes created: 1002
 Relationships created: 1001
 Properties set: 1002
 Labels added: 1002
-343 ms
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-EmptyResult
+343 ms</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">EmptyResult
   |
   +UpdateGraph(0)
     |
@@ -274,8 +314,12 @@ EmptyResult
 | UpdateGraph(2) |    1 |      5 |                    p, p | MergeNode; {  AUTOINT2}; :Person(id) |
 |        Extract |    1 |      0 |                         |                              friends |
 |           Null |    ? |      ? |                         |                                      |
-+----------------+------+--------+-------------------------+--------------------------------------+
-</code></pre></div><!-- raw HTML omitted -->
++----------------+------+--------+-------------------------+--------------------------------------+</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s much quicker and doesn&#8217;t touch as many nodes as FOREACH was. I expect the index issue will be sorted out in future but until then UNWIND is our friend.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -310,7 +354,7 @@ EmptyResult
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/12/28/neo4j-2-1-6-cypher-foreach-slowness/&amp;title=Neo4j%202.1.6%20-%20Cypher%3a%20FOREACH%20slowness&amp;summary=%24%20schema%20Indexes%20ON%20%3aPerson%28id%29%20ONLINE%20No%20constraints%20WITH%20range%20%282%2c1002%29%20AS%20friends%20MERGE%20%28p%3aPerson%20%7bid%3a%201%7d%29%20FOREACH%28f%20IN%20friends%20%7c%20MERGE%20%28friend%3aPerson%20%7bid%3a%20f%7d%29%20MERGE%20%28friend%29-%5b%3aFRIENDS%5d-%26gt%3bp%29%3b%20%2b-------------------%2b%20%7c%20No%20data%20returned.%20%7c%20%2b-------------------%2b%20Nodes%20created%3a%201002%20Relationships%20created%3a%201001%20Properties%20set%3a%201002%20Labels%20added%3a%201002%2019173%20ms%20EmptyResult%20%7c%20%2bUpdateGraph%280%29%20%7c%20%2bEager%20%7c%20%2bUpdateGraph%281%29%20%7c%20%2bExtract%20%7c%20%2bNull%20%2b----------------%2b------%2b---------%2b-------------%2b--------------------------------------%2b%20%7c%20Operator%20%7c%20Rows%20%7c%20DbHits%20%7c%20Identifiers%20%7c%20Other%20%7c%20%2b----------------%2b------%2b---------%2b-------------%2b--------------------------------------%2b%20%7c%20EmptyResult%20%7c%200%20%7c%200%20%7c%20%7c%20%7c%20%7c%20UpdateGraph%280%29%20%7c%201%20%7c%203015012%20%7c%20%7c%20Foreach%20%7c%20%7c%20Eager%20%7c%201%20%7c%200%20%7c%20%7c%20%7c%20%7c%20UpdateGraph%281%29%20%7c%201%20%7c%205%20%7c%20p%2c%20p%20%7c%20MergeNode%3b%20%7b%20AUTOINT2%7d%3b%20%3aPerson%28id%29%20%7c%20%7c%20Extract%20%7c%201%20%7c%200%20%7c%20%7c%20friends%20%7c%20%7c%20Null%20%7c%20%3f..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/12/28/neo4j-2-1-6-cypher-foreach-slowness/&amp;title=Neo4j%202.1.6%20-%20Cypher%3a%20FOREACH%20slowness&amp;summary=A%20common%20problem%20that%20people%20have%20when%20using%20Neo4j%20for%20social%20network%20applications%20is%20updating%20a%20person%20with%20their%20newly%20imported%20friends.%0a%20We%26%238217%3bll%20have%20an%20array%20of%20friends%20that%20we%20want%20to%20connect%20to%20a%20single%20Person%20node.%20Assuming%20the%20following%20schema%26%238230%3b%26%238203%3b%0a%20%24%20schema%20Indexes%20ON%20%3aPerson%28id%29%20ONLINE%20No%20constraints%20%20%20%26%238230%3b%26%238203%3ba%20simplified%20version%20would%20look%20like%20this%3a%0a%20WITH%20range%20%282%2c1002%29%20AS%20friends%20MERGE%20%28p%3aPerson%20%7bid%3a%201%7d%29%20FOREACH%28f%20IN%20friends%20%7c%20MERGE%20%28friend%3aPerson%20%7bid%3a%20f%7d%29%20MERGE%20%28friend%29-%5b%3aFRIENDS%5d-%26gt%3bp%29%3b%20%20%20If%20we%20execute%20that%20on%20an%20empty%20database%20we%26%238217%3bll%20see%20something%20like%20this%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

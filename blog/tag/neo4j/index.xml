@@ -1068,7 +1068,10 @@ USING PERIODIC COMMIT 1000 LOAD CSV WITH HEADERS FROM &amp;quot;file:///Users/ma
       <pubDate>Sun, 28 Dec 2014 04:28:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/12/28/neo4j-2-1-6-cypher-foreach-slowness/</guid>
-      <description>$ schema Indexes ON :Person(id) ONLINE No constraints WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-&amp;gt;p); +-------------------+ | No data returned. | +-------------------+ Nodes created: 1002 Relationships created: 1001 Properties set: 1002 Labels added: 1002 19173 ms EmptyResult | +UpdateGraph(0) | +Eager | +UpdateGraph(1) | +Extract | +Null +----------------+------+---------+-------------+--------------------------------------+ | Operator | Rows | DbHits | Identifiers | Other | +----------------+------+---------+-------------+--------------------------------------+ | EmptyResult | 0 | 0 | | | | UpdateGraph(0) | 1 | 3015012 | | Foreach | | Eager | 1 | 0 | | | | UpdateGraph(1) | 1 | 5 | p, p | MergeNode; { AUTOINT2}; :Person(id) | | Extract | 1 | 0 | | friends | | Null | ?</description>
+      <description>A common problem that people have when using Neo4j for social network applications is updating a person with their newly imported friends.
+ We&amp;#8217;ll have an array of friends that we want to connect to a single Person node. Assuming the following schema&amp;#8230;&amp;#8203;
+ $ schema Indexes ON :Person(id) ONLINE No constraints   &amp;#8230;&amp;#8203;a simplified version would look like this:
+ WITH range (2,1002) AS friends MERGE (p:Person {id: 1}) FOREACH(f IN friends | MERGE (friend:Person {id: f}) MERGE (friend)-[:FRIENDS]-&amp;gt;p);   If we execute that on an empty database we&amp;#8217;ll see something like this:</description>
     </item>
     
     <item>
@@ -1232,7 +1235,8 @@ $ head -n 2 data/customerDb.csv OrderID,CustomerID,EmployeeID,OrderDate,Required
       <pubDate>Sat, 31 May 2014 14:19:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/05/31/neo4j-cypher-unwind-vs-foreach/</guid>
-      <description>WITH [{name: &amp;quot;Event 1&amp;quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: &amp;quot;Event 2&amp;quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event.name}) MATCH (year:Year {year: event.timetree.year }), (year)-[:HAS_MONTH]-&amp;gt;(month {month: event.timetree.month }), (month)-[:HAS_DAY]-&amp;gt;(day {day: event.timetree.day }) CREATE (e)-[:HAPPENED_ON]-&amp;gt;(day)) Invalid use of MATCH inside FOREACH (line 5, column 3) &amp;quot; MATCH (year:Year {year: event.timetree.year }), &amp;quot; ^ Neo.ClientError.Statement.InvalidSyntax WITH [{name: &amp;quot;Event 1&amp;quot;, timetree: {day: 1, month: 1, year: 2014}}, {name: &amp;quot;Event 2&amp;quot;, timetree: {day: 2, month: 1, year: 2014}}] AS events FOREACH (event IN events | CREATE (e:Event {name: event.</description>
+      <description>I&amp;#8217;ve written a couple of posts about the new UNWIND clause in Neo4j&amp;#8217;s cypher query language but I forgot about my favourite use of UNWIND, which is to get rid of some uses of FOREACH from our queries.
+ Let&amp;#8217;s say we&amp;#8217;ve created a timetree up front and now have a series of events coming in that we want to create in the database and attach to the appropriate part of the timetree.</description>
     </item>
     
     <item>
