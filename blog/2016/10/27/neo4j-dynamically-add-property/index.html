@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Dynamically add property/Set dynamic property" />
         
-          <meta name="twitter:description" content="CREATE (stop:Stop {arrival: &quot;0802&quot;, departure: &quot;0803H&quot;}) MATCH (stop:Stop) UNWIND [&quot;arrival&quot;, &quot;departure&quot;] AS key WITH key, toInteger(substring(stop[key], 0, 2)) AS hours, toInteger(substring(stop[key], 2, 2)) AS minutes, CASE WHEN substring(stop[key], 4,1) = &quot;H&quot; THEN 30 ELSE 0 END AS seconds WITH key, (hours * 60 * 60) &#43; (minutes * 60) &#43; seconds AS secondsSinceStartOfDay RETURN key &#43; &quot;SecondsSinceStartOfDay&quot; AS newKey, secondsSinceStartOfDay ╒═══════════════════════════════╤══════════════════════╕ │newKey │secondsSinceStartOfDay│ ╞═══════════════════════════════╪══════════════════════╡ │arrivalSecondsSinceStartOfDay │28920 │ ├───────────────────────────────┼──────────────────────┤ │departureSecondsSinceStartOfDay│29010 │ └───────────────────────────────┴──────────────────────┘ MATCH (stop:Stop2) UNWIND [&quot;arrival&quot;, &quot;departure&quot;] AS key WITH stop, key, toInteger(substring(stop[key], 0, 2)) AS hours, toInteger(substring(stop[key], 2, 2)) AS minutes, CASE WHEN substring(stop[key], 4,1) = &quot;H&quot; THEN 30 ELSE 0 END AS seconds WITH stop, key, (hours * 60 * 60) &#43; (minutes * 60) &#43; seconds AS secondsSinceStartOfDay WITH stop, key &#43; &quot;SecondsSinceStartOfDay&quot; AS newKey, secondsSinceStartOfDay SET stop[newKey] = secondsSinceStartOfDay Invalid input &#39;[&#39;: expected an identifier character, whitespace, &#39;{&#39;, node labels, a property map, a relationship pattern, &#39;." />
+          <meta name="twitter:description" content="I&#8217;ve been playing around with a dataset which has the timetable for the national rail in the UK and they give you departure and arrival times of each train in a textual format.
+ For example, the node to represent a stop could be created like this:
+ CREATE (stop:Stop {arrival: &#34;0802&#34;, departure: &#34;0803H&#34;})   That time format isn&#8217;t particular amenable to querying so I wanted to add another property which indicated the number of seconds since the start of the day." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/10/27/neo4j-dynamically-add-property/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j: Dynamically add property/Set dynamic property &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="CREATE (stop:Stop {arrival: &quot;0802&quot;, departure: &quot;0803H&quot;}) MATCH (stop:Stop) UNWIND [&quot;arrival&quot;, &quot;departure&quot;] AS key WITH key, toInteger(substring(stop[key], 0, 2)) AS hours, toInteger(substring(stop[key], 2, 2)) AS minutes, CASE WHEN substring(stop[key], 4,1) = &quot;H&quot; THEN 30 ELSE 0 END AS seconds WITH key, (hours * 60 * 60) &#43; (minutes * 60) &#43; seconds AS secondsSinceStartOfDay RETURN key &#43; &quot;SecondsSinceStartOfDay&quot; AS newKey, secondsSinceStartOfDay ╒═══════════════════════════════╤══════════════════════╕ │newKey │secondsSinceStartOfDay│ ╞═══════════════════════════════╪══════════════════════╡ │arrivalSecondsSinceStartOfDay │28920 │ ├───────────────────────────────┼──────────────────────┤ │departureSecondsSinceStartOfDay│29010 │ └───────────────────────────────┴──────────────────────┘ MATCH (stop:Stop2) UNWIND [&quot;arrival&quot;, &quot;departure&quot;] AS key WITH stop, key, toInteger(substring(stop[key], 0, 2)) AS hours, toInteger(substring(stop[key], 2, 2)) AS minutes, CASE WHEN substring(stop[key], 4,1) = &quot;H&quot; THEN 30 ELSE 0 END AS seconds WITH stop, key, (hours * 60 * 60) &#43; (minutes * 60) &#43; seconds AS secondsSinceStartOfDay WITH stop, key &#43; &quot;SecondsSinceStartOfDay&quot; AS newKey, secondsSinceStartOfDay SET stop[newKey] = secondsSinceStartOfDay Invalid input &#39;[&#39;: expected an identifier character, whitespace, &#39;{&#39;, node labels, a property map, a relationship pattern, &#39;." />
+        <meta name="description" content="I&#8217;ve been playing around with a dataset which has the timetable for the national rail in the UK and they give you departure and arrival times of each train in a textual format.
+ For example, the node to represent a stop could be created like this:
+ CREATE (stop:Stop {arrival: &#34;0802&#34;, departure: &#34;0803H&#34;})   That time format isn&#8217;t particular amenable to querying so I wanted to add another property which indicated the number of seconds since the start of the day." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-10-27",
-        "description": "CREATE (stop:Stop {arrival: \x26quot;0802\x26quot;, departure: \x26quot;0803H\x26quot;}) MATCH (stop:Stop) UNWIND [\x26quot;arrival\x26quot;, \x26quot;departure\x26quot;] AS key WITH key, toInteger(substring(stop[key], 0, 2)) AS hours, toInteger(substring(stop[key], 2, 2)) AS minutes, CASE WHEN substring(stop[key], 4,1) = \x26quot;H\x26quot; THEN 30 ELSE 0 END AS seconds WITH key, (hours * 60 * 60) \x2b (minutes * 60) \x2b seconds AS secondsSinceStartOfDay RETURN key \x2b \x26quot;SecondsSinceStartOfDay\x26quot; AS newKey, secondsSinceStartOfDay ╒═══════════════════════════════╤══════════════════════╕ │newKey │secondsSinceStartOfDay│ ╞═══════════════════════════════╪══════════════════════╡ │arrivalSecondsSinceStartOfDay │28920 │ ├───────────────────────────────┼──────────────────────┤ │departureSecondsSinceStartOfDay│29010 │ └───────────────────────────────┴──────────────────────┘ MATCH (stop:Stop2) UNWIND [\x26quot;arrival\x26quot;, \x26quot;departure\x26quot;] AS key WITH stop, key, toInteger(substring(stop[key], 0, 2)) AS hours, toInteger(substring(stop[key], 2, 2)) AS minutes, CASE WHEN substring(stop[key], 4,1) = \x26quot;H\x26quot; THEN 30 ELSE 0 END AS seconds WITH stop, key, (hours * 60 * 60) \x2b (minutes * 60) \x2b seconds AS secondsSinceStartOfDay WITH stop, key \x2b \x26quot;SecondsSinceStartOfDay\x26quot; AS newKey, secondsSinceStartOfDay SET stop[newKey] = secondsSinceStartOfDay Invalid input \x26#39;[\x26#39;: expected an identifier character, whitespace, \x26#39;{\x26#39;, node labels, a property map, a relationship pattern, \x26#39;.",
-        "wordCount":  349 
+        "description": "I\x26#8217;ve been playing around with a dataset which has the timetable for the national rail in the UK and they give you departure and arrival times of each train in a textual format.\n For example, the node to represent a stop could be created like this:\n CREATE (stop:Stop {arrival: \x220802\x22, departure: \x220803H\x22})   That time format isn\x26#8217;t particular amenable to querying so I wanted to add another property which indicated the number of seconds since the start of the day.",
+        "wordCount":  635 
     }
     </script>
     
@@ -172,114 +176,174 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Dynamically add property/Set dynamic property</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-CREATE (stop:Stop {arrival: &quot;0802&quot;, departure: &quot;0803H&quot;})
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (stop:Stop)
-UNWIND [&quot;arrival&quot;, &quot;departure&quot;] AS key
+    <div class="paragraph">
+<p>I&#8217;ve been playing around with a dataset which has the timetable for the national rail in the UK and they give you departure and arrival times of each train in a textual format.</p>
+</div>
+<div class="paragraph">
+<p>For example, the node to represent a stop could be created like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CREATE (stop:Stop {arrival: "0802", departure: "0803H"})</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That time format isn&#8217;t particular amenable to querying so I wanted to add another property which indicated the number of seconds since the start of the day.</p>
+</div>
+<div class="paragraph">
+<p>So we want to add 'arrivalSecondsSinceStartOfDay' and 'departureSecondsSinceStartOfDay' properties to our node. I wrote the following query to calculate the values for those properties.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (stop:Stop)
+UNWIND ["arrival", "departure"] AS key
 
 WITH key,
-     toInteger(substring(stop[key], 0, 2)) AS hours,          
+     toInteger(substring(stop[key], 0, 2)) AS hours,
      toInteger(substring(stop[key], 2, 2)) AS minutes,
-     CASE WHEN substring(stop[key], 4,1) = &quot;H&quot; THEN 30 ELSE 0 END AS seconds
+     CASE WHEN substring(stop[key], 4,1) = "H" THEN 30 ELSE 0 END AS seconds
 
 WITH key, (hours * 60 * 60) + (minutes * 60) + seconds AS secondsSinceStartOfDay
 
-RETURN key + &quot;SecondsSinceStartOfDay&quot; AS newKey, secondsSinceStartOfDay
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒═══════════════════════════════╤══════════════════════╕
+RETURN key + "SecondsSinceStartOfDay" AS newKey, secondsSinceStartOfDay</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒═══════════════════════════════╤══════════════════════╕
 │newKey                         │secondsSinceStartOfDay│
 ╞═══════════════════════════════╪══════════════════════╡
 │arrivalSecondsSinceStartOfDay  │28920                 │
 ├───────────────────────────────┼──────────────────────┤
 │departureSecondsSinceStartOfDay│29010                 │
-└───────────────────────────────┴──────────────────────┘
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (stop:Stop2)
-UNWIND [&quot;arrival&quot;, &quot;departure&quot;] AS key
+└───────────────────────────────┴──────────────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re ready to set those properties on the 'stop' node.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (stop:Stop2)
+UNWIND ["arrival", "departure"] AS key
 
 WITH stop,
      key,
-     toInteger(substring(stop[key], 0, 2)) AS hours,          
+     toInteger(substring(stop[key], 0, 2)) AS hours,
      toInteger(substring(stop[key], 2, 2)) AS minutes,
-     CASE WHEN substring(stop[key], 4,1) = &quot;H&quot; THEN 30 ELSE 0 END AS seconds
+     CASE WHEN substring(stop[key], 4,1) = "H" THEN 30 ELSE 0 END AS seconds
 
 WITH stop, key, (hours * 60 * 60) + (minutes * 60) + seconds AS secondsSinceStartOfDay
-WITH stop, key + &quot;SecondsSinceStartOfDay&quot; AS newKey, secondsSinceStartOfDay
-SET stop[newKey] = secondsSinceStartOfDay
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Invalid input &#39;[&#39;: expected an identifier character, whitespace, &#39;{&#39;, node labels, a property map, a relationship pattern, &#39;.&#39;, &#39;(&#39;, &#39;=&#39; or &#34;+=&#34; (line 12, column 9 (offset: 447))
-&#34;SET stop[newKey] = secondsSinceStartOfDay&#34;
-         ^
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ tree neo4j-enterprise-3.1.0-BETA1/plugins/
+WITH stop, key + "SecondsSinceStartOfDay" AS newKey, secondsSinceStartOfDay
+SET stop[newKey] = secondsSinceStartOfDay</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Invalid input '[': expected an identifier character, whitespace, '{', node labels, a property map, a relationship pattern, '.', '(', '=' or "+=" (line 12, column 9 (offset: 447))
+"SET stop[newKey] = secondsSinceStartOfDay"
+         ^</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Hmmm that didn&#8217;t work as expected! It doesn&#8217;t look like we can set dynamic properties using Cypher just yet.</p>
+</div>
+<div class="paragraph">
+<p>Luckily my colleague Michael Hunger and the Neo4j community have been curating the <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/">APOC procedures library</a> and it has just the procedure to help us out.</p>
+</div>
+<div class="paragraph">
+<p>You&#8217;ll need to <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases">download the jar</a> for your version of Neo4j and then place it in the <cite>plugins</cite> directory. I&#8217;m using Neo4j 3.1 Beta1 so this is what it looks like for me:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ tree neo4j-enterprise-3.1.0-BETA1/plugins/
 
 neo4j-enterprise-3.1.0-BETA1/plugins/
 └── apoc-3.1.0.1-all.jar
 
-<span style="color:#ae81ff">0</span> directories, <span style="color:#ae81ff">1</span> file
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-call dbms.procedures()
-YIELD name 
-WITH name 
-WHERE name STARTS WITH &quot;apoc&quot;
-RETURN COUNT(*)
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒════════╕
+0 directories, 1 file</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After you&#8217;ve done that you&#8217;ll need to restart Neo4j so that it can pick up the new procedures that we&#8217;ve added. Once you&#8217;ve done that execute the following query to check they&#8217;ve installed correctly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">call dbms.procedures()
+YIELD name
+WITH name
+WHERE name STARTS WITH "apoc"
+RETURN COUNT(*)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒════════╕
 │COUNT(*)│
 ╞════════╡
 │183     │
-└────────┘
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (stop:Stop)
-UNWIND [&quot;arrival&quot;, &quot;departure&quot;] AS key
+└────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;re now ready to dynamically set properties in the graph. The procedure that we&#8217;ll use is <cite>apoc.create.setProperty</cite> and it&#8217;s easy to update our query to use it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (stop:Stop)
+UNWIND ["arrival", "departure"] AS key
 
 WITH stop,
      key,
-     toInteger(substring(stop[key], 0, 2)) AS hours,          
+     toInteger(substring(stop[key], 0, 2)) AS hours,
      toInteger(substring(stop[key], 2, 2)) AS minutes,
-     CASE WHEN substring(stop[key], 4,1) = &quot;H&quot; THEN 30 ELSE 0 END AS seconds
+     CASE WHEN substring(stop[key], 4,1) = "H" THEN 30 ELSE 0 END AS seconds
 
 WITH stop, key, (hours * 60 * 60) + (minutes * 60) + seconds AS secondsSinceStartOfDay
-WITH stop, key + &quot;SecondsSinceStartOfDay&quot; AS newKey, secondsSinceStartOfDay
-CALL apoc.create.setProperty(stop, newKey, secondsSinceStartOfDay) 
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Query cannot conclude with CALL (must be RETURN or an update clause) (line 12, column 1 (offset: 439))
-&#34;CALL apoc.create.setProperty(stop, newKey, secondsSinceStartOfDay)&#34;
- ^
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (stop:Stop)
-UNWIND [&quot;arrival&quot;, &quot;departure&quot;] AS key
+WITH stop, key + "SecondsSinceStartOfDay" AS newKey, secondsSinceStartOfDay
+CALL apoc.create.setProperty(stop, newKey, secondsSinceStartOfDay)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Query cannot conclude with CALL (must be RETURN or an update clause) (line 12, column 1 (offset: 439))
+"CALL apoc.create.setProperty(stop, newKey, secondsSinceStartOfDay)"
+ ^</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Oops I spoke too soon! We need to yield the return column of the procedure and return it or just return a count to work around this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (stop:Stop)
+UNWIND ["arrival", "departure"] AS key
 
 WITH stop,
      key,
-     toInteger(substring(stop[key], 0, 2)) AS hours,          
+     toInteger(substring(stop[key], 0, 2)) AS hours,
      toInteger(substring(stop[key], 2, 2)) AS minutes,
-     CASE WHEN substring(stop[key], 4,1) = &quot;H&quot; THEN 30 ELSE 0 END AS seconds
+     CASE WHEN substring(stop[key], 4,1) = "H" THEN 30 ELSE 0 END AS seconds
 
 WITH stop, key, (hours * 60 * 60) + (minutes * 60) + seconds AS secondsSinceStartOfDay
-WITH stop, key + &quot;SecondsSinceStartOfDay&quot; AS newKey, secondsSinceStartOfDay
-CALL apoc.create.setProperty(stop, newKey, secondsSinceStartOfDay) 
+WITH stop, key + "SecondsSinceStartOfDay" AS newKey, secondsSinceStartOfDay
+CALL apoc.create.setProperty(stop, newKey, secondsSinceStartOfDay)
 YIELD node
-RETURN COUNT(*)
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒════════╕
+RETURN COUNT(*)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒════════╕
 │COUNT(*)│
 ╞════════╡
 │2       │
-└────────┘
-</code></pre></div><!-- raw HTML omitted -->
+└────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And that&#8217;s it, we can now dynamically set properties in our queries.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -314,7 +378,7 @@ RETURN COUNT(*)
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/10/27/neo4j-dynamically-add-property/&amp;title=Neo4j%3a%20Dynamically%20add%20property%2fSet%20dynamic%20property&amp;summary=CREATE%20%28stop%3aStop%20%7barrival%3a%20%26quot%3b0802%26quot%3b%2c%20departure%3a%20%26quot%3b0803H%26quot%3b%7d%29%20MATCH%20%28stop%3aStop%29%20UNWIND%20%5b%26quot%3barrival%26quot%3b%2c%20%26quot%3bdeparture%26quot%3b%5d%20AS%20key%20WITH%20key%2c%20toInteger%28substring%28stop%5bkey%5d%2c%200%2c%202%29%29%20AS%20hours%2c%20toInteger%28substring%28stop%5bkey%5d%2c%202%2c%202%29%29%20AS%20minutes%2c%20CASE%20WHEN%20substring%28stop%5bkey%5d%2c%204%2c1%29%20%3d%20%26quot%3bH%26quot%3b%20THEN%2030%20ELSE%200%20END%20AS%20seconds%20WITH%20key%2c%20%28hours%20%2a%2060%20%2a%2060%29%20%2b%20%28minutes%20%2a%2060%29%20%2b%20seconds%20AS%20secondsSinceStartOfDay%20RETURN%20key%20%2b%20%26quot%3bSecondsSinceStartOfDay%26quot%3b%20AS%20newKey%2c%20secondsSinceStartOfDay%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a4%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82newKey%20%e2%94%82secondsSinceStartOfDay%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%aa%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82arrivalSecondsSinceStartOfDay%20%e2%94%8228920%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82departureSecondsSinceStartOfDay%e2%94%8229010%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%b4%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20MATCH%20%28stop%3aStop2%29%20UNWIND%20%5b%26quot%3barrival%26quot%3b%2c%20%26quot%3bdeparture%26quot%3b%5d%20AS%20key%20WITH%20stop%2c%20key%2c%20toInteger%28substring%28stop%5bkey%5d%2c%200%2c%202%29%29%20AS%20hours%2c%20toInteger%28substring%28stop%5bkey%5d%2c%202%2c%202%29%29%20AS%20minutes%2c%20CASE%20WHEN%20substring%28stop%5bkey%5d%2c%204%2c1%29%20%3d%20%26quot%3bH%26quot%3b%20THEN%2030%20ELSE%200%20END%20AS%20seconds%20WITH%20stop%2c%20key%2c%20%28hours%20%2a%2060%20%2a%2060%29%20%2b%20%28minutes%20%2a%2060%29%20%2b%20seconds%20AS%20secondsSinceStartOfDay%20WITH%20stop%2c%20key%20%2b%20%26quot%3bSecondsSinceStartOfDay%26quot%3b%20AS%20newKey%2c%20secondsSinceStartOfDay%20SET%20stop%5bnewKey%5d%20%3d%20secondsSinceStartOfDay%20Invalid%20input%20%26%2339%3b%5b%26%2339%3b%3a%20expected%20an%20identifier%20character%2c%20whitespace%2c%20%26%2339%3b%7b%26%2339%3b%2c%20node%20labels%2c%20a%20property%20map%2c%20a%20relationship%20pattern%2c%20%26%2339%3b...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/10/27/neo4j-dynamically-add-property/&amp;title=Neo4j%3a%20Dynamically%20add%20property%2fSet%20dynamic%20property&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20a%20dataset%20which%20has%20the%20timetable%20for%20the%20national%20rail%20in%20the%20UK%20and%20they%20give%20you%20departure%20and%20arrival%20times%20of%20each%20train%20in%20a%20textual%20format.%0a%20For%20example%2c%20the%20node%20to%20represent%20a%20stop%20could%20be%20created%20like%20this%3a%0a%20CREATE%20%28stop%3aStop%20%7barrival%3a%20%220802%22%2c%20departure%3a%20%220803H%22%7d%29%20%20%20That%20time%20format%20isn%26%238217%3bt%20particular%20amenable%20to%20querying%20so%20I%20wanted%20to%20add%20another%20property%20which%20indicated%20the%20number%20of%20seconds%20since%20the%20start%20of%20the%20day...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
