@@ -17,8 +17,9 @@
       <pubDate>Sat, 24 Dec 2016 10:45:42 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/12/24/go-first-attempt-at-channels/</guid>
-      <description>We&amp;rsquo;ll create two channels:
-package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#34;os&amp;#34; &amp;#34;bufio&amp;#34; &amp;#34;fmt&amp;#34; &amp;#34;log&amp;#34; &amp;#34;strings&amp;#34; &amp;#34;net/http&amp;#34; &amp;#34;io&amp;#34; ) func checkError(err error) { if err != nil { fmt.Println(err) log.Fatal(err) } } type Blip struct { Link string Title string } func (blip Blip) Download() File { parts := strings.Split(blip.Link, &amp;#34;/&amp;#34;) fileName := &amp;#34;rawData/items/&amp;#34; + parts[len(parts) - 1] if _, err := os.Stat(fileName); os.IsNotExist(err) { resp, err := http.Get(&amp;#34;http://www.thoughtworks.com&amp;#34; + blip.Link) checkError(err) body := resp.</description>
+      <description>In a previous blog post I mentioned that I wanted to extract blips from The ThoughtWorks Radar into a CSV file and I thought this would be a good mini project for me to practice using Go.
+ In particular I wanted to try using channels and this seemed like a good chance to do that.
+ &amp;lt;/p&amp;gt; I watched a talk by Rob Pike on designing concurrent applications where he uses the following definition of concurrency:&amp;lt;/p&amp;gt;</description>
     </item>
     
     <item>
@@ -27,7 +28,8 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Fri, 23 Dec 2016 18:24:12 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/12/23/go-cannot-execute-binary-file-exec-format-error/</guid>
-      <description>$ go build $ scp myapp ubuntu@aws... $ ssh ubuntu@aws... $ ./myapp -bash: ./myapp: cannot execute binary file: Exec format error env GOOS=linux GOARCH=amd64 GOARM=7 go build </description>
+      <description>In an earlier blog post I mentioned that I&amp;#8217;d been building an internal application to learn a bit of Go and I wanted to deploy it to AWS.
+ Since the application was only going to live for a couple of days I didn&amp;#8217;t want to spend a long time build up anything fancy so my plan was just to build the executable, SSH it to my AWS instance, and then run it.</description>
     </item>
     
     <item>
@@ -36,7 +38,9 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Fri, 23 Dec 2016 17:40:45 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/12/23/neo4j-graphing-the-thoughtworks-technology-radar/</guid>
-      <description>|----------------------------------------------+----------+-------------| | technology | date | suggestion | |----------------------------------------------+----------+-------------| | AppHarbor | Mar 2012 | Trial | | Accumulate-only data | Nov 2015 | Assess | | Accumulate-only data | May 2015 | Assess | | Accumulate-only data | Jan 2015 | Assess | | Buying solutions you can only afford one of | Mar 2012 | Hold | |----------------------------------------------+----------+-------------| WITH [&amp;quot;Hold&amp;quot;, &amp;quot;Assess&amp;quot;, &amp;quot;Trial&amp;quot;, &amp;quot;Adopt&amp;quot;] AS positions UNWIND RANGE (0, size(positions) - 2) AS index WITH positions[index] AS pos1, positions[index + 1] AS pos2 MERGE (position1:Position {value: pos1}) MERGE (position2:Position {value: pos2}) MERGE (position1)-[:NEXT]-&amp;gt;(position2); load csv with headers from &amp;quot;file:///blips.</description>
+      <description>For a bit of Christmas holiday fun I thought it&amp;#8217;d be cool to create a graph of the different blips on the ThoughtWorks Technology Radar and how the recommendations have changed over time.
+ I wrote a script to extract each blip (e.g. .NET Core) and the recommendation made in each radar that it appeared in. I ended up with a CSV file:
+ |----------------------------------------------+----------+-------------| | technology | date | suggestion | |----------------------------------------------+----------+-------------| | AppHarbor | Mar 2012 | Trial | | Accumulate-only data | Nov 2015 | Assess | | Accumulate-only data | May 2015 | Assess | | Accumulate-only data | Jan 2015 | Assess | | Buying solutions you can only afford one of | Mar 2012 | Hold | |----------------------------------------------+----------+-------------|   I then wrote a Cypher script to create the following graph model:</description>
     </item>
     
     <item>
@@ -45,7 +49,9 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Fri, 23 Dec 2016 14:30:09 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/12/23/go-templating-with-the-gin-web-framework/</guid>
-      <description>$ echo $GOPATH /Users/markneedham/projects/gocode $ pwd /Users/markneedham/projects/gocode/src/github.com/mneedham/golang-gin-templating-demo $ go get gopkg.in/gin-gonic/gin.v1 $ ls -lh $GOPATH/src/gopkg.in total 0 drwxr-xr-x 3 markneedham staff 102B 23 Dec 10:55 gin-gonic package main import ( &amp;#34;github.com/gin-gonic/gin&amp;#34; &amp;#34;net/http&amp;#34; ) func main() { router := gin.Default() router.LoadHTMLGlob(&amp;#34;templates/*&amp;#34;) // our handlers will go here  router.Run(&amp;#34;0.0.0.0:9090&amp;#34;) } $ ls -lh total 8 -rw-r--r-- 1 markneedham staff 570B 23 Dec 13:34 demo.go drwxr-xr-x 4 markneedham staff 136B 23 Dec 13:34 templates router.</description>
+      <description>I spent a bit of time over the last week building a little internal web application using Go and the Gin Web Framework and it took me a while to get the hang of the templating language so I thought I&amp;#8217;d write up some examples.
+ Before we get started, I&amp;#8217;ve got my GOPATH set to the following path:
+ $ echo $GOPATH /Users/markneedham/projects/gocode   And the project containing the examples sits inside the src directory:</description>
     </item>
     
     <item>
@@ -54,7 +60,8 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Wed, 21 Dec 2016 07:11:50 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/12/21/docker-unknown-unable-to-query-docker-version-x509-certificate-is-valid-for/</guid>
-      <description>$ docker-machine ls NAME ACTIVE DRIVER STATE URL SWARM DOCKER ERRORS default - virtualbox Running tcp://192.168.99.101:2376 Unknown Unable to query docker version: Get https://192.168.99.101:2376/v1.15/version: x509: certificate is valid for 192.168.99.100, not 192.168.99.101 $ docker-machine stop Stopping &amp;#34;default&amp;#34;... Machine &amp;#34;default&amp;#34; was stopped. $ docker-machine start Starting &amp;#34;default&amp;#34;... (default) Check network to re-create if needed... (default) Waiting for an IP... Machine &amp;#34;default&amp;#34; was started. Waiting for SSH to be available... Detecting the provisioner.</description>
+      <description>I was playing around with Docker locally and somehow ended up with this error when I tried to list my docker machines:
+ $ docker-machine ls NAME ACTIVE DRIVER STATE URL SWARM DOCKER ERRORS default - virtualbox Running tcp://192.168.99.101:2376 Unknown Unable to query docker version: Get https://192.168.99.101:2376/v1.15/version: x509: certificate is valid for 192.168.99.100, not 192.168.99.101   My Google Fu was weak I couldn&amp;#8217;t find any suggestions for what this might mean so I tried shutting it down and starting it again!</description>
     </item>
     
     <item>
@@ -63,7 +70,8 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Sun, 04 Dec 2016 12:37:49 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/12/04/kubernetes-simulating-a-network-partition/</guid>
-      <description>$ kubectl get pods NAME READY STATUS RESTARTS AGE neo4j-0 1/1 Running 0 6h neo4j-1 1/1 Running 0 6h neo4j-2 1/1 Running 0 6h $ kubectl exec neo4j-0 -- ls -alh /sbin/route lrwxrwxrwx 1 root root 12 Oct 18 18:58 /sbin/route -&amp;gt; /bin/busybox $ kubectl exec neo4j-0 -- bin/cypher-shell &amp;#34;CALL dbms.cluster.role()&amp;#34; role &amp;#34;FOLLOWER&amp;#34; Bye! $ kubectl exec neo4j-1 -- bin/cypher-shell &amp;#34;CALL dbms.cluster.role()&amp;#34; role &amp;#34;FOLLOWER&amp;#34; Bye! $ kubectl exec neo4j-2 -- bin/cypher-shell &amp;#34;CALL dbms.</description>
+      <description>A couple of weeks ago I wrote a post explaining how to create a Neo4j causal cluster using Kubernetes and ... the I wanted to work out how to simulate a network partition which would put the leader on the minority side and force an election.
+ We&amp;#8217;ve done this on our internal tooling on AWS using the https://en.wikipedia.org/wiki/Iptables command but unfortunately that isn&amp;#8217;t available in my container, which only has the utilities provided by BusyBox.</description>
     </item>
     
     <item>
@@ -72,7 +80,8 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Fri, 25 Nov 2016 16:55:56 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/11/25/kubernetes-spinning-up-a-neo4j-3-1-causal-cluster/</guid>
-      <description>for i in $(seq 0 2); do cat &amp;lt;&amp;lt;EOF | kubectl create -f - kind: PersistentVolume apiVersion: v1 metadata: name: pv${i} labels: type: local app: neo4j spec: capacity: storage: 1Gi accessModes: - ReadWriteOnce hostPath: path: &amp;#34;/tmp/${i}&amp;#34; EOF cat &amp;lt;&amp;lt;EOF | kubectl create -f - kind: PersistentVolumeClaim apiVersion: v1 metadata: name: datadir-neo4j-${i} labels: app: neo4j spec: accessModes: - ReadWriteOnce resources: requests: storage: 1Gi EOF done; $ kubectl get pv NAME CAPACITY ACCESSMODES STATUS CLAIM REASON AGE pv0 1Gi RWO Bound default/datadir-neo4j-0 7s pv1 1Gi RWO Bound default/datadir-neo4j-1 7s pv2 1Gi RWO Bound default/datadir-neo4j-2 7s $ kubectl get pvc NAME STATUS VOLUME CAPACITY ACCESSMODES AGE datadir-neo4j-0 Bound pv0 1Gi RWO 26s datadir-neo4j-1 Bound pv1 1Gi RWO 26s datadir-neo4j-2 Bound pv2 1Gi RWO 25s # Headless service to provide DNS lookup apiVersion: v1 kind: Service metadata: labels: app: neo4j name: neo4j spec: clusterIP: None ports: - port: 7474 selector: app: neo4j ---- # new API name apiVersion: &amp;#34;apps/v1alpha1&amp;#34; kind: PetSet metadata: name: neo4j spec: serviceName: neo4j replicas: 3 template: metadata: annotations: pod.</description>
+      <description>A couple of weeks ago I wrote a blog post explaining how I&amp;#8217;d created a Neo4j causal cluster using docker containers directly and for my next pet project I wanted to use Kubernetes as an orchestration layer so that I could declaratively change the number of servers in my cluster.
+ I&amp;#8217;d never used Kubernetes before but I saw a presentation showing how to use it to create an Elastic cluster at the GDG Cloud meetup a couple of months ago.</description>
     </item>
     
     <item>
@@ -81,7 +90,9 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Tue, 22 Nov 2016 19:56:31 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/11/22/kubernetes-writing-hostname-to-a-file/</guid>
-      <description>$ minikube start Starting local Kubernetes cluster... Kubectl is now configured to use the cluster. apiVersion: v1 kind: Pod metadata: name: mark-super-simple-test-pod spec: containers: - name: test-container image: gcr.io/google_containers/busybox:1.24 command: [ &amp;#34;/bin/sh&amp;#34;, &amp;#34;-c&amp;#34;, &amp;#34;env&amp;#34; ] dnsPolicy: Default restartPolicy: Never $ kubectl create -f hostname_super_simple.yaml pod &amp;#34;mark-super-simple-test-pod&amp;#34; created $ kubectl logs mark-super-simple-test-pod KUBERNETES_SERVICE_PORT=443 KUBERNETES_PORT=tcp://10.0.0.1:443 HOSTNAME=mark-super-simple-test-pod SHLVL=1 HOME=/root KUBERNETES_PORT_443_TCP_ADDR=10.0.0.1 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin KUBERNETES_PORT_443_TCP_PORT=443 KUBERNETES_PORT_443_TCP_PROTO=tcp KUBERNETES_SERVICE_PORT_HTTPS=443 KUBERNETES_PORT_443_TCP=tcp://10.0.0.1:443 PWD=/ KUBERNETES_SERVICE_HOST=10.0.0.1 apiVersion: v1 kind: Pod metadata: name: mark-test-pod spec: containers: - name: test-container image: gcr.</description>
+      <description>Over the weekend I spent a bit of time playing around with Kubernetes and to get the hang of the technology I set myself the task of writing the hostname of the machine to a file.
+ I&amp;#8217;m using the excellent minikube tool to create a local Kubernetes cluster for my experiments so the first step is to spin that up:
+ $ minikube start Starting local Kubernetes cluster... Kubectl is now configured to use the cluster.</description>
     </item>
     
     <item>
@@ -90,7 +101,9 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Sun, 13 Nov 2016 12:30:08 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/11/13/neo4j-3-1-beta3-docker-creating-a-causal-cluster/</guid>
-      <description>unsupported.dbms.edition=enterprise dbms.mode=CORE dbms.security.auth_enabled=false dbms.memory.heap.initial_size=512m dbms.memory.heap.max_size=512m dbms.memory.pagecache.size=100M dbms.tx_log.rotation.retention_policy=false dbms.connector.bolt.type=BOLT dbms.connector.bolt.enabled=true dbms.connector.bolt.listen_address=0.0.0.0:7687 dbms.connector.http.type=HTTP dbms.connector.http.enabled=true dbms.connector.http.listen_address=0.0.0.0:7474 dbms.connectors.default_listen_address=0.0.0.0 dbms.connectors.default_advertised_address=instance0 causal_clustering.initial_discovery_members=instance0:5000,instance1:5000,instance2:5000 causal_clustering.leader_election_timeout=2s docker run --name=instance0 --detach \  --publish=7474:7474 \  --publish=7687:7687 \  --net=cluster \  --hostname=instance0 \  --volume /tmp/ce/instance0/conf:/conf \  --volume /tmp/ce/instance0/data:/data \  neo4j/neo4j-experimental:3.1.0-M13-beta3-enterprise docker network create --driver=bridge cluster function config { mkdir -p /tmp/ce/$1/conf cat &amp;gt; /tmp/ce/$1/conf/neo4j.conf &amp;lt;&amp;lt; EOF unsupported.dbms.edition=enterprise dbms.mode=CORE dbms.security.auth_enabled=false dbms.memory.heap.initial_size=512m dbms.memory.heap.max_size=512m dbms.memory.pagecache.size=100M dbms.tx_log.rotation.retention_policy=false dbms.connector.bolt.type=BOLT dbms.connector.bolt.enabled=true dbms.connector.bolt.listen_address=0.0.0.0:7687 dbms.</description>
+      <description>Over the weekend I&amp;#8217;ve been playing around with docker and learning how to spin up a Neo4j Causal Cluster.
+ Causal Clustering is Neo4j&amp;#8217;s new clustering architecture which makes use of Diego Ongaro&amp;#8217;s Raft consensus algorithm to ensure writes are committed on a majority of servers. It&amp;#8217;ll be available in the 3.1 series of Neo4j which is currently in beta. I&amp;#8217;ll be using BETA3 in this post.
+   I don&amp;#8217;t know much about docker but luckily my colleague Kevin Van Gundy wrote a blog post a couple of weeks ago explaining how to spin up Neo4j inside a docker container which was very helpful for getting me started.</description>
     </item>
     
     <item>
@@ -99,7 +112,9 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Tue, 01 Nov 2016 22:10:57 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/11/01/neo4j-find-the-intermediate-point-between-two-latlongs/</guid>
-      <description>(a)-[:NEXT {time: 60}]-&amp;gt;(b)-[:NEXT {time: 240}]-&amp;gt;(c) a = sin((1−f)⋅δ) / sin δ b = sin(f⋅δ) / sin δ x = a ⋅ cos φ1 ⋅ cos λ1 + b ⋅ cos φ2 ⋅ cos λ2 y = a ⋅ cos φ1 ⋅ sin λ1 + b ⋅ cos φ2 ⋅ sin λ2 z = a ⋅ sin φ1 + b ⋅ sin φ2 φi = atan2(z, √x² + y²) λi = atan2(y, x) δ is the angular distance d/R between the two points.</description>
+      <description>Yesterday I wrote a blog post showing how to find the midpoint between two lat/longs using Cypher which worked well as a first attempt at filling in missing locations, but I realised I could do better.
+ As I mentioned in the last post, when I find a stop that&amp;#8217;s missing lat/long coordinates I can usually find two nearby stops that allow me to triangulate this stop&amp;#8217;s location.
+ I also have train routes which indicate the number of seconds it takes to go from one stop to another, which allows me to indicate whether the location-less stop is closer to one stop than the other.</description>
     </item>
     
     <item>
@@ -108,7 +123,8 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Mon, 31 Oct 2016 19:31:46 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/10/31/neo4j-find-the-midpoint-between-two-latlongs/</guid>
-      <description>WITH 51.4931963543 AS lat1, -0.0475185810 AS lon1, 51.47908 AS lat2 , -0.05393950 AS lon2 WITH radians(lat1) AS rlat1, radians(lon1) AS rlon1, radians(lat2) AS rlat2, radians(lon2) AS rlon2, radians(lon2 - lon1) AS dLon WITH rlat1, rlon1, rlat2, rlon2, cos(rlat2) * cos(dLon) AS Bx, cos(rlat2) * sin(dLon) AS By WITH atan2(sin(rlat1) + sin(rlat2), sqrt( (cos(rlat1) + Bx) * (cos(rlat1) + Bx) + By * By )) AS lat3, rlon1 + atan2(By, cos(rlat1) + Bx) AS lon3 RETURN degrees(lat3) AS midLat, degrees(lon3) AS midLon ╒═════════════════╤═════════════════════╕ │midLat │midLon │ ╞═════════════════╪═════════════════════╡ │51.</description>
+      <description>Over the last couple of weekends I&amp;#8217;ve been playing around with some transport data and I wanted to run the A* algorithm to find the quickest route between two stations.
+ The A* algorithm takes an estimateEvaluator as one of its parameters and the evaluator looks at lat/longs of nodes to work out whether a path is worth following or not. I therefore needed to add lat/longs for each station and I found it surprisingly hard to find this location date for all the points in the dataset.</description>
     </item>
     
     <item>
@@ -117,7 +133,9 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Sun, 30 Oct 2016 22:12:50 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/10/30/neo4j-create-dynamic-relationship-type/</guid>
-      <description>load csv with headers from &amp;quot;file:///people.csv&amp;quot; AS row RETURN row ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘ load csv with headers from &amp;quot;file:///people.csv&amp;quot; AS row MERGE (p1:Person {name: row.node1}) MERGE (p2:Person {name: row.node2}) FOREACH(ignoreMe IN CASE WHEN row.relationship = &amp;quot;MARRIED_TO&amp;quot; THEN [1] ELSE [] END | MERGE (p1)-[:MARRIED_TO]-&amp;gt;(p2)) FOREACH(ignoreMe IN CASE WHEN row.relationship = &amp;quot;FRIENDS&amp;quot; THEN [1] ELSE [] END | MERGE (p1)-[:FRIENDS]-&amp;gt;(p2)) load csv with headers from &amp;quot;file:///people.</description>
+      <description>One of the things I&amp;#8217;ve often found frustrating when importing data using Cypher, Neo4j&amp;#8217;s query language, is that it&amp;#8217;s quite difficult to create dynamic relationship types.
+ Say we have a CSV file structured like this:
+ load csv with headers from &#34;file:///people.csv&#34; AS row RETURN row   ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘   We want to create nodes with the relationship type specified in the file.</description>
     </item>
     
     <item>
@@ -137,7 +155,9 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Wed, 19 Oct 2016 05:16:07 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/10/19/neo4j-detecting-rogue-spaces-in-csv-headers-with-load-csv/</guid>
-      <description>load csv with headers from &amp;quot;file:///foo.csv&amp;quot; as row RETURN row ╒══════════════════════════════════╕ │row │ ╞══════════════════════════════════╡ │{key1: a, key2: (null), key3: c}│ ├──────────────────────────────────┤ │{key1: d, key2: e, key3: f} │ └──────────────────────────────────┘ load csv with headers from &amp;quot;file:///foo.csv&amp;quot; as row WITH row WHERE NOT row.key2 is null RETURN row (no rows) load csv with headers from &amp;quot;file:///foo.csv&amp;quot; as row WITH row LIMIT 1 UNWIND keys(row) AS key RETURN key, SIZE(key) ╒═════╤═════════╕ │key │SIZE(key)│ ╞═════╪═════════╡ │key1 │4 │ ├─────┼─────────┤ │ key2│5 │ ├─────┼─────────┤ │ key3│5 │ └─────┴─────────┘ load csv with headers from &amp;quot;file:///foo.</description>
+      <description>Last week I was helping someone load the data from a CSV file into Neo4j and we were having trouble filtering out rows which contained a null value in one of the columns.
+ This is what the data looked like:
+ load csv with headers from &#34;file:///foo.csv&#34; as row RETURN row   ╒══════════════════════════════════╕ │row │ ╞══════════════════════════════════╡ │{key1: a, key2: (null), key3: c}│ ├──────────────────────────────────┤ │{key1: d, key2: e, key3: f} │ └──────────────────────────────────┘   We&amp;#8217;d like to filter out any rows which have &#39;key2&#39; as null, so let&amp;#8217;s tweak our query to do that:</description>
     </item>
     
     <item>
@@ -146,7 +166,8 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Tue, 04 Oct 2016 22:33:43 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/10/04/neo4j-requirement-failed/</guid>
-      <description>MATCH (p:Person)-[:ACTED_IN]-&amp;gt;(movie) RETURN p, COLLECT(movie.title) AS movies ORDER BY COUNT(movies) DESC LIMIT 10 requirement failed 2016-10-03 23:25:07.529+0000 ERROR [o.n.b.v.r.ErrorReporter] Client triggered an unexpected error [UnknownError]: requirement failed, reference to. requirement failed java.lang.IllegalArgumentException: requirement failed at scala.Predef$.require(Predef.scala:212) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.steps.sortSkipAndLimit$.apply(sortSkipAndLimit.scala:38) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.PlanEventHorizon$.apply(PlanEventHorizon.scala:43) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.PlanEventHorizon$.apply(PlanEventHorizon.scala:31) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.PlanWithTail.apply(PlanWithTail.scala:46) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.PlanWithTail.apply(PlanWithTail.scala:29) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.PlanSingleQuery.apply(PlanSingleQuery.scala:47) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.PlanSingleQuery.apply(PlanSingleQuery.scala:30) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.DefaultQueryPlanner$$anonfun$2.apply(QueryPlanner.scala:51) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.DefaultQueryPlanner$$anonfun$2.apply(QueryPlanner.scala:51) at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234) at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234) at scala.collection.immutable.List.foreach(List.scala:381) at scala.collection.TraversableLike$class.map(TraversableLike.scala:234) at scala.collection.immutable.List.map(List.scala:285) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.DefaultQueryPlanner.planQueries(QueryPlanner.scala:51) at org.neo4j.cypher.internal.compiler.v3_1.planner.logical.DefaultQueryPlanner.plan(QueryPlanner.scala:36) at org.neo4j.cypher.internal.compiler.v3_1.planner.CostBasedExecutablePlanBuilder.produceLogicalPlan(CostBasedExecutablePlanBuilder.scala:95) at org.</description>
+      <description>Last week during a hands on Cypher meetup, using Neo4j&amp;#8217;s built in movie dataset, one of the attendees showed me the following query which wasn&amp;#8217;t working as expected:
+ MATCH (p:Person)-[:ACTED_IN]-&amp;gt;(movie) RETURN p, COLLECT(movie.title) AS movies ORDER BY COUNT(movies) DESC LIMIT 10   requirement failed   We can get a full stack trace in logs/debug.log if we run the same query from the cypher-shell, which was introduced during one fo the Neo4j 3.</description>
     </item>
     
     <item>
@@ -155,7 +176,9 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Sun, 02 Oct 2016 10:13:26 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/10/02/neo4j-procedure-call-inside-a-query-does-not-support-passing-arguments-implicitly-pass-explicitly-after-procedure-name-instead/</guid>
-      <description>CALL db.labels ╒══════════╕ │label │ ╞══════════╡ │Airport │ ├──────────┤ │Flight │ ├──────────┤ │Airline │ ├──────────┤ │Movie │ ├──────────┤ │AirportDay│ ├──────────┤ │Person │ ├──────────┤ │Engineer │ └──────────┘ CALL db.labels YIELD label WITH label WHERE tolower(label) contains &amp;quot;a&amp;quot; RETURN label Procedure call inside a query does not support passing arguments implicitly (pass explicitly after procedure name instead) (line 1, column 9 (offset: 8)) &amp;#34;CALL db.labels&amp;#34; ^ CALL db.labels() YIELD label WITH label WHERE tolower(label) contains &amp;quot;a&amp;quot; RETURN label ╒══════════╕ │label │ ╞══════════╡ │Airport │ ├──────────┤ │Airline │ ├──────────┤ │AirportDay│ └──────────┘ </description>
+      <description>A couple of days I was trying to write a Cypher query to filter the labels in my database.
+ I started with the following procedure call to get the list of all the labels:
+ CALL db.labels   ╒══════════╕ │label │ ╞══════════╡ │Airport │ ├──────────┤ │Flight │ ├──────────┤ │Airline │ ├──────────┤ │Movie │ ├──────────┤ │AirportDay│ ├──────────┤ │Person │ ├──────────┤ │Engineer │ └──────────┘   I was only interested in labels that contained the letter &#39;a&#39; so I tweaked the query to filter the output of the procedure:</description>
     </item>
     
     <item>
@@ -164,8 +187,8 @@ package scrape import ( &amp;#34;github.com/PuerkitoBio/goquery&amp;#34; &amp;#3
       <pubDate>Wed, 14 Sep 2016 05:33:38 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/09/14/scikit-learn-first-steps-with-log_loss/</guid>
-      <description>&amp;gt;&amp;gt;&amp;gt; actual_labels = [&amp;#34;bam&amp;#34;, &amp;#34;ham&amp;#34;, &amp;#34;spam&amp;#34;] &amp;gt;&amp;gt;&amp;gt; from sklearn.metrics import log_loss &amp;gt;&amp;gt;&amp;gt; log_loss(actual_labels, [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) 2.1094237467877998e-15 &amp;gt;&amp;gt;&amp;gt; log_loss(actual_labels, [[0, 0, 1], [1, 0, 0], [0, 1, 0]]) 34.538776394910684 This means that the predicted probability for that given class would be less than exp(-1) or around 0.368.
-So, seeing a log loss greater than one can be expected in the cass that that your model only gives less than a 36% probability estimate for the correct class.</description>
+      <description>Over the last week I&amp;#8217;ve spent a little bit of time playing around with the data in the Kaggle TalkingData Mobile User Demographics competition, and came across a notebook written by dune_dweller showing how to run a logistic regression algorithm on the dataset.
+ The metric used to evaluate the output in this competition is multi class logarithmic loss, which is implemented by the http://scikit-learn.org/stable/modules/generated/sklearn.metrics.log_loss.html function in the scikit-learn library.</description>
     </item>
     
     <item>
@@ -174,9 +197,8 @@ So, seeing a log loss greater than one can be expected in the cass that that you
       <pubDate>Sat, 27 Aug 2016 20:32:09 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/27/scikit-learn-clustering-and-the-curse-of-dimensionality/</guid>
-      <description>But in very high-dimensional spaces, Euclidean distances tend to become inflated (this is an instance of the so-called “curse of dimensionality”).
-Running a dimensionality reduction algorithm such as PCA prior to k-means clustering can alleviate this problem and speed up the computations.
-from sklearn.metrics.pairwise import cosine_similarity import numpy as np def distances(a, b): return np.linalg.norm(a-b), cosine_similarity([a, b])[0][1] def mixed(n_zeros, n_ones): return np.concatenate((np.repeat([1], n_ones), np.repeat([0], n_zeros)), axis=0) def ones(n_ones): return np.repeat([1], n_ones) print distances(mixed(2, 2), ones(4)) print distances(mixed(3, 3), ones(6)) print distances(mixed(50, 50), ones(100)) print distances(mixed(300, 300), ones(600)) (1.</description>
+      <description>In my last post I attempted to cluster Game of Thrones episodes based on character appearances without much success. After I wrote that post I was flicking through the scikit-learn clustering documentation and noticed the following section which describes some of the weaknesses of the K-means clustering algorithm:
+  Inertia is not a normalized metric: we just know that lower values are better and zero is optimal. But in very high-dimensional spaces, Euclidean distances tend to become inflated (this is an instance of the so-called &amp;#8220;curse of dimensionality&amp;#8221;).</description>
     </item>
     
     <item>
@@ -185,7 +207,8 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Thu, 25 Aug 2016 22:07:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/25/scikit-learn-trying-to-find-clusters-of-game-of-thrones-episodes/</guid>
-      <description>&amp;gt;&amp;gt;&amp;gt; all.shape (60, 638) &amp;gt;&amp;gt;&amp;gt; all array([[0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], ..., [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0]]) &amp;gt;&amp;gt;&amp;gt; from sklearn.cluster import KMeans &amp;gt;&amp;gt;&amp;gt; n_clusters = 3 &amp;gt;&amp;gt;&amp;gt; km = KMeans(n_clusters=n_clusters, init=&amp;#39;k-means++&amp;#39;, max_iter=100, n_init=1) &amp;gt;&amp;gt;&amp;gt; cluster_labels = km.fit_predict(all) &amp;gt;&amp;gt;&amp;gt; cluster_labels array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], dtype=int32) &amp;gt;&amp;gt;&amp;gt; import numpy as np &amp;gt;&amp;gt;&amp;gt; np.</description>
+      <description>In my last post I showed how to find similar Game of Thrones episodes based on the characters that appear in different episodes. This allowed us to find similar episodes on an episode by episode basis, but I was curious whether there were groups of similar episodes that we could identify.
+ scikit-learn provides several clustering algorithms that can run over our episode vectors and hopefully find clusters of similar episodes.</description>
     </item>
     
     <item>
@@ -194,7 +217,8 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Mon, 22 Aug 2016 21:12:54 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/22/neo4jscikit-learn-calculating-the-cosine-similarity-of-game-of-thrones-episodes/</guid>
-      <description>:play http://guides.neo4j.com/got Episode 1 = [1, 1, 0] Episode 2 = [0, 1, 1] &amp;gt;&amp;gt;&amp;gt; from sklearn.metrics.pairwise import cosine_similarity &amp;gt;&amp;gt;&amp;gt; one = [1,1,0] &amp;gt;&amp;gt;&amp;gt; two = [0,1,1] &amp;gt;&amp;gt;&amp;gt; cosine_similarity([one, two]) array([[ 1. , 0.5], [ 0.5, 1. ]]) from neo4j.v1 import GraphDatabase, basic_auth driver = GraphDatabase.driver(&amp;#34;bolt://localhost&amp;#34;, auth=basic_auth(&amp;#34;neo4j&amp;#34;, &amp;#34;neo&amp;#34;)) session = driver.session() rows = session.run(&amp;#34;&amp;#34;&amp;#34; MATCH (c:Character), (e:Episode) OPTIONAL MATCH (c)-[appearance:APPEARED_IN]-&amp;gt;(e) RETURN e, c, appearance ORDER BY e.id, c.id&amp;#34;&amp;#34;&amp;#34;) &amp;gt;&amp;gt;&amp;gt; for row in rows: print row &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5415 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Addam Marbrand&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Addam_Marbrand&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5882 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Adrack Humble&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Adrack_Humble&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=6747 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Aegon V Targaryen&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Aegon_V_Targaryen&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5750 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Aemon&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Aemon&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5928 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Aeron Greyjoy&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Aeron_Greyjoy&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5503 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Aerys II Targaryen&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Aerys_II_Targaryen&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=6753 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Alannys Greyjoy&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Alannys_Greyjoy&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=6750 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Alerie Tyrell&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Alerie_Tyrell&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5753 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Alliser Thorne&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Alliser_Thorne&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5858 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Alton Lannister&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Alton_Lannister&amp;#39;}&amp;gt; appearance=None&amp;gt; episodes = {} for row in rows: if episodes.</description>
+      <description>A couple of months ago Praveena and I created a Game of Thrones dataset to use in a workshop and I thought it&amp;#8217;d be fun to run it through some machine learning algorithms and hopefully find some interesting insights.
+ The dataset is available as CSV files but for this analysis I&amp;#8217;m assuming that it&amp;#8217;s already been imported into neo4j. If you want to import the data you can run the tutorial by typing the following into the query bar of the neo4j browser:</description>
     </item>
     
     <item>
@@ -203,7 +227,8 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Sun, 14 Aug 2016 18:56:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/14/python-matplotlibseabornvirtualenv-python-is-not-installed-as-a-framework/</guid>
-      <description>$ python 5_content_based_recommender/run.py Traceback (most recent call last): File &amp;#34;5_content_based_recommender/run.py&amp;#34;, line 14, in &amp;lt;module&amp;gt; import seaborn as sns File &amp;#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.7/site-packages/seaborn/__init__.py&amp;#34;, line 6, in &amp;lt;module&amp;gt; from .rcmod import * File &amp;#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.7/site-packages/seaborn/rcmod.py&amp;#34;, line 8, in &amp;lt;module&amp;gt; from . import palettes, _orig_rc_params File &amp;#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.7/site-packages/seaborn/palettes.py&amp;#34;, line 12, in &amp;lt;module&amp;gt; from .utils import desaturate, set_hls_values, get_color_cycle File &amp;#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.7/site-packages/seaborn/utils.py&amp;#34;, line 12, in &amp;lt;module&amp;gt; import matplotlib.pyplot as plt File &amp;#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.7/site-packages/matplotlib/pyplot.py&amp;#34;, line 114, in &amp;lt;module&amp;gt; _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup() File &amp;#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.</description>
+      <description>Over the weekend I was following The Marketing Technologist&amp;#8217;s content based recommender tutorial but ran into the following exception when trying to import the seaborn library:
+ $ python 5_content_based_recommender/run.py Traceback (most recent call last): File &#34;5_content_based_recommender/run.py&#34;, line 14, in &amp;lt;module&amp;gt; import seaborn as sns File &#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.7/site-packages/seaborn/__init__.py&#34;, line 6, in &amp;lt;module&amp;gt; from .rcmod import * File &#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.7/site-packages/seaborn/rcmod.py&#34;, line 8, in &amp;lt;module&amp;gt; from . import palettes, _orig_rc_params File &#34;/Users/markneedham/projects/themarketingtechnologist/tmt/lib/python2.7/site-packages/seaborn/palettes.py&#34;, line 12, in &amp;lt;module&amp;gt; from .</description>
     </item>
     
     <item>
@@ -212,8 +237,9 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Wed, 27 Jul 2016 02:45:28 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/27/scitkit-learn-tfidf-and-cosine-similarity-for-computer-science-papers/</guid>
-      <description>In other words, these algorithms try to recommend items that are similar to those that a user liked in the past (or is examining in the present).
-for each paper: generate a TF/IDF vector of the terms in the paper&amp;#39;s title calculate the cosine similarity of each paper&amp;#39;s TF/IDF vector with every other paper&amp;#39;s TF/IDF vector import glob corpus = [] for file in glob.glob(&amp;#34;papers/*.txt&amp;#34;): with open(file, &amp;#34;r&amp;#34;) as paper: corpus.</description>
+      <description>A couple of months ago I downloaded the meta data for a few thousand computer science papers so that I could try and write a mini recommendation engine to tell me what paper I should read next.
+ Since I don&amp;#8217;t have any data on which people read each paper a collaborative filtering approach is ruled out, so instead I thought I could try content based filtering instead.
+ Let&amp;#8217;s quickly check the Wikipedia definition of content based filtering:</description>
     </item>
     
     <item>
@@ -222,7 +248,10 @@ for each paper: generate a TF/IDF vector of the terms in the paper&amp;#39;s tit
       <pubDate>Fri, 22 Jul 2016 13:55:14 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/22/mahouthadoop-org-apache-hadoop-ipc-remoteexception-server-ipc-version-9-cannot-communicate-with-client-version-4/</guid>
-      <description>&amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.mahout&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mahout-core&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.9&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; Exception in thread &amp;#34;main&amp;#34; org.apache.hadoop.ipc.RemoteException: Server IPC version 9 cannot communicate with client version 4 at org.apache.hadoop.ipc.Client.call(Client.java:1113) at org.apache.hadoop.ipc.RPC$Invoker.invoke(RPC.java:229) at com.sun.proxy.$Proxy1.getProtocolVersion(Unknown Source) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:497) at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:85) at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:62) at com.sun.proxy.$Proxy1.getProtocolVersion(Unknown Source) at org.apache.hadoop.ipc.RPC.checkVersion(RPC.java:422) at org.apache.hadoop.hdfs.DFSClient.createNamenode(DFSClient.java:183) at org.apache.hadoop.hdfs.DFSClient.&amp;lt;init&amp;gt;(DFSClient.java:281) at org.apache.hadoop.hdfs.DFSClient.&amp;lt;init&amp;gt;(DFSClient.java:245) at org.apache.hadoop.hdfs.DistributedFileSystem.initialize(DistributedFileSystem.java:100) at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:1446) at org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:67) at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:1464) at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:263) at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:124) at com.markhneedham.mahout.Similarity.getDocIndex(Similarity.java:86) at com.markhneedham.mahout.Similarity.main(Similarity.java:25) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.</description>
+      <description>I&amp;#8217;ve been working my way through Dragan Milcevski&amp;#8217;s mini tutorial on using Mahout to do content based filtering on documents and reached the final step where I needed to read in the generated item-similarity files.
+ I got the example compiling by using the following Maven dependency:
+ &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.apache.mahout&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;mahout-core&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;0.9&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt;   Unfortunately when I ran the code I ran into a version incompatibility problem:
+ Exception in thread &#34;</description>
     </item>
     
     <item>
@@ -231,7 +260,9 @@ for each paper: generate a TF/IDF vector of the terms in the paper&amp;#39;s tit
       <pubDate>Fri, 22 Jul 2016 13:31:15 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/22/hadoop-datanode-not-starting/</guid>
-      <description>java.io.IOException: File /user/markneedham/book2.txt could only be replicated to 0 nodes, instead of 1 at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getAdditionalBlock(FSNamesystem.java:1448) at org.apache.hadoop.hdfs.server.namenode.NameNode.addBlock(NameNode.java:690) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25) at java.lang.reflect.Method.invoke(Method.java:597) at org.apache.hadoop.ipc.WritableRpcEngine$Server.call(WritableRpcEngine.java:342) at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:1350) at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:1346) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAs(Subject.java:396) at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:742) at org.apache.hadoop.ipc.Server$Handler.run(Server.java:1344) at org.apache.hadoop.ipc.Client.call(Client.java:905) at org.apache.hadoop.ipc.WritableRpcEngine$Invoker.invoke(WritableRpcEngine.java:198) at $Proxy0.addBlock(Unknown Source) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25) at java.lang.reflect.Method.invoke(Method.java:597) at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:82) at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:59) at $Proxy0.addBlock(Unknown Source) at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.locateFollowingBlock(DFSOutputStream.java:928) at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.nextBlockOutputStream(DFSOutputStream.java:811) at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:427) 2016-07-21 18:58:00,496 WARN org.</description>
+      <description>In my continued playing with Mahout I eventually decided to give up using my local file system and use a local Hadoop instead since that seems to have much less friction when following any examples.
+ Unfortunately all my attempts to upload any files from my local file system to HDFS were being met with the following exception:
+ java.io.IOException: File /user/markneedham/book2.txt could only be replicated to 0 nodes, instead of 1 at org.</description>
     </item>
     
     <item>
@@ -240,7 +271,9 @@ for each paper: generate a TF/IDF vector of the terms in the paper&amp;#39;s tit
       <pubDate>Thu, 21 Jul 2016 17:57:41 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/21/mahout-exception-in-thread-main-java-lang-illegalargumentexception-wrong-fs-file-expected-hdfs/</guid>
-      <description>bin/mahout seqdirectory \ --input file:///Users/markneedham/Downloads/apache-mahout-distribution-0.12.2/foo \ --output file:///Users/markneedham/Downloads/apache-mahout-distribution-0.12.2/foo-out \ -c UTF-8 \ -chunk 64 \ -prefix mah 16/07/21 21:19:20 INFO AbstractJob: Command line arguments: {--charset=[UTF-8], --chunkSize=[64], --endPhase=[2147483647], --fileFilterClass=[org.apache.mahout.text.PrefixAdditionFilter], --input=[file:///Users/markneedham/Downloads/apache-mahout-distribution-0.12.2/foo], --keyPrefix=[mah], --method=[mapreduce], --output=[file:///Users/markneedham/Downloads/apache-mahout-distribution-0.12.2/foo-out], --startPhase=[0], --tempDir=[temp]} 16/07/21 21:19:20 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable 16/07/21 21:19:20 INFO deprecation: mapred.input.dir is deprecated. Instead, use mapreduce.input.fileinputformat.inputdir 16/07/21 21:19:20 INFO deprecation: mapred.compress.map.output is deprecated. Instead, use mapreduce.</description>
+      <description>I&amp;#8217;ve been playing around with Mahout over the last couple of days to see how well it works for content based filtering.
+ I started following a mini tutorial from Stack Overflow but ran into trouble on the first step:
+ bin/mahout seqdirectory \ --input file:///Users/markneedham/Downloads/apache-mahout-distribution-0.12.2/foo \ --output file:///Users/markneedham/Downloads/apache-mahout-distribution-0.12.2/foo-out \ -c UTF-8 \ -chunk 64 \ -prefix mah   16/07/21 21:19:20 INFO AbstractJob: Command line arguments: {--charset=[UTF-8], --chunkSize=[64], --endPhase=[2147483647], --fileFilterClass=[org.</description>
     </item>
     
     <item>
@@ -249,7 +282,9 @@ for each paper: generate a TF/IDF vector of the terms in the paper&amp;#39;s tit
       <pubDate>Wed, 20 Jul 2016 17:32:19 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/20/neo4j-cypher-detecting-duplicates-using-relationships/</guid>
-      <description>MATCH (r:Resource {id: &amp;quot;168640&amp;quot;})-[:REFERENCES]-&amp;gt;(other) WITH r, COLLECT(other) as myReferences UNWIND myReferences AS reference OPTIONAL MATCH path = (other)-[:REFERENCES]-&amp;gt;(reference) WITH other, COUNT(path) AS otherReferences, SIZE(myReferences) AS myReferences WITH other, 1.0 * otherReferences / myReferences AS similarity WHERE similarity &amp;gt; 0.5 RETURN other.id, other.title, similarity ORDER BY similarity DESC LIMIT 10 ╒════════╤═══════════════════════════════════════════╤══════════╕ │other.id│other.title │similarity│ ╞════════╪═══════════════════════════════════════════╪══════════╡ │168640 │Authentication in the Taos operating system│1 │ ├────────┼───────────────────────────────────────────┼──────────┤ │174614 │Authentication in the Taos operating system│1 │ └────────┴───────────────────────────────────────────┴──────────┘ ╒════════╤════════════════════════════════════════════════════════════════╤══════════════════╕ │other.</description>
+      <description>I&amp;#8217;ve been building a graph of computer science papers on and off for a couple of months and now that I&amp;#8217;ve got a few thousand loaded in I realised that there are quite a few duplicates.
+ They&amp;#8217;re not duplicates in the sense that there are multiple entries with the same identifier but rather have different identifiers but seem to be the same paper!
+ e.g. there are a couple of papers titled &#39;Authentication in the Taos operating system&#39;:</description>
     </item>
     
     <item>
@@ -258,7 +293,9 @@ for each paper: generate a TF/IDF vector of the terms in the paper&amp;#39;s tit
       <pubDate>Mon, 11 Jul 2016 06:01:22 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/11/python-scraping-elements-relative-to-each-other-with-beautifulsoup/</guid>
-      <description>from bs4 import BeautifulSoup file_name = &amp;#34;Arya_Stark&amp;#34; wikia = BeautifulSoup(open(&amp;#34;data/wikia/characters/{0}&amp;#34;.format(file_name), &amp;#34;r&amp;#34;), &amp;#34;html.parser&amp;#34;) allegiance_element = [tag for tag in wikia.find_all(&amp;#39;h3&amp;#39;) if tag.text == &amp;#34;Allegiance&amp;#34;] &amp;gt; print allegiance_element [&amp;lt;h3 class=&amp;#34;pi-data-label pi-secondary-font&amp;#34;&amp;gt;Allegiance&amp;lt;/h3&amp;gt;] next_element = allegiance_element[0].next_sibling &amp;gt; print next_element &amp;gt; print next_element.name, type(next_element) None &amp;lt;class &amp;#39;bs4.element.NavigableString&amp;#39;&amp;gt; next_element = allegiance_element[0].next_sibling.next_sibling &amp;gt; print next_element.name, type(next_element) [&amp;lt;a href=&amp;#34;/wiki/House_Stark&amp;#34; title=&amp;#34;House Stark&amp;#34;&amp;gt;House Stark&amp;lt;/a&amp;gt;, &amp;lt;br/&amp;gt;, &amp;lt;a href=&amp;#34;/wiki/Faceless_Men&amp;#34; title=&amp;#34;Faceless Men&amp;#34;&amp;gt;Faceless Men&amp;lt;/a&amp;gt;, u&amp;#39; (Formerly)&amp;#39;] </description>
+      <description>Last week we hosted a Game of Thrones based intro to Cypher at the Women Who Code London meetup and in preparation had to scrape the wiki to build a dataset.
+ I&amp;#8217;ve built lots of datasets this way and it&amp;#8217;s a painless experience as long as the pages make liberal use of CSS classes and/or IDs.
+ Unfortunately the Game of Thrones wiki doesn&amp;#8217;t really do that so I had to find another way to extract the data I wanted - extracting elements based on their position to more prominent elements on the page.</description>
     </item>
     
     <item>
@@ -267,7 +304,8 @@ for each paper: generate a TF/IDF vector of the terms in the paper&amp;#39;s tit
       <pubDate>Mon, 11 Jul 2016 05:21:43 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/11/neo4j-3-0-drivers-failed-to-save-the-server-id-and-the-certificate-received-from-the-server/</guid>
-      <description>org.neo4j.driver.v1.exceptions.ClientException: Unable to process request: General SSLEngine problem at org.neo4j.driver.internal.connector.socket.SocketClient.start(SocketClient.java:88) at org.neo4j.driver.internal.connector.socket.SocketConnection.&amp;lt;init&amp;gt;(SocketConnection.java:63) at org.neo4j.driver.internal.connector.socket.SocketConnector.connect(SocketConnector.java:52) at org.neo4j.driver.internal.pool.InternalConnectionPool.acquire(InternalConnectionPool.java:113) at org.neo4j.driver.internal.InternalDriver.session(InternalDriver.java:53) Caused by: javax.net.ssl.SSLHandshakeException: General SSLEngine problem at sun.security.ssl.Handshaker.checkThrown(Handshaker.java:1431) at sun.security.ssl.SSLEngineImpl.checkTaskThrown(SSLEngineImpl.java:535) at sun.security.ssl.SSLEngineImpl.writeAppRecord(SSLEngineImpl.java:1214) at sun.security.ssl.SSLEngineImpl.wrap(SSLEngineImpl.java:1186) at javax.net.ssl.SSLEngine.wrap(SSLEngine.java:469) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.wrap(TLSSocketChannel.java:270) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.runHandshake(TLSSocketChannel.java:131) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.&amp;lt;init&amp;gt;(TLSSocketChannel.java:95) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.&amp;lt;init&amp;gt;(TLSSocketChannel.java:77) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.&amp;lt;init&amp;gt;(TLSSocketChannel.java:70) at org.neo4j.driver.internal.connector.socket.SocketClient$ChannelFactory.create(SocketClient.java:251) at org.neo4j.driver.internal.connector.socket.SocketClient.start(SocketClient.java:75) ... 14 more Caused by: javax.net.ssl.SSLHandshakeException: General SSLEngine problem at sun.security.ssl.Alerts.getSSLException(Alerts.java:192) at sun.security.ssl.SSLEngineImpl.fatal(SSLEngineImpl.java:1728) at sun.security.ssl.Handshaker.fatalSE(Handshaker.java:304) at sun.security.ssl.Handshaker.fatalSE(Handshaker.java:296) at sun.security.ssl.ClientHandshaker.serverCertificate(ClientHandshaker.java:1497) at sun.security.ssl.ClientHandshaker.processMessage(ClientHandshaker.java:212) at sun.</description>
+      <description>I&amp;#8217;ve been using the Neo4j Java Driver on various local databases over the past week and ran into the following certificate problem a few times:
+ org.neo4j.driver.v1.exceptions.ClientException: Unable to process request: General SSLEngine problem at org.neo4j.driver.internal.connector.socket.SocketClient.start(SocketClient.java:88) at org.neo4j.driver.internal.connector.socket.SocketConnection.&amp;lt;init&amp;gt;(SocketConnection.java:63) at org.neo4j.driver.internal.connector.socket.SocketConnector.connect(SocketConnector.java:52) at org.neo4j.driver.internal.pool.InternalConnectionPool.acquire(InternalConnectionPool.java:113) at org.neo4j.driver.internal.InternalDriver.session(InternalDriver.java:53) Caused by: javax.net.ssl.SSLHandshakeException: General SSLEngine problem at sun.security.ssl.Handshaker.checkThrown(Handshaker.java:1431) at sun.security.ssl.SSLEngineImpl.checkTaskThrown(SSLEngineImpl.java:535) at sun.security.ssl.SSLEngineImpl.writeAppRecord(SSLEngineImpl.java:1214) at sun.security.ssl.SSLEngineImpl.wrap(SSLEngineImpl.java:1186) at javax.net.ssl.SSLEngine.wrap(SSLEngine.java:469) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.wrap(TLSSocketChannel.java:270) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.runHandshake(TLSSocketChannel.java:131) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.&amp;lt;init&amp;gt;(TLSSocketChannel.java:95) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.&amp;lt;init&amp;gt;(TLSSocketChannel.java:77) at org.neo4j.driver.internal.connector.socket.TLSSocketChannel.&amp;lt;init&amp;gt;(TLSSocketChannel.java:70) at org.</description>
     </item>
     
     <item>
@@ -276,9 +314,8 @@ for each paper: generate a TF/IDF vector of the terms in the paper&amp;#39;s tit
       <pubDate>Sat, 09 Jul 2016 06:36:51 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/09/r-sentiment-analysis-of-morning-pages/</guid>
-      <description>There is no wrong way to do Morning Pages – they are not high art.
-They are not even “writing.” They are about anything and everything that crosses your mind– and they are for your eyes only.
-Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the day at hand. Do not over-think Morning Pages: just put three pages of anything on the page…and then do three more pages tomorrow.</description>
+      <description>A couple of months ago I came across a cool blog post by Julia Silge where she runs a sentiment analysis algorithm over her tweet stream to see how her tweet sentiment has varied over time.
+ I wanted to give it a try but couldn&amp;#8217;t figure out how to get a dump of my tweets so I decided to try it out on the text from my morning pages writing which I&amp;#8217;ve been experimenting with for a few months.</description>
     </item>
     
     <item>
@@ -287,7 +324,9 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Thu, 30 Jun 2016 21:28:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/06/30/python-beautifulsoup-insert-tag/</guid>
-      <description>&amp;gt;&amp;gt;&amp;gt; from bs4 import BeautifulSoup &amp;gt;&amp;gt;&amp;gt; tag = BeautifulSoup(&amp;#34;&amp;lt;br /&amp;gt;&amp;#34;, &amp;#34;html.parser&amp;#34;) &amp;gt;&amp;gt;&amp;gt; tag &amp;lt;br/&amp;gt; &amp;gt;&amp;gt;&amp;gt; tag.name u&amp;#39;[document]&amp;#39; &amp;gt;&amp;gt;&amp;gt; from bs4 import Tag &amp;gt;&amp;gt;&amp;gt; tag = Tag(name = &amp;#34;br&amp;#34;) &amp;gt;&amp;gt;&amp;gt; tag &amp;lt;br&amp;gt;&amp;lt;/br&amp;gt; &amp;gt;&amp;gt;&amp;gt; tag.name &amp;#39;br&amp;#39; </description>
+      <description>I&amp;#8217;ve been scraping the Game of Thrones wiki in preparation for a meetup at Women Who Code next week and while attempting to extract character allegiances I wanted to insert missing line breaks to separate different allegiances.
+ I initially tried creating a line break like this:
+ &amp;gt;&amp;gt;&amp;gt; from bs4 import BeautifulSoup &amp;gt;&amp;gt;&amp;gt; tag = BeautifulSoup(&#34;&amp;lt;br /&amp;gt;&#34;, &#34;html.parser&#34;) &amp;gt;&amp;gt;&amp;gt; tag &amp;lt;br/&amp;gt;   It looks like it should work but later on in my script I check the &#39;name&#39; attribute to work out whether I&amp;#8217;ve got a line break and it doesn&amp;#8217;t return the value I expected it to:</description>
     </item>
     
     <item>
@@ -296,7 +335,9 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Fri, 24 Jun 2016 16:56:17 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/06/24/unix-find-files-greater-than-date/</guid>
-      <description>$ ls -alh foo/database-agent-* -rw-r--r-- 1 markneedham wheel 2.5K 23 Jun 14:00 foo/database-agent-mac17f73-1-logs-archive-201606231300176.tar.gz -rw-r--r-- 1 markneedham wheel 8.6K 23 Jun 11:49 foo/database-agent-mac19b6b-1-logs-archive-201606231049507.tar.gz -rw-r--r-- 1 markneedham wheel 8.6K 23 Jun 11:49 foo/database-agent-mac1f427-1-logs-archive-201606231049507.tar.gz -rw-r--r-- 1 markneedham wheel 2.5K 23 Jun 14:00 foo/database-agent-mac29389-1-logs-archive-201606231300176.tar.gz -rw-r--r-- 1 markneedham wheel 11K 23 Jun 13:44 foo/database-agent-mac3533f-1-logs-archive-201606231244152.tar.gz -rw-r--r-- 1 markneedham wheel 4.8K 23 Jun 14:00 foo/database-agent-mac35563-1-logs-archive-201606231300176.tar.gz -rw-r--r-- 1 markneedham wheel 3.8K 23 Jun 13:44 foo/database-agent-mac35f7e-1-logs-archive-201606231244165.tar.gz -rw-r--r-- 1 markneedham wheel 4.</description>
+      <description>For the latter part of the week I&amp;#8217;ve been running some tests against Neo4j which generate a bunch of log files and I wanted to filter those files based on the time they were created to do some further analysis.
+ This is an example of what the directory listing looks like:
+ $ ls -alh foo/database-agent-* -rw-r--r-- 1 markneedham wheel 2.5K 23 Jun 14:00 foo/database-agent-mac17f73-1-logs-archive-201606231300176.tar.gz -rw-r--r-- 1 markneedham wheel 8.</description>
     </item>
     
     <item>
@@ -305,7 +346,9 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Sun, 19 Jun 2016 08:36:46 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/06/19/unix-find-all-text-below-string-in-a-file/</guid>
-      <description># text I don&amp;#39;t care about = Heading of the bit I care about # text I care about $ cat /tmp/foo.txt # text I don&amp;#39;t care about = Heading of the bit I care about # text I care about $ cat /tmp/foo.txt | sed &amp;#39;1,/Heading of the bit I care about/d&amp;#39; # text I care about $ cat /tmp/foo.txt | sed -e &amp;#39;1,/Heading of the bit I care about/d&amp;#39; -e &amp;#39;/^\s*$/d&amp;#39; # text I care about </description>
+      <description>I recently wanted to parse some text out of a bunch of files so that I could do some sentiment analysis on it. Luckily the text I want is at the end of the file and doesn&amp;#8217;t have anything after it but there is text before it that I want to get rid.
+ The files look like this:
+ # text I don&#39;t care about = Heading of the bit I care about # text I care about   In other words I want to find the line that contains the Heading and then get all the text after that point.</description>
     </item>
     
     <item>
@@ -314,7 +357,10 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Sun, 19 Jun 2016 07:22:57 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/06/19/unix-split-string-using-separator/</guid>
-      <description>A/B/C $ string=&amp;#34;A/B/C&amp;#34; $ echo ${string} | cut -d&amp;#34;/&amp;#34; -f3 C $ echo ${string} | awk -F&amp;#34;/&amp;#34; &amp;#39;{ print $3}&amp;#39; C $ IFS=&amp;#34;/&amp;#34; read -ra ADDR &amp;lt;&amp;lt;&amp;lt; &amp;#34;${string}&amp;#34;; echo ${ADDR[2]} C $ IFS=&amp;#34;/&amp;#34; read -ra ADDR &amp;lt;&amp;lt;&amp;lt; &amp;#34;${string}&amp;#34;; echo ${ADDR[-1]} C $ echo ${string##*/} C </description>
+      <description>I recently found myself needing to iterate over a bunch of &#39;/&#39; separated strings on the command line and extract just the text after the last &#39;/&#39;.
+ e.g. an example of one of the strings
+ A/B/C   I wanted to write some code that could split on &#39;/&#39; and then pick the 3rd item in the resulting collection.
+ One way of doing this is to echo the string and then pipe it through cut:</description>
     </item>
     
     <item>
@@ -323,7 +369,8 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Sat, 18 Jun 2016 07:38:04 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/06/18/python-regex-matching-foreign-charactersunicode-letters/</guid>
-      <description>Peter Dinklage as Tyrion Lannister Daniel Naprous as Oznak zo Pahl(credited as Stunt Performer) Filip Lozić as Young Nobleman Morgan C. Jones as a Braavosi captain Adewale Akinnuoye-Agbaje as Malko &amp;lt;actor&amp;gt; as &amp;lt;character&amp;gt; Peter Dinklage, Tyrion Lannister Daniel Naprous, Oznak zo Pahl Filip Lozić, Young Nobleman Morgan C. Jones, a Braavosi captain Adewale Akinnuoye-Agbaje, Malko import re strings = [ &amp;#34;Peter Dinklage as Tyrion Lannister&amp;#34;, &amp;#34;Filip Lozić as Young Nobleman&amp;#34;, &amp;#34;Daniel Naprous as Oznak zo Pahl(credited as Stunt Performer)&amp;#34;, &amp;#34;Morgan C.</description>
+      <description>I&amp;#8217;ve been back in the land of screen scrapping this week extracting data from the Game of Thrones wiki and needed to write a regular expression to pull out characters and actors.
+ Here are some examples of the format of the data: ~text Peter Dinklage as Tyrion Lannister Daniel Naprous as Oznak zo Pahl(credited as Stunt Performer) Filip Lozić as Young Nobleman Morgan C. Jones as a Braavosi captain Adewale Akinnuoye-Agbaje as Malko ~</description>
     </item>
     
     <item>
@@ -332,7 +379,8 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Wed, 01 Jun 2016 05:53:38 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/06/01/unix-parallel-populating-all-the-usb-sticks/</guid>
-      <description>for i in 1 2 3 4 5 6 7; do diskutil renameVolume &amp;#34;USB DISK&amp;#34; NEO4J${i}; done function duplicate() { i=${1} echo ${i} time rsync -avP --size-only --delete --exclude &amp;#39;.*&amp;#39; --omit-dir-times /Users/markneedham/Downloads/graph-connect-europe-2016/ /Volumes/NEO4J${i}/ } seq 1 7 | parallel duplicate </description>
+      <description>The day before Graph Connect Europe 2016 we needed to create a bunch of USB sticks containing Neo4j and the training materials and eventually iterated our way to a half decent approach which made use of the GNU parallel command which I&amp;#8217;ve always wanted to use!
+ But first I needed to get a USB hub so I could do lots of them at the same time. I bought the EasyAcc USB 3.</description>
     </item>
     
     <item>
@@ -341,7 +389,10 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Sun, 22 May 2016 09:58:38 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/05/22/neo4j-vs-relational-refactoring-extracting-nodetable/</guid>
-      <description>CREATE TABLE countries ( &amp;#34;code&amp;#34; character varying(3) NOT NULL PRIMARY KEY, &amp;#34;name&amp;#34; character varying(50) NOT NULL ); INSERT INTO countries VALUES(&amp;#39;MNE&amp;#39;, &amp;#39;Montenegro&amp;#39;); INSERT INTO countries VALUES(&amp;#39;SWZ&amp;#39;, &amp;#39;Swaziland&amp;#39;); ... ALTER TABLE clubs ADD COLUMN country_id character varying(3) REFERENCES countries(code); UPDATE clubs AS cl SET country_id = c.code FROM clubs INNER JOIN countries AS c ON c.name = clubs.country WHERE cl.id = clubs.id; ALTER TABLE clubs DROP COLUMN country; ALTER TABLE players ADD COLUMN country_id character varying(3) REFERENCES countries(code); UPDATE players AS p SET country_id = c.</description>
+      <description>In my previous blog post I showed how to add a new property/field to a node with a label/record in a table for a football transfers dataset that I&amp;#8217;ve been playing with.
+ After introducing this &#39;nationality&#39; property I realised that I now had some duplication in the model:
+ &amp;lt;/p&amp;gt;
+   players.nationality and clubs.country are referring to the same countries but they&amp;#8217;ve both got them stored as strings so we can&amp;#8217;t ensure the integrity of our countries and ensure that we&amp;#8217;re referring to the same country.</description>
     </item>
     
     <item>
@@ -350,7 +401,11 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Sun, 22 May 2016 09:09:27 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/05/22/neo4j-vs-relational-refactoring-add-a-new-fieldproperty/</guid>
-      <description>RelationalGraphALTER TABLE players ADD COLUMN nationality varying(30); UPDATE players SET nationality = &amp;#39;Brazil&amp;#39; WHERE players.id = &amp;#39;/aldair/profil/spieler/4151&amp;#39;; ... USING PERIODIC COMMIT LOAD CSV WITH HEADERS FROM &amp;quot;file:///transfers.csv&amp;quot; AS row MATCH (player:Player {id: row.playerUri}) SET player.nationality = row.playerNationality ALTER TABLE players ALTER COLUMN nationality SET NOT NULL CREATE CONSTRAINT ON (player:Player) ASSERT exists(player.nationality) </description>
+      <description>A couple of months ago I presented a webinar comparing how you&amp;#8217;d model and evolve a data model using a Postgres SQL database and Neo4j.
+ This is what the two data models looked like after the initial data import and before any refactoring/migration had been done:
+ Relational
+   Graph
+   I wanted to add a &#39;nationality&#39; property to the players table in the SQL schema and to the nodes with the &#39;Player&#39; label in the graph.</description>
     </item>
     
     <item>
@@ -359,7 +414,9 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Mon, 18 Apr 2016 19:49:02 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/04/18/r-substr-getting-a-vector-of-positions/</guid>
-      <description>&amp;gt; substr(&amp;#34;mark loves graphs&amp;#34;, 0, 4) [1] &amp;#34;mark&amp;#34; &amp;gt; substr(&amp;#34;mark loves graphs&amp;#34;, c(0, 6), c(4, 10)) [1] &amp;#34;mark&amp;#34; &amp;gt; substring(&amp;#34;mark loves graphs&amp;#34;, c(0, 6, 12), c(4, 10, 17)) [1] &amp;#34;mark&amp;#34; &amp;#34;loves&amp;#34; &amp;#34;graphs&amp;#34; </description>
+      <description>I recently found myself writing an R script to extract parts of a string based on a beginning and end index which is reasonably easy using the https://stat.ethz.ch/R-manual/R-devel/library/base/html/substr.html function:
+ &amp;gt; substr(&#34;mark loves graphs&#34;, 0, 4) [1] &#34;mark&#34;   But what if we have a vector of start and end positions?
+ &amp;gt; substr(&#34;mark loves graphs&#34;, c(0, 6), c(4, 10)) [1] &#34;mark&#34;   Hmmm that didn&amp;#8217;t work as I expected!</description>
     </item>
     
     <item>
@@ -368,7 +425,9 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Mon, 11 Apr 2016 05:40:06 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/04/11/r-tm-unique-wordsterms-per-document/</guid>
-      <description>library(tm) text = c(&amp;#34;I am Mark I am Mark&amp;#34;, &amp;#34;Neo4j is cool Neo4j is cool&amp;#34;) corpus = VCorpus(VectorSource(text)) tdm = as.matrix(TermDocumentMatrix(corpus, control = list(wordLengths = c(1, Inf)))) &amp;gt; tdm Docs Terms 1 2 am 2 0 cool 0 2 i 2 0 is 0 2 mark 2 0 neo4j 0 2 &amp;gt; rowSums(tdm) am cool i is mark neo4j 2 2 2 2 2 2 uniqueWords = function(d) { return(paste(unique(strsplit(d, &amp;#34; &amp;#34;)[[1]]), collapse = &amp;#39; &amp;#39;)) } corpus = tm_map(corpus, content_transformer(uniqueWords)) tdm = as.</description>
+      <description>I&amp;#8217;ve been doing a bit of text mining over the weekend using the R tm package and I wanted to only count a term once per document which isn&amp;#8217;t how it works out the box.
+ For example let&amp;#8217;s say we&amp;#8217;re writing a bit of code to calculate the frequency of terms across some documents. We might write the following code:
+ library(tm) text = c(&#34;I am Mark I am Mark&#34;</description>
     </item>
     
     <item>
@@ -377,7 +436,9 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Sun, 28 Feb 2016 20:40:11 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/02/28/neo4j-a-procedure-for-the-slm-clustering-algorithm/</guid>
-      <description>LOAD CSV FROM &amp;quot;file:///Users/markneedham/projects/slm/karate_club_network.txt&amp;quot; as row FIELDTERMINATOR &amp;quot;\t&amp;quot; MERGE (person1:Person {id: row[0]}) MERGE (person2:Person {id: row[1]}) MERGE (person1)-[:KNOWS]-&amp;gt;(person2) public class ClusterAllTheThings { @Context public org.neo4j.graphdb.GraphDatabaseService db; @Procedure @PerformsWrites public Stream&amp;lt;Cluster&amp;gt; knows() throws IOException { String query = &amp;#34;MATCH (person1:Person)-[r:KNOWS]-&amp;gt;(person2:Person) \n&amp;#34; + &amp;#34;RETURN person1.id AS p1, person2.id AS p2, toFloat(1) AS weight&amp;#34;; Result rows = db.execute( query ); ModularityOptimizer.ModularityFunction modularityFunction = ModularityOptimizer.ModularityFunction.Standard; Network network = Network.create( modularityFunction, rows ); double resolution = 1.</description>
+      <description>In the middle of last year I blogged about the Smart Local Moving algorithmwhich is used for community detection in networks and with the upcoming introduction of procedures in Neo4j I thought it&amp;#8217;d be fun to make that code accessible as one.
+ If you want to grab the code and follow along it&amp;#8217;s sitting on the SLM repository on my github.
+ At the moment the procedure is hard coded to work with a KNOWS relationship between two nodes but that could easily be changed.</description>
     </item>
     
     <item>
@@ -386,7 +447,8 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Sun, 24 Jan 2016 22:01:43 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/01/24/clojure-first-steps-with-reducers/</guid>
-      <description>(defn log2 [n] (/ (Math/log n) (Math/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (+ (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961 (reduce #(+ %1 (score-item %2)) 0 [12 13 5]) 9.60733031374961 (reduce #(+ %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (require &amp;#39;[clojure.core.reducers :as r]) (r/reduce #(+ %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (-&amp;gt;&amp;gt;[12 13 5 6] (map score-item) (filter #(&amp;gt; % 3))) (3.</description>
+      <description>I&amp;#8217;ve been playing around with Clojure a bit today in preparation for a talk I&amp;#8217;m giving next week and found myself writing the following code to apply the same function to three different scores:
+ (defn log2 [n] (/ (Math/log n) (Math/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (+ (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961   I&amp;#8217;d forgotten about folding over a collection but quickly remembered that I could achieve the same result with the following code:</description>
     </item>
     
     <item>
@@ -395,7 +457,10 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
       <pubDate>Sun, 17 Jan 2016 12:19:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/01/17/neo4j-cypher-avoid-duplicate-calls-to-not-patterns/</guid>
-      <description>MATCH (member:Member {name: &amp;quot;Mark Needham&amp;quot;})-[:MEMBER_OF]-&amp;gt;(group:Group)&amp;lt;-[:MEMBER_OF]-(other:Member)-[:MEMBER_OF]-&amp;gt;(otherGroup:Group) RETURN otherGroup, COUNT(*) AS commonMembers ORDER BY commonMembers DESC LIMIT 5 Cypher version: CYPHER 2.3, planner: COST. 1084378 total db hits in 1103 ms. MATCH (member:Member {name: &amp;quot;Mark Needham&amp;quot;})-[:MEMBER_OF]-&amp;gt;(group:Group)&amp;lt;-[:MEMBER_OF]-(other:Member)-[:MEMBER_OF]-&amp;gt;(otherGroup:Group) WHERE NOT (member)-[:MEMBER_OF]-&amp;gt;(otherGroup) RETURN otherGroup, COUNT(*) AS commonMembers ORDER BY commonMembers DESC LIMIT 5 Cypher version: CYPHER 2.3, planner: COST. 14061442 total db hits in 3364 ms. When following longer paths, you’ll encounter duplicates. If you’re not interested in all the possible paths– but just distinct information from stages of the path – make sure that you eagerly eliminate duplicates, so that later matches don’t have to be executed many multiple times.</description>
+      <description>I&amp;#8217;ve been reacquainting myself with the meetup.com dataset ahead of Wednesday&amp;#8217;s meetup in London and wanted to write a collaborative filtering type query to work out which groups people in my groups were in.
+ This started simple enough:
+ MATCH (member:Member {name: &#34;Mark Needham&#34;})-[:MEMBER_OF]-&amp;gt;(group:Group)&amp;lt;-[:MEMBER_OF]-(other:Member)-[:MEMBER_OF]-&amp;gt;(otherGroup:Group) RETURN otherGroup, COUNT(*) AS commonMembers ORDER BY commonMembers DESC LIMIT 5   And doesn&amp;#8217;t take too long to run:
+ Cypher version: CYPHER 2.3, planner: COST.</description>
     </item>
     
   </channel>

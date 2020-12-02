@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Python/gensim: Creating bigrams over How I met your mother transcripts" />
         
-          <meta name="twitter:description" content="$ head -n 15 data/import/sentences.csv | tail 5,1,1,1,Son: Are we being punished for something? 6,1,1,1,Narrator: No 7,1,1,1,&#34;Daughter: Yeah, is this going to take a while?&#34; 8,1,1,1,&#34;Narrator: Yes. (Kids are annoyed) Twenty-five years ago, before I was dad, I had this whole other life.&#34; 9,1,1,1,&#34;(Music Plays, Title &#34;&#34;How I Met Your Mother&#34;&#34; appears)&#34; 10,1,1,1,&#34;Narrator: It was way back in 2005. I was twenty-seven just starting to make it as an architect and living in New York with my friend Marshall, my best friend from college." />
+          <meta name="twitter:description" content="As part of my continued playing around with How I met your mother transcripts I wanted to identify plot arcs and as a first step I wrote some code using the gensim and nltk libraries to identify bigrams (two word phrases).
+ There&#8217;s an easy to follow tutorial in the gensim docs showing how to go about this but I needed to do a couple of extra steps to get my text data from a CSV file into the structure gensim expects." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/02/12/pythongensim-creating-bigrams-over-how-i-met-your-mother-transcripts/" />
 
@@ -33,7 +34,8 @@
         <title> Python/gensim: Creating bigrams over How I met your mother transcripts &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="$ head -n 15 data/import/sentences.csv | tail 5,1,1,1,Son: Are we being punished for something? 6,1,1,1,Narrator: No 7,1,1,1,&#34;Daughter: Yeah, is this going to take a while?&#34; 8,1,1,1,&#34;Narrator: Yes. (Kids are annoyed) Twenty-five years ago, before I was dad, I had this whole other life.&#34; 9,1,1,1,&#34;(Music Plays, Title &#34;&#34;How I Met Your Mother&#34;&#34; appears)&#34; 10,1,1,1,&#34;Narrator: It was way back in 2005. I was twenty-seven just starting to make it as an architect and living in New York with my friend Marshall, my best friend from college." />
+        <meta name="description" content="As part of my continued playing around with How I met your mother transcripts I wanted to identify plot arcs and as a first step I wrote some code using the gensim and nltk libraries to identify bigrams (two word phrases).
+ There&#8217;s an easy to follow tutorial in the gensim docs showing how to go about this but I needed to do a couple of extra steps to get my text data from a CSV file into the structure gensim expects." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-02-12",
-        "description": "$ head -n 15 data\/import\/sentences.csv | tail 5,1,1,1,Son: Are we being punished for something? 6,1,1,1,Narrator: No 7,1,1,1,\x26#34;Daughter: Yeah, is this going to take a while?\x26#34; 8,1,1,1,\x26#34;Narrator: Yes. (Kids are annoyed) Twenty-five years ago, before I was dad, I had this whole other life.\x26#34; 9,1,1,1,\x26#34;(Music Plays, Title \x26#34;\x26#34;How I Met Your Mother\x26#34;\x26#34; appears)\x26#34; 10,1,1,1,\x26#34;Narrator: It was way back in 2005. I was twenty-seven just starting to make it as an architect and living in New York with my friend Marshall, my best friend from college.",
-        "wordCount":  539 
+        "description": "As part of my continued playing around with How I met your mother transcripts I wanted to identify plot arcs and as a first step I wrote some code using the gensim and nltk libraries to identify bigrams (two word phrases).\n There\x26#8217;s an easy to follow tutorial in the gensim docs showing how to go about this but I needed to do a couple of extra steps to get my text data from a CSV file into the structure gensim expects.",
+        "wordCount":  956 
     }
     </script>
     
@@ -172,158 +174,202 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Python/gensim: Creating bigrams over How I met your mother transcripts</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ head -n <span style="color:#ae81ff">15</span> data/import/sentences.csv  | tail
-5,1,1,1,Son: Are we being punished <span style="color:#66d9ef">for</span> something?
+    <div class="paragraph">
+<p>As part of my continued playing around with How I met your mother transcripts I wanted to identify plot arcs and as a first step I wrote some code using the <a href="https://radimrehurek.com/gensim/">gensim</a> and <a href="http://www.nltk.org/">nltk</a> libraries to identify bigrams (two word phrases).</p>
+</div>
+<div class="paragraph">
+<p>There&#8217;s an <a href="http://radimrehurek.com/gensim/models/phrases.html#module-gensim.models.phrases">easy to follow tutorial in the gensim docs</a> showing how to go about this but I needed to do a couple of extra steps to get my text data from a CSV file into the structure gensim expects.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s first remind ourselves what the <a href="https://github.com/mneedham/neo4j-himym/blob/master/data/import/sentences.csv">sentences CSV file</a> looks like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ head -n 15 data/import/sentences.csv  | tail
+5,1,1,1,Son: Are we being punished for something?
 6,1,1,1,Narrator: No
-7,1,1,1,<span style="color:#e6db74">&#34;Daughter: Yeah, is this going to take a while?&#34;</span>
-8,1,1,1,<span style="color:#e6db74">&#34;Narrator: Yes. (Kids are annoyed) Twenty-five years ago, before I was dad, I had this whole other life.&#34;</span>
-9,1,1,1,<span style="color:#e6db74">&#34;(Music Plays, Title &#34;&#34;How I Met Your Mother&#34;&#34; appears)&#34;</span>
-10,1,1,1,<span style="color:#e6db74">&#34;Narrator: It was way back in 2005. I was twenty-seven just starting to make it as an architect and living in New York with my friend Marshall, my best friend from college. My life was good and then Uncle Marshall went and screwed the whole thing up.&#34;</span>
-11,1,1,1,Marshall: <span style="color:#f92672">(</span>Opens ring<span style="color:#f92672">)</span> Will you marry me.
-12,1,1,1,<span style="color:#e6db74">&#34;Ted: Yes, perfect! And then you&#39;re engaged, you pop the champagne! You drink a toast! You have s*x on the kitchen floor... Don&#39;t have s*x on our kitchen floor.&#34;</span>
-13,1,1,1,<span style="color:#e6db74">&#34;Marshall: Got it. Thanks for helping me plan this out, Ted.&#34;</span>
-14,1,1,1,<span style="color:#e6db74">&#34;Ted: Dude, are you kidding? It&#39;s you and Lily! I&#39;ve been there for all the big moments of you and Lily. The night you met. Your first date... other first things.&#34;</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> nltk
-<span style="color:#f92672">import</span> csv
-<span style="color:#f92672">import</span> string
-<span style="color:#f92672">from</span> gensim.models <span style="color:#f92672">import</span> Phrases
-<span style="color:#f92672">from</span> gensim.models <span style="color:#f92672">import</span> Word2Vec
-<span style="color:#f92672">from</span> nltk.corpus <span style="color:#f92672">import</span> stopwords
+7,1,1,1,"Daughter: Yeah, is this going to take a while?"
+8,1,1,1,"Narrator: Yes. (Kids are annoyed) Twenty-five years ago, before I was dad, I had this whole other life."
+9,1,1,1,"(Music Plays, Title ""How I Met Your Mother"" appears)"
+10,1,1,1,"Narrator: It was way back in 2005. I was twenty-seven just starting to make it as an architect and living in New York with my friend Marshall, my best friend from college. My life was good and then Uncle Marshall went and screwed the whole thing up."
+11,1,1,1,Marshall: (Opens ring) Will you marry me.
+12,1,1,1,"Ted: Yes, perfect! And then you're engaged, you pop the champagne! You drink a toast! You have s*x on the kitchen floor... Don't have s*x on our kitchen floor."
+13,1,1,1,"Marshall: Got it. Thanks for helping me plan this out, Ted."
+14,1,1,1,"Ted: Dude, are you kidding? It's you and Lily! I've been there for all the big moments of you and Lily. The night you met. Your first date... other first things."</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We need to transform those sentences into an array of words for each line and feed it into gensim&#8217;s <cite>models.Phrase</cite> object:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import nltk
+import csv
+import string
+from gensim.models import Phrases
+from gensim.models import Word2Vec
+from nltk.corpus import stopwords
 
-sentences <span style="color:#f92672">=</span> []
-bigram <span style="color:#f92672">=</span> Phrases()
-<span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#34;data/import/sentences.csv&#34;</span>, <span style="color:#e6db74">&#34;r&#34;</span>) <span style="color:#66d9ef">as</span> sentencesfile:
-    reader <span style="color:#f92672">=</span> csv<span style="color:#f92672">.</span>reader(sentencesfile, delimiter <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;,&#34;</span>)
-    reader<span style="color:#f92672">.</span>next()
-    <span style="color:#66d9ef">for</span> row <span style="color:#f92672">in</span> reader:
-        sentence <span style="color:#f92672">=</span> [word<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#34;utf-8&#34;</span>)
-                    <span style="color:#66d9ef">for</span> word <span style="color:#f92672">in</span> nltk<span style="color:#f92672">.</span>word_tokenize(row[<span style="color:#ae81ff">4</span>]<span style="color:#f92672">.</span>lower())
-                    <span style="color:#66d9ef">if</span> word <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> string<span style="color:#f92672">.</span>punctuation]
-        sentences<span style="color:#f92672">.</span>append(sentence)
-        bigram<span style="color:#f92672">.</span>add_vocab([sentence])
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">&gt;&gt;&gt;</span> list(bigram[sentences])[:<span style="color:#ae81ff">5</span>]
-[[<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;pilot&#39;</span>], [<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;scene&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;one&#39;</span>], [<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;title&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;the&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;year_2030&#39;</span>], [<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;narrator_kids&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;i&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;going&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;to&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;tell&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;you&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;an_incredible&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;story.&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;the&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;story&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;of&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;how&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;i&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;met_your&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;mother&#39;</span>], [<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;son&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;are&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;we&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;being&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;punished&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;for&#39;</span>, <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;something&#39;</span>]]
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-bigram_counter <span style="color:#f92672">=</span> Counter()
-<span style="color:#66d9ef">for</span> key <span style="color:#f92672">in</span> bigram<span style="color:#f92672">.</span>vocab<span style="color:#f92672">.</span>keys():
-    <span style="color:#66d9ef">if</span> key <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> stopwords<span style="color:#f92672">.</span>words(<span style="color:#e6db74">&#34;english&#34;</span>):
-        <span style="color:#66d9ef">if</span> len(key<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;_&#34;</span>)) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>:
-            bigram_counter[key] <span style="color:#f92672">+=</span> bigram<span style="color:#f92672">.</span>vocab[key]
+sentences = []
+bigram = Phrases()
+with open("data/import/sentences.csv", "r") as sentencesfile:
+    reader = csv.reader(sentencesfile, delimiter = ",")
+    reader.next()
+    for row in reader:
+        sentence = [word.decode("utf-8")
+                    for word in nltk.word_tokenize(row[4].lower())
+                    if word not in string.punctuation]
+        sentences.append(sentence)
+        bigram.add_vocab([sentence])</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;re used nltk&#8217;s <cite>word_tokezine</cite> function to create our array of words and then we&#8217;ve got a clause to make sure we remove any words which are punctuation otherwise they will dominate our phrases.</p>
+</div>
+<div class="paragraph">
+<p>We can take a quick peek at some of the phrases that have been created like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">&gt;&gt;&gt; list(bigram[sentences])[:5]
+[[u'pilot'], [u'scene', u'one'], [u'title', u'the', u'year_2030'], [u'narrator_kids', u'i', u"'m", u'going', u'to', u'tell', u'you', u'an_incredible', u'story.', u'the', u'story', u'of', u'how', u'i', u'met_your', u'mother'], [u'son', u'are', u'we', u'being', u'punished', u'for', u'something']]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>gensim uses an underscore character to indicate when it&#8217;s joined two words together and in this sample we&#8217;ve got three phrases - 'narrator_kids', 'met_you' and 'an_incredible'.</p>
+</div>
+<div class="paragraph">
+<p>We can now populate a Counter with our phrases and their counts and find out the most common phrases. One thing to note is that I&#8217;ve chosen to get rid of stopwords at this point rather than earlier because I didn&#8217;t want to generate 'false bigrams' where there was actually a stop word sitting in between.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">bigram_counter = Counter()
+for key in bigram.vocab.keys():
+    if key not in stopwords.words("english"):
+        if len(key.split("_")) &gt; 1:
+            bigram_counter[key] += bigram.vocab[key]
 
-<span style="color:#66d9ef">for</span> key, counts <span style="color:#f92672">in</span> bigram_counter<span style="color:#f92672">.</span>most_common(<span style="color:#ae81ff">20</span>):
-    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;{0: &lt;20} {1}&#39;</span><span style="color:#f92672">.</span>format(key<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#34;utf-8&#34;</span>), counts)
+for key, counts in bigram_counter.most_common(20):
+    print '{0: &lt;20} {1}'.format(key.encode("utf-8"), counts)
 
-i_<span style="color:#e6db74">&#39;m                 4607</span>
-it_<span style="color:#e6db74">&#39;s                4288</span>
-you_<span style="color:#e6db74">&#39;re              2659</span>
-do_n<span style="color:#e6db74">&#39;t               2436</span>
-that_<span style="color:#e6db74">&#39;s              2044</span>
-in_the               <span style="color:#ae81ff">1696</span>
-gon_na               <span style="color:#ae81ff">1576</span>
-you_know             <span style="color:#ae81ff">1497</span>
-i_do                 <span style="color:#ae81ff">1464</span>
-this_is              <span style="color:#ae81ff">1407</span>
-and_i                <span style="color:#ae81ff">1389</span>
-want_to              <span style="color:#ae81ff">1071</span>
-it_was               <span style="color:#ae81ff">1053</span>
-on_the               <span style="color:#ae81ff">1052</span>
-at_the               <span style="color:#ae81ff">1035</span>
-we_<span style="color:#e6db74">&#39;re               1033</span>
-i_was                <span style="color:#ae81ff">1018</span>
-of_the               <span style="color:#ae81ff">1014</span>
-ca_n<span style="color:#e6db74">&#39;t               1010</span>
-are_you              <span style="color:#ae81ff">994</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-bigram_model <span style="color:#f92672">=</span> Word2Vec(bigram[sentences], size<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>)
-bigram_model_counter <span style="color:#f92672">=</span> Counter()
-<span style="color:#66d9ef">for</span> key <span style="color:#f92672">in</span> bigram_model<span style="color:#f92672">.</span>vocab<span style="color:#f92672">.</span>keys():
-    <span style="color:#66d9ef">if</span> key <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> stopwords<span style="color:#f92672">.</span>words(<span style="color:#e6db74">&#34;english&#34;</span>):
-        <span style="color:#66d9ef">if</span> len(key<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;_&#34;</span>)) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>:
-            bigram_model_counter[key] <span style="color:#f92672">+=</span> bigram_model<span style="color:#f92672">.</span>vocab[key]<span style="color:#f92672">.</span>count
+i_'m                 4607
+it_'s                4288
+you_'re              2659
+do_n't               2436
+that_'s              2044
+in_the               1696
+gon_na               1576
+you_know             1497
+i_do                 1464
+this_is              1407
+and_i                1389
+want_to              1071
+it_was               1053
+on_the               1052
+at_the               1035
+we_'re               1033
+i_was                1018
+of_the               1014
+ca_n't               1010
+are_you              994</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Most of the phrases aren&#8217;t really that interesting and I had better luck feeding the phrases into a Word2Vec model and repeating the exercise:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">bigram_model = Word2Vec(bigram[sentences], size=100)
+bigram_model_counter = Counter()
+for key in bigram_model.vocab.keys():
+    if key not in stopwords.words("english"):
+        if len(key.split("_")) &gt; 1:
+            bigram_model_counter[key] += bigram_model.vocab[key].count
 
-<span style="color:#66d9ef">for</span> key, counts <span style="color:#f92672">in</span> bigram_model_counter<span style="color:#f92672">.</span>most_common(<span style="color:#ae81ff">50</span>):
-    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;{0: &lt;20} {1}&#39;</span><span style="color:#f92672">.</span>format(key<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#34;utf-8&#34;</span>), counts)
+for key, counts in bigram_model_counter.most_common(50):
+    print '{0: &lt;20} {1}'.format(key.encode("utf-8"), counts)
 
-do_n<span style="color:#e6db74">&#39;t               2436</span>
-gon_na               <span style="color:#ae81ff">1576</span>
-ca_n<span style="color:#e6db74">&#39;t               1010</span>
-did_n<span style="color:#e6db74">&#39;t              704</span>
-come_on              <span style="color:#ae81ff">499</span>
-end_of               <span style="color:#ae81ff">460</span>
-kind_of              <span style="color:#ae81ff">396</span>
-from_2030            <span style="color:#ae81ff">394</span>
-my_god               <span style="color:#ae81ff">360</span>
-they_<span style="color:#e6db74">&#39;re             351</span>
-<span style="color:#e6db74">&#39;m_sorry             349</span>
-does_n<span style="color:#e6db74">&#39;t             341</span>
-end_flashback        <span style="color:#ae81ff">327</span>
-all_right            <span style="color:#ae81ff">308</span>
-<span style="color:#e6db74">&#39;ve_been             303</span>
-<span style="color:#e6db74">&#39;ll_be               301</span>
-of_course            <span style="color:#ae81ff">289</span>
-a_lot                <span style="color:#ae81ff">284</span>
-right_now            <span style="color:#ae81ff">279</span>
-new_york             <span style="color:#ae81ff">270</span>
-look_at              <span style="color:#ae81ff">265</span>
-trying_to            <span style="color:#ae81ff">238</span>
-tell_me              <span style="color:#ae81ff">196</span>
-a_few                <span style="color:#ae81ff">195</span>
-<span style="color:#e6db74">&#39;ve_got              189</span>
-wo_n<span style="color:#e6db74">&#39;t               174</span>
-so_much              <span style="color:#ae81ff">172</span>
-got_ta               <span style="color:#ae81ff">168</span>
-each_other           <span style="color:#ae81ff">166</span>
-my_life              <span style="color:#ae81ff">157</span>
-talking_about        <span style="color:#ae81ff">157</span>
-talk_about           <span style="color:#ae81ff">154</span>
-what_happened        <span style="color:#ae81ff">151</span>
-at_least             <span style="color:#ae81ff">141</span>
-oh_god               <span style="color:#ae81ff">138</span>
-wan_na               <span style="color:#ae81ff">129</span>
-supposed_to          <span style="color:#ae81ff">126</span>
-give_me              <span style="color:#ae81ff">124</span>
-last_night           <span style="color:#ae81ff">121</span>
-my_dad               <span style="color:#ae81ff">120</span>
-more_than            <span style="color:#ae81ff">119</span>
-met_your             <span style="color:#ae81ff">115</span>
-excuse_me            <span style="color:#ae81ff">112</span>
-part_of              <span style="color:#ae81ff">110</span>
-phone_rings          <span style="color:#ae81ff">109</span>
-get_married          <span style="color:#ae81ff">107</span>
-looks_like           <span style="color:#ae81ff">105</span>
-<span style="color:#e6db74">&#39;m_sorry.            104</span>
-said_<span style="color:#e6db74">``</span>              <span style="color:#ae81ff">101</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">&gt;&gt;&gt;</span> bigram_model<span style="color:#f92672">.</span>most_similar([<span style="color:#e6db74">&#39;marshall&#39;</span>, <span style="color:#e6db74">&#39;lily&#39;</span>], [<span style="color:#e6db74">&#39;ted&#39;</span>], topn<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>)
-[(<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;robin&#39;</span>, <span style="color:#ae81ff">0.5474381446838379</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;go_ahead&#39;</span>, <span style="color:#ae81ff">0.5138797760009766</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;zoey&#39;</span>, <span style="color:#ae81ff">0.505358874797821</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;karen&#39;</span>, <span style="color:#ae81ff">0.48617005348205566</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;cootes&#39;</span>, <span style="color:#ae81ff">0.4757827818393707</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;then&#39;</span>, <span style="color:#ae81ff">0.45426881313323975</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;lewis&#39;</span>, <span style="color:#ae81ff">0.4510520100593567</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;natalie.&#39;</span>, <span style="color:#ae81ff">0.45070385932922363</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;vo&#39;</span>, <span style="color:#ae81ff">0.4189065098762512</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;players&#39;</span>, <span style="color:#ae81ff">0.4149518311023712</span>)]
+do_n't               2436
+gon_na               1576
+ca_n't               1010
+did_n't              704
+come_on              499
+end_of               460
+kind_of              396
+from_2030            394
+my_god               360
+they_'re             351
+'m_sorry             349
+does_n't             341
+end_flashback        327
+all_right            308
+'ve_been             303
+'ll_be               301
+of_course            289
+a_lot                284
+right_now            279
+new_york             270
+look_at              265
+trying_to            238
+tell_me              196
+a_few                195
+'ve_got              189
+wo_n't               174
+so_much              172
+got_ta               168
+each_other           166
+my_life              157
+talking_about        157
+talk_about           154
+what_happened        151
+at_least             141
+oh_god               138
+wan_na               129
+supposed_to          126
+give_me              124
+last_night           121
+my_dad               120
+more_than            119
+met_your             115
+excuse_me            112
+part_of              110
+phone_rings          109
+get_married          107
+looks_like           105
+'m_sorry.            104
+said_``              101</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first 20 phrases or so aren&#8217;t particularly interesting although we do have 'new_york' in there which is good as that&#8217;s where the show is set. If we go further we&#8217;ll notice phrases like 'my_dad', 'get_married' and 'last_night' which may all explain interesting parts of the plot.</p>
+</div>
+<div class="paragraph">
+<p>Having the data in the Word2Vec model allows us to do some other fun queries too. e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">&gt;&gt;&gt; bigram_model.most_similar(['marshall', 'lily'], ['ted'], topn=10)
+[(u'robin', 0.5474381446838379), (u'go_ahead', 0.5138797760009766), (u'zoey', 0.505358874797821), (u'karen', 0.48617005348205566), (u'cootes', 0.4757827818393707), (u'then', 0.45426881313323975), (u'lewis', 0.4510520100593567), (u'natalie.', 0.45070385932922363), (u'vo', 0.4189065098762512), (u'players', 0.4149518311023712)]
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> bigram_model<span style="color:#f92672">.</span>similarity(<span style="color:#e6db74">&#34;ted&#34;</span>, <span style="color:#e6db74">&#34;robin&#34;</span>)
-<span style="color:#ae81ff">0.51928683064927905</span>
+&gt;&gt;&gt; bigram_model.similarity("ted", "robin")
+0.51928683064927905
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> bigram_model<span style="color:#f92672">.</span>similarity(<span style="color:#e6db74">&#34;barney&#34;</span>, <span style="color:#e6db74">&#34;robin&#34;</span>)
-<span style="color:#ae81ff">0.62980405583219112</span>
+&gt;&gt;&gt; bigram_model.similarity("barney", "robin")
+0.62980405583219112
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> bigram_model<span style="color:#f92672">.</span>most_similar(positive<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;getting_married&#39;</span>])
-[(<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;so_glad&#39;</span>, <span style="color:#ae81ff">0.780311107635498</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;kidding&#39;</span>, <span style="color:#ae81ff">0.7683225274085999</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;awake&#39;</span>, <span style="color:#ae81ff">0.7682262659072876</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;lunch.&#39;</span>, <span style="color:#ae81ff">0.7591195702552795</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;ready.&#39;</span>, <span style="color:#ae81ff">0.7372316718101501</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;single.&#39;</span>, <span style="color:#ae81ff">0.7350872755050659</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;excited_about&#39;</span>, <span style="color:#ae81ff">0.725479006767273</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;swamped&#39;</span>, <span style="color:#ae81ff">0.7252731323242188</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;boyfriends&#39;</span>, <span style="color:#ae81ff">0.7127221822738647</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;believe_this.&#39;</span>, <span style="color:#ae81ff">0.71015864610672</span>)]
+&gt;&gt;&gt; bigram_model.most_similar(positive=['getting_married'])
+[(u'so_glad', 0.780311107635498), (u'kidding', 0.7683225274085999), (u'awake', 0.7682262659072876), (u'lunch.', 0.7591195702552795), (u'ready.', 0.7372316718101501), (u'single.', 0.7350872755050659), (u'excited_about', 0.725479006767273), (u'swamped', 0.7252731323242188), (u'boyfriends', 0.7127221822738647), (u'believe_this.', 0.71015864610672)]
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> bigram_model<span style="color:#f92672">.</span>most_similar(positive<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;my_dad&#39;</span>])
-[(<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;my_mom&#39;</span>, <span style="color:#ae81ff">0.7994954586029053</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;somebody&#39;</span>, <span style="color:#ae81ff">0.7758427262306213</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;easier&#39;</span>, <span style="color:#ae81ff">0.7305313944816589</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;hot.&#39;</span>, <span style="color:#ae81ff">0.7282992601394653</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;pregnant.&#39;</span>, <span style="color:#ae81ff">0.7103987336158752</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;nobody&#39;</span>, <span style="color:#ae81ff">0.7059557437896729</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;himself.&#39;</span>, <span style="color:#ae81ff">0.7046393156051636</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;physically&#39;</span>, <span style="color:#ae81ff">0.7044381499290466</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;young_lady&#39;</span>, <span style="color:#ae81ff">0.69412761926651</span>), (<span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;at_bernie&#39;</span>, <span style="color:#ae81ff">0.682607889175415</span>)]
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+&gt;&gt;&gt; bigram_model.most_similar(positive=['my_dad'])
+[(u'my_mom', 0.7994954586029053), (u'somebody', 0.7758427262306213), (u'easier', 0.7305313944816589), (u'hot.', 0.7282992601394653), (u'pregnant.', 0.7103987336158752), (u'nobody', 0.7059557437896729), (u'himself.', 0.7046393156051636), (u'physically', 0.7044381499290466), (u'young_lady', 0.69412761926651), (u'at_bernie', 0.682607889175415)]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not quite at the stage where I can automatically pull out the results of a gensim model and do something with it but it is helping me to see some of the main themes in the show.</p>
+</div>
+<div class="paragraph">
+<p>Next up I&#8217;ll try out trigrams and then TF/IDF over the bigrams to see which are the most important on a per episode basis. I also need to dig into Word2Vec to figure out why it comes up with different top phrases than the Phrases model.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -358,7 +404,7 @@ said_<span style="color:#e6db74">``</span>              <span style="color:#ae81
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/02/12/pythongensim-creating-bigrams-over-how-i-met-your-mother-transcripts/&amp;title=Python%2fgensim%3a%20Creating%20bigrams%20over%20How%20I%20met%20your%20mother%20transcripts&amp;summary=%24%20head%20-n%2015%20data%2fimport%2fsentences.csv%20%7c%20tail%205%2c1%2c1%2c1%2cSon%3a%20Are%20we%20being%20punished%20for%20something%3f%206%2c1%2c1%2c1%2cNarrator%3a%20No%207%2c1%2c1%2c1%2c%26%2334%3bDaughter%3a%20Yeah%2c%20is%20this%20going%20to%20take%20a%20while%3f%26%2334%3b%208%2c1%2c1%2c1%2c%26%2334%3bNarrator%3a%20Yes.%20%28Kids%20are%20annoyed%29%20Twenty-five%20years%20ago%2c%20before%20I%20was%20dad%2c%20I%20had%20this%20whole%20other%20life.%26%2334%3b%209%2c1%2c1%2c1%2c%26%2334%3b%28Music%20Plays%2c%20Title%20%26%2334%3b%26%2334%3bHow%20I%20Met%20Your%20Mother%26%2334%3b%26%2334%3b%20appears%29%26%2334%3b%2010%2c1%2c1%2c1%2c%26%2334%3bNarrator%3a%20It%20was%20way%20back%20in%202005.%20I%20was%20twenty-seven%20just%20starting%20to%20make%20it%20as%20an%20architect%20and%20living%20in%20New%20York%20with%20my%20friend%20Marshall%2c%20my%20best%20friend%20from%20college...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/02/12/pythongensim-creating-bigrams-over-how-i-met-your-mother-transcripts/&amp;title=Python%2fgensim%3a%20Creating%20bigrams%20over%20How%20I%20met%20your%20mother%20transcripts&amp;summary=As%20part%20of%20my%20continued%20playing%20around%20with%20How%20I%20met%20your%20mother%20transcripts%20I%20wanted%20to%20identify%20plot%20arcs%20and%20as%20a%20first%20step%20I%20wrote%20some%20code%20using%20the%20gensim%20and%20nltk%20libraries%20to%20identify%20bigrams%20%28two%20word%20phrases%29.%0a%20There%26%238217%3bs%20an%20easy%20to%20follow%20tutorial%20in%20the%20gensim%20docs%20showing%20how%20to%20go%20about%20this%20but%20I%20needed%20to%20do%20a%20couple%20of%20extra%20steps%20to%20get%20my%20text%20data%20from%20a%20CSV%20file%20into%20the%20structure%20gensim%20expects...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

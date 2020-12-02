@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="JAX RS: Streaming a Response using StreamingOutput" />
         
-          <meta name="twitter:description" content="package com.markandjim @Path(&#34;/subgraph&#34;) public class ExtractSubGraphResource { private final GraphDatabaseService database; public ExtractSubGraphResource(@Context GraphDatabaseService database) { this.database = database; } @GET @Produces(MediaType.TEXT_PLAIN) @Path(&#34;/{nodeId}/{depth}&#34;) public Response hello(@PathParam(&#34;nodeId&#34;) long nodeId, @PathParam(&#34;depth&#34;) int depth) { Node node = database.getNodeById(nodeId); final Traverser paths = Traversal.description() .depthFirst() .relationships(DynamicRelationshipType.withName(&#34;whatever&#34;)) .evaluator( Evaluators.toDepth(depth) ) .traverse(node); StringBuilder allThePaths = new StringBuilder(); for (org.neo4j.graphdb.Path path : paths) { allThePaths.append(path.toString() &#43; &#34;\n&#34;); } return Response.ok(allThePaths.toString()).build(); } } org.neo4j.server.thirdparty_jaxrs_classes=com.markandjim=/unmanaged $ curl -v http://localhost:7474/unmanaged/subgraph/1000/10 package com." />
+          <meta name="twitter:description" content="A couple of weeks ago Jim and I were building out a neo4j unmanaged extension from which we wanted to return the results of a traversal which had a lot of paths.
+ Our code initially looked a bit like this:
+ package com.markandjim @Path(&#34;/subgraph&#34;) public class ExtractSubGraphResource { private final GraphDatabaseService database; public ExtractSubGraphResource(@Context GraphDatabaseService database) { this.database = database; } @GET @Produces(MediaType.TEXT_PLAIN) @Path(&#34;/{nodeId}/{depth}&#34;) public Response hello(@PathParam(&#34;nodeId&#34;) long nodeId, @PathParam(&#34;" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/07/08/jax-rs-streaming-a-response-using-streamingoutput/" />
 
@@ -33,7 +35,9 @@
         <title> JAX RS: Streaming a Response using StreamingOutput &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="package com.markandjim @Path(&#34;/subgraph&#34;) public class ExtractSubGraphResource { private final GraphDatabaseService database; public ExtractSubGraphResource(@Context GraphDatabaseService database) { this.database = database; } @GET @Produces(MediaType.TEXT_PLAIN) @Path(&#34;/{nodeId}/{depth}&#34;) public Response hello(@PathParam(&#34;nodeId&#34;) long nodeId, @PathParam(&#34;depth&#34;) int depth) { Node node = database.getNodeById(nodeId); final Traverser paths = Traversal.description() .depthFirst() .relationships(DynamicRelationshipType.withName(&#34;whatever&#34;)) .evaluator( Evaluators.toDepth(depth) ) .traverse(node); StringBuilder allThePaths = new StringBuilder(); for (org.neo4j.graphdb.Path path : paths) { allThePaths.append(path.toString() &#43; &#34;\n&#34;); } return Response.ok(allThePaths.toString()).build(); } } org.neo4j.server.thirdparty_jaxrs_classes=com.markandjim=/unmanaged $ curl -v http://localhost:7474/unmanaged/subgraph/1000/10 package com." />
+        <meta name="description" content="A couple of weeks ago Jim and I were building out a neo4j unmanaged extension from which we wanted to return the results of a traversal which had a lot of paths.
+ Our code initially looked a bit like this:
+ package com.markandjim @Path(&#34;/subgraph&#34;) public class ExtractSubGraphResource { private final GraphDatabaseService database; public ExtractSubGraphResource(@Context GraphDatabaseService database) { this.database = database; } @GET @Produces(MediaType.TEXT_PLAIN) @Path(&#34;/{nodeId}/{depth}&#34;) public Response hello(@PathParam(&#34;nodeId&#34;) long nodeId, @PathParam(&#34;" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-07-08",
-        "description": "package com.markandjim @Path(\x26#34;\/subgraph\x26#34;) public class ExtractSubGraphResource { private final GraphDatabaseService database; public ExtractSubGraphResource(@Context GraphDatabaseService database) { this.database = database; } @GET @Produces(MediaType.TEXT_PLAIN) @Path(\x26#34;\/{nodeId}\/{depth}\x26#34;) public Response hello(@PathParam(\x26#34;nodeId\x26#34;) long nodeId, @PathParam(\x26#34;depth\x26#34;) int depth) { Node node = database.getNodeById(nodeId); final Traverser paths = Traversal.description() .depthFirst() .relationships(DynamicRelationshipType.withName(\x26#34;whatever\x26#34;)) .evaluator( Evaluators.toDepth(depth) ) .traverse(node); StringBuilder allThePaths = new StringBuilder(); for (org.neo4j.graphdb.Path path : paths) { allThePaths.append(path.toString() \x2b \x26#34;\\n\x26#34;); } return Response.ok(allThePaths.toString()).build(); } } org.neo4j.server.thirdparty_jaxrs_classes=com.markandjim=\/unmanaged $ curl -v http:\/\/localhost:7474\/unmanaged\/subgraph\/1000\/10 package com.",
-        "wordCount":  197 
+        "description": "A couple of weeks ago Jim and I were building out a neo4j unmanaged extension from which we wanted to return the results of a traversal which had a lot of paths.\n Our code initially looked a bit like this:\n package com.markandjim @Path(\x22\/subgraph\x22) public class ExtractSubGraphResource { private final GraphDatabaseService database; public ExtractSubGraphResource(@Context GraphDatabaseService database) { this.database = database; } @GET @Produces(MediaType.TEXT_PLAIN) @Path(\x22\/{nodeId}\/{depth}\x22) public Response hello(@PathParam(\x22nodeId\x22) long nodeId, @PathParam(\x22",
+        "wordCount":  425 
     }
     </script>
     
@@ -172,93 +176,126 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">JAX RS: Streaming a Response using StreamingOutput</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">package</span> com.markandjim
+    <div class="paragraph">
+<p>A couple of weeks ago <a href="https://twitter.com/jimwebber">Jim</a> and I were building out a <a href="http://docs.neo4j.org/chunked/milestone/server-unmanaged-extensions.html">neo4j unmanaged extension</a> from which we wanted to return the results of a traversal which had a lot of paths.</p>
+</div>
+<div class="paragraph">
+<p>Our code initially looked a bit like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package com.markandjim
 
-<span style="color:#a6e22e">@Path</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/subgraph&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExtractSubGraphResource</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> GraphDatabaseService database<span style="color:#f92672">;</span>
+@Path("/subgraph")
+public class ExtractSubGraphResource {
+    private final GraphDatabaseService database;
 
-    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ExtractSubGraphResource</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@Context</span> GraphDatabaseService database<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">database</span> <span style="color:#f92672">=</span> database<span style="color:#f92672">;</span>
-    <span style="color:#f92672">}</span>
+    public ExtractSubGraphResource(@Context GraphDatabaseService database) {
+        this.database = database;
+    }
 
-    <span style="color:#a6e22e">@GET</span>
-    <span style="color:#a6e22e">@Produces</span><span style="color:#f92672">(</span>MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">TEXT_PLAIN</span><span style="color:#f92672">)</span>
-    <span style="color:#a6e22e">@Path</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/{nodeId}/{depth}&#34;</span><span style="color:#f92672">)</span>
-    <span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">hello</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@PathParam</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;nodeId&#34;</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">long</span> nodeId<span style="color:#f92672">,</span> <span style="color:#a6e22e">@PathParam</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;depth&#34;</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">int</span> depth<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        Node node <span style="color:#f92672">=</span> database<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeById</span><span style="color:#f92672">(</span>nodeId<span style="color:#f92672">);</span>
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/{nodeId}/{depth}")
+    public Response hello(@PathParam("nodeId") long nodeId, @PathParam("depth") int depth) {
+        Node node = database.getNodeById(nodeId);
 
-        <span style="color:#66d9ef">final</span> Traverser paths <span style="color:#f92672">=</span>  Traversal<span style="color:#f92672">.</span><span style="color:#a6e22e">description</span><span style="color:#f92672">()</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">depthFirst</span><span style="color:#f92672">()</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">relationships</span><span style="color:#f92672">(</span>DynamicRelationshipType<span style="color:#f92672">.</span><span style="color:#a6e22e">withName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;whatever&#34;</span><span style="color:#f92672">))</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">evaluator</span><span style="color:#f92672">(</span> Evaluators<span style="color:#f92672">.</span><span style="color:#a6e22e">toDepth</span><span style="color:#f92672">(</span>depth<span style="color:#f92672">)</span> <span style="color:#f92672">)</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">traverse</span><span style="color:#f92672">(</span>node<span style="color:#f92672">);</span>
+        final Traverser paths =  Traversal.description()
+                .depthFirst()
+                .relationships(DynamicRelationshipType.withName("whatever"))
+                .evaluator( Evaluators.toDepth(depth) )
+                .traverse(node);
 
-        StringBuilder allThePaths <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder<span style="color:#f92672">();</span>
+        StringBuilder allThePaths = new StringBuilder();
 
-        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>org<span style="color:#f92672">.</span><span style="color:#a6e22e">neo4j</span><span style="color:#f92672">.</span><span style="color:#a6e22e">graphdb</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Path</span> path <span style="color:#f92672">:</span> paths<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            allThePaths<span style="color:#f92672">.</span><span style="color:#a6e22e">append</span><span style="color:#f92672">(</span>path<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span><span style="color:#f92672">);</span>
-        <span style="color:#f92672">}</span>
+        for (org.neo4j.graphdb.Path path : paths) {
+            allThePaths.append(path.toString() + "\n");
+        }
 
-        <span style="color:#66d9ef">return</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">ok</span><span style="color:#f92672">(</span>allThePaths<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()).</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-org.neo4j.server.thirdparty_jaxrs_classes=com.markandjim=/unmanaged
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-$ curl -v  http://localhost:7474/unmanaged/subgraph/1000/10
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">package</span> com.markandjim
+        return Response.ok(allThePaths.toString()).build();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We then compiled that into a JAR, placed it in 'plugins' and added the following line to 'conf/neo4j-server.properties':</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">org.neo4j.server.thirdparty_jaxrs_classes=com.markandjim=/unmanaged</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After we&#8217;d restarted the neo4j server we were able to call this end point using cURL like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ curl -v  http://localhost:7474/unmanaged/subgraph/1000/10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This approach works quite well but Jim pointed out that it was quite inefficient to load all those paths up into memory, something which <a href="http://blog.neo4j.org/2012/04/streaming-rest-api-interview-with.html">Michael has written about previously with respect to the the streaming REST API.</a></p>
+</div>
+<div class="paragraph">
+<p>We thought it would be quite cool if we could stream it as we got to each path. Traverser wraps an iterator so we are lazily evaluating the result set in any case.</p>
+</div>
+<div class="paragraph">
+<p>After a bit of searching we came <a href="http://stackoverflow.com/questions/12012724/jersey-example-of-using-streamingoutput-as-response-entity">StreamingOutput</a> which is exactly what we need. We adapted our code to use that instead:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package com.markandjim
 
-<span style="color:#a6e22e">@Path</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/subgraph&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ExtractSubGraphResource</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> GraphDatabaseService database<span style="color:#f92672">;</span>
+@Path("/subgraph")
+public class ExtractSubGraphResource {
+    private final GraphDatabaseService database;
 
-    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ExtractSubGraphResource</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@Context</span> GraphDatabaseService database<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">database</span> <span style="color:#f92672">=</span> database<span style="color:#f92672">;</span>
-    <span style="color:#f92672">}</span>
+    public ExtractSubGraphResource(@Context GraphDatabaseService database) {
+        this.database = database;
+    }
 
-    <span style="color:#a6e22e">@GET</span>
-    <span style="color:#a6e22e">@Produces</span><span style="color:#f92672">(</span>MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">TEXT_PLAIN</span><span style="color:#f92672">)</span>
-    <span style="color:#a6e22e">@Path</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/{nodeId}/{depth}&#34;</span><span style="color:#f92672">)</span>
-    <span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">hello</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@PathParam</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;nodeId&#34;</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">long</span> nodeId<span style="color:#f92672">,</span> <span style="color:#a6e22e">@PathParam</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;depth&#34;</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">int</span> depth<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        Node node <span style="color:#f92672">=</span> database<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeById</span><span style="color:#f92672">(</span>nodeId<span style="color:#f92672">);</span>
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/{nodeId}/{depth}")
+    public Response hello(@PathParam("nodeId") long nodeId, @PathParam("depth") int depth) {
+        Node node = database.getNodeById(nodeId);
 
-        <span style="color:#66d9ef">final</span> Traverser paths <span style="color:#f92672">=</span>  Traversal<span style="color:#f92672">.</span><span style="color:#a6e22e">description</span><span style="color:#f92672">()</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">depthFirst</span><span style="color:#f92672">()</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">relationships</span><span style="color:#f92672">(</span>DynamicRelationshipType<span style="color:#f92672">.</span><span style="color:#a6e22e">withName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;whatever&#34;</span><span style="color:#f92672">))</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">evaluator</span><span style="color:#f92672">(</span> Evaluators<span style="color:#f92672">.</span><span style="color:#a6e22e">toDepth</span><span style="color:#f92672">(</span>depth<span style="color:#f92672">)</span> <span style="color:#f92672">)</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">traverse</span><span style="color:#f92672">(</span>node<span style="color:#f92672">);</span>
+        final Traverser paths =  Traversal.description()
+                .depthFirst()
+                .relationships(DynamicRelationshipType.withName("whatever"))
+                .evaluator( Evaluators.toDepth(depth) )
+                .traverse(node);
 
-        StreamingOutput stream <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StreamingOutput<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>OutputStream os<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException<span style="color:#f92672">,</span> WebApplicationException <span style="color:#f92672">{</span>
-                Writer writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> BufferedWriter<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> OutputStreamWriter<span style="color:#f92672">(</span>os<span style="color:#f92672">));</span>
+        StreamingOutput stream = new StreamingOutput() {
+            @Override
+            public void write(OutputStream os) throws IOException, WebApplicationException {
+                Writer writer = new BufferedWriter(new OutputStreamWriter(os));
 
-                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>org<span style="color:#f92672">.</span><span style="color:#a6e22e">neo4j</span><span style="color:#f92672">.</span><span style="color:#a6e22e">graphdb</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Path</span> path <span style="color:#f92672">:</span> paths<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                    writer<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>path<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span><span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
-                writer<span style="color:#f92672">.</span><span style="color:#a6e22e">flush</span><span style="color:#f92672">();</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">};</span>
+                for (org.neo4j.graphdb.Path path : paths) {
+                    writer.write(path.toString() + "\n");
+                }
+                writer.flush();
+            }
+        };
 
-        <span style="color:#66d9ef">return</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">ok</span><span style="color:#f92672">(</span>stream<span style="color:#f92672">).</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-00:10:27.361521 IP localhost.7474 &gt; localhost.55473: Flags <span style="color:#f92672">[</span>.<span style="color:#f92672">]</span>, seq 6098196:6114528, ack 179, win 9175, options <span style="color:#f92672">[</span>nop,nop,TS val <span style="color:#ae81ff">784819663</span> ecr 784819662<span style="color:#f92672">]</span>, length <span style="color:#ae81ff">16332</span>
+        return Response.ok(stream).build();
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As far as I can tell the only discernible difference between the two approaches is that you get an almost immediate response from the streamed approached whereas the first approach has to put everything in the StringBuilder first.</p>
+</div>
+<div class="paragraph">
+<p>Both approaches make use of <a href="http://en.wikipedia.org/wiki/Chunked_transfer_encoding">chunked transfer encoding</a> which according to tcpdump seems to have a maximum packet size of 16332 bytes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">00:10:27.361521 IP localhost.7474 &gt; localhost.55473: Flags [.], seq 6098196:6114528, ack 179, win 9175, options [nop,nop,TS val 784819663 ecr 784819662], length 16332
 
-00:10:27.362278 IP localhost.7474 &gt; localhost.55473: Flags <span style="color:#f92672">[</span>.<span style="color:#f92672">]</span>, seq 6147374:6163706, ack 179, win 9175, options <span style="color:#f92672">[</span>nop,nop,TS val <span style="color:#ae81ff">784819663</span> ecr 784819663<span style="color:#f92672">]</span>, length <span style="color:#ae81ff">16332</span>
-</code></pre></div>
+00:10:27.362278 IP localhost.7474 &gt; localhost.55473: Flags [.], seq 6147374:6163706, ack 179, win 9175, options [nop,nop,TS val 784819663 ecr 784819663], length 16332</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -292,7 +329,7 @@ $ curl -v  http://localhost:7474/unmanaged/subgraph/1000/10
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/07/08/jax-rs-streaming-a-response-using-streamingoutput/&amp;title=JAX%20RS%3a%20Streaming%20a%20Response%20using%20StreamingOutput&amp;summary=package%20com.markandjim%20%40Path%28%26%2334%3b%2fsubgraph%26%2334%3b%29%20public%20class%20ExtractSubGraphResource%20%7b%20private%20final%20GraphDatabaseService%20database%3b%20public%20ExtractSubGraphResource%28%40Context%20GraphDatabaseService%20database%29%20%7b%20this.database%20%3d%20database%3b%20%7d%20%40GET%20%40Produces%28MediaType.TEXT_PLAIN%29%20%40Path%28%26%2334%3b%2f%7bnodeId%7d%2f%7bdepth%7d%26%2334%3b%29%20public%20Response%20hello%28%40PathParam%28%26%2334%3bnodeId%26%2334%3b%29%20long%20nodeId%2c%20%40PathParam%28%26%2334%3bdepth%26%2334%3b%29%20int%20depth%29%20%7b%20Node%20node%20%3d%20database.getNodeById%28nodeId%29%3b%20final%20Traverser%20paths%20%3d%20Traversal.description%28%29%20.depthFirst%28%29%20.relationships%28DynamicRelationshipType.withName%28%26%2334%3bwhatever%26%2334%3b%29%29%20.evaluator%28%20Evaluators.toDepth%28depth%29%20%29%20.traverse%28node%29%3b%20StringBuilder%20allThePaths%20%3d%20new%20StringBuilder%28%29%3b%20for%20%28org.neo4j.graphdb.Path%20path%20%3a%20paths%29%20%7b%20allThePaths.append%28path.toString%28%29%20%2b%20%26%2334%3b%5cn%26%2334%3b%29%3b%20%7d%20return%20Response.ok%28allThePaths.toString%28%29%29.build%28%29%3b%20%7d%20%7d%20org.neo4j.server.thirdparty_jaxrs_classes%3dcom.markandjim%3d%2funmanaged%20%24%20curl%20-v%20http%3a%2f%2flocalhost%3a7474%2funmanaged%2fsubgraph%2f1000%2f10%20package%20com...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/07/08/jax-rs-streaming-a-response-using-streamingoutput/&amp;title=JAX%20RS%3a%20Streaming%20a%20Response%20using%20StreamingOutput&amp;summary=A%20couple%20of%20weeks%20ago%20Jim%20and%20I%20were%20building%20out%20a%20neo4j%20unmanaged%20extension%20from%20which%20we%20wanted%20to%20return%20the%20results%20of%20a%20traversal%20which%20had%20a%20lot%20of%20paths.%0a%20Our%20code%20initially%20looked%20a%20bit%20like%20this%3a%0a%20package%20com.markandjim%20%40Path%28%22%2fsubgraph%22%29%20public%20class%20ExtractSubGraphResource%20%7b%20private%20final%20GraphDatabaseService%20database%3b%20public%20ExtractSubGraphResource%28%40Context%20GraphDatabaseService%20database%29%20%7b%20this.database%20%3d%20database%3b%20%7d%20%40GET%20%40Produces%28MediaType.TEXT_PLAIN%29%20%40Path%28%22%2f%7bnodeId%7d%2f%7bdepth%7d%22%29%20public%20Response%20hello%28%40PathParam%28%22nodeId%22%29%20long%20nodeId%2c%20%40PathParam%28%22..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

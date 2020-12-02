@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Building up a data frame row by row" />
         
-          <meta name="twitter:description" content="&gt; head(titanic) survived pclass name sex age sibsp parch ticket fare cabin embarked 1 0 3 Braund, Mr. Owen Harris male 22 1 0 A/5 21171 7.2500 S 2 1 1 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female 38 1 0 PC 17599 71.2833 C85 C 3 1 3 Heikkinen, Miss. Laina female 26 0 0 STON/O2. 3101282 7.9250 S 4 1 1 Futrelle, Mrs. Jacques Heath (Lily May Peel) female 35 1 0 113803 53." />
+          <meta name="twitter:description" content="Jen and I recently started working on the Kaggle Titanic problem and we thought it&#8217;d probably be useful to start with some exploratory data analysis to get a feel for the data set.
+ For this problem you are given a selection of different features describing the passengers on board the Titanic and you have to predict whether or not they would have survived or died based on those features." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/02/10/r-building-up-a-data-frame-row-by-row/" />
 
@@ -33,7 +34,8 @@
         <title> R: Building up a data frame row by row &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="&gt; head(titanic) survived pclass name sex age sibsp parch ticket fare cabin embarked 1 0 3 Braund, Mr. Owen Harris male 22 1 0 A/5 21171 7.2500 S 2 1 1 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female 38 1 0 PC 17599 71.2833 C85 C 3 1 3 Heikkinen, Miss. Laina female 26 0 0 STON/O2. 3101282 7.9250 S 4 1 1 Futrelle, Mrs. Jacques Heath (Lily May Peel) female 35 1 0 113803 53." />
+        <meta name="description" content="Jen and I recently started working on the Kaggle Titanic problem and we thought it&#8217;d probably be useful to start with some exploratory data analysis to get a feel for the data set.
+ For this problem you are given a selection of different features describing the passengers on board the Titanic and you have to predict whether or not they would have survived or died based on those features." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-02-10",
-        "description": "\x26gt; head(titanic) survived pclass name sex age sibsp parch ticket fare cabin embarked 1 0 3 Braund, Mr. Owen Harris male 22 1 0 A\/5 21171 7.2500 S 2 1 1 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female 38 1 0 PC 17599 71.2833 C85 C 3 1 3 Heikkinen, Miss. Laina female 26 0 0 STON\/O2. 3101282 7.9250 S 4 1 1 Futrelle, Mrs. Jacques Heath (Lily May Peel) female 35 1 0 113803 53.",
-        "wordCount":  218 
+        "description": "Jen and I recently started working on the Kaggle Titanic problem and we thought it\x26#8217;d probably be useful to start with some exploratory data analysis to get a feel for the data set.\n For this problem you are given a selection of different features describing the passengers on board the Titanic and you have to predict whether or not they would have survived or died based on those features.",
+        "wordCount":  496 
     }
     </script>
     
@@ -172,76 +174,119 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Building up a data frame row by row</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">head</span>(titanic)
+    <div class="paragraph">
+<p><a href="http://twitter.com/jennifersmithco">Jen</a> and I recently started working on the <a href="http://www.kaggle.com/c/titanic-gettingStarted">Kaggle Titanic problem</a> and we thought it&#8217;d probably be useful to start with some exploratory data analysis to get a feel for the data set.</p>
+</div>
+<div class="paragraph">
+<p>For this problem you are given a selection of different features describing the passengers on board the Titanic and you have to predict whether or not they would have survived or died based on those features.</p>
+</div>
+<div class="paragraph">
+<p>I thought an interesting first thing to look at would be the survival rate for passengers of different socio economic status as you would imagine that people of a higher status were more likely to have survived.</p>
+</div>
+<div class="paragraph">
+<p>The data looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; head(titanic)
   survived pclass                                                name    sex age sibsp parch           ticket    fare cabin embarked
-<span style="color:#ae81ff">1</span>        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">3</span>                             Braund, Mr. Owen Harris   male  <span style="color:#ae81ff">22</span>     <span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">0</span>        A<span style="color:#f92672">/</span><span style="color:#ae81ff">5</span> <span style="color:#ae81ff">21171</span>  <span style="color:#ae81ff">7.2500</span>              S
-<span style="color:#ae81ff">2</span>        <span style="color:#ae81ff">1</span>      <span style="color:#ae81ff">1</span> Cumings, Mrs. John <span style="color:#a6e22e">Bradley </span>(Florence Briggs Thayer) female  <span style="color:#ae81ff">38</span>     <span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">0</span>         PC <span style="color:#ae81ff">17599</span> <span style="color:#ae81ff">71.2833</span>   C85        C
-<span style="color:#ae81ff">3</span>        <span style="color:#ae81ff">1</span>      <span style="color:#ae81ff">3</span>                              Heikkinen, Miss. Laina female  <span style="color:#ae81ff">26</span>     <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span> STON<span style="color:#f92672">/</span>O2. <span style="color:#ae81ff">3101282</span>  <span style="color:#ae81ff">7.9250</span>              S
-<span style="color:#ae81ff">4</span>        <span style="color:#ae81ff">1</span>      <span style="color:#ae81ff">1</span>        Futrelle, Mrs. Jacques <span style="color:#a6e22e">Heath </span>(Lily May Peel) female  <span style="color:#ae81ff">35</span>     <span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">0</span>           <span style="color:#ae81ff">113803</span> <span style="color:#ae81ff">53.1000</span>  C123        S
-<span style="color:#ae81ff">5</span>        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">3</span>                            Allen, Mr. William Henry   male  <span style="color:#ae81ff">35</span>     <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>           <span style="color:#ae81ff">373450</span>  <span style="color:#ae81ff">8.0500</span>              S
-<span style="color:#ae81ff">6</span>        <span style="color:#ae81ff">0</span>      <span style="color:#ae81ff">3</span>                                    Moran, Mr. James   male  <span style="color:#66d9ef">NA</span>     <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>           <span style="color:#ae81ff">330877</span>  <span style="color:#ae81ff">8.4583</span>              Q
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-survived <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(class) {
-  peopleInThatClass <span style="color:#f92672">&lt;-</span> titanic[titanic<span style="color:#f92672">$</span>pclass <span style="color:#f92672">==</span> class,]
-  survived <span style="color:#f92672">&lt;-</span> peopleInThatClass[peopleInThatClass<span style="color:#f92672">$</span>survived <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>,]  
-  <span style="color:#a6e22e">nrow</span>(survived)
-}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">lapply</span>(<span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>), survived)
+1        0      3                             Braund, Mr. Owen Harris   male  22     1     0        A/5 21171  7.2500              S
+2        1      1 Cumings, Mrs. John Bradley (Florence Briggs Thayer) female  38     1     0         PC 17599 71.2833   C85        C
+3        1      3                              Heikkinen, Miss. Laina female  26     0     0 STON/O2. 3101282  7.9250              S
+4        1      1        Futrelle, Mrs. Jacques Heath (Lily May Peel) female  35     1     0           113803 53.1000  C123        S
+5        0      3                            Allen, Mr. William Henry   male  35     0     0           373450  8.0500              S
+6        0      3                                    Moran, Mr. James   male  NA     0     0           330877  8.4583              Q</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I started by writing the following function to work out how many people in a particular class survived:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">survived &lt;- function(class) {
+  peopleInThatClass &lt;- titanic[titanic$pclass == class,]
+  survived &lt;- peopleInThatClass[peopleInThatClass$survived == 1,]
+  nrow(survived)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I could then work out how many people in each class survived by using <cite>lapply</cite>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; lapply(c(1,2,3), survived)
 [[1]]
-[1] <span style="color:#ae81ff">136</span>
+[1] 136
 
 [[2]]
-[1] <span style="color:#ae81ff">87</span>
+[1] 87
 
 [[3]]
-[1] <span style="color:#ae81ff">119</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-survivalSummary <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(classes) {
-  summary<span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">NULL</span>
-  <span style="color:#a6e22e">for</span>(class in classes) {
-    numberSurvived <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">survived</span>(class)
-    summary <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rbind</span>(summary,<span style="color:#a6e22e">data.frame</span>(class<span style="color:#f92672">=</span>class, survived<span style="color:#f92672">=</span>numberSurvived))
+[1] 119</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This works but the output isn&#8217;t very nice to read and I wanted to put that data side by side with other information about eeach class for which I figured I&#8217;d need to construct a data frame.</p>
+</div>
+<div class="paragraph">
+<p>I came across a solution which works quite well about <a href="http://stackoverflow.com/questions/3642535/creating-an-r-dataframe-row-by-row">half way down a StackOverflow question</a> and reworked my code to make use of that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">survivalSummary &lt;- function(classes) {
+  summary&lt;-NULL
+  for(class in classes) {
+    numberSurvived &lt;- survived(class)
+    summary &lt;- rbind(summary,data.frame(class=class, survived=numberSurvived))
   }
-  
-  summary<span style="color:#a6e22e">[with</span>(summary, <span style="color:#a6e22e">order</span>(class)),]  
-}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">survivalSummary</span>(<span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>))
+
+  summary[with(summary, order(class)),]
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; survivalSummary(c(1,2,3))
   class survived
-<span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">1</span>      <span style="color:#ae81ff">136</span>
-<span style="color:#ae81ff">2</span>     <span style="color:#ae81ff">2</span>       <span style="color:#ae81ff">87</span>
-<span style="color:#ae81ff">3</span>     <span style="color:#ae81ff">3</span>      <span style="color:#ae81ff">119</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-survivalSummary <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(classes) {
-  summary<span style="color:#f92672">&lt;-</span><span style="color:#66d9ef">NULL</span>
-  <span style="color:#a6e22e">for</span>(class in classes) {
-    numberSurvived <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">survived</span>(class)
-    total <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">passengers</span>(class)
-    percentageSurvived <span style="color:#f92672">&lt;-</span> numberSurvived <span style="color:#f92672">/</span> total
-    summary <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rbind</span>(summary,<span style="color:#a6e22e">data.frame</span>(class<span style="color:#f92672">=</span>class, survived<span style="color:#f92672">=</span>numberSurvived, total<span style="color:#f92672">=</span>total, percentSurvived<span style="color:#f92672">=</span>percentageSurvived))
+1     1      136
+2     2       87
+3     3      119</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We make use of the <cite>http://stat.ethz.ch/R-manual/R-patched/library/base/html/cbind.html<span class="rbind"></cite></span> function which creates a new data frame with a row appended. We then have to reassign the new data frame to the <cite>summary</cite> variable.</p>
+</div>
+<div class="paragraph">
+<p>If we want to add other information about the class onto each row such as the total number of passengers and the survival rate it&#8217;s very easy:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">survivalSummary &lt;- function(classes) {
+  summary&lt;-NULL
+  for(class in classes) {
+    numberSurvived &lt;- survived(class)
+    total &lt;- passengers(class)
+    percentageSurvived &lt;- numberSurvived / total
+    summary &lt;- rbind(summary,data.frame(class=class, survived=numberSurvived, total=total, percentSurvived=percentageSurvived))
   }
-  
-  summary<span style="color:#a6e22e">[with</span>(summary, <span style="color:#a6e22e">order</span>(class)),]  
-}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">survivalSummary</span>(<span style="color:#a6e22e">unique</span>(titanic<span style="color:#f92672">$</span>pclass))
+
+  summary[with(summary, order(class)),]
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; survivalSummary(unique(titanic$pclass))
   class survived total percentSurvived
-<span style="color:#ae81ff">2</span>     <span style="color:#ae81ff">1</span>      <span style="color:#ae81ff">136</span>   <span style="color:#ae81ff">216</span>       <span style="color:#ae81ff">0.6296296</span>
-<span style="color:#ae81ff">3</span>     <span style="color:#ae81ff">2</span>       <span style="color:#ae81ff">87</span>   <span style="color:#ae81ff">184</span>       <span style="color:#ae81ff">0.4728261</span>
-<span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">3</span>      <span style="color:#ae81ff">119</span>   <span style="color:#ae81ff">491</span>       <span style="color:#ae81ff">0.2423625</span>
-</code></pre></div><!-- raw HTML omitted -->
+2     1      136   216       0.6296296
+3     2       87   184       0.4728261
+1     3      119   491       0.2423625</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;re also now using <cite>unique</cite> to get the different classes rather than hard coding them.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -276,7 +321,7 @@ survivalSummary <span style="color:#f92672">&lt;-</span> <span style="color:#a6e
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/02/10/r-building-up-a-data-frame-row-by-row/&amp;title=R%3a%20Building%20up%20a%20data%20frame%20row%20by%20row&amp;summary=%26gt%3b%20head%28titanic%29%20survived%20pclass%20name%20sex%20age%20sibsp%20parch%20ticket%20fare%20cabin%20embarked%201%200%203%20Braund%2c%20Mr.%20Owen%20Harris%20male%2022%201%200%20A%2f5%2021171%207.2500%20S%202%201%201%20Cumings%2c%20Mrs.%20John%20Bradley%20%28Florence%20Briggs%20Thayer%29%20female%2038%201%200%20PC%2017599%2071.2833%20C85%20C%203%201%203%20Heikkinen%2c%20Miss.%20Laina%20female%2026%200%200%20STON%2fO2.%203101282%207.9250%20S%204%201%201%20Futrelle%2c%20Mrs.%20Jacques%20Heath%20%28Lily%20May%20Peel%29%20female%2035%201%200%20113803%2053...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/02/10/r-building-up-a-data-frame-row-by-row/&amp;title=R%3a%20Building%20up%20a%20data%20frame%20row%20by%20row&amp;summary=Jen%20and%20I%20recently%20started%20working%20on%20the%20Kaggle%20Titanic%20problem%20and%20we%20thought%20it%26%238217%3bd%20probably%20be%20useful%20to%20start%20with%20some%20exploratory%20data%20analysis%20to%20get%20a%20feel%20for%20the%20data%20set.%0a%20For%20this%20problem%20you%20are%20given%20a%20selection%20of%20different%20features%20describing%20the%20passengers%20on%20board%20the%20Titanic%20and%20you%20have%20to%20predict%20whether%20or%20not%20they%20would%20have%20survived%20or%20died%20based%20on%20those%20features...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -23,8 +23,8 @@
         <meta name="twitter:title" content="Coding: Coupling and Expressiveness" />
         
           <meta name="twitter:description" content="We came across an interesting situation in our code base recently whereby two coding approaches which I consider important for writing maintainable code seemed to come into conflict with each other.
-The code we were working on needed to retrieve some customer details from a backend system by making use of the current user&rsquo;s &lsquo;customerId&rsquo; which we can retrieve from the &lsquo;LoggedInUser&rsquo;.
-My initial thought was that since we only needed one property of the &lsquo;LoggedInUser&rsquo; we could just pass in the &lsquo;customerId&rsquo; instead of the &lsquo;LoggedInUser&rsquo;:" />
+ The code we were working on needed to retrieve some customer details from a backend system by making use of the current user&#8217;s &#39;customerId&#39; which we can retrieve from the &#39;LoggedInUser&#39;.
+ My initial thought was that since we only needed one property of the &#39;LoggedInUser&#39; we could just pass in the &#39;customerId&#39; instead of the &#39;LoggedInUser&#39;:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/08/25/coding-coupling-and-expressiveness/" />
 
@@ -36,8 +36,8 @@ My initial thought was that since we only needed one property of the &lsquo;Logg
 
     
         <meta name="description" content="We came across an interesting situation in our code base recently whereby two coding approaches which I consider important for writing maintainable code seemed to come into conflict with each other.
-The code we were working on needed to retrieve some customer details from a backend system by making use of the current user&rsquo;s &lsquo;customerId&rsquo; which we can retrieve from the &lsquo;LoggedInUser&rsquo;.
-My initial thought was that since we only needed one property of the &lsquo;LoggedInUser&rsquo; we could just pass in the &lsquo;customerId&rsquo; instead of the &lsquo;LoggedInUser&rsquo;:" />
+ The code we were working on needed to retrieve some customer details from a backend system by making use of the current user&#8217;s &#39;customerId&#39; which we can retrieve from the &#39;LoggedInUser&#39;.
+ My initial thought was that since we only needed one property of the &#39;LoggedInUser&#39; we could just pass in the &#39;customerId&#39; instead of the &#39;LoggedInUser&#39;:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +66,8 @@ My initial thought was that since we only needed one property of the &lsquo;Logg
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-08-25",
-        "description": "We came across an interesting situation in our code base recently whereby two coding approaches which I consider important for writing maintainable code seemed to come into conflict with each other.\nThe code we were working on needed to retrieve some customer details from a backend system by making use of the current user\x26rsquo;s \x26lsquo;customerId\x26rsquo; which we can retrieve from the \x26lsquo;LoggedInUser\x26rsquo;.\nMy initial thought was that since we only needed one property of the \x26lsquo;LoggedInUser\x26rsquo; we could just pass in the \x26lsquo;customerId\x26rsquo; instead of the \x26lsquo;LoggedInUser\x26rsquo;:",
-        "wordCount":  457 
+        "description": "We came across an interesting situation in our code base recently whereby two coding approaches which I consider important for writing maintainable code seemed to come into conflict with each other.\n The code we were working on needed to retrieve some customer details from a backend system by making use of the current user\x26#8217;s \x27customerId\x27 which we can retrieve from the \x27LoggedInUser\x27.\n My initial thought was that since we only needed one property of the \x27LoggedInUser\x27 we could just pass in the \x27customerId\x27 instead of the \x27LoggedInUser\x27:",
+        "wordCount":  557 
     }
     </script>
     
@@ -176,49 +176,96 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Coding: Coupling and Expressiveness</h1>
-    <p>We came across an interesting situation in our code base recently whereby two coding approaches which I consider important for writing maintainable code seemed to come into conflict with each other.</p>
-<p>The code we were working on needed to retrieve some customer details from a backend system by making use of the current user&rsquo;s &lsquo;customerId&rsquo; which we can retrieve from the &lsquo;LoggedInUser&rsquo;.</p>
-<p>My initial thought was that since we only needed one property of the &lsquo;LoggedInUser&rsquo; we could just pass in the &lsquo;customerId&rsquo; instead of the &lsquo;LoggedInUser&rsquo;:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Repository</span>
+    <div class="paragraph">
+<p>We came across an interesting situation in our code base recently whereby two coding approaches which I consider important for writing maintainable code seemed to come into conflict with each other.</p>
+</div>
+<div class="paragraph">
+<p>The code we were working on needed to retrieve some customer details from a backend system by making use of the current user&#8217;s 'customerId' which we can retrieve from the 'LoggedInUser'.</p>
+</div>
+<div class="paragraph">
+<p>My initial thought was that since we only needed one property of the 'LoggedInUser' we could just pass in the 'customerId' instead of the 'LoggedInUser':</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Repository
 {
-	<span style="color:#66d9ef">public</span> Customer RetrieveCustomer(<span style="color:#66d9ef">string</span> customerId)
+	public Customer RetrieveCustomer(string customerId)
 	{
-		<span style="color:#66d9ef">var</span> backEndSystemCustomer = backEndSystem.RetrieveCustomer(customerId);
-		<span style="color:#66d9ef">return</span> MapCustomer(backEndSystemCustomer);
+		var backEndSystemCustomer = backEndSystem.RetrieveCustomer(customerId);
+		return MapCustomer(backEndSystemCustomer);
 	}
-}
-</code></pre></div><p>Which we would use like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomeController</span>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Which we would use like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class SomeController
 {
 	...
-	<span style="color:#66d9ef">public</span> ActionResult DoSomething()
+	public ActionResult DoSomething()
 	{
 		repository.RetrieveCustomer(loggedInUser.CustomerId);
-		<span style="color:#75715e">// and so on
-</span><span style="color:#75715e"></span>	}
-}
-</code></pre></div><p>I recently came across quite a nice post which explains <!-- raw HTML omitted -->different types of cohesion and coupling<!-- raw HTML omitted --> that we might find in our code and from my understanding the above code has data coupling which is the loosest type of coupling that we can have apart from message coupling:</p>
-<!-- raw HTML omitted -->
-<p>It seemed to me that it was better to couple the repository to the data it required rather than to the &lsquo;LoggedInUser&rsquo; which would be stamp coupling:</p>
-<!-- raw HTML omitted -->
-<p>In this case I was thinking about coupling of classes instead of coupling of modules (perhaps wrongly?)</p>
-<p>Discussing this with <!-- raw HTML omitted -->Dave<!-- raw HTML omitted -->, he pointed out that the method wasn&rsquo;t really very expressive and that it is actually possible to pass in any string we want - even one that might not even be a customerId. The chance of making a mistake when using this API is quite high.</p>
-<p>We therefore changed the method signature so that it takes in a &lsquo;LoggedInUser&rsquo; instead and then just takes the &lsquo;customerId&rsquo; from that object.</p>
-<p>We only build a &lsquo;LoggedInUser&rsquo; from one place in our application and everyone on the team knows that so it&rsquo;s much less likely that someone would make a mistake and pass in the wrong instance.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Repository</span>
-{
-	<span style="color:#66d9ef">public</span> Customer RetrieveCustomer(LoggedInUser user)
-	{
-		<span style="color:#66d9ef">var</span> backEndSystemCustomer = backEndSystem.RetrieveCustomer(user.CustomerId);
-		<span style="color:#66d9ef">return</span> MapCustomer(backEndSystemCustomer);
+		// and so on
 	}
-}
-</code></pre></div><p>I think the code is definitely nicer like this although LoggedInUser and Repository are now coupled even though the repository only cares about one property of LoggedInUser.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I recently came across quite a nice post which explains <a href="http://codeodor.com/index.cfm/2009/6/17/Strive-for-low-coupling-and-high-cohesion-What-does-that-even-mean/2902">different types of cohesion and coupling</a> that we might find in our code and from my understanding the above code has data coupling which is the loosest type of coupling that we can have apart from message coupling:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Data coupling is when modules share data through, for example, parameters. Each datum is an elementary piece, and these are the only data which are shared (e.g. passing an integer to a function which computes a square root).</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>It seemed to me that it was better to couple the repository to the data it required rather than to the 'LoggedInUser' which would be stamp coupling:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Stamp coupling (Data-structured coupling) is when modules share a composite data structure and use only a part of it, possibly a different part (e.g. passing a whole record to a function which only needs one field of it). This may lead to changing the way a module reads a record because a field, which the module doesn&#8217;t need, has been modified.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>In this case I was thinking about coupling of classes instead of coupling of modules (perhaps wrongly?)</p>
+</div>
+<div class="paragraph">
+<p>Discussing this with <a href="http://intwoplacesatonce.com/">Dave</a>, he pointed out that the method wasn&#8217;t really very expressive and that it is actually possible to pass in any string we want - even one that might not even be a customerId. The chance of making a mistake when using this API is quite high.</p>
+</div>
+<div class="paragraph">
+<p>We therefore changed the method signature so that it takes in a 'LoggedInUser' instead and then just takes the 'customerId' from that object.</p>
+</div>
+<div class="paragraph">
+<p>We only build a 'LoggedInUser' from one place in our application and everyone on the team knows that so it&#8217;s much less likely that someone would make a mistake and pass in the wrong instance.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Repository
+{
+	public Customer RetrieveCustomer(LoggedInUser user)
+	{
+		var backEndSystemCustomer = backEndSystem.RetrieveCustomer(user.CustomerId);
+		return MapCustomer(backEndSystemCustomer);
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I think the code is definitely nicer like this although LoggedInUser and Repository are now coupled even though the repository only cares about one property of LoggedInUser.</p>
+</div>
+<div class="paragraph">
 <p>It seems to me though that the main reason we care about coupling is that loosely coupling our code makes it easier to change but on the other hand making our code more expressive makes it easier to read which is also important for making it easy to change.</p>
-<p>Maybe it&rsquo;s not such a big deal anyway - I just found it interesting that I thought I&rsquo;d done the right thing and it turned out that a way I had previously rejected turned out to be more appropriate.</p>
+</div>
+<div class="paragraph">
+<p>Maybe it&#8217;s not such a big deal anyway - I just found it interesting that I thought I&#8217;d done the right thing and it turned out that a way I had previously rejected turned out to be more appropriate.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -253,7 +300,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/08/25/coding-coupling-and-expressiveness/&amp;title=Coding%3a%20Coupling%20and%20Expressiveness&amp;summary=We%20came%20across%20an%20interesting%20situation%20in%20our%20code%20base%20recently%20whereby%20two%20coding%20approaches%20which%20I%20consider%20important%20for%20writing%20maintainable%20code%20seemed%20to%20come%20into%20conflict%20with%20each%20other.%0aThe%20code%20we%20were%20working%20on%20needed%20to%20retrieve%20some%20customer%20details%20from%20a%20backend%20system%20by%20making%20use%20of%20the%20current%20user%26rsquo%3bs%20%26lsquo%3bcustomerId%26rsquo%3b%20which%20we%20can%20retrieve%20from%20the%20%26lsquo%3bLoggedInUser%26rsquo%3b.%0aMy%20initial%20thought%20was%20that%20since%20we%20only%20needed%20one%20property%20of%20the%20%26lsquo%3bLoggedInUser%26rsquo%3b%20we%20could%20just%20pass%20in%20the%20%26lsquo%3bcustomerId%26rsquo%3b%20instead%20of%20the%20%26lsquo%3bLoggedInUser%26rsquo%3b%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/08/25/coding-coupling-and-expressiveness/&amp;title=Coding%3a%20Coupling%20and%20Expressiveness&amp;summary=We%20came%20across%20an%20interesting%20situation%20in%20our%20code%20base%20recently%20whereby%20two%20coding%20approaches%20which%20I%20consider%20important%20for%20writing%20maintainable%20code%20seemed%20to%20come%20into%20conflict%20with%20each%20other.%0a%20The%20code%20we%20were%20working%20on%20needed%20to%20retrieve%20some%20customer%20details%20from%20a%20backend%20system%20by%20making%20use%20of%20the%20current%20user%26%238217%3bs%20%27customerId%27%20which%20we%20can%20retrieve%20from%20the%20%27LoggedInUser%27.%0a%20My%20initial%20thought%20was%20that%20since%20we%20only%20needed%20one%20property%20of%20the%20%27LoggedInUser%27%20we%20could%20just%20pass%20in%20the%20%27customerId%27%20instead%20of%20the%20%27LoggedInUser%27%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,7 +22,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: MERGE&#39;ing on super nodes" />
         
-          <meta name="twitter:description" content="MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) MERGE (crime)-[:CATEGORY]-&gt;(subCat) RETURN COUNT(*) AS crimesProcessed MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) WITH crime, subCat, shortestPath((crime)-[:CATEGORY]-&gt;(subCat)) AS path FOREACH(ignoreMe IN CASE WHEN path is NULL THEN [1] ELSE [] END | CREATE (crime)-[:CATEGORY]-&gt;(subCat)) RETURN COUNT(*) MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) CREATE UNIQUE (crime)-[:CATEGORY]-&gt;(subCat) RETURN COUNT(*) AS crimesProcessed " />
+          <meta name="twitter:description" content="In my continued playing with the Chicago crime data set I wanted to connect the crimes committed to their position in the FBI crime type hierarchy.
+ These are the sub graphs that I want to connect:
+   We have a &#39;fbiCode&#39; on each &#39;Crime&#39; node which indicates which &#39;Crime Sub Category&#39; the crime belongs to.
+ I started with the following query to connect the nodes together:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/07/28/neo4j-mergeing-on-super-nodes/" />
 
@@ -33,7 +36,10 @@
         <title> Neo4j: MERGE&#39;ing on super nodes &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) MERGE (crime)-[:CATEGORY]-&gt;(subCat) RETURN COUNT(*) AS crimesProcessed MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) WITH crime, subCat, shortestPath((crime)-[:CATEGORY]-&gt;(subCat)) AS path FOREACH(ignoreMe IN CASE WHEN path is NULL THEN [1] ELSE [] END | CREATE (crime)-[:CATEGORY]-&gt;(subCat)) RETURN COUNT(*) MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) CREATE UNIQUE (crime)-[:CATEGORY]-&gt;(subCat) RETURN COUNT(*) AS crimesProcessed " />
+        <meta name="description" content="In my continued playing with the Chicago crime data set I wanted to connect the crimes committed to their position in the FBI crime type hierarchy.
+ These are the sub graphs that I want to connect:
+   We have a &#39;fbiCode&#39; on each &#39;Crime&#39; node which indicates which &#39;Crime Sub Category&#39; the crime belongs to.
+ I started with the following query to connect the nodes together:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +68,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-07-28",
-        "description": "MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) MERGE (crime)-[:CATEGORY]-\x26gt;(subCat) RETURN COUNT(*) AS crimesProcessed MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) WITH crime, subCat, shortestPath((crime)-[:CATEGORY]-\x26gt;(subCat)) AS path FOREACH(ignoreMe IN CASE WHEN path is NULL THEN [1] ELSE [] END | CREATE (crime)-[:CATEGORY]-\x26gt;(subCat)) RETURN COUNT(*) MATCH (crime:Crime) WITH crime SKIP {skip} LIMIT 10000 MATCH (subCat:SubCategory {code: crime.fbiCode}) CREATE UNIQUE (crime)-[:CATEGORY]-\x26gt;(subCat) RETURN COUNT(*) AS crimesProcessed ",
-        "wordCount":  72 
+        "description": "In my continued playing with the Chicago crime data set I wanted to connect the crimes committed to their position in the FBI crime type hierarchy.\n These are the sub graphs that I want to connect:\n   We have a \x27fbiCode\x27 on each \x27Crime\x27 node which indicates which \x27Crime Sub Category\x27 the crime belongs to.\n I started with the following query to connect the nodes together:",
+        "wordCount":  481 
     }
     </script>
     
@@ -172,43 +178,85 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: MERGE&#39;ing on super nodes</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (crime:Crime)
+    <div class="paragraph">
+<p>In my continued playing with the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2">Chicago crime data set</a> I wanted to connect the crimes committed to their position in the <a href="http://gis.chicagopolice.org/clearmap_crime_sums/crime_types.html">FBI crime type</a> hierarchy.</p>
+</div>
+<div class="paragraph">
+<p>These are the sub graphs that I want to connect:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/07/2015-07-26_22-19-04.png" alt="2015 07 26 22 19 04" width="300">
+</div>
+</div>
+<div class="paragraph">
+<p>We have a 'fbiCode' on each 'Crime' node which indicates which 'Crime Sub Category' the crime belongs to.</p>
+</div>
+<div class="paragraph">
+<p>I started with the following query to connect the nodes together:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (crime:Crime)
 WITH crime SKIP {skip} LIMIT 10000
 
 MATCH (subCat:SubCategory {code: crime.fbiCode})
 MERGE (crime)-[:CATEGORY]-&gt;(subCat)
-RETURN COUNT(*) AS crimesProcessed
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (crime:Crime)
+RETURN COUNT(*) AS crimesProcessed</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I had this running inside a Python script which incremented 'skip' by 10,000 on each iteration as long as 'crimesProcessed' came back with a value &gt; 0.</p>
+</div>
+<div class="paragraph">
+<p>To start with the 'CATEGORY' relationships were being created very quickly but it slowed down quite noticeably about 1 million nodes in.</p>
+</div>
+<div class="paragraph">
+<p>I profiled the queries but the query plans didn&#8217;t show anything obviously wrong. My suspicion was that I had a super node problem where the cypher run time was iterating through all of the sub category&#8217;s relationships to check whether one of them pointed to the crime on the other side of the 'MERGE' statement.</p>
+</div>
+<div class="paragraph">
+<p>I cancelled the import job and wrote a query to check how many relationships each sub category had. It varied from 1,000 to 93,000 somewhat confirming my suspicion.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://twitter.com/mesirii">Michael</a> suggested tweaking the query to use the shortestpath function to check for the existence of the relationship and then use the 'CREATE' clause to create it if it didn&#8217;t exist.</p>
+</div>
+<div class="paragraph">
+<p>The neat thing about the shortestpath function is that it will start from the side with the lowest cardinality and as soon as it finds a relationship it will stop searching. Let&#8217;s have a look at that version of the query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (crime:Crime)
 WITH crime SKIP {skip} LIMIT 10000
 MATCH (subCat:SubCategory {code: crime.fbiCode})
 WITH crime, subCat, shortestPath((crime)-[:CATEGORY]-&gt;(subCat)) AS path
 FOREACH(ignoreMe IN CASE WHEN path is NULL THEN [1] ELSE [] END |
   CREATE (crime)-[:CATEGORY]-&gt;(subCat))
-RETURN COUNT(*)
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (crime:Crime)
+RETURN COUNT(*)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This worked much better - 10,000 nodes processed in ~ 2.5 seconds - and the time remained constant as more relationships were added. This allowed me to create all the category nodes but we can actually do even better if we use <em><a href="http://neo4j.com/docs/stable/query-create-unique.html">CREATE UNIQUE</a></em> instead of <em>MERGE</em></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (crime:Crime)
 WITH crime SKIP {skip} LIMIT 10000
 
 MATCH (subCat:SubCategory {code: crime.fbiCode})
 CREATE UNIQUE (crime)-[:CATEGORY]-&gt;(subCat)
-RETURN COUNT(*) AS crimesProcessed
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+RETURN COUNT(*) AS crimesProcessed</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Using this query 10,000 nodes took ~ 250ms -900ms second to process which means we can process all the nodes in 5-6 minutes - good times!</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not super familiar with the 'CREATE UNIQUE' code so I&#8217;m not sure that it&#8217;s always a good substitute for 'MERGE' but on this occasion it does the job.</p>
+</div>
+<div class="paragraph">
+<p>The lesson for me here is that if a query is taking longer than you think it should try and use other constructs / a combination of other constructs and see whether things improve - they just might!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -243,7 +291,7 @@ RETURN COUNT(*) AS crimesProcessed
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/07/28/neo4j-mergeing-on-super-nodes/&amp;title=Neo4j%3a%20MERGE%27ing%20on%20super%20nodes&amp;summary=MATCH%20%28crime%3aCrime%29%20WITH%20crime%20SKIP%20%7bskip%7d%20LIMIT%2010000%20MATCH%20%28subCat%3aSubCategory%20%7bcode%3a%20crime.fbiCode%7d%29%20MERGE%20%28crime%29-%5b%3aCATEGORY%5d-%26gt%3b%28subCat%29%20RETURN%20COUNT%28%2a%29%20AS%20crimesProcessed%20MATCH%20%28crime%3aCrime%29%20WITH%20crime%20SKIP%20%7bskip%7d%20LIMIT%2010000%20MATCH%20%28subCat%3aSubCategory%20%7bcode%3a%20crime.fbiCode%7d%29%20WITH%20crime%2c%20subCat%2c%20shortestPath%28%28crime%29-%5b%3aCATEGORY%5d-%26gt%3b%28subCat%29%29%20AS%20path%20FOREACH%28ignoreMe%20IN%20CASE%20WHEN%20path%20is%20NULL%20THEN%20%5b1%5d%20ELSE%20%5b%5d%20END%20%7c%20CREATE%20%28crime%29-%5b%3aCATEGORY%5d-%26gt%3b%28subCat%29%29%20RETURN%20COUNT%28%2a%29%20MATCH%20%28crime%3aCrime%29%20WITH%20crime%20SKIP%20%7bskip%7d%20LIMIT%2010000%20MATCH%20%28subCat%3aSubCategory%20%7bcode%3a%20crime.fbiCode%7d%29%20CREATE%20UNIQUE%20%28crime%29-%5b%3aCATEGORY%5d-%26gt%3b%28subCat%29%20RETURN%20COUNT%28%2a%29%20AS%20crimesProcessed%20..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/07/28/neo4j-mergeing-on-super-nodes/&amp;title=Neo4j%3a%20MERGE%27ing%20on%20super%20nodes&amp;summary=In%20my%20continued%20playing%20with%20the%20Chicago%20crime%20data%20set%20I%20wanted%20to%20connect%20the%20crimes%20committed%20to%20their%20position%20in%20the%20FBI%20crime%20type%20hierarchy.%0a%20These%20are%20the%20sub%20graphs%20that%20I%20want%20to%20connect%3a%0a%20%20%20We%20have%20a%20%27fbiCode%27%20on%20each%20%27Crime%27%20node%20which%20indicates%20which%20%27Crime%20Sub%20Category%27%20the%20crime%20belongs%20to.%0a%20I%20started%20with%20the%20following%20query%20to%20connect%20the%20nodes%20together%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

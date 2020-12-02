@@ -62,7 +62,10 @@
       <pubDate>Wed, 26 Jul 2017 21:41:55 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/07/26/pandas-valueerror-the-truth-value-of-a-series-is-ambiguous/</guid>
-      <description>import pandas as pd &amp;gt;&amp;gt;&amp;gt; df = pd.DataFrame({&amp;#34;a&amp;#34;: [1,2,3,4,5], &amp;#34;b&amp;#34;: [2,3,4,5,6]}) &amp;gt;&amp;gt;&amp;gt; df a b 0 5 2 1 6 6 2 0 8 3 3 2 4 1 6 &amp;gt;&amp;gt;&amp;gt; divmod(df[&amp;#34;a&amp;#34;], 2)[1] &amp;gt; 0 0 True 1 False 2 True 3 False 4 True Name: a, dtype: bool &amp;gt;&amp;gt;&amp;gt; divmod(df[&amp;#34;b&amp;#34;], 2)[1] &amp;gt; 0 0 False 1 True 2 False 3 True 4 False Name: b, dtype: bool &amp;gt;&amp;gt;&amp;gt; df[&amp;#34;anyOdd&amp;#34;] = (divmod(df[&amp;#34;a&amp;#34;], 2)[1] &amp;gt; 0) or (divmod(df[&amp;#34;b&amp;#34;], 2)[1] &amp;gt; 0) Traceback (most recent call last): File &amp;#34;&amp;lt;stdin&amp;gt;&amp;#34;, line 1, in &amp;lt;module&amp;gt; File &amp;#34;/Users/markneedham/projects/kaggle/house-prices/a/lib/python3.</description>
+      <description>I&amp;#8217;ve been playing around with Kaggle in my spare time over the last few weeks and came across an unexpected behaviour when trying to add a column to a dataframe.
+ First let&amp;#8217;s get Panda&amp;#8217;s into our program scope:
+ Prerequisites import pandas as pd   Now we&amp;#8217;ll create a data frame to play with for the duration of this post:
+ &amp;gt;&amp;gt;&amp;gt; df = pd.DataFrame({&#34;a&#34;: [1,2,3,4,5], &#34;b&#34;: [2,3,4,5,6]}) &amp;gt;&amp;gt;&amp;gt; df a b 0 5 2 1 6 6 2 0 8 3 3 2 4 1 6   Let&amp;#8217;s say we want to create a new column which returns True if either of the numbers are odd.</description>
     </item>
     
     <item>
@@ -71,7 +74,9 @@
       <pubDate>Wed, 05 Jul 2017 14:31:04 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/07/05/pandas-find-rows-where-columnfield-is-null/</guid>
-      <description>import pandas as pd train = pd.read_csv(&amp;#34;train.csv&amp;#34;) null_columns=train.columns[train.isnull().any()] train[null_columns].isnull().sum() LotFrontage 259 Alley 1369 MasVnrType 8 MasVnrArea 8 BsmtQual 37 BsmtCond 37 BsmtExposure 38 BsmtFinType1 37 BsmtFinType2 38 Electrical 1 FireplaceQu 690 GarageType 81 GarageYrBlt 81 GarageFinish 81 GarageQual 81 GarageCond 81 PoolQC 1453 Fence 1179 MiscFeature 1406 dtype: int64 print(train[train[&amp;#34;Electrical&amp;#34;].isnull()][null_columns]) LotFrontage Alley MasVnrType MasVnrArea BsmtQual BsmtCond BsmtExposure \ 1379 73.0 NaN None 0.0 Gd TA No BsmtFinType1 BsmtFinType2 Electrical FireplaceQu GarageType GarageYrBlt \ 1379 Unf Unf NaN NaN BuiltIn 2007.</description>
+      <description>In my continued playing around with the Kaggle house prices dataset I wanted to find any columns/fields that have null values in.
+ If we want to get a count of the number of null fields by column we can use the following code, adapted from Poonam Ligade&amp;#8217;s kernel:
+ Prerequisites import pandas as pd     Count the null columns train = pd.read_csv(&#34;train.csv&#34;) null_columns=train.columns[train.isnull().any()] train[null_columns].isnull().sum()   LotFrontage 259 Alley 1369 MasVnrType 8 MasVnrArea 8 BsmtQual 37 BsmtCond 37 BsmtExposure 38 BsmtFinType1 37 BsmtFinType2 38 Electrical 1 FireplaceQu 690 GarageType 81 GarageYrBlt 81 GarageFinish 81 GarageQual 81 GarageCond 81 PoolQC 1453 Fence 1179 MiscFeature 1406 dtype: int64   So there are lots of different columns containing null values.</description>
     </item>
     
     <item>
@@ -80,7 +85,9 @@
       <pubDate>Fri, 16 Jun 2017 05:55:29 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/06/16/scikit-learn-random-forests-feature-importance/</guid>
-      <description>import numpy as np import pandas as pd from sklearn.ensemble import RandomForestRegressor from sklearn.model_selection import train_test_split # We&amp;#39;ll use this library to make the display pretty from tabulate import tabulate train = pd.read_csv(&amp;#39;train.csv&amp;#39;) # the model can only handle numeric values so filter out the rest data = train.select_dtypes(include=[np.number]).interpolate().dropna() y = train.SalePrice X = data.drop([&amp;#34;SalePrice&amp;#34;, &amp;#34;Id&amp;#34;], axis=1) X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=.33) clf = RandomForestRegressor(n_jobs=2, n_estimators=1000) model = clf.</description>
+      <description>As I mentioned in a blog post a couple of weeks ago, I&amp;#8217;ve been playing around with the Kaggle House Prices competition and the most recent thing I tried was training a random forest regressor.
+ Unfortunately, although it gave me better results locally it got a worse score on the unseen data, which I figured meant I&amp;#8217;d overfitted the model.
+ I wasn&amp;#8217;t really sure how to work out if that theory was true or not, but by chance I was reading Chris Albon&amp;#8217;s blog and found a post where he explains how to inspect the importance of every feature in a random forest.</description>
     </item>
     
     <item>
@@ -89,7 +96,8 @@
       <pubDate>Sat, 25 Mar 2017 14:09:59 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/03/25/luigi-externalprogramtask-example-converting-json-csv/</guid>
-      <description>import luigi import requests import json from collections import Counter class GroupsToJSON(luigi.Task): key = luigi.Parameter() lat = luigi.Parameter() lon = luigi.Parameter() def run(self): seed_topic = &amp;#34;nosql&amp;#34; uri = &amp;#34;https://api.meetup.com/2/groups?&amp;amp;topic={0}&amp;amp;lat={1}&amp;amp;lon={2}&amp;amp;key={3}&amp;#34;.format(seed_topic, self.lat, self.lon, self.key) r = requests.get(uri) all_topics = [topic[&amp;#34;urlkey&amp;#34;] for result in r.json()[&amp;#34;results&amp;#34;] for topic in result[&amp;#34;topics&amp;#34;]] c = Counter(all_topics) topics = [entry[0] for entry in c.most_common(10)] groups = {} for topic in topics: uri = &amp;#34;https://api.meetup.com/2/groups?&amp;amp;topic={0}&amp;amp;lat={1}&amp;amp;lon={2}&amp;amp;key={3}&amp;#34;.format(topic, self.lat, self.lon, self.key) r = requests.</description>
+      <description>I&amp;#8217;ve been playing around with the Python library Luigi which is used to build pipelines of batch jobs and I struggled to find an example of an ExternalProgramTask so this is my attempt at filling that void.
+   I&amp;#8217;m building a little data pipeline to get data from the meetup.com API and put it into CSV files that can be loaded into Neo4j using the LOAD CSV command.</description>
     </item>
     
   </channel>

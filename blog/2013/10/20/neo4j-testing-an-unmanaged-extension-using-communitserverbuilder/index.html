@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Testing an unmanaged extension using CommunityServerBuilder" />
         
-          <meta name="twitter:description" content="package org.neo4j.unmanaged; @Path(&#34;/dummy&#34;) public class DummyResource { private final ExecutionEngine executionEngine; private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); public DummyResource( @Context GraphDatabaseService database ) { this.executionEngine = new ExecutionEngine(database); } @GET @Produces(MediaType.APPLICATION_JSON) @Path(&#34;/all-nodes&#34;) public Response uploadNodesFile( ) throws IOException { ExecutionResult result = executionEngine.execute(&#34;START n = node(*) RETURN n.name ORDER BY n.name&#34;); ObjectNode root = JsonNodeFactory.instance.objectNode(); for (String column : result.columns()) { ResourceIterator&lt;Object&gt; rows = result.columnAs(column); ArrayNode resultRows = JsonNodeFactory." />
+          <meta name="twitter:description" content="I&#8217;ve been playing around with Neo4j unmanaged extensions recently and I wanted to be able to check that it worked properly without having to deploy it to a real Neo4j server.
+ I&#8217;d previously used http://grepcode.com/file/repo1.maven.org/maven2/org.neo4j/neo4j-kernel/1.2-1.2/org/neo4j/kernel/ImpermanentGraphDatabase.java when using Neo4j embedded and Ian pointed me towards CommunityServerBuilder which allows us to do a similar thing in Neo4j server world.
+ I&#8217;ve created an example of a dummy unmanaged extension and test showing this approach but it&#8217;s reasonably simple." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/10/20/neo4j-testing-an-unmanaged-extension-using-communitserverbuilder/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j: Testing an unmanaged extension using CommunityServerBuilder &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="package org.neo4j.unmanaged; @Path(&#34;/dummy&#34;) public class DummyResource { private final ExecutionEngine executionEngine; private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); public DummyResource( @Context GraphDatabaseService database ) { this.executionEngine = new ExecutionEngine(database); } @GET @Produces(MediaType.APPLICATION_JSON) @Path(&#34;/all-nodes&#34;) public Response uploadNodesFile( ) throws IOException { ExecutionResult result = executionEngine.execute(&#34;START n = node(*) RETURN n.name ORDER BY n.name&#34;); ObjectNode root = JsonNodeFactory.instance.objectNode(); for (String column : result.columns()) { ResourceIterator&lt;Object&gt; rows = result.columnAs(column); ArrayNode resultRows = JsonNodeFactory." />
+        <meta name="description" content="I&#8217;ve been playing around with Neo4j unmanaged extensions recently and I wanted to be able to check that it worked properly without having to deploy it to a real Neo4j server.
+ I&#8217;d previously used http://grepcode.com/file/repo1.maven.org/maven2/org.neo4j/neo4j-kernel/1.2-1.2/org/neo4j/kernel/ImpermanentGraphDatabase.java when using Neo4j embedded and Ian pointed me towards CommunityServerBuilder which allows us to do a similar thing in Neo4j server world.
+ I&#8217;ve created an example of a dummy unmanaged extension and test showing this approach but it&#8217;s reasonably simple." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-10-20",
-        "description": "package org.neo4j.unmanaged; @Path(\x26#34;\/dummy\x26#34;) public class DummyResource { private final ExecutionEngine executionEngine; private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); public DummyResource( @Context GraphDatabaseService database ) { this.executionEngine = new ExecutionEngine(database); } @GET @Produces(MediaType.APPLICATION_JSON) @Path(\x26#34;\/all-nodes\x26#34;) public Response uploadNodesFile( ) throws IOException { ExecutionResult result = executionEngine.execute(\x26#34;START n = node(*) RETURN n.name ORDER BY n.name\x26#34;); ObjectNode root = JsonNodeFactory.instance.objectNode(); for (String column : result.columns()) { ResourceIterator\x26lt;Object\x26gt; rows = result.columnAs(column); ArrayNode resultRows = JsonNodeFactory.",
-        "wordCount":  188 
+        "description": "I\x26#8217;ve been playing around with Neo4j unmanaged extensions recently and I wanted to be able to check that it worked properly without having to deploy it to a real Neo4j server.\n I\x26#8217;d previously used http:\/\/grepcode.com\/file\/repo1.maven.org\/maven2\/org.neo4j\/neo4j-kernel\/1.2-1.2\/org\/neo4j\/kernel\/ImpermanentGraphDatabase.java when using Neo4j embedded and Ian pointed me towards CommunityServerBuilder which allows us to do a similar thing in Neo4j server world.\n I\x26#8217;ve created an example of a dummy unmanaged extension and test showing this approach but it\x26#8217;s reasonably simple.",
+        "wordCount":  337 
     }
     </script>
     
@@ -172,112 +176,137 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Testing an unmanaged extension using CommunityServerBuilder</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">package</span> org.neo4j.unmanaged<span style="color:#f92672">;</span>
+    <div class="paragraph">
+<p>I&#8217;ve been playing around with <a href="http://docs.neo4j.org/chunked/milestone/server-unmanaged-extensions.html">Neo4j unmanaged extensions</a> recently and I wanted to be able to check that it worked properly without having to deploy it to a real Neo4j server.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;d previously used <cite>http://grepcode.com/file/repo1.maven.org/maven2/org.neo4j/neo4j-kernel/1.2-1.2/org/neo4j/kernel/ImpermanentGraphDatabase.java<span class="ImpermanentGraphDatabase"></cite></span> when using Neo4j embedded and <a href="https://twitter.com/iansrobinson">Ian</a> pointed me towards <cite>CommunityServerBuilder</cite> which allows us to do a similar thing in Neo4j server world.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve created an example of a <a href="https://github.com/mneedham/dummy-unmanaged-extension/blob/master/src/main/java/org/neo4j/unmanaged/DummyResource.java">dummy unmanaged extension</a> and <a href="https://github.com/mneedham/dummy-unmanaged-extension/blob/master/src/test/java/org/neo4j/unmanaged/DummyResourceTest.java">test</a> showing this approach but it&#8217;s reasonably simple.</p>
+</div>
+<div class="paragraph">
+<p>Given the following unmanaged extension:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package org.neo4j.unmanaged;
 
-<span style="color:#a6e22e">@Path</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/dummy&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DummyResource</span>
-<span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ExecutionEngine executionEngine<span style="color:#f92672">;</span>
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> ObjectMapper OBJECT_MAPPER <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ObjectMapper<span style="color:#f92672">();</span>
+@Path("/dummy")
+public class DummyResource
+{
+    private final ExecutionEngine executionEngine;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">DummyResource</span><span style="color:#f92672">(</span> <span style="color:#a6e22e">@Context</span> GraphDatabaseService database <span style="color:#f92672">)</span>
-    <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">executionEngine</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ExecutionEngine<span style="color:#f92672">(</span>database<span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+    public DummyResource( @Context GraphDatabaseService database )
+    {
+        this.executionEngine = new ExecutionEngine(database);
+    }
 
-    <span style="color:#a6e22e">@GET</span>
-    <span style="color:#a6e22e">@Produces</span><span style="color:#f92672">(</span>MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span><span style="color:#f92672">)</span>
-    <span style="color:#a6e22e">@Path</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/all-nodes&#34;</span><span style="color:#f92672">)</span>
-    <span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">uploadNodesFile</span><span style="color:#f92672">(</span>  <span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException
-    <span style="color:#f92672">{</span>
-        ExecutionResult result <span style="color:#f92672">=</span> executionEngine<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;START n = node(*) RETURN n.name ORDER BY n.name&#34;</span><span style="color:#f92672">);</span>
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/all-nodes")
+    public Response uploadNodesFile(  ) throws IOException
+    {
+        ExecutionResult result = executionEngine.execute("START n = node(*) RETURN n.name ORDER BY n.name");
 
-        ObjectNode root <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">objectNode</span><span style="color:#f92672">();</span>
-        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String column <span style="color:#f92672">:</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">columns</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-            ResourceIterator<span style="color:#f92672">&lt;</span>Object<span style="color:#f92672">&gt;</span> rows <span style="color:#f92672">=</span> result<span style="color:#f92672">.</span><span style="color:#a6e22e">columnAs</span><span style="color:#f92672">(</span>column<span style="color:#f92672">);</span>
+        ObjectNode root = JsonNodeFactory.instance.objectNode();
+        for (String column : result.columns()) {
+            ResourceIterator&lt;Object&gt; rows = result.columnAs(column);
 
-            ArrayNode resultRows <span style="color:#f92672">=</span> JsonNodeFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">instance</span><span style="color:#f92672">.</span><span style="color:#a6e22e">arrayNode</span><span style="color:#f92672">();</span>
-            <span style="color:#66d9ef">while</span><span style="color:#f92672">(</span>rows<span style="color:#f92672">.</span><span style="color:#a6e22e">hasNext</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-                Object row <span style="color:#f92672">=</span> rows<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">();</span>
+            ArrayNode resultRows = JsonNodeFactory.instance.arrayNode();
+            while(rows.hasNext()) {
+                Object row = rows.next();
 
-                <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>row <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                    resultRows<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>row<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">());</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span>
+                if(row != null) {
+                    resultRows.add(row.toString());
+                }
+            }
 
-            root<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>column<span style="color:#f92672">,</span> resultRows<span style="color:#f92672">);</span>
-        <span style="color:#f92672">}</span>
+            root.put(column, resultRows);
+        }
 
-        <span style="color:#66d9ef">return</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">status</span><span style="color:#f92672">(</span> 200 <span style="color:#f92672">)</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">entity</span><span style="color:#f92672">(</span>OBJECT_MAPPER<span style="color:#f92672">.</span><span style="color:#a6e22e">writeValueAsString</span><span style="color:#f92672">(</span>root<span style="color:#f92672">))</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">type</span><span style="color:#f92672">(</span>MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span><span style="color:#f92672">).</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">package</span> org.neo4j.unmanaged<span style="color:#f92672">;</span>
+        return Response.status( 200 )
+                .entity(OBJECT_MAPPER.writeValueAsString(root))
+                .type(MediaType.APPLICATION_JSON).build();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We would write the following test which exposes the 'all-nodes' resource at '/unmanaged/dummy/all-nodes':</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package org.neo4j.unmanaged;
 
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DummyResourceTest</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">private</span> GraphDatabaseAPI db<span style="color:#f92672">;</span>
-    <span style="color:#66d9ef">private</span> CommunityNeoServer server<span style="color:#f92672">;</span>
+public class DummyResourceTest {
+    private GraphDatabaseAPI db;
+    private CommunityNeoServer server;
 
-    <span style="color:#a6e22e">@Before</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">before</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
-        ServerSocket serverSocket <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ServerSocket<span style="color:#f92672">(</span>0<span style="color:#f92672">);</span>
+    @Before
+    public void before() throws IOException {
+        ServerSocket serverSocket = new ServerSocket(0);
 
-        server <span style="color:#f92672">=</span> CommunityServerBuilder
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">server</span><span style="color:#f92672">()</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">onPort</span><span style="color:#f92672">(</span>serverSocket<span style="color:#f92672">.</span><span style="color:#a6e22e">getLocalPort</span><span style="color:#f92672">())</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">withThirdPartyJaxRsPackage</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.neo4j.unmanaged&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;/unmanaged&#34;</span><span style="color:#f92672">)</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">();</span>
+        server = CommunityServerBuilder
+                .server()
+                .onPort(serverSocket.getLocalPort())
+                .withThirdPartyJaxRsPackage("org.neo4j.unmanaged", "/unmanaged")
+                .build();
 
-        server<span style="color:#f92672">.</span><span style="color:#a6e22e">start</span><span style="color:#f92672">();</span>
-        db <span style="color:#f92672">=</span> server<span style="color:#f92672">.</span><span style="color:#a6e22e">getDatabase</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getGraph</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
+        server.start();
+        db = server.getDatabase().getGraph();
+    }
 
-    <span style="color:#a6e22e">@After</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">after</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-        server<span style="color:#f92672">.</span><span style="color:#a6e22e">stop</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
+    @After
+    public void after() {
+        server.stop();
+    }
 
-    <span style="color:#a6e22e">@Test</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">shouldReturnAllTheNodes</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-        Transaction tx <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">beginTx</span><span style="color:#f92672">();</span>
-        db<span style="color:#f92672">.</span><span style="color:#a6e22e">createNode</span><span style="color:#f92672">().</span><span style="color:#a6e22e">setProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Mark&#34;</span><span style="color:#f92672">);</span>
-        db<span style="color:#f92672">.</span><span style="color:#a6e22e">createNode</span><span style="color:#f92672">().</span><span style="color:#a6e22e">setProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Dave&#34;</span><span style="color:#f92672">);</span>
-        tx<span style="color:#f92672">.</span><span style="color:#a6e22e">success</span><span style="color:#f92672">();</span>
-        tx<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
+    @Test
+    public void shouldReturnAllTheNodes() {
+        Transaction tx = db.beginTx();
+        db.createNode().setProperty("name", "Mark");
+        db.createNode().setProperty("name", "Dave");
+        tx.success();
+        tx.close();
 
-        JsonNode response <span style="color:#f92672">=</span> jerseyClient<span style="color:#f92672">()</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">resource</span><span style="color:#f92672">(</span>server<span style="color:#f92672">.</span><span style="color:#a6e22e">baseUri</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;unmanaged/dummy/all-nodes&#34;</span><span style="color:#f92672">)</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>ClientResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">)</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">getEntity</span><span style="color:#f92672">(</span>JsonNode<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        JsonNode response = jerseyClient()
+                .resource(server.baseUri().toString() + "unmanaged/dummy/all-nodes")
+                .get(ClientResponse.class)
+                .getEntity(JsonNode.class);
 
-        assertEquals<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Dave&#34;</span><span style="color:#f92672">,</span> response<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;n.name&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>0<span style="color:#f92672">).</span><span style="color:#a6e22e">asText</span><span style="color:#f92672">());</span>
-        assertEquals<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Mark&#34;</span><span style="color:#f92672">,</span> response<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;n.name&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>1<span style="color:#f92672">).</span><span style="color:#a6e22e">asText</span><span style="color:#f92672">());</span>
-    <span style="color:#f92672">}</span>
+        assertEquals("Dave", response.get("n.name").get(0).asText());
+        assertEquals("Mark", response.get("n.name").get(1).asText());
+    }
 
-    <span style="color:#66d9ef">private</span> Client <span style="color:#a6e22e">jerseyClient</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-        DefaultClientConfig defaultClientConfig <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> DefaultClientConfig<span style="color:#f92672">();</span>
-        defaultClientConfig<span style="color:#f92672">.</span><span style="color:#a6e22e">getClasses</span><span style="color:#f92672">().</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>JacksonJsonProvider<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">return</span> Client<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>defaultClientConfig<span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">
-        <span style="color:#f92672">&lt;dependency&gt;</span>
-            <span style="color:#f92672">&lt;groupId&gt;</span>org.neo4j.app<span style="color:#f92672">&lt;/groupId&gt;</span>
-            <span style="color:#f92672">&lt;artifactId&gt;</span>neo4j-server<span style="color:#f92672">&lt;/artifactId&gt;</span>
-            <span style="color:#f92672">&lt;version&gt;</span>${neo4j.version}<span style="color:#f92672">&lt;/version&gt;</span>
-            <span style="color:#f92672">&lt;type&gt;</span>test-jar<span style="color:#f92672">&lt;/type&gt;</span>
-        <span style="color:#f92672">&lt;/dependency&gt;</span>
-</code></pre></div><!-- raw HTML omitted -->
+    private Client jerseyClient() {
+        DefaultClientConfig defaultClientConfig = new DefaultClientConfig();
+        defaultClientConfig.getClasses().add(JacksonJsonProvider.class);
+        return Client.create(defaultClientConfig);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we add a couple of nodes directly against the Java API and then call our unmanaged extension using a Jersey HTTP client. <cite>CommunityServerBuilder</cite> spins up an ephemeral store under the covers and we pick a random free port for Neo4j server by using <cite>ServerSocket#getLocalPort</cite>.</p>
+</div>
+<div class="paragraph">
+<p>We import <cite>CommunityServerBuilder</cite> by including the following dependency:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">        &lt;dependency&gt;
+            &lt;groupId&gt;org.neo4j.app&lt;/groupId&gt;
+            &lt;artifactId&gt;neo4j-server&lt;/artifactId&gt;
+            &lt;version&gt;${neo4j.version}&lt;/version&gt;
+            &lt;type&gt;test-jar&lt;/type&gt;
+        &lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And that&#8217;s it!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -312,7 +341,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/20/neo4j-testing-an-unmanaged-extension-using-communitserverbuilder/&amp;title=Neo4j%3a%20Testing%20an%20unmanaged%20extension%20using%20CommunityServerBuilder&amp;summary=package%20org.neo4j.unmanaged%3b%20%40Path%28%26%2334%3b%2fdummy%26%2334%3b%29%20public%20class%20DummyResource%20%7b%20private%20final%20ExecutionEngine%20executionEngine%3b%20private%20static%20final%20ObjectMapper%20OBJECT_MAPPER%20%3d%20new%20ObjectMapper%28%29%3b%20public%20DummyResource%28%20%40Context%20GraphDatabaseService%20database%20%29%20%7b%20this.executionEngine%20%3d%20new%20ExecutionEngine%28database%29%3b%20%7d%20%40GET%20%40Produces%28MediaType.APPLICATION_JSON%29%20%40Path%28%26%2334%3b%2fall-nodes%26%2334%3b%29%20public%20Response%20uploadNodesFile%28%20%29%20throws%20IOException%20%7b%20ExecutionResult%20result%20%3d%20executionEngine.execute%28%26%2334%3bSTART%20n%20%3d%20node%28%2a%29%20RETURN%20n.name%20ORDER%20BY%20n.name%26%2334%3b%29%3b%20ObjectNode%20root%20%3d%20JsonNodeFactory.instance.objectNode%28%29%3b%20for%20%28String%20column%20%3a%20result.columns%28%29%29%20%7b%20ResourceIterator%26lt%3bObject%26gt%3b%20rows%20%3d%20result.columnAs%28column%29%3b%20ArrayNode%20resultRows%20%3d%20JsonNodeFactory...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/20/neo4j-testing-an-unmanaged-extension-using-communitserverbuilder/&amp;title=Neo4j%3a%20Testing%20an%20unmanaged%20extension%20using%20CommunityServerBuilder&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20Neo4j%20unmanaged%20extensions%20recently%20and%20I%20wanted%20to%20be%20able%20to%20check%20that%20it%20worked%20properly%20without%20having%20to%20deploy%20it%20to%20a%20real%20Neo4j%20server.%0a%20I%26%238217%3bd%20previously%20used%20http%3a%2f%2fgrepcode.com%2ffile%2frepo1.maven.org%2fmaven2%2forg.neo4j%2fneo4j-kernel%2f1.2-1.2%2forg%2fneo4j%2fkernel%2fImpermanentGraphDatabase.java%20when%20using%20Neo4j%20embedded%20and%20Ian%20pointed%20me%20towards%20CommunityServerBuilder%20which%20allows%20us%20to%20do%20a%20similar%20thing%20in%20Neo4j%20server%20world.%0a%20I%26%238217%3bve%20created%20an%20example%20of%20a%20dummy%20unmanaged%20extension%20and%20test%20showing%20this%20approach%20but%20it%26%238217%3bs%20reasonably%20simple...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

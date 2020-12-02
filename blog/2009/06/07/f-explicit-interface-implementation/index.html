@@ -23,9 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Explicit interface implementation" />
         
-          <meta name="twitter:description" content="I&rsquo;ve been writing some code to map between CouchDB documents and F# objects and something which I re-learned while doing this is the way that interfaces work in F#.
-In F# when you have a class which implements an interface that class makes use of explicit interface implementation.
-This means that in order to access any members of the interface that the class implements you need to specifically refer to the interface by upcasting the value using the &lsquo;:&gt;&rsquo; operator." />
+          <meta name="twitter:description" content="I&#8217;ve been writing some code to map between CouchDB documents and F# objects and something which I re-learned while doing this is the way that interfaces work in F#.
+ In F# when you have a class which implements an interface that class makes use of explicit interface implementation.
+ This means that in order to access any members of the interface that the class implements you need to specifically refer to the interface by upcasting the value using the &#39;:&gt;&#39; operator." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/06/07/f-explicit-interface-implementation/" />
 
@@ -36,9 +36,9 @@ This means that in order to access any members of the interface that the class i
         <title> F#: Explicit interface implementation &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&rsquo;ve been writing some code to map between CouchDB documents and F# objects and something which I re-learned while doing this is the way that interfaces work in F#.
-In F# when you have a class which implements an interface that class makes use of explicit interface implementation.
-This means that in order to access any members of the interface that the class implements you need to specifically refer to the interface by upcasting the value using the &lsquo;:&gt;&rsquo; operator." />
+        <meta name="description" content="I&#8217;ve been writing some code to map between CouchDB documents and F# objects and something which I re-learned while doing this is the way that interfaces work in F#.
+ In F# when you have a class which implements an interface that class makes use of explicit interface implementation.
+ This means that in order to access any members of the interface that the class implements you need to specifically refer to the interface by upcasting the value using the &#39;:&gt;&#39; operator." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,8 +67,8 @@ This means that in order to access any members of the interface that the class i
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-06-07",
-        "description": "I\x26rsquo;ve been writing some code to map between CouchDB documents and F# objects and something which I re-learned while doing this is the way that interfaces work in F#.\nIn F# when you have a class which implements an interface that class makes use of explicit interface implementation.\nThis means that in order to access any members of the interface that the class implements you need to specifically refer to the interface by upcasting the value using the \x26lsquo;:\x26gt;\x26rsquo; operator.",
-        "wordCount":  354 
+        "description": "I\x26#8217;ve been writing some code to map between CouchDB documents and F# objects and something which I re-learned while doing this is the way that interfaces work in F#.\n In F# when you have a class which implements an interface that class makes use of explicit interface implementation.\n This means that in order to access any members of the interface that the class implements you need to specifically refer to the interface by upcasting the value using the \x27:\x26gt;\x27 operator.",
+        "wordCount":  356 
     }
     </script>
     
@@ -179,49 +179,94 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Explicit interface implementation</h1>
-    <p>I&rsquo;ve been writing some code to map between CouchDB documents and F# objects and something which I re-learned while doing this is the way that interfaces work in F#.</p>
+    <div class="paragraph">
+<p>I&#8217;ve been writing some code to map between CouchDB documents and F# objects and something which I re-learned while doing this is the way that interfaces work in F#.</p>
+</div>
+<div class="paragraph">
 <p>In F# when you have a class which implements an interface that class makes use of explicit interface implementation.</p>
-<p>This means that in order to access any members of the interface that the class implements you need to specifically refer to the interface by upcasting the value using the &lsquo;:&gt;&rsquo; operator.</p>
+</div>
+<div class="paragraph">
+<p>This means that in order to access any members of the interface that the class implements you need to specifically refer to the interface by upcasting the value using the ':&gt;' operator.</p>
+</div>
+<div class="paragraph">
 <p>Given the following interface and class definitions:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">CouchDBDocument</span> <span style="color:#f92672">=</span>  
-    abstract <span style="color:#a6e22e">DocType</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">string</span>
-        
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">UserDocument</span> <span style="color:#f92672">=</span> 
-    <span style="color:#f92672">{</span> <span style="color:#a6e22e">UserName</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">;</span> <span style="color:#a6e22e">FirstName</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">;</span> <span style="color:#a6e22e">Surname</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span> <span style="color:#f92672">}</span>
-    interface <span style="color:#a6e22e">CouchDBDocument</span> <span style="color:#66d9ef">with</span> member x<span style="color:#f92672">.</span><span style="color:#a6e22e">DocType</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;User&#34;</span>
-</code></pre></div><p>If we had the following value:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> mark <span style="color:#f92672">=</span> <span style="color:#f92672">{</span> <span style="color:#a6e22e">UserName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;mneedham&#34;</span><span style="color:#f92672">;</span> <span style="color:#a6e22e">FirstName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Mark&#34;</span><span style="color:#f92672">;</span> <span style="color:#a6e22e">Surname</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Needham&#34;</span> <span style="color:#f92672">}</span>
-</code></pre></div><p>In order to access the &lsquo;DocType&rsquo; member of &lsquo;mark&rsquo; we would need to do the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#f92672">(</span>mark <span style="color:#f92672">:&gt;</span> <span style="color:#a6e22e">CouchDBDocument</span><span style="color:#f92672">).</span><span style="color:#a6e22e">DocType</span>
-</code></pre></div><p>Coming from the world of C# I had expected that it would be possible to define a value as being of type &lsquo;CouchDBDocument&rsquo; and then pass in a value of UserDocument like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> mark <span style="color:#f92672">:</span> <span style="color:#a6e22e">CouchDBDocument</span> <span style="color:#f92672">=</span> <span style="color:#f92672">{</span> <span style="color:#a6e22e">UserName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;mneedham&#34;</span><span style="color:#f92672">;</span> <span style="color:#a6e22e">FirstName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Mark&#34;</span><span style="color:#f92672">;</span> <span style="color:#a6e22e">Surname</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Needham&#34;</span> <span style="color:#f92672">};;</span>
-</code></pre></div><p>But that doesn&rsquo;t actually compile:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-error FS0191: The type CouchDBDocument does not contain a field UserName
-</code></pre></div><p>It is possible to do this in C# as well although the implementation would be implicit in C# unless we explicitly declare it to be explicit like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> CouchDBDocument
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">type CouchDBDocument =
+    abstract DocType : string
+
+type UserDocument =
+    { UserName:string; FirstName:string; Surname:string }
+    interface CouchDBDocument with member x.DocType = "User"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we had the following value:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let mark = { UserName = "mneedham"; FirstName = "Mark"; Surname = "Needham" }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In order to access the 'DocType' member of 'mark' we would need to do the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">(mark :&gt; CouchDBDocument).DocType</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Coming from the world of C# I had expected that it would be possible to define a value as being of type 'CouchDBDocument' and then pass in a value of UserDocument like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let mark : CouchDBDocument = { UserName = "mneedham"; FirstName = "Mark"; Surname = "Needham" };;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But that doesn&#8217;t actually compile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">error FS0191: The type CouchDBDocument does not contain a field UserName</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It is possible to do this in C# as well although the implementation would be implicit in C# unless we explicitly declare it to be explicit like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public interface CouchDBDocument
 {
-    <span style="color:#66d9ef">string</span> DocType { <span style="color:#66d9ef">get</span>; }
+    string DocType { get; }
 }
 
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UserDocument</span> : CouchDBDocument
+public class UserDocument : CouchDBDocument
 {
-     <span style="color:#66d9ef">string</span> CouchDBDocument.DocType
+     string CouchDBDocument.DocType
     {
-        <span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;User&#34;</span>; }
+        get { return "User"; }
     }
-}
-</code></pre></div><p>To access the &lsquo;DocType&rsquo; property in this case we would need to be explicitly referring to the &lsquo;CouchDBDocument&rsquo;:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-CouchDBDocument mark = <span style="color:#66d9ef">new</span> UserDocument();
-Console.WriteLine(mark.DocType);
-</code></pre></div><p>Mauricio Scheffer has an <!-- raw HTML omitted -->interesting post where he talks about rewriting a piece of C# code in F#<!-- raw HTML omitted --> which required him to use interfaces in F# and <!-- raw HTML omitted -->Brian McNamara explains on hubfs why explicit interface implementation can actually be quite useful<!-- raw HTML omitted -->.</p>
-<p>The <!-- raw HTML omitted -->Real World Functional Programming book<!-- raw HTML omitted --> also has a chapter which describes interfaces in C# and F# and the way they differ very clearly.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To access the 'DocType' property in this case we would need to be explicitly referring to the 'CouchDBDocument':</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">CouchDBDocument mark = new UserDocument();
+Console.WriteLine(mark.DocType);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Mauricio Scheffer has an <a href="http://bugsquash.blogspot.com/2009/01/implementing-interfaces-in-f.html">interesting post where he talks about rewriting a piece of C# code in F#</a> which required him to use interfaces in F# and <a href="http://cs.hubfs.net/forums/permalink/7579/7586/ShowThread.aspx#7586">Brian McNamara explains on hubfs why explicit interface implementation can actually be quite useful</a>.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="http://www.markhneedham.com/blog/2009/05/24/real-world-functional-programming-book-review/">Real World Functional Programming book</a> also has a chapter which describes interfaces in C# and F# and the way they differ very clearly.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -256,7 +301,7 @@ Console.WriteLine(mark.DocType);
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/06/07/f-explicit-interface-implementation/&amp;title=F%23%3a%20Explicit%20interface%20implementation&amp;summary=I%26rsquo%3bve%20been%20writing%20some%20code%20to%20map%20between%20CouchDB%20documents%20and%20F%23%20objects%20and%20something%20which%20I%20re-learned%20while%20doing%20this%20is%20the%20way%20that%20interfaces%20work%20in%20F%23.%0aIn%20F%23%20when%20you%20have%20a%20class%20which%20implements%20an%20interface%20that%20class%20makes%20use%20of%20explicit%20interface%20implementation.%0aThis%20means%20that%20in%20order%20to%20access%20any%20members%20of%20the%20interface%20that%20the%20class%20implements%20you%20need%20to%20specifically%20refer%20to%20the%20interface%20by%20upcasting%20the%20value%20using%20the%20%26lsquo%3b%3a%26gt%3b%26rsquo%3b%20operator...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/06/07/f-explicit-interface-implementation/&amp;title=F%23%3a%20Explicit%20interface%20implementation&amp;summary=I%26%238217%3bve%20been%20writing%20some%20code%20to%20map%20between%20CouchDB%20documents%20and%20F%23%20objects%20and%20something%20which%20I%20re-learned%20while%20doing%20this%20is%20the%20way%20that%20interfaces%20work%20in%20F%23.%0a%20In%20F%23%20when%20you%20have%20a%20class%20which%20implements%20an%20interface%20that%20class%20makes%20use%20of%20explicit%20interface%20implementation.%0a%20This%20means%20that%20in%20order%20to%20access%20any%20members%20of%20the%20interface%20that%20the%20class%20implements%20you%20need%20to%20specifically%20refer%20to%20the%20interface%20by%20upcasting%20the%20value%20using%20the%20%27%3a%26gt%3b%27%20operator...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

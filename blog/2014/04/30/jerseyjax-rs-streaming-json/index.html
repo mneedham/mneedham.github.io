@@ -23,7 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Jersey/Jax RS: Streaming JSON" />
         
-          <meta name="twitter:description" content="@Path(&#34;/resource&#34;) public class MadeUpResource { private final ObjectMapper objectMapper; public MadeUpResource() { objectMapper = new ObjectMapper(); } @GET @Produces(MediaType.APPLICATION_JSON) public Response loadHierarchy(@PathParam( &#34;pkPerson&#34; ) String pkPerson) { final Map&lt;Integer, String&gt; people = new HashMap&lt;&gt;(); people.put(1, &#34;Michael&#34;); people.put(2, &#34;Mark&#34;); StreamingOutput stream = new StreamingOutput() { @Override public void write(OutputStream os) throws IOException, WebApplicationException { JsonGenerator jg = objectMapper.getJsonFactory().createJsonGenerator( os, JsonEncoding.UTF8 ); jg.writeStartArray(); for ( Map.Entry&lt;Integer, String&gt; person : people.entrySet() ) { jg." />
+          <meta name="twitter:description" content="About a year ago I wrote a blog post showing how to stream a HTTP response using Jersey/Jax RS and I recently wanted to do the same thing but this time using JSON.
+ A common pattern is to take our Java object and get a JSON string representation of that but that isn&#8217;t the most efficient use of memory because we now have the Java object and a string representation." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/04/30/jerseyjax-rs-streaming-json/" />
 
@@ -34,7 +35,8 @@
         <title> Jersey/Jax RS: Streaming JSON &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="@Path(&#34;/resource&#34;) public class MadeUpResource { private final ObjectMapper objectMapper; public MadeUpResource() { objectMapper = new ObjectMapper(); } @GET @Produces(MediaType.APPLICATION_JSON) public Response loadHierarchy(@PathParam( &#34;pkPerson&#34; ) String pkPerson) { final Map&lt;Integer, String&gt; people = new HashMap&lt;&gt;(); people.put(1, &#34;Michael&#34;); people.put(2, &#34;Mark&#34;); StreamingOutput stream = new StreamingOutput() { @Override public void write(OutputStream os) throws IOException, WebApplicationException { JsonGenerator jg = objectMapper.getJsonFactory().createJsonGenerator( os, JsonEncoding.UTF8 ); jg.writeStartArray(); for ( Map.Entry&lt;Integer, String&gt; person : people.entrySet() ) { jg." />
+        <meta name="description" content="About a year ago I wrote a blog post showing how to stream a HTTP response using Jersey/Jax RS and I recently wanted to do the same thing but this time using JSON.
+ A common pattern is to take our Java object and get a JSON string representation of that but that isn&#8217;t the most efficient use of memory because we now have the Java object and a string representation." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-04-30",
-        "description": "@Path(\x26#34;\/resource\x26#34;) public class MadeUpResource { private final ObjectMapper objectMapper; public MadeUpResource() { objectMapper = new ObjectMapper(); } @GET @Produces(MediaType.APPLICATION_JSON) public Response loadHierarchy(@PathParam( \x26#34;pkPerson\x26#34; ) String pkPerson) { final Map\x26lt;Integer, String\x26gt; people = new HashMap\x26lt;\x26gt;(); people.put(1, \x26#34;Michael\x26#34;); people.put(2, \x26#34;Mark\x26#34;); StreamingOutput stream = new StreamingOutput() { @Override public void write(OutputStream os) throws IOException, WebApplicationException { JsonGenerator jg = objectMapper.getJsonFactory().createJsonGenerator( os, JsonEncoding.UTF8 ); jg.writeStartArray(); for ( Map.Entry\x26lt;Integer, String\x26gt; person : people.entrySet() ) { jg.",
-        "wordCount":  100 
+        "description": "About a year ago I wrote a blog post showing how to stream a HTTP response using Jersey\/Jax RS and I recently wanted to do the same thing but this time using JSON.\n A common pattern is to take our Java object and get a JSON string representation of that but that isn\x26#8217;t the most efficient use of memory because we now have the Java object and a string representation.",
+        "wordCount":  258 
     }
     </script>
     
@@ -175,58 +177,76 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Jersey/Jax RS: Streaming JSON</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#a6e22e">@Path</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/resource&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MadeUpResource</span>
-<span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ObjectMapper objectMapper<span style="color:#f92672">;</span>
+    <div class="paragraph">
+<p>About a year ago I wrote a blog post showing how to <a href="http://www.markhneedham.com/blog/2013/07/08/jax-rs-streaming-a-response-using-streamingoutput/">stream a HTTP response using Jersey/Jax RS</a> and I recently wanted to do the same thing but this time using JSON.</p>
+</div>
+<div class="paragraph">
+<p>A common pattern is to take our Java object and get a JSON string representation of that but that isn&#8217;t the most efficient use of memory because we now have the Java object and a string representation.</p>
+</div>
+<div class="paragraph">
+<p>This is particularly problematic if we need to return a lot of the data in a response.</p>
+</div>
+<div class="paragraph">
+<p>By writing a little bit more code we can get our response to stream to the client as soon as some of it is ready rather than building the whole result and sending it all in one go:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Path("/resource")
+public class MadeUpResource
+{
+    private final ObjectMapper objectMapper;
 
-    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">MadeUpResource</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-        objectMapper <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ObjectMapper<span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
+    public MadeUpResource() {
+        objectMapper = new ObjectMapper();
+    }
 
-    <span style="color:#a6e22e">@GET</span>
-    <span style="color:#a6e22e">@Produces</span><span style="color:#f92672">(</span>MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span><span style="color:#f92672">)</span>
-    <span style="color:#66d9ef">public</span> Response <span style="color:#a6e22e">loadHierarchy</span><span style="color:#f92672">(</span><span style="color:#a6e22e">@PathParam</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;pkPerson&#34;</span> <span style="color:#f92672">)</span> String pkPerson<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> people  <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
-        people<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>1<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Michael&#34;</span><span style="color:#f92672">);</span>
-        people<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Mark&#34;</span><span style="color:#f92672">);</span>
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response loadHierarchy(@PathParam( "pkPerson" ) String pkPerson) {
+        final Map&lt;Integer, String&gt; people  = new HashMap&lt;&gt;();
+        people.put(1, "Michael");
+        people.put(2, "Mark");
 
-        StreamingOutput stream <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StreamingOutput<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>OutputStream os<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException<span style="color:#f92672">,</span> WebApplicationException
-            <span style="color:#f92672">{</span>
-                JsonGenerator jg <span style="color:#f92672">=</span> objectMapper<span style="color:#f92672">.</span><span style="color:#a6e22e">getJsonFactory</span><span style="color:#f92672">().</span><span style="color:#a6e22e">createJsonGenerator</span><span style="color:#f92672">(</span> os<span style="color:#f92672">,</span> JsonEncoding<span style="color:#f92672">.</span><span style="color:#a6e22e">UTF8</span> <span style="color:#f92672">);</span>
-                jg<span style="color:#f92672">.</span><span style="color:#a6e22e">writeStartArray</span><span style="color:#f92672">();</span>
+        StreamingOutput stream = new StreamingOutput() {
+            @Override
+            public void write(OutputStream os) throws IOException, WebApplicationException
+            {
+                JsonGenerator jg = objectMapper.getJsonFactory().createJsonGenerator( os, JsonEncoding.UTF8 );
+                jg.writeStartArray();
 
-                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">,</span> String<span style="color:#f92672">&gt;</span> person <span style="color:#f92672">:</span> people<span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">()</span>  <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
-                    jg<span style="color:#f92672">.</span><span style="color:#a6e22e">writeStartObject</span><span style="color:#f92672">();</span>
-                    jg<span style="color:#f92672">.</span><span style="color:#a6e22e">writeFieldName</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;id&#34;</span> <span style="color:#f92672">);</span>
-                    jg<span style="color:#f92672">.</span><span style="color:#a6e22e">writeString</span><span style="color:#f92672">(</span> person<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">().</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span> <span style="color:#f92672">);</span>
-                    jg<span style="color:#f92672">.</span><span style="color:#a6e22e">writeFieldName</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;name&#34;</span> <span style="color:#f92672">);</span>
-                    jg<span style="color:#f92672">.</span><span style="color:#a6e22e">writeString</span><span style="color:#f92672">(</span> person<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">()</span> <span style="color:#f92672">);</span>
-                    jg<span style="color:#f92672">.</span><span style="color:#a6e22e">writeEndObject</span><span style="color:#f92672">();</span>
-                <span style="color:#f92672">}</span>
-                jg<span style="color:#f92672">.</span><span style="color:#a6e22e">writeEndArray</span><span style="color:#f92672">();</span>
+                for ( Map.Entry&lt;Integer, String&gt; person : people.entrySet()  )
+                {
+                    jg.writeStartObject();
+                    jg.writeFieldName( "id" );
+                    jg.writeString( person.getKey().toString() );
+                    jg.writeFieldName( "name" );
+                    jg.writeString( person.getValue() );
+                    jg.writeEndObject();
+                }
+                jg.writeEndArray();
 
-                jg<span style="color:#f92672">.</span><span style="color:#a6e22e">flush</span><span style="color:#f92672">();</span>
-                jg<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">};</span>
+                jg.flush();
+                jg.close();
+            }
+        };
 
 
-        <span style="color:#66d9ef">return</span> Response<span style="color:#f92672">.</span><span style="color:#a6e22e">ok</span><span style="color:#f92672">().</span><span style="color:#a6e22e">entity</span><span style="color:#f92672">(</span> stream <span style="color:#f92672">).</span><span style="color:#a6e22e">type</span><span style="color:#f92672">(</span> MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span> <span style="color:#f92672">).</span><span style="color:#a6e22e">build</span><span style="color:#f92672">()</span>    <span style="color:#f92672">;</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-[{&#34;id&#34;:&#34;1&#34;,&#34;name&#34;:&#34;Michael&#34;},{&#34;id&#34;:&#34;2&#34;,&#34;name&#34;:&#34;Mark&#34;}]
-</code></pre></div><!-- raw HTML omitted -->
+        return Response.ok().entity( stream ).type( MediaType.APPLICATION_JSON ).build()    ;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that this is the output we&#8217;d see:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">[{"id":"1","name":"Michael"},{"id":"2","name":"Mark"}]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s a simple example but hopefully it&#8217;s easy to see how we could translate that if we wanted to stream more complex data.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -261,7 +281,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/04/30/jerseyjax-rs-streaming-json/&amp;title=Jersey%2fJax%20RS%3a%20Streaming%20JSON&amp;summary=%40Path%28%26%2334%3b%2fresource%26%2334%3b%29%20public%20class%20MadeUpResource%20%7b%20private%20final%20ObjectMapper%20objectMapper%3b%20public%20MadeUpResource%28%29%20%7b%20objectMapper%20%3d%20new%20ObjectMapper%28%29%3b%20%7d%20%40GET%20%40Produces%28MediaType.APPLICATION_JSON%29%20public%20Response%20loadHierarchy%28%40PathParam%28%20%26%2334%3bpkPerson%26%2334%3b%20%29%20String%20pkPerson%29%20%7b%20final%20Map%26lt%3bInteger%2c%20String%26gt%3b%20people%20%3d%20new%20HashMap%26lt%3b%26gt%3b%28%29%3b%20people.put%281%2c%20%26%2334%3bMichael%26%2334%3b%29%3b%20people.put%282%2c%20%26%2334%3bMark%26%2334%3b%29%3b%20StreamingOutput%20stream%20%3d%20new%20StreamingOutput%28%29%20%7b%20%40Override%20public%20void%20write%28OutputStream%20os%29%20throws%20IOException%2c%20WebApplicationException%20%7b%20JsonGenerator%20jg%20%3d%20objectMapper.getJsonFactory%28%29.createJsonGenerator%28%20os%2c%20JsonEncoding.UTF8%20%29%3b%20jg.writeStartArray%28%29%3b%20for%20%28%20Map.Entry%26lt%3bInteger%2c%20String%26gt%3b%20person%20%3a%20people.entrySet%28%29%20%29%20%7b%20jg...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/04/30/jerseyjax-rs-streaming-json/&amp;title=Jersey%2fJax%20RS%3a%20Streaming%20JSON&amp;summary=About%20a%20year%20ago%20I%20wrote%20a%20blog%20post%20showing%20how%20to%20stream%20a%20HTTP%20response%20using%20Jersey%2fJax%20RS%20and%20I%20recently%20wanted%20to%20do%20the%20same%20thing%20but%20this%20time%20using%20JSON.%0a%20A%20common%20pattern%20is%20to%20take%20our%20Java%20object%20and%20get%20a%20JSON%20string%20representation%20of%20that%20but%20that%20isn%26%238217%3bt%20the%20most%20efficient%20use%20of%20memory%20because%20we%20now%20have%20the%20Java%20object%20and%20a%20string%20representation...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

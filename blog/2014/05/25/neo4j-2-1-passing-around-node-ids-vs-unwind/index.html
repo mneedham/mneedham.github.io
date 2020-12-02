@@ -23,7 +23,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j 2.1:  Passing around node ids vs UNWIND" />
         
-          <meta name="twitter:description" content="MATCH (g:Group) WITH g ORDER BY g.name LIMIT 5 WITH COLLECT(id(g)) AS groups MATCH (g1) WHERE id(g1) IN groups MATCH (g2) WHERE id(g2) IN groups OPTIONAL MATCH path = (g1)&lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&gt;(g2) RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap MATCH (g:Group) WITH g ORDER BY g.name LIMIT 5 WITH COLLECT(g) AS groups MATCH (g1) WHERE g1 IN groups MATCH (g2) WHERE g2 IN groups OPTIONAL MATCH path = (g1)&lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&gt;(g2) RETURN g1." />
+          <meta name="twitter:description" content="When Neo4j 2.1 is released we&#8217;ll have the UNWIND clause which makes working with collections of things easier.
+ In my blog post about creating adjacency matrices we wanted to show how many people were members of the first 5 meetup groups ordered alphabetically and then check how many were members of each of the other groups.
+ Without the UNWIND clause we&#8217;d have to do this:
+ MATCH (g:Group) WITH g ORDER BY g." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/05/25/neo4j-2-1-passing-around-node-ids-vs-unwind/" />
 
@@ -34,7 +37,10 @@
         <title> Neo4j 2.1:  Passing around node ids vs UNWIND &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="MATCH (g:Group) WITH g ORDER BY g.name LIMIT 5 WITH COLLECT(id(g)) AS groups MATCH (g1) WHERE id(g1) IN groups MATCH (g2) WHERE id(g2) IN groups OPTIONAL MATCH path = (g1)&lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&gt;(g2) RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap MATCH (g:Group) WITH g ORDER BY g.name LIMIT 5 WITH COLLECT(g) AS groups MATCH (g1) WHERE g1 IN groups MATCH (g2) WHERE g2 IN groups OPTIONAL MATCH path = (g1)&lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&gt;(g2) RETURN g1." />
+        <meta name="description" content="When Neo4j 2.1 is released we&#8217;ll have the UNWIND clause which makes working with collections of things easier.
+ In my blog post about creating adjacency matrices we wanted to show how many people were members of the first 5 meetup groups ordered alphabetically and then check how many were members of each of the other groups.
+ Without the UNWIND clause we&#8217;d have to do this:
+ MATCH (g:Group) WITH g ORDER BY g." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +69,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-05-25",
-        "description": "MATCH (g:Group) WITH g ORDER BY g.name LIMIT 5 WITH COLLECT(id(g)) AS groups MATCH (g1) WHERE id(g1) IN groups MATCH (g2) WHERE id(g2) IN groups OPTIONAL MATCH path = (g1)\x26lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-\x26gt;(g2) RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap MATCH (g:Group) WITH g ORDER BY g.name LIMIT 5 WITH COLLECT(g) AS groups MATCH (g1) WHERE g1 IN groups MATCH (g2) WHERE g2 IN groups OPTIONAL MATCH path = (g1)\x26lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-\x26gt;(g2) RETURN g1.",
-        "wordCount":  508 
+        "description": "When Neo4j 2.1 is released we\x26#8217;ll have the UNWIND clause which makes working with collections of things easier.\n In my blog post about creating adjacency matrices we wanted to show how many people were members of the first 5 meetup groups ordered alphabetically and then check how many were members of each of the other groups.\n Without the UNWIND clause we\x26#8217;d have to do this:\n MATCH (g:Group) WITH g ORDER BY g.",
+        "wordCount":  726 
     }
     </script>
     
@@ -175,11 +181,18 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j 2.1:  Passing around node ids vs UNWIND</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (g:Group)
+    <div class="paragraph">
+<p>When Neo4j 2.1 is released we&#8217;ll have the <a href="http://docs.neo4j.org/chunked/milestone/query-unwind.html">UNWIND</a> clause which makes working with collections of things easier.</p>
+</div>
+<div class="paragraph">
+<p>In my blog post about <a href="http://www.markhneedham.com/blog/2014/05/20/neo4j-2-0-creating-adjacency-matrices/">creating adjacency matrices</a> we wanted to show how many people were members of the first 5 meetup groups ordered alphabetically and then check how many were members of each of the other groups.</p>
+</div>
+<div class="paragraph">
+<p>Without the UNWIND clause we&#8217;d have to do this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (g:Group)
 WITH g
 ORDER BY g.name
 LIMIT 5
@@ -190,13 +203,22 @@ MATCH (g1) WHERE id(g1) IN groups
 MATCH (g2) WHERE id(g2) IN groups
 
 OPTIONAL MATCH path = (g1)&lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&gt;(g2)
- 
-RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (g:Group)
+
+RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we get the first 5 groups, put their IDs into a collection and then create a cartesian product of groups by doing back to back MATCH&#8217;s with a node id lookup.</p>
+</div>
+<div class="paragraph">
+<p>If instead of passing around node ids in 'groups' we pass around nodes and then used those in the MATCH step we&#8217;d end up doing a full node scan which becomes very slow as the store grows.</p>
+</div>
+<div class="paragraph">
+<p>e.g. this version would be very slow</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (g:Group)
 WITH g
 ORDER BY g.name
 LIMIT 5
@@ -207,43 +229,53 @@ MATCH (g1) WHERE g1 IN groups
 MATCH (g2) WHERE g2 IN groups
 
 OPTIONAL MATCH path = (g1)&lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&gt;(g2)
- 
-RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-+-------------------------------------------------------------------------------------------------------------+
+
+RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is the output from the original query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">+-------------------------------------------------------------------------------------------------------------+
 | g1.name                                         | g2.name                                         | overlap |
 +-------------------------------------------------------------------------------------------------------------+
-| <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#ae81ff">17</span>      |
-| <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#ae81ff">190</span>     |
-| <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#ae81ff">244</span>     |
-| <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#ae81ff">16</span>      |
-| <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#ae81ff">52</span>      |
-| <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#ae81ff">0</span>       |
-| <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#ae81ff">36</span>      |
-| <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#ae81ff">422</span>     |
-| <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#ae81ff">0</span>       |
-| <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#ae81ff">0</span>       |
-| <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#ae81ff">74</span>      |
-| <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#ae81ff">244</span>     |
-| <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#ae81ff">74</span>      |
-| <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#ae81ff">422</span>     |
-| <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#ae81ff">36</span>      |
-| <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#ae81ff">20</span>      |
-| <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#ae81ff">52</span>      |
-| <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#ae81ff">69</span>      |
-| <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#ae81ff">20</span>      |
-| <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#ae81ff">0</span>       |
-| <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#ae81ff">69</span>      |
-| <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#e6db74">&#34;Big Data Developers in London&#34;</span>                 | <span style="color:#ae81ff">17</span>      |
-| <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#e6db74">&#34;Big Data Jobs in London&#34;</span>                       | <span style="color:#ae81ff">190</span>     |
-| <span style="color:#e6db74">&#34;Big Data / Data Science / Data Analytics Jobs&#34;</span> | <span style="color:#e6db74">&#34;Cassandra London&#34;</span>                              | <span style="color:#ae81ff">16</span>      |
-| <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#e6db74">&#34;Big Data London&#34;</span>                               | <span style="color:#ae81ff">0</span>       |
+| "Big Data Developers in London"                 | "Big Data / Data Science / Data Analytics Jobs" | 17      |
+| "Big Data Jobs in London"                       | "Big Data London"                               | 190     |
+| "Big Data London"                               | "Big Data Developers in London"                 | 244     |
+| "Cassandra London"                              | "Big Data / Data Science / Data Analytics Jobs" | 16      |
+| "Big Data Jobs in London"                       | "Big Data Developers in London"                 | 52      |
+| "Cassandra London"                              | "Cassandra London"                              | 0       |
+| "Big Data London"                               | "Big Data / Data Science / Data Analytics Jobs" | 36      |
+| "Big Data London"                               | "Cassandra London"                              | 422     |
+| "Big Data Jobs in London"                       | "Big Data Jobs in London"                       | 0       |
+| "Big Data / Data Science / Data Analytics Jobs" | "Big Data / Data Science / Data Analytics Jobs" | 0       |
+| "Big Data Jobs in London"                       | "Cassandra London"                              | 74      |
+| "Big Data Developers in London"                 | "Big Data London"                               | 244     |
+| "Cassandra London"                              | "Big Data Jobs in London"                       | 74      |
+| "Cassandra London"                              | "Big Data London"                               | 422     |
+| "Big Data / Data Science / Data Analytics Jobs" | "Big Data London"                               | 36      |
+| "Big Data Jobs in London"                       | "Big Data / Data Science / Data Analytics Jobs" | 20      |
+| "Big Data Developers in London"                 | "Big Data Jobs in London"                       | 52      |
+| "Cassandra London"                              | "Big Data Developers in London"                 | 69      |
+| "Big Data / Data Science / Data Analytics Jobs" | "Big Data Jobs in London"                       | 20      |
+| "Big Data Developers in London"                 | "Big Data Developers in London"                 | 0       |
+| "Big Data Developers in London"                 | "Cassandra London"                              | 69      |
+| "Big Data / Data Science / Data Analytics Jobs" | "Big Data Developers in London"                 | 17      |
+| "Big Data London"                               | "Big Data Jobs in London"                       | 190     |
+| "Big Data / Data Science / Data Analytics Jobs" | "Cassandra London"                              | 16      |
+| "Big Data London"                               | "Big Data London"                               | 0       |
 +-------------------------------------------------------------------------------------------------------------+
-<span style="color:#ae81ff">25</span> rows
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (g:Group)
+25 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we use UNWIND we don&#8217;t need to pass around node ids anymore, instead we can collect up the nodes into a collection and then explode them out into a cartesian product:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (g:Group)
 WITH g
 ORDER BY g.name
 LIMIT 5
@@ -254,10 +286,16 @@ UNWIND groups AS g1
 UNWIND groups AS g2
 
 OPTIONAL MATCH path = (g1)&lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&gt;(g2)
- 
-RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There&#8217;s not significantly less code but I think the intent of the query is a bit clearer using UNWIND.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m looking forward to seeing the innovative uses of UNWIND people come up with once 2.1 is GA.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -292,7 +330,7 @@ RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS o
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/05/25/neo4j-2-1-passing-around-node-ids-vs-unwind/&amp;title=Neo4j%202.1%3a%20%20Passing%20around%20node%20ids%20vs%20UNWIND&amp;summary=MATCH%20%28g%3aGroup%29%20WITH%20g%20ORDER%20BY%20g.name%20LIMIT%205%20WITH%20COLLECT%28id%28g%29%29%20AS%20groups%20MATCH%20%28g1%29%20WHERE%20id%28g1%29%20IN%20groups%20MATCH%20%28g2%29%20WHERE%20id%28g2%29%20IN%20groups%20OPTIONAL%20MATCH%20path%20%3d%20%28g1%29%26lt%3b-%5b%3aMEMBER_OF%5d-%28%29-%5b%3aMEMBER_OF%5d-%26gt%3b%28g2%29%20RETURN%20g1.name%2c%20g2.name%2c%20CASE%20WHEN%20path%20is%20null%20THEN%200%20ELSE%20COUNT%28path%29%20END%20AS%20overlap%20MATCH%20%28g%3aGroup%29%20WITH%20g%20ORDER%20BY%20g.name%20LIMIT%205%20WITH%20COLLECT%28g%29%20AS%20groups%20MATCH%20%28g1%29%20WHERE%20g1%20IN%20groups%20MATCH%20%28g2%29%20WHERE%20g2%20IN%20groups%20OPTIONAL%20MATCH%20path%20%3d%20%28g1%29%26lt%3b-%5b%3aMEMBER_OF%5d-%28%29-%5b%3aMEMBER_OF%5d-%26gt%3b%28g2%29%20RETURN%20g1...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/05/25/neo4j-2-1-passing-around-node-ids-vs-unwind/&amp;title=Neo4j%202.1%3a%20%20Passing%20around%20node%20ids%20vs%20UNWIND&amp;summary=When%20Neo4j%202.1%20is%20released%20we%26%238217%3bll%20have%20the%20UNWIND%20clause%20which%20makes%20working%20with%20collections%20of%20things%20easier.%0a%20In%20my%20blog%20post%20about%20creating%20adjacency%20matrices%20we%20wanted%20to%20show%20how%20many%20people%20were%20members%20of%20the%20first%205%20meetup%20groups%20ordered%20alphabetically%20and%20then%20check%20how%20many%20were%20members%20of%20each%20of%20the%20other%20groups.%0a%20Without%20the%20UNWIND%20clause%20we%26%238217%3bd%20have%20to%20do%20this%3a%0a%20MATCH%20%28g%3aGroup%29%20WITH%20g%20ORDER%20BY%20g...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="RxJava: From Future to Observable" />
         
-          <meta name="twitter:description" content="public class MergeTimeRx { public static void main( final String[] args ) throws InterruptedException, IOException { String pathToDb = &#34;/tmp/foo&#34;; FileUtils.deleteRecursively( new File( pathToDb ) ); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( pathToDb ); final ExecutionEngine engine = new ExecutionEngine( db ); int numberOfThreads = 50; int numberOfUsers = 10; int numberOfEvents = 50; int iterations = 100; Observable&lt;ExecutionResult&gt; events = processEvents( engine, numberOfUsers, numberOfEvents, numberOfThreads, iterations ); events.subscribe( new Action1&lt;ExecutionResult&gt;() { @Override public void call( ExecutionResult result ) { for ( Map&lt;String, Object&gt; row : result ) { } } } ); ." />
+          <meta name="twitter:description" content="I first came across Reactive Extensions about 4 years ago on Matthew Podwysocki&#8217;s blog but then haven&#8217;t heard much about it until I saw Matthew give a talk at Code Mesh a few weeks ago.
+ It seems to have grown in popularity recently and I noticed that&#8217;s there&#8217;s now a Java version called RxJava written by Netflix.
+ I thought I&#8217;d give it a try by changing some code I wrote while exploring cypher&#8217;s MERGE function to expose an Observable instead of Futures." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/12/28/rxjava-from-future-to-observable/" />
 
@@ -33,7 +35,9 @@
         <title> RxJava: From Future to Observable &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="public class MergeTimeRx { public static void main( final String[] args ) throws InterruptedException, IOException { String pathToDb = &#34;/tmp/foo&#34;; FileUtils.deleteRecursively( new File( pathToDb ) ); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( pathToDb ); final ExecutionEngine engine = new ExecutionEngine( db ); int numberOfThreads = 50; int numberOfUsers = 10; int numberOfEvents = 50; int iterations = 100; Observable&lt;ExecutionResult&gt; events = processEvents( engine, numberOfUsers, numberOfEvents, numberOfThreads, iterations ); events.subscribe( new Action1&lt;ExecutionResult&gt;() { @Override public void call( ExecutionResult result ) { for ( Map&lt;String, Object&gt; row : result ) { } } } ); ." />
+        <meta name="description" content="I first came across Reactive Extensions about 4 years ago on Matthew Podwysocki&#8217;s blog but then haven&#8217;t heard much about it until I saw Matthew give a talk at Code Mesh a few weeks ago.
+ It seems to have grown in popularity recently and I noticed that&#8217;s there&#8217;s now a Java version called RxJava written by Netflix.
+ I thought I&#8217;d give it a try by changing some code I wrote while exploring cypher&#8217;s MERGE function to expose an Observable instead of Futures." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-12-28",
-        "description": "public class MergeTimeRx { public static void main( final String[] args ) throws InterruptedException, IOException { String pathToDb = \x26#34;\/tmp\/foo\x26#34;; FileUtils.deleteRecursively( new File( pathToDb ) ); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( pathToDb ); final ExecutionEngine engine = new ExecutionEngine( db ); int numberOfThreads = 50; int numberOfUsers = 10; int numberOfEvents = 50; int iterations = 100; Observable\x26lt;ExecutionResult\x26gt; events = processEvents( engine, numberOfUsers, numberOfEvents, numberOfThreads, iterations ); events.subscribe( new Action1\x26lt;ExecutionResult\x26gt;() { @Override public void call( ExecutionResult result ) { for ( Map\x26lt;String, Object\x26gt; row : result ) { } } } ); .",
-        "wordCount":  273 
+        "description": "I first came across Reactive Extensions about 4 years ago on Matthew Podwysocki\x26#8217;s blog but then haven\x26#8217;t heard much about it until I saw Matthew give a talk at Code Mesh a few weeks ago.\n It seems to have grown in popularity recently and I noticed that\x26#8217;s there\x26#8217;s now a Java version called RxJava written by Netflix.\n I thought I\x26#8217;d give it a try by changing some code I wrote while exploring cypher\x26#8217;s MERGE function to expose an Observable instead of Futures.",
+        "wordCount":  609 
     }
     </script>
     
@@ -172,113 +176,133 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">RxJava: From Future to Observable</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MergeTimeRx</span>
-<span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">final</span> String<span style="color:#f92672">[]</span> args <span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> InterruptedException<span style="color:#f92672">,</span> IOException
-    <span style="color:#f92672">{</span>
-        String pathToDb <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/tmp/foo&#34;</span><span style="color:#f92672">;</span>
-        FileUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">deleteRecursively</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> File<span style="color:#f92672">(</span> pathToDb <span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
+    <div class="paragraph">
+<p>I first came across <a href="https://rx.codeplex.com/">Reactive Extensions</a> about 4 years ago on <a href="http://weblogs.asp.net/podwysocki/">Matthew Podwysocki&#8217;s blog</a> but then haven&#8217;t heard much about it until I saw Matthew give a talk at <a href="http://codemesh.io/">Code Mesh</a> a few weeks ago.</p>
+</div>
+<div class="paragraph">
+<p>It seems to have grown in popularity recently and I noticed that&#8217;s there&#8217;s now a Java version called <a href="https://github.com/Netflix/RxJava">RxJava</a> <a href="http://techblog.netflix.com/2013/02/rxjava-netflix-api.html">written by Netflix</a>.</p>
+</div>
+<div class="paragraph">
+<p>I thought I&#8217;d give it a try by changing <a href="http://www.markhneedham.com/blog/2013/12/23/neo4j-cypher-using-merge-with-schema-indexesconstraints/">some code I wrote while exploring cypher&#8217;s MERGE function</a> to expose an Observable instead of Futures.</p>
+</div>
+<div class="paragraph">
+<p>To recap, we have 50 threads and we do 100 iterations where we create random (user, event) pairs. We create a maximum of 10 users and 50 events and the goal is to concurrently send requests for the same pairs.</p>
+</div>
+<div class="paragraph">
+<p>In the example of my other post I was throwing away the result of each query whereas here I returned the result back so I had something to subscribe to.</p>
+</div>
+<div class="paragraph">
+<p>The outline of the code looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class MergeTimeRx
+{
+    public static void main( final String[] args ) throws InterruptedException, IOException
+    {
+        String pathToDb = "/tmp/foo";
+        FileUtils.deleteRecursively( new File( pathToDb ) );
 
-        GraphDatabaseService db <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GraphDatabaseFactory<span style="color:#f92672">().</span><span style="color:#a6e22e">newEmbeddedDatabase</span><span style="color:#f92672">(</span> pathToDb <span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">final</span> ExecutionEngine engine <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ExecutionEngine<span style="color:#f92672">(</span> db <span style="color:#f92672">);</span>
+        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( pathToDb );
+        final ExecutionEngine engine = new ExecutionEngine( db );
 
-        <span style="color:#66d9ef">int</span> numberOfThreads <span style="color:#f92672">=</span> 50<span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">int</span> numberOfUsers <span style="color:#f92672">=</span> 10<span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">int</span> numberOfEvents <span style="color:#f92672">=</span> 50<span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">int</span> iterations <span style="color:#f92672">=</span> 100<span style="color:#f92672">;</span>
+        int numberOfThreads = 50;
+        int numberOfUsers = 10;
+        int numberOfEvents = 50;
+        int iterations = 100;
 
-        Observable<span style="color:#f92672">&lt;</span>ExecutionResult<span style="color:#f92672">&gt;</span> events <span style="color:#f92672">=</span> processEvents<span style="color:#f92672">(</span> engine<span style="color:#f92672">,</span> numberOfUsers<span style="color:#f92672">,</span> numberOfEvents<span style="color:#f92672">,</span> numberOfThreads<span style="color:#f92672">,</span> iterations <span style="color:#f92672">);</span>
+        Observable&lt;ExecutionResult&gt; events = processEvents( engine, numberOfUsers, numberOfEvents, numberOfThreads, iterations );
 
-        events<span style="color:#f92672">.</span><span style="color:#a6e22e">subscribe</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> Action1<span style="color:#f92672">&lt;</span>ExecutionResult<span style="color:#f92672">&gt;()</span>
-        <span style="color:#f92672">{</span>
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">call</span><span style="color:#f92672">(</span> ExecutionResult result <span style="color:#f92672">)</span>
-            <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> row <span style="color:#f92672">:</span> result <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span> <span style="color:#f92672">);</span>
+        events.subscribe( new Action1&lt;ExecutionResult&gt;()
+        {
+            @Override
+            public void call( ExecutionResult result )
+            {
+                for ( Map&lt;String, Object&gt; row : result )
+                {
+                }
+            }
+        } );
 
-        <span style="color:#f92672">....</span>
-    <span style="color:#f92672">}</span>
+        ....
+    }
 
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Observable<span style="color:#f92672">&lt;</span>ExecutionResult<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">processEvents</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">final</span> ExecutionEngine engine<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> numberOfUsers<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> numberOfEvents<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> numberOfThreads<span style="color:#f92672">,</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> iterations <span style="color:#f92672">)</span>
-    <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">final</span> Random random <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Random<span style="color:#f92672">();</span>
-        <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> userIds <span style="color:#f92672">=</span> generateIds<span style="color:#f92672">(</span> numberOfUsers <span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">final</span> List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> eventIds <span style="color:#f92672">=</span> generateIds<span style="color:#f92672">(</span> numberOfEvents <span style="color:#f92672">);</span>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The nice thing about using RxJava is that there&#8217;s no mention of how we got our collection of <cite>ExecutionResult</cite>s, it&#8217;s not important. We just have a stream of them and by calling the <cite>subscribe</cite> function on the <cite>Observable</cite> we&#8217;ll be informed whenever another one is made available.</p>
+</div>
+<div class="paragraph">
+<p>Most of the examples I found show how to generate events from a single thread but I wanted to use a thread pool so that I could fire off lots of requests at the same time. The <cite>processEvents</cite> method ended up looking like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">    private static Observable&lt;ExecutionResult&gt; processEvents( final ExecutionEngine engine, final int numberOfUsers, final int numberOfEvents, final int numberOfThreads, final int iterations )
+    {
+        final Random random = new Random();
+        final List&lt;Integer&gt; userIds = generateIds( numberOfUsers );
+        final List&lt;Integer&gt; eventIds = generateIds( numberOfEvents );
 
-        <span style="color:#66d9ef">return</span> Observable<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> Observable<span style="color:#f92672">.</span><span style="color:#a6e22e">OnSubscribeFunc</span><span style="color:#f92672">&lt;</span>ExecutionResult<span style="color:#f92672">&gt;()</span>
-        <span style="color:#f92672">{</span>
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> Subscription <span style="color:#a6e22e">onSubscribe</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">final</span> Observer<span style="color:#f92672">&lt;?</span> <span style="color:#66d9ef">super</span> ExecutionResult<span style="color:#f92672">&gt;</span> observer <span style="color:#f92672">)</span>
-            <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">final</span> ExecutorService executor <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newFixedThreadPool</span><span style="color:#f92672">(</span> numberOfThreads <span style="color:#f92672">);</span>
+        return Observable.create( new Observable.OnSubscribeFunc&lt;ExecutionResult&gt;()
+        {
+            @Override
+            public Subscription onSubscribe( final Observer&lt;? super ExecutionResult&gt; observer )
+            {
+                final ExecutorService executor = Executors.newFixedThreadPool( numberOfThreads );
 
-                List<span style="color:#f92672">&lt;</span>Future<span style="color:#f92672">&lt;</span>ExecutionResult<span style="color:#f92672">&gt;&gt;</span> jobs <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;();</span>
-                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> <span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> iterations<span style="color:#f92672">;</span> i<span style="color:#f92672">++</span> <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
-                    Future<span style="color:#f92672">&lt;</span>ExecutionResult<span style="color:#f92672">&gt;</span> job <span style="color:#f92672">=</span> executor<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> Callable<span style="color:#f92672">&lt;</span>ExecutionResult<span style="color:#f92672">&gt;()</span>
-                    <span style="color:#f92672">{</span>
-                        <span style="color:#a6e22e">@Override</span>
-                        <span style="color:#66d9ef">public</span> ExecutionResult <span style="color:#a6e22e">call</span><span style="color:#f92672">()</span>
-                        <span style="color:#f92672">{</span>
-                            Integer userId <span style="color:#f92672">=</span> userIds<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span> random<span style="color:#f92672">.</span><span style="color:#a6e22e">nextInt</span><span style="color:#f92672">(</span> numberOfUsers <span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
-                            Integer eventId <span style="color:#f92672">=</span> eventIds<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span> random<span style="color:#f92672">.</span><span style="color:#a6e22e">nextInt</span><span style="color:#f92672">(</span> numberOfEvents <span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
+                List&lt;Future&lt;ExecutionResult&gt;&gt; jobs = new ArrayList&lt;&gt;();
+                for ( int i = 0; i &lt; iterations; i++ )
+                {
+                    Future&lt;ExecutionResult&gt; job = executor.submit( new Callable&lt;ExecutionResult&gt;()
+                    {
+                        @Override
+                        public ExecutionResult call()
+                        {
+                            Integer userId = userIds.get( random.nextInt( numberOfUsers ) );
+                            Integer eventId = eventIds.get( random.nextInt( numberOfEvents ) );
 
-                            <span style="color:#66d9ef">return</span> engine<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span>
-                                    <span style="color:#e6db74">&#34;MERGE (u:User {id: {userId}})\n&#34;</span> <span style="color:#f92672">+</span>
-                                    <span style="color:#e6db74">&#34;MERGE (e:Event {id: {eventId}})\n&#34;</span> <span style="color:#f92672">+</span>
-                                    <span style="color:#e6db74">&#34;MERGE (u)-[:HAS_EVENT]-&gt;(e)\n&#34;</span> <span style="color:#f92672">+</span>
-                                    <span style="color:#e6db74">&#34;RETURN u, e&#34;</span><span style="color:#f92672">,</span>
-                                    MapUtil<span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;userId&#34;</span><span style="color:#f92672">,</span> userId<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;eventId&#34;</span><span style="color:#f92672">,</span> eventId <span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
-                        <span style="color:#f92672">}</span>
-                    <span style="color:#f92672">}</span> <span style="color:#f92672">);</span>
-                    jobs<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span> job <span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
+                            return engine.execute(
+                                    "MERGE (u:User {id: {userId}})\n" +
+                                    "MERGE (e:Event {id: {eventId}})\n" +
+                                    "MERGE (u)-[:HAS_EVENT]-&gt;(e)\n" +
+                                    "RETURN u, e",
+                                    MapUtil.map( "userId", userId, "eventId", eventId ) );
+                        }
+                    } );
+                    jobs.add( job );
+                }
 
-                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> Future<span style="color:#f92672">&lt;</span>ExecutionResult<span style="color:#f92672">&gt;</span> future <span style="color:#f92672">:</span> jobs <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
-                    <span style="color:#66d9ef">try</span>
-                    <span style="color:#f92672">{</span>
-                        observer<span style="color:#f92672">.</span><span style="color:#a6e22e">onNext</span><span style="color:#f92672">(</span> future<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">()</span> <span style="color:#f92672">);</span>
-                    <span style="color:#f92672">}</span>
-                    <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span> InterruptedException <span style="color:#f92672">|</span> ExecutionException ignored <span style="color:#f92672">)</span>
-                    <span style="color:#f92672">{</span>
-                    <span style="color:#f92672">}</span>
-                <span style="color:#f92672">}</span>
+                for ( Future&lt;ExecutionResult&gt; future : jobs )
+                {
+                    try
+                    {
+                        observer.onNext( future.get() );
+                    }
+                    catch ( InterruptedException | ExecutionException ignored )
+                    {
+                    }
+                }
 
-                observer<span style="color:#f92672">.</span><span style="color:#a6e22e">onCompleted</span><span style="color:#f92672">();</span>
-                executor<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
+                observer.onCompleted();
+                executor.shutdown();
 
-                <span style="color:#66d9ef">return</span> Subscriptions<span style="color:#f92672">.</span><span style="color:#a6e22e">empty</span><span style="color:#f92672">();</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span> <span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+                return Subscriptions.empty();
+            }
+        } );
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not sure if that&#8217;s the correct way of using <cite>Observable</cite>s so please let me know in the comments if I&#8217;ve got it wrong.</p>
+</div>
+<div class="paragraph">
+<p>I wasn&#8217;t sure what the proper way of handling errors was. I initially had a call to <cite>observer#onError</cite> in the catch block but that means that no further events are produced which wasn&#8217;t what I wanted.</p>
+</div>
+<div class="paragraph">
+<p>The code is <a href="https://gist.github.com/mneedham/8164614">available as a gist</a> if you want to play around with it. I added the following dependency to get the RxJava library: <sub>~</sub>xml <dependency><groupId>com.netflix.rxjava</groupId> <artifactId>rxjava-core</artifactId> <version>0.15.1</version></dependency> <sub>~</sub></p>
+</div>
 
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">
-    <span style="color:#f92672">&lt;dependency&gt;</span>
-      <span style="color:#f92672">&lt;groupId&gt;</span>com.netflix.rxjava<span style="color:#f92672">&lt;/groupId&gt;</span>
-      <span style="color:#f92672">&lt;artifactId&gt;</span>rxjava-core<span style="color:#f92672">&lt;/artifactId&gt;</span>
-      <span style="color:#f92672">&lt;version&gt;</span>0.15.1<span style="color:#f92672">&lt;/version&gt;</span>
-    <span style="color:#f92672">&lt;/dependency&gt;</span>
-
-</code></pre></div>
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -312,7 +336,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/12/28/rxjava-from-future-to-observable/&amp;title=RxJava%3a%20From%20Future%20to%20Observable&amp;summary=public%20class%20MergeTimeRx%20%7b%20public%20static%20void%20main%28%20final%20String%5b%5d%20args%20%29%20throws%20InterruptedException%2c%20IOException%20%7b%20String%20pathToDb%20%3d%20%26%2334%3b%2ftmp%2ffoo%26%2334%3b%3b%20FileUtils.deleteRecursively%28%20new%20File%28%20pathToDb%20%29%20%29%3b%20GraphDatabaseService%20db%20%3d%20new%20GraphDatabaseFactory%28%29.newEmbeddedDatabase%28%20pathToDb%20%29%3b%20final%20ExecutionEngine%20engine%20%3d%20new%20ExecutionEngine%28%20db%20%29%3b%20int%20numberOfThreads%20%3d%2050%3b%20int%20numberOfUsers%20%3d%2010%3b%20int%20numberOfEvents%20%3d%2050%3b%20int%20iterations%20%3d%20100%3b%20Observable%26lt%3bExecutionResult%26gt%3b%20events%20%3d%20processEvents%28%20engine%2c%20numberOfUsers%2c%20numberOfEvents%2c%20numberOfThreads%2c%20iterations%20%29%3b%20events.subscribe%28%20new%20Action1%26lt%3bExecutionResult%26gt%3b%28%29%20%7b%20%40Override%20public%20void%20call%28%20ExecutionResult%20result%20%29%20%7b%20for%20%28%20Map%26lt%3bString%2c%20Object%26gt%3b%20row%20%3a%20result%20%29%20%7b%20%7d%20%7d%20%7d%20%29%3b%20...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/12/28/rxjava-from-future-to-observable/&amp;title=RxJava%3a%20From%20Future%20to%20Observable&amp;summary=I%20first%20came%20across%20Reactive%20Extensions%20about%204%20years%20ago%20on%20Matthew%20Podwysocki%26%238217%3bs%20blog%20but%20then%20haven%26%238217%3bt%20heard%20much%20about%20it%20until%20I%20saw%20Matthew%20give%20a%20talk%20at%20Code%20Mesh%20a%20few%20weeks%20ago.%0a%20It%20seems%20to%20have%20grown%20in%20popularity%20recently%20and%20I%20noticed%20that%26%238217%3bs%20there%26%238217%3bs%20now%20a%20Java%20version%20called%20RxJava%20written%20by%20Netflix.%0a%20I%20thought%20I%26%238217%3bd%20give%20it%20a%20try%20by%20changing%20some%20code%20I%20wrote%20while%20exploring%20cypher%26%238217%3bs%20MERGE%20function%20to%20expose%20an%20Observable%20instead%20of%20Futures...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

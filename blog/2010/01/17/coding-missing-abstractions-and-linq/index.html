@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Coding: Missing abstractions and LINQ" />
         
-          <meta name="twitter:description" content="Something which I&rsquo;ve noticed quite a lot on the projects that I&rsquo;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.
-As a result of this we quite frequently we end up with this code being in multiple places and since it&rsquo;s usually not very much code the repetition goes unnoticed more than other types of duplication might do." />
+          <meta name="twitter:description" content="Something which I&#8217;ve noticed quite a lot on the projects that I&#8217;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.
+ As a result of this we quite frequently we end up with this code being in multiple places and since it&#8217;s usually not very much code the repetition goes unnoticed more than other types of duplication might do." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/01/17/coding-missing-abstractions-and-linq/" />
 
@@ -35,8 +35,8 @@ As a result of this we quite frequently we end up with this code being in multip
         <title> Coding: Missing abstractions and LINQ &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Something which I&rsquo;ve noticed quite a lot on the projects that I&rsquo;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.
-As a result of this we quite frequently we end up with this code being in multiple places and since it&rsquo;s usually not very much code the repetition goes unnoticed more than other types of duplication might do." />
+        <meta name="description" content="Something which I&#8217;ve noticed quite a lot on the projects that I&#8217;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.
+ As a result of this we quite frequently we end up with this code being in multiple places and since it&#8217;s usually not very much code the repetition goes unnoticed more than other types of duplication might do." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ As a result of this we quite frequently we end up with this code being in multip
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-17",
-        "description": "Something which I\x26rsquo;ve noticed quite a lot on the projects that I\x26rsquo;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.\nAs a result of this we quite frequently we end up with this code being in multiple places and since it\x26rsquo;s usually not very much code the repetition goes unnoticed more than other types of duplication might do.",
-        "wordCount":  282 
+        "description": "Something which I\x26#8217;ve noticed quite a lot on the projects that I\x26#8217;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.\n As a result of this we quite frequently we end up with this code being in multiple places and since it\x26#8217;s usually not very much code the repetition goes unnoticed more than other types of duplication might do.",
+        "wordCount":  283 
     }
     </script>
     
@@ -177,46 +177,74 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Coding: Missing abstractions and LINQ</h1>
-    <p>Something which I&rsquo;ve noticed quite a lot on the projects that I&rsquo;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.</p>
-<p>As a result of this we quite frequently we end up with this code being in multiple places and since it&rsquo;s usually not very much code the repetition goes unnoticed more than other types of duplication might do.</p>
+    <div class="paragraph">
+<p>Something which I&#8217;ve noticed quite a lot on the projects that I&#8217;ve worked on since C# 3.0 was released is that lists seem to be passed around code much more and have LINQ style filters and transformations performed on them while failing to describe the underlying abstraction explcitly in the code.</p>
+</div>
+<div class="paragraph">
+<p>As a result of this we quite frequently we end up with this code being in multiple places and since it&#8217;s usually not very much code the repetition goes unnoticed more than other types of duplication might do.</p>
+</div>
+<div class="paragraph">
 <p>A typical example of this might be the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomeFooHolder</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class SomeFooHolder
 {
-	<span style="color:#66d9ef">public</span> List&lt;Foo&gt; Foos { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span> }
-}
-</code></pre></div><p>An example of how this might be used is like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> someFooHolder = <span style="color:#66d9ef">new</span> FooHolder(...);
-someFooHolder.Foos.Select(f =&gt; f.Completed);
-</code></pre></div><p>That code would typically be repeated in other places in the code where we want to get all the completed foos.</p>
-<p>Although it&rsquo;s a simple change, as a first step I prefer to make that concept more explicit by putting &lsquo;CompletedFoos&rsquo; on &lsquo;SomeFooHolder&rsquo;:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SomeFooHolder</span>
+	public List&lt;Foo&gt; Foos { get; set }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An example of how this might be used is like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var someFooHolder = new FooHolder(...);
+someFooHolder.Foos.Select(f =&gt; f.Completed);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That code would typically be repeated in other places in the code where we want to get all the completed foos.</p>
+</div>
+<div class="paragraph">
+<p>Although it&#8217;s a simple change, as a first step I prefer to make that concept more explicit by putting 'CompletedFoos' on 'SomeFooHolder':</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class SomeFooHolder
 {
-	<span style="color:#66d9ef">public</span> List&lt;Foo&gt; Foos { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
-	<span style="color:#66d9ef">public</span> List&lt;Foo&gt; CompletedFoos 
-	{ 
-		<span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> Foos.Select(f =&gt; f.Completed); }
-	}
-}
-</code></pre></div><p>Perhaps an even better solution would be to create an object &lsquo;Foos&rsquo; to encapsulate that logic further:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foos</span>
-{
-	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> List&lt;Foo&gt; foos;
-
-	<span style="color:#66d9ef">public</span> Foos(List&lt;Foo&gt; foos)
+	public List&lt;Foo&gt; Foos { get; set; }
+	public List&lt;Foo&gt; CompletedFoos
 	{
-		<span style="color:#66d9ef">this</span>.foos = <span style="color:#66d9ef">new</span> List&lt;Foo&gt;(foos.AsReadOnly());
+		get { return Foos.Select(f =&gt; f.Completed); }
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perhaps an even better solution would be to create an object 'Foos' to encapsulate that logic further:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Foos
+{
+	private readonly List&lt;Foo&gt; foos;
+
+	public Foos(List&lt;Foo&gt; foos)
+	{
+		this.foos = new List&lt;Foo&gt;(foos.AsReadOnly());
 	}
 
-	<span style="color:#66d9ef">public</span> Foos Completed
+	public Foos Completed
 	{
-		<span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Foos(foos.Select(f =&gt; f.Completed)); }
+		get { return new Foos(foos.Select(f =&gt; f.Completed)); }
 	}
-}
-</code></pre></div><p>As I&rsquo;ve written about previously <!-- raw HTML omitted -->I prefer to wrap the list rather than extend it<!-- raw HTML omitted --> as the API of &lsquo;Foos&rsquo; is more expressive since we don&rsquo;t have all the list operations available to any potential users of the class.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As I&#8217;ve written about previously <a href="http://www.markhneedham.com/blog/2009/07/24/wrapping-collections-inheritance-vs-composition/">I prefer to wrap the list rather than extend it</a> as the API of 'Foos' is more expressive since we don&#8217;t have all the list operations available to any potential users of the class.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -251,7 +279,7 @@ someFooHolder.Foos.Select(f =&gt; f.Completed);
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/17/coding-missing-abstractions-and-linq/&amp;title=Coding%3a%20Missing%20abstractions%20and%20LINQ&amp;summary=Something%20which%20I%26rsquo%3bve%20noticed%20quite%20a%20lot%20on%20the%20projects%20that%20I%26rsquo%3bve%20worked%20on%20since%20C%23%203.0%20was%20released%20is%20that%20lists%20seem%20to%20be%20passed%20around%20code%20much%20more%20and%20have%20LINQ%20style%20filters%20and%20transformations%20performed%20on%20them%20while%20failing%20to%20describe%20the%20underlying%20abstraction%20explcitly%20in%20the%20code.%0aAs%20a%20result%20of%20this%20we%20quite%20frequently%20we%20end%20up%20with%20this%20code%20being%20in%20multiple%20places%20and%20since%20it%26rsquo%3bs%20usually%20not%20very%20much%20code%20the%20repetition%20goes%20unnoticed%20more%20than%20other%20types%20of%20duplication%20might%20do...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/17/coding-missing-abstractions-and-linq/&amp;title=Coding%3a%20Missing%20abstractions%20and%20LINQ&amp;summary=Something%20which%20I%26%238217%3bve%20noticed%20quite%20a%20lot%20on%20the%20projects%20that%20I%26%238217%3bve%20worked%20on%20since%20C%23%203.0%20was%20released%20is%20that%20lists%20seem%20to%20be%20passed%20around%20code%20much%20more%20and%20have%20LINQ%20style%20filters%20and%20transformations%20performed%20on%20them%20while%20failing%20to%20describe%20the%20underlying%20abstraction%20explcitly%20in%20the%20code.%0a%20As%20a%20result%20of%20this%20we%20quite%20frequently%20we%20end%20up%20with%20this%20code%20being%20in%20multiple%20places%20and%20since%20it%26%238217%3bs%20usually%20not%20very%20much%20code%20the%20repetition%20goes%20unnoticed%20more%20than%20other%20types%20of%20duplication%20might%20do...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

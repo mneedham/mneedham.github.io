@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="node.js: A little application with Twitter &amp; CouchDB" />
         
-          <meta name="twitter:description" content="I&rsquo;ve been continuing to play around with node.jsand I thought it would be interesting to write a little application to poll Twitter every minute and save any new Tweets into a CouchDBdatabase.
-I first played around with CouchDB in May last year and initially spent a lot of time trying to work out how to install it before coming across CouchDBXwhich gives you one click installation for Mac OS X." />
+          <meta name="twitter:description" content="I&#8217;ve been continuing to play around with node.js and I thought it would be interesting to write a little application to poll Twitter every minute and save any new Tweets into a CouchDB database.
+ I first played around with CouchDB in May last year and initially spent a lot of time trying to work out how to install it before coming across CouchDBX which gives you one click installation for Mac OS X." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/03/21/node-js-a-little-application-with-twitter-couchdb/" />
 
@@ -35,8 +35,8 @@ I first played around with CouchDB in May last year and initially spent a lot of
         <title> node.js: A little application with Twitter &amp; CouchDB &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&rsquo;ve been continuing to play around with node.jsand I thought it would be interesting to write a little application to poll Twitter every minute and save any new Tweets into a CouchDBdatabase.
-I first played around with CouchDB in May last year and initially spent a lot of time trying to work out how to install it before coming across CouchDBXwhich gives you one click installation for Mac OS X." />
+        <meta name="description" content="I&#8217;ve been continuing to play around with node.js and I thought it would be interesting to write a little application to poll Twitter every minute and save any new Tweets into a CouchDB database.
+ I first played around with CouchDB in May last year and initially spent a lot of time trying to work out how to install it before coming across CouchDBX which gives you one click installation for Mac OS X." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ I first played around with CouchDB in May last year and initially spent a lot of
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-03-21",
-        "description": "I\x26rsquo;ve been continuing to play around with node.jsand I thought it would be interesting to write a little application to poll Twitter every minute and save any new Tweets into a CouchDBdatabase.\nI first played around with CouchDB in May last year and initially spent a lot of time trying to work out how to install it before coming across CouchDBXwhich gives you one click installation for Mac OS X.",
-        "wordCount":  665 
+        "description": "I\x26#8217;ve been continuing to play around with node.js and I thought it would be interesting to write a little application to poll Twitter every minute and save any new Tweets into a CouchDB database.\n I first played around with CouchDB in May last year and initially spent a lot of time trying to work out how to install it before coming across CouchDBX which gives you one click installation for Mac OS X.",
+        "wordCount":  982 
     }
     </script>
     
@@ -177,101 +177,94 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">node.js: A little application with Twitter &amp; CouchDB</h1>
-    <p>I&rsquo;ve been continuing to play around with <!-- raw HTML omitted -->node.js<!-- raw HTML omitted --> and I thought it would be interesting to write a little application to poll Twitter every minute and save any new Tweets into a <!-- raw HTML omitted -->CouchDB<!-- raw HTML omitted --> database.</p>
-<p>I first played around with CouchDB in May last year and initially spent a lot of time trying to work out how to install it before coming across <!-- raw HTML omitted -->CouchDBX<!-- raw HTML omitted --> which gives you one click installation for Mac OS X.</p>
-<p>I&rsquo;m using sixtus&rsquo; <!-- raw HTML omitted -->node-couch<!-- raw HTML omitted --> library to communicate with CouchDB and I&rsquo;ve written a little bit of code that allows me to call the Twitter API.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>I originally wrote my twitter function it so that it would take in several of the arguments individually:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-<span style="color:#66d9ef">export</span>.<span style="color:#a6e22e">query</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">username</span>, <span style="color:#a6e22e">password</span>, <span style="color:#a6e22e">method</span>) { ... }
-</code></pre></div><p>After reading Brian&rsquo;s slides I realised that this was quickly going to become a mess so I&rsquo;ve changed the signature to only take in the most important parameter (&lsquo;method&rsquo;) on its own with the other parameters passed in an &lsquo;options&rsquo; object:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-<span style="color:#66d9ef">export</span>.<span style="color:#a6e22e">query</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">method</span>, <span style="color:#a6e22e">options</span>) { ... }
-</code></pre></div><p>I&rsquo;ve not written functions that take in parameters like this before but I really like it so far. It <!-- raw HTML omitted -->really helps simplify signatures<!-- raw HTML omitted --> while allowing you to pass in extra values if necessary.</p>
-<!-- raw HTML omitted -->
-<p>For example I wanted to write a function to take query parameters out of an options object and create a query string out of them. I adapted the code from node-couch and ended up with the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-Object.<span style="color:#a6e22e">prototype</span>.<span style="color:#a6e22e">filter</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">fn</span>) {
-    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> {};
-    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">this</span>) {
-        <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">hasOwnProperty</span>(<span style="color:#a6e22e">name</span>)) {
-            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">fn</span>.<span style="color:#a6e22e">call</span>(<span style="color:#66d9ef">this</span>[<span style="color:#a6e22e">name</span>], <span style="color:#a6e22e">name</span>, <span style="color:#66d9ef">this</span>[<span style="color:#a6e22e">name</span>])) {
-                <span style="color:#a6e22e">result</span>[<span style="color:#a6e22e">name</span>] <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>[<span style="color:#a6e22e">name</span>];
-            }
-        }
-    }
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">result</span>;
-};
+    <div class="paragraph">
+<p>I&#8217;ve been continuing to play around with <a href="http://nodejs.org/api.html">node.js</a> and I thought it would be interesting to write a little application to poll Twitter every minute and save any new Tweets into a <a href="http://wiki.apache.org/couchdb/">CouchDB</a> database.</p>
+</div>
+<div class="paragraph">
+<p>I first played around with CouchDB in May last year and initially spent a lot of time trying to work out how to install it before coming across <a href="http://janl.github.com/couchdbx/">CouchDBX</a> which gives you one click installation for Mac OS X.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m using sixtus' <a href="http://github.com/sixtus/node-couch">node-couch</a> library to communicate with CouchDB and I&#8217;ve written a little bit of code that allows me to call the Twitter API.</p>
+</div>
+<div class="sect1">
+<h2 id="_what_did_i_learn">What did I learn?</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>I&#8217;ve been reading through Brian Guthrie&#8217;s slides from his 'http://www.slideshare.net/btguthrie/advanced-ruby-idioms-so-clean-you-can-eat-off-of-them[Advanced Ruby Idioms So Clean You Can Eat Off Of Them]' talk from <a href="http://rubyconfindia.org/">RubyConfIndia</a> and one of the suggestions he makes is that in Ruby there are only 6 acceptable types of signatures for functions:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>0 parameters</p>
+</li>
+<li>
+<p>1 parameter</p>
+</li>
+<li>
+<p>2 parameters</p>
+</li>
+<li>
+<p>A hash</p>
+</li>
+<li>
+<p>1 parameter and a hash</p>
+</li>
+<li>
+<p>A variable number of arguments passed in as an array</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>It seems to me that the same guidelines would be applicable in JavaScript as well except <strong>instead of a Hash we can pass in an object with properties and values to serve the same purpose</strong>. A lot of the jQuery libraries I&#8217;ve used actually do this anyway so it&#8217;s an idiom that&#8217;s in both languages. I originally wrote my twitter function it so that it would take in several of the arguments individually: <sub>~</sub>javascript export.query = function(username, password, method) { ... } <sub>~</sub> After reading Brian&#8217;s slides I realised that this was quickly going to become a mess so I&#8217;ve changed the signature to only take in the most important parameter ('method') on its own with the other parameters passed in an 'options' object: <sub>~</sub>javascript export.query = function(method, options) { ... } <sub>~</sub> I&#8217;ve not written functions that take in parameters like this before but I really like it so far. It <strong>really helps simplify signatures</strong> while allowing you to pass in extra values if necessary.</p>
+</div>
+</li>
+<li>
+<p><strong>I find myself porting higher order functions from C#/F# into JavaScript</strong> whenever I can&#8217;t find a function to do what I want - it&#8217;s fun writing them but I&#8217;m not sure how idiomatic the code I&#8217;m writing is. For example I wanted to write a function to take query parameters out of an options object and create a query string out of them. I adapted the code from node-couch and ended up with the following: <sub>~</sub>javascript Object.prototype.filter = function(fn) { var result = {}; for (var name in this) { if (this.hasOwnProperty(name)) { if (fn.call(this[name], name, this[name])) { result[name] = this[name]; } } } return result; }; Object.prototype.into = function(theArray, fn) { for (var name in this) { if (this.hasOwnProperty(name)) { theArray.push(fn.call(this[name], name, this[name])); } } return theArray; }; function encodeOptions(options) { var parameters = []; if (typeof(options) === "object" &amp;&amp; options !== null) { parameters = options .filter(function(name) { return !(name === "username" || name === "password" || name === "callback");}) .into([], function(name, value) { return encodeURIComponent(name) + "=" + encodeURIComponent(value); }); } return parameters.length ? ("?" + parameters.join("&amp;")) : ""; } <sub>~</sub> I&#8217;m not sure how wise it is adding these functions to the object prototype - I haven&#8217;t had any problems so far but I guess if other libraries I&#8217;m using changed the prototype of these built in types in the same way as I am then I might get unexpected behaviour. Would the typical way to defend against this be to check if a function is defined before trying to define one and throwing an exception if so? Or is adding to the prototype just a dangerous thing to do altogether? Either way I&#8217;m not altogether convinced that the code with these higher order functions actually reads better than it would without them.</p>
+</li>
+<li>
+<p>I&#8217;m finding it quite interesting that a lot of the code I write around node.js depends on callbacks which means that if you have 3 operations that depend on each other then you end up with nested callbacks which almost reads like code written in a <a href="http://www.markhneedham.com/blog/2010/03/19/functional-c-continuation-passing-style/">continuation passing style</a>. For example I have some code which needs to do the following:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Query CouchDB to get the ID of the most recently saved tweet</p>
+</li>
+<li>
+<p>Query Twitter with that ID to get any tweets since that one</p>
+</li>
+<li>
+<p>Save those tweets to CouchDB</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><sub>~</sub>javascript var server = http.createServer(function (req, res) { couchDB.view("application/sort-by-id", { descending : true, success : function(response) { twitter.query("friends_timeline", { ... since_id : response.rows[0].value.id, callback : function(tweets) { tweets.each(function(tweet) { couchDB.saveDoc(tweet, { success : function(doc) { sys.log("Document " + doc._id + " successfully saved") }, error : function() { sys.log("Document failed to save"); } }); }); } }); }, error : function() { sys.log("Failed to retrieve documents"); } }); ... }); <sub>~</sub> There&#8217;s a 'success' callback for calling 'couchDB.view' and then a 'callback' callback for calling 'twitter.query' and finally a 'success' callback from calling 'couchDB.saveDoc'. To me it&#8217;s not that obvious what the code is doing at first glance - perhaps because I&#8217;m not that used to this style of programming - but I&#8217;m intrigued if there&#8217;s a way to write the code to make it more readable.</p>
+</div>
+</li>
+<li>
+<p>I haven&#8217;t yet worked out a good way to test drive code in a node.js module. As I understand it all the functions we define except for ones added to the 'exports' object are private to the module so there&#8217;s no way to test against that code directly unless you pull it out into another module. At the moment I&#8217;m just changing the code and then restarting the server and checking if it&#8217;s working or not. It&#8217;s probably not the most effective feedback cycle but it&#8217;s working reasonably well so far. &lt;/ul&gt; I&#8217;ve put the code that I&#8217;ve written so far as gists on github:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://gist.github.com/339579">twitter-server.js</a></p>
+</li>
+<li>
+<p><a href="http://gist.github.com/339583">twitter.js</a></p>
+</li>
+<li>
+<p><a href="http://gist.github.com/339591">encoding.js</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>That can be run with the following command from the terminal: <sub>~</sub>text node twitter-server.js <sub>~</sub></p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
 
-Object.<span style="color:#a6e22e">prototype</span>.<span style="color:#a6e22e">into</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">theArray</span>, <span style="color:#a6e22e">fn</span>) {
-    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">this</span>) {
-        <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">hasOwnProperty</span>(<span style="color:#a6e22e">name</span>)) {
-            <span style="color:#a6e22e">theArray</span>.<span style="color:#a6e22e">push</span>(<span style="color:#a6e22e">fn</span>.<span style="color:#a6e22e">call</span>(<span style="color:#66d9ef">this</span>[<span style="color:#a6e22e">name</span>], <span style="color:#a6e22e">name</span>, <span style="color:#66d9ef">this</span>[<span style="color:#a6e22e">name</span>]));
-        }
-    }
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">theArray</span>;
-};
-
-<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">encodeOptions</span>(<span style="color:#a6e22e">options</span>) {
-    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">parameters</span> <span style="color:#f92672">=</span> [];
-    <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">typeof</span>(<span style="color:#a6e22e">options</span>) <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;object&#34;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">options</span> <span style="color:#f92672">!==</span> <span style="color:#66d9ef">null</span>) {
-        <span style="color:#a6e22e">parameters</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">options</span>
-                        .<span style="color:#a6e22e">filter</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">name</span>) {
-                            <span style="color:#66d9ef">return</span> <span style="color:#f92672">!</span>(<span style="color:#a6e22e">name</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;username&#34;</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">name</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;password&#34;</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">name</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;callback&#34;</span>);})
-                        .<span style="color:#a6e22e">into</span>([], <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">value</span>) {
-                            <span style="color:#66d9ef">return</span> encodeURIComponent(<span style="color:#a6e22e">name</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;=&#34;</span> <span style="color:#f92672">+</span> encodeURIComponent(<span style="color:#a6e22e">value</span>); });
-    }
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">parameters</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">?</span> (<span style="color:#e6db74">&#34;?&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">parameters</span>.<span style="color:#a6e22e">join</span>(<span style="color:#e6db74">&#34;&amp;&#34;</span>)) <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;&#34;</span>;
-}
-</code></pre></div><p>I&rsquo;m not sure how wise it is adding these functions to the object prototype - I haven&rsquo;t had any problems so far but I guess if other libraries I&rsquo;m using changed the prototype of these built in types in the same way as I am then I might get unexpected behaviour.</p>
-<p>Would the typical way to defend against this be to check if a function is defined before trying to define one and throwing an exception if so? Or is adding to the prototype just a dangerous thing to do altogether?</p>
-<p>Either way I&rsquo;m not altogether convinced that the code with these higher order functions actually reads better than it would without them.</p>
-<!-- raw HTML omitted -->
-<p>For example I have some code which needs to do the following:</p>
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">server</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">createServer</span>(<span style="color:#66d9ef">function</span> (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) {
-    <span style="color:#a6e22e">couchDB</span>.<span style="color:#a6e22e">view</span>(<span style="color:#e6db74">&#34;application/sort-by-id&#34;</span>, {
-        <span style="color:#a6e22e">descending</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span>,
-        <span style="color:#a6e22e">success</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">response</span>) {
-            <span style="color:#a6e22e">twitter</span>.<span style="color:#a6e22e">query</span>(<span style="color:#e6db74">&#34;friends_timeline&#34;</span>, {
-                ...
-                <span style="color:#a6e22e">since_id</span> <span style="color:#f92672">:</span> <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">rows</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">value</span>.<span style="color:#a6e22e">id</span>,
-                <span style="color:#a6e22e">callback</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">tweets</span>) {
-                    <span style="color:#a6e22e">tweets</span>.<span style="color:#a6e22e">each</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">tweet</span>) {
-                        <span style="color:#a6e22e">couchDB</span>.<span style="color:#a6e22e">saveDoc</span>(<span style="color:#a6e22e">tweet</span>, {
-                            <span style="color:#a6e22e">success</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">doc</span>) {
-                                <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Document &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">doc</span>.<span style="color:#a6e22e">_id</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; successfully saved&#34;</span>)
-                            },
-                            <span style="color:#a6e22e">error</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">function</span>() {
-                                <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Document failed to save&#34;</span>);
-                            }
-                        });
-                    }); 
-
-                }
-            });
-        },
-        <span style="color:#a6e22e">error</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">function</span>() {
-            <span style="color:#a6e22e">sys</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Failed to retrieve documents&#34;</span>);
-        }
-    });
-
-    ...
-});
-</code></pre></div><p>There&rsquo;s a &lsquo;success&rsquo; callback for calling &lsquo;couchDB.view&rsquo; and then a &lsquo;callback&rsquo; callback for calling &lsquo;twitter.query&rsquo; and finally a &lsquo;success&rsquo; callback from calling &lsquo;couchDB.saveDoc&rsquo;.</p>
-<p>To me it&rsquo;s not that obvious what the code is doing at first glance - perhaps because I&rsquo;m not that used to this style of programming - but I&rsquo;m intrigued if there&rsquo;s a way to write the code to make it more readable.</p>
-<!-- raw HTML omitted -->
-<p>At the moment I&rsquo;m just changing the code and then restarting the server and checking if it&rsquo;s working or not. It&rsquo;s probably not the most effective feedback cycle but it&rsquo;s working reasonably well so far.</p>
-<!-- raw HTML omitted -->
-<p>I&rsquo;ve put the code that I&rsquo;ve written so far as gists on github:</p>
-<!-- raw HTML omitted -->
-<p>That can be run with the following command from the terminal:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-node twitter-server.js
-</code></pre></div>
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -305,7 +298,7 @@ node twitter-server.js
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/21/node-js-a-little-application-with-twitter-couchdb/&amp;title=node.js%3a%20A%20little%20application%20with%20Twitter%20%26%20CouchDB&amp;summary=I%26rsquo%3bve%20been%20continuing%20to%20play%20around%20with%20node.jsand%20I%20thought%20it%20would%20be%20interesting%20to%20write%20a%20little%20application%20to%20poll%20Twitter%20every%20minute%20and%20save%20any%20new%20Tweets%20into%20a%20CouchDBdatabase.%0aI%20first%20played%20around%20with%20CouchDB%20in%20May%20last%20year%20and%20initially%20spent%20a%20lot%20of%20time%20trying%20to%20work%20out%20how%20to%20install%20it%20before%20coming%20across%20CouchDBXwhich%20gives%20you%20one%20click%20installation%20for%20Mac%20OS%20X...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/21/node-js-a-little-application-with-twitter-couchdb/&amp;title=node.js%3a%20A%20little%20application%20with%20Twitter%20%26%20CouchDB&amp;summary=I%26%238217%3bve%20been%20continuing%20to%20play%20around%20with%20node.js%20and%20I%20thought%20it%20would%20be%20interesting%20to%20write%20a%20little%20application%20to%20poll%20Twitter%20every%20minute%20and%20save%20any%20new%20Tweets%20into%20a%20CouchDB%20database.%0a%20I%20first%20played%20around%20with%20CouchDB%20in%20May%20last%20year%20and%20initially%20spent%20a%20lot%20of%20time%20trying%20to%20work%20out%20how%20to%20install%20it%20before%20coming%20across%20CouchDBX%20which%20gives%20you%20one%20click%20installation%20for%20Mac%20OS%20X...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -64,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-09-19",
-        "description": "WITH \x26quot;a\x26quot; as dynamicKey, \x26quot;b\x26quot; as dynamicValue RETURN { dynamicKey: dynamicValue } AS map ╒══════════════════╕ │\x26quot;map\x26quot; │ ╞══════════════════╡ │{\x26quot;dynamicKey\x26quot;:\x26quot;b\x26quot;}│ └──────────────────┘ CALL dbms.functions() yield name, description WHERE name STARTS WITH \x26quot;apoc.map.from\x26quot; RETURN name, description ╒═════════════════════╤═════════════════════════════════════════════════════╕ │\x26quot;name\x26quot; │\x26quot;description\x26quot; │ ╞═════════════════════╪═════════════════════════════════════════════════════╡ │\x26quot;apoc.map.fromLists\x26quot; │\x26quot;apoc.map.fromLists([keys],[values])\x26quot; │ ├─────────────────────┼─────────────────────────────────────────────────────┤ │\x26quot;apoc.map.fromNodes\x26quot; │\x26quot;apoc.map.fromNodes(label, property)\x26quot; │ ├─────────────────────┼─────────────────────────────────────────────────────┤ │\x26quot;apoc.map.fromPairs\x26quot; │\x26quot;apoc.map.fromPairs([[key,value],[key2,value2],...])\x26quot;│ ├─────────────────────┼─────────────────────────────────────────────────────┤ │\x26quot;apoc.map.fromValues\x26quot;│\x26quot;apoc.map.fromValues([key1,value1,key2,value2,...])\x26quot; │ └─────────────────────┴─────────────────────────────────────────────────────┘ WITH \x26quot;a\x26quot; as dynamicKey, \x26quot;b\x26quot; as dynamicValue RETURN apoc.map.fromValues([dynamicKey, dynamicValue]) AS map ╒═════════╕ │\x26quot;map\x26quot; │ ╞═════════╡ │{\x26quot;a\x26quot;:\x26quot;b\x26quot;}│ └─────────┘ WITH \x26quot;a\x26quot; as dynamicKey, \x26quot;b\x26quot; as dynamicValue RETURN apoc.",
-        "wordCount":  107 
+        "description": "I was recently trying to create a map in a Cypher query but wanted to have dynamic keys in that map. I started off with this query:\n WITH \x22a\x22 as dynamicKey, \x22b\x22 as dynamicValue RETURN { dynamicKey: dynamicValue } AS map ╒══════════════════╕ │\x22map\x22 │ ╞══════════════════╡ │{\x22dynamicKey\x22:\x22b\x22}│ └──────────────────┘   Not quite what we want! We want dynamicKey to be evaluated rather than treated as a literal. As usual, APOC comes to the rescue!",
+        "wordCount":  191 
     }
     </script>
     
@@ -178,66 +178,93 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Create Cypher map with dynamic keys</h1>
-    <!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-WITH &quot;a&quot; as dynamicKey, &quot;b&quot; as dynamicValue
+    <div class="paragraph">
+<p>I was recently trying to create a map in a Cypher query but wanted to have dynamic keys in that map. I started off with this query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "a" as dynamicKey, "b" as dynamicValue
 RETURN { dynamicKey: dynamicValue } AS map
 
 
 ╒══════════════════╕
-│&quot;map&quot;             │
+│"map"             │
 ╞══════════════════╡
-│{&quot;dynamicKey&quot;:&quot;b&quot;}│
-└──────────────────┘
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-CALL dbms.functions() yield name, description
-WHERE name STARTS WITH &quot;apoc.map.from&quot;
+│{"dynamicKey":"b"}│
+└──────────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Not quite what we want! We want <cite>dynamicKey</cite> to be evaluated rather than treated as a literal. As usual, <a href="https://github.com/neo4j-contrib/neo4j-apoc-procedures">APOC</a> comes to the rescue!</p>
+</div>
+<div class="paragraph">
+<p>In fact APOC has several functions that will help us out here. Let&#8217;s take a look at them:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL dbms.functions() yield name, description
+WHERE name STARTS WITH "apoc.map.from"
 RETURN name, description
 
 ╒═════════════════════╤═════════════════════════════════════════════════════╕
-│&quot;name&quot;               │&quot;description&quot;                                        │
+│"name"               │"description"                                        │
 ╞═════════════════════╪═════════════════════════════════════════════════════╡
-│&quot;apoc.map.fromLists&quot; │&quot;apoc.map.fromLists([keys],[values])&quot;                │
+│"apoc.map.fromLists" │"apoc.map.fromLists([keys],[values])"                │
 ├─────────────────────┼─────────────────────────────────────────────────────┤
-│&quot;apoc.map.fromNodes&quot; │&quot;apoc.map.fromNodes(label, property)&quot;                │
+│"apoc.map.fromNodes" │"apoc.map.fromNodes(label, property)"                │
 ├─────────────────────┼─────────────────────────────────────────────────────┤
-│&quot;apoc.map.fromPairs&quot; │&quot;apoc.map.fromPairs([[key,value],[key2,value2],...])&quot;│
+│"apoc.map.fromPairs" │"apoc.map.fromPairs([[key,value],[key2,value2],...])"│
 ├─────────────────────┼─────────────────────────────────────────────────────┤
-│&quot;apoc.map.fromValues&quot;│&quot;apoc.map.fromValues([key1,value1,key2,value2,...])&quot; │
-└─────────────────────┴─────────────────────────────────────────────────────┘
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-WITH &quot;a&quot; as dynamicKey, &quot;b&quot; as dynamicValue
+│"apoc.map.fromValues"│"apoc.map.fromValues([key1,value1,key2,value2,...])" │
+└─────────────────────┴─────────────────────────────────────────────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So we can generate a map like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "a" as dynamicKey, "b" as dynamicValue
 RETURN apoc.map.fromValues([dynamicKey, dynamicValue]) AS map
 
 ╒═════════╕
-│&quot;map&quot;    │
+│"map"    │
 ╞═════════╡
-│{&quot;a&quot;:&quot;b&quot;}│
-└─────────┘
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-WITH &quot;a&quot; as dynamicKey, &quot;b&quot; as dynamicValue
+│{"a":"b"}│
+└─────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "a" as dynamicKey, "b" as dynamicValue
 RETURN apoc.map.fromLists([dynamicKey], [dynamicValue]) AS map
 
 ╒═════════╕
-│&quot;map&quot;    │
+│"map"    │
 ╞═════════╡
-│{&quot;a&quot;:&quot;b&quot;}│
-└─────────┘
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-WITH &quot;a&quot; as dynamicKey, &quot;b&quot; as dynamicValue
+│{"a":"b"}│
+└─────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or even like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "a" as dynamicKey, "b" as dynamicValue
 RETURN apoc.map.fromPairs([[dynamicKey, dynamicValue]]) AS map
 
 ╒═════════╕
-│&quot;map&quot;    │
+│"map"    │
 ╞═════════╡
-│{&quot;a&quot;:&quot;b&quot;}│
-└─────────┘
-</code></pre>
+│{"a":"b"}│
+└─────────┘</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -271,7 +298,7 @@ RETURN apoc.map.fromPairs([[dynamicKey, dynamicValue]]) AS map
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/09/19/neo4j-cypher-create-cypher-map-with-dynamic-keys/&amp;title=Neo4j%3a%20Cypher%20-%20Create%20Cypher%20map%20with%20dynamic%20keys&amp;summary=WITH%20%26quot%3ba%26quot%3b%20as%20dynamicKey%2c%20%26quot%3bb%26quot%3b%20as%20dynamicValue%20RETURN%20%7b%20dynamicKey%3a%20dynamicValue%20%7d%20AS%20map%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bmap%26quot%3b%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7b%26quot%3bdynamicKey%26quot%3b%3a%26quot%3bb%26quot%3b%7d%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20CALL%20dbms.functions%28%29%20yield%20name%2c%20description%20WHERE%20name%20STARTS%20WITH%20%26quot%3bapoc.map.from%26quot%3b%20RETURN%20name%2c%20description%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a4%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bname%26quot%3b%20%e2%94%82%26quot%3bdescription%26quot%3b%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%aa%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%26quot%3bapoc.map.fromLists%26quot%3b%20%e2%94%82%26quot%3bapoc.map.fromLists%28%5bkeys%5d%2c%5bvalues%5d%29%26quot%3b%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bapoc.map.fromNodes%26quot%3b%20%e2%94%82%26quot%3bapoc.map.fromNodes%28label%2c%20property%29%26quot%3b%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bapoc.map.fromPairs%26quot%3b%20%e2%94%82%26quot%3bapoc.map.fromPairs%28%5b%5bkey%2cvalue%5d%2c%5bkey2%2cvalue2%5d%2c...%5d%29%26quot%3b%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%26quot%3bapoc.map.fromValues%26quot%3b%e2%94%82%26quot%3bapoc.map.fromValues%28%5bkey1%2cvalue1%2ckey2%2cvalue2%2c...%5d%29%26quot%3b%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%b4%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20WITH%20%26quot%3ba%26quot%3b%20as%20dynamicKey%2c%20%26quot%3bb%26quot%3b%20as%20dynamicValue%20RETURN%20apoc.map.fromValues%28%5bdynamicKey%2c%20dynamicValue%5d%29%20AS%20map%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bmap%26quot%3b%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7b%26quot%3ba%26quot%3b%3a%26quot%3bb%26quot%3b%7d%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20WITH%20%26quot%3ba%26quot%3b%20as%20dynamicKey%2c%20%26quot%3bb%26quot%3b%20as%20dynamicValue%20RETURN%20apoc...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/09/19/neo4j-cypher-create-cypher-map-with-dynamic-keys/&amp;title=Neo4j%3a%20Cypher%20-%20Create%20Cypher%20map%20with%20dynamic%20keys&amp;summary=I%20was%20recently%20trying%20to%20create%20a%20map%20in%20a%20Cypher%20query%20but%20wanted%20to%20have%20dynamic%20keys%20in%20that%20map.%20I%20started%20off%20with%20this%20query%3a%0a%20WITH%20%22a%22%20as%20dynamicKey%2c%20%22b%22%20as%20dynamicValue%20RETURN%20%7b%20dynamicKey%3a%20dynamicValue%20%7d%20AS%20map%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%22map%22%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7b%22dynamicKey%22%3a%22b%22%7d%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20%20%20Not%20quite%20what%20we%20want%21%20We%20want%20dynamicKey%20to%20be%20evaluated%20rather%20than%20treated%20as%20a%20literal.%20As%20usual%2c%20APOC%20comes%20to%20the%20rescue%21..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

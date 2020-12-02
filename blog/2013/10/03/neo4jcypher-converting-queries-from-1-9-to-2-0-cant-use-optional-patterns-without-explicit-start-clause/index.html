@@ -23,7 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="neo4j/cypher: Converting queries from 1.9 to 2.0 -  &#39;Can&#39;t use optional patterns without explicit START clause&#39;" />
         
-          <meta name="twitter:description" content="START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel WITH COLLECT([stats.goals, TYPE(t)]) AS games, player RETURN player.name, REDUCE(goals = 0, g&#39; IN FILTER(g IN games WHERE HEAD(TAIL(g)) IS NULL)| goals &#43; HEAD(g&#39;)) AS nonTvGoals, REDUCE(goals = 0, g&#39; IN FILTER(g IN games WHERE HEAD(TAIL(g)) &lt;&gt; NULL)| goals &#43; HEAD(g&#39;)) AS tvGoals, REDUCE(goals = 0, g&#39; in games | goals &#43; HEAD(g&#39;)) AS totalGoals ORDER BY tvGoals DESC LIMIT 10 ==&gt; &#43;--------------------------------------------------------&#43; ==&gt; | player.name | nonTvGoals | tvGoals | totalGoals | ==&gt; &#43;--------------------------------------------------------&#43; ==&gt; | &#34;Robin Van Persie&#34; | 11 | 15 | 26 | ==&gt; | &#34;Gareth Bale&#34; | 8 | 13 | 21 | ==&gt; | &#34;Luis Suárez&#34; | 12 | 11 | 23 | ==&gt; | &#34;Theo Walcott&#34; | 5 | 9 | 14 | ==&gt; | &#34;Demba Ba&#34; | 7 | 8 | 15 | ==&gt; | &#34;Edin Dzeko&#34; | 7 | 7 | 14 | ==&gt; | &#34;Santi Cazorla&#34; | 5 | 7 | 12 | ==&gt; | &#34;Juan Mata&#34; | 6 | 6 | 12 | ==&gt; | &#34;Steven Gerrard&#34; | 3 | 6 | 9 | ==&gt; | &#34;Carlos Tevez&#34; | 5 | 6 | 11 | ==&gt; &#43;--------------------------------------------------------&#43; ==&gt; 10 rows START player = node:players(&#39;name:*&#39;) SET player :Player RETURN player CREATE INDEX on :Player(name) MATCH (player:Player)-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?" />
+          <meta name="twitter:description" content="I&#8217;ve been playing around with the most recent Neo4j 2.0 milestone release - 2.0.0-M05 - and one of the first things I did was translate the queries from my football data set which were written against Neo4j 1.9.
+ The following query calculates the number of goals scored by players in matches that were shown on television, not on television and in total.
+ START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel WITH COLLECT([stats.goals, TYPE(t)]) AS games, player RETURN player." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/10/03/neo4jcypher-converting-queries-from-1-9-to-2-0-cant-use-optional-patterns-without-explicit-start-clause/" />
 
@@ -34,7 +36,9 @@
         <title> neo4j/cypher: Converting queries from 1.9 to 2.0 -  &#39;Can&#39;t use optional patterns without explicit START clause&#39; &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel WITH COLLECT([stats.goals, TYPE(t)]) AS games, player RETURN player.name, REDUCE(goals = 0, g&#39; IN FILTER(g IN games WHERE HEAD(TAIL(g)) IS NULL)| goals &#43; HEAD(g&#39;)) AS nonTvGoals, REDUCE(goals = 0, g&#39; IN FILTER(g IN games WHERE HEAD(TAIL(g)) &lt;&gt; NULL)| goals &#43; HEAD(g&#39;)) AS tvGoals, REDUCE(goals = 0, g&#39; in games | goals &#43; HEAD(g&#39;)) AS totalGoals ORDER BY tvGoals DESC LIMIT 10 ==&gt; &#43;--------------------------------------------------------&#43; ==&gt; | player.name | nonTvGoals | tvGoals | totalGoals | ==&gt; &#43;--------------------------------------------------------&#43; ==&gt; | &#34;Robin Van Persie&#34; | 11 | 15 | 26 | ==&gt; | &#34;Gareth Bale&#34; | 8 | 13 | 21 | ==&gt; | &#34;Luis Suárez&#34; | 12 | 11 | 23 | ==&gt; | &#34;Theo Walcott&#34; | 5 | 9 | 14 | ==&gt; | &#34;Demba Ba&#34; | 7 | 8 | 15 | ==&gt; | &#34;Edin Dzeko&#34; | 7 | 7 | 14 | ==&gt; | &#34;Santi Cazorla&#34; | 5 | 7 | 12 | ==&gt; | &#34;Juan Mata&#34; | 6 | 6 | 12 | ==&gt; | &#34;Steven Gerrard&#34; | 3 | 6 | 9 | ==&gt; | &#34;Carlos Tevez&#34; | 5 | 6 | 11 | ==&gt; &#43;--------------------------------------------------------&#43; ==&gt; 10 rows START player = node:players(&#39;name:*&#39;) SET player :Player RETURN player CREATE INDEX on :Player(name) MATCH (player:Player)-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?" />
+        <meta name="description" content="I&#8217;ve been playing around with the most recent Neo4j 2.0 milestone release - 2.0.0-M05 - and one of the first things I did was translate the queries from my football data set which were written against Neo4j 1.9.
+ The following query calculates the number of goals scored by players in matches that were shown on television, not on television and in total.
+ START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel WITH COLLECT([stats.goals, TYPE(t)]) AS games, player RETURN player." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +67,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-10-03",
-        "description": "START player=node:players(\x27name:*\x27) MATCH player-[:played|subbed_on]-\x26gt;stats-[:in]-\x26gt;game-[t?:on_tv]-\x26gt;channel WITH COLLECT([stats.goals, TYPE(t)]) AS games, player RETURN player.name, REDUCE(goals = 0, g\x27 IN FILTER(g IN games WHERE HEAD(TAIL(g)) IS NULL)| goals \x2b HEAD(g\x27)) AS nonTvGoals, REDUCE(goals = 0, g\x27 IN FILTER(g IN games WHERE HEAD(TAIL(g)) \x26lt;\x26gt; NULL)| goals \x2b HEAD(g\x27)) AS tvGoals, REDUCE(goals = 0, g\x27 in games | goals \x2b HEAD(g\x27)) AS totalGoals ORDER BY tvGoals DESC LIMIT 10 ==\x26gt; \x2b--------------------------------------------------------\x2b ==\x26gt; | player.name | nonTvGoals | tvGoals | totalGoals | ==\x26gt; \x2b--------------------------------------------------------\x2b ==\x26gt; | \x26#34;Robin Van Persie\x26#34; | 11 | 15 | 26 | ==\x26gt; | \x26#34;Gareth Bale\x26#34; | 8 | 13 | 21 | ==\x26gt; | \x26#34;Luis Suárez\x26#34; | 12 | 11 | 23 | ==\x26gt; | \x26#34;Theo Walcott\x26#34; | 5 | 9 | 14 | ==\x26gt; | \x26#34;Demba Ba\x26#34; | 7 | 8 | 15 | ==\x26gt; | \x26#34;Edin Dzeko\x26#34; | 7 | 7 | 14 | ==\x26gt; | \x26#34;Santi Cazorla\x26#34; | 5 | 7 | 12 | ==\x26gt; | \x26#34;Juan Mata\x26#34; | 6 | 6 | 12 | ==\x26gt; | \x26#34;Steven Gerrard\x26#34; | 3 | 6 | 9 | ==\x26gt; | \x26#34;Carlos Tevez\x26#34; | 5 | 6 | 11 | ==\x26gt; \x2b--------------------------------------------------------\x2b ==\x26gt; 10 rows START player = node:players(\x27name:*\x27) SET player :Player RETURN player CREATE INDEX on :Player(name) MATCH (player:Player)-[:played|subbed_on]-\x26gt;stats-[:in]-\x26gt;game-[t?",
-        "wordCount":  551 
+        "description": "I\x26#8217;ve been playing around with the most recent Neo4j 2.0 milestone release - 2.0.0-M05 - and one of the first things I did was translate the queries from my football data set which were written against Neo4j 1.9.\n The following query calculates the number of goals scored by players in matches that were shown on television, not on television and in total.\n START player=node:players(\x27name:*\x27) MATCH player-[:played|subbed_on]-\x26gt;stats-[:in]-\x26gt;game-[t?:on_tv]-\x26gt;channel WITH COLLECT([stats.goals, TYPE(t)]) AS games, player RETURN player.",
+        "wordCount":  854 
     }
     </script>
     
@@ -175,10 +179,15 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">neo4j/cypher: Converting queries from 1.9 to 2.0 -  &#39;Can&#39;t use optional patterns without explicit START clause&#39;</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START player=node:players('name:*')
+    <div class="paragraph">
+<p>I&#8217;ve been playing around with the most recent Neo4j 2.0 milestone release - <a href="http://blog.neo4j.org/2013/09/neo4j-200m05-released.html">2.0.0-M05</a> - and one of the first things I did was translate the queries from my football data set which were written against Neo4j 1.9.</p>
+</div>
+<div class="paragraph">
+<p>The following query calculates the number of goals scored by players in matches that were shown on television, not on television and in total.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START player=node:players('name:*')
 MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH COLLECT([stats.goals, TYPE(t)]) AS games, player
 RETURN player.name,
@@ -186,45 +195,72 @@ RETURN player.name,
        REDUCE(goals = 0, g' IN FILTER(g IN games WHERE HEAD(TAIL(g)) &lt;&gt; NULL)| goals + HEAD(g')) AS tvGoals,
        REDUCE(goals = 0, g' in games | goals + HEAD(g')) AS totalGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-<span style="color:#f92672">==</span>&gt; +--------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | player.name        | nonTvGoals | tvGoals | totalGoals |
-<span style="color:#f92672">==</span>&gt; +--------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Robin Van Persie&#34;</span> | <span style="color:#ae81ff">11</span>         | <span style="color:#ae81ff">15</span>      | <span style="color:#ae81ff">26</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Gareth Bale&#34;</span>      | <span style="color:#ae81ff">8</span>          | <span style="color:#ae81ff">13</span>      | <span style="color:#ae81ff">21</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Luis Suárez&#34;</span>      | <span style="color:#ae81ff">12</span>         | <span style="color:#ae81ff">11</span>      | <span style="color:#ae81ff">23</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Theo Walcott&#34;</span>     | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">9</span>       | <span style="color:#ae81ff">14</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Demba Ba&#34;</span>         | <span style="color:#ae81ff">7</span>          | <span style="color:#ae81ff">8</span>       | <span style="color:#ae81ff">15</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Edin Dzeko&#34;</span>       | <span style="color:#ae81ff">7</span>          | <span style="color:#ae81ff">7</span>       | <span style="color:#ae81ff">14</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Santi Cazorla&#34;</span>    | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">7</span>       | <span style="color:#ae81ff">12</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Juan Mata&#34;</span>        | <span style="color:#ae81ff">6</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">12</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Steven Gerrard&#34;</span>   | <span style="color:#ae81ff">3</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">9</span>          |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Carlos Tevez&#34;</span>     | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">11</span>         |
-<span style="color:#f92672">==</span>&gt; +--------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">10</span> rows
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START player = node:players('name:*') SET player :Player RETURN player
-CREATE INDEX on :Player(name) 
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We use a legacy index to get all of the players, find the games they participated in, check if those games were on television and then group by player to work out whether the goals were scored in televised games.</p>
+</div>
+<div class="paragraph">
+<p>When we evaluate that query we get the following result:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">==&gt; +--------------------------------------------------------+
+==&gt; | player.name        | nonTvGoals | tvGoals | totalGoals |
+==&gt; +--------------------------------------------------------+
+==&gt; | "Robin Van Persie" | 11         | 15      | 26         |
+==&gt; | "Gareth Bale"      | 8          | 13      | 21         |
+==&gt; | "Luis Suárez"      | 12         | 11      | 23         |
+==&gt; | "Theo Walcott"     | 5          | 9       | 14         |
+==&gt; | "Demba Ba"         | 7          | 8       | 15         |
+==&gt; | "Edin Dzeko"       | 7          | 7       | 14         |
+==&gt; | "Santi Cazorla"    | 5          | 7       | 12         |
+==&gt; | "Juan Mata"        | 6          | 6       | 12         |
+==&gt; | "Steven Gerrard"   | 3          | 6       | 9          |
+==&gt; | "Carlos Tevez"     | 5          | 6       | 11         |
+==&gt; +--------------------------------------------------------+
+==&gt; 10 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first step was to get rid of the legacy index and replace it with a <a href="http://jexp.de/blog/2013/04/cool-first-neo4j-2-0-milestone-now-with-labels-and-real-indexes/">label based one</a>. I created a label 'Player' for this purpose:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START player = node:players('name:*') SET player :Player RETURN player
+CREATE INDEX on :Player(name)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then I got rid of the legacy index lookup and replaced it with a label based one:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH COLLECT([stats.goals, TYPE(t)]) AS games, player
 RETURN player.name,
        REDUCE(goals = 0, g' IN FILTER(g IN games WHERE HEAD(TAIL(g)) IS NULL)| goals + HEAD(g')) AS nonTvGoals,
        REDUCE(goals = 0, g' IN FILTER(g IN games WHERE HEAD(TAIL(g)) &lt;&gt; NULL)| goals + HEAD(g')) AS tvGoals,
        REDUCE(goals = 0, g' in games | goals + HEAD(g')) AS totalGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-PatternException: Can't use optional patterns without explicit START clause. Optional relationships: `t`
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unfortunately you can&#8217;t use optional relationships like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">PatternException: Can't use optional patterns without explicit START clause. Optional relationships: `t`</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A neat workaround which <a href="https://twitter.com/andres_taylor">Andres</a> showed me is to first match all of the players and then make them available using a <cite>WITH</cite> statement:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)
 WITH player
 MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH COLLECT([stats.goals, TYPE(t)]) AS games, player
@@ -233,10 +269,15 @@ RETURN player.name,
        REDUCE(goals = 0, g' IN FILTER(g IN games WHERE HEAD(TAIL(g)) &lt;&gt; NULL)| goals + HEAD(g')) AS tvGoals,
        REDUCE(goals = 0, g' in games | goals + HEAD(g')) AS totalGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we evaluate this query it returns us the same results as before. However, given that we now have <a href="http://docs.neo4j.org/chunked/2.0.0-M05/syntax-collections.html">better collection support</a> it seemed a shame to still use <cite>HEAD</cite> and <cite>TAIL</cite> so I replaced those with the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)
 WITH player
 MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH COLLECT([stats.goals, TYPE(t)]) AS games, player
@@ -245,10 +286,15 @@ RETURN player.name,
        REDUCE(goals = 0, g' IN FILTER(g IN games WHERE g[1] &lt;&gt; NULL)| goals + g'[0]) AS tvGoals,
        REDUCE(goals = 0, g' in games | goals + g'[0]) AS totalGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I didn&#8217;t like those array indexes either and since we can now <a href="http://docs.neo4j.org/chunked/2.0.0-M05/syntax-collections.html#_literal_maps">create maps</a> I thought the query would be clearer if we created one on line 4 of the query rather than an array:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)
 WITH player
 MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH COLLECT({goals: stats.goals, ontv: TYPE(t)}) AS games, player
@@ -257,10 +303,15 @@ RETURN player.name,
        REDUCE(goals = 0, g' IN FILTER(g IN games WHERE g.ontv &lt;&gt; NULL)| goals + g'.goals) AS tvGoals,
        REDUCE(goals = 0, g' in games | goals + g'.goals) AS totalGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The next tweak would be to remove the <cite>FILTER</cite> and replace that with a list comprehension:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)
 WITH player
 MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH COLLECT({goals: stats.goals, ontv: TYPE(t)}) AS games, player
@@ -269,8 +320,12 @@ RETURN player.name,
        REDUCE(goals = 0, g' IN [g IN games WHERE g.ontv &lt;&gt; NULL] | goals + g'.goals) AS tvGoals,
        REDUCE(goals = 0, g' in games | goals + g'.goals) AS totalGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Although the query ends up being a couple of lines longer than its 1.9 cousin I think there&#8217;s less noise and the intent is clearer.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -305,7 +360,7 @@ LIMIT 10
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/03/neo4jcypher-converting-queries-from-1-9-to-2-0-cant-use-optional-patterns-without-explicit-start-clause/&amp;title=neo4j%2fcypher%3a%20Converting%20queries%20from%201.9%20to%202.0%20-%20%20%27Can%27t%20use%20optional%20patterns%20without%20explicit%20START%20clause%27&amp;summary=START%20player%3dnode%3aplayers%28%27name%3a%2a%27%29%20MATCH%20player-%5b%3aplayed%7csubbed_on%5d-%26gt%3bstats-%5b%3ain%5d-%26gt%3bgame-%5bt%3f%3aon_tv%5d-%26gt%3bchannel%20WITH%20COLLECT%28%5bstats.goals%2c%20TYPE%28t%29%5d%29%20AS%20games%2c%20player%20RETURN%20player.name%2c%20REDUCE%28goals%20%3d%200%2c%20g%27%20IN%20FILTER%28g%20IN%20games%20WHERE%20HEAD%28TAIL%28g%29%29%20IS%20NULL%29%7c%20goals%20%2b%20HEAD%28g%27%29%29%20AS%20nonTvGoals%2c%20REDUCE%28goals%20%3d%200%2c%20g%27%20IN%20FILTER%28g%20IN%20games%20WHERE%20HEAD%28TAIL%28g%29%29%20%26lt%3b%26gt%3b%20NULL%29%7c%20goals%20%2b%20HEAD%28g%27%29%29%20AS%20tvGoals%2c%20REDUCE%28goals%20%3d%200%2c%20g%27%20in%20games%20%7c%20goals%20%2b%20HEAD%28g%27%29%29%20AS%20totalGoals%20ORDER%20BY%20tvGoals%20DESC%20LIMIT%2010%20%3d%3d%26gt%3b%20%2b--------------------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20player.name%20%7c%20nonTvGoals%20%7c%20tvGoals%20%7c%20totalGoals%20%7c%20%3d%3d%26gt%3b%20%2b--------------------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bRobin%20Van%20Persie%26%2334%3b%20%7c%2011%20%7c%2015%20%7c%2026%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bGareth%20Bale%26%2334%3b%20%7c%208%20%7c%2013%20%7c%2021%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bLuis%20Su%c3%a1rez%26%2334%3b%20%7c%2012%20%7c%2011%20%7c%2023%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bTheo%20Walcott%26%2334%3b%20%7c%205%20%7c%209%20%7c%2014%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bDemba%20Ba%26%2334%3b%20%7c%207%20%7c%208%20%7c%2015%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bEdin%20Dzeko%26%2334%3b%20%7c%207%20%7c%207%20%7c%2014%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bSanti%20Cazorla%26%2334%3b%20%7c%205%20%7c%207%20%7c%2012%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bJuan%20Mata%26%2334%3b%20%7c%206%20%7c%206%20%7c%2012%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bSteven%20Gerrard%26%2334%3b%20%7c%203%20%7c%206%20%7c%209%20%7c%20%3d%3d%26gt%3b%20%7c%20%26%2334%3bCarlos%20Tevez%26%2334%3b%20%7c%205%20%7c%206%20%7c%2011%20%7c%20%3d%3d%26gt%3b%20%2b--------------------------------------------------------%2b%20%3d%3d%26gt%3b%2010%20rows%20START%20player%20%3d%20node%3aplayers%28%27name%3a%2a%27%29%20SET%20player%20%3aPlayer%20RETURN%20player%20CREATE%20INDEX%20on%20%3aPlayer%28name%29%20MATCH%20%28player%3aPlayer%29-%5b%3aplayed%7csubbed_on%5d-%26gt%3bstats-%5b%3ain%5d-%26gt%3bgame-%5bt%3f..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/03/neo4jcypher-converting-queries-from-1-9-to-2-0-cant-use-optional-patterns-without-explicit-start-clause/&amp;title=neo4j%2fcypher%3a%20Converting%20queries%20from%201.9%20to%202.0%20-%20%20%27Can%27t%20use%20optional%20patterns%20without%20explicit%20START%20clause%27&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20the%20most%20recent%20Neo4j%202.0%20milestone%20release%20-%202.0.0-M05%20-%20and%20one%20of%20the%20first%20things%20I%20did%20was%20translate%20the%20queries%20from%20my%20football%20data%20set%20which%20were%20written%20against%20Neo4j%201.9.%0a%20The%20following%20query%20calculates%20the%20number%20of%20goals%20scored%20by%20players%20in%20matches%20that%20were%20shown%20on%20television%2c%20not%20on%20television%20and%20in%20total.%0a%20START%20player%3dnode%3aplayers%28%27name%3a%2a%27%29%20MATCH%20player-%5b%3aplayed%7csubbed_on%5d-%26gt%3bstats-%5b%3ain%5d-%26gt%3bgame-%5bt%3f%3aon_tv%5d-%26gt%3bchannel%20WITH%20COLLECT%28%5bstats.goals%2c%20TYPE%28t%29%5d%29%20AS%20games%2c%20player%20RETURN%20player...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Clojure: Paging meetup data using lazy sequences" />
         
-          <meta name="twitter:description" content="(defn unchunk [s] (when (seq s) (lazy-seq (cons (first s) (unchunk (next s)))))) (defn offsets [] (unchunk (range))) (defn get-all [api-fn] (flatten (take-while seq (map #(api-fn {:perpage 200 :offset % :orderby &#34;name&#34;}) (offsets))))) (:require [clj-http.client :as client]) (defn members [{perpage :perpage offset :offset orderby :orderby}] (-&gt;&gt; (client/get (str &#34;https://api.meetup.com/2/members?page=&#34; perpage &#34;&amp;offset=&#34; offset &#34;&amp;orderby=&#34; orderby &#34;&amp;group_urlname=&#34; MEETUP_NAME &#34;&amp;key=&#34; MEETUP_KEY) {:as :json}) :body :results)) (defn all-members [] (get-all members)) " />
+          <meta name="twitter:description" content="I&#8217;ve been playing around with the meetup API to do some analysis on the Neo4j London meetup and one thing I wanted to do was download all the members of the group.
+ A feature of the meetup API is that each end point will only allow you to return a maximum of 200 records so I needed to make use of offsets and paging to retrieve everybody.
+ It seemed like a good chance to use some lazy sequences to keep track of the offsets and then stop making calls to the API once I wasn&#8217;t retrieving any more results." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/04/30/clojure-paging-meetup-data-using-lazy-sequences/" />
 
@@ -33,7 +35,9 @@
         <title> Clojure: Paging meetup data using lazy sequences &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="(defn unchunk [s] (when (seq s) (lazy-seq (cons (first s) (unchunk (next s)))))) (defn offsets [] (unchunk (range))) (defn get-all [api-fn] (flatten (take-while seq (map #(api-fn {:perpage 200 :offset % :orderby &#34;name&#34;}) (offsets))))) (:require [clj-http.client :as client]) (defn members [{perpage :perpage offset :offset orderby :orderby}] (-&gt;&gt; (client/get (str &#34;https://api.meetup.com/2/members?page=&#34; perpage &#34;&amp;offset=&#34; offset &#34;&amp;orderby=&#34; orderby &#34;&amp;group_urlname=&#34; MEETUP_NAME &#34;&amp;key=&#34; MEETUP_KEY) {:as :json}) :body :results)) (defn all-members [] (get-all members)) " />
+        <meta name="description" content="I&#8217;ve been playing around with the meetup API to do some analysis on the Neo4j London meetup and one thing I wanted to do was download all the members of the group.
+ A feature of the meetup API is that each end point will only allow you to return a maximum of 200 records so I needed to make use of offsets and paging to retrieve everybody.
+ It seemed like a good chance to use some lazy sequences to keep track of the offsets and then stop making calls to the API once I wasn&#8217;t retrieving any more results." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-04-30",
-        "description": "(defn unchunk [s] (when (seq s) (lazy-seq (cons (first s) (unchunk (next s)))))) (defn offsets [] (unchunk (range))) (defn get-all [api-fn] (flatten (take-while seq (map #(api-fn {:perpage 200 :offset % :orderby \x26#34;name\x26#34;}) (offsets))))) (:require [clj-http.client :as client]) (defn members [{perpage :perpage offset :offset orderby :orderby}] (-\x26gt;\x26gt; (client\/get (str \x26#34;https:\/\/api.meetup.com\/2\/members?page=\x26#34; perpage \x26#34;\x26amp;offset=\x26#34; offset \x26#34;\x26amp;orderby=\x26#34; orderby \x26#34;\x26amp;group_urlname=\x26#34; MEETUP_NAME \x26#34;\x26amp;key=\x26#34; MEETUP_KEY) {:as :json}) :body :results)) (defn all-members [] (get-all members)) ",
-        "wordCount":  67 
+        "description": "I\x26#8217;ve been playing around with the meetup API to do some analysis on the Neo4j London meetup and one thing I wanted to do was download all the members of the group.\n A feature of the meetup API is that each end point will only allow you to return a maximum of 200 records so I needed to make use of offsets and paging to retrieve everybody.\n It seemed like a good chance to use some lazy sequences to keep track of the offsets and then stop making calls to the API once I wasn\x26#8217;t retrieving any more results.",
+        "wordCount":  323 
     }
     </script>
     
@@ -172,15 +176,24 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Clojure: Paging meetup data using lazy sequences</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(defn unchunk [s]
+    <div class="paragraph">
+<p>I&#8217;ve been playing around with the <a href="http://www.meetup.com/meetup_api/">meetup API</a> to do some analysis on the <a href="http://www.meetup.com/graphdb-london/">Neo4j London meetup</a> and one thing I wanted to do was download all the members of the group.</p>
+</div>
+<div class="paragraph">
+<p>A feature of the meetup API is that each end point will only allow you to return a maximum of 200 records so I needed to make use of offsets and paging to retrieve everybody.</p>
+</div>
+<div class="paragraph">
+<p>It seemed like a good chance to use some lazy sequences to keep track of the offsets and then stop making calls to the API once I wasn&#8217;t retrieving any more results.</p>
+</div>
+<div class="paragraph">
+<p>I wrote the following functions to take care of that bit:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(defn unchunk [s]
   (when (seq s)
     (lazy-seq
-      (<span style="color:#a6e22e">cons</span> (<span style="color:#a6e22e">first</span> s)
+      (cons (first s)
             (unchunk (next s))))))
 
 (defn offsets []
@@ -190,29 +203,49 @@ tbody tr pre {margin-bottom: 27px}
 (defn get-all [api-fn]
   (flatten
    (take-while seq
-               (<span style="color:#a6e22e">map</span> <span style="color:#f92672">#(</span>api-fn {:perpage <span style="color:#ae81ff">200</span> <span style="color:#e6db74">:offset</span> % <span style="color:#e6db74">:orderby</span> <span style="color:#e6db74">&#34;name&#34;</span>}) (offsets)))))
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(<span style="color:#e6db74">:require</span> [clj-http.client <span style="color:#e6db74">:as</span> client])
+               (map #(api-fn {:perpage 200 :offset % :orderby "name"}) (offsets)))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I previously wrote about the <a href="http://www.markhneedham.com/blog/2014/04/06/clojure-not-so-lazy-sequences-a-k-a-chunking-behaviour/">chunking behaviour of lazy collections</a> which meant that I ended up with a minimum of 32 calls to each URI which wasn&#8217;t what I had in mind!</p>
+</div>
+<div class="paragraph">
+<p>To get all the members in the group I wrote the following function which is passed to <cite>get-all</cite>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(:require [clj-http.client :as client])
 
 (defn members
-  [{perpage <span style="color:#e6db74">:perpage</span> offset <span style="color:#e6db74">:offset</span> orderby <span style="color:#e6db74">:orderby}]</span>
+  [{perpage :perpage offset :offset orderby :orderby}]
   (-&gt;&gt; (client/get
-        (str <span style="color:#e6db74">&#34;https://api.meetup.com/2/members?page=&#34;</span> perpage
-             <span style="color:#e6db74">&#34;&amp;offset=&#34;</span> offset
-             <span style="color:#e6db74">&#34;&amp;orderby=&#34;</span> orderby
-             <span style="color:#e6db74">&#34;&amp;group_urlname=&#34;</span> MEETUP_NAME
-             <span style="color:#e6db74">&#34;&amp;key=&#34;</span> MEETUP_KEY)
-        {:as <span style="color:#e6db74">:json}</span>)
-       <span style="color:#e6db74">:body</span> <span style="color:#e6db74">:results</span>))
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(defn all-members []
-  (get-all members))
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+        (str "https://api.meetup.com/2/members?page=" perpage
+             "&amp;offset=" offset
+             "&amp;orderby=" orderby
+             "&amp;group_urlname=" MEETUP_NAME
+             "&amp;key=" MEETUP_KEY)
+        {:as :json})
+       :body :results))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So to get all the members we&#8217;d do this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(defn all-members []
+  (get-all members))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m told that using lazy collections when side effects are involved is a bad idea - presumably because the calls to the API might never end - but since I only run it manually I can just kill the process if anything goes wrong.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;d be interested in how others would go about solving this problem - <a href="https://github.com/clojure/core.async">core.async</a> was suggested but that seems to result in much more / more complicated code than this version.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/neo4j-meetup/blob/master/src/neo4j_meetup/core.clj#L58">code is on github</a> if you want to take a look.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -247,7 +280,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/04/30/clojure-paging-meetup-data-using-lazy-sequences/&amp;title=Clojure%3a%20Paging%20meetup%20data%20using%20lazy%20sequences&amp;summary=%28defn%20unchunk%20%5bs%5d%20%28when%20%28seq%20s%29%20%28lazy-seq%20%28cons%20%28first%20s%29%20%28unchunk%20%28next%20s%29%29%29%29%29%29%20%28defn%20offsets%20%5b%5d%20%28unchunk%20%28range%29%29%29%20%28defn%20get-all%20%5bapi-fn%5d%20%28flatten%20%28take-while%20seq%20%28map%20%23%28api-fn%20%7b%3aperpage%20200%20%3aoffset%20%25%20%3aorderby%20%26%2334%3bname%26%2334%3b%7d%29%20%28offsets%29%29%29%29%29%20%28%3arequire%20%5bclj-http.client%20%3aas%20client%5d%29%20%28defn%20members%20%5b%7bperpage%20%3aperpage%20offset%20%3aoffset%20orderby%20%3aorderby%7d%5d%20%28-%26gt%3b%26gt%3b%20%28client%2fget%20%28str%20%26%2334%3bhttps%3a%2f%2fapi.meetup.com%2f2%2fmembers%3fpage%3d%26%2334%3b%20perpage%20%26%2334%3b%26amp%3boffset%3d%26%2334%3b%20offset%20%26%2334%3b%26amp%3borderby%3d%26%2334%3b%20orderby%20%26%2334%3b%26amp%3bgroup_urlname%3d%26%2334%3b%20MEETUP_NAME%20%26%2334%3b%26amp%3bkey%3d%26%2334%3b%20MEETUP_KEY%29%20%7b%3aas%20%3ajson%7d%29%20%3abody%20%3aresults%29%29%20%28defn%20all-members%20%5b%5d%20%28get-all%20members%29%29%20..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/04/30/clojure-paging-meetup-data-using-lazy-sequences/&amp;title=Clojure%3a%20Paging%20meetup%20data%20using%20lazy%20sequences&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20the%20meetup%20API%20to%20do%20some%20analysis%20on%20the%20Neo4j%20London%20meetup%20and%20one%20thing%20I%20wanted%20to%20do%20was%20download%20all%20the%20members%20of%20the%20group.%0a%20A%20feature%20of%20the%20meetup%20API%20is%20that%20each%20end%20point%20will%20only%20allow%20you%20to%20return%20a%20maximum%20of%20200%20records%20so%20I%20needed%20to%20make%20use%20of%20offsets%20and%20paging%20to%20retrieve%20everybody.%0a%20It%20seemed%20like%20a%20good%20chance%20to%20use%20some%20lazy%20sequences%20to%20keep%20track%20of%20the%20offsets%20and%20then%20stop%20making%20calls%20to%20the%20API%20once%20I%20wasn%26%238217%3bt%20retrieving%20any%20more%20results...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

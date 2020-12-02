@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Hamcrest Matchers - Make the error message clear" />
         
-          <meta name="twitter:description" content="We have been making good use of Hamcrestmatchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.
-There are several reasons why I find the Hamcrest matcher approach to be more productive - it&rsquo;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example." />
+          <meta name="twitter:description" content="We have been making good use of Hamcrest matchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.
+ There are several reasons why I find the Hamcrest matcher approach to be more productive - it&#8217;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2008/11/08/hamcrest-matchers-make-the-error-message-clear/" />
 
@@ -35,8 +35,8 @@ There are several reasons why I find the Hamcrest matcher approach to be more pr
         <title> Hamcrest Matchers - Make the error message clear &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="We have been making good use of Hamcrestmatchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.
-There are several reasons why I find the Hamcrest matcher approach to be more productive - it&rsquo;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example." />
+        <meta name="description" content="We have been making good use of Hamcrest matchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.
+ There are several reasons why I find the Hamcrest matcher approach to be more productive - it&#8217;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ There are several reasons why I find the Hamcrest matcher approach to be more pr
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2008-11-08",
-        "description": "We have been making good use of Hamcrestmatchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.\nThere are several reasons why I find the Hamcrest matcher approach to be more productive - it\x26rsquo;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example.",
-        "wordCount":  334 
+        "description": "We have been making good use of Hamcrest matchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.\n There are several reasons why I find the Hamcrest matcher approach to be more productive - it\x26#8217;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example.",
+        "wordCount":  335 
     }
     </script>
     
@@ -177,62 +177,89 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Hamcrest Matchers - Make the error message clear</h1>
-    <p>We have been making good use of <!-- raw HTML omitted -->Hamcrest<!-- raw HTML omitted --> matchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.</p>
-<p>There are several reasons why I find the Hamcrest matcher approach to be more productive - it&rsquo;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example.</p>
+    <div class="paragraph">
+<p>We have been making good use of <a href="http://code.google.com/p/hamcrest/">Hamcrest</a> matchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.</p>
+</div>
+<div class="paragraph">
+<p>There are several reasons why I find the Hamcrest matcher approach to be more productive - it&#8217;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example.</p>
+</div>
+<div class="paragraph">
 <p>This applies especially when we get a test failing as part of the build as compared to running a test from the IDE where the source code is close at hand and non descriptive error messages may not be such a problem.</p>
+</div>
+<div class="paragraph">
 <p>It therefore makes sense when writing custom Hamcrest matchers to ensure that we do indeed provide a clear error message so that it is obvious how to fix the test.</p>
+</div>
+<div class="paragraph">
 <p>The convention seems to be that we should first state the static method name of the matcher and then in brackets list the expected arguments.</p>
+</div>
+<div class="paragraph">
 <p>To give an example from a matcher we wrote yesterday:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">import</span> org.hamcrest.Description<span style="color:#f92672">;</span>
-<span style="color:#f92672">import</span> org.hamcrest.Factory<span style="color:#f92672">;</span>
-<span style="color:#f92672">import</span> org.hamcrest.TypeSafeMatcher<span style="color:#f92672">;</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import org.hamcrest.Description;
+import org.hamcrest.Factory;
+import org.hamcrest.TypeSafeMatcher;
 
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContainsAllOf</span><span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">extends</span> TypeSafeMatcher<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">private</span> String<span style="color:#f92672">[]</span> messages<span style="color:#f92672">;</span>
+public class ContainsAllOf&lt;T&gt; extends TypeSafeMatcher&lt;T&gt; {
+    private String[] messages;
 
-    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ContainsAllOf</span><span style="color:#f92672">(</span>String<span style="color:#f92672">...</span> messages<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">messages</span> <span style="color:#f92672">=</span> messages<span style="color:#f92672">;</span>
-    <span style="color:#f92672">}</span>
+    public ContainsAllOf(String... messages) {
+        this.messages = messages;
+    }
 
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">describeTo</span><span style="color:#f92672">(</span>Description description<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        description<span style="color:#f92672">.</span><span style="color:#a6e22e">appendText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;containsAllOf(&#34;</span><span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String message <span style="color:#f92672">:</span> messages<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            description<span style="color:#f92672">.</span><span style="color:#a6e22e">appendText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">);</span>
-            description<span style="color:#f92672">.</span><span style="color:#a6e22e">appendValue</span><span style="color:#f92672">(</span>message<span style="color:#f92672">);</span>
-        <span style="color:#f92672">}</span>
-        description<span style="color:#f92672">.</span><span style="color:#a6e22e">appendText</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;)&#34;</span><span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+    public void describeTo(Description description) {
+        description.appendText("containsAllOf(");
+        for (String message : messages) {
+            description.appendText(",");
+            description.appendValue(message);
+        }
+        description.appendText(")");
+    }
 
-    <span style="color:#a6e22e">@Factory</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;</span> ContainsAllOf <span style="color:#a6e22e">containsAllOf</span><span style="color:#f92672">(</span>String<span style="color:#f92672">...</span> messages<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> ContainsAllOf<span style="color:#f92672">(</span>messages<span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+    @Factory
+    public static &lt;T&gt; ContainsAllOf containsAllOf(String... messages) {
+        return new ContainsAllOf(messages);
+    }
 
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">matchesSafely</span><span style="color:#f92672">(</span>T t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">return</span> contains<span style="color:#f92672">(</span>t<span style="color:#f92672">,</span> messages<span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+    public boolean matchesSafely(T t) {
+        return contains(t, messages);
+    }
 
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">contains</span><span style="color:#f92672">(</span>T t<span style="color:#f92672">,</span> String<span style="color:#f92672">[]</span> messages<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">boolean</span> containsAllMessages <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String message <span style="color:#f92672">:</span> messages<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>t<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contains</span><span style="color:#f92672">(</span>message<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-        <span style="color:#66d9ef">return</span> containsAllMessages<span style="color:#f92672">;</span>
-    <span style="color:#f92672">}</span>
+    private boolean contains(T t, String[] messages) {
+        boolean containsAllMessages = true;
+        for (String message : messages) {
+            if (!t.toString().contains(message)) {
+                return false;
+            }
+        }
+        return containsAllMessages;
+    }
 
-<span style="color:#f92672">}</span>
-</code></pre></div><p>If we call this in our test with a value that doesn&rsquo;t exist:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-assertThat<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;mark&#39;s cool message&#34;</span><span style="color:#f92672">,</span> containsAllOf<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;mark&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;cool&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;message&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;notThere&#34;</span><span style="color:#f92672">));</span>
-</code></pre></div><p>Running the test results in the following error:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-java.lang.AssertionError: 
-Expected: containsAllOf(,&#34;mark&#34;,&#34;cool&#34;,&#34;message&#34;,&#34;notThere&#34;)
-     got: &#34;mark&#39;s cool message&#34;
-</code></pre></div><p>We can easily see what the problem is and how to go about fixing it, which I feel is the most important thing when it comes to test assertions.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we call this in our test with a value that doesn&#8217;t exist:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">assertThat("mark's cool message", containsAllOf("mark", "cool", "message", "notThere"));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Running the test results in the following error:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">java.lang.AssertionError:
+Expected: containsAllOf(,"mark","cool","message","notThere")
+     got: "mark's cool message"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can easily see what the problem is and how to go about fixing it, which I feel is the most important thing when it comes to test assertions.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -267,7 +294,7 @@ Expected: containsAllOf(,&#34;mark&#34;,&#34;cool&#34;,&#34;message&#34;,&#34;no
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/11/08/hamcrest-matchers-make-the-error-message-clear/&amp;title=Hamcrest%20Matchers%20-%20Make%20the%20error%20message%20clear&amp;summary=We%20have%20been%20making%20good%20use%20of%20Hamcrestmatchers%20on%20my%20current%20project%20for%20making%20assertions%2c%20and%20have%20moved%20almost%20entirely%20away%20from%20the%20more%20traditional%20JUnit%20assertEquals%20approach.%0aThere%20are%20several%20reasons%20why%20I%20find%20the%20Hamcrest%20matcher%20approach%20to%20be%20more%20productive%20-%20it%26rsquo%3bs%20more%20flexible%2c%20more%20expressive%20and%20when%20an%20assertion%20fails%20we%20have%20a%20much%20better%20idea%20about%20why%20it%20has%20failed%20than%20if%20we%20use%20a%20JUnit%20assertion%20for%20example...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/11/08/hamcrest-matchers-make-the-error-message-clear/&amp;title=Hamcrest%20Matchers%20-%20Make%20the%20error%20message%20clear&amp;summary=We%20have%20been%20making%20good%20use%20of%20Hamcrest%20matchers%20on%20my%20current%20project%20for%20making%20assertions%2c%20and%20have%20moved%20almost%20entirely%20away%20from%20the%20more%20traditional%20JUnit%20assertEquals%20approach.%0a%20There%20are%20several%20reasons%20why%20I%20find%20the%20Hamcrest%20matcher%20approach%20to%20be%20more%20productive%20-%20it%26%238217%3bs%20more%20flexible%2c%20more%20expressive%20and%20when%20an%20assertion%20fails%20we%20have%20a%20much%20better%20idea%20about%20why%20it%20has%20failed%20than%20if%20we%20use%20a%20JUnit%20assertion%20for%20example...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

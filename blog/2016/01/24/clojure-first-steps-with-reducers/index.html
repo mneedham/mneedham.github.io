@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Clojure: First steps with reducers" />
         
-          <meta name="twitter:description" content="(defn log2 [n] (/ (Math/log n) (Math/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (&#43; (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961 (reduce #(&#43; %1 (score-item %2)) 0 [12 13 5]) 9.60733031374961 (reduce #(&#43; %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (require &#39;[clojure.core.reducers :as r]) (r/reduce #(&#43; %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (-&gt;&gt;[12 13 5 6] (map score-item) (filter #(&gt; % 3))) (3." />
+          <meta name="twitter:description" content="I&#8217;ve been playing around with Clojure a bit today in preparation for a talk I&#8217;m giving next week and found myself writing the following code to apply the same function to three different scores:
+ (defn log2 [n] (/ (Math/log n) (Math/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (&#43; (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961   I&#8217;d forgotten about folding over a collection but quickly remembered that I could achieve the same result with the following code:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/01/24/clojure-first-steps-with-reducers/" />
 
@@ -33,7 +34,8 @@
         <title> Clojure: First steps with reducers &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="(defn log2 [n] (/ (Math/log n) (Math/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (&#43; (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961 (reduce #(&#43; %1 (score-item %2)) 0 [12 13 5]) 9.60733031374961 (reduce #(&#43; %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (require &#39;[clojure.core.reducers :as r]) (r/reduce #(&#43; %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (-&gt;&gt;[12 13 5 6] (map score-item) (filter #(&gt; % 3))) (3." />
+        <meta name="description" content="I&#8217;ve been playing around with Clojure a bit today in preparation for a talk I&#8217;m giving next week and found myself writing the following code to apply the same function to three different scores:
+ (defn log2 [n] (/ (Math/log n) (Math/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (&#43; (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961   I&#8217;d forgotten about folding over a collection but quickly remembered that I could achieve the same result with the following code:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-01-24",
-        "description": "(defn log2 [n] (\/ (Math\/log n) (Math\/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (\x2b (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961 (reduce #(\x2b %1 (score-item %2)) 0 [12 13 5]) 9.60733031374961 (reduce #(\x2b %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (require \x26#39;[clojure.core.reducers :as r]) (r\/reduce #(\x2b %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767 (-\x26gt;\x26gt;[12 13 5 6] (map score-item) (filter #(\x26gt; % 3))) (3.",
-        "wordCount":  103 
+        "description": "I\x26#8217;ve been playing around with Clojure a bit today in preparation for a talk I\x26#8217;m giving next week and found myself writing the following code to apply the same function to three different scores:\n (defn log2 [n] (\/ (Math\/log n) (Math\/log 2))) (defn score-item [n] (if (= n 0) 0 (log2 n))) (\x2b (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961   I\x26#8217;d forgotten about folding over a collection but quickly remembered that I could achieve the same result with the following code:",
+        "wordCount":  387 
     }
     </script>
     
@@ -172,46 +174,89 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Clojure: First steps with reducers</h1>
-    <!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-clojure" data-lang="clojure">
-(<span style="color:#66d9ef">defn </span>log2 [n]
-  (/ (<span style="color:#a6e22e">Math/log</span> n) (<span style="color:#a6e22e">Math/log</span> <span style="color:#ae81ff">2</span>)))
+    <div class="paragraph">
+<p>I&#8217;ve been playing around with Clojure a bit today in preparation for <a href="https://skillsmatter.com/meetups/7794-using-clojure-neo4j-to-build-a-meetup-recommendation-engine">a talk I&#8217;m giving next week</a> and found myself writing the following code to apply the same function to three different scores:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-clojure" data-lang="clojure">(defn log2 [n]
+  (/ (Math/log n) (Math/log 2)))
 
-(<span style="color:#66d9ef">defn </span>score-item [n]
-  (<span style="color:#66d9ef">if </span>(= n <span style="color:#ae81ff">0</span>) <span style="color:#ae81ff">0</span> (<span style="color:#a6e22e">log2</span> n)))
+(defn score-item [n]
+  (if (= n 0) 0 (log2 n)))
 
-(+ (<span style="color:#a6e22e">score-item</span> <span style="color:#ae81ff">12</span>) (<span style="color:#a6e22e">score-item</span> <span style="color:#ae81ff">13</span>) (<span style="color:#a6e22e">score-item</span> <span style="color:#ae81ff">5</span>)) <span style="color:#ae81ff">9.60733031374961</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-clojure" data-lang="clojure">
-(reduce <span style="color:#f92672">#</span>(+ %1 (<span style="color:#a6e22e">score-item</span> %2)) <span style="color:#ae81ff">0</span> [<span style="color:#ae81ff">12</span> <span style="color:#ae81ff">13</span> <span style="color:#ae81ff">5</span>]) <span style="color:#ae81ff">9.60733031374961</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-clojure" data-lang="clojure">
-(reduce <span style="color:#f92672">#</span>(+ %1 (<span style="color:#a6e22e">score-item</span> %2)) <span style="color:#ae81ff">0</span> [<span style="color:#ae81ff">12</span> <span style="color:#ae81ff">13</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span>]) <span style="color:#ae81ff">12.192292814470767</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-clojure" data-lang="clojure">
-(<span style="color:#a6e22e">require</span> <span style="color:#f92672">&#39;</span>[clojure.core.reducers <span style="color:#e6db74">:as</span> r])
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-clojure" data-lang="clojure">
-(<span style="color:#a6e22e">r/reduce</span> <span style="color:#f92672">#</span>(+ %1 (<span style="color:#a6e22e">score-item</span> %2)) <span style="color:#ae81ff">0</span> [<span style="color:#ae81ff">12</span> <span style="color:#ae81ff">13</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span>]) <span style="color:#ae81ff">12.192292814470767</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-clojure" data-lang="clojure">
-(<span style="color:#a6e22e">-&gt;&gt;</span>[<span style="color:#ae81ff">12</span> <span style="color:#ae81ff">13</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span>]
+(+ (score-item 12) (score-item 13) (score-item 5)) 9.60733031374961</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;d forgotten about folding over a collection but quickly remembered that I could achieve the same result with the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-clojure" data-lang="clojure">(reduce #(+ %1 (score-item %2)) 0 [12 13 5]) 9.60733031374961</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The added advantage here is that if I want to add a 4th score to the mix all I need to do is append it to the end of the vector:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-clojure" data-lang="clojure">(reduce #(+ %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However, while Googling to remind myself of the order of the arguments to reduce I kept coming across <a href="http://clojure.org/reference/reducers">articles and documentation about reducers</a> which I&#8217;d heard about but never used.</p>
+</div>
+<div class="paragraph">
+<p>As I understand they&#8217;re used to <a href="http://ianrumford.github.io/blog/2013/08/25/some-trivial-examples-of-using-clojure-reducers/">achieve performance gains and easier composition of functions over collections</a> so I&#8217;m not sure how useful they&#8217;ll be to me but I thought I&#8217;d give them a try.</p>
+</div>
+<div class="paragraph">
+<p>Our first step is to bring the namespace into scope:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-clojure" data-lang="clojure">(require '[clojure.core.reducers :as r])</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can compute the same result using the <cite>reduce</cite> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-clojure" data-lang="clojure">(r/reduce #(+ %1 (score-item %2)) 0 [12 13 5 6]) 12.192292814470767</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So far, so identical. If we wanted to calculate individual scores and then filter out those below a certain threshold the code would behave a little differently:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-clojure" data-lang="clojure">(-&gt;&gt;[12 13 5 6]
     (map score-item)
-    (filter <span style="color:#f92672">#</span>(&gt; % <span style="color:#ae81ff">3</span>))) (<span style="color:#ae81ff">3.5849625007211565</span> <span style="color:#ae81ff">3.700439718141092</span>)
+    (filter #(&gt; % 3))) (3.5849625007211565 3.700439718141092)
 
-(<span style="color:#a6e22e">-&gt;&gt;</span> [<span style="color:#ae81ff">12</span> <span style="color:#ae81ff">13</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span>]
-     (<span style="color:#a6e22e">r/map</span> score-item)
-     (<span style="color:#a6e22e">r/filter</span> <span style="color:#f92672">#</span>(&gt; % <span style="color:#ae81ff">3</span>))) <span style="color:#f92672">#</span>object[clojure.core.reducers$folder$reify__19192 <span style="color:#ae81ff">0</span>x5d0edf21 <span style="color:#e6db74">&#34;clojure.core.reducers$folder$reify__19192@5d0edf21&#34;</span>]
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-clojure" data-lang="clojure">
-(<span style="color:#a6e22e">-&gt;&gt;</span> [<span style="color:#ae81ff">12</span> <span style="color:#ae81ff">13</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span>]
-     (<span style="color:#a6e22e">r/map</span> score-item)
-     (<span style="color:#a6e22e">r/filter</span> <span style="color:#f92672">#</span>(&gt; % <span style="color:#ae81ff">3</span>))
-     (into [])) (<span style="color:#ae81ff">3.5849625007211565</span> <span style="color:#ae81ff">3.700439718141092</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+(-&gt;&gt; [12 13 5 6]
+     (r/map score-item)
+     (r/filter #(&gt; % 3))) #object[clojure.core.reducers$folder$reify__19192 0x5d0edf21 "clojure.core.reducers$folder$reify__19192@5d0edf21"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Instead of giving us a vector of scores the reducers version returns a reducer which can pass into <cite>reduce</cite> or <cite>fold</cite> if we want an accumulated result or <cite>into</cite> if we want to output a collection. In this case we want the latter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-clojure" data-lang="clojure">(-&gt;&gt; [12 13 5 6]
+     (r/map score-item)
+     (r/filter #(&gt; % 3))
+     (into [])) (3.5849625007211565 3.700439718141092)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With a measly 4 item collection I don&#8217;t think the reducers are going to provide much speed improvement here but we&#8217;d need to use the <cite>http://clojure.org/reference/reducers#_using_reducers<span class="fold"></cite></span> function if we want processing of the collection to be done in parallel.</p>
+</div>
+<div class="paragraph">
+<p>One for next time!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -246,7 +291,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/01/24/clojure-first-steps-with-reducers/&amp;title=Clojure%3a%20First%20steps%20with%20reducers&amp;summary=%28defn%20log2%20%5bn%5d%20%28%2f%20%28Math%2flog%20n%29%20%28Math%2flog%202%29%29%29%20%28defn%20score-item%20%5bn%5d%20%28if%20%28%3d%20n%200%29%200%20%28log2%20n%29%29%29%20%28%2b%20%28score-item%2012%29%20%28score-item%2013%29%20%28score-item%205%29%29%209.60733031374961%20%28reduce%20%23%28%2b%20%251%20%28score-item%20%252%29%29%200%20%5b12%2013%205%5d%29%209.60733031374961%20%28reduce%20%23%28%2b%20%251%20%28score-item%20%252%29%29%200%20%5b12%2013%205%206%5d%29%2012.192292814470767%20%28require%20%26%2339%3b%5bclojure.core.reducers%20%3aas%20r%5d%29%20%28r%2freduce%20%23%28%2b%20%251%20%28score-item%20%252%29%29%200%20%5b12%2013%205%206%5d%29%2012.192292814470767%20%28-%26gt%3b%26gt%3b%5b12%2013%205%206%5d%20%28map%20score-item%29%20%28filter%20%23%28%26gt%3b%20%25%203%29%29%29%20%283...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/01/24/clojure-first-steps-with-reducers/&amp;title=Clojure%3a%20First%20steps%20with%20reducers&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20Clojure%20a%20bit%20today%20in%20preparation%20for%20a%20talk%20I%26%238217%3bm%20giving%20next%20week%20and%20found%20myself%20writing%20the%20following%20code%20to%20apply%20the%20same%20function%20to%20three%20different%20scores%3a%0a%20%28defn%20log2%20%5bn%5d%20%28%2f%20%28Math%2flog%20n%29%20%28Math%2flog%202%29%29%29%20%28defn%20score-item%20%5bn%5d%20%28if%20%28%3d%20n%200%29%200%20%28log2%20n%29%29%29%20%28%2b%20%28score-item%2012%29%20%28score-item%2013%29%20%28score-item%205%29%29%209.60733031374961%20%20%20I%26%238217%3bd%20forgotten%20about%20folding%20over%20a%20collection%20but%20quickly%20remembered%20that%20I%20could%20achieve%20the%20same%20result%20with%20the%20following%20code%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

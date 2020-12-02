@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Wrapping .NET library calls" />
         
-          <meta name="twitter:description" content="I&rsquo;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can&rsquo;t currently get from the Feedburner dashboard.
-One thing which I found while doing this is that calls to the .NET base class library don&rsquo;t seem to fit in that well with the way that you would typically compose functions together in F#." />
+          <meta name="twitter:description" content="I&#8217;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can&#8217;t currently get from the Feedburner dashboard.
+ One thing which I found while doing this is that calls to the .NET base class library don&#8217;t seem to fit in that well with the way that you would typically compose functions together in F#." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/07/12/f-wrapping-net-library-calls/" />
 
@@ -34,8 +34,8 @@ One thing which I found while doing this is that calls to the .NET base class li
         <title> F#: Wrapping .NET library calls &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&rsquo;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can&rsquo;t currently get from the Feedburner dashboard.
-One thing which I found while doing this is that calls to the .NET base class library don&rsquo;t seem to fit in that well with the way that you would typically compose functions together in F#." />
+        <meta name="description" content="I&#8217;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can&#8217;t currently get from the Feedburner dashboard.
+ One thing which I found while doing this is that calls to the .NET base class library don&#8217;t seem to fit in that well with the way that you would typically compose functions together in F#." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ One thing which I found while doing this is that calls to the .NET base class li
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-07-12",
-        "description": "I\x26rsquo;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can\x26rsquo;t currently get from the Feedburner dashboard.\nOne thing which I found while doing this is that calls to the .NET base class library don\x26rsquo;t seem to fit in that well with the way that you would typically compose functions together in F#.",
-        "wordCount":  378 
+        "description": "I\x26#8217;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can\x26#8217;t currently get from the Feedburner dashboard.\n One thing which I found while doing this is that calls to the .NET base class library don\x26#8217;t seem to fit in that well with the way that you would typically compose functions together in F#.",
+        "wordCount":  379 
     }
     </script>
     
@@ -174,51 +174,74 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Wrapping .NET library calls</h1>
-    <p>I&rsquo;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can&rsquo;t currently get from the Feedburner dashboard.</p>
-<p>One thing which I found while doing this is that calls to the .NET base class library don&rsquo;t seem to fit in that well with the way that you would typically compose functions together in F#.</p>
+    <div class="paragraph">
+<p>I&#8217;ve been spending a bit of time writing some code to parse the xml of my Feedburner RSS feed and create a graph to show both the daily and weekly average subscribers which you can&#8217;t currently get from the Feedburner dashboard.</p>
+</div>
+<div class="paragraph">
+<p>One thing which I found while doing this is that calls to the .NET base class library don&#8217;t seem to fit in that well with the way that you would typically compose functions together in F#.</p>
+</div>
+<div class="paragraph">
 <p>For example one of the first things I wanted to do was print the date and the circulation count to the console which I originally did like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">IO</span>
-<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">Net</span>
-<span style="color:#66d9ef">open</span> Microsoft.FSharp.<span style="color:#a6e22e">Control</span>
-<span style="color:#66d9ef">open</span> System.Xml.<span style="color:#a6e22e">Linq</span>
-<span style="color:#66d9ef">open</span> <span style="color:#a6e22e">System</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">open System.IO
+open System.Net
+open Microsoft.FSharp.Control
+open System.Xml.Linq
+open System
 
-<span style="color:#66d9ef">let</span> xName <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> XName.<span style="color:#a6e22e">Get</span> <span style="color:#66d9ef">value</span>
+let xName value = XName.Get value
 
-<span style="color:#f92672">//</span> <span style="color:#a6e22e">GetXml</span> is a <span style="color:#66d9ef">function</span> <span style="color:#66d9ef">of</span> <span style="color:#66d9ef">type</span> <span style="color:#66d9ef">string</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">string</span>
+// GetXml is a function of type string -&gt; string
 
-<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetFeedBurnerStats</span> url <span style="color:#f92672">=</span> 
-    <span style="color:#66d9ef">let</span> feedBurnerXml <span style="color:#f92672">=</span> <span style="color:#a6e22e">GetXml</span> url <span style="color:#f92672">|&gt;</span> XDocument.<span style="color:#a6e22e">Parse</span>
-    feedBurnerXml<span style="color:#f92672">.</span><span style="color:#a6e22e">Descendants</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;entry&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> 
-    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;circulation&#34;</span><span style="color:#f92672">),</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;date&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">|&gt;</span>
-    Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> printfn <span style="color:#e6db74">&#34;%s %s&#34;</span> <span style="color:#f92672">(</span>fst x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">(</span>snd x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
-</code></pre></div><p>It&rsquo;s quite annoying that we need to store the XDocument as a value before being able to call one of the methods on it to get the data that we want.</p>
-<p>I realised that if I created a function which took in the element whose descendants I wanted to find and the XDocument I could then call the &lsquo;XDocument.Descendants()&rsquo; method inside that function:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> xName <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> XName.<span style="color:#a6e22e">Get</span> <span style="color:#66d9ef">value</span>
-<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetDescendants</span> element <span style="color:#f92672">(</span>xDocument<span style="color:#f92672">:</span><span style="color:#a6e22e">XDocument</span><span style="color:#f92672">)</span>  <span style="color:#f92672">=</span> xDocument<span style="color:#f92672">.</span><span style="color:#a6e22e">Descendants</span><span style="color:#f92672">(</span>xName element<span style="color:#f92672">)</span>
+let GetFeedBurnerStats url =
+    let feedBurnerXml = GetXml url |&gt; XDocument.Parse
+    feedBurnerXml.Descendants(xName "entry") |&gt;
+    Seq.map (fun x -&gt; x.Attribute(xName "circulation"), x.Attribute(xName "date")) |&gt;
+    Seq.iter (fun x -&gt; printfn "%s %s" (fst x).Value (snd x).Value)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s quite annoying that we need to store the XDocument as a value before being able to call one of the methods on it to get the data that we want.</p>
+</div>
+<div class="paragraph">
+<p>I realised that if I created a function which took in the element whose descendants I wanted to find and the XDocument I could then call the 'XDocument.Descendants()' method inside that function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let xName value = XName.Get value
+let GetDescendants element (xDocument:XDocument)  = xDocument.Descendants(xName element)
 
-<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetFeedBurnerStats</span> <span style="color:#f92672">=</span> 
-    <span style="color:#a6e22e">GetXml</span> <span style="color:#f92672">&gt;&gt;</span> 
-    XDocument.<span style="color:#a6e22e">Parse</span> <span style="color:#f92672">&gt;&gt;</span> 
-    <span style="color:#a6e22e">GetDescendants</span> <span style="color:#e6db74">&#34;entry&#34;</span> <span style="color:#f92672">&gt;&gt;</span>
-    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;circulation&#34;</span><span style="color:#f92672">),</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName <span style="color:#e6db74">&#34;date&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">&gt;&gt;</span>
-    Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> printfn <span style="color:#e6db74">&#34;%s %s&#34;</span> <span style="color:#f92672">(</span>fst x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">(</span>snd x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
-</code></pre></div><p>Since we no longer need to store the intermediate step of creating the XDocument we can now just chain together the functions using the <!-- raw HTML omitted -->functional composition operator<!-- raw HTML omitted --> instead of the <!-- raw HTML omitted -->forward operator<!-- raw HTML omitted -->.</p>
-<p>We can also do this with the calls to &lsquo;Attribute&rsquo; in the &lsquo;Seq.map&rsquo; function on line 9 which helps simplify the code around there.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> xName <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> XName.<span style="color:#a6e22e">Get</span> <span style="color:#66d9ef">value</span>
-<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetDescendants</span> element <span style="color:#f92672">(</span>xDocument<span style="color:#f92672">:</span><span style="color:#a6e22e">XDocument</span><span style="color:#f92672">)</span>  <span style="color:#f92672">=</span> xDocument<span style="color:#f92672">.</span><span style="color:#a6e22e">Descendants</span><span style="color:#f92672">(</span>xName element<span style="color:#f92672">)</span>
-<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetAttribute</span> element <span style="color:#f92672">(</span>xElement<span style="color:#f92672">:</span><span style="color:#a6e22e">XElement</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> xElement<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName element<span style="color:#f92672">)</span>
+let GetFeedBurnerStats =
+    GetXml &gt;&gt;
+    XDocument.Parse &gt;&gt;
+    GetDescendants "entry" &gt;&gt;
+    Seq.map (fun x -&gt; x.Attribute(xName "circulation"), x.Attribute(xName "date")) &gt;&gt;
+    Seq.iter (fun x -&gt; printfn "%s %s" (fst x).Value (snd x).Value)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since we no longer need to store the intermediate step of creating the XDocument we can now just chain together the functions using the <a href="http://www.markhneedham.com/blog/2009/01/12/f-partial-function-application-with-the-function-composition-operator/">functional composition operator</a> instead of the <a href="http://www.markhneedham.com/blog/2009/01/06/f-forward-operator/">forward operator</a>.</p>
+</div>
+<div class="paragraph">
+<p>We can also do this with the calls to 'Attribute' in the 'Seq.map' function on line 9 which helps simplify the code around there.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let xName value = XName.Get value
+let GetDescendants element (xDocument:XDocument)  = xDocument.Descendants(xName element)
+let GetAttribute element (xElement:XElement) = xElement.Attribute(xName element)
 
-<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetFeedBurnerStats</span> <span style="color:#f92672">=</span> 
-    <span style="color:#a6e22e">GetXml</span> <span style="color:#f92672">&gt;&gt;</span> 
-    XDocument.<span style="color:#a6e22e">Parse</span> <span style="color:#f92672">&gt;&gt;</span> 
-    <span style="color:#a6e22e">GetDescendants</span> <span style="color:#e6db74">&#34;entry&#34;</span> <span style="color:#f92672">&gt;&gt;</span>
-    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">GetAttribute</span> <span style="color:#e6db74">&#34;circulation&#34;</span> x<span style="color:#f92672">,</span> <span style="color:#a6e22e">GetAttribute</span> <span style="color:#e6db74">&#34;date&#34;</span> x<span style="color:#f92672">)</span> <span style="color:#f92672">&gt;&gt;</span>
-    Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> printfn <span style="color:#e6db74">&#34;%s %s&#34;</span> <span style="color:#f92672">(</span>fst x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">(</span>snd x<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
-</code></pre></div>
+let GetFeedBurnerStats =
+    GetXml &gt;&gt;
+    XDocument.Parse &gt;&gt;
+    GetDescendants "entry" &gt;&gt;
+    Seq.map (fun x -&gt; GetAttribute "circulation" x, GetAttribute "date" x) &gt;&gt;
+    Seq.iter (fun x -&gt; printfn "%s %s" (fst x).Value (snd x).Value)</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -252,7 +275,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/12/f-wrapping-net-library-calls/&amp;title=F%23%3a%20Wrapping%20.NET%20library%20calls&amp;summary=I%26rsquo%3bve%20been%20spending%20a%20bit%20of%20time%20writing%20some%20code%20to%20parse%20the%20xml%20of%20my%20Feedburner%20RSS%20feed%20and%20create%20a%20graph%20to%20show%20both%20the%20daily%20and%20weekly%20average%20subscribers%20which%20you%20can%26rsquo%3bt%20currently%20get%20from%20the%20Feedburner%20dashboard.%0aOne%20thing%20which%20I%20found%20while%20doing%20this%20is%20that%20calls%20to%20the%20.NET%20base%20class%20library%20don%26rsquo%3bt%20seem%20to%20fit%20in%20that%20well%20with%20the%20way%20that%20you%20would%20typically%20compose%20functions%20together%20in%20F%23...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/12/f-wrapping-net-library-calls/&amp;title=F%23%3a%20Wrapping%20.NET%20library%20calls&amp;summary=I%26%238217%3bve%20been%20spending%20a%20bit%20of%20time%20writing%20some%20code%20to%20parse%20the%20xml%20of%20my%20Feedburner%20RSS%20feed%20and%20create%20a%20graph%20to%20show%20both%20the%20daily%20and%20weekly%20average%20subscribers%20which%20you%20can%26%238217%3bt%20currently%20get%20from%20the%20Feedburner%20dashboard.%0a%20One%20thing%20which%20I%20found%20while%20doing%20this%20is%20that%20calls%20to%20the%20.NET%20base%20class%20library%20don%26%238217%3bt%20seem%20to%20fit%20in%20that%20well%20with%20the%20way%20that%20you%20would%20typically%20compose%20functions%20together%20in%20F%23...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,9 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Haskell: Reading in multiple lines of arguments" />
         
-          <meta name="twitter:description" content="I&rsquo;ve mostly avoided doing any I/O in Haskell but as part of the Google Code JamI needed to work out how to read a variable number of lines as specified by the user.
-The input looks like this:
-4 3 1 5 15 13 11 3 0 8 23 22 21 2 1 1 8 0 6 2 8 29 20 8 18 18 21 The first line indicates how many lines will follow." />
+          <meta name="twitter:description" content="I&#8217;ve mostly avoided doing any I/O in Haskell but as part of the Google Code Jam I needed to work out how to read a variable number of lines as specified by the user.
+ The input looks like this:
+ 4 3 1 5 15 13 11 3 0 8 23 22 21 2 1 1 8 0 6 2 8 29 20 8 18 18 21   The first line indicates how many lines will follow." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/04/15/haskell-reading-in-multiple-lines-of-arguments/" />
 
@@ -35,9 +35,9 @@ The input looks like this:
         <title> Haskell: Reading in multiple lines of arguments &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&rsquo;ve mostly avoided doing any I/O in Haskell but as part of the Google Code JamI needed to work out how to read a variable number of lines as specified by the user.
-The input looks like this:
-4 3 1 5 15 13 11 3 0 8 23 22 21 2 1 1 8 0 6 2 8 29 20 8 18 18 21 The first line indicates how many lines will follow." />
+        <meta name="description" content="I&#8217;ve mostly avoided doing any I/O in Haskell but as part of the Google Code Jam I needed to work out how to read a variable number of lines as specified by the user.
+ The input looks like this:
+ 4 3 1 5 15 13 11 3 0 8 23 22 21 2 1 1 8 0 6 2 8 29 20 8 18 18 21   The first line indicates how many lines will follow." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +66,8 @@ The input looks like this:
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-04-15",
-        "description": "I\x26rsquo;ve mostly avoided doing any I\/O in Haskell but as part of the Google Code JamI needed to work out how to read a variable number of lines as specified by the user.\nThe input looks like this:\n4 3 1 5 15 13 11 3 0 8 23 22 21 2 1 1 8 0 6 2 8 29 20 8 18 18 21 The first line indicates how many lines will follow.",
-        "wordCount":  500 
+        "description": "I\x26#8217;ve mostly avoided doing any I\/O in Haskell but as part of the Google Code Jam I needed to work out how to read a variable number of lines as specified by the user.\n The input looks like this:\n 4 3 1 5 15 13 11 3 0 8 23 22 21 2 1 1 8 0 6 2 8 29 20 8 18 18 21   The first line indicates how many lines will follow.",
+        "wordCount":  505 
     }
     </script>
     
@@ -176,92 +176,153 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Haskell: Reading in multiple lines of arguments</h1>
-    <p>I&rsquo;ve mostly avoided doing any I/O in Haskell but as <!-- raw HTML omitted -->part of the Google Code Jam<!-- raw HTML omitted --> I needed to work out how to read a variable number of lines as specified by the user.</p>
+    <div class="paragraph">
+<p>I&#8217;ve mostly avoided doing any I/O in Haskell but as <a href="https://code.google.com/codejam/contest/1460488/dashboard#s=p1">part of the Google Code Jam</a> I needed to work out how to read a variable number of lines as specified by the user.</p>
+</div>
+<div class="paragraph">
 <p>The input looks like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-4
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">4
 3 1 5 15 13 11
 3 0 8 23 22 21
 2 1 1 8 0
-6 2 8 29 20 8 18 18 21
-</code></pre></div><p>The first line indicates how many lines will follow. In this case we need to read in 4 lines.</p>
-<p>The function to parse the input needed a type of &lsquo;IO [String]'. This was one of my first attempts:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">readInput</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-  line <span style="color:#f92672">&lt;-</span> getLine
-  <span style="color:#66d9ef">let</span> count <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span>
-      count <span style="color:#f92672">=</span> read line
-  return <span style="color:#f92672">$</span> [getLine <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span>count]]  
-</code></pre></div><p>Unfortunately that doesn&rsquo;t have the correct signature:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; :t readInput
-readInput :: IO [IO String]
-</code></pre></div><p>I thought I might be able to read the value from <!-- raw HTML omitted -->getLine<!-- raw HTML omitted --> and return a collection of those but that didn&rsquo;t even compile:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">readInput</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-  line <span style="color:#f92672">&lt;-</span> getLine
-  <span style="color:#66d9ef">let</span> count <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span>
-      count <span style="color:#f92672">=</span> read line
-  return <span style="color:#f92672">$</span> [<span style="color:#66d9ef">do</span> line <span style="color:#f92672">&lt;-</span> getLine; line <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span>count]]   
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Couldn&#39;t match expected type `IO b0&#39; with actual type `[Char]&#39;
+6 2 8 29 20 8 18 18 21</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first line indicates how many lines will follow. In this case we need to read in 4 lines.</p>
+</div>
+<div class="paragraph">
+<p>The function to parse the input needed a type of 'IO [String]'. This was one of my first attempts:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">readInput = do
+  line &lt;- getLine
+  let count :: Int
+      count = read line
+  return $ [getLine | x &lt;- [1..count]]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unfortunately that doesn&#8217;t have the correct signature:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; :t readInput
+readInput :: IO [IO String]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I thought I might be able to read the value from <cite>getLine</cite> and return a collection of those but that didn&#8217;t even compile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">readInput = do
+  line &lt;- getLine
+  let count :: Int
+      count = read line
+  return $ [do line &lt;- getLine; line | x &lt;- [1..count]]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Couldn't match expected type `IO b0' with actual type `[Char]'
 Expected type: IO b0
 Actual type: String
   In the expression: line
   In the expression:
     do { line &lt;- getLine;
-         line }
-</code></pre></div><p>I didn&rsquo;t really understand what the error message was saying so I removed the syntactic sugar that &lsquo;do&rsquo; provides and replaced it with the equivalent function calls.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">readInput</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-  line <span style="color:#f92672">&lt;-</span> getLine
-  <span style="color:#66d9ef">let</span> count <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span>
-      count <span style="color:#f92672">=</span> read line
-  return <span style="color:#f92672">$</span> [getLine <span style="color:#f92672">&gt;&gt;=</span> <span style="color:#a6e22e">\</span>line <span style="color:#f92672">-&gt;</span> line <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span>count]]   
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Couldn&#39;t match expected type `IO b0&#39; with actual type `[Char]&#39;
+         line }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I didn&#8217;t really understand what the error message was saying so I removed the syntactic sugar that 'do' provides and replaced it with the equivalent function calls.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">readInput = do
+  line &lt;- getLine
+  let count :: Int
+      count = read line
+  return $ [getLine &gt;&gt;= \line -&gt; line | x &lt;- [1..count]]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Couldn't match expected type `IO b0' with actual type `[Char]'
 Expected type: IO b0
 Actual type: String
 In the expression: line
-In the second argument of `(&gt;&gt;=)&#39;, namely `\ line -&gt; line&#39;
-</code></pre></div><p><!-- raw HTML omitted -->getLine<!-- raw HTML omitted --> returns us an IO Monad and &lsquo;&raquo;=&rsquo; allows us to read a value from a Monad. However, it expects the function passed as its second argument to return a Monad which leaves us in the same problematic situation!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">readInput</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-  line <span style="color:#f92672">&lt;-</span> getLine
-  <span style="color:#66d9ef">let</span> count <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span>
-      count <span style="color:#f92672">=</span> read line
-  return <span style="color:#f92672">$</span> [getLine <span style="color:#f92672">&gt;&gt;=</span> <span style="color:#a6e22e">\</span>line <span style="color:#f92672">-&gt;</span> return line <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span>count]] 
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; :t readInput
-readInput :: IO [IO String]
-</code></pre></div><p>I eventually came across <!-- raw HTML omitted -->a StackOverflow post which covered similar ground<!-- raw HTML omitted --> and used the <!-- raw HTML omitted --><!-- raw HTML omitted -->replicateM<!-- raw HTML omitted --><!-- raw HTML omitted --> function to solve the problem.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; :t replicateM
-replicateM :: Monad m =&gt; Int -&gt; m a -&gt; m [a]
-</code></pre></div><p>This is the function I ended up with:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">readInput</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">IO</span> [<span style="color:#66d9ef">String</span>]
-<span style="color:#a6e22e">readInput</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-  line <span style="color:#f92672">&lt;-</span> getLine
-  <span style="color:#66d9ef">let</span> count <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span>
-      count <span style="color:#f92672">=</span> read line
-  lines <span style="color:#f92672">&lt;-</span> replicateM (count) <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span>
-    line <span style="color:#f92672">&lt;-</span> getLine
+In the second argument of `(&gt;&gt;=)', namely `\ line -&gt; line'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><cite>getLine</cite> returns us an IO Monad and '&gt;&gt;=' allows us to read a value from a Monad. However, it expects the function passed as its second argument to return a Monad which leaves us in the same problematic situation!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">readInput = do
+  line &lt;- getLine
+  let count :: Int
+      count = read line
+  return $ [getLine &gt;&gt;= \line -&gt; return line | x &lt;- [1..count]]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; :t readInput
+readInput :: IO [IO String]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I eventually came across <a href="http://stackoverflow.com/questions/9666034/haskell-replicatem-io">a StackOverflow post which covered similar ground</a> and used the <cite>http://www.haskell.org/ghc/docs/latest/html/libraries/base/Control-Monad.html#v:replicateM<span class="replicateM"></cite></span> function to solve the problem.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; :t replicateM
+replicateM :: Monad m =&gt; Int -&gt; m a -&gt; m [a]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is the function I ended up with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">readInput :: IO [String]
+readInput = do
+  line &lt;- getLine
+  let count :: Int
+      count = read line
+  lines &lt;- replicateM (count) $ do
+    line &lt;- getLine
     return line
-  return lines 
-</code></pre></div><p>If we wanted to print the arguments back to the user we could define our main function like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">main</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-       lines <span style="color:#f92672">&lt;-</span> readInput
-       mapM_ (<span style="color:#a6e22e">\</span>(idx, line) <span style="color:#f92672">-&gt;</span> putStrLn <span style="color:#f92672">$</span> <span style="color:#e6db74">&#34;Arg #&#34;</span> <span style="color:#f92672">++</span> show idx <span style="color:#f92672">++</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">++</span> line) (zip [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span>] lines)
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; ./google_code_jam         
+  return lines</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we wanted to print the arguments back to the user we could define our main function like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">main = do
+       lines &lt;- readInput
+       mapM_ (\(idx, line) -&gt; putStrLn $ "Arg #" ++ show idx ++ " " ++ line) (zip [1..] lines)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; ./google_code_jam
 2
 Mark
 Needham
 Arg #1 Mark
-Arg #2 Needham
-</code></pre></div>
+Arg #2 Needham</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -295,7 +356,7 @@ Arg #2 Needham
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/04/15/haskell-reading-in-multiple-lines-of-arguments/&amp;title=Haskell%3a%20Reading%20in%20multiple%20lines%20of%20arguments&amp;summary=I%26rsquo%3bve%20mostly%20avoided%20doing%20any%20I%2fO%20in%20Haskell%20but%20as%20part%20of%20the%20Google%20Code%20JamI%20needed%20to%20work%20out%20how%20to%20read%20a%20variable%20number%20of%20lines%20as%20specified%20by%20the%20user.%0aThe%20input%20looks%20like%20this%3a%0a4%203%201%205%2015%2013%2011%203%200%208%2023%2022%2021%202%201%201%208%200%206%202%208%2029%2020%208%2018%2018%2021%20The%20first%20line%20indicates%20how%20many%20lines%20will%20follow...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/04/15/haskell-reading-in-multiple-lines-of-arguments/&amp;title=Haskell%3a%20Reading%20in%20multiple%20lines%20of%20arguments&amp;summary=I%26%238217%3bve%20mostly%20avoided%20doing%20any%20I%2fO%20in%20Haskell%20but%20as%20part%20of%20the%20Google%20Code%20Jam%20I%20needed%20to%20work%20out%20how%20to%20read%20a%20variable%20number%20of%20lines%20as%20specified%20by%20the%20user.%0a%20The%20input%20looks%20like%20this%3a%0a%204%203%201%205%2015%2013%2011%203%200%208%2023%2022%2021%202%201%201%208%200%206%202%208%2029%2020%208%2018%2018%2021%20%20%20The%20first%20line%20indicates%20how%20many%20lines%20will%20follow...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

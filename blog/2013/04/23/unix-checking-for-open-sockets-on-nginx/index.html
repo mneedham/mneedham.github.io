@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Unix: Checking for open sockets on nginx" />
         
-          <meta name="twitter:description" content="$ ulimit -n 1024 $ ps aux | grep nginx | grep -v grep root 1089 0.0 0.7 105152 2736 ? Ss 17:34 0:00 nginx: master process /usr/sbin/nginx www-data 17474 0.0 0.6 105300 2296 ? S 21:49 0:04 nginx: worker process www-data 17475 0.0 0.7 105300 2856 ? S 21:49 0:04 nginx: worker process www-data 17476 0.0 0.7 105300 2792 ? S 21:49 0:03 nginx: worker process www-data 17477 0.0 0." />
+          <meta name="twitter:description" content="Tim and I were investigating a weird problem we were having with nginx where it was getting in a state where it had exceeded the number of open files allowed on the system and started rejecting requests.
+ We can find out the maximum number of open files that we&#8217;re allowed on a system with the following command:
+ $ ulimit -n 1024   Our hypothesis was that some socket connections were never being closed and therefore the number of open files was climbing slowly upwards until it exceeded the limit." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/04/23/unix-checking-for-open-sockets-on-nginx/" />
 
@@ -33,7 +35,9 @@
         <title> Unix: Checking for open sockets on nginx &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="$ ulimit -n 1024 $ ps aux | grep nginx | grep -v grep root 1089 0.0 0.7 105152 2736 ? Ss 17:34 0:00 nginx: master process /usr/sbin/nginx www-data 17474 0.0 0.6 105300 2296 ? S 21:49 0:04 nginx: worker process www-data 17475 0.0 0.7 105300 2856 ? S 21:49 0:04 nginx: worker process www-data 17476 0.0 0.7 105300 2792 ? S 21:49 0:03 nginx: worker process www-data 17477 0.0 0." />
+        <meta name="description" content="Tim and I were investigating a weird problem we were having with nginx where it was getting in a state where it had exceeded the number of open files allowed on the system and started rejecting requests.
+ We can find out the maximum number of open files that we&#8217;re allowed on a system with the following command:
+ $ ulimit -n 1024   Our hypothesis was that some socket connections were never being closed and therefore the number of open files was climbing slowly upwards until it exceeded the limit." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-04-23",
-        "description": "$ ulimit -n 1024 $ ps aux | grep nginx | grep -v grep root 1089 0.0 0.7 105152 2736 ? Ss 17:34 0:00 nginx: master process \/usr\/sbin\/nginx www-data 17474 0.0 0.6 105300 2296 ? S 21:49 0:04 nginx: worker process www-data 17475 0.0 0.7 105300 2856 ? S 21:49 0:04 nginx: worker process www-data 17476 0.0 0.7 105300 2792 ? S 21:49 0:03 nginx: worker process www-data 17477 0.0 0.",
-        "wordCount":  275 
+        "description": "Tim and I were investigating a weird problem we were having with nginx where it was getting in a state where it had exceeded the number of open files allowed on the system and started rejecting requests.\n We can find out the maximum number of open files that we\x26#8217;re allowed on a system with the following command:\n $ ulimit -n 1024   Our hypothesis was that some socket connections were never being closed and therefore the number of open files was climbing slowly upwards until it exceeded the limit.",
+        "wordCount":  479 
     }
     </script>
     
@@ -172,59 +176,100 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Unix: Checking for open sockets on nginx</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ ulimit -n
-<span style="color:#ae81ff">1024</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ ps aux | grep nginx | grep -v grep
-root      <span style="color:#ae81ff">1089</span>  0.0  0.7 <span style="color:#ae81ff">105152</span>  <span style="color:#ae81ff">2736</span> ?        Ss   17:34   0:00 nginx: master process /usr/sbin/nginx
-www-data <span style="color:#ae81ff">17474</span>  0.0  0.6 <span style="color:#ae81ff">105300</span>  <span style="color:#ae81ff">2296</span> ?        S    21:49   0:04 nginx: worker process
-www-data <span style="color:#ae81ff">17475</span>  0.0  0.7 <span style="color:#ae81ff">105300</span>  <span style="color:#ae81ff">2856</span> ?        S    21:49   0:04 nginx: worker process
-www-data <span style="color:#ae81ff">17476</span>  0.0  0.7 <span style="color:#ae81ff">105300</span>  <span style="color:#ae81ff">2792</span> ?        S    21:49   0:03 nginx: worker process
-www-data <span style="color:#ae81ff">17477</span>  0.0  0.7 <span style="color:#ae81ff">105300</span>  <span style="color:#ae81ff">2668</span> ?        S    21:49   0:04 nginx: worker process
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ sudo ls -alh /proc/<span style="color:#f92672">{</span>1089,17<span style="color:#f92672">{</span>474,475,476,477<span style="color:#f92672">}}</span>/fd
+    <div class="paragraph">
+<p><a href="https://twitter.com/timrgoodwin">Tim</a> and I were investigating a weird problem we were having with nginx where it was getting in a state where it had exceeded the number of open files allowed on the system and started rejecting requests.</p>
+</div>
+<div class="paragraph">
+<p>We can find out the maximum number of open files that we&#8217;re allowed on a system with the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ ulimit -n
+1024</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Our hypothesis was that some socket connections were never being closed and therefore the number of open files was climbing slowly upwards until it exceeded the limit.</p>
+</div>
+<div class="paragraph">
+<p>We wanted to check how many sockets nginx had open so to start with we needed to know the process IDs it was running under:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ ps aux | grep nginx | grep -v grep
+root      1089  0.0  0.7 105152  2736 ?        Ss   17:34   0:00 nginx: master process /usr/sbin/nginx
+www-data 17474  0.0  0.6 105300  2296 ?        S    21:49   0:04 nginx: worker process
+www-data 17475  0.0  0.7 105300  2856 ?        S    21:49   0:04 nginx: worker process
+www-data 17476  0.0  0.7 105300  2792 ?        S    21:49   0:03 nginx: worker process
+www-data 17477  0.0  0.7 105300  2668 ?        S    21:49   0:04 nginx: worker process</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So the process IDs we&#8217;re interested in are 1089, 17474, 17475, 17476 and 17477.</p>
+</div>
+<div class="paragraph">
+<p>We can check which file descriptors they have open with the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo ls -alh /proc/{1089,17{474,475,476,477}}/fd
 /proc/17476/fd:
-total <span style="color:#ae81ff">0</span>
-dr-x------ <span style="color:#ae81ff">2</span> www-data www-data  <span style="color:#ae81ff">0</span> Apr <span style="color:#ae81ff">23</span> 23:40 .
+total 0
+dr-x------ 2 www-data www-data  0 Apr 23 23:40 .
 ...
-l-wx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">6</span> -&gt; /var/log/nginx/error.log
-l-wx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">7</span> -&gt; /var/www/thinkingingraphs/shared/log/nginx_access.log
-l-wx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">8</span> -&gt; /var/www/thinkingingraphs/shared/log/nginx_error.log
-lrwx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">9</span> -&gt; socket:<span style="color:#f92672">[</span>8910<span style="color:#f92672">]</span>
+l-wx------ 1 www-data www-data 64 Apr 23 23:40 6 -&gt; /var/log/nginx/error.log
+l-wx------ 1 www-data www-data 64 Apr 23 23:40 7 -&gt; /var/www/thinkingingraphs/shared/log/nginx_access.log
+l-wx------ 1 www-data www-data 64 Apr 23 23:40 8 -&gt; /var/www/thinkingingraphs/shared/log/nginx_error.log
+lrwx------ 1 www-data www-data 64 Apr 23 23:40 9 -&gt; socket:[8910]
 
 /proc/17477/fd:
-total <span style="color:#ae81ff">0</span>
+total 0
 ...
-lrwx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">56</span> -&gt; socket:<span style="color:#f92672">[</span>52213<span style="color:#f92672">]</span>
-lrwx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">57</span> -&gt; anon_inode:<span style="color:#f92672">[</span>eventpoll<span style="color:#f92672">]</span>
-l-wx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">6</span> -&gt; /var/log/nginx/error.log
-l-wx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">7</span> -&gt; /var/www/thinkingingraphs/shared/log/nginx_access.log
-l-wx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">8</span> -&gt; /var/www/thinkingingraphs/shared/log/nginx_error.log
-lrwx------ <span style="color:#ae81ff">1</span> www-data www-data <span style="color:#ae81ff">64</span> Apr <span style="color:#ae81ff">23</span> 23:40 <span style="color:#ae81ff">9</span> -&gt; socket:<span style="color:#f92672">[</span>8910<span style="color:#f92672">]</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ sudo ls -alh /proc/<span style="color:#f92672">{</span>1089,17<span style="color:#f92672">{</span>474,475,476,477<span style="color:#f92672">}}</span>/fd | grep socket  | wc -l
-<span style="color:#ae81ff">189</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ sudo lsof -p 1089,17474,17475,17476,17477 | grep socket | wc -l
-<span style="color:#ae81ff">184</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ sudo lsof -p <span style="color:#e6db74">`</span>echo <span style="color:#f92672">{</span>1089,174<span style="color:#f92672">{</span>74,75,76,77<span style="color:#f92672">}}</span> | sed <span style="color:#e6db74">&#39;s/ /,/g&#39;</span><span style="color:#e6db74">`</span> | grep socket | wc -l
-<span style="color:#ae81ff">184</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Bugfix: a segmentation fault might occur in a worker process if the
-       &#34;try_files&#34; directive was used; the bug had appeared in 1.1.19.
-</code></pre></div>
+lrwx------ 1 www-data www-data 64 Apr 23 23:40 56 -&gt; socket:[52213]
+lrwx------ 1 www-data www-data 64 Apr 23 23:40 57 -&gt; anon_inode:[eventpoll]
+l-wx------ 1 www-data www-data 64 Apr 23 23:40 6 -&gt; /var/log/nginx/error.log
+l-wx------ 1 www-data www-data 64 Apr 23 23:40 7 -&gt; /var/www/thinkingingraphs/shared/log/nginx_access.log
+l-wx------ 1 www-data www-data 64 Apr 23 23:40 8 -&gt; /var/www/thinkingingraphs/shared/log/nginx_error.log
+lrwx------ 1 www-data www-data 64 Apr 23 23:40 9 -&gt; socket:[8910]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can narrow that down to just show us how many sockets are open:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo ls -alh /proc/{1089,17{474,475,476,477}}/fd | grep socket  | wc -l
+189</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We could also use <cite>http://linux.die.net/man/8/lsof<span class="lsof"></cite></span> although for some reason that returns a slightly different number:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo lsof -p 1089,17474,17475,17476,17477 | grep socket | wc -l
+184</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we want to use brace expansion to do that it becomes a bit more tricky:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo lsof -p `echo {1089,174{74,75,76,77}} | sed 's/ /,/g'` | grep socket | wc -l
+184</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Annoyingly we couldn&#8217;t actually replicate the error but think that it&#8217;s been solved in nginx 1.2.0 (we were using 1.1.19) by <a href="http://nginx.org/en/CHANGES">this change</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Bugfix: a segmentation fault might occur in a worker process if the
+       "try_files" directive was used; the bug had appeared in 1.1.19.</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -258,7 +303,7 @@ Bugfix: a segmentation fault might occur in a worker process if the
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/04/23/unix-checking-for-open-sockets-on-nginx/&amp;title=Unix%3a%20Checking%20for%20open%20sockets%20on%20nginx&amp;summary=%24%20ulimit%20-n%201024%20%24%20ps%20aux%20%7c%20grep%20nginx%20%7c%20grep%20-v%20grep%20root%201089%200.0%200.7%20105152%202736%20%3f%20Ss%2017%3a34%200%3a00%20nginx%3a%20master%20process%20%2fusr%2fsbin%2fnginx%20www-data%2017474%200.0%200.6%20105300%202296%20%3f%20S%2021%3a49%200%3a04%20nginx%3a%20worker%20process%20www-data%2017475%200.0%200.7%20105300%202856%20%3f%20S%2021%3a49%200%3a04%20nginx%3a%20worker%20process%20www-data%2017476%200.0%200.7%20105300%202792%20%3f%20S%2021%3a49%200%3a03%20nginx%3a%20worker%20process%20www-data%2017477%200.0%200...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/04/23/unix-checking-for-open-sockets-on-nginx/&amp;title=Unix%3a%20Checking%20for%20open%20sockets%20on%20nginx&amp;summary=Tim%20and%20I%20were%20investigating%20a%20weird%20problem%20we%20were%20having%20with%20nginx%20where%20it%20was%20getting%20in%20a%20state%20where%20it%20had%20exceeded%20the%20number%20of%20open%20files%20allowed%20on%20the%20system%20and%20started%20rejecting%20requests.%0a%20We%20can%20find%20out%20the%20maximum%20number%20of%20open%20files%20that%20we%26%238217%3bre%20allowed%20on%20a%20system%20with%20the%20following%20command%3a%0a%20%24%20ulimit%20-n%201024%20%20%20Our%20hypothesis%20was%20that%20some%20socket%20connections%20were%20never%20being%20closed%20and%20therefore%20the%20number%20of%20open%20files%20was%20climbing%20slowly%20upwards%20until%20it%20exceeded%20the%20limit...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -17,7 +17,10 @@
       <pubDate>Wed, 30 Sep 2015 05:54:54 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/09/30/intellij-14-1-5-unable-to-import-maven-project/</guid>
-      <description>-Didea.maven3.use.compat.resolver </description>
+      <description>After a recent IntelliJ upgrade I&amp;#8217;ve been running into the following error when trying to attach the sources of any library being pulled in via Maven:
+  Unable to import maven project
+   It seems like this is a recent issue in the 14.x series and luckily is reasonably easy to fix by adding the following flag to the VM options passed to the Maven importer:
+ -Didea.</description>
     </item>
     
     <item>
@@ -26,7 +29,8 @@
       <pubDate>Tue, 11 Aug 2015 06:59:50 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/08/11/java-jersey-java-lang-nosuchmethoderror-com-sun-jersey-core-reflection-reflectionhelper-getcontextclassloaderpaljavasecurityprivilegedaction/</guid>
-      <description>public class ExampleResourceTest { @Rule public Neo4jRule neo4j = new Neo4jRule() .withFixture(&amp;#34;CREATE (:Person {name: &amp;#39;Mark&amp;#39;})&amp;#34;) .withFixture(&amp;#34;CREATE (:Person {name: &amp;#39;Nicole&amp;#39;})&amp;#34;) .withExtension( &amp;#34;/unmanaged&amp;#34;, ExampleResource.class ); @Test public void shouldReturnAllTheNodes() { // Given  URI serverURI = neo4j.httpURI(); // When  HTTP.Response response = HTTP.GET(serverURI.resolve(&amp;#34;/unmanaged/example/people&amp;#34;).toString()); // Then  assertEquals(200, response.status()); List content = response.content(); assertEquals(2, content.size()); } } 07:51:32.985 [main] WARN o.e.j.u.component.AbstractLifeCycle - FAILED o.e.j.s.ServletContextHandler@29eda4f8{/unmanaged,null,STARTING}: java.lang.NoSuchMethodError: com.sun.jersey.core.reflection.ReflectionHelper.getContextClassLoaderPA()Ljava/security/PrivilegedAction; java.lang.NoSuchMethodError: com.sun.jersey.core.reflection.ReflectionHelper.getContextClassLoaderPA()Ljava/security/PrivilegedAction; at com.sun.jersey.spi.scanning.AnnotationScannerListener.&amp;lt;init&amp;gt;(AnnotationScannerListener.java:94) ~[jersey-server-1.19.jar:1.19] at com.</description>
+      <description>I&amp;#8217;ve been trying to put some tests around an Neo4j unmanaged extension I&amp;#8217;ve been working on and ran into the following stack trace when launching the server using the Neo4j test harness:
+ public class ExampleResourceTest { @Rule public Neo4jRule neo4j = new Neo4jRule() .withFixture(&#34;CREATE (:Person {name: &#39;Mark&#39;})&#34;) .withFixture(&#34;CREATE (:Person {name: &#39;Nicole&#39;})&#34;) .withExtension( &#34;/unmanaged&#34;, ExampleResource.class ); @Test public void shouldReturnAllTheNodes() { // Given URI serverURI = neo4j.httpURI(); // When HTTP.Response response = HTTP.</description>
     </item>
     
     <item>
@@ -35,7 +39,9 @@
       <pubDate>Fri, 05 Jun 2015 21:25:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/06/05/netty-testing-encodersdecoders/</guid>
-      <description>// Examples uses Netty 4.0.28.Final public static class MessageEncoder extends MessageToMessageEncoder&amp;lt;Foo&amp;gt; { @Override protected void encode( ChannelHandlerContext ctx, Foo msg, List&amp;lt;Object&amp;gt; out ) throws Exception { ByteBuf buf = ctx.alloc().buffer(); buf.writeInt( msg.value() ); out.add( buf ); } } public static class Foo { private Integer value; public Foo(Integer value) { this.value = value; } public int value() { return value; } } @Test public void shouldEncodeAndDecodeVoteRequest() { // given  EmbeddedChannel channel = new EmbeddedChannel( new MessageEncoder(), new MessageDecoder() ); // when  Foo foo = new Foo( 42 ); channel.</description>
+      <description>I&amp;#8217;ve been working with Netty a bit recently and having built a pipeline of encoders/decoders as described in this excellent tutorial wanted to test that the encoders and decoders were working without having to send real messages around.
+ Luckily there is a EmbeddedChannel which makes our life very easy indeed.
+ Let&amp;#8217;s say we&amp;#8217;ve got a message &#39;Foo&#39; that we want to send across the wire. It only contains a single integer value so we&amp;#8217;ll just send that and reconstruct &#39;Foo&#39; on the other side.</description>
     </item>
     
     <item>
@@ -44,7 +50,8 @@
       <pubDate>Wed, 23 Jul 2014 22:20:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/07/23/java-determining-the-status-of-data-import-using-kill-signals/</guid>
-      <description>class Kill3Handler implements SignalHandler { private AtomicInteger linesProcessed; private AtomicReference&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt; lastRowProcessed; public Kill3Handler( AtomicInteger linesProcessed, AtomicReference&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt; lastRowProcessed ) { this.linesProcessed = linesProcessed; this.lastRowProcessed = lastRowProcessed; } @Override public void handle( Signal signal ) { System.out.println(&amp;#34;Last Line Processed: &amp;#34; + linesProcessed.get() + &amp;#34; &amp;#34; + lastRowProcessed.get()); } } AtomicInteger linesProcessed = new AtomicInteger( 0 ); AtomicReference&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt; lastRowProcessed = new AtomicReference&amp;lt;&amp;gt;( ); Kill3Handler kill3Handler = new Kill3Handler( linesProcessed, lastRowProcessed ); Signal.</description>
+      <description>A few weeks ago I was working on the initial import of ~ 60 million bits of data into Neo4j and we kept running into a problem where the import process just seemed to freeze and nothing else was imported.
+ It was very difficult to tell what was happening inside the process - taking a thread dump merely informed us that it was attempting to process one line of a CSV line and was somehow unable to do so.</description>
     </item>
     
     <item>
@@ -53,7 +60,8 @@
       <pubDate>Wed, 30 Apr 2014 01:24:33 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/04/30/jerseyjax-rs-streaming-json/</guid>
-      <description>@Path(&amp;#34;/resource&amp;#34;) public class MadeUpResource { private final ObjectMapper objectMapper; public MadeUpResource() { objectMapper = new ObjectMapper(); } @GET @Produces(MediaType.APPLICATION_JSON) public Response loadHierarchy(@PathParam( &amp;#34;pkPerson&amp;#34; ) String pkPerson) { final Map&amp;lt;Integer, String&amp;gt; people = new HashMap&amp;lt;&amp;gt;(); people.put(1, &amp;#34;Michael&amp;#34;); people.put(2, &amp;#34;Mark&amp;#34;); StreamingOutput stream = new StreamingOutput() { @Override public void write(OutputStream os) throws IOException, WebApplicationException { JsonGenerator jg = objectMapper.getJsonFactory().createJsonGenerator( os, JsonEncoding.UTF8 ); jg.writeStartArray(); for ( Map.Entry&amp;lt;Integer, String&amp;gt; person : people.entrySet() ) { jg.</description>
+      <description>About a year ago I wrote a blog post showing how to stream a HTTP response using Jersey/Jax RS and I recently wanted to do the same thing but this time using JSON.
+ A common pattern is to take our Java object and get a JSON string representation of that but that isn&amp;#8217;t the most efficient use of memory because we now have the Java object and a string representation.</description>
     </item>
     
     <item>
@@ -62,7 +70,8 @@
       <pubDate>Wed, 26 Feb 2014 07:32:14 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/02/26/java-8-lambda-expressions-vs-auto-closeable/</guid>
-      <description>public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &amp;#34;/tmp/tx-style-test&amp;#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.beginTx(); try { db.createNode(); tx.success(); } finally { tx.close(); } } } public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &amp;#34;/tmp/tx-style-test&amp;#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); try ( Transaction tx = db.</description>
+      <description>If you used earlier versions of Neo4j via its Java API with Java 6 you probably have code similar to the following to ensure write operations happen within a transaction:
+ public class StylesOfTx { public static void main( String[] args ) throws IOException { String path = &#34;/tmp/tx-style-test&#34;; FileUtils.deleteRecursively(new File(path)); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.beginTx(); try { db.createNode(); tx.success(); } finally { tx.close(); } } }   In Neo4j 2.</description>
     </item>
     
     <item>
@@ -71,7 +80,10 @@
       <pubDate>Wed, 26 Feb 2014 00:12:01 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/02/26/jersey-ignoring-ssl-certificate-javax-net-ssl-sslhandshakeexception-java-security-cert-certificateexception/</guid>
-      <description>Client client = Client.create(); client.resource(&amp;#34;https://some-aws-host.compute-1.amazonaws.com&amp;#34;).post(); // and so on com.sun.jersey.api.client.ClientHandlerException: javax.net.ssl.SSLHandshakeException: java.security.cert.CertificateException: No subject alternative DNS name matching some-aws-host.compute-1.amazonaws.com found. at com.sun.jersey.client.urlconnection.URLConnectionClientHandler.handle(URLConnectionClientHandler.java:149) at com.sun.jersey.api.client.Client.handle(Client.java:648) at com.sun.jersey.api.client.WebResource.handle(WebResource.java:670) at com.sun.jersey.api.client.WebResource.post(WebResource.java:241) at com.neotechnology.testlab.manager.bootstrap.ManagerAdmin.takeBackup(ManagerAdmin.java:33) at com.neotechnology.testlab.manager.bootstrap.ManagerAdminTest.foo(ManagerAdminTest.java:11) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45) at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15) at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42) at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20) at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:263) at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:68) at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:47) at org.junit.runners.ParentRunner$3.run(ParentRunner.java:231) at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:60) at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:229) at org.junit.runners.ParentRunner.access$000(ParentRunner.java:50) at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:222) at org.junit.runners.ParentRunner.run(ParentRunner.java:300) at org.junit.runner.JUnitCore.run(JUnitCore.java:157) at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:74) at com.</description>
+      <description>Last week Alistair and I were working on an internal application and we needed to make a HTTPS request directly to an AWS machine using a certificate signed to a different host.
+ We use jersey-client so our code looked something like this:
+ Client client = Client.create(); client.resource(&#34;https://some-aws-host.compute-1.amazonaws.com&#34;).post(); // and so on   When we ran this we predictably ran into trouble:
+ com.sun.jersey.api.client.ClientHandlerException: javax.net.ssl.SSLHandshakeException: java.security.cert.CertificateException: No subject alternative DNS name matching some-aws-host.</description>
     </item>
     
     <item>
@@ -80,7 +92,10 @@
       <pubDate>Sun, 23 Feb 2014 19:16:27 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/02/23/java-8-group-by-with-collections/</guid>
-      <description>static class Person { private String name; private int age; Person(String name, int age) { this.name = name; this.age = age; } @Override public String toString() { return String.format(&amp;#34;Person{name=&amp;#39;%s&amp;#39;, age=%d}&amp;#34;, name, age); } } Stream&amp;lt;Person&amp;gt; people = Stream.of(new Person(&amp;#34;Paul&amp;#34;, 24), new Person(&amp;#34;Mark&amp;#34;, 30), new Person(&amp;#34;Will&amp;#34;, 28)); Map&amp;lt;Integer, List&amp;lt;String&amp;gt;&amp;gt; peopleByAge = people .collect(groupingBy(p -&amp;gt; p.age, mapping((Person p) -&amp;gt; p.name, toList()))); System.out.println(peopleByAge); {24=[Paul], 28=[Will], 30=[Mark]} &amp;gt; people = [ {:name =&amp;gt; &amp;#34;Paul&amp;#34;, :age =&amp;gt; 24}, {:name =&amp;gt; &amp;#34;Mark&amp;#34;, :age =&amp;gt; 30}, {:name =&amp;gt; &amp;#34;Will&amp;#34;, :age =&amp;gt; 28}] &amp;gt; people.</description>
+      <description>In my continued reading of Venkat Subramaniam&amp;#8217;s &#39;http://pragprog.com/book/vsjava8/functional-programming-in-java[Functional Programming in Java]&#39; I&amp;#8217;ve reached the part of the book where the http://download.java.net/jdk8/docs/api/java/util/stream/Stream.html#collect-java.util.stream.Collector- function is introduced.
+ We want to take a collection of people, group them by age and return a map of (age -&amp;gt; people&amp;#8217;s names) for which this comes in handy.
+ To refresh, this is what the Person class looks like:
+ static class Person { private String name; private int age; Person(String name, int age) { this.</description>
     </item>
     
     <item>
@@ -89,7 +104,9 @@
       <pubDate>Sun, 23 Feb 2014 14:43:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/02/23/java-8-sorting-values-in-collections/</guid>
-      <description>static class Person { private String name; private int age; Person(String name, int age) { this.name = name; this.age = age; } @Override public String toString() { return String.format(&amp;#34;Person{name=&amp;#39;%s&amp;#39;, age=%d}&amp;#34;, name, age); } } List&amp;lt;Person&amp;gt; people = Arrays.asList(new Person(&amp;#34;Paul&amp;#34;, 24), new Person(&amp;#34;Mark&amp;#34;, 30), new Person(&amp;#34;Will&amp;#34;, 28)); people.stream().sorted((p1, p2) -&amp;gt; p1.age - p2.age).forEach(System.out::println); Person{name=&amp;#39;Paul&amp;#39;, age=24} Person{name=&amp;#39;Will&amp;#39;, age=28} Person{name=&amp;#39;Mark&amp;#39;, age=30} Collections.sort(people, new Comparator&amp;lt;Person&amp;gt;() { @Override public int compare(Person o1, Person o2) { return o1.</description>
+      <description>Having realised that Java 8 is due for its GA release within the next few weeks I thought it was about time I had a look at it and over the last week have been reading Venkat Subramaniam&amp;#8217;s book.
+ I&amp;#8217;m up to chapter 3 which covers sorting a collection of people. The Person class is defined roughly like so:
+ static class Person { private String name; private int age; Person(String name, int age) { this.</description>
     </item>
     
     <item>
@@ -98,7 +115,9 @@
       <pubDate>Fri, 31 Jan 2014 23:59:58 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/01/31/java-handling-a-runtimeexception-in-a-runnable/</guid>
-      <description>import java.util.ArrayList; import java.util.List; import java.util.concurrent.*; public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(); executor.scheduleAtFixedRate(new Runnable() { @Override public void run() { System.out.println(Thread.currentThread().getName() + &amp;#34; -&amp;gt; &amp;#34; + System.currentTimeMillis()); throw new RuntimeException(&amp;#34;game over&amp;#34;); } }, 0, 1000, TimeUnit.MILLISECONDS).get(); System.out.println(&amp;#34;exit&amp;#34;); executor.shutdown(); } } Exception in thread &amp;#34;main&amp;#34; pool-1-thread-1 -&amp;gt; 1391212558074 java.util.concurrent.ExecutionException: java.lang.RuntimeException: game over at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:252) at java.util.concurrent.FutureTask.get(FutureTask.java:111) at RunnableBlog.main(RunnableBlog.java:11) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.</description>
+      <description>At the end of last year I was playing around with running scheduled tasks to monitor a Neo4j cluster and one of the problems I ran into was that the monitoring would sometimes exit.
+ I eventually realised that this was because a RuntimeException was being thrown inside the Runnable method and I wasn&amp;#8217;t handling it. The following code demonstrates the problem:
+ import java.util.ArrayList; import java.util.List; import java.util.concurrent.*; public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors.</description>
     </item>
     
     <item>
@@ -107,7 +126,10 @@
       <pubDate>Fri, 31 Jan 2014 06:51:06 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/01/31/java-work-out-the-serialversionuid-of-a-class/</guid>
-      <description>import java.io.Serializable; public class SerialiseMe implements Serializable { } $ serialver -classpath target/serialiser-0.0.1-SNAPSHOT.jar SerialiseMe SerialiseMe: static final long serialVersionUID = -6060222249255158490L; public class Serialiser { public static void main( String[] args ) throws IOException, ClassNotFoundException { ByteArrayOutputStream bout = new ByteArrayOutputStream( ); ObjectOutputStream oout = new ObjectOutputStream( bout ); Object value = new SerialiseMe(); oout.writeObject( value ); oout.close(); byte[] bytes = bout.toByteArray(); FileOutputStream fileOuputStream = new FileOutputStream(&amp;#34;/tmp/foo.txt&amp;#34;); fileOuputStream.write(bytes); fileOuputStream.close(); } } public class Deserialiser { public static void main( String[] args ) throws IOException, ClassNotFoundException { FileInputStream fileInputStream = new FileInputStream( new File( &amp;#34;/tmp/foo.</description>
+      <description>Earlier in the week I wanted to work out the serialVersionUID of a serializable class so that I could override its toString method without breaking everything.
+ I came across Frank Kim&amp;#8217;s blog post which suggested using the serialver tool which comes with the JDK.
+ I created a little Maven project to test this tool out on a very simple class:
+ import java.io.Serializable; public class SerialiseMe implements Serializable { }   If we compile that class into a JAR and then run the serialver tool we see the following output:</description>
     </item>
     
     <item>
@@ -116,7 +138,9 @@
       <pubDate>Sat, 28 Dec 2013 21:46:42 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/12/28/rxjava-from-future-to-observable/</guid>
-      <description>public class MergeTimeRx { public static void main( final String[] args ) throws InterruptedException, IOException { String pathToDb = &amp;#34;/tmp/foo&amp;#34;; FileUtils.deleteRecursively( new File( pathToDb ) ); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( pathToDb ); final ExecutionEngine engine = new ExecutionEngine( db ); int numberOfThreads = 50; int numberOfUsers = 10; int numberOfEvents = 50; int iterations = 100; Observable&amp;lt;ExecutionResult&amp;gt; events = processEvents( engine, numberOfUsers, numberOfEvents, numberOfThreads, iterations ); events.subscribe( new Action1&amp;lt;ExecutionResult&amp;gt;() { @Override public void call( ExecutionResult result ) { for ( Map&amp;lt;String, Object&amp;gt; row : result ) { } } } ); .</description>
+      <description>I first came across Reactive Extensions about 4 years ago on Matthew Podwysocki&amp;#8217;s blog but then haven&amp;#8217;t heard much about it until I saw Matthew give a talk at Code Mesh a few weeks ago.
+ It seems to have grown in popularity recently and I noticed that&amp;#8217;s there&amp;#8217;s now a Java version called RxJava written by Netflix.
+ I thought I&amp;#8217;d give it a try by changing some code I wrote while exploring cypher&amp;#8217;s MERGE function to expose an Observable instead of Futures.</description>
     </item>
     
     <item>
@@ -125,7 +149,8 @@
       <pubDate>Sun, 17 Nov 2013 22:58:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/11/17/java-schedule-a-job-to-run-on-a-time-interval/</guid>
-      <description>public class MyUpgradeTest { @Test public void shouldUpgradeFromOneVersionToAnother() throws InterruptedException { ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(); scheduledExecutorService.scheduleAtFixedRate( new LogAllTheThings(), 0, 1, TimeUnit.SECONDS ); Thread.sleep(10000); // do upgrade of cluster  scheduledExecutorService.shutdown(); } static class LogAllTheThings implements Runnable { @Override public void run() { Date time = new Date( System.currentTimeMillis() ); try { Map&amp;lt;String, Object&amp;gt; masterProperties = selectedProperties( client(), URI.create( &amp;#34;http://localhost:7474/&amp;#34; ) ); System.out.println( String.format( &amp;#34;%s: %s&amp;#34;, time, masterProperties ) ); } catch ( Exception ignored ) { ignored.</description>
+      <description>Recently I&amp;#8217;ve spent some time building a set of tests around rolling upgrades between Neo4j versions and as part of that I wanted to log the state of the cluster as the upgrade was happening.
+ The main thread of the test blocks waiting until the upgrade is done so I wanted to log on another thread every few seconds. Alistair pointed me at the http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html which worked quite nicely.</description>
     </item>
     
     <item>
@@ -134,7 +159,8 @@
       <pubDate>Mon, 14 Oct 2013 07:27:10 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/10/14/java-incrementally-readstream-a-csv-file/</guid>
-      <description>public class ParseCSVFile { public static void main(String[] args) throws IOException { final CSVReader csvReader = new CSVReader( new BufferedReader( new FileReader( &amp;#34;/path/to/file.csv&amp;#34; ) ), &amp;#39;\t&amp;#39; ); final String[] fields = csvReader.readNext(); Iterator&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt;() lazilyLoadedFile = return new Iterator&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt;() { String[] data = csvReader.readNext(); @Override public boolean hasNext() { return data != null; } @Override public Map&amp;lt;String, Object&amp;gt; next() { final Map&amp;lt;String, Object&amp;gt; properties = new HashMap&amp;lt;String, Object&amp;gt;(); for ( int i = 0; i &amp;lt; data.</description>
+      <description>I&amp;#8217;ve been doing some work which involves reading in CSV files, for which I&amp;#8217;ve been using OpenCSV, and my initial approach was to read through the file line by line, parse the contents and save it into a list of maps.
+ This works when the contents of the file fit into memory but is problematic for larger files where I needed to stream the file and process each line individually rather than all of them after the file was loaded.</description>
     </item>
     
     <item>
@@ -143,7 +169,8 @@
       <pubDate>Sat, 14 Sep 2013 00:06:37 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/14/jackson-core-asl-java-lang-abstractmethoderror-org-codehaus-jackson-jsonnode-getvalueastextljavalangstring/</guid>
-      <description>2013-09-13 11:01:50 +0000: Exception while handling {MessageId: 7e695fb3-549a-4b 40-b1cf-9dbc5e97a8df, ... } java.lang.AbstractMethodError: org.codehaus.jackson.JsonNode.getValueAsText()Lja va/lang/String; ... at com.amazonaws.services.sqs.AmazonSQSAsyncClient$20.call(AmazonSQSAsyn cClient.java:1200) at com.amazonaws.services.sqs.AmazonSQSAsyncClient$20.call(AmazonSQSAsyn cClient.java:1191) at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334) at java.util.concurrent.FutureTask.run(FutureTask.java:166) at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor. java:1145) at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor .java:615) at java.lang.Thread.run(Thread.java:724) $ mvn dependency:tree ... [INFO] --- maven-dependency-plugin:2.1:tree (default-cli) @ load-generator --- [INFO] +- com.amazonaws:aws-java-sdk:jar:1.5.6:compile [INFO] | +- commons-logging:commons-logging:jar:1.1.1:compile [INFO] | +- org.apache.httpcomponents:httpclient:jar:4.2.2:compile (version managed from 4.2) [INFO] | +- commons-codec:commons-codec:jar:1.6:compile [INFO] | \- org.codehaus.jackson:jackson-core-asl:jar:1.8.9:compile ... [INFO] +- org.</description>
+      <description>Ian and I were doing a bit of work on an internal application which processes JSON messages and interacts with AWS and we started seeing the following exception after doing an upgrade of http://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl from 1.8.9 to 1.9.13:
+ 2013-09-13 11:01:50 +0000: Exception while handling {MessageId: 7e695fb3-549a-4b 40-b1cf-9dbc5e97a8df, ... } java.lang.AbstractMethodError: org.codehaus.jackson.JsonNode.getValueAsText()Lja va/lang/String; ... at com.amazonaws.services.sqs.AmazonSQSAsyncClient$20.call(AmazonSQSAsyn cClient.java:1200) at com.amazonaws.services.sqs.AmazonSQSAsyncClient$20.call(AmazonSQSAsyn cClient.java:1191) at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:334) at java.util.concurrent.FutureTask.run(FutureTask.java:166) at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor. java:1145) at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor .java:615) at java.</description>
     </item>
     
     <item>
@@ -152,7 +179,10 @@
       <pubDate>Sat, 17 Aug 2013 20:25:28 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/17/jersey-client-java-net-protocolexception-server-redirected-too-many-timessetting-cookies-on-request/</guid>
-      <description>Client = Client.create(); ClientResponse response = client.resource( &amp;#34;http://localhost:59680&amp;#34; ).get( ClientResponse.class ); com.sun.jersey.api.client.ClientHandlerException: java.net.ProtocolException: Server redirected too many times (20) at com.sun.jersey.client.urlconnection.URLConnectionClientHandler.handle(URLConnectionClientHandler.java:151) at com.sun.jersey.api.client.Client.handle(Client.java:648) at com.sun.jersey.api.client.WebResource.handle(WebResource.java:680) at com.sun.jersey.api.client.WebResource.get(WebResource.java:191) at com.neotechnology.testlab.manager.webapp.AuthenticationIntegrationTest.shouldRedirectToGitHubForAuthentication(AuthenticationIntegrationTest.java:81) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25) at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45) at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15) at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42) at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20) at com.neotechnology.kirkaldy.testing.Resources$1.evaluate(Resources.java:84) at com.neotechnology.kirkaldy.testing.FailureOutput$2.evaluate(FailureOutput.java:37) at org.junit.rules.RunRules.evaluate(RunRules.java:18) at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:263) at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:68) at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:47) at org.junit.runners.ParentRunner$3.run(ParentRunner.java:231) at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:60) at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:229) at org.junit.runners.ParentRunner.access$000(ParentRunner.java:50) at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:222) at org.junit.runners.ParentRunner.run(ParentRunner.java:300) at org.junit.runner.JUnitCore.run(JUnitCore.java:157) at com.</description>
+      <description>A couple of weeks ago I was trying to write a test around some OAuth code that we have on an internal application and I was using Jersey Client to send the various requests.
+ I initially started with the following code:
+ Client = Client.create(); ClientResponse response = client.resource( &#34;http://localhost:59680&#34; ).get( ClientResponse.class );   but when I ran the test I was getting the following exception:
+ com.sun.jersey.api.client.ClientHandlerException: java.</description>
     </item>
     
     <item>
@@ -161,7 +191,9 @@
       <pubDate>Sun, 11 Aug 2013 08:07:01 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/11/jersey-client-com-sun-jersey-api-client-uniforminterfaceexception/</guid>
-      <description>public class HaSpike { public static void main(String[] args) { String response = client() .resource(&amp;#34;http://localhost:7474/db/manage/server/ha/slave&amp;#34;) .accept(MediaType.TEXT_PLAIN) .get(String.class); System.out.println(&amp;#34;response = &amp;#34; + response); } private static Client client() { DefaultClientConfig defaultClientConfig = new DefaultClientConfig(); defaultClientConfig.getClasses().add(JacksonJsonProvider.class); return Client.create(defaultClientConfig); } } response = true Exception in thread &amp;#34;main&amp;#34; com.sun.jersey.api.client.UniformInterfaceException: GET http://localhost:7474/db/manage/server/ha/slave returned a response status of 404 Not Found at com.sun.jersey.api.client.WebResource.handle(WebResource.java:686) at com.sun.jersey.api.client.WebResource.access$200(WebResource.java:74) at com.sun.jersey.api.client.WebResource$Builder.get(WebResource.java:507) at HaSpike.main(HaSpike.java:10) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57) at sun.</description>
+      <description>As I mentioned in a post a couple of weeks ago we&amp;#8217;ve been doing some which involved calling the neo4j server&amp;#8217;s HA URI to determine whether a machine was slave or master.
+ We started off with the following code using jersey-client:
+ public class HaSpike { public static void main(String[] args) { String response = client() .resource(&#34;http://localhost:7474/db/manage/server/ha/slave&#34;) .accept(MediaType.TEXT_PLAIN) .get(String.class); System.out.println(&#34;response = &#34; + response); } private static Client client() { DefaultClientConfig defaultClientConfig = new DefaultClientConfig(); defaultClientConfig.</description>
     </item>
     
     <item>
@@ -170,8 +202,10 @@
       <pubDate>Sun, 11 Aug 2013 07:23:31 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/11/neo4j-extracting-a-subgraph-as-an-adjacency-matrix-and-calculating-eigenvector-centrality-with-jblas/</guid>
-      <description>There were 3 steps involved in doing this:
-MATCH p1:Person, p2:Person WHERE p1.name = &amp;quot;Paul Revere&amp;quot; WITH p1, p2 MATCH p = p1-[?:MEMBER_OF]-&amp;gt;()&amp;lt;-[?:MEMBER_OF]-p2 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links ORDER BY p2 RETURN p1, COLLECT(links) AS row +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ | p1 | row | +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ | &amp;#34;Paul Revere&amp;#34; | [2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1,1,1,1,1,1,3,3,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,2,1,1,2,1,2,1,1,1,1,1,0,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,2,1,1,1,1,1,1,2,1,3,1,3,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,0,1,0,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,1,2,1,1,1,1,1,1,1,1,3,1,1,1,1,3,1,1,1,1,0,1,2,1,1,1,1,1,1,1] | +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ MATCH p1:Person, p2:Person WITH p1, p2 MATCH p = p1-[?:MEMBER_OF]-&amp;gt;()&amp;lt;-[?:MEMBER_OF]-p2 WITH p1.name AS p1, p2.name AS p2, COUNT(p) AS links ORDER BY p2 RETURN p1, COLLECT(links) AS row ORDER BY p1 +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ | p1 | row | +---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ | &amp;#34;Abiel Ruddock&amp;#34; | [0,1,1,1,0,1,0,1,0,0,1,1,1,0,1,2,0,1,0,1,1,1,2,2,1,0,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,0,0,2,2,0,0,1,1,2,1,1,1,0,1,0,1,1,0,0,2,1,0,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,2,1,2,1,0,0,0,0,1,1,0,1,0,0,1,0,2,0,0,1,0,0,0,1,0,0,2,0,1,0,1,1,1,0,0,1,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,1,1,0,1,1,1,2,0,0,1,1,0,0,2,0,1,2,1,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,2,1,0,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,1,1,0,0,1,0,0,2,1,0,0,1,1,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,2,1,1,0,0,2,0,1,0,0,0,0,1,0,1,0,1,0,1,0] | | &amp;#34;Abraham Hunt&amp;#34; | [1,0,1,1,0,1,0,0,0,0,0,1,0,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,1,0,1,0,1,1,1,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0] | .</description>
+      <description>Earlier in the week I wrote a blog post showing how to calculate the eigenvector centrality of an adjacency matrix using JBLAS and the next step was to work out the eigenvector centrality of a neo4j sub graph.
+ There were 3 steps involved in doing this:
+  Export the neo4j sub graph as an adjacency matrix
+  Run JBLAS over it to get eigenvector centrality scores for each node</description>
     </item>
     
     <item>
@@ -180,8 +214,8 @@ MATCH p1:Person, p2:Person WHERE p1.name = &amp;quot;Paul Revere&amp;quot; WITH 
       <pubDate>Mon, 05 Aug 2013 22:12:37 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/08/05/javajblas-calculating-eigenvector-centrality-of-an-adjacency-matrix/</guid>
-      <description>Google&amp;rsquo;s PageRankis a variant of the Eigenvector centrality measure.
-DoubleMatrix matrix = new DoubleMatrix(new double[][] { {1,1,0,0,1,0,0}, {1,1,0,0,1,0,0}, {0,0,1,1,1,0,0}, {0,0,1,1,1,0,0}, {1,1,1,1,1,1,1}, {0,0,0,0,1,1,1}, {0,0,0,0,1,1,1}, }); ComplexDoubleMatrix eigenvalues = Eigen.eigenvalues(matrix); for (ComplexDouble eigenvalue : eigenvalues.toArray()) { System.out.print(String.format(&amp;#34;%.2f &amp;#34;, eigenvalue.abs())); } 4.00 2.00 0.00 1.00 2.00 0.00 0.00 List&amp;lt;Double&amp;gt; principalEigenvector = getPrincipalEigenvector(matrix); System.out.println(&amp;#34;principalEigenvector = &amp;#34; + principalEigenvector); private static List&amp;lt;Double&amp;gt; getPrincipalEigenvector(DoubleMatrix matrix) { int maxIndex = getMaxIndex(matrix); ComplexDoubleMatrix eigenVectors = Eigen.eigenvectors(matrix)[0]; return getEigenVector(eigenVectors, maxIndex); } private static int getMaxIndex(DoubleMatrix matrix) { ComplexDouble[] doubleMatrix = Eigen.</description>
+      <description>I recently came across a very interesting post by Kieran Healy where he runs through a bunch of graph algorithms to see whether he can detect the most influential people behind the American Revolution based on their membership of various organisations.
+ The first algorithm he looked at was betweenness centrality which I&amp;#8217;ve looked at previously and is used to determine the load and importance of a node in a graph.</description>
     </item>
     
     <item>
@@ -190,7 +224,9 @@ DoubleMatrix matrix = new DoubleMatrix(new double[][] { {1,1,0,0,1,0,0}, {1,1,0,
       <pubDate>Sun, 28 Jul 2013 20:43:24 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/07/28/jersey-client-testing-external-calls/</guid>
-      <description>class Neo4jInstance { private Client httpClient; private URI hostname; public Neo4jInstance(Client httpClient, URI hostname) { this.httpClient = httpClient; this.hostname = hostname; } public Boolean isSlave() { String slaveURI = hostname.toString() + &amp;#34;:7474/db/manage/server/ha/slave&amp;#34;; ClientResponse response = httpClient.resource(slaveURI).accept(TEXT_PLAIN).get(ClientResponse.class); return Boolean.parseBoolean(response.getEntity(String.class)); } } @Test public void shouldIndicateInstanceIsSlave() { Client client = mock( Client.class ); WebResource webResource = mock( WebResource.class ); WebResource.Builder builder = mock( WebResource.Builder.class ); ClientResponse clientResponse = mock( ClientResponse.class ); when( builder.</description>
+      <description>Jim and I have been doing a bit of work over the last week which involved calling neo4j&amp;#8217;s HA status URI to check whether or not an instance was a master/slave and we&amp;#8217;ve been using jersey-client.
+ The code looked roughly like this:
+ class Neo4jInstance { private Client httpClient; private URI hostname; public Neo4jInstance(Client httpClient, URI hostname) { this.httpClient = httpClient; this.hostname = hostname; } public Boolean isSlave() { String slaveURI = hostname.</description>
     </item>
     
     <item>
@@ -199,7 +235,9 @@ DoubleMatrix matrix = new DoubleMatrix(new double[][] { {1,1,0,0,1,0,0}, {1,1,0,
       <pubDate>Sat, 15 Jun 2013 10:28:28 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/06/15/java-findingsetting-jdkjava_home-on-mac-os-x/</guid>
-      <description>$ ls -alh /System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK /System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK -&amp;gt; /System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents $ java -version java version &amp;#34;1.7.0_09&amp;#34; Java(TM) SE Runtime Environment (build 1.7.0_09-b05) Java HotSpot(TM) 64-Bit Server VM (build 23.5-b02, mixed mode) $ /usr/libexec/java_home -v 1.7 /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home $ /usr/libexec/java_home -v 1.6 /System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home $ /usr/libexec/java_home -V Matching Java Virtual Machines (3): 1.7.0_09, x86_64:	&amp;#34;Java SE 7&amp;#34;	/Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home 1.6.0_45-b06-451, x86_64:	&amp;#34;Java SE 6&amp;#34;	/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home 1.6.0_45-b06-451, i386:	&amp;#34;Java SE 6&amp;#34;	/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home /Library/Java/JavaVirtualMachines/jdk1.7.0_09.jdk/Contents/Home </description>
+      <description>As long as I&amp;#8217;ve been using a Mac I always understood that if you needed to set $JAVA_HOME for any program, it should be set to /System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK.
+ On my machine this points to the 1.6 JDK:
+ $ ls -alh /System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK /System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK -&amp;gt; /System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents   This was a bit surprising to me since I&amp;#8217;ve actually got Java 7 installed on the machine as well so I&amp;#8217;d assumed the symlink would have been changed:</description>
     </item>
     
     <item>
@@ -208,7 +246,9 @@ DoubleMatrix matrix = new DoubleMatrix(new double[][] { {1,1,0,0,1,0,0}, {1,1,0,
       <pubDate>Sun, 17 Mar 2013 20:21:10 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/17/clojurejava-interop-the-doto-macro/</guid>
-      <description>(doto (new java.util.HashMap) (.put &amp;#34;a&amp;#34; 1) (.put &amp;#34;b&amp;#34; 2)) -&amp;gt; {a=1, b=2} (defn create-stadium-node [db line] (let [stadium-node (.. db createNode)] (.. stadium-node (setProperty &amp;#34;wkt&amp;#34; (format &amp;#34;POINT(%s %s)&amp;#34; (:long line) (:lat line)))) (.. stadium-node (setProperty &amp;#34;name&amp;#34; (:stadium line))) stadium-node)) (defn create-stadium-node [db line] (doto (.. db createNode) (.setProperty &amp;#34;wkt&amp;#34; (format &amp;#34;POINT(%s %s)&amp;#34; (:long line) (:lat line))) (.setProperty &amp;#34;name&amp;#34; (:stadium line)))) # the end of our main function (.. tx success) (.</description>
+      <description>I recently wrote about some code I&amp;#8217;ve been playing with to import neo4j spatial data and while looking to simplify the code I came across the http://clojure.org/java_interop#Java Interop-The Dot special form-(doto instance-expr (instanceMethodName-symbol args*)*) macro.
+ The doto macro allows us to chain method calls on an initial object and then returns the resulting object. e.g.
+ (doto (new java.util.HashMap) (.put &#34;a&#34; 1) (.put &#34;b&#34; 2)) -&amp;gt; {a=1, b=2}   In our case this comes in quite useful in the function used to create a stadium node which initially reads like this:~ ~lisp (defn create-stadium-node [db line] (let [stadium-node (.</description>
     </item>
     
     <item>
@@ -217,7 +257,9 @@ DoubleMatrix matrix = new DoubleMatrix(new double[][] { {1,1,0,0,1,0,0}, {1,1,0,
       <pubDate>Sun, 17 Mar 2013 18:56:36 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/17/clojurejava-interop-importing-neo4j-spatial-data/</guid>
-      <description>package main.java; // imports excluded  public class StadiumsImport { public static void main(String[] args) throws IOException { List&amp;lt;String&amp;gt; lines = readFile(&amp;#34;data/stadiums.csv&amp;#34;); EmbeddedGraphDatabase db = new EmbeddedGraphDatabase(&amp;#34;neo4j-community-1.9.M04/data/graph.db&amp;#34;); Index&amp;lt;Node&amp;gt; stadiumsIndex = createSpatialIndex(db, &amp;#34;stadiumsLocation&amp;#34;); Transaction tx = db.beginTx(); for (String stadium : lines) { String[] columns = stadium.split(&amp;#34;,&amp;#34;); Index&amp;lt;Node&amp;gt; teamsIndex = db.index().forNodes(&amp;#34;teams&amp;#34;); String team = columns[1].replaceAll(&amp;#34;\&amp;#34;&amp;#34;,&amp;#34;&amp;#34;); Node teamNode = teamsIndex.get(&amp;#34;name&amp;#34;, team).getSingle(); if(teamNode != null) { Node stadiumNode = db.createNode(); stadiumNode.setProperty(&amp;#34;wkt&amp;#34;, String.format(&amp;#34;POINT(%s %s)&amp;#34;, columns[4], columns[3])); stadiumNode.</description>
+      <description>I wrote a post about a week ago where I described how I&amp;#8217;d added football stadiums to my football graph using neo4j spatial and after I&amp;#8217;d done that I wanted to put it into my import script along with the rest of the data.
+ I thought leiningen would probably work quite well for this as you can point it at a Java class and have it be executed.
+ To start with I had to change the import code slightly to link stadiums to teams which have already been added to the graph:</description>
     </item>
     
     <item>
@@ -226,9 +268,9 @@ DoubleMatrix matrix = new DoubleMatrix(new double[][] { {1,1,0,0,1,0,0}, {1,1,0,
       <pubDate>Wed, 28 Nov 2012 06:03:55 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/11/28/jersey-com-sun-jersey-api-client-clienthandlerexception-a-message-body-reader-for-java-class-and-mime-media-type-applicationjson-was-not-found/</guid>
-      <description>We&amp;rsquo;ve used the Jerseylibrary on the last couple of Java based applications that I&amp;rsquo;ve worked on and one thing we&amp;rsquo;ve done on both of them is write services that communicate with each other using JSON.
-On both occasions we didn&amp;rsquo;t quite setup the Jersey client correctly and ended up with an error along these lines when making a call to an end point:
-com.sun.jersey.api.client.ClientHandlerException: A message body reader for Java class java.</description>
+      <description>We&amp;#8217;ve used the Jersey library on the last couple of Java based applications that I&amp;#8217;ve worked on and one thing we&amp;#8217;ve done on both of them is write services that communicate with each other using JSON.
+ On both occasions we didn&amp;#8217;t quite setup the Jersey client correctly and ended up with an error along these lines when making a call to an end point:
+ com.sun.jersey.api.client.ClientHandlerException: A message body reader for Java class java.</description>
     </item>
     
     <item>
@@ -237,9 +279,9 @@ com.sun.jersey.api.client.ClientHandlerException: A message body reader for Java
       <pubDate>Sat, 24 Nov 2012 08:49:28 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/11/24/java-java-lang-unsupportedclassversionerror-unsupported-major-minor-version-51-0/</guid>
-      <description>On my current project we&amp;rsquo;ve spent the last day or so setting up an environment where we can deploy a couple of micro services to.
-Although the machines are Windows based we&amp;rsquo;re deploying the application onto a vagrantmanaged VM since the production environment will be a flavour of Linux.
-Initially I was getting quite confused about whether or not we were in the VM or not and ended up with this error when trying to run the compiled JAR:</description>
+      <description>On my current project we&amp;#8217;ve spent the last day or so setting up an environment where we can deploy a couple of micro services to.
+ Although the machines are Windows based we&amp;#8217;re deploying the application onto a vagrant managed VM since the production environment will be a flavour of Linux.
+ Initially I was getting quite confused about whether or not we were in the VM or not and ended up with this error when trying to run the compiled JAR:</description>
     </item>
     
     <item>
@@ -248,9 +290,8 @@ Initially I was getting quite confused about whether or not we were in the VM or
       <pubDate>Sun, 23 Sep 2012 22:46:09 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/09/23/java-parsing-csv-files/</guid>
-      <description>As I mentioned in a previous post I recently moved a bunch of neo4j data loading code from Ruby to Javaand as part of that process I needed to parse some CSV files.
-In Ruby I was using FasterCSVwhich became the standard CSV library from Ruby 1.9but it&amp;rsquo;s been a while since I had to parse CSV files in Java so I wasn&amp;rsquo;t sure which library to use.
-I needed a library which could parse a comma separated file where there might be commas in the values of one of the fields.</description>
+      <description>As I mentioned in a previous post I recently moved a bunch of neo4j data loading code from Ruby to Java and as part of that process I needed to parse some CSV files.
+ In Ruby I was using FasterCSV which became the standard CSV library from Ruby 1.9 but it&amp;#8217;s been a while since I had to parse CSV files in Java so I wasn&amp;#8217;t sure which library to use.</description>
     </item>
     
     <item>
@@ -260,8 +301,8 @@ I needed a library which could parse a comma separated file where there might be
       
       <guid>https://markhneedham.com/blog/2012/02/26/java-faking-a-closure-with-a-factory-to-create-a-domain-object/</guid>
       <description>Recently we wanted to create a domain object which needed to have an external dependency in order to do a calculation and we wanted to be able to stub out that dependency in our tests.
-Originally we were just new&amp;rsquo;ing up the dependency inside the domain class but that makes it impossible to control it&amp;rsquo;s value in a test.
-Equally it didn&amp;rsquo;t seem like we should be passing that dependency into the constructor of the domain object since it&amp;rsquo;s not a piece of state which defines the object, just something that it uses.</description>
+ Originally we were just new&amp;#8217;ing up the dependency inside the domain class but that makes it impossible to control it&amp;#8217;s value in a test.
+ Equally it didn&amp;#8217;t seem like we should be passing that dependency into the constructor of the domain object since it&amp;#8217;s not a piece of state which defines the object, just something that it uses.</description>
     </item>
     
     <item>
@@ -270,10 +311,10 @@ Equally it didn&amp;rsquo;t seem like we should be passing that dependency into 
       <pubDate>Sat, 11 Feb 2012 10:29:15 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/02/11/java-fooled-by-java-util-arrays-aslist/</guid>
-      <description>I&amp;rsquo;ve been playing around with the boilerpipecode base by writing some tests around it to check my understanding but ran into an interesting problem using java.util.Arrays.asListto pass a list into one of the functions.
-I was testing the BlockProximityFusionclass which is used to merge together adjacent text blocks.
-I started off calling that class like this:
-import static java.util.Arrays.asList; @Test public void willCallBlockProximityFustion() throws Exception { TextDocument document = new TextDocument(asList(contentBlock(&amp;#34;some words&amp;#34;), contentBlock(&amp;#34;followed by more words&amp;#34;))); BlockProximityFusion.</description>
+      <description>I&amp;#8217;ve been playing around with the boilerpipe code base by writing some tests around it to check my understanding but ran into an interesting problem using java.util.Arrays.asList to pass a list into one of the functions.
+ I was testing the https://github.com/mneedham/boilerpipe/blob/master/src/main/de/l3s/boilerpipe/filters/heuristics/BlockProximityFusion.java class which is used to merge together adjacent text blocks.
+ I started off calling that class like this:
+ import static java.util.Arrays.asList; @Test public void willCallBlockProximityFustion() throws Exception { TextDocument document = new TextDocument(asList(contentBlock(&#34;</description>
     </item>
     
     <item>
@@ -282,9 +323,9 @@ import static java.util.Arrays.asList; @Test public void willCallBlockProximityF
       <pubDate>Sun, 20 Nov 2011 20:20:08 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/11/20/javascala-runtime-exec-hangingin-pipe_w-state/</guid>
-      <description>On the system that I&amp;rsquo;m currently working on we have a data ingestion process which needs to take zip files, unzip them and then import their contents into the database.
-As a result we delegate from Scala code to the system unzip command like so:
-def extract { var command = &amp;#34;unzip %s -d %s&amp;#34; format(&amp;#34;/file/to/unzip.zip&amp;#34;, &amp;#34;/place/to/unzip/to&amp;#34;) var process: Process = null try { process = Runtime.getRuntime.exec(command) val exitCode = process.</description>
+      <description>On the system that I&amp;#8217;m currently working on we have a data ingestion process which needs to take zip files, unzip them and then import their contents into the database.
+ As a result we delegate from Scala code to the system unzip command like so:
+ def extract { var command = &#34;unzip %s -d %s&#34; format(&#34;/file/to/unzip.zip&#34;, &#34;/place/to/unzip/to&#34;) var process: Process = null try { process = Runtime.getRuntime.exec(command) val exitCode = process.</description>
     </item>
     
     <item>
@@ -293,9 +334,8 @@ def extract { var command = &amp;#34;unzip %s -d %s&amp;#34; format(&amp;#34;/fi
       <pubDate>Thu, 24 Mar 2011 21:58:31 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2011/03/24/java-faking-system-in/</guid>
-      <description>We ran a refactoring dojoa couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around the coding problemthat we were going to use during the session.
-It&amp;rsquo;s a command line application which is called through the main method of &amp;lsquo;Program&amp;rsquo; and since there&amp;rsquo;s no dependency injection we need to be able to set System.in and System.out in order to do any testing.
-My initial thinking was that it should be possible to fake System.</description>
+      <description>We ran a refactoring dojo a couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around the coding problem that we were going to use during the session.
+ It&amp;#8217;s a command line application which is called through the main method of &#39;Program&#39; and since there&amp;#8217;s no dependency injection we need to be able to set System.in and System.out in order to do any testing.</description>
     </item>
     
     <item>
@@ -305,8 +345,8 @@ My initial thinking was that it should be possible to fake System.</description>
       
       <guid>https://markhneedham.com/blog/2009/11/23/writing-a-java-function-in-clojure/</guid>
       <description>A function that we had to write in Java on a project that I worked on recently needed to indicate whether there was a gap in a series of data points or not.
-If there were gaps at the beginning or end of the sequence then that was fine but gaps in the middle of the sequence were not.
-null, 1, 2, 3 =&amp;gt; no gaps 1, 2, 3, null =&amp;gt; no gaps 1, null, 2, 3 =&amp;gt; gaps The Java version looked a bit like this:</description>
+ If there were gaps at the beginning or end of the sequence then that was fine but gaps in the middle of the sequence were not.
+ null, 1, 2, 3 =&amp;gt; no gaps 1, 2, 3, null =&amp;gt; no gaps 1, null, 2, 3 =&amp;gt; gaps   The Java version looked a bit like this:</description>
     </item>
     
     <item>
@@ -315,9 +355,8 @@ null, 1, 2, 3 =&amp;gt; no gaps 1, 2, 3, null =&amp;gt; no gaps 1, null, 2, 3 =&
       <pubDate>Mon, 19 Jan 2009 19:24:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2009/01/19/f-vs-c-vs-java-functional-collection-parameters/</guid>
-      <description>I wrote a post about a month ago on using functional collection parametersin C# and over the weekend Fabioand I decided to try and contrast the way you would do this in Java, C# and then F# just for fun.
-Map evaluates a high order function on all the elements in a collection and then returns a new collection containing the results of the function evaluation.
-Given the numbers 1-5, return the square of each number</description>
+      <description>I wrote a post about a month ago on using functional collection parameters in C# and over the weekend Fabio and I decided to try and contrast the way you would do this in Java, C# and then F# just for fun.
+ Map Map evaluates a high order function on all the elements in a collection and then returns a new collection containing the results of the function evaluation.</description>
     </item>
     
     <item>
@@ -326,8 +365,8 @@ Given the numbers 1-5, return the square of each number</description>
       <pubDate>Sat, 08 Nov 2008 02:46:59 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2008/11/08/hamcrest-matchers-make-the-error-message-clear/</guid>
-      <description>We have been making good use of Hamcrestmatchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.
-There are several reasons why I find the Hamcrest matcher approach to be more productive - it&amp;rsquo;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example.</description>
+      <description>We have been making good use of Hamcrest matchers on my current project for making assertions, and have moved almost entirely away from the more traditional JUnit assertEquals approach.
+ There are several reasons why I find the Hamcrest matcher approach to be more productive - it&amp;#8217;s more flexible, more expressive and when an assertion fails we have a much better idea about why it has failed than if we use a JUnit assertion for example.</description>
     </item>
     
     <item>
@@ -337,8 +376,8 @@ There are several reasons why I find the Hamcrest matcher approach to be more pr
       
       <guid>https://markhneedham.com/blog/2008/10/23/keep-java-checked-exceptions-in-a-bounded-context/</guid>
       <description>One of the features that I dislike in Java compared to C# is checked exceptions.
-For me an exception is about a situation which is exceptional, and if we know that there is a possibility of it happening and even have that possibility defined in our code then it doesn&amp;rsquo;t seem all that exceptional to me.
-Having said that they do at least provide information which you can&amp;rsquo;t help but notice about what can go wrong when you make a call to a particular method.</description>
+ For me an exception is about a situation which is exceptional, and if we know that there is a possibility of it happening and even have that possibility defined in our code then it doesn&amp;#8217;t seem all that exceptional to me.
+ Having said that they do at least provide information which you can&amp;#8217;t help but notice about what can go wrong when you make a call to a particular method.</description>
     </item>
     
     <item>
@@ -348,7 +387,7 @@ Having said that they do at least provide information which you can&amp;rsquo;t 
       
       <guid>https://markhneedham.com/blog/2008/10/15/java-vs-net-an-overview/</guid>
       <description>A couple of months ago my colleague Mark Thomas posted about working on a C# project after 10 years working in Java, and being someone who has worked on projects in both languages fairly consistently (3 Java projects, 2 .NET projects) over the last two years I thought it would be interesting to do a comparison between the two.
-The standard ThoughtWorks joke is that you just need to remember to capitalise the first letter of method names in C# and then you&amp;rsquo;re good to go but I think there&amp;rsquo;s more to it than that.</description>
+ The standard ThoughtWorks joke is that you just need to remember to capitalise the first letter of method names in C# and then you&amp;#8217;re good to go but I think there&amp;#8217;s more to it than that.</description>
     </item>
     
     <item>
@@ -358,8 +397,8 @@ The standard ThoughtWorks joke is that you just need to remember to capitalise t
       
       <guid>https://markhneedham.com/blog/2008/09/29/connecting-to-ldap-server-using-opends-in-java/</guid>
       <description>A colleague and I have spent the past couple of days spiking solutions for connecting to LDAP servers from Ruby.
-We decided that the easiest way to do this is by using OpenDS, an open source directory service based on LDAP.
-One option we came up with for doing this was to make use of the Java libraries for connecting to the LDAP server and then calling through to these from our Ruby code using the Ruby Java Bridge.</description>
+ We decided that the easiest way to do this is by using OpenDS, an open source directory service based on LDAP.
+ One option we came up with for doing this was to make use of the Java libraries for connecting to the LDAP server and then calling through to these from our Ruby code using the Ruby Java Bridge.</description>
     </item>
     
     <item>
@@ -368,9 +407,9 @@ One option we came up with for doing this was to make use of the Java libraries 
       <pubDate>Wed, 24 Sep 2008 23:59:54 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2008/09/24/my-dislike-of-javas-static-import/</guid>
-      <description>While playing around with JBehaveI was reminded of my dislike of the import staticfeature which was introduced in Java 1.5.
-Using import static allows us to access static members defined in another class without referencing the class name. For example suppose we want to use the following method in our code:
-Math.max(1,2); Normally we would need to include the class name (Math) that the static function (max) belongs to. By using the import static we can reference max like so:</description>
+      <description>While playing around with JBehave I was reminded of my dislike of the import static feature which was introduced in Java 1.5.
+ Using import static allows us to access static members defined in another class without referencing the class name. For example suppose we want to use the following method in our code:
+ Math.max(1,2);   Normally we would need to include the class name (Math) that the static function (max) belongs to.</description>
     </item>
     
     <item>
@@ -379,9 +418,8 @@ Math.max(1,2); Normally we would need to include the class name (Math) that the 
       <pubDate>Wed, 24 Sep 2008 05:11:20 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2008/09/24/testing-with-joda-time/</guid>
-      <description>The alternative to dealing with java.util.Date which I wrote about in a previous postis to make use of the Joda Timelibrary. I&amp;rsquo;m led to believe that a lot of the ideas from Joda Time will in fact be in Java 7.
-Nevertheless when testing with Joda Time there are times when it would be useful for us to have control over the time our code is using.
-Given that, there are two approaches which I have seen to allow us to do this:</description>
+      <description>The alternative to dealing with java.util.Date which I wrote about in a previous post is to make use of the Joda Time library. I&amp;#8217;m led to believe that a lot of the ideas from Joda Time will in fact be in Java 7.
+ Nevertheless when testing with Joda Time there are times when it would be useful for us to have control over the time our code is using.</description>
     </item>
     
     <item>
@@ -390,9 +428,9 @@ Given that, there are two approaches which I have seen to allow us to do this:</
       <pubDate>Thu, 18 Sep 2008 11:01:54 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2008/09/18/using-javautildate-safely/</guid>
-      <description>Assuming that you are unable to use Joda Timeon your project, there are some simple ways that I have come across that allow you to not suffer at the hands of java.util.Date.
-This means that you can do an operation like the following, for example:
-import java.util.Date; import java.util.Calendar; public class DateTest { public static void main(String[] args) { Date aDate = createDate(1, 0, 2008); System.out.println(aDate); aDate.setTime(createDate(1, 0, 2009).getTime()); System.out.println(aDate); } private static Date createDate(int date, int month, int year) { Calendar calendar = Calendar.</description>
+      <description>Assuming that you are unable to use Joda Time on your project, there are some simple ways that I have come across that allow you to not suffer at the hands of java.util.Date.
+ What&amp;#8217;s wrong with java.util.date in the first place? First of all java.util.date is mutable. This means that if you create a java.util.date object its state can be modified after creation.
+ This means that you can do an operation like the following, for example:</description>
     </item>
     
   </channel>

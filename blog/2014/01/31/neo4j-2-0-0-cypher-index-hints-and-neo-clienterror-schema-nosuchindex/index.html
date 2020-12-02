@@ -23,7 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j 2.0.0: Cypher - Index Hints and Neo.ClientError.Schema.NoSuchIndex" />
         
-          <meta name="twitter:description" content="CREATE INDEX ON :Player(name) MATCH p USING INDEX p:Player(name) WHERE p.name = &quot;Wayne Rooney&quot; RETURN p Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node Label: `Player` Property name: `name` Neo.ClientError.Schema.NoSuchIndex MATCH (p:Player) USING INDEX p:Player(name) WHERE p.name = &quot;Wayne Rooney&quot; RETURN p MATCH (p:Player) USING INDEX p:Player(name) WHERE p.name = &quot;Wayne Rooney&quot; OR p.name = &quot;Robin Van Persie&quot; RETURN p Cannot use index hint in this context." />
+          <meta name="twitter:description" content="One of the features added into the more recent versions of Neo4j&#8217;s cypher query language is the ability to tell Cypher which index you&#8217;d like to use in your queries.
+ We&#8217;ll use the football dataset, so let&#8217;s start by creating an index on the &#39;name&#39; property of nodes labelled &#39;Player&#39;:
+ CREATE INDEX ON :Player(name)   Let&#8217;s say we want to write a query to find &#39;Wayne Rooney&#39; while explicitly using this index." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/01/31/neo4j-2-0-0-cypher-index-hints-and-neo-clienterror-schema-nosuchindex/" />
 
@@ -34,7 +36,9 @@
         <title> Neo4j 2.0.0: Cypher - Index Hints and Neo.ClientError.Schema.NoSuchIndex &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="CREATE INDEX ON :Player(name) MATCH p USING INDEX p:Player(name) WHERE p.name = &quot;Wayne Rooney&quot; RETURN p Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node Label: `Player` Property name: `name` Neo.ClientError.Schema.NoSuchIndex MATCH (p:Player) USING INDEX p:Player(name) WHERE p.name = &quot;Wayne Rooney&quot; RETURN p MATCH (p:Player) USING INDEX p:Player(name) WHERE p.name = &quot;Wayne Rooney&quot; OR p.name = &quot;Robin Van Persie&quot; RETURN p Cannot use index hint in this context." />
+        <meta name="description" content="One of the features added into the more recent versions of Neo4j&#8217;s cypher query language is the ability to tell Cypher which index you&#8217;d like to use in your queries.
+ We&#8217;ll use the football dataset, so let&#8217;s start by creating an index on the &#39;name&#39; property of nodes labelled &#39;Player&#39;:
+ CREATE INDEX ON :Player(name)   Let&#8217;s say we want to write a query to find &#39;Wayne Rooney&#39; while explicitly using this index." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +67,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-01-31",
-        "description": "CREATE INDEX ON :Player(name) MATCH p USING INDEX p:Player(name) WHERE p.name = \x26quot;Wayne Rooney\x26quot; RETURN p Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node Label: `Player` Property name: `name` Neo.ClientError.Schema.NoSuchIndex MATCH (p:Player) USING INDEX p:Player(name) WHERE p.name = \x26quot;Wayne Rooney\x26quot; RETURN p MATCH (p:Player) USING INDEX p:Player(name) WHERE p.name = \x26quot;Wayne Rooney\x26quot; OR p.name = \x26quot;Robin Van Persie\x26quot; RETURN p Cannot use index hint in this context.",
-        "wordCount":  143 
+        "description": "One of the features added into the more recent versions of Neo4j\x26#8217;s cypher query language is the ability to tell Cypher which index you\x26#8217;d like to use in your queries.\n We\x26#8217;ll use the football dataset, so let\x26#8217;s start by creating an index on the \x27name\x27 property of nodes labelled \x27Player\x27:\n CREATE INDEX ON :Player(name)   Let\x26#8217;s say we want to write a query to find \x27Wayne Rooney\x27 while explicitly using this index.",
+        "wordCount":  350 
     }
     </script>
     
@@ -175,59 +179,108 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j 2.0.0: Cypher - Index Hints and Neo.ClientError.Schema.NoSuchIndex</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-CREATE INDEX ON :Player(name)
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH p
+    <div class="paragraph">
+<p>One of the features added into the more recent versions of Neo4j&#8217;s cypher query language is the ability to <a href="http://docs.neo4j.org/chunked/stable/query-using.html">tell Cypher which index you&#8217;d like to use in your queries</a>.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll use the football dataset, so let&#8217;s start by creating an index on the 'name' property of nodes labelled 'Player':</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CREATE INDEX ON :Player(name)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s say we want to write a query to find 'Wayne Rooney' while explicitly using this index. We might start with the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH p
 USING INDEX p:Player(name)
-WHERE p.name = &quot;Wayne Rooney&quot;
-RETURN p
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node
+WHERE p.name = "Wayne Rooney"
+RETURN p</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that we&#8217;ll see this error:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node
 Label: `Player`
 Property name: `name`
-Neo.ClientError.Schema.NoSuchIndex
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Player)
+Neo.ClientError.Schema.NoSuchIndex</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We need to specify the label on the node in the 'MATCH' part of the query for our hint to work e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Player)
 USING INDEX p:Player(name)
-WHERE p.name = &quot;Wayne Rooney&quot;
-RETURN p
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Player)
+WHERE p.name = "Wayne Rooney"
+RETURN p</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we might decide that we want to find 'Wayne Rooney' or 'Robin Van Persie' so we change our query slightly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Player)
 USING INDEX p:Player(name)
-WHERE p.name = &quot;Wayne Rooney&quot; OR p.name = &quot;Robin Van Persie&quot;
-RETURN p
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node
+WHERE p.name = "Wayne Rooney" OR p.name = "Robin Van Persie"
+RETURN p</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But this one fails too!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node
 Label: `Player`
 Property name: `name`
-Neo.ClientError.Schema.NoSuchIndex
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Player {name: &quot;Wayne Rooney&quot;})
+Neo.ClientError.Schema.NoSuchIndex</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The problem here is that when you use 'OR' it&#8217;s currently not using an index but rather a label scan so the hint to use the index doesn&#8217;t make sense to Cypher.</p>
+</div>
+<div class="paragraph">
+<p>The final way I&#8217;ve seen people get confused using index hints is when matching node properties inline e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Player {name: "Wayne Rooney"})
 USING INDEX p:Player(name)
-RETURN p
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node
+RETURN p</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that we&#8217;ll be back in the land of exceptions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node
 Label: `Player`
 Property name: `name`
-Neo.ClientError.Schema.NoSuchIndex
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Player)
+Neo.ClientError.Schema.NoSuchIndex</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can work around that by pulling out the inline matching of the 'name' property":</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Player)
 USING INDEX p:Player(name)
-WHERE p.name = &quot;Wayne Rooney&quot;
-RETURN p
-</code></pre>
+WHERE p.name = "Wayne Rooney"
+RETURN p</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -261,7 +314,7 @@ RETURN p
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/01/31/neo4j-2-0-0-cypher-index-hints-and-neo-clienterror-schema-nosuchindex/&amp;title=Neo4j%202.0.0%3a%20Cypher%20-%20Index%20Hints%20and%20Neo.ClientError.Schema.NoSuchIndex&amp;summary=CREATE%20INDEX%20ON%20%3aPlayer%28name%29%20MATCH%20p%20USING%20INDEX%20p%3aPlayer%28name%29%20WHERE%20p.name%20%3d%20%26quot%3bWayne%20Rooney%26quot%3b%20RETURN%20p%20Cannot%20use%20index%20hint%20in%20this%20context.%20The%20label%20and%20property%20comparison%20must%20be%20specified%20on%20a%20non-optional%20node%20Label%3a%20%60Player%60%20Property%20name%3a%20%60name%60%20Neo.ClientError.Schema.NoSuchIndex%20MATCH%20%28p%3aPlayer%29%20USING%20INDEX%20p%3aPlayer%28name%29%20WHERE%20p.name%20%3d%20%26quot%3bWayne%20Rooney%26quot%3b%20RETURN%20p%20MATCH%20%28p%3aPlayer%29%20USING%20INDEX%20p%3aPlayer%28name%29%20WHERE%20p.name%20%3d%20%26quot%3bWayne%20Rooney%26quot%3b%20OR%20p.name%20%3d%20%26quot%3bRobin%20Van%20Persie%26quot%3b%20RETURN%20p%20Cannot%20use%20index%20hint%20in%20this%20context...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/01/31/neo4j-2-0-0-cypher-index-hints-and-neo-clienterror-schema-nosuchindex/&amp;title=Neo4j%202.0.0%3a%20Cypher%20-%20Index%20Hints%20and%20Neo.ClientError.Schema.NoSuchIndex&amp;summary=One%20of%20the%20features%20added%20into%20the%20more%20recent%20versions%20of%20Neo4j%26%238217%3bs%20cypher%20query%20language%20is%20the%20ability%20to%20tell%20Cypher%20which%20index%20you%26%238217%3bd%20like%20to%20use%20in%20your%20queries.%0a%20We%26%238217%3bll%20use%20the%20football%20dataset%2c%20so%20let%26%238217%3bs%20start%20by%20creating%20an%20index%20on%20the%20%27name%27%20property%20of%20nodes%20labelled%20%27Player%27%3a%0a%20CREATE%20INDEX%20ON%20%3aPlayer%28name%29%20%20%20Let%26%238217%3bs%20say%20we%20want%20to%20write%20a%20query%20to%20find%20%27Wayne%20Rooney%27%20while%20explicitly%20using%20this%20index...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

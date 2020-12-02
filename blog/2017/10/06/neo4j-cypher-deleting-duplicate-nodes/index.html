@@ -63,8 +63,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-10-06",
-        "description": "UNWIND range(0, 100) AS id CREATE (p1:Person {id: toInteger(rand() * id)}) MERGE (p2:Person {id: toInteger(rand() * id)}) MERGE (p3:Person {id: toInteger(rand() * id)}) MERGE (p4:Person {id: toInteger(rand() * id)}) CREATE (p1)-[:KNOWS]-\x26gt;(p2) CREATE (p1)-[:KNOWS]-\x26gt;(p3) CREATE (p1)-[:KNOWS]-\x26gt;(p4) Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms. MATCH (p:Person) WITH p.id as id, collect(p) AS nodes WHERE size(nodes) \x26gt; 1 RETURN [ n in nodes | n.",
-        "wordCount":  466 
+        "description": "I had a problem on a graph I was working on recently where I\x26#8217;d managed to create duplicate nodes because I hadn\x26#8217;t applied any unique constraints.\n I wanted to remove the duplicates, and came across Jimmy Ruts\x27 excellent post which shows some ways to do this.\n Let\x26#8217;s first create a graph with some duplicate nodes to play with:\n UNWIND range(0, 100) AS id CREATE (p1:Person {id: toInteger(rand() * id)}) MERGE (p2:Person {id: toInteger(rand() * id)}) MERGE (p3:Person {id: toInteger(rand() * id)}) MERGE (p4:Person {id: toInteger(rand() * id)}) CREATE (p1)-[:KNOWS]-\x26gt;(p2) CREATE (p1)-[:KNOWS]-\x26gt;(p3) CREATE (p1)-[:KNOWS]-\x26gt;(p4) Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms.",
+        "wordCount":  717 
     }
     </script>
     
@@ -175,11 +175,18 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Deleting duplicate nodes</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-UNWIND range(0, 100) AS id
+    <div class="paragraph">
+<p>I had a problem on a graph I was working on recently where I&#8217;d managed to create duplicate nodes because I hadn&#8217;t applied any <a href="http://neo4j.com/docs/developer-manual/current/cypher/schema/constraints/">unique constraints</a>.</p>
+</div>
+<div class="paragraph">
+<p>I wanted to remove the duplicates, and came across <a href="https://gist.github.com/jruts/fe782ff2531d509784a24b655ad8ae76">Jimmy Ruts' excellent post</a> which shows some ways to do this.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s first create a graph with some duplicate nodes to play with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">UNWIND range(0, 100) AS id
 CREATE (p1:Person {id: toInteger(rand() * id)})
 MERGE (p2:Person {id: toInteger(rand() * id)})
 MERGE (p3:Person {id: toInteger(rand() * id)})
@@ -188,18 +195,23 @@ CREATE (p1)-[:KNOWS]-&gt;(p2)
 CREATE (p1)-[:KNOWS]-&gt;(p3)
 CREATE (p1)-[:KNOWS]-&gt;(p4)
 
-Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms.
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Person)
-WITH p.id as id, collect(p) AS nodes 
+Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>How do we find the duplicate nodes?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person)
+WITH p.id as id, collect(p) AS nodes
 WHERE size(nodes) &gt;  1
 RETURN [ n in nodes | n.id] AS ids, size(nodes)
 ORDER BY size(nodes) DESC
 LIMIT 10
 
 ╒══════════════════════╤═════════════╕
-│&quot;ids&quot;                 │&quot;size(nodes)&quot;│
+│"ids"                 │"size(nodes)"│
 ╞══════════════════════╪═════════════╡
 │[1,1,1,1,1,1,1,1]     │8            │
 ├──────────────────────┼─────────────┤
@@ -220,20 +232,25 @@ LIMIT 10
 │[25,25,25,25,25]      │5            │
 ├──────────────────────┼─────────────┤
 │[43,43,43,43,43]      │5            │
-└──────────────────────┴─────────────┘
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Person)
-WITH p.id as id, collect(p) AS nodes 
+└──────────────────────┴─────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s zoom in on all the people with 'id:1' and work out how many relationships they have. Our plan is keep the node that has the most connections and get rid of the others.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person)
+WITH p.id as id, collect(p) AS nodes
 WHERE size(nodes) &gt;  1
 WITH nodes ORDER BY size(nodes) DESC
 LIMIT 1
-UNWIND nodes AS n 
+UNWIND nodes AS n
 RETURN n.id, id(n) AS internalId, size((n)--()) AS rels
 ORDER BY rels DESC
 
 ╒══════╤════════════╤══════╕
-│&quot;n.id&quot;│&quot;internalId&quot;│&quot;rels&quot;│
+│"n.id"│"internalId"│"rels"│
 ╞══════╪════════════╪══════╡
 │1     │175         │1284  │
 ├──────┼────────────┼──────┤
@@ -250,86 +267,108 @@ ORDER BY rels DESC
 │1     │302         │5     │
 ├──────┼────────────┼──────┤
 │1     │306         │1     │
-└──────┴────────────┴──────┘
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Person)
-WITH p 
+└──────┴────────────┴──────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So in this example we want to keep the node that has 210 relationships and delete the rest.</p>
+</div>
+<div class="paragraph">
+<p>To make things easy we need the node with the highest cardinality to be first or last in our list. We can ensure that&#8217;s the case by ordering the nodes before we group them.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person)
+WITH p
 ORDER BY p.id, size((p)--()) DESC
-WITH p.id as id, collect(p) AS nodes 
+WITH p.id as id, collect(p) AS nodes
 WHERE size(nodes) &gt;  1
 RETURN [ n in nodes | {id: n.id,rels: size((n)--()) } ] AS ids, size(nodes)
 ORDER BY size(nodes) DESC
 LIMIT 10
 
 ╒══════════════════════════════════════════════════════════════════════╤═════════════╕
-│&quot;ids&quot;                                                                 │&quot;size(nodes)&quot;│
+│"ids"                                                                 │"size(nodes)"│
 ╞══════════════════════════════════════════════════════════════════════╪═════════════╡
-│[{&quot;id&quot;:1,&quot;rels&quot;:1284},{&quot;id&quot;:1,&quot;rels&quot;:721},{&quot;id&quot;:1,&quot;rels&quot;:580},{&quot;id&quot;:1,│8            │
-│&quot;rels&quot;:391},{&quot;id&quot;:1,&quot;rels&quot;:361},{&quot;id&quot;:1,&quot;rels&quot;:352},{&quot;id&quot;:1,&quot;rels&quot;:5},│             │
-│{&quot;id&quot;:1,&quot;rels&quot;:1}]                                                    │             │
+│[{"id":1,"rels":1284},{"id":1,"rels":721},{"id":1,"rels":580},{"id":1,│8            │
+│"rels":391},{"id":1,"rels":361},{"id":1,"rels":352},{"id":1,"rels":5},│             │
+│{"id":1,"rels":1}]                                                    │             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:0,&quot;rels&quot;:2064},{&quot;id&quot;:0,&quot;rels&quot;:2059},{&quot;id&quot;:0,&quot;rels&quot;:1297},{&quot;id&quot;:│8            │
-│0,&quot;rels&quot;:1124},{&quot;id&quot;:0,&quot;rels&quot;:995},{&quot;id&quot;:0,&quot;rels&quot;:928},{&quot;id&quot;:0,&quot;rels&quot;:│             │
-│730},{&quot;id&quot;:0,&quot;rels&quot;:702}]                                             │             │
+│[{"id":0,"rels":2064},{"id":0,"rels":2059},{"id":0,"rels":1297},{"id":│8            │
+│0,"rels":1124},{"id":0,"rels":995},{"id":0,"rels":928},{"id":0,"rels":│             │
+│730},{"id":0,"rels":702}]                                             │             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:17,&quot;rels&quot;:153},{&quot;id&quot;:17,&quot;rels&quot;:105},{&quot;id&quot;:17,&quot;rels&quot;:81},{&quot;id&quot;:1│7            │
-│7,&quot;rels&quot;:31},{&quot;id&quot;:17,&quot;rels&quot;:15},{&quot;id&quot;:17,&quot;rels&quot;:14},{&quot;id&quot;:17,&quot;rels&quot;:1│             │
+│[{"id":17,"rels":153},{"id":17,"rels":105},{"id":17,"rels":81},{"id":1│7            │
+│7,"rels":31},{"id":17,"rels":15},{"id":17,"rels":14},{"id":17,"rels":1│             │
 │}]                                                                    │             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:4,&quot;rels&quot;:394},{&quot;id&quot;:4,&quot;rels&quot;:320},{&quot;id&quot;:4,&quot;rels&quot;:250},{&quot;id&quot;:4,&quot;│7            │
-│rels&quot;:201},{&quot;id&quot;:4,&quot;rels&quot;:162},{&quot;id&quot;:4,&quot;rels&quot;:162},{&quot;id&quot;:4,&quot;rels&quot;:14}]│             │
+│[{"id":4,"rels":394},{"id":4,"rels":320},{"id":4,"rels":250},{"id":4,"│7            │
+│rels":201},{"id":4,"rels":162},{"id":4,"rels":162},{"id":4,"rels":14}]│             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:2,&quot;rels&quot;:514},{&quot;id&quot;:2,&quot;rels&quot;:329},{&quot;id&quot;:2,&quot;rels&quot;:318},{&quot;id&quot;:2,&quot;│6            │
-│rels&quot;:241},{&quot;id&quot;:2,&quot;rels&quot;:240},{&quot;id&quot;:2,&quot;rels&quot;:2}]                     │             │
+│[{"id":2,"rels":514},{"id":2,"rels":329},{"id":2,"rels":318},{"id":2,"│6            │
+│rels":241},{"id":2,"rels":240},{"id":2,"rels":2}]                     │             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:5,&quot;rels&quot;:487},{&quot;id&quot;:5,&quot;rels&quot;:378},{&quot;id&quot;:5,&quot;rels&quot;:242},{&quot;id&quot;:5,&quot;│6            │
-│rels&quot;:181},{&quot;id&quot;:5,&quot;rels&quot;:158},{&quot;id&quot;:5,&quot;rels&quot;:8}]                     │             │
+│[{"id":5,"rels":487},{"id":5,"rels":378},{"id":5,"rels":242},{"id":5,"│6            │
+│rels":181},{"id":5,"rels":158},{"id":5,"rels":8}]                     │             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:19,&quot;rels&quot;:153},{&quot;id&quot;:19,&quot;rels&quot;:120},{&quot;id&quot;:19,&quot;rels&quot;:84},{&quot;id&quot;:1│6            │
-│9,&quot;rels&quot;:53},{&quot;id&quot;:19,&quot;rels&quot;:45},{&quot;id&quot;:19,&quot;rels&quot;:1}]                  │             │
+│[{"id":19,"rels":153},{"id":19,"rels":120},{"id":19,"rels":84},{"id":1│6            │
+│9,"rels":53},{"id":19,"rels":45},{"id":19,"rels":1}]                  │             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:11,&quot;rels&quot;:222},{&quot;id&quot;:11,&quot;rels&quot;:192},{&quot;id&quot;:11,&quot;rels&quot;:172},{&quot;id&quot;:│5            │
-│11,&quot;rels&quot;:152},{&quot;id&quot;:11,&quot;rels&quot;:89}]                                   │             │
+│[{"id":11,"rels":222},{"id":11,"rels":192},{"id":11,"rels":172},{"id":│5            │
+│11,"rels":152},{"id":11,"rels":89}]                                   │             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:25,&quot;rels&quot;:133},{&quot;id&quot;:25,&quot;rels&quot;:107},{&quot;id&quot;:25,&quot;rels&quot;:98},{&quot;id&quot;:2│5            │
-│5,&quot;rels&quot;:15},{&quot;id&quot;:25,&quot;rels&quot;:2}]                                      │             │
+│[{"id":25,"rels":133},{"id":25,"rels":107},{"id":25,"rels":98},{"id":2│5            │
+│5,"rels":15},{"id":25,"rels":2}]                                      │             │
 ├──────────────────────────────────────────────────────────────────────┼─────────────┤
-│[{&quot;id&quot;:43,&quot;rels&quot;:92},{&quot;id&quot;:43,&quot;rels&quot;:85},{&quot;id&quot;:43,&quot;rels&quot;:9},{&quot;id&quot;:43,&quot;│5            │
-│rels&quot;:5},{&quot;id&quot;:43,&quot;rels&quot;:1}]                                          │             │
-└──────────────────────────────────────────────────────────────────────┴─────────────┘───────────────────────────────────────────────────────┴─────────────┘
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Person)
-WITH p 
+│[{"id":43,"rels":92},{"id":43,"rels":85},{"id":43,"rels":9},{"id":43,"│5            │
+│rels":5},{"id":43,"rels":1}]                                          │             │
+└──────────────────────────────────────────────────────────────────────┴─────────────┘───────────────────────────────────────────────────────┴─────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now it&#8217;s time to delete the duplicates:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person)
+WITH p
 ORDER BY p.id, size((p)--()) DESC
-WITH p.id as id, collect(p) AS nodes 
+WITH p.id as id, collect(p) AS nodes
 WHERE size(nodes) &gt;  1
 UNWIND nodes[1..] AS n
 DETACH DELETE n
 
-Deleted 143 nodes, deleted 13806 relationships, completed after 29 ms.
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Person)
-WITH p.id as id, collect(p) AS nodes 
+Deleted 143 nodes, deleted 13806 relationships, completed after 29 ms.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if we run our duplicate query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person)
+WITH p.id as id, collect(p) AS nodes
 WHERE size(nodes) &gt;  1
 RETURN [ n in nodes | n.id] AS ids, size(nodes)
 ORDER BY size(nodes) DESC
 LIMIT 10
 
-(no changes, no records)
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Person)
-WITH p.id as id, collect(p) AS nodes 
+(no changes, no records)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What about if we remove the WHERE clause?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person)
+WITH p.id as id, collect(p) AS nodes
 RETURN [ n in nodes | n.id] AS ids, size(nodes)
 ORDER BY size(nodes) DESC
 LIMIT 10
 
 ╒═════╤═════════════╕
-│&quot;ids&quot;│&quot;size(nodes)&quot;│
+│"ids"│"size(nodes)"│
 ╞═════╪═════════════╡
 │[23] │1            │
 ├─────┼─────────────┤
@@ -350,19 +389,30 @@ LIMIT 10
 │[44] │1            │
 ├─────┼─────────────┤
 │[8]  │1            │
-└─────┴─────────────┘
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (p:Person {id: 1})
+└─────┴─────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Hoorah, no more duplicates! Finally, let&#8217;s check that we kept the node we expected to keep. We expect it to have an 'internalId' of 175:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person {id: 1})
 RETURN size((p)--()), id(p) AS internalId
 
 ╒═══════════════╤════════════╕
-│&quot;size((p)--())&quot;│&quot;internalId&quot;│
+│"size((p)--())"│"internalId"│
 ╞═══════════════╪════════════╡
 │242            │175         │
-└───────────────┴────────────┘
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+└───────────────┴────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Which it does! There are many fewer relationships than we had before because a lot of those relationships were to duplicate nodes that we&#8217;ve now deleted.</p>
+</div>
+<div class="paragraph">
+<p>If we want to go a step further we could 'merge' the duplicate node&#8217;s relationships onto the nodes that we did keep, but that&#8217;s for another post!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -397,7 +447,7 @@ RETURN size((p)--()), id(p) AS internalId
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/10/06/neo4j-cypher-deleting-duplicate-nodes/&amp;title=Neo4j%3a%20Cypher%20-%20Deleting%20duplicate%20nodes&amp;summary=UNWIND%20range%280%2c%20100%29%20AS%20id%20CREATE%20%28p1%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p2%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p3%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p4%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p2%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p3%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p4%29%20Added%20173%20labels%2c%20created%20173%20nodes%2c%20set%20173%20properties%2c%20created%205829%20relationships%2c%20completed%20after%20408%20ms.%20MATCH%20%28p%3aPerson%29%20WITH%20p.id%20as%20id%2c%20collect%28p%29%20AS%20nodes%20WHERE%20size%28nodes%29%20%26gt%3b%201%20RETURN%20%5b%20n%20in%20nodes%20%7c%20n...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/10/06/neo4j-cypher-deleting-duplicate-nodes/&amp;title=Neo4j%3a%20Cypher%20-%20Deleting%20duplicate%20nodes&amp;summary=I%20had%20a%20problem%20on%20a%20graph%20I%20was%20working%20on%20recently%20where%20I%26%238217%3bd%20managed%20to%20create%20duplicate%20nodes%20because%20I%20hadn%26%238217%3bt%20applied%20any%20unique%20constraints.%0a%20I%20wanted%20to%20remove%20the%20duplicates%2c%20and%20came%20across%20Jimmy%20Ruts%27%20excellent%20post%20which%20shows%20some%20ways%20to%20do%20this.%0a%20Let%26%238217%3bs%20first%20create%20a%20graph%20with%20some%20duplicate%20nodes%20to%20play%20with%3a%0a%20UNWIND%20range%280%2c%20100%29%20AS%20id%20CREATE%20%28p1%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p2%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p3%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20MERGE%20%28p4%3aPerson%20%7bid%3a%20toInteger%28rand%28%29%20%2a%20id%29%7d%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p2%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p3%29%20CREATE%20%28p1%29-%5b%3aKNOWS%5d-%26gt%3b%28p4%29%20Added%20173%20labels%2c%20created%20173%20nodes%2c%20set%20173%20properties%2c%20created%205829%20relationships%2c%20completed%20after%20408%20ms...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

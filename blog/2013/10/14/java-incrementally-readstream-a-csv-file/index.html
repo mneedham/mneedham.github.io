@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Java: Incrementally read/stream a CSV file" />
         
-          <meta name="twitter:description" content="public class ParseCSVFile { public static void main(String[] args) throws IOException { final CSVReader csvReader = new CSVReader( new BufferedReader( new FileReader( &#34;/path/to/file.csv&#34; ) ), &#39;\t&#39; ); final String[] fields = csvReader.readNext(); Iterator&lt;Map&lt;String, Object&gt;&gt;() lazilyLoadedFile = return new Iterator&lt;Map&lt;String, Object&gt;&gt;() { String[] data = csvReader.readNext(); @Override public boolean hasNext() { return data != null; } @Override public Map&lt;String, Object&gt; next() { final Map&lt;String, Object&gt; properties = new HashMap&lt;String, Object&gt;(); for ( int i = 0; i &lt; data." />
+          <meta name="twitter:description" content="I&#8217;ve been doing some work which involves reading in CSV files, for which I&#8217;ve been using OpenCSV, and my initial approach was to read through the file line by line, parse the contents and save it into a list of maps.
+ This works when the contents of the file fit into memory but is problematic for larger files where I needed to stream the file and process each line individually rather than all of them after the file was loaded." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/10/14/java-incrementally-readstream-a-csv-file/" />
 
@@ -33,7 +34,8 @@
         <title> Java: Incrementally read/stream a CSV file &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="public class ParseCSVFile { public static void main(String[] args) throws IOException { final CSVReader csvReader = new CSVReader( new BufferedReader( new FileReader( &#34;/path/to/file.csv&#34; ) ), &#39;\t&#39; ); final String[] fields = csvReader.readNext(); Iterator&lt;Map&lt;String, Object&gt;&gt;() lazilyLoadedFile = return new Iterator&lt;Map&lt;String, Object&gt;&gt;() { String[] data = csvReader.readNext(); @Override public boolean hasNext() { return data != null; } @Override public Map&lt;String, Object&gt; next() { final Map&lt;String, Object&gt; properties = new HashMap&lt;String, Object&gt;(); for ( int i = 0; i &lt; data." />
+        <meta name="description" content="I&#8217;ve been doing some work which involves reading in CSV files, for which I&#8217;ve been using OpenCSV, and my initial approach was to read through the file line by line, parse the contents and save it into a list of maps.
+ This works when the contents of the file fit into memory but is problematic for larger files where I needed to stream the file and process each line individually rather than all of them after the file was loaded." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-10-14",
-        "description": "public class ParseCSVFile { public static void main(String[] args) throws IOException { final CSVReader csvReader = new CSVReader( new BufferedReader( new FileReader( \x26#34;\/path\/to\/file.csv\x26#34; ) ), \x26#39;\\t\x26#39; ); final String[] fields = csvReader.readNext(); Iterator\x26lt;Map\x26lt;String, Object\x26gt;\x26gt;() lazilyLoadedFile = return new Iterator\x26lt;Map\x26lt;String, Object\x26gt;\x26gt;() { String[] data = csvReader.readNext(); @Override public boolean hasNext() { return data != null; } @Override public Map\x26lt;String, Object\x26gt; next() { final Map\x26lt;String, Object\x26gt; properties = new HashMap\x26lt;String, Object\x26gt;(); for ( int i = 0; i \x26lt; data.",
-        "wordCount":  115 
+        "description": "I\x26#8217;ve been doing some work which involves reading in CSV files, for which I\x26#8217;ve been using OpenCSV, and my initial approach was to read through the file line by line, parse the contents and save it into a list of maps.\n This works when the contents of the file fit into memory but is problematic for larger files where I needed to stream the file and process each line individually rather than all of them after the file was loaded.",
+        "wordCount":  287 
     }
     </script>
     
@@ -172,57 +174,70 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Java: Incrementally read/stream a CSV file</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ParseCSVFile</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException
-    <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">final</span> CSVReader csvReader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CSVReader<span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> BufferedReader<span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> FileReader<span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;/path/to/file.csv&#34;</span> <span style="color:#f92672">)</span> <span style="color:#f92672">),</span> <span style="color:#e6db74">&#39;\t&#39;</span> <span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">final</span> String<span style="color:#f92672">[]</span> fields <span style="color:#f92672">=</span> csvReader<span style="color:#f92672">.</span><span style="color:#a6e22e">readNext</span><span style="color:#f92672">();</span>
+    <div class="paragraph">
+<p>I&#8217;ve been doing some work which involves reading in CSV files, for which I&#8217;ve been using <a href="http://opencsv.sourceforge.net/">OpenCSV</a>, and my initial approach was to read through the file line by line, parse the contents and save it into a list of maps.</p>
+</div>
+<div class="paragraph">
+<p>This works when the contents of the file fit into memory but is problematic for larger files where I needed to stream the file and process each line individually rather than all of them after the file was loaded.</p>
+</div>
+<div class="paragraph">
+<p>I initially wrote a variation on totallylazy&#8217;s <cite>https://code.google.com/p/totallylazy/source/browse/src/com/googlecode/totallylazy/Strings.java?spec=svna4a6ac3d443db02821d434a5d6560cb77ec4ef4a&amp;r=a4a6ac3d443db02821d434a5d6560cb77ec4ef4a#55<span class="Strings#lines"></cite></span> to do this and while I was able to stream the file I made a mistake somewhere which meant the number of maps on the heap was always increasing.</p>
+</div>
+<div class="paragraph">
+<p>After spending a few hours trying to fix this <a href="https://twitter.com/mesirii">Michael</a> suggested that it&#8217;d be easier to use an iterator instead and I ended up with the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class ParseCSVFile {
+    public static void main(String[] args) throws IOException
+    {
+        final CSVReader csvReader = new CSVReader( new BufferedReader( new FileReader( "/path/to/file.csv" ) ), '\t' );
+        final String[] fields = csvReader.readNext();
 
-        Iterator<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;&gt;()</span> lazilyLoadedFile <span style="color:#f92672">=</span> <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Iterator<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;&gt;()</span>
-        <span style="color:#f92672">{</span>
-            String<span style="color:#f92672">[]</span> data <span style="color:#f92672">=</span> csvReader<span style="color:#f92672">.</span><span style="color:#a6e22e">readNext</span><span style="color:#f92672">();</span>
+        Iterator&lt;Map&lt;String, Object&gt;&gt;() lazilyLoadedFile = return new Iterator&lt;Map&lt;String, Object&gt;&gt;()
+        {
+            String[] data = csvReader.readNext();
 
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">hasNext</span><span style="color:#f92672">()</span>
-            <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">return</span> data <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
-            <span style="color:#f92672">}</span>
+            @Override
+            public boolean hasNext()
+            {
+                return data != null;
+            }
 
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">next</span><span style="color:#f92672">()</span>
-            <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">final</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> properties <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;();</span>
-                <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> <span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> data<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">;</span> i<span style="color:#f92672">++</span> <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
-                    properties<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span>fields<span style="color:#f92672">[</span>i<span style="color:#f92672">],</span> data<span style="color:#f92672">[</span>i<span style="color:#f92672">]);</span>
-                <span style="color:#f92672">}</span>
+            @Override
+            public Map&lt;String, Object&gt; next()
+            {
+                final Map&lt;String, Object&gt; properties = new HashMap&lt;String, Object&gt;();
+                for ( int i = 0; i &lt; data.length; i++ )
+                {
+                    properties.put(fields[i], data[i]);
+                }
 
-                <span style="color:#66d9ef">try</span>
-                <span style="color:#f92672">{</span>
-                    data <span style="color:#f92672">=</span> csvReader<span style="color:#f92672">.</span><span style="color:#a6e22e">readNext</span><span style="color:#f92672">();</span>
-                <span style="color:#f92672">}</span>
-                <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span> IOException e <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
-                    data <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
-                <span style="color:#f92672">}</span>
+                try
+                {
+                    data = csvReader.readNext();
+                }
+                catch ( IOException e )
+                {
+                    data = null;
+                }
 
-                <span style="color:#66d9ef">return</span> properties<span style="color:#f92672">;</span>
-            <span style="color:#f92672">}</span>
+                return properties;
+            }
 
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">remove</span><span style="color:#f92672">()</span>
-            <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> UnsupportedOperationException<span style="color:#f92672">();</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">};</span>
-    <span style="color:#f92672">}</span>	
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
+            @Override
+            public void remove()
+            {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Although this code works it&#8217;s not the most readable function I&#8217;ve ever written so any suggestions on how to do this in a cleaner way are welcome.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -257,7 +272,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/14/java-incrementally-readstream-a-csv-file/&amp;title=Java%3a%20Incrementally%20read%2fstream%20a%20CSV%20file&amp;summary=public%20class%20ParseCSVFile%20%7b%20public%20static%20void%20main%28String%5b%5d%20args%29%20throws%20IOException%20%7b%20final%20CSVReader%20csvReader%20%3d%20new%20CSVReader%28%20new%20BufferedReader%28%20new%20FileReader%28%20%26%2334%3b%2fpath%2fto%2ffile.csv%26%2334%3b%20%29%20%29%2c%20%26%2339%3b%5ct%26%2339%3b%20%29%3b%20final%20String%5b%5d%20fields%20%3d%20csvReader.readNext%28%29%3b%20Iterator%26lt%3bMap%26lt%3bString%2c%20Object%26gt%3b%26gt%3b%28%29%20lazilyLoadedFile%20%3d%20return%20new%20Iterator%26lt%3bMap%26lt%3bString%2c%20Object%26gt%3b%26gt%3b%28%29%20%7b%20String%5b%5d%20data%20%3d%20csvReader.readNext%28%29%3b%20%40Override%20public%20boolean%20hasNext%28%29%20%7b%20return%20data%20%21%3d%20null%3b%20%7d%20%40Override%20public%20Map%26lt%3bString%2c%20Object%26gt%3b%20next%28%29%20%7b%20final%20Map%26lt%3bString%2c%20Object%26gt%3b%20properties%20%3d%20new%20HashMap%26lt%3bString%2c%20Object%26gt%3b%28%29%3b%20for%20%28%20int%20i%20%3d%200%3b%20i%20%26lt%3b%20data...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/14/java-incrementally-readstream-a-csv-file/&amp;title=Java%3a%20Incrementally%20read%2fstream%20a%20CSV%20file&amp;summary=I%26%238217%3bve%20been%20doing%20some%20work%20which%20involves%20reading%20in%20CSV%20files%2c%20for%20which%20I%26%238217%3bve%20been%20using%20OpenCSV%2c%20and%20my%20initial%20approach%20was%20to%20read%20through%20the%20file%20line%20by%20line%2c%20parse%20the%20contents%20and%20save%20it%20into%20a%20list%20of%20maps.%0a%20This%20works%20when%20the%20contents%20of%20the%20file%20fit%20into%20memory%20but%20is%20problematic%20for%20larger%20files%20where%20I%20needed%20to%20stream%20the%20file%20and%20process%20each%20line%20individually%20rather%20than%20all%20of%20them%20after%20the%20file%20was%20loaded...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

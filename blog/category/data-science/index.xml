@@ -17,7 +17,10 @@
       <pubDate>Wed, 26 Jul 2017 21:41:55 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/07/26/pandas-valueerror-the-truth-value-of-a-series-is-ambiguous/</guid>
-      <description>import pandas as pd &amp;gt;&amp;gt;&amp;gt; df = pd.DataFrame({&amp;#34;a&amp;#34;: [1,2,3,4,5], &amp;#34;b&amp;#34;: [2,3,4,5,6]}) &amp;gt;&amp;gt;&amp;gt; df a b 0 5 2 1 6 6 2 0 8 3 3 2 4 1 6 &amp;gt;&amp;gt;&amp;gt; divmod(df[&amp;#34;a&amp;#34;], 2)[1] &amp;gt; 0 0 True 1 False 2 True 3 False 4 True Name: a, dtype: bool &amp;gt;&amp;gt;&amp;gt; divmod(df[&amp;#34;b&amp;#34;], 2)[1] &amp;gt; 0 0 False 1 True 2 False 3 True 4 False Name: b, dtype: bool &amp;gt;&amp;gt;&amp;gt; df[&amp;#34;anyOdd&amp;#34;] = (divmod(df[&amp;#34;a&amp;#34;], 2)[1] &amp;gt; 0) or (divmod(df[&amp;#34;b&amp;#34;], 2)[1] &amp;gt; 0) Traceback (most recent call last): File &amp;#34;&amp;lt;stdin&amp;gt;&amp;#34;, line 1, in &amp;lt;module&amp;gt; File &amp;#34;/Users/markneedham/projects/kaggle/house-prices/a/lib/python3.</description>
+      <description>I&amp;#8217;ve been playing around with Kaggle in my spare time over the last few weeks and came across an unexpected behaviour when trying to add a column to a dataframe.
+ First let&amp;#8217;s get Panda&amp;#8217;s into our program scope:
+ Prerequisites import pandas as pd   Now we&amp;#8217;ll create a data frame to play with for the duration of this post:
+ &amp;gt;&amp;gt;&amp;gt; df = pd.DataFrame({&#34;a&#34;: [1,2,3,4,5], &#34;b&#34;: [2,3,4,5,6]}) &amp;gt;&amp;gt;&amp;gt; df a b 0 5 2 1 6 6 2 0 8 3 3 2 4 1 6   Let&amp;#8217;s say we want to create a new column which returns True if either of the numbers are odd.</description>
     </item>
     
     <item>
@@ -26,7 +29,9 @@
       <pubDate>Fri, 16 Jun 2017 05:55:29 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/06/16/scikit-learn-random-forests-feature-importance/</guid>
-      <description>import numpy as np import pandas as pd from sklearn.ensemble import RandomForestRegressor from sklearn.model_selection import train_test_split # We&amp;#39;ll use this library to make the display pretty from tabulate import tabulate train = pd.read_csv(&amp;#39;train.csv&amp;#39;) # the model can only handle numeric values so filter out the rest data = train.select_dtypes(include=[np.number]).interpolate().dropna() y = train.SalePrice X = data.drop([&amp;#34;SalePrice&amp;#34;, &amp;#34;Id&amp;#34;], axis=1) X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=.33) clf = RandomForestRegressor(n_jobs=2, n_estimators=1000) model = clf.</description>
+      <description>As I mentioned in a blog post a couple of weeks ago, I&amp;#8217;ve been playing around with the Kaggle House Prices competition and the most recent thing I tried was training a random forest regressor.
+ Unfortunately, although it gave me better results locally it got a worse score on the unseen data, which I figured meant I&amp;#8217;d overfitted the model.
+ I wasn&amp;#8217;t really sure how to work out if that theory was true or not, but by chance I was reading Chris Albon&amp;#8217;s blog and found a post where he explains how to inspect the importance of every feature in a random forest.</description>
     </item>
     
     <item>
@@ -35,7 +40,9 @@
       <pubDate>Sun, 04 Jun 2017 09:22:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/06/04/kaggle-house-prices-advanced-regression-techniques-trying-fill-missing-values/</guid>
-      <description>import pandas as pd train = pd.read_csv(&amp;#39;train.csv&amp;#39;) null_columns=train.columns[train.isnull().any()] &amp;gt;&amp;gt;&amp;gt; print(train[null_columns].isnull().sum()) LotFrontage 259 Alley 1369 MasVnrType 8 MasVnrArea 8 BsmtQual 37 BsmtCond 37 BsmtExposure 38 BsmtFinType1 37 BsmtFinType2 38 Electrical 1 FireplaceQu 690 GarageType 81 GarageYrBlt 81 GarageFinish 81 GarageQual 81 GarageCond 81 PoolQC 1453 Fence 1179 MiscFeature 1406 dtype: int64 cols = [col for col in train.columns if col.startswith(&amp;#34;Lot&amp;#34;)] missing_frontage = train[cols][train[&amp;#34;LotFrontage&amp;#34;].isnull()] &amp;gt;&amp;gt;&amp;gt; print(missing_frontage.head()) LotFrontage LotArea LotShape LotConfig 7 NaN 10382 IR1 Corner 12 NaN 12968 IR2 Inside 14 NaN 10920 IR1 Corner 16 NaN 11241 IR1 CulDSac 24 NaN 8246 IR1 Inside sub_train = train[train.</description>
+      <description>I&amp;#8217;ve been playing around with the data in Kaggle&amp;#8217;s House Prices: Advanced Regression Techniques and while replicating Poonam Ligade&amp;#8217;s exploratory analysis I wanted to see if I could create a model to fill in some of the missing values.
+ Poonam wrote the following code to identify which columns in the dataset had the most missing values:
+ import pandas as pd train = pd.read_csv(&#39;train.csv&#39;) null_columns=train.columns[train.isnull().any()] &amp;gt;&amp;gt;&amp;gt; print(train[null_columns].isnull().sum()) LotFrontage 259 Alley 1369 MasVnrType 8 MasVnrArea 8 BsmtQual 37 BsmtCond 37 BsmtExposure 38 BsmtFinType1 37 BsmtFinType2 38 Electrical 1 FireplaceQu 690 GarageType 81 GarageYrBlt 81 GarageFinish 81 GarageQual 81 GarageCond 81 PoolQC 1453 Fence 1179 MiscFeature 1406 dtype: int64   The one that I&amp;#8217;m most interested in is LotFrontage, which describes &#39;Linear feet of street connected to property&#39;.</description>
     </item>
     
     <item>
@@ -44,7 +51,9 @@
       <pubDate>Sun, 18 Oct 2015 10:03:57 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/10/18/exploring-potential-data-entry-errors-in-the-land-registry-data-set/</guid>
-      <description>&amp;gt; library(data.table) &amp;gt; dt = fread(&amp;#34;pp-complete.csv&amp;#34;, header = FALSE) &amp;gt; dt[1:5] V1 V2 V3 V4 V5 1: {0C7ADEF5-878D-4066-B785-0000003ED74A} 163000 2003-02-21 00:00 UB5 4PJ T 2: {35F67271-ABD4-40DA-AB09-00000085B9D3} 247500 2005-07-15 00:00 TA19 9DD D 3: {B20B1C74-E8E1-4137-AB3E-0000011DF342} 320000 2010-09-10 00:00 W4 1DZ F 4: {7D6B0915-C56B-4275-AF9B-00000156BCE7} 104000 1997-08-27 00:00 NE61 2BH D 5: {47B60101-B64C-413D-8F60-000002F1692D} 147995 2003-05-02 00:00 PE33 0RU D V6 V7 V8 V9 V10 V11 V12 1: N F 106 READING ROAD NORTHOLT NORTHOLT 2: N F 58 ADAMS MEADOW ILMINSTER ILMINSTER 3: N L 58 WHELLOCK ROAD LONDON 4: N F 17 WESTGATE MORPETH MORPETH 5: N F 4 MASON GARDENS WEST WINCH KING&amp;#39;S LYNN V13 V14 V15 1: EALING GREATER LONDON A 2: SOUTH SOMERSET SOMERSET A 3: EALING GREATER LONDON A 4: CASTLE MORPETH NORTHUMBERLAND A 5: KING&amp;#39;S LYNN AND WEST NORFOLK NORFOLK A &amp;gt; dt = dt[, V2:= as.</description>
+      <description>I&amp;#8217;ve previously written a couple of blog posts describing the mechanics of analysing the Land Registry data set and I thought it was about time I described some of the queries I&amp;#8217;ve been running the discoveries I&amp;#8217;ve made.
+ To recap, the land registry provides a 3GB, 20 million line CSV file containing all the property sales in the UK since 1995.
+ We&amp;#8217;ll be loading and query the data in R using the data.</description>
     </item>
     
     <item>
@@ -53,7 +62,9 @@
       <pubDate>Mon, 02 Mar 2015 07:48:24 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/03/02/python-scikit-learn-training-a-classifier-with-non-numeric-features/</guid>
-      <description>import json import nltk import collections from himymutil.ml import pos_features from sklearn import tree from sklearn.cross_validation import train_test_split with open(&amp;#34;data/import/trained_sentences.json&amp;#34;, &amp;#34;r&amp;#34;) as json_file: json_data = json.load(json_file) tagged_sents = [] for sentence in json_data: tagged_sents.append([(word[&amp;#34;word&amp;#34;], word[&amp;#34;speaker&amp;#34;]) for word in sentence[&amp;#34;words&amp;#34;]]) featuresets = [] for tagged_sent in tagged_sents: untagged_sent = nltk.tag.untag(tagged_sent) sentence_pos = nltk.pos_tag(untagged_sent) for i, (word, tag) in enumerate(tagged_sent): featuresets.append((pos_features(untagged_sent, sentence_pos, i), tag) ) clf = tree.DecisionTreeClassifier() train_data, test_data = train_test_split(featuresets, test_size=0.</description>
+      <description>Following on from my previous posts on training a classifier to pick out the speaker in sentences of HIMYM transcripts the next thing to do was train a random forest of decision trees to see how that fared.
+ I&amp;#8217;ve used scikit-learn for this before so I decided to use that. However, before building a random forest I wanted to check that I could build an equivalent decision tree.
+ I initially thought that scikit-learn&amp;#8217;s DecisionTree classifier would take in data in the same format as nltk&amp;#8217;s so I started out with the following code:</description>
     </item>
     
     <item>
@@ -62,7 +73,8 @@
       <pubDate>Sat, 28 Jun 2014 23:35:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/06/28/data-science-mo-data-mo-problems/</guid>
-      <description></description>
+      <description>Over the last couple of years I&amp;#8217;ve worked on several proof of concept style Neo4j projects and on a lot of them people have wanted to work with their entire data set which I don&amp;#8217;t think makes sense so early on.
+ In the early parts of a project we&amp;#8217;re trying to prove out our approach rather than prove we can handle big data - something that Ashok taught me a couple of years ago on a project we worked on together.</description>
     </item>
     
     <item>
@@ -71,7 +83,8 @@
       <pubDate>Thu, 19 Sep 2013 06:55:19 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/19/data-science-dont-build-a-crawler-if-you-can-avoid-it/</guid>
-      <description>$ head -n 5 uris.txt https://www.some-made-up-place.com/page1.html https://www.some-made-up-place.com/page2.html https://www.some-made-up-place.com/page3.html https://www.some-made-up-place.com/page4.html https://www.some-made-up-place.com/page5.html $ cat uris.txt | time xargs wget ... Total wall clock time: 3.7s Downloaded: 60 files, 625K in 0.7s (870 KB/s) 3.73 real 0.03 user 0.09 sys cat uris.txt | time xargs -n1 -P10 wget 1.65 real 0.20 user 0.21 sys </description>
+      <description>On Tuesday I spoke at the Data Science London meetup about football data and I started out by covering some lessons I&amp;#8217;ve learnt about building data sets for personal use when open data isn&amp;#8217;t available.
+ When that&amp;#8217;s the case you often end up scraping HTML pages to extract the data that you&amp;#8217;re interested in and then storing that in files or in a database if you want to be more fancy.</description>
     </item>
     
     <item>
@@ -80,7 +93,9 @@
       <pubDate>Mon, 18 Feb 2013 22:16:39 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/02/18/micro-services-style-data-work-flow/</guid>
-      <description></description>
+      <description>Having worked on a few data related applications over the last ten months or so Ashok and I were recently discussing some of the things that we&amp;#8217;ve learnt
+ One of the things he pointed out is that it&amp;#8217;s very helpful to separate the different stages of a data work flow into their own applications/scripts.
+ I decided to try out this idea with some football data that I&amp;#8217;m currently trying to model and I ended up with the following stages:</description>
     </item>
     
     <item>
@@ -89,7 +104,11 @@
       <pubDate>Sun, 17 Feb 2013 20:02:31 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/02/17/data-science-dont-filter-data-prematurely/</guid>
-      <description></description>
+      <description>Last year I wrote a post describing how I&amp;#8217;d gone about getting data for my ThoughtWorks graph and one mistake about my approach in retrospect is that I filtered the data too early.
+ My workflow looked like this:
+   Scrape internal application using web driver and save useful data to JSON files
+  Parse JSON files and load nodes/relationships into neo4j
+   The problem with the first step is that I was trying to determine up front what data was useful and as a result I ended up running the scrapping application multiple times when I realised I didn&amp;#8217;t have all the data I wanted.</description>
     </item>
     
     <item>
@@ -98,7 +117,8 @@
       <pubDate>Sun, 09 Dec 2012 10:36:39 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/12/09/data-science-discovery-work/</guid>
-      <description></description>
+      <description>Aaron Erickson recently wrote a blog post where he talks through some of the problems he&amp;#8217;s seen with big data initiatives where organisations end up buying a product and expecting it to magically produce results.
+  [&amp;#8230;&amp;#8203;] corporate IT departments are suddenly are looking at their long running &amp;#8220;Business Intelligence&amp;#8221; initiatives and wondering why they are not seeing the same kinds of return on investment. They are thinking&amp;#8230;&amp;#8203; if only we tweaked that &amp;#8220;BI&amp;#8221; initiative and somehow mix in some &amp;#8220;Big Data&amp;#8221;, maybe we could become the next Amazon.</description>
     </item>
     
     <item>
@@ -107,8 +127,9 @@
       <pubDate>Wed, 10 Oct 2012 00:00:36 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/10/nygard-big-data-model-the-investigation-stage/</guid>
-      <description>Earlier this year Michael Nygard wrote an extremely detailed post about his experiences in the world of big data projectsand included in the post was the following diagram which I&amp;rsquo;ve found very useful.
-Ashokand I have been doing some work in this area helping one of our clients make sense of and visualise some of their data and we realised retrospectively that we were very acting very much in the investigation stage of the model.</description>
+      <description>Earlier this year Michael Nygard wrote an extremely detailed post about his experiences in the world of big data projects and included in the post was the following diagram which I&amp;#8217;ve found very useful.
+   Nygard&amp;#8217;s Big Data Model (shamelessly borrowed by me because it&amp;#8217;s awesome)
+ Ashok and I have been doing some work in this area helping one of our clients make sense of and visualise some of their data and we realised retrospectively that we were very acting very much in the investigation stage of the model.</description>
     </item>
     
     <item>
@@ -117,8 +138,8 @@ Ashokand I have been doing some work in this area helping one of our clients mak
       <pubDate>Wed, 03 Oct 2012 06:46:13 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/03/strata-conf-london-day-2-wrap-up/</guid>
-      <description>Yesterday I attended the second day of Strata Conf Londonand these are the some of the things I learned from the talks I attended:
-British Rail were trying to solve a graph problem when people didn&amp;rsquo;t know about graphs and Dijkstra&amp;rsquo;s algorithm hadn&amp;rsquo;t been inventedand it was effectively invented on this project but never publicised. John&amp;rsquo;s suggestion here was that we need to share the stuff that we&amp;rsquo;re doing so that people don&amp;rsquo;t re-invent the wheel.</description>
+      <description>Yesterday I attended the second day of Strata Conf London and these are the some of the things I learned from the talks I attended:
+   John Graham Cunningham opened the series of keynotes with a talk describing the problems British Rail had in 1955 when trying to calculate the distances between all train stations and comparing them to the problems we have today. British Rail were trying to solve a graph problem when people didn&amp;#8217;t know about graphs and Dijkstra&amp;#8217;s algorithm hadn&amp;#8217;t been invented and it was effectively invented on this project but never publicised.</description>
     </item>
     
     <item>
@@ -127,8 +148,8 @@ British Rail were trying to solve a graph problem when people didn&amp;rsquo;t k
       <pubDate>Tue, 02 Oct 2012 23:42:58 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/02/strata-conf-london-day-1-wrap-up/</guid>
-      <description>For the past couple of days I attended the first Strata Conf to be held in London- a conference which seems to bring together people from the data science and big data worldsto talk about the stuff they&amp;rsquo;re doing.
-Since I&amp;rsquo;ve been playing around with a couple of different things in this area over the last 4/5 months I thought it&amp;rsquo;d be interesting to come along and see what people much more experienced in this area had to say!</description>
+      <description>For the past couple of days I attended the first Strata Conf to be held in London - a conference which seems to bring together people from the data science and big data worlds to talk about the stuff they&amp;#8217;re doing.
+ Since I&amp;#8217;ve been playing around with a couple of different things in this area over the last 4/5 months I thought it&amp;#8217;d be interesting to come along and see what people much more experienced in this area had to say!</description>
     </item>
     
     <item>
@@ -137,8 +158,8 @@ Since I&amp;rsquo;ve been playing around with a couple of different things in th
       <pubDate>Sun, 30 Sep 2012 14:58:11 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/09/30/data-science-making-sense-of-the-data/</guid>
-      <description>Over the past month or so Ashokand I have been helping one of our clients explore and visualise some of their data and one of the first things we needed to do was make sense of the data that was available.
-Ashok suggested that we work with a subset of our eventual data setso that we could get a feel for the data and quickly see whether what we were planning to do made sense.</description>
+      <description>Over the past month or so Ashok and I have been helping one of our clients explore and visualise some of their data and one of the first things we needed to do was make sense of the data that was available.
+ Start small Ashok suggested that we work with a subset of our eventual data set so that we could get a feel for the data and quickly see whether what we were planning to do made sense.</description>
     </item>
     
     <item>
@@ -147,8 +168,8 @@ Ashok suggested that we work with a subset of our eventual data setso that we co
       <pubDate>Sun, 30 Sep 2012 13:44:18 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/09/30/data-science-scrapping-the-data-together/</guid>
-      <description>On Friday Martin, Darrenand I were discussing the ThoughtWorks graph that I was working on earlier in the year and Martin pointed out that an interesting aspect of this type of work is that the data you want to work with isn&amp;rsquo;t easily available.
-You therefore need to find a way to scrap the data together to make some headway and then maybe at a later stage once some progress has been made it will become easier to replace that with a cleaner solution.</description>
+      <description>On Friday Martin, Darren and I were discussing the ThoughtWorks graph that I was working on earlier in the year and Martin pointed out that an interesting aspect of this type of work is that the data you want to work with isn&amp;#8217;t easily available.
+ You therefore need to find a way to scrap the data together to make some headway and then maybe at a later stage once some progress has been made it will become easier to replace that with a cleaner solution.</description>
     </item>
     
   </channel>

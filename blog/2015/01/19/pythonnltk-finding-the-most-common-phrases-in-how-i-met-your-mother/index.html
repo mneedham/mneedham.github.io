@@ -22,8 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Python/NLTK: Finding the most common phrases in How I Met Your Mother" />
         
-          <meta name="twitter:description" content="Following on from last week&rsquo;s blog postwhere I found the most popular words in How I met your mother transcripts, in this post we&rsquo;ll have a look at how we can pull out sentences and then phrases from our corpus.
-The first thing I did was tweak the scraping script to pull out the sentences spoken by characters in the transcripts.import csv import nltk import re import bs4 from bs4 import BeautifulSoup, NavigableString from soupselect import select from nltk." />
+          <meta name="twitter:description" content="Following on from last week&#8217;s blog post where I found the most popular words in How I met your mother transcripts, in this post we&#8217;ll have a look at how we can pull out sentences and then phrases from our corpus.
+ The first thing I did was tweak the scraping script to pull out the sentences spoken by characters in the transcripts.&lt;/p&gt;
+ Each dialogue is separated by two line breaks so we use that as our separator." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/01/19/pythonnltk-finding-the-most-common-phrases-in-how-i-met-your-mother/" />
 
@@ -34,8 +35,9 @@ The first thing I did was tweak the scraping script to pull out the sentences sp
         <title> Python/NLTK: Finding the most common phrases in How I Met Your Mother &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Following on from last week&rsquo;s blog postwhere I found the most popular words in How I met your mother transcripts, in this post we&rsquo;ll have a look at how we can pull out sentences and then phrases from our corpus.
-The first thing I did was tweak the scraping script to pull out the sentences spoken by characters in the transcripts.import csv import nltk import re import bs4 from bs4 import BeautifulSoup, NavigableString from soupselect import select from nltk." />
+        <meta name="description" content="Following on from last week&#8217;s blog post where I found the most popular words in How I met your mother transcripts, in this post we&#8217;ll have a look at how we can pull out sentences and then phrases from our corpus.
+ The first thing I did was tweak the scraping script to pull out the sentences spoken by characters in the transcripts.&lt;/p&gt;
+ Each dialogue is separated by two line breaks so we use that as our separator." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +66,8 @@ The first thing I did was tweak the scraping script to pull out the sentences sp
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-01-19",
-        "description": "Following on from last week\x26rsquo;s blog postwhere I found the most popular words in How I met your mother transcripts, in this post we\x26rsquo;ll have a look at how we can pull out sentences and then phrases from our corpus.\nThe first thing I did was tweak the scraping script to pull out the sentences spoken by characters in the transcripts.import csv import nltk import re import bs4 from bs4 import BeautifulSoup, NavigableString from soupselect import select from nltk.",
-        "wordCount":  820 
+        "description": "Following on from last week\x26#8217;s blog post where I found the most popular words in How I met your mother transcripts, in this post we\x26#8217;ll have a look at how we can pull out sentences and then phrases from our corpus.\n The first thing I did was tweak the scraping script to pull out the sentences spoken by characters in the transcripts.\x26lt;\/p\x26gt;\n Each dialogue is separated by two line breaks so we use that as our separator.",
+        "wordCount":  1186 
     }
     </script>
     
@@ -174,238 +176,320 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Python/NLTK: Finding the most common phrases in How I Met Your Mother</h1>
-    <!-- raw HTML omitted -->
-<p>Following on from <!-- raw HTML omitted -->last week&rsquo;s blog post<!-- raw HTML omitted --> where I found the most popular words in How I met your mother transcripts, in this post we&rsquo;ll have a look at how we can pull out sentences and then phrases from our corpus.</p>
-<!-- raw HTML omitted -->
-<p>The first thing I did was tweak the scraping script to pull out the sentences spoken by characters in the transcripts.<!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> csv
-<span style="color:#f92672">import</span> nltk
-<span style="color:#f92672">import</span> re
-<span style="color:#f92672">import</span> bs4
+    <div class="paragraph">
+<p>Following on from <a href="http://www.markhneedham.com/blog/2015/01/10/python-nltkneo4j-analysing-the-transcripts-of-how-i-met-your-mother/">last week&#8217;s blog post</a> where I found the most popular words in How I met your mother transcripts, in this post we&#8217;ll have a look at how we can pull out sentences and then phrases from our corpus.</p>
+</div>
+<div class="paragraph">
+<p>The first thing I did was tweak the scraping script to pull out the sentences spoken by characters in the transcripts.&lt;/p&gt;</p>
+</div>
+<div class="paragraph">
+<p>Each dialogue is separated by two line breaks so we use that as our separator. I also manually skimmed through the transcripts and found out which tags we need to strip out. I ended up with the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import csv
+import nltk
+import re
+import bs4
 
-<span style="color:#f92672">from</span> bs4 <span style="color:#f92672">import</span> BeautifulSoup, NavigableString
-<span style="color:#f92672">from</span> soupselect <span style="color:#f92672">import</span> select
-<span style="color:#f92672">from</span> nltk.corpus <span style="color:#f92672">import</span> stopwords
-<span style="color:#f92672">from</span> collections <span style="color:#f92672">import</span> Counter
-<span style="color:#f92672">from</span> nltk.tokenize <span style="color:#f92672">import</span> word_tokenize
+from bs4 import BeautifulSoup, NavigableString
+from soupselect import select
+from nltk.corpus import stopwords
+from collections import Counter
+from nltk.tokenize import word_tokenize
 
-episodes_dict <span style="color:#f92672">=</span> {}
+episodes_dict = {}
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">strip_tags</span>(soup, invalid_tags):
-    <span style="color:#66d9ef">for</span> tag <span style="color:#f92672">in</span> invalid_tags:
-        <span style="color:#66d9ef">for</span> match <span style="color:#f92672">in</span> soup<span style="color:#f92672">.</span>findAll(tag):
-            match<span style="color:#f92672">.</span>replaceWithChildren()
-    <span style="color:#66d9ef">return</span> soup
+def strip_tags(soup, invalid_tags):
+    for tag in invalid_tags:
+        for match in soup.findAll(tag):
+            match.replaceWithChildren()
+    return soup
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">extract_sentences</span>(html):
-    clean <span style="color:#f92672">=</span> []
-    brs_in_a_row <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
-    temp <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
-    <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> raw_text<span style="color:#f92672">.</span>contents:
-        <span style="color:#66d9ef">if</span> item<span style="color:#f92672">.</span>name <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;br&#34;</span>:
-            brs_in_a_row <span style="color:#f92672">=</span> brs_in_a_row <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
-        <span style="color:#66d9ef">else</span>:
-            temp <span style="color:#f92672">=</span> temp <span style="color:#f92672">+</span> item
-        <span style="color:#66d9ef">if</span> brs_in_a_row <span style="color:#f92672">==</span> <span style="color:#ae81ff">2</span>:
-            clean<span style="color:#f92672">.</span>append(temp)
-            temp <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
-            brs_in_a_row <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
-    <span style="color:#66d9ef">return</span> clean
+def extract_sentences(html):
+    clean = []
+    brs_in_a_row = 0
+    temp = ""
+    for item in raw_text.contents:
+        if item.name == "br":
+            brs_in_a_row = brs_in_a_row + 1
+        else:
+            temp = temp + item
+        if brs_in_a_row == 2:
+            clean.append(temp)
+            temp = ""
+            brs_in_a_row = 0
+    return clean
 
-speakers <span style="color:#f92672">=</span> []
-<span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;data/import/episodes.csv&#39;</span>, <span style="color:#e6db74">&#39;r&#39;</span>) <span style="color:#66d9ef">as</span> episodes_file, \
-     open(<span style="color:#e6db74">&#34;data/import/sentences.csv&#34;</span>, <span style="color:#e6db74">&#39;w&#39;</span>) <span style="color:#66d9ef">as</span> sentences_file:
-    reader <span style="color:#f92672">=</span> csv<span style="color:#f92672">.</span>reader(episodes_file, delimiter<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;,&#39;</span>)
-    reader<span style="color:#f92672">.</span>next()
+speakers = []
+with open('data/import/episodes.csv', 'r') as episodes_file, \
+     open("data/import/sentences.csv", 'w') as sentences_file:
+    reader = csv.reader(episodes_file, delimiter=',')
+    reader.next()
 
-    writer <span style="color:#f92672">=</span> csv<span style="color:#f92672">.</span>writer(sentences_file, delimiter<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;,&#39;</span>)
-    writer<span style="color:#f92672">.</span>writerow([<span style="color:#e6db74">&#34;SentenceId&#34;</span>, <span style="color:#e6db74">&#34;EpisodeId&#34;</span>, <span style="color:#e6db74">&#34;Season&#34;</span>, <span style="color:#e6db74">&#34;Episode&#34;</span>, <span style="color:#e6db74">&#34;Sentence&#34;</span>])
-    sentence_id <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+    writer = csv.writer(sentences_file, delimiter=',')
+    writer.writerow(["SentenceId", "EpisodeId", "Season", "Episode", "Sentence"])
+    sentence_id = 1
 
-    <span style="color:#66d9ef">for</span> row <span style="color:#f92672">in</span> reader:
-        transcript <span style="color:#f92672">=</span> open(<span style="color:#e6db74">&#34;data/transcripts/S</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">-Ep</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span>(row[<span style="color:#ae81ff">3</span>], row[<span style="color:#ae81ff">1</span>]))<span style="color:#f92672">.</span>read()
-        soup <span style="color:#f92672">=</span> BeautifulSoup(transcript)
-        rows <span style="color:#f92672">=</span> select(soup, <span style="color:#e6db74">&#34;table.tablebg tr td.post-body div.postbody&#34;</span>)
+    for row in reader:
+        transcript = open("data/transcripts/S%s-Ep%s" %(row[3], row[1])).read()
+        soup = BeautifulSoup(transcript)
+        rows = select(soup, "table.tablebg tr td.post-body div.postbody")
 
-        raw_text <span style="color:#f92672">=</span> rows[<span style="color:#ae81ff">0</span>]
-        [ad<span style="color:#f92672">.</span>extract() <span style="color:#66d9ef">for</span> ad <span style="color:#f92672">in</span> select(raw_text, <span style="color:#e6db74">&#34;div.ads-topic&#34;</span>)]
-        [ad<span style="color:#f92672">.</span>extract() <span style="color:#66d9ef">for</span> ad <span style="color:#f92672">in</span> select(raw_text, <span style="color:#e6db74">&#34;div.t-foot-links&#34;</span>)]
-        [ad<span style="color:#f92672">.</span>extract() <span style="color:#66d9ef">for</span> ad <span style="color:#f92672">in</span> select(raw_text, <span style="color:#e6db74">&#34;hr&#34;</span>)]
+        raw_text = rows[0]
+        [ad.extract() for ad in select(raw_text, "div.ads-topic")]
+        [ad.extract() for ad in select(raw_text, "div.t-foot-links")]
+        [ad.extract() for ad in select(raw_text, "hr")]
 
-        <span style="color:#66d9ef">for</span> tag <span style="color:#f92672">in</span> [<span style="color:#e6db74">&#39;strong&#39;</span>, <span style="color:#e6db74">&#39;em&#39;</span>, <span style="color:#e6db74">&#34;a&#34;</span>]:
-            <span style="color:#66d9ef">for</span> match <span style="color:#f92672">in</span> raw_text<span style="color:#f92672">.</span>findAll(tag):
-                match<span style="color:#f92672">.</span>replace_with_children()
-        <span style="color:#66d9ef">print</span> row
-        <span style="color:#66d9ef">for</span> sentence <span style="color:#f92672">in</span> [
-                item<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#34;utf-8&#34;</span>)<span style="color:#f92672">.</span>strip()
-                <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> extract_sentences(raw_text<span style="color:#f92672">.</span>contents)
+        for tag in ['strong', 'em', "a"]:
+            for match in raw_text.findAll(tag):
+                match.replace_with_children()
+        print row
+        for sentence in [
+                item.encode("utf-8").strip()
+                for item in extract_sentences(raw_text.contents)
             ]:
-            writer<span style="color:#f92672">.</span>writerow([sentence_id, row[<span style="color:#ae81ff">0</span>], row[<span style="color:#ae81ff">3</span>], row[<span style="color:#ae81ff">1</span>], sentence])
-            sentence_id <span style="color:#f92672">=</span> sentence_id <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#960050;background-color:#1e0010">$</span> head <span style="color:#f92672">-</span>n <span style="color:#ae81ff">10</span> data<span style="color:#f92672">/</span>import<span style="color:#f92672">/</span>sentences<span style="color:#f92672">.</span>csv
+            writer.writerow([sentence_id, row[0], row[3], row[1], sentence])
+            sentence_id = sentence_id + 1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s a preview of the sentences CSV file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">$ head -n 10 data/import/sentences.csv
 SentenceId,EpisodeId,Season,Episode,Sentence
-<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,Pilot
-<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,Scene One
-<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,[Title: The Year <span style="color:#ae81ff">2030</span>]
-<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#e6db74">&#34;Narrator: Kids, I&#39;m going to tell you an incredible story. The story of how I met your mother&#34;</span>
-<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,Son: Are we being punished <span style="color:#66d9ef">for</span> something<span style="color:#960050;background-color:#1e0010">?</span>
-<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,Narrator: No
-<span style="color:#ae81ff">7</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#e6db74">&#34;Daughter: Yeah, is this going to take a while?&#34;</span>
-<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#e6db74">&#34;Narrator: Yes. (Kids are annoyed) Twenty-five years ago, before I was dad, I had this whole other life.&#34;</span>
-<span style="color:#ae81ff">9</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>,<span style="color:#e6db74">&#34;(Music Plays, Title &#34;&#34;How I Met Your Mother&#34;&#34; appears)&#34;</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> nltk
-<span style="color:#f92672">&gt;&gt;&gt;</span> tokens <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>word_tokenize(<span style="color:#e6db74">&#34;I want to be in an n gram&#34;</span>)
-<span style="color:#f92672">&gt;&gt;&gt;</span> tokens
-[<span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;want&#39;</span>, <span style="color:#e6db74">&#39;to&#39;</span>, <span style="color:#e6db74">&#39;be&#39;</span>, <span style="color:#e6db74">&#39;in&#39;</span>, <span style="color:#e6db74">&#39;an&#39;</span>, <span style="color:#e6db74">&#39;n&#39;</span>, <span style="color:#e6db74">&#39;gram&#39;</span>]
-<span style="color:#f92672">&gt;&gt;&gt;</span> nltk<span style="color:#f92672">.</span>util<span style="color:#f92672">.</span>ngrams(tokens, <span style="color:#ae81ff">2</span>)
-[(<span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;want&#39;</span>), (<span style="color:#e6db74">&#39;want&#39;</span>, <span style="color:#e6db74">&#39;to&#39;</span>), (<span style="color:#e6db74">&#39;to&#39;</span>, <span style="color:#e6db74">&#39;be&#39;</span>), (<span style="color:#e6db74">&#39;be&#39;</span>, <span style="color:#e6db74">&#39;in&#39;</span>), (<span style="color:#e6db74">&#39;in&#39;</span>, <span style="color:#e6db74">&#39;an&#39;</span>), (<span style="color:#e6db74">&#39;an&#39;</span>, <span style="color:#e6db74">&#39;n&#39;</span>), (<span style="color:#e6db74">&#39;n&#39;</span>, <span style="color:#e6db74">&#39;gram&#39;</span>)]
-<span style="color:#f92672">&gt;&gt;&gt;</span> nltk<span style="color:#f92672">.</span>util<span style="color:#f92672">.</span>ngrams(tokens, <span style="color:#ae81ff">3</span>)
-[(<span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;want&#39;</span>, <span style="color:#e6db74">&#39;to&#39;</span>), (<span style="color:#e6db74">&#39;want&#39;</span>, <span style="color:#e6db74">&#39;to&#39;</span>, <span style="color:#e6db74">&#39;be&#39;</span>), (<span style="color:#e6db74">&#39;to&#39;</span>, <span style="color:#e6db74">&#39;be&#39;</span>, <span style="color:#e6db74">&#39;in&#39;</span>), (<span style="color:#e6db74">&#39;be&#39;</span>, <span style="color:#e6db74">&#39;in&#39;</span>, <span style="color:#e6db74">&#39;an&#39;</span>), (<span style="color:#e6db74">&#39;in&#39;</span>, <span style="color:#e6db74">&#39;an&#39;</span>, <span style="color:#e6db74">&#39;n&#39;</span>), (<span style="color:#e6db74">&#39;an&#39;</span>, <span style="color:#e6db74">&#39;n&#39;</span>, <span style="color:#e6db74">&#39;gram&#39;</span>)]
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> nltk
-<span style="color:#f92672">import</span> csv
-<span style="color:#f92672">import</span> string
-<span style="color:#f92672">import</span> re
+1,1,1,1,Pilot
+2,1,1,1,Scene One
+3,1,1,1,[Title: The Year 2030]
+4,1,1,1,"Narrator: Kids, I'm going to tell you an incredible story. The story of how I met your mother"
+5,1,1,1,Son: Are we being punished for something?
+6,1,1,1,Narrator: No
+7,1,1,1,"Daughter: Yeah, is this going to take a while?"
+8,1,1,1,"Narrator: Yes. (Kids are annoyed) Twenty-five years ago, before I was dad, I had this whole other life."
+9,1,1,1,"(Music Plays, Title ""How I Met Your Mother"" appears)"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The next step is to iterate through each of those sentences and create some <a href="http://www.nltk.org/_modules/nltk/util.html">n-grams</a> to capture the common phrases in the transcripts.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>In the fields of computational linguistics and probability, an n-gram is a contiguous sequence of n items from a given sequence of text or speech.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>Python&#8217;s <a href="http://www.nltk.org/">nltk</a> library has a function that makes this easy e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">&gt;&gt;&gt; import nltk
+&gt;&gt;&gt; tokens = nltk.word_tokenize("I want to be in an n gram")
+&gt;&gt;&gt; tokens
+['I', 'want', 'to', 'be', 'in', 'an', 'n', 'gram']
+&gt;&gt;&gt; nltk.util.ngrams(tokens, 2)
+[('I', 'want'), ('want', 'to'), ('to', 'be'), ('be', 'in'), ('in', 'an'), ('an', 'n'), ('n', 'gram')]
+&gt;&gt;&gt; nltk.util.ngrams(tokens, 3)
+[('I', 'want', 'to'), ('want', 'to', 'be'), ('to', 'be', 'in'), ('be', 'in', 'an'), ('in', 'an', 'n'), ('an', 'n', 'gram')]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we do a similar thing of HIMYM transcripts while stripping out the speaker&#8217;s name - lines are mostly in the form "Speaker:Sentence" - we end up with the following top phrases:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import nltk
+import csv
+import string
+import re
 
-<span style="color:#f92672">from</span> collections <span style="color:#f92672">import</span> Counter
+from collections import Counter
 
-non_speaker <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>compile(<span style="color:#e6db74">&#39;[A-Za-z]+: (.*)&#39;</span>)
+non_speaker = re.compile('[A-Za-z]+: (.*)')
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">extract_phrases</span>(text, phrase_counter, length):
-    <span style="color:#66d9ef">for</span> sent <span style="color:#f92672">in</span> nltk<span style="color:#f92672">.</span>sent_tokenize(text):
-        strip_speaker <span style="color:#f92672">=</span> non_speaker<span style="color:#f92672">.</span>match(sent)
-        <span style="color:#66d9ef">if</span> strip_speaker <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> None:
-            sent <span style="color:#f92672">=</span> strip_speaker<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)
-        words <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>word_tokenize(sent)
-        <span style="color:#66d9ef">for</span> phrase <span style="color:#f92672">in</span> nltk<span style="color:#f92672">.</span>util<span style="color:#f92672">.</span>ngrams(words, length):
-            phrase_counter[bphrase] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
-                
-phrase_counter <span style="color:#f92672">=</span> Counter()
+def extract_phrases(text, phrase_counter, length):
+    for sent in nltk.sent_tokenize(text):
+        strip_speaker = non_speaker.match(sent)
+        if strip_speaker is not None:
+            sent = strip_speaker.group(1)
+        words = nltk.word_tokenize(sent)
+        for phrase in nltk.util.ngrams(words, length):
+            phrase_counter[bphrase] += 1
 
-<span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#34;data/import/sentences.csv&#34;</span>, <span style="color:#e6db74">&#34;r&#34;</span>) <span style="color:#66d9ef">as</span> sentencesfile:
-    reader <span style="color:#f92672">=</span> csv<span style="color:#f92672">.</span>reader(sentencesfile, delimiter<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;,&#34;</span>)
-    reader<span style="color:#f92672">.</span>next()
-    <span style="color:#66d9ef">for</span> sentence <span style="color:#f92672">in</span> reader:
-        extract_phrases(sentence[<span style="color:#ae81ff">4</span>], phrase_counter, <span style="color:#ae81ff">3</span>)
+phrase_counter = Counter()
 
-most_common_phrases <span style="color:#f92672">=</span> phrase_counter<span style="color:#f92672">.</span>most_common(<span style="color:#ae81ff">50</span>)
-<span style="color:#66d9ef">for</span> k,v <span style="color:#f92672">in</span> most_common_phrases:
-    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;{0: &lt;5}&#39;</span><span style="color:#f92672">.</span>format(v), k
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ python extract_phrases.py
-<span style="color:#ae81ff">1123</span>  <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;,&#39;</span>, <span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">1099</span>  <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;do&#39;</span>, <span style="color:#e6db74">&#34;n&#39;t&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">1005</span>  <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;,&#39;</span>, <span style="color:#e6db74">&#39;it&#39;</span>, <span style="color:#e6db74">&#34;&#39;s&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">535</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;ca&#39;</span>, <span style="color:#e6db74">&#34;n&#39;t&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">523</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">&#39;not&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">507</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;mean&#39;</span>, <span style="color:#e6db74">&#39;,&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">507</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;,&#39;</span>, <span style="color:#e6db74">&#39;you&#39;</span>, <span style="color:#e6db74">&#34;&#39;re&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">459</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;,&#39;</span>, <span style="color:#e6db74">&#39;that&#39;</span>, <span style="color:#e6db74">&#34;&#39;s&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">458</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;2030&#39;</span>, <span style="color:#e6db74">&#39;)&#39;</span>, <span style="color:#e6db74">&#39;:&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">454</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;(&#39;</span>, <span style="color:#e6db74">&#39;2030&#39;</span>, <span style="color:#e6db74">&#39;)&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">453</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Ted&#39;</span>, <span style="color:#e6db74">&#39;(&#39;</span>, <span style="color:#e6db74">&#39;2030&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">449</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">&#39;sorry&#39;</span><span style="color:#f92672">)</span>
+with open("data/import/sentences.csv", "r") as sentencesfile:
+    reader = csv.reader(sentencesfile, delimiter=",")
+    reader.next()
+    for sentence in reader:
+        extract_phrases(sentence[4], phrase_counter, 3)
+
+most_common_phrases = phrase_counter.most_common(50)
+for k,v in most_common_phrases:
+    print '{0: &lt;5}'.format(v), k</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And if we run that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ python extract_phrases.py
+1123  (',', 'I', "'m")
+1099  ('I', 'do', "n't")
+1005  (',', 'it', "'s")
+535   ('I', 'ca', "n't")
+523   ('I', "'m", 'not')
+507   ('I', 'mean', ',')
+507   (',', 'you', "'re")
+459   (',', 'that', "'s")
+458   ('2030', ')', ':')
+454   ('(', '2030', ')')
+453   ('Ted', '(', '2030')
+449   ('I', "'m", 'sorry')
 ...
-<span style="color:#ae81ff">247</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;have&#39;</span>, <span style="color:#e6db74">&#39;to&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">247</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;No&#39;</span>, <span style="color:#e6db74">&#39;,&#39;</span>, <span style="color:#e6db74">&#39;I&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">246</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#39;s&#34;</span>, <span style="color:#e6db74">&#39;gon&#39;</span>, <span style="color:#e6db74">&#39;na&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">241</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;,&#39;</span>, <span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;ll&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">229</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">&#39;going&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">226</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;do&#39;</span>, <span style="color:#e6db74">&#34;n&#39;t&#34;</span>, <span style="color:#e6db74">&#39;want&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">226</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;It&#39;</span>, <span style="color:#e6db74">&#34;&#39;s&#34;</span>, <span style="color:#e6db74">&#39;not&#39;</span><span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">extract_phrases</span>(text, phrase_counter, length):
-    <span style="color:#66d9ef">for</span> sent <span style="color:#f92672">in</span> nltk<span style="color:#f92672">.</span>sent_tokenize(text):
-        strip_speaker <span style="color:#f92672">=</span> non_speaker<span style="color:#f92672">.</span>match(sent)
-        <span style="color:#66d9ef">if</span> strip_speaker <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> None:
-            sent <span style="color:#f92672">=</span> strip_speaker<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)
-        words <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>word_tokenize(sent)
-        <span style="color:#66d9ef">for</span> phrase <span style="color:#f92672">in</span> nltk<span style="color:#f92672">.</span>util<span style="color:#f92672">.</span>ngrams(words, length):
-            <span style="color:#66d9ef">if</span> all(word <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> string<span style="color:#f92672">.</span>punctuation <span style="color:#66d9ef">for</span> word <span style="color:#f92672">in</span> phrase):
-                phrase_counter[phrase] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ python extract_phrases.py
-<span style="color:#ae81ff">1099</span>  <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;do&#39;</span>, <span style="color:#e6db74">&#34;n&#39;t&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">535</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;ca&#39;</span>, <span style="color:#e6db74">&#34;n&#39;t&#34;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">523</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">&#39;not&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">449</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">&#39;sorry&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">414</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;do&#39;</span>, <span style="color:#e6db74">&#34;n&#39;t&#34;</span>, <span style="color:#e6db74">&#39;know&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">383</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Ted&#39;</span>, <span style="color:#e6db74">&#39;from&#39;</span>, <span style="color:#e6db74">&#39;2030&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">338</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">&#39;gon&#39;</span>, <span style="color:#e6db74">&#39;na&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">334</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">&#39;gon&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">300</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;gon&#39;</span>, <span style="color:#e6db74">&#39;na&#39;</span>, <span style="color:#e6db74">&#39;be&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">279</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;END&#39;</span>, <span style="color:#e6db74">&#39;OF&#39;</span>, <span style="color:#e6db74">&#39;FLASHBACK&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">267</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#39;re&#34;</span>, <span style="color:#e6db74">&#39;gon&#39;</span>, <span style="color:#e6db74">&#39;na&#39;</span><span style="color:#f92672">)</span>
+247   ('I', 'have', 'to')
+247   ('No', ',', 'I')
+246   ("'s", 'gon', 'na')
+241   (',', 'I', "'ll")
+229   ('I', "'m", 'going')
+226   ('do', "n't", 'want')
+226   ('It', "'s", 'not')</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I noticed that quite a few of the phrases had punctuation in so my next step was to get rid of any of the phrases that had any punctuation in. I updated <cite>extract_phrases</cite> like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def extract_phrases(text, phrase_counter, length):
+    for sent in nltk.sent_tokenize(text):
+        strip_speaker = non_speaker.match(sent)
+        if strip_speaker is not None:
+            sent = strip_speaker.group(1)
+        words = nltk.word_tokenize(sent)
+        for phrase in nltk.util.ngrams(words, length):
+            if all(word not in string.punctuation for word in phrase):
+                phrase_counter[phrase] += 1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s run it again:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ python extract_phrases.py
+1099  ('I', 'do', "n't")
+535   ('I', 'ca', "n't")
+523   ('I', "'m", 'not')
+449   ('I', "'m", 'sorry')
+414   ('do', "n't", 'know')
+383   ('Ted', 'from', '2030')
+338   ("'m", 'gon', 'na')
+334   ('I', "'m", 'gon')
+300   ('gon', 'na', 'be')
+279   ('END', 'OF', 'FLASHBACK')
+267   ("'re", 'gon', 'na')
 ...
-<span style="color:#ae81ff">155</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;It&#39;</span>, <span style="color:#e6db74">&#34;&#39;s&#34;</span>, <span style="color:#e6db74">&#39;just&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">151</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;at&#39;</span>, <span style="color:#e6db74">&#39;the&#39;</span>, <span style="color:#e6db74">&#39;bar&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">150</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#e6db74">&#39;lot&#39;</span>, <span style="color:#e6db74">&#39;of&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">147</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#39;re&#34;</span>, <span style="color:#e6db74">&#39;going&#39;</span>, <span style="color:#e6db74">&#39;to&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">144</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;have&#39;</span>, <span style="color:#e6db74">&#39;a&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">142</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span>, <span style="color:#e6db74">&#39;so&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">138</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;do&#39;</span>, <span style="color:#e6db74">&#34;n&#39;t&#34;</span>, <span style="color:#e6db74">&#39;have&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">137</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;think&#39;</span>, <span style="color:#e6db74">&#39;I&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">136</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;not&#39;</span>, <span style="color:#e6db74">&#39;gon&#39;</span>, <span style="color:#e6db74">&#39;na&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">136</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#39;can&#39;</span>, <span style="color:#e6db74">&#39;not&#39;</span><span style="color:#f92672">)</span>
-<span style="color:#ae81ff">135</span>   <span style="color:#f92672">(</span><span style="color:#e6db74">&#39;and&#39;</span>, <span style="color:#e6db74">&#39;I&#39;</span>, <span style="color:#e6db74">&#34;&#39;m&#34;</span><span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">untokenize</span>(ngram):
-    tokens <span style="color:#f92672">=</span> list(ngram)
-    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">.</span>join([<span style="color:#e6db74">&#34; &#34;</span><span style="color:#f92672">+</span>i <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> i<span style="color:#f92672">.</span>startswith(<span style="color:#e6db74">&#34;&#39;&#34;</span>) <span style="color:#f92672">and</span> \
-                             i <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> string<span style="color:#f92672">.</span>punctuation <span style="color:#f92672">and</span> \
-                             i <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;n&#39;t&#34;</span>
-                          <span style="color:#66d9ef">else</span> i <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> tokens])<span style="color:#f92672">.</span>strip()
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">extract_phrases</span>(text, phrase_counter, length):
-    <span style="color:#66d9ef">for</span> sent <span style="color:#f92672">in</span> nltk<span style="color:#f92672">.</span>sent_tokenize(text):
-        strip_speaker <span style="color:#f92672">=</span> non_speaker<span style="color:#f92672">.</span>match(sent)
-        <span style="color:#66d9ef">if</span> strip_speaker <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> None:
-            sent <span style="color:#f92672">=</span> strip_speaker<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">1</span>)
-        words <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>word_tokenize(sent)
-        <span style="color:#66d9ef">for</span> phrase <span style="color:#f92672">in</span> nltk<span style="color:#f92672">.</span>util<span style="color:#f92672">.</span>ngrams(words, length):
-            <span style="color:#66d9ef">if</span> all(word <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> string<span style="color:#f92672">.</span>punctuation <span style="color:#66d9ef">for</span> word <span style="color:#f92672">in</span> phrase):
-                phrase_counter[untokenize(phrase)] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ python extract_phrases.py
-<span style="color:#ae81ff">1099</span>  I don<span style="color:#e6db74">&#39;t
-</span><span style="color:#e6db74">535   I can&#39;</span>t
-<span style="color:#ae81ff">523</span>   I<span style="color:#e6db74">&#39;m not
-</span><span style="color:#e6db74">449   I&#39;</span>m sorry
-<span style="color:#ae81ff">414</span>   don<span style="color:#e6db74">&#39;t know
-</span><span style="color:#e6db74">383   Ted from 2030
-</span><span style="color:#e6db74">338   &#39;</span>m gon na
-<span style="color:#ae81ff">334</span>   I<span style="color:#e6db74">&#39;m gon
-</span><span style="color:#e6db74">300   gon na be
-</span><span style="color:#e6db74">279   END OF FLASHBACK
-</span><span style="color:#e6db74">...
-</span><span style="color:#e6db74">151   at the bar
-</span><span style="color:#e6db74">150   a lot of
-</span><span style="color:#e6db74">147   &#39;</span>re going to
-<span style="color:#ae81ff">144</span>   I have a
-<span style="color:#ae81ff">142</span>   I<span style="color:#e6db74">&#39;m so
-</span><span style="color:#e6db74">138   don&#39;</span>t have
-<span style="color:#ae81ff">137</span>   I think I
-<span style="color:#ae81ff">136</span>   not gon na
-<span style="color:#ae81ff">136</span>   I can not
-<span style="color:#ae81ff">135</span>   and I<span style="color:#960050;background-color:#1e0010">&#39;</span>m
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+155   ('It', "'s", 'just')
+151   ('at', 'the', 'bar')
+150   ('a', 'lot', 'of')
+147   ("'re", 'going', 'to')
+144   ('I', 'have', 'a')
+142   ('I', "'m", 'so')
+138   ('do', "n't", 'have')
+137   ('I', 'think', 'I')
+136   ('not', 'gon', 'na')
+136   ('I', 'can', 'not')
+135   ('and', 'I', "'m")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next I wanted to display each phrase as a string rather than a tuple which was <a href="http://stackoverflow.com/questions/21948019/python-untokenize-a-sentence">more difficult than I expected</a>. I ended up with the following function which almost does the job:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def untokenize(ngram):
+    tokens = list(ngram)
+    return "".join([" "+i if not i.startswith("'") and \
+                             i not in string.punctuation and \
+                             i != "n't"
+                          else i for i in tokens]).strip()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I updated <cite>extract_phrases</cite> to use that function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def extract_phrases(text, phrase_counter, length):
+    for sent in nltk.sent_tokenize(text):
+        strip_speaker = non_speaker.match(sent)
+        if strip_speaker is not None:
+            sent = strip_speaker.group(1)
+        words = nltk.word_tokenize(sent)
+        for phrase in nltk.util.ngrams(words, length):
+            if all(word not in string.punctuation for word in phrase):
+                phrase_counter[untokenize(phrase)] += 1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s go again:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ python extract_phrases.py
+1099  I don't
+535   I can't
+523   I'm not
+449   I'm sorry
+414   don't know
+383   Ted from 2030
+338   'm gon na
+334   I'm gon
+300   gon na be
+279   END OF FLASHBACK
+...
+151   at the bar
+150   a lot of
+147   're going to
+144   I have a
+142   I'm so
+138   don't have
+137   I think I
+136   not gon na
+136   I can not
+135   and I'm</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These were some of the interesting things that stood out for me and deserve further digging into:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A lot of the most popular phrases begin with 'I' - it would be interesting to filter those sentences to find the general sentiment.</p>
+</li>
+<li>
+<p>The 'untokenize' function struggles to reconstruct the slang phrase 'gonna' into a single word.</p>
+</li>
+<li>
+<p>'Ted from 2030' is actually a speaker which doesn&#8217;t follow the expected regex pattern and so wasn&#8217;t filtered out.</p>
+</li>
+<li>
+<p>'END OF FLASHBACK' shows quite high up and pulling out those flashbacks would probably be an interesting feature to extract to see which episodes reference each other.</p>
+</li>
+<li>
+<p>'Marshall and Lily' and 'Lily and Marshall' show up on the list - it would be interesting to explore the frequency of pairs of other characters.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/neo4j-himym">code is all on github</a> if you want to play with it.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -440,7 +524,7 @@ $ python extract_phrases.py
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/01/19/pythonnltk-finding-the-most-common-phrases-in-how-i-met-your-mother/&amp;title=Python%2fNLTK%3a%20Finding%20the%20most%20common%20phrases%20in%20How%20I%20Met%20Your%20Mother&amp;summary=Following%20on%20from%20last%20week%26rsquo%3bs%20blog%20postwhere%20I%20found%20the%20most%20popular%20words%20in%20How%20I%20met%20your%20mother%20transcripts%2c%20in%20this%20post%20we%26rsquo%3bll%20have%20a%20look%20at%20how%20we%20can%20pull%20out%20sentences%20and%20then%20phrases%20from%20our%20corpus.%0aThe%20first%20thing%20I%20did%20was%20tweak%20the%20scraping%20script%20to%20pull%20out%20the%20sentences%20spoken%20by%20characters%20in%20the%20transcripts.import%20csv%20import%20nltk%20import%20re%20import%20bs4%20from%20bs4%20import%20BeautifulSoup%2c%20NavigableString%20from%20soupselect%20import%20select%20from%20nltk...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/01/19/pythonnltk-finding-the-most-common-phrases-in-how-i-met-your-mother/&amp;title=Python%2fNLTK%3a%20Finding%20the%20most%20common%20phrases%20in%20How%20I%20Met%20Your%20Mother&amp;summary=Following%20on%20from%20last%20week%26%238217%3bs%20blog%20post%20where%20I%20found%20the%20most%20popular%20words%20in%20How%20I%20met%20your%20mother%20transcripts%2c%20in%20this%20post%20we%26%238217%3bll%20have%20a%20look%20at%20how%20we%20can%20pull%20out%20sentences%20and%20then%20phrases%20from%20our%20corpus.%0a%20The%20first%20thing%20I%20did%20was%20tweak%20the%20scraping%20script%20to%20pull%20out%20the%20sentences%20spoken%20by%20characters%20in%20the%20transcripts.%26lt%3b%2fp%26gt%3b%0a%20Each%20dialogue%20is%20separated%20by%20two%20line%20breaks%20so%20we%20use%20that%20as%20our%20separator...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

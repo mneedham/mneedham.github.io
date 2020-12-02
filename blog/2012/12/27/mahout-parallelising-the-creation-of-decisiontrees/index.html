@@ -23,7 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Mahout: Parallelising the creation of DecisionTrees" />
         
-          <meta name="twitter:description" content="List&lt;Node&gt; trees = new ArrayList&lt;Node&gt;(); MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(&#34;/path/to/mahout-tree&#34;)); trees.addAll(forest.getTrees()); MultiDecisionForest forest = new MultiDecisionForest(trees); deb http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main deb-src http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main parallelise-forests.sh#!/bin/bash start=`date` startTime=`date &#39;&#43;%s&#39;` numberOfRuns=$1 seq 1 ${numberOfRuns} | parallel -P 8 &#34;./build-forest.sh&#34; end=`date` endTime=`date &#39;&#43;%s&#39;` echo &#34;Started: ${start}&#34; echo &#34;Finished: ${end}&#34; echo &#34;Took: &#34; $(expr $endTime - $startTime) build-forest.sh#!/bin/bash java -Xmx1024m -cp target/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java.MahoutPlaybox " />
+          <meta name="twitter:description" content="A couple of months ago I wrote a blog post describing our use of Mahout random forests for the Kaggle Digit Recogniser Problem and after seeing how long it took to create forests with 500&#43; trees I wanted to see if this could be sped up by parallelising the process.
+ From looking at the https://github.com/apache/mahout/blob/trunk/core/src/main/java/org/apache/mahout/classifier/df/DecisionForest.java it seemed like it should be possible to create lots of small forests and then combine them together." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/12/27/mahout-parallelising-the-creation-of-decisiontrees/" />
 
@@ -34,7 +35,8 @@
         <title> Mahout: Parallelising the creation of DecisionTrees &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="List&lt;Node&gt; trees = new ArrayList&lt;Node&gt;(); MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(&#34;/path/to/mahout-tree&#34;)); trees.addAll(forest.getTrees()); MultiDecisionForest forest = new MultiDecisionForest(trees); deb http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main deb-src http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main parallelise-forests.sh#!/bin/bash start=`date` startTime=`date &#39;&#43;%s&#39;` numberOfRuns=$1 seq 1 ${numberOfRuns} | parallel -P 8 &#34;./build-forest.sh&#34; end=`date` endTime=`date &#39;&#43;%s&#39;` echo &#34;Started: ${start}&#34; echo &#34;Finished: ${end}&#34; echo &#34;Took: &#34; $(expr $endTime - $startTime) build-forest.sh#!/bin/bash java -Xmx1024m -cp target/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java.MahoutPlaybox " />
+        <meta name="description" content="A couple of months ago I wrote a blog post describing our use of Mahout random forests for the Kaggle Digit Recogniser Problem and after seeing how long it took to create forests with 500&#43; trees I wanted to see if this could be sped up by parallelising the process.
+ From looking at the https://github.com/apache/mahout/blob/trunk/core/src/main/java/org/apache/mahout/classifier/df/DecisionForest.java it seemed like it should be possible to create lots of small forests and then combine them together." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-12-27",
-        "description": "List\x26lt;Node\x26gt; trees = new ArrayList\x26lt;Node\x26gt;(); MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(\x26#34;\/path\/to\/mahout-tree\x26#34;)); trees.addAll(forest.getTrees()); MultiDecisionForest forest = new MultiDecisionForest(trees); deb http:\/\/ppa.launchpad.net\/ieltonf\/ppa\/ubuntu oneiric main deb-src http:\/\/ppa.launchpad.net\/ieltonf\/ppa\/ubuntu oneiric main parallelise-forests.sh#!\/bin\/bash start=`date` startTime=`date \x26#39;\x2b%s\x26#39;` numberOfRuns=$1 seq 1 ${numberOfRuns} | parallel -P 8 \x26#34;.\/build-forest.sh\x26#34; end=`date` endTime=`date \x26#39;\x2b%s\x26#39;` echo \x26#34;Started: ${start}\x26#34; echo \x26#34;Finished: ${end}\x26#34; echo \x26#34;Took: \x26#34; $(expr $endTime - $startTime) build-forest.sh#!\/bin\/bash java -Xmx1024m -cp target\/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java.MahoutPlaybox ",
-        "wordCount":  61 
+        "description": "A couple of months ago I wrote a blog post describing our use of Mahout random forests for the Kaggle Digit Recogniser Problem and after seeing how long it took to create forests with 500\x2b trees I wanted to see if this could be sped up by parallelising the process.\n From looking at the https:\/\/github.com\/apache\/mahout\/blob\/trunk\/core\/src\/main\/java\/org\/apache\/mahout\/classifier\/df\/DecisionForest.java it seemed like it should be possible to create lots of small forests and then combine them together.",
+        "wordCount":  408 
     }
     </script>
     
@@ -175,49 +177,89 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Mahout: Parallelising the creation of DecisionTrees</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-List<span style="color:#f92672">&lt;</span>Node<span style="color:#f92672">&gt;</span> trees <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;</span>Node<span style="color:#f92672">&gt;();</span>
+    <div class="paragraph">
+<p>A couple of months ago I wrote a <a href="http://www.markhneedham.com/blog/2012/10/27/kaggle-digit-recognizer-mahout-random-forest-attempt/">blog post</a> describing our use of <a href="http://mahout.apache.org/">Mahout</a> random forests for the <a href="http://www.kaggle.com/c/digit-recognizer">Kaggle Digit Recogniser Problem</a> and after seeing how long it took to create forests with 500+ trees I wanted to see if this could be sped up by parallelising the process.</p>
+</div>
+<div class="paragraph">
+<p>From looking at the <cite>https://github.com/apache/mahout/blob/trunk/core/src/main/java/org/apache/mahout/classifier/df/DecisionForest.java<span class="DecisionTree"></cite></span> it seemed like it should be possible to create lots of small forests and then combine them together.</p>
+</div>
+<div class="paragraph">
+<p>After unsuccessfully trying to achieve this by directly using <cite>DecisionForest</cite> I decided to just copy all the code from that class into <a href="https://github.com/jennifersmith/machinenursery/blob/master/src/main/java/MultiDecisionForest.java">my own version</a> which allowed me to achieve this.</p>
+</div>
+<div class="paragraph">
+<p>The code to build up the forest ends up looking like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">List&lt;Node&gt; trees = new ArrayList&lt;Node&gt;();
 
-MultiDecisionForest forest <span style="color:#f92672">=</span> MultiDecisionForest<span style="color:#f92672">.</span><span style="color:#a6e22e">load</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Configuration<span style="color:#f92672">(),</span> <span style="color:#66d9ef">new</span> Path<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;/path/to/mahout-tree&#34;</span><span style="color:#f92672">));</span>
-trees<span style="color:#f92672">.</span><span style="color:#a6e22e">addAll</span><span style="color:#f92672">(</span>forest<span style="color:#f92672">.</span><span style="color:#a6e22e">getTrees</span><span style="color:#f92672">());</span>
+MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path("/path/to/mahout-tree"));
+trees.addAll(forest.getTrees());
 
-MultiDecisionForest forest <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MultiDecisionForest<span style="color:#f92672">(</span>trees<span style="color:#f92672">);</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-deb http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main 
-deb-src http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main 
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted -->parallelise-forests.sh<!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-#!/bin/bash 
+MultiDecisionForest forest = new MultiDecisionForest(trees);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can then use <cite>forest</cite> to classify values in a test data set and it seems to work reasonably well.</p>
+</div>
+<div class="paragraph">
+<p>I wanted to try and avoid putting any threading code in so I made use of <a href="http://www.gnu.org/software/parallel/">GNU parallel</a> which is available on Mac OS X with a <cite>brew install parallel</cite> and on Ubuntu by <a href="http://askubuntu.com/questions/12764/where-do-i-get-a-package-for-gnu-parallel">adding the following repository</a> to <cite>/etc/apt/sources.list</cite>&#8230;&#8203;</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">deb http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main
+deb-src http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>&#8230;&#8203;followed by a <cite>apt-get update</cite> and <cite>apt-get install parallel</cite>.</p>
+</div>
+<div class="paragraph">
+<p>I then wrote a script to parallelise the creation of the forests:</p>
+</div>
+<div class="paragraph">
+<p><em><a href="https://github.com/jennifersmith/machinenursery/blob/master/parallel-forests.sh">parallelise-forests.sh</a></em></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">#!/bin/bash
 
 start=`date`
-startTime=`date &#39;+%s&#39;`
+startTime=`date '+%s'`
 numberOfRuns=$1
 
-seq 1 ${numberOfRuns} | parallel -P 8 &#34;./build-forest.sh&#34;
+seq 1 ${numberOfRuns} | parallel -P 8 "./build-forest.sh"
 
 end=`date`
-endTime=`date &#39;+%s&#39;`
+endTime=`date '+%s'`
 
-echo &#34;Started: ${start}&#34;
-echo &#34;Finished: ${end}&#34;
-echo &#34;Took: &#34; $(expr $endTime - $startTime)
-</code></pre></div><p><!-- raw HTML omitted --><!-- raw HTML omitted -->build-forest.sh<!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">
-<span style="color:#75715e">#!/bin/bash</span>
+echo "Started: ${start}"
+echo "Finished: ${end}"
+echo "Took: " $(expr $endTime - $startTime)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em><a href="https://github.com/jennifersmith/machinenursery/blob/master/build-forest.sh">build-forest.sh</a></em></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sh" data-lang="sh">#!/bin/bash
 
-java -Xmx1024m -cp target/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java.MahoutPlaybox
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+java -Xmx1024m -cp target/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java.MahoutPlaybox</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It should be possible to achieve this by using the parallel option in <cite>xargs</cite> but unfortunately I wasn&#8217;t able to achieve the same success with that command.</p>
+</div>
+<div class="paragraph">
+<p>I <a href="http://stackoverflow.com/questions/2791069/how-to-use-parallel-execution-in-a-shell-script">hadn&#8217;t come across</a> the <cite>seq</cite> command until today but it works quite well here for allowing us to specify how many times we want to call the script.</p>
+</div>
+<div class="paragraph">
+<p>I was probably able to achieve about a 30% speed increase when running this on my Air. There was a greater increase running on a high CPU AWS instance although for some reason some of the jobs seemed to get killed and I couldn&#8217;t figure out why.</p>
+</div>
+<div class="paragraph">
+<p>Sadly even with a new classifier with a massive number of trees I didn&#8217;t see an improvement over the <a href="http://www.markhneedham.com/blog/2012/11/29/kaggle-digit-recognizer-weka-adaboost-attempt/">Weka random forest using AdaBoost</a> which I wrote about a month ago. We had an accuracy of 96.282% here compared to 96.529% with the Weka version.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -252,7 +294,7 @@ java -Xmx1024m -cp target/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/27/mahout-parallelising-the-creation-of-decisiontrees/&amp;title=Mahout%3a%20Parallelising%20the%20creation%20of%20DecisionTrees&amp;summary=List%26lt%3bNode%26gt%3b%20trees%20%3d%20new%20ArrayList%26lt%3bNode%26gt%3b%28%29%3b%20MultiDecisionForest%20forest%20%3d%20MultiDecisionForest.load%28new%20Configuration%28%29%2c%20new%20Path%28%26%2334%3b%2fpath%2fto%2fmahout-tree%26%2334%3b%29%29%3b%20trees.addAll%28forest.getTrees%28%29%29%3b%20MultiDecisionForest%20forest%20%3d%20new%20MultiDecisionForest%28trees%29%3b%20deb%20http%3a%2f%2fppa.launchpad.net%2fieltonf%2fppa%2fubuntu%20oneiric%20main%20deb-src%20http%3a%2f%2fppa.launchpad.net%2fieltonf%2fppa%2fubuntu%20oneiric%20main%20parallelise-forests.sh%23%21%2fbin%2fbash%20start%3d%60date%60%20startTime%3d%60date%20%26%2339%3b%2b%25s%26%2339%3b%60%20numberOfRuns%3d%241%20seq%201%20%24%7bnumberOfRuns%7d%20%7c%20parallel%20-P%208%20%26%2334%3b.%2fbuild-forest.sh%26%2334%3b%20end%3d%60date%60%20endTime%3d%60date%20%26%2339%3b%2b%25s%26%2339%3b%60%20echo%20%26%2334%3bStarted%3a%20%24%7bstart%7d%26%2334%3b%20echo%20%26%2334%3bFinished%3a%20%24%7bend%7d%26%2334%3b%20echo%20%26%2334%3bTook%3a%20%26%2334%3b%20%24%28expr%20%24endTime%20-%20%24startTime%29%20build-forest.sh%23%21%2fbin%2fbash%20java%20-Xmx1024m%20-cp%20target%2fmachinenursery-1.0.0-SNAPSHOT-standalone.jar%20main.java.MahoutPlaybox%20..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/27/mahout-parallelising-the-creation-of-decisiontrees/&amp;title=Mahout%3a%20Parallelising%20the%20creation%20of%20DecisionTrees&amp;summary=A%20couple%20of%20months%20ago%20I%20wrote%20a%20blog%20post%20describing%20our%20use%20of%20Mahout%20random%20forests%20for%20the%20Kaggle%20Digit%20Recogniser%20Problem%20and%20after%20seeing%20how%20long%20it%20took%20to%20create%20forests%20with%20500%2b%20trees%20I%20wanted%20to%20see%20if%20this%20could%20be%20sped%20up%20by%20parallelising%20the%20process.%0a%20From%20looking%20at%20the%20https%3a%2f%2fgithub.com%2fapache%2fmahout%2fblob%2ftrunk%2fcore%2fsrc%2fmain%2fjava%2forg%2fapache%2fmahout%2fclassifier%2fdf%2fDecisionForest.java%20it%20seemed%20like%20it%20should%20be%20possible%20to%20create%20lots%20of%20small%20forests%20and%20then%20combine%20them%20together...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

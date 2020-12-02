@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Spark: Write to CSV file with header using saveAsFile" />
         
-          <meta name="twitter:description" content="import org.apache.hadoop.conf.Configuration; import org.apache.hadoop.fs.*; import org.apache.hadoop.io.IOUtils; import java.io.IOException; public class MyFileUtil { public static boolean copyMergeWithHeader(FileSystem srcFS, Path srcDir, FileSystem dstFS, Path dstFile, boolean deleteSource, Configuration conf, String header) throws IOException { dstFile = checkDest(srcDir.getName(), dstFS, dstFile, false); if(!srcFS.getFileStatus(srcDir).isDir()) { return false; } else { FSDataOutputStream out = dstFS.create(dstFile); if(header != null) { out.write((header &#43; &#34;\n&#34;).getBytes(&#34;UTF-8&#34;)); } try { FileStatus[] contents = srcFS.listStatus(srcDir); for(int i = 0; i &lt; contents.length; &#43;&#43;i) { if(!" />
+          <meta name="twitter:description" content="In my last blog post I showed how to write to a single CSV file using Spark and Hadoop and the next thing I wanted to do was add a header row to the resulting row.
+ Hadoop&#8217;s https://hadoop.apache.org/docs/current/api/org/apache/hadoop/fs/FileUtil.html#copyMerge(org.apache.hadoop.fs.FileSystem, org.apache.hadoop.fs.Path, org.apache.hadoop.fs.FileSystem, org.apache.hadoop.fs.Path, boolean, org.apache.hadoop.conf.Configuration, java.lang.String) function does take a String parameter but it adds this text to the end of each partition file which isn&#8217;t quite what we want.
+ However, if we copy that function into our own FileUtil class we can restructure it to do what we want:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/11/30/spark-write-to-csv-file-with-header-using-saveasfile/" />
 
@@ -33,7 +35,9 @@
         <title> Spark: Write to CSV file with header using saveAsFile &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="import org.apache.hadoop.conf.Configuration; import org.apache.hadoop.fs.*; import org.apache.hadoop.io.IOUtils; import java.io.IOException; public class MyFileUtil { public static boolean copyMergeWithHeader(FileSystem srcFS, Path srcDir, FileSystem dstFS, Path dstFile, boolean deleteSource, Configuration conf, String header) throws IOException { dstFile = checkDest(srcDir.getName(), dstFS, dstFile, false); if(!srcFS.getFileStatus(srcDir).isDir()) { return false; } else { FSDataOutputStream out = dstFS.create(dstFile); if(header != null) { out.write((header &#43; &#34;\n&#34;).getBytes(&#34;UTF-8&#34;)); } try { FileStatus[] contents = srcFS.listStatus(srcDir); for(int i = 0; i &lt; contents.length; &#43;&#43;i) { if(!" />
+        <meta name="description" content="In my last blog post I showed how to write to a single CSV file using Spark and Hadoop and the next thing I wanted to do was add a header row to the resulting row.
+ Hadoop&#8217;s https://hadoop.apache.org/docs/current/api/org/apache/hadoop/fs/FileUtil.html#copyMerge(org.apache.hadoop.fs.FileSystem, org.apache.hadoop.fs.Path, org.apache.hadoop.fs.FileSystem, org.apache.hadoop.fs.Path, boolean, org.apache.hadoop.conf.Configuration, java.lang.String) function does take a String parameter but it adds this text to the end of each partition file which isn&#8217;t quite what we want.
+ However, if we copy that function into our own FileUtil class we can restructure it to do what we want:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-11-30",
-        "description": "import org.apache.hadoop.conf.Configuration; import org.apache.hadoop.fs.*; import org.apache.hadoop.io.IOUtils; import java.io.IOException; public class MyFileUtil { public static boolean copyMergeWithHeader(FileSystem srcFS, Path srcDir, FileSystem dstFS, Path dstFile, boolean deleteSource, Configuration conf, String header) throws IOException { dstFile = checkDest(srcDir.getName(), dstFS, dstFile, false); if(!srcFS.getFileStatus(srcDir).isDir()) { return false; } else { FSDataOutputStream out = dstFS.create(dstFile); if(header != null) { out.write((header \x2b \x26#34;\\n\x26#34;).getBytes(\x26#34;UTF-8\x26#34;)); } try { FileStatus[] contents = srcFS.listStatus(srcDir); for(int i = 0; i \x26lt; contents.length; \x2b\x2bi) { if(!",
-        "wordCount":  373 
+        "description": "In my last blog post I showed how to write to a single CSV file using Spark and Hadoop and the next thing I wanted to do was add a header row to the resulting row.\n Hadoop\x26#8217;s https:\/\/hadoop.apache.org\/docs\/current\/api\/org\/apache\/hadoop\/fs\/FileUtil.html#copyMerge(org.apache.hadoop.fs.FileSystem, org.apache.hadoop.fs.Path, org.apache.hadoop.fs.FileSystem, org.apache.hadoop.fs.Path, boolean, org.apache.hadoop.conf.Configuration, java.lang.String) function does take a String parameter but it adds this text to the end of each partition file which isn\x26#8217;t quite what we want.\n However, if we copy that function into our own FileUtil class we can restructure it to do what we want:",
+        "wordCount":  534 
     }
     </script>
     
@@ -172,101 +176,128 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Spark: Write to CSV file with header using saveAsFile</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">import</span> org.apache.hadoop.conf.Configuration<span style="color:#f92672">;</span>
-<span style="color:#f92672">import</span> org.apache.hadoop.fs.*<span style="color:#f92672">;</span>
-<span style="color:#f92672">import</span> org.apache.hadoop.io.IOUtils<span style="color:#f92672">;</span>
-<span style="color:#f92672">import</span> java.io.IOException<span style="color:#f92672">;</span>
+    <div class="paragraph">
+<p>In my last blog post I showed <a href="http://www.markhneedham.com/blog/2014/11/30/spark-write-to-csv-file/">how to write to a single CSV file using Spark and Hadoop</a> and the next thing I wanted to do was add a header row to the resulting row.</p>
+</div>
+<div class="paragraph">
+<p>Hadoop&#8217;s <cite>https://hadoop.apache.org/docs/current/api/org/apache/hadoop/fs/FileUtil.html#copyMerge(org.apache.hadoop.fs.FileSystem, org.apache.hadoop.fs.Path, org.apache.hadoop.fs.FileSystem, org.apache.hadoop.fs.Path, boolean, org.apache.hadoop.conf.Configuration, java.lang.String)<span class="FileUtil#copyMerge"></cite></span> function does take a String parameter but it adds this text to the end of each partition file which isn&#8217;t quite what we want.</p>
+</div>
+<div class="paragraph">
+<p>However, if we copy that function into our own FileUtil class we can restructure it to do what we want:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.io.IOUtils;
+import java.io.IOException;
 
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyFileUtil</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">copyMergeWithHeader</span><span style="color:#f92672">(</span>FileSystem srcFS<span style="color:#f92672">,</span> Path srcDir<span style="color:#f92672">,</span> FileSystem dstFS<span style="color:#f92672">,</span> Path dstFile<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> deleteSource<span style="color:#f92672">,</span> Configuration conf<span style="color:#f92672">,</span> String header<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
-        dstFile <span style="color:#f92672">=</span> checkDest<span style="color:#f92672">(</span>srcDir<span style="color:#f92672">.</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">(),</span> dstFS<span style="color:#f92672">,</span> dstFile<span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">if</span><span style="color:#f92672">(!</span>srcFS<span style="color:#f92672">.</span><span style="color:#a6e22e">getFileStatus</span><span style="color:#f92672">(</span>srcDir<span style="color:#f92672">).</span><span style="color:#a6e22e">isDir</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
-        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
-            FSDataOutputStream out <span style="color:#f92672">=</span> dstFS<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span>dstFile<span style="color:#f92672">);</span>
-            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>header <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                out<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">((</span>header <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">getBytes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;UTF-8&#34;</span><span style="color:#f92672">));</span>
-            <span style="color:#f92672">}</span>
+public class MyFileUtil {
+    public static boolean copyMergeWithHeader(FileSystem srcFS, Path srcDir, FileSystem dstFS, Path dstFile, boolean deleteSource, Configuration conf, String header) throws IOException {
+        dstFile = checkDest(srcDir.getName(), dstFS, dstFile, false);
+        if(!srcFS.getFileStatus(srcDir).isDir()) {
+            return false;
+        } else {
+            FSDataOutputStream out = dstFS.create(dstFile);
+            if(header != null) {
+                out.write((header + "\n").getBytes("UTF-8"));
+            }
 
-            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-                FileStatus<span style="color:#f92672">[]</span> contents <span style="color:#f92672">=</span> srcFS<span style="color:#f92672">.</span><span style="color:#a6e22e">listStatus</span><span style="color:#f92672">(</span>srcDir<span style="color:#f92672">);</span>
+            try {
+                FileStatus[] contents = srcFS.listStatus(srcDir);
 
-                <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> contents<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">;</span> <span style="color:#f92672">++</span>i<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                    <span style="color:#66d9ef">if</span><span style="color:#f92672">(!</span>contents<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span><span style="color:#a6e22e">isDir</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-                        FSDataInputStream in <span style="color:#f92672">=</span> srcFS<span style="color:#f92672">.</span><span style="color:#a6e22e">open</span><span style="color:#f92672">(</span>contents<span style="color:#f92672">[</span>i<span style="color:#f92672">].</span><span style="color:#a6e22e">getPath</span><span style="color:#f92672">());</span>
+                for(int i = 0; i &lt; contents.length; ++i) {
+                    if(!contents[i].isDir()) {
+                        FSDataInputStream in = srcFS.open(contents[i].getPath());
 
-                        <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-                            IOUtils<span style="color:#f92672">.</span><span style="color:#a6e22e">copyBytes</span><span style="color:#f92672">(</span>in<span style="color:#f92672">,</span> out<span style="color:#f92672">,</span> conf<span style="color:#f92672">,</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+                        try {
+                            IOUtils.copyBytes(in, out, conf, false);
 
-                        <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
-                            in<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
-                        <span style="color:#f92672">}</span>
-                    <span style="color:#f92672">}</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
-                out<span style="color:#f92672">.</span><span style="color:#a6e22e">close</span><span style="color:#f92672">();</span>
-            <span style="color:#f92672">}</span>
+                        } finally {
+                            in.close();
+                        }
+                    }
+                }
+            } finally {
+                out.close();
+            }
 
-            <span style="color:#66d9ef">return</span> deleteSource<span style="color:#f92672">?</span>srcFS<span style="color:#f92672">.</span><span style="color:#a6e22e">delete</span><span style="color:#f92672">(</span>srcDir<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">):</span><span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">}</span>
+            return deleteSource?srcFS.delete(srcDir, true):true;
+        }
+    }
 
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Path <span style="color:#a6e22e">checkDest</span><span style="color:#f92672">(</span>String srcName<span style="color:#f92672">,</span> FileSystem dstFS<span style="color:#f92672">,</span> Path dst<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> overwrite<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>dstFS<span style="color:#f92672">.</span><span style="color:#a6e22e">exists</span><span style="color:#f92672">(</span>dst<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-            FileStatus sdst <span style="color:#f92672">=</span> dstFS<span style="color:#f92672">.</span><span style="color:#a6e22e">getFileStatus</span><span style="color:#f92672">(</span>dst<span style="color:#f92672">);</span>
-            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>sdst<span style="color:#f92672">.</span><span style="color:#a6e22e">isDir</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span> <span style="color:#f92672">==</span> srcName<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IOException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Target &#34;</span> <span style="color:#f92672">+</span> dst <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; is a directory&#34;</span><span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
+    private static Path checkDest(String srcName, FileSystem dstFS, Path dst, boolean overwrite) throws IOException {
+        if(dstFS.exists(dst)) {
+            FileStatus sdst = dstFS.getFileStatus(dst);
+            if(sdst.isDir()) {
+                if(null == srcName) {
+                    throw new IOException("Target " + dst + " is a directory");
+                }
 
-                <span style="color:#66d9ef">return</span> checkDest<span style="color:#f92672">((</span>String<span style="color:#f92672">)</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> dstFS<span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> Path<span style="color:#f92672">(</span>dst<span style="color:#f92672">,</span> srcName<span style="color:#f92672">),</span> overwrite<span style="color:#f92672">);</span>
-            <span style="color:#f92672">}</span>
+                return checkDest((String)null, dstFS, new Path(dst, srcName), overwrite);
+            }
 
-            <span style="color:#66d9ef">if</span><span style="color:#f92672">(!</span>overwrite<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IOException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Target &#34;</span> <span style="color:#f92672">+</span> dst <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; already exists&#34;</span><span style="color:#f92672">);</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-        <span style="color:#66d9ef">return</span> dst<span style="color:#f92672">;</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">def</span> merge<span style="color:#f92672">(</span>srcPath<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">,</span> dstPath<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">,</span> header<span style="color:#66d9ef">:</span><span style="color:#66d9ef">String</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Unit</span> <span style="color:#f92672">=</span>  <span style="color:#f92672">{</span>
-  <span style="color:#66d9ef">val</span> hadoopConfig <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Configuration</span><span style="color:#f92672">()</span>
-  <span style="color:#66d9ef">val</span> hdfs <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">FileSystem</span><span style="color:#f92672">.</span>get<span style="color:#f92672">(</span>hadoopConfig<span style="color:#f92672">)</span>
-  <span style="color:#a6e22e">MyFileUtil</span><span style="color:#f92672">.</span>copyMergeWithHeader<span style="color:#f92672">(</span>hdfs<span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Path</span><span style="color:#f92672">(</span>srcPath<span style="color:#f92672">),</span> hdfs<span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Path</span><span style="color:#f92672">(</span>dstPath<span style="color:#f92672">),</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">,</span> hadoopConfig<span style="color:#f92672">,</span> header<span style="color:#f92672">)</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-merge<span style="color:#f92672">(</span>file<span style="color:#f92672">,</span> destinationFile<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;type,count&#34;</span><span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ sbt package
-<span style="color:#f92672">[</span>info<span style="color:#f92672">]</span> Loading global plugins from /Users/markneedham/.sbt/0.13/plugins
-<span style="color:#f92672">[</span>info<span style="color:#f92672">]</span> Loading project definition from /Users/markneedham/projects/spark-play/playground/project
-<span style="color:#f92672">[</span>info<span style="color:#f92672">]</span> Set current project to playground <span style="color:#f92672">(</span>in build file:/Users/markneedham/projects/spark-play/playground/<span style="color:#f92672">)</span>
-<span style="color:#f92672">[</span>info<span style="color:#f92672">]</span> Compiling <span style="color:#ae81ff">3</span> Scala sources to /Users/markneedham/projects/spark-play/playground/target/scala-2.10/classes...
-<span style="color:#f92672">[</span>info<span style="color:#f92672">]</span> Packaging /Users/markneedham/projects/spark-play/playground/target/scala-2.10/playground_2.10-1.0.jar ...
-<span style="color:#f92672">[</span>info<span style="color:#f92672">]</span> Done packaging.
-<span style="color:#f92672">[</span>success<span style="color:#f92672">]</span> Total time: <span style="color:#ae81ff">8</span> s, completed 30-Nov-2014 08:12:26
+            if(!overwrite) {
+                throw new IOException("Target " + dst + " already exists");
+            }
+        }
+        return dst;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can then update our merge function to call this instead:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">def merge(srcPath: String, dstPath: String, header:String): Unit =  {
+  val hadoopConfig = new Configuration()
+  val hdfs = FileSystem.get(hadoopConfig)
+  MyFileUtil.copyMergeWithHeader(hdfs, new Path(srcPath), hdfs, new Path(dstPath), false, hadoopConfig, header)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We call merge from our code like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">merge(file, destinationFile, "type,count")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I wasn&#8217;t sure how to import my Java based class into the Spark shell so I compiled the code into a JAR and submitted it as a job instead:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sbt package
+[info] Loading global plugins from /Users/markneedham/.sbt/0.13/plugins
+[info] Loading project definition from /Users/markneedham/projects/spark-play/playground/project
+[info] Set current project to playground (in build file:/Users/markneedham/projects/spark-play/playground/)
+[info] Compiling 3 Scala sources to /Users/markneedham/projects/spark-play/playground/target/scala-2.10/classes...
+[info] Packaging /Users/markneedham/projects/spark-play/playground/target/scala-2.10/playground_2.10-1.0.jar ...
+[info] Done packaging.
+[success] Total time: 8 s, completed 30-Nov-2014 08:12:26
 
-$ time ./bin/spark-submit --class <span style="color:#e6db74">&#34;WriteToCsvWithHeader&#34;</span> --master local<span style="color:#f92672">[</span>4<span style="color:#f92672">]</span> /path/to/playground/target/scala-2.10/playground_2.10-1.0.jar
+$ time ./bin/spark-submit --class "WriteToCsvWithHeader" --master local[4] /path/to/playground/target/scala-2.10/playground_2.10-1.0.jar
 Spark assembly has been built with Hive, including Datanucleus jars on classpath
-Using Spark<span style="color:#960050;background-color:#1e0010">&#39;</span>s default log4j profile: org/apache/spark/log4j-defaults.propertie
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.propertie
 ...
 14/11/30 08:16:15 INFO TaskSchedulerImpl: Removed TaskSet 2.0, whose tasks have all completed, from pool
 14/11/30 08:16:15 INFO SparkContext: Job finished: saveAsTextFile at WriteToCsvWithHeader.scala:49, took 0.589036 s
 
 real	0m13.061s
 user	0m38.977s
-sys	0m3.393s
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat /tmp/singlePrimaryTypes.csv
+sys	0m3.393s</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And if we look at our destination file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat /tmp/singlePrimaryTypes.csv
 type,count
 THEFT,859197
 BATTERY,757530
@@ -302,9 +333,15 @@ RITUALISM,12
 NON-CRIMINAL,12
 OTHER OFFENSE ,6
 NON - CRIMINAL,2
-NON-CRIMINAL <span style="color:#f92672">(</span>SUBJECT SPECIFIED<span style="color:#f92672">)</span>,2
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+NON-CRIMINAL (SUBJECT SPECIFIED),2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Happy days!</p>
+</div>
+<div class="paragraph">
+<p>The code is available as a <a href="https://gist.github.com/mneedham/881ee5dcb58456855174">gist</a> if you want to see all the details.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -339,7 +376,7 @@ NON-CRIMINAL <span style="color:#f92672">(</span>SUBJECT SPECIFIED<span style="c
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/11/30/spark-write-to-csv-file-with-header-using-saveasfile/&amp;title=Spark%3a%20Write%20to%20CSV%20file%20with%20header%20using%20saveAsFile&amp;summary=import%20org.apache.hadoop.conf.Configuration%3b%20import%20org.apache.hadoop.fs.%2a%3b%20import%20org.apache.hadoop.io.IOUtils%3b%20import%20java.io.IOException%3b%20public%20class%20MyFileUtil%20%7b%20public%20static%20boolean%20copyMergeWithHeader%28FileSystem%20srcFS%2c%20Path%20srcDir%2c%20FileSystem%20dstFS%2c%20Path%20dstFile%2c%20boolean%20deleteSource%2c%20Configuration%20conf%2c%20String%20header%29%20throws%20IOException%20%7b%20dstFile%20%3d%20checkDest%28srcDir.getName%28%29%2c%20dstFS%2c%20dstFile%2c%20false%29%3b%20if%28%21srcFS.getFileStatus%28srcDir%29.isDir%28%29%29%20%7b%20return%20false%3b%20%7d%20else%20%7b%20FSDataOutputStream%20out%20%3d%20dstFS.create%28dstFile%29%3b%20if%28header%20%21%3d%20null%29%20%7b%20out.write%28%28header%20%2b%20%26%2334%3b%5cn%26%2334%3b%29.getBytes%28%26%2334%3bUTF-8%26%2334%3b%29%29%3b%20%7d%20try%20%7b%20FileStatus%5b%5d%20contents%20%3d%20srcFS.listStatus%28srcDir%29%3b%20for%28int%20i%20%3d%200%3b%20i%20%26lt%3b%20contents.length%3b%20%2b%2bi%29%20%7b%20if%28%21..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/11/30/spark-write-to-csv-file-with-header-using-saveasfile/&amp;title=Spark%3a%20Write%20to%20CSV%20file%20with%20header%20using%20saveAsFile&amp;summary=In%20my%20last%20blog%20post%20I%20showed%20how%20to%20write%20to%20a%20single%20CSV%20file%20using%20Spark%20and%20Hadoop%20and%20the%20next%20thing%20I%20wanted%20to%20do%20was%20add%20a%20header%20row%20to%20the%20resulting%20row.%0a%20Hadoop%26%238217%3bs%20https%3a%2f%2fhadoop.apache.org%2fdocs%2fcurrent%2fapi%2forg%2fapache%2fhadoop%2ffs%2fFileUtil.html%23copyMerge%28org.apache.hadoop.fs.FileSystem%2c%20org.apache.hadoop.fs.Path%2c%20org.apache.hadoop.fs.FileSystem%2c%20org.apache.hadoop.fs.Path%2c%20boolean%2c%20org.apache.hadoop.conf.Configuration%2c%20java.lang.String%29%20function%20does%20take%20a%20String%20parameter%20but%20it%20adds%20this%20text%20to%20the%20end%20of%20each%20partition%20file%20which%20isn%26%238217%3bt%20quite%20what%20we%20want.%0a%20However%2c%20if%20we%20copy%20that%20function%20into%20our%20own%20FileUtil%20class%20we%20can%20restructure%20it%20to%20do%20what%20we%20want%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

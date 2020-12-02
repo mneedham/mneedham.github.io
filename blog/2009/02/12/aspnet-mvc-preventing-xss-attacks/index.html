@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="ASP.NET MVC: Preventing XSS attacks" />
         
-          <meta name="twitter:description" content="XSS(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&rsquo;re working with the ASP.NET MVC framework Steve Sanderson has written a great post on how to protect yourself from this.
-The solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated." />
+          <meta name="twitter:description" content="XSS(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&#8217;re working with the ASP.NET MVC framework Steve Sanderson has written a great post on how to protect yourself from this.
+ The solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/02/12/aspnet-mvc-preventing-xss-attacks/" />
 
@@ -35,8 +35,8 @@ The solution Steve details works the opposite way to other solutions I have hear
         <title> ASP.NET MVC: Preventing XSS attacks &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="XSS(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&rsquo;re working with the ASP.NET MVC framework Steve Sanderson has written a great post on how to protect yourself from this.
-The solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated." />
+        <meta name="description" content="XSS(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&#8217;re working with the ASP.NET MVC framework Steve Sanderson has written a great post on how to protect yourself from this.
+ The solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ The solution Steve details works the opposite way to other solutions I have hear
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-02-12",
-        "description": "XSS(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you\x26rsquo;re working with the ASP.NET MVC framework Steve Sanderson has written a great post on how to protect yourself from this.\nThe solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated.",
-        "wordCount":  487 
+        "description": "XSS(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you\x26#8217;re working with the ASP.NET MVC framework Steve Sanderson has written a great post on how to protect yourself from this.\n The solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated.",
+        "wordCount":  495 
     }
     </script>
     
@@ -177,45 +177,88 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">ASP.NET MVC: Preventing XSS attacks</h1>
-    <p><!-- raw HTML omitted -->XSS<!-- raw HTML omitted -->(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&rsquo;re working with the ASP.NET MVC framework Steve Sanderson has written a <!-- raw HTML omitted -->great post on how to protect yourself from this<!-- raw HTML omitted -->.</p>
+    <div class="paragraph">
+<p><a href="http://en.wikipedia.org/wiki/Cross-site_scripting">XSS</a>(Cross site scripting) attacks on websites seem to be quite popular these days but luckily if you&#8217;re working with the ASP.NET MVC framework Steve Sanderson has written a <a href="http://blog.codeville.net/2007/12/19/aspnet-mvc-prevent-xss-with-automatic-html-encoding/">great post on how to protect yourself from this</a>.</p>
+</div>
+<div class="paragraph">
 <p>The solution Steve details works the opposite way to other solutions I have heard for this problem - we assume that everything that goes to the browser needs to be HTML encoded unless otherwise stated.</p>
-<p>The benefit of this approach is that when we add new things to our page in the future we don&rsquo;t need to worry that we might have inadvertently reintroduced a security problem.</p>
-<!-- raw HTML omitted -->
-<p>After setting up the encoding we came up against the problem of how to exclude HTML that we are generating from our aspx templates that we don&rsquo;t want HTML encoded.</p>
+</div>
+<div class="paragraph">
+<p>The benefit of this approach is that when we add new things to our page in the future we don&#8217;t need to worry that we might have inadvertently reintroduced a security problem.</p>
+</div>
+<div class="sect1">
+<h2 id="_excluding_aspx_code_from_being_encoded">Excluding aspx code from being encoded</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After setting up the encoding we came up against the problem of how to exclude HTML that we are generating from our aspx templates that we don&#8217;t want HTML encoded.</p>
+</div>
+<div class="paragraph">
 <p>This was a particular problem with our use of the HtmlHelper and UrlHelper provided with the framework.</p>
-<p>Since the majority of the methods we use are extension methods on these classes we didn&rsquo;t find it that easy to work out how to proxy those calls (we couldn&rsquo;t just override the methods since they aren&rsquo;t actually on HtmlHelper!) to our own RawHtmlHelper which could cast the result to RawHtml and therefore allow it to be rendered by the page.</p>
+</div>
+<div class="paragraph">
+<p>Since the majority of the methods we use are extension methods on these classes we didn&#8217;t find it that easy to work out how to proxy those calls (we couldn&#8217;t just override the methods since they aren&#8217;t actually on HtmlHelper!) to our own RawHtmlHelper which could cast the result to RawHtml and therefore allow it to be rendered by the page.</p>
+</div>
+<div class="paragraph">
 <p>The aim was to minimise the amount of things that we had to change. The worst case solution would be to have to go through all our aspx files and change every call to a Helper method to a new encoded version of the same method.</p>
-<p>Luckily the <!-- raw HTML omitted -->new<!-- raw HTML omitted --> keyword comes to the rescue and allows us to hack around the problem.</p>
+</div>
+<div class="paragraph">
+<p>Luckily the <a href="">new</a> keyword comes to the rescue and allows us to hack around the problem.</p>
+</div>
+<div class="paragraph">
 <p>We hooked into the page lifecycle to create a new version of the Html property which returned our RawHtmlHelper.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BaseViewPage</span>&lt;TModel&gt; : ViewPage&lt;TModel&gt; <span style="color:#66d9ef">where</span> TModel = <span style="color:#66d9ef">class</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class BaseViewPage&lt;TModel&gt; : ViewPage&lt;TModel&gt; where TModel = class
 {
-	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> InitHelpers() 
+	public override void InitHelpers()
 	{
-		<span style="color:#66d9ef">base</span>.Html = <span style="color:#66d9ef">new</span> RawHtmlHelper(..);
-		<span style="color:#66d9ef">base</span>.Url = <span style="color:#66d9ef">new</span> RawUrlHelper(...);
+		base.Html = new RawHtmlHelper(..);
+		base.Url = new RawUrlHelper(...);
 	}
 
-	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">new</span> RawHtmlHelper Html 
+	public new RawHtmlHelper Html
 	{
-		<span style="color:#66d9ef">get</span> { <span style="color:#66d9ef">return</span> (RawHtmlHelper) <span style="color:#66d9ef">base</span>.Html; }
+		get { return (RawHtmlHelper) base.Html; }
 	}
-}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RawHtmlHelper</span> : HtmlHelper 
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class RawHtmlHelper : HtmlHelper
 {
-	<span style="color:#66d9ef">public</span> RawHtml TextBox(<span style="color:#66d9ef">string</span> name, <span style="color:#66d9ef">object</span> <span style="color:#66d9ef">value</span>)
+	public RawHtml TextBox(string name, object value)
 	{
-		<span style="color:#66d9ef">return</span> (RawHtml) ((HtmlHelper)<span style="color:#66d9ef">this</span>).TextBox(name, <span style="color:#66d9ef">value</span>);
+		return (RawHtml) ((HtmlHelper)this).TextBox(name, value);
 	}
-}
-</code></pre></div><p>In our aspx page we don&rsquo;t need to make any changes to our code in order for it to now use the RawHtmlHelper method instead of the HtmlHelper method.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&lt;%= Html.TextBox(&#34;name&#34;, &#34;value&#34;) %&gt;
-</code></pre></div><p>The only other change was to make each of our aspx code behind classes inherit from BaseViewPage so that they receive the new Html property.</p>
-<!-- raw HTML omitted -->
-<p>There is way too much casting for my liking in this solution but I&rsquo;m not sure if a better solution exists other than creating our own version of the helper methods named &lsquo;RawTextBox&rsquo;, &lsquo;RawRadioButton&rsquo; and so on.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our aspx page we don&#8217;t need to make any changes to our code in order for it to now use the RawHtmlHelper method instead of the HtmlHelper method.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&lt;%= Html.TextBox("name", "value") %&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only other change was to make each of our aspx code behind classes inherit from BaseViewPage so that they receive the new Html property.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_overall">Overall</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There is way too much casting for my liking in this solution but I&#8217;m not sure if a better solution exists other than creating our own version of the helper methods named 'RawTextBox', 'RawRadioButton' and so on.</p>
+</div>
+<div class="paragraph">
 <p>The amount of work with that approach would be almost the same except if we have used the original HtmlHelper anywhere then we need to go and change all those too - exactly the problem we were trying to solve with the above solution.</p>
+</div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -250,7 +293,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/02/12/aspnet-mvc-preventing-xss-attacks/&amp;title=ASP.NET%20MVC%3a%20Preventing%20XSS%20attacks&amp;summary=XSS%28Cross%20site%20scripting%29%20attacks%20on%20websites%20seem%20to%20be%20quite%20popular%20these%20days%20but%20luckily%20if%20you%26rsquo%3bre%20working%20with%20the%20ASP.NET%20MVC%20framework%20Steve%20Sanderson%20has%20written%20a%20great%20post%20on%20how%20to%20protect%20yourself%20from%20this.%0aThe%20solution%20Steve%20details%20works%20the%20opposite%20way%20to%20other%20solutions%20I%20have%20heard%20for%20this%20problem%20-%20we%20assume%20that%20everything%20that%20goes%20to%20the%20browser%20needs%20to%20be%20HTML%20encoded%20unless%20otherwise%20stated...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/02/12/aspnet-mvc-preventing-xss-attacks/&amp;title=ASP.NET%20MVC%3a%20Preventing%20XSS%20attacks&amp;summary=XSS%28Cross%20site%20scripting%29%20attacks%20on%20websites%20seem%20to%20be%20quite%20popular%20these%20days%20but%20luckily%20if%20you%26%238217%3bre%20working%20with%20the%20ASP.NET%20MVC%20framework%20Steve%20Sanderson%20has%20written%20a%20great%20post%20on%20how%20to%20protect%20yourself%20from%20this.%0a%20The%20solution%20Steve%20details%20works%20the%20opposite%20way%20to%20other%20solutions%20I%20have%20heard%20for%20this%20problem%20-%20we%20assume%20that%20everything%20that%20goes%20to%20the%20browser%20needs%20to%20be%20HTML%20encoded%20unless%20otherwise%20stated...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

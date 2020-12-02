@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Unix: Find all text below string in a file" />
         
-          <meta name="twitter:description" content="# text I don&#39;t care about = Heading of the bit I care about # text I care about $ cat /tmp/foo.txt # text I don&#39;t care about = Heading of the bit I care about # text I care about $ cat /tmp/foo.txt | sed &#39;1,/Heading of the bit I care about/d&#39; # text I care about $ cat /tmp/foo.txt | sed -e &#39;1,/Heading of the bit I care about/d&#39; -e &#39;/^\s*$/d&#39; # text I care about " />
+          <meta name="twitter:description" content="I recently wanted to parse some text out of a bunch of files so that I could do some sentiment analysis on it. Luckily the text I want is at the end of the file and doesn&#8217;t have anything after it but there is text before it that I want to get rid.
+ The files look like this:
+ # text I don&#39;t care about = Heading of the bit I care about # text I care about   In other words I want to find the line that contains the Heading and then get all the text after that point." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/06/19/unix-find-all-text-below-string-in-a-file/" />
 
@@ -33,7 +35,9 @@
         <title> Unix: Find all text below string in a file &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="# text I don&#39;t care about = Heading of the bit I care about # text I care about $ cat /tmp/foo.txt # text I don&#39;t care about = Heading of the bit I care about # text I care about $ cat /tmp/foo.txt | sed &#39;1,/Heading of the bit I care about/d&#39; # text I care about $ cat /tmp/foo.txt | sed -e &#39;1,/Heading of the bit I care about/d&#39; -e &#39;/^\s*$/d&#39; # text I care about " />
+        <meta name="description" content="I recently wanted to parse some text out of a bunch of files so that I could do some sentiment analysis on it. Luckily the text I want is at the end of the file and doesn&#8217;t have anything after it but there is text before it that I want to get rid.
+ The files look like this:
+ # text I don&#39;t care about = Heading of the bit I care about # text I care about   In other words I want to find the line that contains the Heading and then get all the text after that point." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-06-19",
-        "description": "# text I don\x26#39;t care about = Heading of the bit I care about # text I care about $ cat \/tmp\/foo.txt # text I don\x26#39;t care about = Heading of the bit I care about # text I care about $ cat \/tmp\/foo.txt | sed \x26#39;1,\/Heading of the bit I care about\/d\x26#39; # text I care about $ cat \/tmp\/foo.txt | sed -e \x26#39;1,\/Heading of the bit I care about\/d\x26#39; -e \x26#39;\/^\\s*$\/d\x26#39; # text I care about ",
-        "wordCount":  78 
+        "description": "I recently wanted to parse some text out of a bunch of files so that I could do some sentiment analysis on it. Luckily the text I want is at the end of the file and doesn\x26#8217;t have anything after it but there is text before it that I want to get rid.\n The files look like this:\n # text I don\x27t care about = Heading of the bit I care about # text I care about   In other words I want to find the line that contains the Heading and then get all the text after that point.",
+        "wordCount":  283 
     }
     </script>
     
@@ -172,33 +176,59 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Unix: Find all text below string in a file</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-# text I don&#39;t care about
+    <div class="paragraph">
+<p>I recently wanted to parse some text out of a bunch of files so that I could do some sentiment analysis on it. Luckily the text I want is at the end of the file and doesn&#8217;t have anything after it but there is text before it that I want to get rid.</p>
+</div>
+<div class="paragraph">
+<p>The files look like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"># text I don't care about
 
 = Heading of the bit I care about
 
-# text I care about
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat /tmp/foo.txt 
-<span style="color:#75715e"># text I don&#39;t care about</span>
+# text I care about</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In other words I want to find the line that contains the Heading and then get all the text after that point.</p>
+</div>
+<div class="paragraph">
+<p>I figured sed was the tool for the job but my knowledge of the syntax was a bit rusty. Luckily <a href="http://stackoverflow.com/questions/7103531/how-to-get-the-part-of-file-after-the-line-that-matches-grep-expression-first">this post</a> served as a refresher.</p>
+</div>
+<div class="paragraph">
+<p>Effectively what we want to do is delete from the beginning of the file up until the line after the heading. We can do this with the following command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat /tmp/foo.txt
+# text I don't care about
 
-<span style="color:#f92672">=</span> Heading of the bit I care about
+= Heading of the bit I care about
 
-<span style="color:#75715e"># text I care about</span>
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat /tmp/foo.txt | sed <span style="color:#e6db74">&#39;1,/Heading of the bit I care about/d&#39;</span>
+# text I care about</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat /tmp/foo.txt | sed '1,/Heading of the bit I care about/d'
 
-<span style="color:#75715e"># text I care about</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat /tmp/foo.txt | sed -e <span style="color:#e6db74">&#39;1,/Heading of the bit I care about/d&#39;</span> -e <span style="color:#e6db74">&#39;/^\s*$/d&#39;</span>
-<span style="color:#75715e"># text I care about</span>
-</code></pre></div><!-- raw HTML omitted -->
+# text I care about</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That still leaves an extra empty line after the heading which is a bit annoying but easy enough to get rid of by passing another command to sed that strips empty lines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat /tmp/foo.txt | sed -e '1,/Heading of the bit I care about/d' -e '/^\s*$/d'
+# text I care about</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only difference here is that we&#8217;re now passing the '-e' flag to allow us to specify multiple commands. If we just pass them sequentially then the 2nd one will be interpreted as the name of a file.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -233,7 +263,7 @@ $ cat /tmp/foo.txt | sed -e <span style="color:#e6db74">&#39;1,/Heading of the b
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/06/19/unix-find-all-text-below-string-in-a-file/&amp;title=Unix%3a%20Find%20all%20text%20below%20string%20in%20a%20file&amp;summary=%23%20text%20I%20don%26%2339%3bt%20care%20about%20%3d%20Heading%20of%20the%20bit%20I%20care%20about%20%23%20text%20I%20care%20about%20%24%20cat%20%2ftmp%2ffoo.txt%20%23%20text%20I%20don%26%2339%3bt%20care%20about%20%3d%20Heading%20of%20the%20bit%20I%20care%20about%20%23%20text%20I%20care%20about%20%24%20cat%20%2ftmp%2ffoo.txt%20%7c%20sed%20%26%2339%3b1%2c%2fHeading%20of%20the%20bit%20I%20care%20about%2fd%26%2339%3b%20%23%20text%20I%20care%20about%20%24%20cat%20%2ftmp%2ffoo.txt%20%7c%20sed%20-e%20%26%2339%3b1%2c%2fHeading%20of%20the%20bit%20I%20care%20about%2fd%26%2339%3b%20-e%20%26%2339%3b%2f%5e%5cs%2a%24%2fd%26%2339%3b%20%23%20text%20I%20care%20about%20..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/06/19/unix-find-all-text-below-string-in-a-file/&amp;title=Unix%3a%20Find%20all%20text%20below%20string%20in%20a%20file&amp;summary=I%20recently%20wanted%20to%20parse%20some%20text%20out%20of%20a%20bunch%20of%20files%20so%20that%20I%20could%20do%20some%20sentiment%20analysis%20on%20it.%20Luckily%20the%20text%20I%20want%20is%20at%20the%20end%20of%20the%20file%20and%20doesn%26%238217%3bt%20have%20anything%20after%20it%20but%20there%20is%20text%20before%20it%20that%20I%20want%20to%20get%20rid.%0a%20The%20files%20look%20like%20this%3a%0a%20%23%20text%20I%20don%27t%20care%20about%20%3d%20Heading%20of%20the%20bit%20I%20care%20about%20%23%20text%20I%20care%20about%20%20%20In%20other%20words%20I%20want%20to%20find%20the%20line%20that%20contains%20the%20Heading%20and%20then%20get%20all%20the%20text%20after%20that%20point...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

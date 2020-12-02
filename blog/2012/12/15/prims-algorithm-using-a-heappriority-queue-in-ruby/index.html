@@ -23,7 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Prim&#39;s algorithm using a heap/priority queue in Ruby" />
         
-          <meta name="twitter:description" content="MAX_VALUE = (2**(0.size * 8 -2) -1) adjacency_matrix = create_adjacency_matrix @nodes_spanned_so_far, spanning_tree_cost = [1], 0 heap = PriorityQueue.new nodes_left_to_cover.each do |node| cheapest_nodes = get_edges(adjacency_matrix, node-1). select { |_, other_node_index| @nodes_spanned_so_far.include?(other_node_index &#43; 1) } || [] cheapest = cheapest_nodes.inject([]) do |all_edges, (weight, index)| all_edges &lt;&lt; { :start =&gt; node, :end =&gt; index &#43; 1, :weight =&gt; weight } all_edges end.sort { |x,y| x[:weight] y[:weight] }.first weight = !cheapest.nil? ? cheapest[:weight]: MAX_VALUE heap[node] = weight end while !" />
+          <meta name="twitter:description" content="I recently wrote a blog post describing my implementation of Prim&#8217;s Algorithm for the Algorithms 2 class and while it comes up with the right answer for the supplied data set it takes almost 30 seconds to do so!
+ In one of the lectures Tim Roughgarden points out that we&#8217;re doing the same calculations multiple times to work out the next smallest edge to include in our minimal spanning tree and could use a heap to speed things up." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/12/15/prims-algorithm-using-a-heappriority-queue-in-ruby/" />
 
@@ -34,7 +35,8 @@
         <title> Prim&#39;s algorithm using a heap/priority queue in Ruby &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="MAX_VALUE = (2**(0.size * 8 -2) -1) adjacency_matrix = create_adjacency_matrix @nodes_spanned_so_far, spanning_tree_cost = [1], 0 heap = PriorityQueue.new nodes_left_to_cover.each do |node| cheapest_nodes = get_edges(adjacency_matrix, node-1). select { |_, other_node_index| @nodes_spanned_so_far.include?(other_node_index &#43; 1) } || [] cheapest = cheapest_nodes.inject([]) do |all_edges, (weight, index)| all_edges &lt;&lt; { :start =&gt; node, :end =&gt; index &#43; 1, :weight =&gt; weight } all_edges end.sort { |x,y| x[:weight] y[:weight] }.first weight = !cheapest.nil? ? cheapest[:weight]: MAX_VALUE heap[node] = weight end while !" />
+        <meta name="description" content="I recently wrote a blog post describing my implementation of Prim&#8217;s Algorithm for the Algorithms 2 class and while it comes up with the right answer for the supplied data set it takes almost 30 seconds to do so!
+ In one of the lectures Tim Roughgarden points out that we&#8217;re doing the same calculations multiple times to work out the next smallest edge to include in our minimal spanning tree and could use a heap to speed things up." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-12-15",
-        "description": "MAX_VALUE = (2**(0.size * 8 -2) -1) adjacency_matrix = create_adjacency_matrix @nodes_spanned_so_far, spanning_tree_cost = [1], 0 heap = PriorityQueue.new nodes_left_to_cover.each do |node| cheapest_nodes = get_edges(adjacency_matrix, node-1). select { |_, other_node_index| @nodes_spanned_so_far.include?(other_node_index \x2b 1) } || [] cheapest = cheapest_nodes.inject([]) do |all_edges, (weight, index)| all_edges \x26lt;\x26lt; { :start =\x26gt; node, :end =\x26gt; index \x2b 1, :weight =\x26gt; weight } all_edges end.sort { |x,y| x[:weight] y[:weight] }.first weight = !cheapest.nil? ? cheapest[:weight]: MAX_VALUE heap[node] = weight end while !",
-        "wordCount":  113 
+        "description": "I recently wrote a blog post describing my implementation of Prim\x26#8217;s Algorithm for the Algorithms 2 class and while it comes up with the right answer for the supplied data set it takes almost 30 seconds to do so!\n In one of the lectures Tim Roughgarden points out that we\x26#8217;re doing the same calculations multiple times to work out the next smallest edge to include in our minimal spanning tree and could use a heap to speed things up.",
+        "wordCount":  701 
     }
     </script>
     
@@ -175,53 +177,138 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Prim&#39;s algorithm using a heap/priority queue in Ruby</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">MAX_VALUE</span> <span style="color:#f92672">=</span>  (<span style="color:#ae81ff">2</span><span style="color:#f92672">**</span>(<span style="color:#ae81ff">0</span><span style="color:#f92672">.</span>size <span style="color:#f92672">*</span> <span style="color:#ae81ff">8</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>) <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+    <div class="paragraph">
+<p>I recently wrote a blog post describing <a href="http://www.markhneedham.com/blog/2012/12/15/prims-algorithm-in-ruby/">my implementation of Prim&#8217;s Algorithm</a> for the <a href="https://class.coursera.org/algo2-2012-001">Algorithms 2</a> class and while it comes up with the right answer for the supplied data set it takes almost 30 seconds to do so!</p>
+</div>
+<div class="paragraph">
+<p>In one of the lectures Tim Roughgarden points out that we&#8217;re doing the same calculations multiple times to work out the next smallest edge to include in our minimal spanning tree and could use a heap to speed things up.</p>
+</div>
+<div class="paragraph">
+<p>A heap works well in this situation because one of the reasons we might use a heap is to speed up repeated minimum computations i.e. working out the minimum weighted edge to add to our spanning tree.</p>
+</div>
+<div class="paragraph">
+<p>The pseudocode for the Prim&#8217;s algorithm which uses a heap reads like this:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Let <cite>X</cite> = nodes covered so far, <cite>V</cite> = all the nodes in the graph, <cite>E</cite> = all the edges in the graph</p>
+</li>
+<li>
+<p>Pick an arbitrary initial node <cite>s</cite> and put that into <cite>X</cite></p>
+</li>
+<li>
+<p>for <cite>v</cite> ∈ <cite>V</cite> - <cite>X</cite></p>
+<div class="ulist">
+<ul>
+<li>
+<p>key[v] = cheapest edge <cite>(u,v)</cite> with <cite>v</cite> ∈ <cite>X</cite></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>while <cite>X</cite> ≠ <cite>V</cite>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>let <cite>v</cite> = extract-min(heap) <em>(i.e. v is the node which has the minimal edge cost into <cite>X</cite>)</em></p>
+</li>
+<li>
+<p>Add <cite>v</cite> to <cite>X</cite></p>
+</li>
+<li>
+<p>for each edge <cite>v, w</cite> ∈ <cite>E</cite></p>
+<div class="ulist">
+<ul>
+<li>
+<p>if w ∈ <cite>V</cite> - <cite>X</cite> (<em>i.e. w is a node which hasn&#8217;t yet been covered)</em></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Delete <cite>w</cite> from heap</p>
+</li>
+<li>
+<p>recompute key[w] = min(key[w], weight(v, w)) <em>(key[w] would only change if the weight of the edge (v,w) is less than the current weight for that key).</em></p>
+</li>
+<li>
+<p>reinsert <cite>w</cite> into the heap</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We store the uncovered nodes in the heap and set their priority to be the cheapest edge from that node into the set of nodes which we&#8217;re already covered.</p>
+</div>
+<div class="paragraph">
+<p>I came across the <a href="http://rubydoc.info/gems/PriorityQueue/0.1.2/frames">PriorityQueue</a> gem which actually seems to be better than a heap because we can have the node as the key and then set the priority of the key to be the edge weight. When you extract the minimum value from the priority queue it makes use of this priority to return the minimum one.</p>
+</div>
+<div class="paragraph">
+<p>The outline of my solution to this problem looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">MAX_VALUE =  (2**(0.size * 8 -2) -1)
 
-adjacency_matrix <span style="color:#f92672">=</span> create_adjacency_matrix
-@nodes_spanned_so_far, spanning_tree_cost <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#ae81ff">1</span><span style="color:#f92672">]</span>, <span style="color:#ae81ff">0</span>
+adjacency_matrix = create_adjacency_matrix
+@nodes_spanned_so_far, spanning_tree_cost = [1], 0
 
-heap <span style="color:#f92672">=</span> <span style="color:#66d9ef">PriorityQueue</span><span style="color:#f92672">.</span>new
-nodes_left_to_cover<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>node<span style="color:#f92672">|</span>
-  cheapest_nodes <span style="color:#f92672">=</span> get_edges(adjacency_matrix, node<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>
-                   select { <span style="color:#f92672">|</span>_, other_node_index<span style="color:#f92672">|</span> @nodes_spanned_so_far<span style="color:#f92672">.</span>include?(other_node_index <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) } <span style="color:#f92672">||</span> <span style="color:#f92672">[]</span>
-  
-  cheapest <span style="color:#f92672">=</span> cheapest_nodes<span style="color:#f92672">.</span>inject(<span style="color:#f92672">[]</span>) <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>all_edges, (weight, index)<span style="color:#f92672">|</span>
-    all_edges <span style="color:#f92672">&lt;&lt;</span> { <span style="color:#e6db74">:start</span> <span style="color:#f92672">=&gt;</span> node, <span style="color:#e6db74">:end</span> <span style="color:#f92672">=&gt;</span> index <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, <span style="color:#e6db74">:weight</span> <span style="color:#f92672">=&gt;</span> weight }
+heap = PriorityQueue.new
+nodes_left_to_cover.each do |node|
+  cheapest_nodes = get_edges(adjacency_matrix, node-1).
+                   select { |_, other_node_index| @nodes_spanned_so_far.include?(other_node_index + 1) } || []
+
+  cheapest = cheapest_nodes.inject([]) do |all_edges, (weight, index)|
+    all_edges &lt;&lt; { :start =&gt; node, :end =&gt; index + 1, :weight =&gt; weight }
     all_edges
-  <span style="color:#66d9ef">end</span><span style="color:#f92672">.</span>sort { <span style="color:#f92672">|</span>x,y<span style="color:#f92672">|</span> x<span style="color:#f92672">[</span><span style="color:#e6db74">:weight</span><span style="color:#f92672">]</span>  y<span style="color:#f92672">[</span><span style="color:#e6db74">:weight</span><span style="color:#f92672">]</span> }<span style="color:#f92672">.</span>first
-  
-  weight <span style="color:#f92672">=</span> <span style="color:#f92672">!</span>cheapest<span style="color:#f92672">.</span>nil? ? cheapest<span style="color:#f92672">[</span><span style="color:#e6db74">:weight</span><span style="color:#f92672">]</span>: <span style="color:#66d9ef">MAX_VALUE</span>
-  heap<span style="color:#f92672">[</span>node<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> weight
-<span style="color:#66d9ef">end</span>
+  end.sort { |x,y| x[:weight]  y[:weight] }.first
 
-<span style="color:#66d9ef">while</span> <span style="color:#f92672">!</span>nodes_left_to_cover<span style="color:#f92672">.</span>empty?
-  cheapest_node, weight <span style="color:#f92672">=</span> heap<span style="color:#f92672">.</span>delete_min
-  spanning_tree_cost <span style="color:#f92672">+=</span> weight
-  @nodes_spanned_so_far <span style="color:#f92672">&lt;&lt;</span> cheapest_node
-  
-  edges_with_potential_change <span style="color:#f92672">=</span> get_edges(adjacency_matrix, cheapest_node<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>
-                                reject { <span style="color:#f92672">|</span>_, node_index<span style="color:#f92672">|</span> @nodes_spanned_so_far<span style="color:#f92672">.</span>include?(node_index <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) }
-  edges_with_potential_change<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>weight, node_index<span style="color:#f92672">|</span>
-    heap<span style="color:#f92672">.</span>change_priority(node_index<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, 
-                         <span style="color:#f92672">[</span>heap<span style="color:#f92672">.</span>priority(node_index<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>), adjacency_matrix<span style="color:#f92672">[</span>cheapest_node<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">][</span>node_index<span style="color:#f92672">]].</span>min)
-  <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
+  weight = !cheapest.nil? ? cheapest[:weight]: MAX_VALUE
+  heap[node] = weight
+end
 
-puts <span style="color:#e6db74">&#34;total spanning tree cost </span><span style="color:#e6db74">#{</span>spanning_tree_cost<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+while !nodes_left_to_cover.empty?
+  cheapest_node, weight = heap.delete_min
+  spanning_tree_cost += weight
+  @nodes_spanned_so_far &lt;&lt; cheapest_node
+
+  edges_with_potential_change = get_edges(adjacency_matrix, cheapest_node-1).
+                                reject { |_, node_index| @nodes_spanned_so_far.include?(node_index + 1) }
+  edges_with_potential_change.each do |weight, node_index|
+    heap.change_priority(node_index+1,
+                         [heap.priority(node_index+1), adjacency_matrix[cheapest_node-1][node_index]].min)
+  end
+end
+
+puts "total spanning tree cost #{spanning_tree_cost}"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I couldn&#8217;t see a way to keep track of the edges that comprise the minimal spanning tree so in this version I&#8217;ve created a variable which keeps tracking of the edge weights as we go rather than computing it at the end.</p>
+</div>
+<div class="paragraph">
+<p>We start off by initialising the priority queue to contain entries for each of the nodes in the graph.</p>
+</div>
+<div class="paragraph">
+<p>We do this by finding the edges that go from each node to the nodes that we&#8217;ve already covered. In this case the only node we&#8217;ve covered is node 1 so the priorities for most nodes will be MAX_VALUE and for nodes which have an edge to node 1 it&#8217;ll be the weight of that edge.</p>
+</div>
+<div class="paragraph">
+<p>While we still have nodes left to cover we take the next node with the cheapest weight from the priority queue and add it to the collection of nodes that we&#8217;ve covered. We then iterate through the nodes which have an edge to the node we just removed and update the priority queue if necessary.</p>
+</div>
+<div class="paragraph">
+<p>The time taken for this version of the algorithm to run against the data set was 0.3 seconds as compared to the 29 seconds of the naive implementation.</p>
+</div>
+<div class="paragraph">
+<p>As usual the <a href="https://github.com/mneedham/algorithms2/blob/master/prims_heap.rb">code is on github</a> - I need to figure out how to keep track of the edges so if anyone has any suggestions that&#8217;d be cool.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -256,7 +343,7 @@ puts <span style="color:#e6db74">&#34;total spanning tree cost </span><span styl
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/15/prims-algorithm-using-a-heappriority-queue-in-ruby/&amp;title=Prim%27s%20algorithm%20using%20a%20heap%2fpriority%20queue%20in%20Ruby&amp;summary=MAX_VALUE%20%3d%20%282%2a%2a%280.size%20%2a%208%20-2%29%20-1%29%20adjacency_matrix%20%3d%20create_adjacency_matrix%20%40nodes_spanned_so_far%2c%20spanning_tree_cost%20%3d%20%5b1%5d%2c%200%20heap%20%3d%20PriorityQueue.new%20nodes_left_to_cover.each%20do%20%7cnode%7c%20cheapest_nodes%20%3d%20get_edges%28adjacency_matrix%2c%20node-1%29.%20select%20%7b%20%7c_%2c%20other_node_index%7c%20%40nodes_spanned_so_far.include%3f%28other_node_index%20%2b%201%29%20%7d%20%7c%7c%20%5b%5d%20cheapest%20%3d%20cheapest_nodes.inject%28%5b%5d%29%20do%20%7call_edges%2c%20%28weight%2c%20index%29%7c%20all_edges%20%26lt%3b%26lt%3b%20%7b%20%3astart%20%3d%26gt%3b%20node%2c%20%3aend%20%3d%26gt%3b%20index%20%2b%201%2c%20%3aweight%20%3d%26gt%3b%20weight%20%7d%20all_edges%20end.sort%20%7b%20%7cx%2cy%7c%20x%5b%3aweight%5d%20y%5b%3aweight%5d%20%7d.first%20weight%20%3d%20%21cheapest.nil%3f%20%3f%20cheapest%5b%3aweight%5d%3a%20MAX_VALUE%20heap%5bnode%5d%20%3d%20weight%20end%20while%20%21..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/15/prims-algorithm-using-a-heappriority-queue-in-ruby/&amp;title=Prim%27s%20algorithm%20using%20a%20heap%2fpriority%20queue%20in%20Ruby&amp;summary=I%20recently%20wrote%20a%20blog%20post%20describing%20my%20implementation%20of%20Prim%26%238217%3bs%20Algorithm%20for%20the%20Algorithms%202%20class%20and%20while%20it%20comes%20up%20with%20the%20right%20answer%20for%20the%20supplied%20data%20set%20it%20takes%20almost%2030%20seconds%20to%20do%20so%21%0a%20In%20one%20of%20the%20lectures%20Tim%20Roughgarden%20points%20out%20that%20we%26%238217%3bre%20doing%20the%20same%20calculations%20multiple%20times%20to%20work%20out%20the%20next%20smallest%20edge%20to%20include%20in%20our%20minimal%20spanning%20tree%20and%20could%20use%20a%20heap%20to%20speed%20things%20up...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

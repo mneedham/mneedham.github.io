@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Overloading functions/pattern matching" />
         
-          <meta name="twitter:description" content="While trying to refactor my twitter applicationinto a state where I could use Erlang style message passing to process some requests asynchronously while still hitting twitter to get more messages I came across the problem of wanting to overload a method.
-By default it seems that you can&rsquo;t do method overloading in F# unless you make use of the OverloadID attribute which I learnt about from reading Scott Seely&rsquo;s blog post:" />
+          <meta name="twitter:description" content="While trying to refactor my twitter application into a state where I could use Erlang style message passing to process some requests asynchronously while still hitting twitter to get more messages I came across the problem of wanting to overload a method.
+ By default it seems that you can&#8217;t do method overloading in F# unless you make use of the OverloadID attribute which I learnt about from reading Scott Seely&#8217;s blog post:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/04/28/f-overloading-functionspattern-matching/" />
 
@@ -34,8 +34,8 @@ By default it seems that you can&rsquo;t do method overloading in F# unless you 
         <title> F#: Overloading functions/pattern matching &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="While trying to refactor my twitter applicationinto a state where I could use Erlang style message passing to process some requests asynchronously while still hitting twitter to get more messages I came across the problem of wanting to overload a method.
-By default it seems that you can&rsquo;t do method overloading in F# unless you make use of the OverloadID attribute which I learnt about from reading Scott Seely&rsquo;s blog post:" />
+        <meta name="description" content="While trying to refactor my twitter application into a state where I could use Erlang style message passing to process some requests asynchronously while still hitting twitter to get more messages I came across the problem of wanting to overload a method.
+ By default it seems that you can&#8217;t do method overloading in F# unless you make use of the OverloadID attribute which I learnt about from reading Scott Seely&#8217;s blog post:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ By default it seems that you can&rsquo;t do method overloading in F# unless you 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-04-28",
-        "description": "While trying to refactor my twitter applicationinto a state where I could use Erlang style message passing to process some requests asynchronously while still hitting twitter to get more messages I came across the problem of wanting to overload a method.\nBy default it seems that you can\x26rsquo;t do method overloading in F# unless you make use of the OverloadID attribute which I learnt about from reading Scott Seely\x26rsquo;s blog post:",
-        "wordCount":  381 
+        "description": "While trying to refactor my twitter application into a state where I could use Erlang style message passing to process some requests asynchronously while still hitting twitter to get more messages I came across the problem of wanting to overload a method.\n By default it seems that you can\x26#8217;t do method overloading in F# unless you make use of the OverloadID attribute which I learnt about from reading Scott Seely\x26#8217;s blog post:",
+        "wordCount":  448 
     }
     </script>
     
@@ -174,57 +174,90 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Overloading functions/pattern matching</h1>
-    <p>While trying to <!-- raw HTML omitted -->refactor my twitter application<!-- raw HTML omitted --> into a state where I could use Erlang style message passing to process some requests asynchronously while still hitting twitter to get more messages I came across the problem of wanting to overload a method.</p>
-<p>By default it seems that you can&rsquo;t do method overloading in F# unless you make use of the OverloadID attribute which I learnt about from reading <!-- raw HTML omitted -->Scott Seely&rsquo;s blog post<!-- raw HTML omitted -->:</p>
-<!-- raw HTML omitted -->
+    <div class="paragraph">
+<p>While trying to <a href="http://www.markhneedham.com/blog/2009/04/18/f-refactoring-that-little-twitter-application-into-objects/">refactor my twitter application</a> into a state where I could use Erlang style message passing to process some requests asynchronously while still hitting twitter to get more messages I came across the problem of wanting to overload a method.</p>
+</div>
+<div class="paragraph">
+<p>By default it seems that you can&#8217;t do method overloading in F# unless you make use of the OverloadID attribute which I learnt about from reading <a href="http://www.scottseely.com/blog/09-03-06/Method_Overloading_in_F.aspx">Scott Seely&#8217;s blog post</a>:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Adding the OverloadID attribute to a member permits it to be part of a group overloaded by the same name and arity. The string must be a unique name amongst those in the overload set. Overrides of this method, if permitted, must be given the same OverloadID, and the OverloadID must be specified in both signature and implementation files if signature files are used.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
 <p>I therefore ended up with this somewhat horrible looking code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">TwitterMessageProcessor</span> <span style="color:#f92672">=</span>
-	<span style="color:#66d9ef">let</span> agent <span style="color:#f92672">=</span> MailboxProcessor.<span style="color:#a6e22e">Start</span><span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> inbox <span style="color:#f92672">-&gt;</span>
-	<span style="color:#75715e">(* ... *)</span>
-		<span style="color:#f92672">[&lt;</span><span style="color:#a6e22e">OverloadID</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Send.TwitterStatus&#34;</span><span style="color:#f92672">)&gt;]</span>
-		member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Send</span><span style="color:#f92672">(</span>message<span style="color:#f92672">:</span><span style="color:#a6e22e">TwitterStatus</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Phrase</span><span style="color:#f92672">(</span>message<span style="color:#f92672">))</span>
-		<span style="color:#f92672">[&lt;</span><span style="color:#a6e22e">OverloadID</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Send.list.TwitterStatus&#34;</span><span style="color:#f92672">)&gt;]</span>
-		member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Send</span><span style="color:#f92672">(</span>message<span style="color:#f92672">:</span> seq<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">TwitterStatus</span><span style="color:#f92672">&gt;)</span> <span style="color:#f92672">=</span> message <span style="color:#f92672">|&gt;</span> Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> message <span style="color:#f92672">-&gt;</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Phrase</span><span style="color:#f92672">(</span>message<span style="color:#f92672">)))</span>
-</code></pre></div><p>This allows me to either send a single TwitterStatus or a collection of TwitterStatuses to the TwitterMessageProcessor but it feels like the C# approach to solving the problem.</p>
-<p>Talking to <!-- raw HTML omitted -->Dave<!-- raw HTML omitted --> about this problem he suggested that maybe pattern matching was the way to go about this problem but I wasn&rsquo;t sure how to do pattern matching based on the input potentially being a different type.</p>
-<p>A bit of googling turned up a <!-- raw HTML omitted -->Stack Overflow thread about defining functions to work on multiple types of parameters<!-- raw HTML omitted -->.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">type TwitterMessageProcessor =
+	let agent = MailboxProcessor.Start(fun inbox -&gt;
+	(* ... *)
+		[&lt;OverloadID("Send.TwitterStatus")&gt;]
+		member x.Send(message:TwitterStatus) = agent.Post(Phrase(message))
+		[&lt;OverloadID("Send.list.TwitterStatus")&gt;]
+		member x.Send(message: seq&lt;TwitterStatus&gt;) = message |&gt; Seq.iter (fun message -&gt; agent.Post(Phrase(message)))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This allows me to either send a single TwitterStatus or a collection of TwitterStatuses to the TwitterMessageProcessor but it feels like the C# approach to solving the problem.</p>
+</div>
+<div class="paragraph">
+<p>Talking to <a href="http://www.twitter.com/davcamer">Dave</a> about this problem he suggested that maybe pattern matching was the way to go about this problem but I wasn&#8217;t sure how to do pattern matching based on the input potentially being a different type.</p>
+</div>
+<div class="paragraph">
+<p>A bit of googling turned up a <a href="http://stackoverflow.com/questions/501069/f-functions-with-generic-parameter-types">Stack Overflow thread about defining functions to work on multiple types of parameters</a>.</p>
+</div>
+<div class="paragraph">
 <p>I tried this out and ended up with the following code which uses type constraints:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">TwitterMessageProcessor</span>() <span style="color:#f92672">=</span>
-	<span style="color:#66d9ef">let</span> agent <span style="color:#f92672">=</span> MailboxProcessor.<span style="color:#a6e22e">Start</span><span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> inbox <span style="color:#f92672">-&gt;</span>
-	<span style="color:#75715e">(* ... *)</span>
-		member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Send</span><span style="color:#f92672">(</span>message<span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
-     		<span style="color:#66d9ef">match</span> box message <span style="color:#66d9ef">with</span>
-         		<span style="color:#f92672">|</span> <span style="color:#f92672">:?</span> seq<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">TwitterStatus</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">as</span> message <span style="color:#f92672">-&gt;</span> message <span style="color:#f92672">|&gt;</span> Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> message <span style="color:#f92672">-&gt;</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Phrase</span><span style="color:#f92672">(</span>message<span style="color:#f92672">)))</span>
-         		<span style="color:#f92672">|</span> <span style="color:#f92672">:?</span> <span style="color:#a6e22e">TwitterStatus</span> <span style="color:#66d9ef">as</span> message <span style="color:#f92672">-&gt;</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Phrase</span><span style="color:#f92672">(</span>message<span style="color:#f92672">))</span>
-         		<span style="color:#f92672">|</span> <span style="color:#f92672">_</span> <span style="color:#f92672">-&gt;</span> failwith <span style="color:#e6db74">&#34;Unmatched message type&#34;</span>
-</code></pre></div><p>This seems a bit nicer but obviously we lose our type safety that we had before - you can pretty much send in anything you want to the Send method. Looking at the code in <!-- raw HTML omitted -->Reflector<!-- raw HTML omitted --> confirms this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> Send&lt;T&gt;(T message)
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">type TwitterMessageProcessor() =
+	let agent = MailboxProcessor.Start(fun inbox -&gt;
+	(* ... *)
+		member x.Send(message) =
+     		match box message with
+         		| :? seq&lt;TwitterStatus&gt; as message -&gt; message |&gt; Seq.iter (fun message -&gt; agent.Post(Phrase(message)))
+         		| :? TwitterStatus as message -&gt; agent.Post(Phrase(message))
+         		| _ -&gt; failwith "Unmatched message type"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This seems a bit nicer but obviously we lose our type safety that we had before - you can pretty much send in anything you want to the Send method. Looking at the code in <a href="http://www.red-gate.com/products/reflector/">Reflector</a> confirms this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public void Send&lt;T&gt;(T message)
 {
-    <span style="color:#66d9ef">object</span> obj2 = message;
-    IEnumerable&lt;TwitterStatus&gt; <span style="color:#960050;background-color:#1e0010">$</span>typeTestResult<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">37</span> = obj2 <span style="color:#66d9ef">as</span> IEnumerable&lt;TwitterStatus&gt;;
-    <span style="color:#66d9ef">if</span> (<span style="color:#960050;background-color:#1e0010">$</span>typeTestResult<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">37</span> != <span style="color:#66d9ef">null</span>)
+    object obj2 = message;
+    IEnumerable&lt;TwitterStatus&gt; $typeTestResult@37 = obj2 as IEnumerable&lt;TwitterStatus&gt;;
+    if ($typeTestResult@37 != null)
     {
-        IEnumerable&lt;TwitterStatus&gt; message = <span style="color:#960050;background-color:#1e0010">$</span>typeTestResult<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">37</span>;
-        Seq.iter&lt;TwitterStatus&gt;(<span style="color:#66d9ef">new</span> Twitter.clo<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">37</span>_1(<span style="color:#66d9ef">this</span>), message);
+        IEnumerable&lt;TwitterStatus&gt; message = $typeTestResult@37;
+        Seq.iter&lt;TwitterStatus&gt;(new Twitter.clo@37_1(this), message);
     }
-    <span style="color:#66d9ef">else</span>
+    else
     {
-        TwitterStatus <span style="color:#960050;background-color:#1e0010">$</span>typeTestResult<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">38</span> = obj2 <span style="color:#66d9ef">as</span> TwitterStatus;
-        <span style="color:#66d9ef">if</span> (<span style="color:#960050;background-color:#1e0010">$</span>typeTestResult<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">38</span> != <span style="color:#66d9ef">null</span>)
+        TwitterStatus $typeTestResult@38 = obj2 as TwitterStatus;
+        if ($typeTestResult@38 != null)
         {
-            TwitterStatus message = <span style="color:#960050;background-color:#1e0010">$</span>typeTestResult<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">38</span>;
-            <span style="color:#66d9ef">this</span>.agent<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">16.</span>Post(<span style="color:#66d9ef">new</span> Twitter.Message._Phrase(message));
+            TwitterStatus message = $typeTestResult@38;
+            this.agent@16.Post(new Twitter.Message._Phrase(message));
         }
-        <span style="color:#66d9ef">else</span>
+        else
         {
-            Operators.failwith&lt;Unit&gt;(<span style="color:#e6db74">&#34;Unmatched message type&#34;</span>);
+            Operators.failwith&lt;Unit&gt;("Unmatched message type");
         }
     }
-}
-</code></pre></div><p>I&rsquo;m not really happy with either of these solutions but I haven&rsquo;t come across a better way to achieve this but I&rsquo;d be interested in doing so if anyone has any ideas.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not really happy with either of these solutions but I haven&#8217;t come across a better way to achieve this but I&#8217;d be interested in doing so if anyone has any ideas.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -259,7 +292,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/04/28/f-overloading-functionspattern-matching/&amp;title=F%23%3a%20Overloading%20functions%2fpattern%20matching&amp;summary=While%20trying%20to%20refactor%20my%20twitter%20applicationinto%20a%20state%20where%20I%20could%20use%20Erlang%20style%20message%20passing%20to%20process%20some%20requests%20asynchronously%20while%20still%20hitting%20twitter%20to%20get%20more%20messages%20I%20came%20across%20the%20problem%20of%20wanting%20to%20overload%20a%20method.%0aBy%20default%20it%20seems%20that%20you%20can%26rsquo%3bt%20do%20method%20overloading%20in%20F%23%20unless%20you%20make%20use%20of%20the%20OverloadID%20attribute%20which%20I%20learnt%20about%20from%20reading%20Scott%20Seely%26rsquo%3bs%20blog%20post%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/04/28/f-overloading-functionspattern-matching/&amp;title=F%23%3a%20Overloading%20functions%2fpattern%20matching&amp;summary=While%20trying%20to%20refactor%20my%20twitter%20application%20into%20a%20state%20where%20I%20could%20use%20Erlang%20style%20message%20passing%20to%20process%20some%20requests%20asynchronously%20while%20still%20hitting%20twitter%20to%20get%20more%20messages%20I%20came%20across%20the%20problem%20of%20wanting%20to%20overload%20a%20method.%0a%20By%20default%20it%20seems%20that%20you%20can%26%238217%3bt%20do%20method%20overloading%20in%20F%23%20unless%20you%20make%20use%20of%20the%20OverloadID%20attribute%20which%20I%20learnt%20about%20from%20reading%20Scott%20Seely%26%238217%3bs%20blog%20post%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

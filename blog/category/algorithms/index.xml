@@ -17,7 +17,9 @@
       <pubDate>Sun, 20 Jan 2013 19:14:08 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/01/20/bellman-ford-algorithm-in-python-using-vectorisationnumpy/</guid>
-      <description>for i in range(1, vertices): for v in range(0, vertices): previous_cache = cache least_adjacent_cost = calculate_least_adjacent_cost(adjacency_list, i, v, previous_cache) cache[v] = min(previous_cache[v], least_adjacent_cost) # detecting negative cycles for v in range(0, vertices): previous_cache = copy.deepcopy(cache) least_adjacent_cost = calculate_least_adjacent_cost(adjacency_list, i, v, previous_cache) cache[v] = min(previous_cache[v], least_adjacent_cost) if(not cache == previous_cache): raise Exception(&amp;#34;negative cycle detected&amp;#34;) shortest_path = min(cache) # We want to get to this point previous_cache = cache[:] # here we copy the contents of cache into previous_cache cache = minimum(previous_cache, new_shortest_paths) 1 2 3 4 5 6 # these are the previous shortest paths for vertex 0,1…,n inf inf 4 inf inf inf # edges for vertex 0 -2 inf inf inf inf inf # edges for vertex 1 inf -1 inf inf inf inf # and so on.</description>
+      <description>I recently wrote about an implementation of the Bellman Ford shortest path algorithm and concluded by saying that it took 27 seconds to calculate the shortest path in the graph for any node.
+ This seemed a bit slow and while browsing the Coursera forums I came across a suggestion that the algorithm would run much more quickly if we used vectorization with numpy rather than nested for loops.
+ Vectorisation refers to a problem solving approach where we make use of matrices operations which is what numpy allows us to do.</description>
     </item>
     
     <item>
@@ -26,7 +28,8 @@
       <pubDate>Fri, 18 Jan 2013 00:40:32 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/01/18/bellman-ford-algorithm-in-python/</guid>
-      <description>import os file = open(os.path.dirname(os.path.realpath(__file__)) + &amp;#34;/g_small.txt&amp;#34;) vertices, edges = map(lambda x: int(x), file.readline().replace(&amp;#34;\n&amp;#34;, &amp;#34;&amp;#34;).split(&amp;#34; &amp;#34;)) adjacency_list = [[] for k in xrange(vertices)] for line in file.readlines(): tail, head, weight = line.split(&amp;#34; &amp;#34;) adjacency_list[int(head)-1].append({&amp;#34;from&amp;#34; : int(tail), &amp;#34;weight&amp;#34; : int(weight)}) s=0 cache = [[0 for k in xrange(vertices+1)] for j in xrange(vertices+1)] cache[0][s] = 0 for v in range(0, vertices): if v != s: cache[0][v] = float(&amp;#34;inf&amp;#34;) for i in range(1, vertices): for v in range(0, vertices): least_adjacent_cost = calculate_least_adjacent_cost(adjacency_list, i, v, cache[i-1]) cache[i][v] = min(cache[i-1][v], least_adjacent_cost) # detecting negative cycles for v in range(0, vertices): least_adjacent_cost = calculate_least_adjacent_cost(adjacency_list, i, v, cache[vertices-1]) cache[vertices][v] = min(cache[vertices-1][v], least_adjacent_cost) if(not cache[vertices] == cache[vertices-1]): raise Exception(&amp;#34;negative cycle detected&amp;#34;) shortest_path = min(cache[vertices-1]) print(&amp;#34;Shortest Path: &amp;#34; + str(shortest_path)) def calculate_least_adjacent_cost(adjacency_list, i, v, cache): adjacent_nodes = adjacency_list[v] least_adjacent_cost = float(&amp;#34;inf&amp;#34;) for node in adjacent_nodes: adjacent_cost = cache[node[&amp;#34;from&amp;#34;]-1] + node[&amp;#34;weight&amp;#34;] if adjacent_cost &amp;lt; least_adjacent_cost: least_adjacent_cost = adjacent_cost return least_adjacent_cost s=0 cache = [[] for j in xrange(vertices+1)] cache[s] = 0 for v in range(0, vertices): if v !</description>
+      <description>The latest problem of the Algorithms 2 class required us to write an algorithm to calculate the shortest path between two nodes on a graph and one algorithm which allows us to do this is Bellman-Ford.
+ Bellman-Ford computes the single source shortest path which means that if we have a 5 vertex graph we&amp;#8217;d need to run it 5 times to find the shortest path for each vertex and then find the shortest paths of those shortest paths.</description>
     </item>
     
     <item>
@@ -35,7 +38,9 @@
       <pubDate>Wed, 09 Jan 2013 00:12:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/01/09/knapsack-problem-in-haskell/</guid>
-      <description>ref :: a -&amp;gt; IORef a ref x = unsafePerformIO (newIORef x) knapsackCached1 :: [[Int]] -&amp;gt; Int -&amp;gt; Int -&amp;gt; IORef (Map.Map (Int, Int) Int) -&amp;gt; Int knapsackCached1 rows knapsackWeight index cacheContainer = unsafePerformIO $ do cache &amp;lt;- readIORef cacheContainer if index == 0 || knapsackWeight == 0 then do return 0 else let (value:weight:_) = rows !! index best = knapsackCached1 rows knapsackWeight prevIndex cacheContainer in if weight &amp;gt; knapsackWeight &amp;amp;&amp;amp; lookupPreviousIn cache == Nothing then do let updatedCache = Map.</description>
+      <description>I recently described two versions of the Knapsack problem written in Ruby and Python and one common thing is that I used a global cache to store the results of previous calculations.
+ From my experience of coding in Haskell it&amp;#8217;s not considered very idiomatic to write code like that and although I haven&amp;#8217;t actually tried it, potentially more tricky to achieve.
+ I thought it&amp;#8217;d be interesting to try and write the algorithm in Haskell with that constraint in mind and my first version looked like this:</description>
     </item>
     
     <item>
@@ -44,7 +49,8 @@
       <pubDate>Mon, 07 Jan 2013 00:47:34 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/01/07/knapsack-problem-python-vs-ruby/</guid>
-      <description>number_of_items,knapsack_size = # calculated from file cache = [].tap { |m| (number_of_items+1).times { m &amp;lt;&amp;lt; Array.new(knapsack_size+1) } } cache[0].each_with_index { |value, weight| cache[0][weight] = 0 } (1..number_of_items).each do |i| value, weight = rows[i-1] (0..knapsack_size).each do |x| if weight &amp;gt; x cache[i][x] = cache[i-1][x] else cache[i][x] = [cache[i-1][x], cache[i-1][x-weight] + value].max end end end p cache[number_of_items][knapsack_size] @new_cache = [].tap { |m| (@number_of_items+1).times { m &amp;lt;&amp;lt; {} } } def knapsack_cached(rows, knapsack_size, index) return 0 if knapsack_size == 0 || index == 0 value, weight = rows[index] if weight &amp;gt; knapsack_size stored_value = @new_cache[index-1][knapsack_size] return stored_value unless stored_value.</description>
+      <description>The latest algorithm that we had to code in Algorithms 2 was the Knapsack problem which is as follows:
+  The knapsack problem or rucksack problem is a problem in combinatorial optimization: Given a set of items, each with a weight and a value, determine the number of each item to include in a collection so that the total weight is less than or equal to a given limit and the total value is as large as possible.</description>
     </item>
     
     <item>
@@ -53,7 +59,9 @@
       <pubDate>Sun, 23 Dec 2012 21:43:42 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/12/23/kruskals-algorithm-using-union-find-in-ruby/</guid>
-      <description>class UnionFind def initialize(n) @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders } end def connected?(id1,id2) @leaders[id1] == @leaders[id2] end def union(id1,id2) leader_1, leader_2 = @leaders[id1], @leaders[id2] @leaders.map! {|i| (i == leader_1) ? leader_2 : i } end end &amp;gt; uf = UnionFind.new 5 =&amp;gt; #&amp;lt;UnionFind:0x45e5a9b3 @leaders=[nil, 1, 2, 3, 4, 5]&amp;gt; &amp;gt; uf.connected?(1,2) =&amp;gt; false &amp;gt; uf.union(1,2) =&amp;gt; [nil, 2, 2, 3, 4, 5] &amp;gt; uf.union(2,3) =&amp;gt; [nil, 3, 3, 3, 4, 5] set = UnionFind.</description>
+      <description>I recently wrote a blog post describing my implementation of Kruskal&amp;#8217;s algorithm - a greedy algorithm using to find a minimum spanning tree (MST) of a graph - and while it does the job it&amp;#8217;s not particularly quick.
+ It takes 20 seconds to calculate the MST for a 500 node, ~2000 edge graph.
+ One way that we can improve the performance of the algorithm is by storing the MST in a union find/http://en.</description>
     </item>
     
     <item>
@@ -62,7 +70,9 @@
       <pubDate>Sun, 23 Dec 2012 14:18:53 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/12/23/kruskals-algorithm-in-ruby/</guid>
-      <description>@minimum_spanning_tree = [] edges = file.drop(1). map { |x| x.gsub(/\n/, &amp;#34;&amp;#34;).split(&amp;#34; &amp;#34;).map(&amp;amp;:to_i) }. map { |one, two, weight| { :from =&amp;gt; one, :to =&amp;gt; two, :weight =&amp;gt; weight}}. sort_by { |x| x[:weight]} edges.each do |edge| @minimum_spanning_tree &amp;lt;&amp;lt; edge unless has_cycles edge end def has_cycles(edge) node_one, node_two = edge[:from], edge[:to] @minimum_spanning_tree.each { |x| x[:explored] = false } cycle_between(node_one, node_two, @minimum_spanning_tree.dup) end def cycle_between(one, two, edges) adjacent_edges = edges.select { |edge| edge[:to] == one || edge[:from] == one} return false if adjacent_edges.</description>
+      <description>Last week I wrote a couple of posts showing different implementations of Prim&amp;#8217;s algorithm - an algorithm using to find a minimum spanning tree in a graph - and a similar algorithm is Kruskal&amp;#8217;s algorithm.
+ Kruskal&amp;#8217;s algorithm also finds a minimum spanning tree but it goes about it in a slightly different way.
+ Prim&amp;#8217;s algorithm takes an approach whereby we select nodes and then find connecting edges until we&amp;#8217;ve covered all the nodes.</description>
     </item>
     
     <item>
@@ -71,7 +81,8 @@
       <pubDate>Sat, 15 Dec 2012 16:31:05 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/12/15/prims-algorithm-using-a-heappriority-queue-in-ruby/</guid>
-      <description>MAX_VALUE = (2**(0.size * 8 -2) -1) adjacency_matrix = create_adjacency_matrix @nodes_spanned_so_far, spanning_tree_cost = [1], 0 heap = PriorityQueue.new nodes_left_to_cover.each do |node| cheapest_nodes = get_edges(adjacency_matrix, node-1). select { |_, other_node_index| @nodes_spanned_so_far.include?(other_node_index + 1) } || [] cheapest = cheapest_nodes.inject([]) do |all_edges, (weight, index)| all_edges &amp;lt;&amp;lt; { :start =&amp;gt; node, :end =&amp;gt; index + 1, :weight =&amp;gt; weight } all_edges end.sort { |x,y| x[:weight] y[:weight] }.first weight = !cheapest.nil? ? cheapest[:weight]: MAX_VALUE heap[node] = weight end while !</description>
+      <description>I recently wrote a blog post describing my implementation of Prim&amp;#8217;s Algorithm for the Algorithms 2 class and while it comes up with the right answer for the supplied data set it takes almost 30 seconds to do so!
+ In one of the lectures Tim Roughgarden points out that we&amp;#8217;re doing the same calculations multiple times to work out the next smallest edge to include in our minimal spanning tree and could use a heap to speed things up.</description>
     </item>
     
     <item>
@@ -80,7 +91,9 @@
       <pubDate>Sat, 15 Dec 2012 02:51:14 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/12/15/prims-algorithm-in-ruby/</guid>
-      <description>adjacency_matrix = create_adjacency_matrix first_edge = select_first_edge(adjacency_matrix) @nodes_spanned_so_far, @edges = [first_edge[:start], first_edge[:end]], [first_edge] while !nodes_left_to_cover.empty? cheapest_edge = find_cheapest_edge(adjacency_matrix, @nodes_spanned_so_far, number_of_nodes) @edges &amp;lt;&amp;lt; cheapest_edge @nodes_spanned_so_far &amp;lt;&amp;lt; cheapest_edge[:start] end def find_cheapest_edge(adjacency_matrix, nodes_spanned_so_far, number_of_nodes) available_nodes = (0..number_of_nodes-1).to_a.reject { |node_index| nodes_spanned_so_far.include?(node_index + 1) } cheapest_edges = available_nodes.inject([]) do |acc, node_index| get_edges(adjacency_matrix, node_index).select { |_, other_node_index| nodes_spanned_so_far.include?(other_node_index + 1) }.each do |weight, other_node_index| acc &amp;lt;&amp;lt; { :start =&amp;gt; node_index + 1, :end =&amp;gt; other_node_index + 1, :weight =&amp;gt; weight } end acc end cheapest_edges.</description>
+      <description>One of the first programming assignments of the Algorithms 2 course was to code Prim&amp;#8217;s algorithm - a greedy algorithm used to find the minimum spanning tree of a connected weighted undirected graph.
+ In simpler terms we need to find the path of least cost which connects all of the nodes together and there can&amp;#8217;t be any cycles in that path.
+ Wikipedia has a neat diagram which shows this more clearly:</description>
     </item>
     
     <item>
@@ -89,8 +102,8 @@
       <pubDate>Wed, 25 Apr 2012 21:28:42 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/04/25/algorithms-rabin-karp-in-haskell/</guid>
-      <description>I recently came across a blog post describing the Rabin Karp algorithm- an algorithm that uses hashing to find a pattern string in some text - and thought it would be interesting to try and write a version of it in Haskell.
-This algorithm is typically used when we want to search for multiple pattern strings in a text e.g. when detecting plagiarism or a primitive way of detecting code duplication but my initial version only lets your search for one pattern.</description>
+      <description>I recently came across a blog post describing the Rabin Karp algorithm - an algorithm that uses hashing to find a pattern string in some text - and thought it would be interesting to try and write a version of it in Haskell.
+ This algorithm is typically used when we want to search for multiple pattern strings in a text e.g. when detecting plagiarism or a primitive way of detecting code duplication but my initial version only lets your search for one pattern.</description>
     </item>
     
     <item>
@@ -99,9 +112,9 @@ This algorithm is typically used when we want to search for multiple pattern str
       <pubDate>Tue, 24 Apr 2012 07:17:24 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/04/24/algo-class-start-simple-and-build-up/</guid>
-      <description>Over the last six weeks I&amp;rsquo;ve been working through Stanford&amp;rsquo;s Design and Analysis of Algorithms Iclass and each week there&amp;rsquo;s been a programming assignment on a specific algorithm for which a huge data set is provided.
-For the first couple of assignments I tried writing the code for the algorithm and then running it directly against the provided data set.
-As you might imagine it never worked first time and this approach led to me becoming very frustrated because there&amp;rsquo;s no way of telling what went wrong.</description>
+      <description>Over the last six weeks I&amp;#8217;ve been working through Stanford&amp;#8217;s Design and Analysis of Algorithms I class and each week there&amp;#8217;s been a programming assignment on a specific algorithm for which a huge data set is provided.
+ For the first couple of assignments I tried writing the code for the algorithm and then running it directly against the provided data set.
+ As you might imagine it never worked first time and this approach led to me becoming very frustrated because there&amp;#8217;s no way of telling what went wrong.</description>
     </item>
     
     <item>
@@ -110,8 +123,8 @@ As you might imagine it never worked first time and this approach led to me beco
       <pubDate>Tue, 17 Apr 2012 07:22:12 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/04/17/algorithms-flood-fill-in-haskell-abstracting-the-common/</guid>
-      <description>In the comments of my blog post describing the flood fill algorithm in HaskellDavid Turner pointed out that the way I was passing the grid around was quite error prone.
-floodFill :: Array (Int, Int) Colour -&amp;gt; (Int, Int) -&amp;gt; Colour -&amp;gt; Colour -&amp;gt; Array (Int, Int) Colour floodFill grid point@(x, y) target replacement = if((not $ inBounds grid point) || grid ! (x,y) /= target) then grid else gridNorth where grid&amp;#39; = replace grid point replacement gridEast = floodFill grid&amp;#39; (x+1, y) target replacement gridWest = floodFill gridEast (x-1, y) target replacement gridSouth = floodFill gridWest (x, y+1) target replacement gridNorth = floodFill gridSouth (x, y-1) target replacement I actually did pass the wrong grid variable around while I was writing it and ended up quite confused as to why it wasn&amp;rsquo;t working as I expected.</description>
+      <description>In the comments of my blog post describing the flood fill algorithm in Haskell David Turner pointed out that the way I was passing the grid around was quite error prone.
+ floodFill :: Array (Int, Int) Colour -&amp;gt; (Int, Int) -&amp;gt; Colour -&amp;gt; Colour -&amp;gt; Array (Int, Int) Colour floodFill grid point@(x, y) target replacement = if((not $ inBounds grid point) || grid ! (x,y) /= target) then grid else gridNorth where grid&#39; = replace grid point replacement gridEast = floodFill grid&#39; (x+1, y) target replacement gridWest = floodFill gridEast (x-1, y) target replacement gridSouth = floodFill gridWest (x, y+1) target replacement gridNorth = floodFill gridSouth (x, y-1) target replacement   I actually did pass the wrong grid variable around while I was writing it and ended up quite confused as to why it wasn&amp;#8217;t working as I expected.</description>
     </item>
     
     <item>
@@ -120,8 +133,8 @@ floodFill :: Array (Int, Int) Colour -&amp;gt; (Int, Int) -&amp;gt; Colour -&amp
       <pubDate>Sat, 07 Apr 2012 00:25:34 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/04/07/algorithms-flood-fill-in-haskell/</guid>
-      <description>Flood fillis an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&amp;rsquo;ll use a two dimensional array.
-The idea is that we decide that we want to change the colour of one of the cells in the array and have its immediate neighbours who share its initial colour have their colour changed too i.e. the colour floods its way through the grid.</description>
+      <description>Flood fill is an algorithm used to work out which nodes are connected to a certain node in a multi dimensional array. In this case we&amp;#8217;ll use a two dimensional array.
+ The idea is that we decide that we want to change the colour of one of the cells in the array and have its immediate neighbours who share its initial colour have their colour changed too i.e. the colour floods its way through the grid.</description>
     </item>
     
   </channel>

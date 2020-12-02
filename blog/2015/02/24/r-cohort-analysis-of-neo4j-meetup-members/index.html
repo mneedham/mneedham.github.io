@@ -23,7 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Cohort analysis of Neo4j meetup members" />
         
-          <meta name="twitter:description" content="library(RNeo4j) graph = startGraph(&#34;http://127.0.0.1:7474/db/data/&#34;) query = &#34;MATCH (g:Group {name: \&#34;Neo4j - London User Group\&#34;})-[:HOSTED_EVENT]-&gt;(e), (e)&lt;-[:TO]-(rsvp {response: \&#34;yes\&#34;})&lt;-[:RSVPD]-(person) RETURN rsvp.time, person.id&#34; timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin=&#34;1970-01-01&#34;, tz = &#34;GMT&#34;) df = cypher(graph, query) df$time = timestampToDate(df$rsvp.time) df$date = format(as.Date(df$time), &#34;%Y-%m&#34;) &gt; df %&gt;% head() ## rsvp.time person.id time date ## 612 1.404857e&#43;12 23362191 2014-07-08 22:00:29 2014-07 ## 1765 1.380049e&#43;12 112623332 2013-09-24 18:58:00 2013-09 ## 1248 1.390563e&#43;12 9746061 2014-01-24 11:24:35 2014-01 ## 1541 1." />
+          <meta name="twitter:description" content="A few weeks ago I came across a blog post explaining how to apply cohort analysis to customer retention using R and I thought it&#8217;d be a fun exercise to calculate something similar for meetup attendees.
+ In the customer retention example we track customer purchases on a month by month basis and each customer is put into a cohort or bucket based on the first month they made a purchase in." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/02/24/r-cohort-analysis-of-neo4j-meetup-members/" />
 
@@ -34,7 +35,8 @@
         <title> R: Cohort analysis of Neo4j meetup members &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="library(RNeo4j) graph = startGraph(&#34;http://127.0.0.1:7474/db/data/&#34;) query = &#34;MATCH (g:Group {name: \&#34;Neo4j - London User Group\&#34;})-[:HOSTED_EVENT]-&gt;(e), (e)&lt;-[:TO]-(rsvp {response: \&#34;yes\&#34;})&lt;-[:RSVPD]-(person) RETURN rsvp.time, person.id&#34; timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin=&#34;1970-01-01&#34;, tz = &#34;GMT&#34;) df = cypher(graph, query) df$time = timestampToDate(df$rsvp.time) df$date = format(as.Date(df$time), &#34;%Y-%m&#34;) &gt; df %&gt;% head() ## rsvp.time person.id time date ## 612 1.404857e&#43;12 23362191 2014-07-08 22:00:29 2014-07 ## 1765 1.380049e&#43;12 112623332 2013-09-24 18:58:00 2013-09 ## 1248 1.390563e&#43;12 9746061 2014-01-24 11:24:35 2014-01 ## 1541 1." />
+        <meta name="description" content="A few weeks ago I came across a blog post explaining how to apply cohort analysis to customer retention using R and I thought it&#8217;d be a fun exercise to calculate something similar for meetup attendees.
+ In the customer retention example we track customer purchases on a month by month basis and each customer is put into a cohort or bucket based on the first month they made a purchase in." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-02-24",
-        "description": "library(RNeo4j) graph = startGraph(\x26#34;http:\/\/127.0.0.1:7474\/db\/data\/\x26#34;) query = \x26#34;MATCH (g:Group {name: \\\x26#34;Neo4j - London User Group\\\x26#34;})-[:HOSTED_EVENT]-\x26gt;(e), (e)\x26lt;-[:TO]-(rsvp {response: \\\x26#34;yes\\\x26#34;})\x26lt;-[:RSVPD]-(person) RETURN rsvp.time, person.id\x26#34; timestampToDate \x26lt;- function(x) as.POSIXct(x \/ 1000, origin=\x26#34;1970-01-01\x26#34;, tz = \x26#34;GMT\x26#34;) df = cypher(graph, query) df$time = timestampToDate(df$rsvp.time) df$date = format(as.Date(df$time), \x26#34;%Y-%m\x26#34;) \x26gt; df %\x26gt;% head() ## rsvp.time person.id time date ## 612 1.404857e\x2b12 23362191 2014-07-08 22:00:29 2014-07 ## 1765 1.380049e\x2b12 112623332 2013-09-24 18:58:00 2013-09 ## 1248 1.390563e\x2b12 9746061 2014-01-24 11:24:35 2014-01 ## 1541 1.",
-        "wordCount":  509 
+        "description": "A few weeks ago I came across a blog post explaining how to apply cohort analysis to customer retention using R and I thought it\x26#8217;d be a fun exercise to calculate something similar for meetup attendees.\n In the customer retention example we track customer purchases on a month by month basis and each customer is put into a cohort or bucket based on the first month they made a purchase in.",
+        "wordCount":  1167 
     }
     </script>
     
@@ -175,156 +177,246 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Cohort analysis of Neo4j meetup members</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">library</span>(RNeo4j)
-graph <span style="color:#f92672">=</span> <span style="color:#a6e22e">startGraph</span>(<span style="color:#e6db74">&#34;http://127.0.0.1:7474/db/data/&#34;</span>)
+    <div class="paragraph">
+<p>A few weeks ago I came across a blog post explaining how to apply <a href="http://analyzecore.com/2014/07/03/cohort-analysis-in-r-retention-charts/">cohort analysis</a> to customer retention using R and I thought it&#8217;d be a fun exercise to calculate something similar for meetup attendees.</p>
+</div>
+<div class="paragraph">
+<p>In the customer retention example we track customer purchases on a month by month basis and each customer is put into a cohort or bucket based on the first month they made a purchase in.</p>
+</div>
+<div class="paragraph">
+<p>We then calculate how many of them made purchases in subsequent months and compare that with the behaviour of people in other cohorts.</p>
+</div>
+<div class="paragraph">
+<p>In our case we aren&#8217;t selling anything so our equivalent will be a person attending a meetup. We&#8217;ll put people into cohorts based on the month of the first meetup they attended.</p>
+</div>
+<div class="paragraph">
+<p>This can act as a proxy for when people become interested in a technology and could perhaps allow us to see how the behaviour of innovators, early adopters and the early majority differs, if at all.</p>
+</div>
+<div class="paragraph">
+<p>The first thing we need to do is get the data showing the events that people RSVP&#8217;d 'yes' to. I&#8217;ve already got the data in Neo4j so we&#8217;ll write a query to extract it as a data frame:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">library(RNeo4j)
+graph = startGraph("http://127.0.0.1:7474/db/data/")
 
-query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;MATCH (g:Group {name: \&#34;Neo4j - London User Group\&#34;})-[:HOSTED_EVENT]-&gt;(e),
-</span><span style="color:#e6db74">               (e)&lt;-[:TO]-(rsvp {response: \&#34;yes\&#34;})&lt;-[:RSVPD]-(person)
-</span><span style="color:#e6db74">         RETURN rsvp.time, person.id&#34;</span>
+query = "MATCH (g:Group {name: \"Neo4j - London User Group\"})-[:HOSTED_EVENT]-&gt;(e),
+               (e)&lt;-[:TO]-(rsvp {response: \"yes\"})&lt;-[:RSVPD]-(person)
+         RETURN rsvp.time, person.id"
 
-timestampToDate <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(x) <span style="color:#a6e22e">as.POSIXct</span>(x <span style="color:#f92672">/</span> <span style="color:#ae81ff">1000</span>, origin<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1970-01-01&#34;</span>, tz <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GMT&#34;</span>)
+timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin="1970-01-01", tz = "GMT")
 
-df <span style="color:#f92672">=</span> <span style="color:#a6e22e">cypher</span>(graph, query)
-df<span style="color:#f92672">$</span>time <span style="color:#f92672">=</span> <span style="color:#a6e22e">timestampToDate</span>(df<span style="color:#f92672">$</span>rsvp.time)
-df<span style="color:#f92672">$</span>date <span style="color:#f92672">=</span> <span style="color:#a6e22e">format</span>(<span style="color:#a6e22e">as.Date</span>(df<span style="color:#f92672">$</span>time), <span style="color:#e6db74">&#34;%Y-%m&#34;</span>)
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">head</span>()
-<span style="color:#75715e">##         rsvp.time person.id                time    date</span>
-<span style="color:#75715e">## 612  1.404857e+12  23362191 2014-07-08 22:00:29 2014-07</span>
-<span style="color:#75715e">## 1765 1.380049e+12 112623332 2013-09-24 18:58:00 2013-09</span>
-<span style="color:#75715e">## 1248 1.390563e+12   9746061 2014-01-24 11:24:35 2014-01</span>
-<span style="color:#75715e">## 1541 1.390920e+12   7881615 2014-01-28 14:40:35 2014-01</span>
-<span style="color:#75715e">## 3056 1.420670e+12  12810159 2015-01-07 22:31:04 2015-01</span>
-<span style="color:#75715e">## 607  1.406025e+12  14329387 2014-07-22 10:34:51 2014-07</span>
-<span style="color:#75715e">## 1634 1.391445e+12  91330472 2014-02-03 16:33:58 2014-02</span>
-<span style="color:#75715e">## 2137 1.371453e+12  68874702 2013-06-17 07:17:10 2013-06</span>
-<span style="color:#75715e">## 430  1.407835e+12 150265192 2014-08-12 09:15:31 2014-08</span>
-<span style="color:#75715e">## 2957 1.417190e+12 182752269 2014-11-28 15:45:18 2014-11</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-firstMeetup <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">group_by</span>(person.id) <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">summarise</span>(firstEvent <span style="color:#f92672">=</span> <span style="color:#a6e22e">min</span>(time), count <span style="color:#f92672">=</span> <span style="color:#a6e22e">n</span>()) <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">arrange</span>(<span style="color:#a6e22e">desc</span>(count))
+df = cypher(graph, query)
+df$time = timestampToDate(df$rsvp.time)
+df$date = format(as.Date(df$time), "%Y-%m")</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; df %&gt;% head()
+##         rsvp.time person.id                time    date
+## 612  1.404857e+12  23362191 2014-07-08 22:00:29 2014-07
+## 1765 1.380049e+12 112623332 2013-09-24 18:58:00 2013-09
+## 1248 1.390563e+12   9746061 2014-01-24 11:24:35 2014-01
+## 1541 1.390920e+12   7881615 2014-01-28 14:40:35 2014-01
+## 3056 1.420670e+12  12810159 2015-01-07 22:31:04 2015-01
+## 607  1.406025e+12  14329387 2014-07-22 10:34:51 2014-07
+## 1634 1.391445e+12  91330472 2014-02-03 16:33:58 2014-02
+## 2137 1.371453e+12  68874702 2013-06-17 07:17:10 2013-06
+## 430  1.407835e+12 150265192 2014-08-12 09:15:31 2014-08
+## 2957 1.417190e+12 182752269 2014-11-28 15:45:18 2014-11</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next we need to find the first meetup that a person attended - this will determine the cohort that the person is assigned to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">firstMeetup = df %&gt;%
+  group_by(person.id) %&gt;%
+  summarise(firstEvent = min(time), count = n()) %&gt;%
+  arrange(desc(count))
 
-<span style="color:#f92672">&gt;</span> firstMeetup
-<span style="color:#75715e">## Source: local data frame [10 x 3]</span>
-<span style="color:#75715e">## </span>
-<span style="color:#75715e">##    person.id          firstEvent count</span>
-<span style="color:#75715e">## 1   13526622 2013-01-24 20:25:19     2</span>
-<span style="color:#75715e">## 2  119400912 2014-10-03 13:09:09     2</span>
-<span style="color:#75715e">## 3  122524352 2014-08-14 14:09:44     1</span>
-<span style="color:#75715e">## 4   37201052 2012-05-21 10:26:24     3</span>
-<span style="color:#75715e">## 5  137112712 2014-07-31 09:32:12     1</span>
-<span style="color:#75715e">## 6  152448642 2014-06-20 08:32:50    17</span>
-<span style="color:#75715e">## 7   98563682 2014-11-05 17:27:57     1</span>
-<span style="color:#75715e">## 8  146976492 2014-05-17 00:04:42     4</span>
-<span style="color:#75715e">## 9   12318409 2014-11-03 05:25:26     2</span>
-<span style="color:#75715e">## 10  41280492 2014-10-16 19:02:03     5</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-firstMeetup<span style="color:#f92672">$</span>date <span style="color:#f92672">=</span> <span style="color:#a6e22e">format</span>(<span style="color:#a6e22e">as.Date</span>(firstMeetup<span style="color:#f92672">$</span>firstEvent), <span style="color:#e6db74">&#34;%Y-%m&#34;</span>)
-byMonthYear <span style="color:#f92672">=</span> firstMeetup <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">count</span>(date) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">arrange</span>(date)
+&gt; firstMeetup
+## Source: local data frame [10 x 3]
+##
+##    person.id          firstEvent count
+## 1   13526622 2013-01-24 20:25:19     2
+## 2  119400912 2014-10-03 13:09:09     2
+## 3  122524352 2014-08-14 14:09:44     1
+## 4   37201052 2012-05-21 10:26:24     3
+## 5  137112712 2014-07-31 09:32:12     1
+## 6  152448642 2014-06-20 08:32:50    17
+## 7   98563682 2014-11-05 17:27:57     1
+## 8  146976492 2014-05-17 00:04:42     4
+## 9   12318409 2014-11-03 05:25:26     2
+## 10  41280492 2014-10-16 19:02:03     5</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s assign each person to a cohort (month/year) and see how many people belong to each one:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">firstMeetup$date = format(as.Date(firstMeetup$firstEvent), "%Y-%m")
+byMonthYear = firstMeetup %&gt;% count(date) %&gt;% arrange(date)
 
-<span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(x<span style="color:#f92672">=</span>date, y <span style="color:#f92672">=</span> n), data <span style="color:#f92672">=</span> byMonthYear) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_bar</span>(stat<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;identity&#34;</span>, fill <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;dark blue&#34;</span>) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">theme</span>(axis.text.x <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(angle <span style="color:#f92672">=</span> <span style="color:#ae81ff">45</span>, hjust <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>))
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-countsForCohort <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(df, firstMeetup, cohort) {
-  members <span style="color:#f92672">=</span> (firstMeetup <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(date <span style="color:#f92672">==</span> cohort))<span style="color:#f92672">$</span>person.id
-  
-  attendance <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> 
-    <span style="color:#a6e22e">filter</span>(person.id <span style="color:#f92672">%in%</span> members) <span style="color:#f92672">%&gt;%</span> 
-    <span style="color:#a6e22e">count</span>(person.id, date) <span style="color:#f92672">%&gt;%</span> 
-    <span style="color:#a6e22e">ungroup</span>() <span style="color:#f92672">%&gt;%</span>
-    <span style="color:#a6e22e">count</span>(date)
-    
-  allCohorts <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(date) <span style="color:#f92672">%&gt;%</span> unique
-  cohortAttendance <span style="color:#f92672">=</span> <span style="color:#a6e22e">merge</span>(allCohorts, attendance, by <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;date&#34;</span>, all <span style="color:#f92672">=</span> <span style="color:#66d9ef">TRUE</span>)
-  
-  cohortAttendance<span style="color:#a6e22e">[is.na</span>(cohortAttendance) <span style="color:#f92672">&amp;</span> cohortAttendance<span style="color:#f92672">$</span>date <span style="color:#f92672">&gt;</span> cohort] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
-  cohortAttendance <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(cohort <span style="color:#f92672">=</span> cohort, retention <span style="color:#f92672">=</span> n <span style="color:#f92672">/</span> <span style="color:#a6e22e">length</span>(members))  
-}
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">countsForCohort</span>(df, firstMeetup, <span style="color:#e6db74">&#34;2011-06&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sample_n</span>(<span style="color:#ae81ff">10</span>)
+ggplot(aes(x=date, y = n), data = byMonthYear) +
+  geom_bar(stat="identity", fill = "dark blue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/02/unnamed-chunk-4-1.png" alt="Unnamed chunk 4 1" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>Next we need to track a cohort over time to see whether people keep coming to events. I wrote the following function to work it out:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">countsForCohort = function(df, firstMeetup, cohort) {
+  members = (firstMeetup %&gt;% filter(date == cohort))$person.id
+
+  attendance = df %&gt;%
+    filter(person.id %in% members) %&gt;%
+    count(person.id, date) %&gt;%
+    ungroup() %&gt;%
+    count(date)
+
+  allCohorts = df %&gt;% select(date) %&gt;% unique
+  cohortAttendance = merge(allCohorts, attendance, by = "date", all = TRUE)
+
+  cohortAttendance[is.na(cohortAttendance) &amp; cohortAttendance$date &gt; cohort] = 0
+  cohortAttendance %&gt;% mutate(cohort = cohort, retention = n / length(members))
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On the first line we get the ids of all the people in the cohort so that we can filter the data frame to only include RSVPs by these people. The first call to 'count' makes sure that we only have one entry per person per month and the second call gives us a count of how many people attended an event in a given month.</p>
+</div>
+<div class="paragraph">
+<p>Next we do the equivalent of a left join using the merge function to ensure we have a row representing each month even if noone from the cohort attended. This will lead to NA entries if there&#8217;s no matching row in the 'attendance' data frame - we&#8217;ll replace those with a 0 if the cohort is in the future. If not we&#8217;ll leave it as it is.</p>
+</div>
+<div class="paragraph">
+<p>Finally we calculate the retention rate for each month for that cohort. e.g. these are some of the rows for the '2011-06' cohort:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; countsForCohort(df, firstMeetup, "2011-06") %&gt;% sample_n(10)
       date n  cohort retention
-<span style="color:#ae81ff">16</span> <span style="color:#ae81ff">2013-01</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>
-<span style="color:#ae81ff">5</span>  <span style="color:#ae81ff">2011-10</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>
-<span style="color:#ae81ff">30</span> <span style="color:#ae81ff">2014-03</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.00</span>
-<span style="color:#ae81ff">29</span> <span style="color:#ae81ff">2014-02</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.00</span>
-<span style="color:#ae81ff">40</span> <span style="color:#ae81ff">2015-01</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.00</span>
-<span style="color:#ae81ff">31</span> <span style="color:#ae81ff">2014-04</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.00</span>
-<span style="color:#ae81ff">8</span>  <span style="color:#ae81ff">2012-04</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.50</span>
-<span style="color:#ae81ff">39</span> <span style="color:#ae81ff">2014-12</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.00</span>
-<span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">2011-07</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>
-<span style="color:#ae81ff">19</span> <span style="color:#ae81ff">2013-04</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2011-06</span>      <span style="color:#ae81ff">0.25</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(x<span style="color:#f92672">=</span>date, y <span style="color:#f92672">=</span> retention, colour <span style="color:#f92672">=</span> cohort), data <span style="color:#f92672">=</span> <span style="color:#a6e22e">countsForCohort</span>(df, firstMeetup, <span style="color:#e6db74">&#34;2011-06&#34;</span>)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_line</span>(<span style="color:#a6e22e">aes</span>(group <span style="color:#f92672">=</span> cohort)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">theme</span>(axis.text.x <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(angle <span style="color:#f92672">=</span> <span style="color:#ae81ff">45</span>, hjust <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>))
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-cohorts <span style="color:#f92672">=</span> <span style="color:#a6e22e">collect</span>(df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(date) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">unique</span>())[,<span style="color:#ae81ff">1</span>]
+16 2013-01 1 2011-06      0.25
+5  2011-10 1 2011-06      0.25
+30 2014-03 0 2011-06      0.00
+29 2014-02 0 2011-06      0.00
+40 2015-01 0 2011-06      0.00
+31 2014-04 0 2011-06      0.00
+8  2012-04 2 2011-06      0.50
+39 2014-12 0 2011-06      0.00
+2  2011-07 1 2011-06      0.25
+19 2013-04 1 2011-06      0.25</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We could then choose to plot that cohort:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">ggplot(aes(x=date, y = retention, colour = cohort), data = countsForCohort(df, firstMeetup, "2011-06")) +
+  geom_line(aes(group = cohort)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/02/unnamed-chunk-5-1.png" alt="Unnamed chunk 5 1" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>From this chart we can see that none of the people who first attended a Neo4j meetup in June 2011 have attended any events for the last two years.</p>
+</div>
+<div class="paragraph">
+<p>Next we want to be able to plot multiple cohorts on the same chart which we can easily do by constructing one big data frame and passing it to ggplot:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">cohorts = collect(df %&gt;% select(date) %&gt;% unique())[,1]
 
-cohortAttendance <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>()
-<span style="color:#a6e22e">for</span>(cohort in cohorts) {
-  cohortAttendance <span style="color:#f92672">=</span> <span style="color:#a6e22e">rbind</span>(cohortAttendance,<span style="color:#a6e22e">countsForCohort</span>(df, firstMeetup, cohort))      
+cohortAttendance = data.frame()
+for(cohort in cohorts) {
+  cohortAttendance = rbind(cohortAttendance,countsForCohort(df, firstMeetup, cohort))
 }
 
-<span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(x<span style="color:#f92672">=</span>date, y <span style="color:#f92672">=</span> retention, colour <span style="color:#f92672">=</span> cohort), data <span style="color:#f92672">=</span> cohortAttendance) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_line</span>(<span style="color:#a6e22e">aes</span>(group <span style="color:#f92672">=</span> cohort)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">theme</span>(axis.text.x <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(angle <span style="color:#f92672">=</span> <span style="color:#ae81ff">45</span>, hjust <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>))
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-monthNumber <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(cohort, date) {
-  cohortAsDate <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.yearmon</span>(cohort)
-  dateAsDate <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.yearmon</span>(date)
-    
-  <span style="color:#a6e22e">if</span>(cohortAsDate <span style="color:#f92672">&gt;</span> dateAsDate) {
-    <span style="color:#e6db74">&#34;NA&#34;</span>
+ggplot(aes(x=date, y = retention, colour = cohort), data = cohortAttendance) +
+  geom_line(aes(group = cohort)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/02/unnamed-chunk-5-2.png" alt="Unnamed chunk 5 2" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>This all looks a bit of a mess and at the moment we can&#8217;t easily compare cohorts as they start at different places on the x axis. We can fix that by adding a 'monthNumber' column to the data frame which we calculate with the following function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">monthNumber = function(cohort, date) {
+  cohortAsDate = as.yearmon(cohort)
+  dateAsDate = as.yearmon(date)
+
+  if(cohortAsDate &gt; dateAsDate) {
+    "NA"
   } else {
-    <span style="color:#a6e22e">paste</span>(<span style="color:#a6e22e">round</span>((dateAsDate <span style="color:#f92672">-</span> cohortAsDate) <span style="color:#f92672">*</span> <span style="color:#ae81ff">12</span>), sep<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>)
+    paste(round((dateAsDate - cohortAsDate) * 12), sep="")
   }
-}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-cohortAttendanceWithMonthNumber <span style="color:#f92672">=</span> cohortAttendance <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">group_by</span>(<span style="color:#a6e22e">row_number</span>()) <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">mutate</span>(monthNumber <span style="color:#f92672">=</span> <span style="color:#a6e22e">monthNumber</span>(cohort, date)) <span style="color:#f92672">%&gt;%</span>
-  <span style="color:#a6e22e">filter</span>(monthNumber <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;NA&#34;</span>) <span style="color:#f92672">%&gt;%</span>
-  <span style="color:#a6e22e">filter</span>(monthNumber <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#34;0&#34;</span>) <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">mutate</span>(monthNumber <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.numeric</span>(monthNumber)) <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">arrange</span>(monthNumber)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(x<span style="color:#f92672">=</span>monthNumber, y <span style="color:#f92672">=</span> retention, colour <span style="color:#f92672">=</span> cohort), data <span style="color:#f92672">=</span> cohortAttendanceWithMonthNumber) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_line</span>(<span style="color:#a6e22e">aes</span>(group <span style="color:#f92672">=</span> cohort)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">theme</span>(axis.text.x <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_text</span>(angle <span style="color:#f92672">=</span> <span style="color:#ae81ff">45</span>, hjust <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>), panel.background <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_blank</span>())
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s create a new data frame with the month field added:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">cohortAttendanceWithMonthNumber = cohortAttendance %&gt;%
+  group_by(row_number()) %&gt;%
+  mutate(monthNumber = monthNumber(cohort, date)) %&gt;%
+  filter(monthNumber != "NA") %&gt;%
+  filter(monthNumber != "0") %&gt;%
+  mutate(monthNumber = as.numeric(monthNumber)) %&gt;%
+  arrange(monthNumber)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;re also filtering out any 'NA' columns which would represent row entries for months from before the cohort started. We don&#8217;t want to plot those.</p>
+</div>
+<div class="paragraph">
+<p>finally let&#8217;s plot a chart containing all cohorts normalised by month number:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">ggplot(aes(x=monthNumber, y = retention, colour = cohort), data = cohortAttendanceWithMonthNumber) +
+  geom_line(aes(group = cohort)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), panel.background = element_blank())</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/02/unnamed-chunk-5-3.png" alt="Unnamed chunk 5 3" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s still a bit of a mess but what stands out is that when the number of people in a cohort is small the fluctuation in the retention value can be quite pronounced.</p>
+</div>
+<div class="paragraph">
+<p>The next step is to make the cohorts a bit more coarse grained to see if it reveals some insights. I think I&#8217;ll start out with a cohort covering a 3 month period and see how that works out.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -359,7 +451,7 @@ cohortAttendanceWithMonthNumber <span style="color:#f92672">=</span> cohortAtten
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/02/24/r-cohort-analysis-of-neo4j-meetup-members/&amp;title=R%3a%20Cohort%20analysis%20of%20Neo4j%20meetup%20members&amp;summary=library%28RNeo4j%29%20graph%20%3d%20startGraph%28%26%2334%3bhttp%3a%2f%2f127.0.0.1%3a7474%2fdb%2fdata%2f%26%2334%3b%29%20query%20%3d%20%26%2334%3bMATCH%20%28g%3aGroup%20%7bname%3a%20%5c%26%2334%3bNeo4j%20-%20London%20User%20Group%5c%26%2334%3b%7d%29-%5b%3aHOSTED_EVENT%5d-%26gt%3b%28e%29%2c%20%28e%29%26lt%3b-%5b%3aTO%5d-%28rsvp%20%7bresponse%3a%20%5c%26%2334%3byes%5c%26%2334%3b%7d%29%26lt%3b-%5b%3aRSVPD%5d-%28person%29%20RETURN%20rsvp.time%2c%20person.id%26%2334%3b%20timestampToDate%20%26lt%3b-%20function%28x%29%20as.POSIXct%28x%20%2f%201000%2c%20origin%3d%26%2334%3b1970-01-01%26%2334%3b%2c%20tz%20%3d%20%26%2334%3bGMT%26%2334%3b%29%20df%20%3d%20cypher%28graph%2c%20query%29%20df%24time%20%3d%20timestampToDate%28df%24rsvp.time%29%20df%24date%20%3d%20format%28as.Date%28df%24time%29%2c%20%26%2334%3b%25Y-%25m%26%2334%3b%29%20%26gt%3b%20df%20%25%26gt%3b%25%20head%28%29%20%23%23%20rsvp.time%20person.id%20time%20date%20%23%23%20612%201.404857e%2b12%2023362191%202014-07-08%2022%3a00%3a29%202014-07%20%23%23%201765%201.380049e%2b12%20112623332%202013-09-24%2018%3a58%3a00%202013-09%20%23%23%201248%201.390563e%2b12%209746061%202014-01-24%2011%3a24%3a35%202014-01%20%23%23%201541%201...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/02/24/r-cohort-analysis-of-neo4j-meetup-members/&amp;title=R%3a%20Cohort%20analysis%20of%20Neo4j%20meetup%20members&amp;summary=A%20few%20weeks%20ago%20I%20came%20across%20a%20blog%20post%20explaining%20how%20to%20apply%20cohort%20analysis%20to%20customer%20retention%20using%20R%20and%20I%20thought%20it%26%238217%3bd%20be%20a%20fun%20exercise%20to%20calculate%20something%20similar%20for%20meetup%20attendees.%0a%20In%20the%20customer%20retention%20example%20we%20track%20customer%20purchases%20on%20a%20month%20by%20month%20basis%20and%20each%20customer%20is%20put%20into%20a%20cohort%20or%20bucket%20based%20on%20the%20first%20month%20they%20made%20a%20purchase%20in...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

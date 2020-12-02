@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Refactoring to sequence/for expressions" />
         
-          <meta name="twitter:description" content="Since I started playing around with F# one of the things I&rsquo;ve been trying to do is not use the &lsquo;for&rsquo; keyword because I was trying to avoid writing code in an imperative way and for loops are a big part of this for me.
-Having read Jon Harrop&rsquo;s solutionto the word count problemwhere he made use of both sequence and for expressions I thought it&rsquo;d be intersting to see what some of the code I&rsquo;ve written would look like using that approach." />
+          <meta name="twitter:description" content="Since I started playing around with F# one of the things I&#8217;ve been trying to do is not use the &#39;for&#39; keyword because I was trying to avoid writing code in an imperative way and for loops are a big part of this for me.
+ Having read Jon Harrop&#8217;s solution to the word count problem where he made use of both sequence and for expressions I thought it&#8217;d be intersting to see what some of the code I&#8217;ve written would look like using that approach." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/01/14/f-refactoring-to-sequencefor-expressions/" />
 
@@ -34,8 +34,8 @@ Having read Jon Harrop&rsquo;s solutionto the word count problemwhere he made us
         <title> F#: Refactoring to sequence/for expressions &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Since I started playing around with F# one of the things I&rsquo;ve been trying to do is not use the &lsquo;for&rsquo; keyword because I was trying to avoid writing code in an imperative way and for loops are a big part of this for me.
-Having read Jon Harrop&rsquo;s solutionto the word count problemwhere he made use of both sequence and for expressions I thought it&rsquo;d be intersting to see what some of the code I&rsquo;ve written would look like using that approach." />
+        <meta name="description" content="Since I started playing around with F# one of the things I&#8217;ve been trying to do is not use the &#39;for&#39; keyword because I was trying to avoid writing code in an imperative way and for loops are a big part of this for me.
+ Having read Jon Harrop&#8217;s solution to the word count problem where he made use of both sequence and for expressions I thought it&#8217;d be intersting to see what some of the code I&#8217;ve written would look like using that approach." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ Having read Jon Harrop&rsquo;s solutionto the word count problemwhere he made us
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-14",
-        "description": "Since I started playing around with F# one of the things I\x26rsquo;ve been trying to do is not use the \x26lsquo;for\x26rsquo; keyword because I was trying to avoid writing code in an imperative way and for loops are a big part of this for me.\nHaving read Jon Harrop\x26rsquo;s solutionto the word count problemwhere he made use of both sequence and for expressions I thought it\x26rsquo;d be intersting to see what some of the code I\x26rsquo;ve written would look like using that approach.",
-        "wordCount":  608 
+        "description": "Since I started playing around with F# one of the things I\x26#8217;ve been trying to do is not use the \x27for\x27 keyword because I was trying to avoid writing code in an imperative way and for loops are a big part of this for me.\n Having read Jon Harrop\x26#8217;s solution to the word count problem where he made use of both sequence and for expressions I thought it\x26#8217;d be intersting to see what some of the code I\x26#8217;ve written would look like using that approach.",
+        "wordCount":  610 
     }
     </script>
     
@@ -174,54 +174,112 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Refactoring to sequence/for expressions</h1>
-    <p>Since I started playing around with F# one of the things I&rsquo;ve been trying to do is not use the &lsquo;for&rsquo; keyword because I was trying to avoid writing code in an imperative way and for loops are a big part of this for me.</p>
-<p>Having read <!-- raw HTML omitted -->Jon Harrop&rsquo;s solution<!-- raw HTML omitted --> to the <!-- raw HTML omitted -->word count problem<!-- raw HTML omitted --> where he made use of both sequence and for expressions I thought it&rsquo;d be intersting to see what some of the code I&rsquo;ve written would look like using that approach.</p>
+    <div class="paragraph">
+<p>Since I started playing around with F# one of the things I&#8217;ve been trying to do is not use the 'for' keyword because I was trying to avoid writing code in an imperative way and for loops are a big part of this for me.</p>
+</div>
+<div class="paragraph">
+<p>Having read <a href="http://fsharpnews.blogspot.com/2009/12/zach-cox-word-count-challenge.html">Jon Harrop&#8217;s solution</a> to the <a href="http://www.markhneedham.com/blog/2009/12/20/f-word-count-using-a-dictionary/">word count problem</a> where he made use of both sequence and for expressions I thought it&#8217;d be intersting to see what some of the code I&#8217;ve written would look like using that approach.</p>
+</div>
+<div class="paragraph">
 <p>An example of a function that I wrote which could be rewritten the other way is the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> delimeters <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> Regex.<span style="color:#a6e22e">Matches</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">[([^]]*)</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">]&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Seq.cast <span style="color:#f92672">|&gt;</span> 
-                                Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">:</span><span style="color:#a6e22e">Match</span><span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Groups</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span>
-                                Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x <span style="color:#f92672">|&gt;</span> Seq.cast<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Group</span><span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> Seq.nth 1<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span>
-                                Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
-</code></pre></div><p>This could be written like this if we used a sequence expression instead of chaining map operations:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> delimeters <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> seq <span style="color:#f92672">{</span> <span style="color:#66d9ef">for</span> m <span style="color:#66d9ef">in</span> Regex.<span style="color:#a6e22e">Matches</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">[([^]]*)</span><span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">]&#34;</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">do</span> yield m<span style="color:#f92672">.</span>Groups.<span style="color:#a6e22e">Item</span><span style="color:#f92672">(</span>0<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">}</span> 
-</code></pre></div><p>One interesting thing I found about writing it like this was that I noticed that &lsquo;GroupCollection&rsquo; had the &lsquo;Item&rsquo; property on it which would let me get the match much more easily.</p>
-<p>I completely missed that when I was writing the first solution so I&rsquo;m not sure if that was just due to my lack of knowledge of that part of the API or whether the second approach actually encouraged me to explore more and therefore end up with a simpler solution.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let delimeters (value:string) = Regex.Matches(value, "\[([^]]*)\]") |&gt; Seq.cast |&gt;
+                                Seq.map (fun (x:Match) -&gt; x.Groups) |&gt;
+                                Seq.map (fun x -&gt; x |&gt; Seq.cast&lt;Group&gt; |&gt; Seq.nth 1) |&gt;
+                                Seq.map (fun x -&gt; x.Value)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This could be written like this if we used a sequence expression instead of chaining map operations:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let delimeters (value:string) = seq { for m in Regex.Matches(value, "\[([^]]*)\]") do yield m.Groups.Item(0).Value }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>One interesting thing I found about writing it like this was that I noticed that 'GroupCollection' had the 'Item' property on it which would let me get the match much more easily.</p>
+</div>
+<div class="paragraph">
+<p>I completely missed that when I was writing the first solution so I&#8217;m not sure if that was just due to my lack of knowledge of that part of the API or whether the second approach actually encouraged me to explore more and therefore end up with a simpler solution.</p>
+</div>
+<div class="paragraph">
 <p>Another example I found was this expression for getting the matches for a regular expression:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> regex pattern input <span style="color:#f92672">=</span> Regex.<span style="color:#a6e22e">Matches</span><span style="color:#f92672">(</span>input<span style="color:#f92672">,</span> pattern<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Seq.cast <span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">:</span><span style="color:#a6e22e">Match</span><span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> x<span style="color:#f92672">.</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
-</code></pre></div><p>That can be simplified to the following with a sequence expression:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> regex pattern input <span style="color:#f92672">=</span> seq <span style="color:#f92672">{</span> <span style="color:#66d9ef">for</span> m <span style="color:#66d9ef">in</span> Regex.<span style="color:#a6e22e">Matches</span><span style="color:#f92672">(</span>input<span style="color:#f92672">,</span> pattern<span style="color:#f92672">)</span> <span style="color:#66d9ef">do</span> yield m<span style="color:#f92672">.</span><span style="color:#a6e22e">Value</span> <span style="color:#f92672">}</span>
-</code></pre></div><p>One neat thing about using sequence expressions is that we don&rsquo;t need to make use of &lsquo;Seq.cast&rsquo; to convert a value to a typed sequence - we can just use it as it is.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let regex pattern input = Regex.Matches(input, pattern) |&gt; Seq.cast |&gt; Seq.map (fun (x:Match) -&gt; x.Value)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That can be simplified to the following with a sequence expression:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let regex pattern input = seq { for m in Regex.Matches(input, pattern) do yield m.Value }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>One neat thing about using sequence expressions is that we don&#8217;t need to make use of 'Seq.cast' to convert a value to a typed sequence - we can just use it as it is.</p>
+</div>
+<div class="paragraph">
 <p>The following function can be rewritten to just use a for expression:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> writeTo <span style="color:#f92672">(</span>path<span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">(</span>values<span style="color:#f92672">:</span>seq<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">string</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;)</span> <span style="color:#f92672">=</span> 
-    use writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">StreamWriter</span><span style="color:#f92672">(</span>path<span style="color:#f92672">)</span>
-    values <span style="color:#f92672">|&gt;</span> Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">,</span> count<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">value</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">+</span> count<span style="color:#f92672">.</span><span style="color:#a6e22e">ToString</span>()<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> writer<span style="color:#f92672">.</span><span style="color:#a6e22e">WriteLine</span><span style="color:#f92672">(</span>x<span style="color:#f92672">))</span>  
-</code></pre></div><p>Like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> writeTo <span style="color:#f92672">(</span>path<span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">(</span>values<span style="color:#f92672">:</span>seq<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">string</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;)</span> <span style="color:#f92672">=</span> 
-    use writer <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">StreamWriter</span><span style="color:#f92672">(</span>path<span style="color:#f92672">)</span>
-    <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">,</span>count<span style="color:#f92672">)</span> <span style="color:#66d9ef">in</span> values <span style="color:#66d9ef">do</span> writer<span style="color:#f92672">.</span><span style="color:#a6e22e">WriteLine</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">+</span> count<span style="color:#f92672">.</span><span style="color:#a6e22e">ToString</span>()<span style="color:#f92672">)</span>
-</code></pre></div><p>We eventually iterate through the sequence anyway so I think it&rsquo;s more intention revealing to just do the iteration and mapping in one step.</p>
-<p>This is a function from when I was <!-- raw HTML omitted -->writing the little Feedburner application<!-- raw HTML omitted -->:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> calculateWeeklyAverages <span style="color:#f92672">=</span>
-    Seq.reverseSequence <span style="color:#f92672">&gt;&gt;</span>
-    Seq.windowed days <span style="color:#f92672">&gt;&gt;</span>
-    Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> <span style="color:#f92672">(</span>entries<span style="color:#f92672">:</span><span style="color:#66d9ef">array</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&gt;)</span> <span style="color:#f92672">-&gt;</span> 
-                <span style="color:#f92672">(</span>entries<span style="color:#f92672">.[</span>0<span style="color:#f92672">]).</span><span style="color:#a6e22e">Date</span> <span style="color:#f92672">,</span> entries <span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> e <span style="color:#f92672">-&gt;</span> e<span style="color:#f92672">.</span><span style="color:#a6e22e">Circulation</span> <span style="color:#f92672">|&gt;</span> toDecimal<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Array.average <span style="color:#f92672">)</span> <span style="color:#f92672">&gt;&gt;</span>
-    Seq.reverseSequence  
-</code></pre></div><p>If we use a sequence expression it&rsquo;d look like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> calculateWeeklyAverages entries <span style="color:#f92672">=</span>
-    seq <span style="color:#f92672">{</span> <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>e<span style="color:#f92672">:</span><span style="color:#66d9ef">array</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&gt;)</span> <span style="color:#66d9ef">in</span> <span style="color:#f92672">(</span>entries <span style="color:#f92672">|&gt;</span> Seq.reverseSequence <span style="color:#f92672">|&gt;</span> Seq.windowed days<span style="color:#f92672">)</span> <span style="color:#66d9ef">do</span> 
-              yield <span style="color:#f92672">((</span>e<span style="color:#f92672">.[</span>0<span style="color:#f92672">]).</span><span style="color:#a6e22e">Date</span><span style="color:#f92672">,</span> entries <span style="color:#f92672">|&gt;</span> Array.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> e <span style="color:#f92672">-&gt;</span> e<span style="color:#f92672">.</span><span style="color:#a6e22e">Circulation</span> <span style="color:#f92672">|&gt;</span> toDecimal<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Array.average<span style="color:#f92672">)</span> <span style="color:#f92672">}</span> 
-    <span style="color:#f92672">|&gt;</span> Seq.reverseSequence
-</code></pre></div><p>The resulting code is shorter but it seems to me like the focus when you read the code has moved to the line which yields the tuple whereas in the first version I find that I read the function as a whole.</p>
-<p>I&rsquo;ve not really used sequence expressions that much so it&rsquo;s been interesting going through the code and seeing where they might be useful.</p>
-<p>I found several places where I&rsquo;d used lists because I find those easier to pattern match against but I wonder whether it would make sense to use sequences there as well.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let writeTo (path:string) (values:seq&lt;string * int&gt;) =
+    use writer = new StreamWriter(path)
+    values |&gt; Seq.map (fun (value, count) -&gt; value + " " + count.ToString()) |&gt; Seq.iter (fun x -&gt; writer.WriteLine(x))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let writeTo (path:string) (values:seq&lt;string * int&gt;) =
+    use writer = new StreamWriter(path)
+    for (value,count) in values do writer.WriteLine(value + " " + count.ToString())</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We eventually iterate through the sequence anyway so I think it&#8217;s more intention revealing to just do the iteration and mapping in one step.</p>
+</div>
+<div class="paragraph">
+<p>This is a function from when I was <a href="http://www.markhneedham.com/blog/2009/07/12/f-a-day-writing-a-feedburner-graph-creator/">writing the little Feedburner application</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let calculateWeeklyAverages =
+    Seq.reverseSequence &gt;&gt;
+    Seq.windowed days &gt;&gt;
+    Seq.map (fun (entries:array&lt;Entry&gt;) -&gt;
+                (entries.[0]).Date , entries |&gt; Array.map (fun e -&gt; e.Circulation |&gt; toDecimal) |&gt; Array.average ) &gt;&gt;
+    Seq.reverseSequence</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we use a sequence expression it&#8217;d look like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let calculateWeeklyAverages entries =
+    seq { for (e:array&lt;Entry&gt;) in (entries |&gt; Seq.reverseSequence |&gt; Seq.windowed days) do
+              yield ((e.[0]).Date, entries |&gt; Array.map (fun e -&gt; e.Circulation |&gt; toDecimal) |&gt; Array.average) }
+    |&gt; Seq.reverseSequence</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The resulting code is shorter but it seems to me like the focus when you read the code has moved to the line which yields the tuple whereas in the first version I find that I read the function as a whole.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve not really used sequence expressions that much so it&#8217;s been interesting going through the code and seeing where they might be useful.</p>
+</div>
+<div class="paragraph">
+<p>I found several places where I&#8217;d used lists because I find those easier to pattern match against but I wonder whether it would make sense to use sequences there as well.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -256,7 +314,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/14/f-refactoring-to-sequencefor-expressions/&amp;title=F%23%3a%20Refactoring%20to%20sequence%2ffor%20expressions&amp;summary=Since%20I%20started%20playing%20around%20with%20F%23%20one%20of%20the%20things%20I%26rsquo%3bve%20been%20trying%20to%20do%20is%20not%20use%20the%20%26lsquo%3bfor%26rsquo%3b%20keyword%20because%20I%20was%20trying%20to%20avoid%20writing%20code%20in%20an%20imperative%20way%20and%20for%20loops%20are%20a%20big%20part%20of%20this%20for%20me.%0aHaving%20read%20Jon%20Harrop%26rsquo%3bs%20solutionto%20the%20word%20count%20problemwhere%20he%20made%20use%20of%20both%20sequence%20and%20for%20expressions%20I%20thought%20it%26rsquo%3bd%20be%20intersting%20to%20see%20what%20some%20of%20the%20code%20I%26rsquo%3bve%20written%20would%20look%20like%20using%20that%20approach...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/14/f-refactoring-to-sequencefor-expressions/&amp;title=F%23%3a%20Refactoring%20to%20sequence%2ffor%20expressions&amp;summary=Since%20I%20started%20playing%20around%20with%20F%23%20one%20of%20the%20things%20I%26%238217%3bve%20been%20trying%20to%20do%20is%20not%20use%20the%20%27for%27%20keyword%20because%20I%20was%20trying%20to%20avoid%20writing%20code%20in%20an%20imperative%20way%20and%20for%20loops%20are%20a%20big%20part%20of%20this%20for%20me.%0a%20Having%20read%20Jon%20Harrop%26%238217%3bs%20solution%20to%20the%20word%20count%20problem%20where%20he%20made%20use%20of%20both%20sequence%20and%20for%20expressions%20I%20thought%20it%26%238217%3bd%20be%20intersting%20to%20see%20what%20some%20of%20the%20code%20I%26%238217%3bve%20written%20would%20look%20like%20using%20that%20approach...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

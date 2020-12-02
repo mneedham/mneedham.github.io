@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Graph Processing: Betweeness Centrality - neo4j&#39;s cypher vs graphstream" />
         
-          <meta name="twitter:description" content="A -&gt; B: Direct Path Exists A -&gt; C: B A -&gt; D: E A -&gt; E: Direct Path Exists B -&gt; A: No Path Exists B -&gt; C: Direct Path Exists B -&gt; D: E or C B -&gt; E: Direct Path Exists C -&gt; A: No Path Exists C -&gt; B: No Path Exists C -&gt; D: Direct Path Exists C -&gt; E: No Path Exists D -&gt; A: No Path Exists D -&gt; B: No Path Exists D -&gt; C: No Path Exists D -&gt; E: No Path Exists E -&gt; A: No Path Exists E -&gt; B: No Path Exists E -&gt; C: No Path Exists E -&gt; D: Direct Path Exists A: 0 B: 1 C: 0." />
+          <meta name="twitter:description" content="Last week I wrote about the betweenness centrality algorithm and my attempts to understand it using graphstream and while reading the source I realised that I might be able to put something together using neo4j&#8217;s all shortest paths algorithm.
+ To recap, the betweenness centrality algorithm is used to determine the load and importance of a node in a graph.
+ While talking about this with Jen she pointed out that calculating the betweenness centrality of nodes across the whole graph often doesn&#8217;t make sense." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/07/27/graph-processing-betweeness-centrality-neo4js-cypher-vs-graphstream/" />
 
@@ -33,7 +35,9 @@
         <title> Graph Processing: Betweeness Centrality - neo4j&#39;s cypher vs graphstream &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="A -&gt; B: Direct Path Exists A -&gt; C: B A -&gt; D: E A -&gt; E: Direct Path Exists B -&gt; A: No Path Exists B -&gt; C: Direct Path Exists B -&gt; D: E or C B -&gt; E: Direct Path Exists C -&gt; A: No Path Exists C -&gt; B: No Path Exists C -&gt; D: Direct Path Exists C -&gt; E: No Path Exists D -&gt; A: No Path Exists D -&gt; B: No Path Exists D -&gt; C: No Path Exists D -&gt; E: No Path Exists E -&gt; A: No Path Exists E -&gt; B: No Path Exists E -&gt; C: No Path Exists E -&gt; D: Direct Path Exists A: 0 B: 1 C: 0." />
+        <meta name="description" content="Last week I wrote about the betweenness centrality algorithm and my attempts to understand it using graphstream and while reading the source I realised that I might be able to put something together using neo4j&#8217;s all shortest paths algorithm.
+ To recap, the betweenness centrality algorithm is used to determine the load and importance of a node in a graph.
+ While talking about this with Jen she pointed out that calculating the betweenness centrality of nodes across the whole graph often doesn&#8217;t make sense." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-07-27",
-        "description": "A -\x26gt; B: Direct Path Exists A -\x26gt; C: B A -\x26gt; D: E A -\x26gt; E: Direct Path Exists B -\x26gt; A: No Path Exists B -\x26gt; C: Direct Path Exists B -\x26gt; D: E or C B -\x26gt; E: Direct Path Exists C -\x26gt; A: No Path Exists C -\x26gt; B: No Path Exists C -\x26gt; D: Direct Path Exists C -\x26gt; E: No Path Exists D -\x26gt; A: No Path Exists D -\x26gt; B: No Path Exists D -\x26gt; C: No Path Exists D -\x26gt; E: No Path Exists E -\x26gt; A: No Path Exists E -\x26gt; B: No Path Exists E -\x26gt; C: No Path Exists E -\x26gt; D: Direct Path Exists A: 0 B: 1 C: 0.",
-        "wordCount":  523 
+        "description": "Last week I wrote about the betweenness centrality algorithm and my attempts to understand it using graphstream and while reading the source I realised that I might be able to put something together using neo4j\x26#8217;s all shortest paths algorithm.\n To recap, the betweenness centrality algorithm is used to determine the load and importance of a node in a graph.\n While talking about this with Jen she pointed out that calculating the betweenness centrality of nodes across the whole graph often doesn\x26#8217;t make sense.",
+        "wordCount":  958 
     }
     </script>
     
@@ -172,17 +176,41 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Graph Processing: Betweeness Centrality - neo4j&#39;s cypher vs graphstream</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-A -&gt; B: Direct Path Exists
+    <div class="paragraph">
+<p>Last week <a href="http://www.markhneedham.com/blog/2013/07/19/graph-processing-calculating-betweenness-centrality-for-an-undirected-graph-using-graphstream/">I wrote about the betweenness centrality algorithm and my attempts to understand it</a> using <a href="http://graphstream-project.org/">graphstream</a> and while reading the source I realised that I might be able to put something together using neo4j&#8217;s <a href="http://docs.neo4j.org/chunked/stable/query-match.html#match-all-shortest-paths">all shortest paths</a> algorithm.</p>
+</div>
+<div class="paragraph">
+<p>To recap, the betweenness centrality algorithm is used to determine the load and importance of a node in a graph.</p>
+</div>
+<div class="paragraph">
+<p>While talking about this with <a href="https://twitter.com/jennifersmithco">Jen</a> she pointed out that calculating the betweenness centrality of nodes across the whole graph often doesn&#8217;t make sense. However, it can be useful to know which node is the most important in a smaller sub graph that you&#8217;re interested in.</p>
+</div>
+<div class="paragraph">
+<p>In this case I&#8217;m interested in working out the betweenness centrality of nodes in a very small directed graph:</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="https://markhneedham.com/blog/
+/uploads/2013/07/betweeness2.png" alt="betweeness2"></span>&lt;/img&gt;</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s briefly recap the algorithm:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>[Betweenness centrality] is equal to the number of shortest paths from all vertices to all others that pass through that node.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>This means that we exclude any paths which go directly between two nodes without passing through any others, something which I didn&#8217;t initially grasp.</p>
+</div>
+<div class="paragraph">
+<p>If we work out the applicable paths by hand we end up with the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">A -&gt; B: Direct Path Exists
 A -&gt; C: B
 A -&gt; D: E
 A -&gt; E: Direct Path Exists
@@ -198,148 +226,212 @@ D -&gt; A: No Path Exists
 D -&gt; B: No Path Exists
 D -&gt; C: No Path Exists
 D -&gt; E: No Path Exists
-E -&gt; A: No Path Exists 
+E -&gt; A: No Path Exists
 E -&gt; B: No Path Exists
 E -&gt; C: No Path Exists
-E -&gt; D: Direct Path Exists
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-A: 0
+E -&gt; D: Direct Path Exists</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Which gives the following betweenness centrality values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">A: 0
 B: 1
 C: 0.5
 D: 0
-E: 1.5
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-    <span style="color:#a6e22e">@Test</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">calculateBetweennessCentralityOfMySimpleGraph</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-        Graph graph <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SingleGraph<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Tutorial 1&#34;</span><span style="color:#f92672">);</span>
+E: 1.5</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can write a test against the latest version of <a href="https://github.com/graphstream/gs-algo">graphstream</a> (which takes direction into account) to confirm our manual algorithm:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">    @Test
+    public void calculateBetweennessCentralityOfMySimpleGraph() {
+        Graph graph = new SingleGraph("Tutorial 1");
 
-        Node A <span style="color:#f92672">=</span> graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addNode</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;A&#34;</span><span style="color:#f92672">);</span>
-        Node B <span style="color:#f92672">=</span> graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addNode</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;B&#34;</span><span style="color:#f92672">);</span>
-        Node E <span style="color:#f92672">=</span> graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addNode</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;E&#34;</span><span style="color:#f92672">);</span>
-        Node C <span style="color:#f92672">=</span> graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addNode</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;C&#34;</span><span style="color:#f92672">);</span>
-        Node D <span style="color:#f92672">=</span> graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addNode</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">);</span>
+        Node A = graph.addNode("A");
+        Node B = graph.addNode("B");
+        Node E = graph.addNode("E");
+        Node C = graph.addNode("C");
+        Node D = graph.addNode("D");
 
-        graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addEdge</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;AB&#34;</span><span style="color:#f92672">,</span> A<span style="color:#f92672">,</span> B<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
-        graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addEdge</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;BE&#34;</span><span style="color:#f92672">,</span> B<span style="color:#f92672">,</span> E<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
-        graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addEdge</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;BC&#34;</span><span style="color:#f92672">,</span> B<span style="color:#f92672">,</span> C<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
-        graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addEdge</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ED&#34;</span><span style="color:#f92672">,</span> E<span style="color:#f92672">,</span> D<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
-        graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addEdge</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;CD&#34;</span><span style="color:#f92672">,</span> C<span style="color:#f92672">,</span> D<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
-        graph<span style="color:#f92672">.</span><span style="color:#a6e22e">addEdge</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;AE&#34;</span><span style="color:#f92672">,</span> A<span style="color:#f92672">,</span> E<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+        graph.addEdge("AB", A, B, true);
+        graph.addEdge("BE", B, E, true);
+        graph.addEdge("BC", B, C, true);
+        graph.addEdge("ED", E, D, true);
+        graph.addEdge("CD", C, D, true);
+        graph.addEdge("AE", A, E, true);
 
-        BetweennessCentrality bcb <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> BetweennessCentrality<span style="color:#f92672">();</span>
-        bcb<span style="color:#f92672">.</span><span style="color:#a6e22e">computeEdgeCentrality</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
-        bcb<span style="color:#f92672">.</span><span style="color:#a6e22e">betweennessCentrality</span><span style="color:#f92672">(</span>graph<span style="color:#f92672">);</span>
+        BetweennessCentrality bcb = new BetweennessCentrality();
+        bcb.computeEdgeCentrality(false);
+        bcb.betweennessCentrality(graph);
 
-        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;A=&#34;</span><span style="color:#f92672">+</span> A<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Cb&#34;</span><span style="color:#f92672">));</span>
-        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;B=&#34;</span><span style="color:#f92672">+</span> B<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Cb&#34;</span><span style="color:#f92672">));</span>
-        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;C=&#34;</span><span style="color:#f92672">+</span> C<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Cb&#34;</span><span style="color:#f92672">));</span>
-        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;D=&#34;</span><span style="color:#f92672">+</span> D<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Cb&#34;</span><span style="color:#f92672">));</span>
-        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;E=&#34;</span><span style="color:#f92672">+</span> E<span style="color:#f92672">.</span><span style="color:#a6e22e">getAttribute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Cb&#34;</span><span style="color:#f92672">));</span>
-    <span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-A=0.0
+        System.out.println("A="+ A.getAttribute("Cb"));
+        System.out.println("B="+ B.getAttribute("Cb"));
+        System.out.println("C="+ C.getAttribute("Cb"));
+        System.out.println("D="+ D.getAttribute("Cb"));
+        System.out.println("E="+ E.getAttribute("Cb"));
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The output is as expected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">A=0.0
 B=1.0
 C=0.5
 D=0.0
-E=1.5
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-CREATE (A {name: &quot;A&quot;})
-CREATE (B {name: &quot;B&quot;})
-CREATE (C {name: &quot;C&quot;})
-CREATE (D {name: &quot;D&quot;})
-CREATE (E {name: &quot;E&quot;})
+E=1.5</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I wanted to see if I could do the same thing using neo4j so I created the graph in a blank database using the following cypher statements:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CREATE (A {name: "A"})
+CREATE (B {name: "B"})
+CREATE (C {name: "C"})
+CREATE (D {name: "D"})
+CREATE (E {name: "E"})
 
 CREATE A-[:TO]-&gt;E
 CREATE A-[:TO]-&gt;B
 CREATE B-[:TO]-&gt;C
 CREATE B-[:TO]-&gt;E
 CREATE C-[:TO]-&gt;D
-CREATE E-[:TO]-&gt;D
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH p = allShortestPaths(source-[r:TO*]-&gt;destination) 
+CREATE E-[:TO]-&gt;D</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I then wrote a query which found the shortest path between all sets of nodes in the graph:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH p = allShortestPaths(source-[r:TO*]-&gt;destination)
 WHERE source &lt;&gt; destination
-RETURN NODES(p)
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-<span style="color:#f92672">==</span>&gt; +---------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | NODES<span style="color:#f92672">(</span>p<span style="color:#f92672">)</span>                                                |
-<span style="color:#f92672">==</span>&gt; +---------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>1<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;A&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>2<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;B&#34;</span><span style="color:#f92672">}]</span>                   |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>1<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;A&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>2<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;B&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>3<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;C&#34;</span><span style="color:#f92672">}]</span> |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>1<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;A&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>5<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;E&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>4<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">}]</span> |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>1<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;A&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>5<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;E&#34;</span><span style="color:#f92672">}]</span>                   |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>2<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;B&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>3<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;C&#34;</span><span style="color:#f92672">}]</span>                   |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>2<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;B&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>3<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;C&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>4<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">}]</span> |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>2<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;B&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>5<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;E&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>4<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">}]</span> |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>2<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;B&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>5<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;E&#34;</span><span style="color:#f92672">}]</span>                   |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>3<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;C&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>4<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">}]</span>                   |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span>Node<span style="color:#f92672">[</span>5<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;E&#34;</span><span style="color:#f92672">}</span>,Node<span style="color:#f92672">[</span>4<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">}]</span>                   |
-<span style="color:#f92672">==</span>&gt; +---------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">10</span> rows
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH p = allShortestPaths(source-[r:TO*]-&gt;destination) 
+RETURN NODES(p)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that it returns the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">==&gt; +---------------------------------------------------------+
+==&gt; | NODES(p)                                                |
+==&gt; +---------------------------------------------------------+
+==&gt; | [Node[1]{name:"A"},Node[2]{name:"B"}]                   |
+==&gt; | [Node[1]{name:"A"},Node[2]{name:"B"},Node[3]{name:"C"}] |
+==&gt; | [Node[1]{name:"A"},Node[5]{name:"E"},Node[4]{name:"D"}] |
+==&gt; | [Node[1]{name:"A"},Node[5]{name:"E"}]                   |
+==&gt; | [Node[2]{name:"B"},Node[3]{name:"C"}]                   |
+==&gt; | [Node[2]{name:"B"},Node[3]{name:"C"},Node[4]{name:"D"}] |
+==&gt; | [Node[2]{name:"B"},Node[5]{name:"E"},Node[4]{name:"D"}] |
+==&gt; | [Node[2]{name:"B"},Node[5]{name:"E"}]                   |
+==&gt; | [Node[3]{name:"C"},Node[4]{name:"D"}]                   |
+==&gt; | [Node[5]{name:"E"},Node[4]{name:"D"}]                   |
+==&gt; +---------------------------------------------------------+
+==&gt; 10 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;re still returning the direct links between nodes but that&#8217;s reasonably easy to correct by filtering the results based on the number of nodes in the path:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH p = allShortestPaths(source-[r:TO*]-&gt;destination)
 WHERE source &lt;&gt; destination  AND LENGTH(NODES(p)) &gt; 2
-RETURN EXTRACT(n IN NODES(p): n.name)
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-<span style="color:#f92672">==</span>&gt; +--------------------------------+
-<span style="color:#f92672">==</span>&gt; | EXTRACT<span style="color:#f92672">(</span>n IN NODES<span style="color:#f92672">(</span>p<span style="color:#f92672">)</span>: n.name<span style="color:#f92672">)</span> |
-<span style="color:#f92672">==</span>&gt; +--------------------------------+
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;A&#34;</span>,<span style="color:#e6db74">&#34;B&#34;</span>,<span style="color:#e6db74">&#34;C&#34;</span><span style="color:#f92672">]</span>                  |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;A&#34;</span>,<span style="color:#e6db74">&#34;E&#34;</span>,<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">]</span>                  |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;B&#34;</span>,<span style="color:#e6db74">&#34;C&#34;</span>,<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">]</span>                  |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;B&#34;</span>,<span style="color:#e6db74">&#34;E&#34;</span>,<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">]</span>                  |
-<span style="color:#f92672">==</span>&gt; +--------------------------------+
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">4</span> rows
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH p = allShortestPaths(source-[r:TO*]-&gt;destination) 
+RETURN EXTRACT(n IN NODES(p): n.name)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">==&gt; +--------------------------------+
+==&gt; | EXTRACT(n IN NODES(p): n.name) |
+==&gt; +--------------------------------+
+==&gt; | ["A","B","C"]                  |
+==&gt; | ["A","E","D"]                  |
+==&gt; | ["B","C","D"]                  |
+==&gt; | ["B","E","D"]                  |
+==&gt; +--------------------------------+
+==&gt; 4 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we tweak the cypher query a bit we can get a collection of the shortest paths for each source/destination:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH p = allShortestPaths(source-[r:TO*]-&gt;destination)
 WHERE source &lt;&gt; destination  AND LENGTH(NODES(p)) &gt; 2
 WITH EXTRACT(n IN NODES(p): n.name) AS nodes
-RETURN HEAD(nodes) AS source, 
-       HEAD(TAIL(TAIL(nodes))) AS destination, 
-       COLLECT(nodes) AS paths
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-<span style="color:#f92672">==</span>&gt; +------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | source | destination | paths                         |
-<span style="color:#f92672">==</span>&gt; +------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;A&#34;</span>    | <span style="color:#e6db74">&#34;D&#34;</span>         | <span style="color:#f92672">[[</span><span style="color:#e6db74">&#34;A&#34;</span>,<span style="color:#e6db74">&#34;E&#34;</span>,<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">]]</span>               |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;A&#34;</span>    | <span style="color:#e6db74">&#34;C&#34;</span>         | <span style="color:#f92672">[[</span><span style="color:#e6db74">&#34;A&#34;</span>,<span style="color:#e6db74">&#34;B&#34;</span>,<span style="color:#e6db74">&#34;C&#34;</span><span style="color:#f92672">]]</span>               |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;B&#34;</span>    | <span style="color:#e6db74">&#34;D&#34;</span>         | <span style="color:#f92672">[[</span><span style="color:#e6db74">&#34;B&#34;</span>,<span style="color:#e6db74">&#34;C&#34;</span>,<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">]</span>,<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;B&#34;</span>,<span style="color:#e6db74">&#34;E&#34;</span>,<span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">]]</span> |
-<span style="color:#f92672">==</span>&gt; +------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">3</span> rows
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-require <span style="color:#e6db74">&#39;neography&#39;</span>
-neo <span style="color:#f92672">=</span> <span style="color:#66d9ef">Neography</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Rest</span><span style="color:#f92672">.</span>new
+RETURN HEAD(nodes) AS source,
+       HEAD(TAIL(TAIL(nodes))) AS destination,
+       COLLECT(nodes) AS paths</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">==&gt; +------------------------------------------------------+
+==&gt; | source | destination | paths                         |
+==&gt; +------------------------------------------------------+
+==&gt; | "A"    | "D"         | [["A","E","D"]]               |
+==&gt; | "A"    | "C"         | [["A","B","C"]]               |
+==&gt; | "B"    | "D"         | [["B","C","D"],["B","E","D"]] |
+==&gt; +------------------------------------------------------+
+==&gt; 3 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When we have a way to slice collections using cypher it wouldn&#8217;t be too difficult to get from here to a betweenness centrality score for the nodes but for now it&#8217;s much easier to use a general programming language.</p>
+</div>
+<div class="paragraph">
+<p>In this case I used Ruby and came up with the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">require 'neography'
+neo = Neography::Rest.new
 
-query <span style="color:#f92672">=</span>  <span style="color:#e6db74">&#34; MATCH p = allShortestPaths(source-[r:TO*]-&gt;destination)&#34;</span>
-query <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; WHERE source &lt;&gt; destination  AND LENGTH(NODES(p)) &gt; 2&#34;</span>
-query <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; WITH EXTRACT(n IN NODES(p): n.name) AS nodes&#34;</span> 
-query <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; RETURN HEAD(nodes) AS source, HEAD(TAIL(TAIL(nodes))) AS destination, COLLECT(nodes) AS paths&#34;</span>
+query =  " MATCH p = allShortestPaths(source-[r:TO*]-&gt;destination)"
+query &lt;&lt; " WHERE source &lt;&gt; destination  AND LENGTH(NODES(p)) &gt; 2"
+query &lt;&lt; " WITH EXTRACT(n IN NODES(p): n.name) AS nodes"
+query &lt;&lt; " RETURN HEAD(nodes) AS source, HEAD(TAIL(TAIL(nodes))) AS destination, COLLECT(nodes) AS paths"
 
-betweenness_centrality <span style="color:#f92672">=</span> { <span style="color:#e6db74">&#34;A&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;B&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;C&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;D&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;E&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">0</span> }
+betweenness_centrality = { "A" =&gt; 0, "B" =&gt; 0, "C" =&gt; 0, "D" =&gt; 0, "E" =&gt; 0 }
 
-neo<span style="color:#f92672">.</span>execute_query(query)<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">].</span>map { <span style="color:#f92672">|</span>row<span style="color:#f92672">|</span> row<span style="color:#f92672">[</span><span style="color:#ae81ff">2</span><span style="color:#f92672">].</span>map { <span style="color:#f92672">|</span>path<span style="color:#f92672">|</span> path<span style="color:#f92672">[</span><span style="color:#ae81ff">1</span><span style="color:#f92672">..-</span><span style="color:#ae81ff">2</span><span style="color:#f92672">]</span> } }<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>potential_central_nodes<span style="color:#f92672">|</span>		
-  number_of_central_nodes <span style="color:#f92672">=</span> potential_central_nodes<span style="color:#f92672">.</span>size
-  potential_central_nodes<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>nodes<span style="color:#f92672">|</span>
-    nodes<span style="color:#f92672">.</span>each { <span style="color:#f92672">|</span>node<span style="color:#f92672">|</span> betweenness_centrality<span style="color:#f92672">[</span>node<span style="color:#f92672">]</span> <span style="color:#f92672">+=</span> (<span style="color:#ae81ff">1</span><span style="color:#f92672">.</span><span style="color:#ae81ff">0</span> <span style="color:#f92672">/</span> number_of_central_nodes) }
-  <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
+neo.execute_query(query)["data"].map { |row| row[2].map { |path| path[1..-2] } }.each do |potential_central_nodes|
+  number_of_central_nodes = potential_central_nodes.size
+  potential_central_nodes.each do |nodes|
+    nodes.each { |node| betweenness_centrality[node] += (1.0 / number_of_central_nodes) }
+  end
+end
 
-p betweenness_centrality
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ bundle exec ruby centrality.rb 
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;A&#34;</span><span style="color:#f92672">=</span>&gt;0, <span style="color:#e6db74">&#34;B&#34;</span><span style="color:#f92672">=</span>&gt;1.0, <span style="color:#e6db74">&#34;C&#34;</span><span style="color:#f92672">=</span>&gt;0.5, <span style="color:#e6db74">&#34;D&#34;</span><span style="color:#f92672">=</span>&gt;0, <span style="color:#e6db74">&#34;E&#34;</span><span style="color:#f92672">=</span>&gt;1.5<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+p betweenness_centrality</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>which outputs the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ bundle exec ruby centrality.rb
+{"A"=&gt;0, "B"=&gt;1.0, "C"=&gt;0.5, "D"=&gt;0, "E"=&gt;1.5}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It seems to do the job but I&#8217;m sure there are some corner cases it doesn&#8217;t handle which a mature library would take care of. As an experiment to see what&#8217;s possible I think it&#8217;s not too bad though!</p>
+</div>
+<div class="paragraph">
+<p>The <a href="http://console.neo4j.org/?id=qwlyzd">graph is on the neo4j console</a> in case anyone is interested in playing around with it.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -374,7 +466,7 @@ $ bundle exec ruby centrality.rb
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/07/27/graph-processing-betweeness-centrality-neo4js-cypher-vs-graphstream/&amp;title=Graph%20Processing%3a%20Betweeness%20Centrality%20-%20neo4j%27s%20cypher%20vs%20graphstream&amp;summary=A%20-%26gt%3b%20B%3a%20Direct%20Path%20Exists%20A%20-%26gt%3b%20C%3a%20B%20A%20-%26gt%3b%20D%3a%20E%20A%20-%26gt%3b%20E%3a%20Direct%20Path%20Exists%20B%20-%26gt%3b%20A%3a%20No%20Path%20Exists%20B%20-%26gt%3b%20C%3a%20Direct%20Path%20Exists%20B%20-%26gt%3b%20D%3a%20E%20or%20C%20B%20-%26gt%3b%20E%3a%20Direct%20Path%20Exists%20C%20-%26gt%3b%20A%3a%20No%20Path%20Exists%20C%20-%26gt%3b%20B%3a%20No%20Path%20Exists%20C%20-%26gt%3b%20D%3a%20Direct%20Path%20Exists%20C%20-%26gt%3b%20E%3a%20No%20Path%20Exists%20D%20-%26gt%3b%20A%3a%20No%20Path%20Exists%20D%20-%26gt%3b%20B%3a%20No%20Path%20Exists%20D%20-%26gt%3b%20C%3a%20No%20Path%20Exists%20D%20-%26gt%3b%20E%3a%20No%20Path%20Exists%20E%20-%26gt%3b%20A%3a%20No%20Path%20Exists%20E%20-%26gt%3b%20B%3a%20No%20Path%20Exists%20E%20-%26gt%3b%20C%3a%20No%20Path%20Exists%20E%20-%26gt%3b%20D%3a%20Direct%20Path%20Exists%20A%3a%200%20B%3a%201%20C%3a%200...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/07/27/graph-processing-betweeness-centrality-neo4js-cypher-vs-graphstream/&amp;title=Graph%20Processing%3a%20Betweeness%20Centrality%20-%20neo4j%27s%20cypher%20vs%20graphstream&amp;summary=Last%20week%20I%20wrote%20about%20the%20betweenness%20centrality%20algorithm%20and%20my%20attempts%20to%20understand%20it%20using%20graphstream%20and%20while%20reading%20the%20source%20I%20realised%20that%20I%20might%20be%20able%20to%20put%20something%20together%20using%20neo4j%26%238217%3bs%20all%20shortest%20paths%20algorithm.%0a%20To%20recap%2c%20the%20betweenness%20centrality%20algorithm%20is%20used%20to%20determine%20the%20load%20and%20importance%20of%20a%20node%20in%20a%20graph.%0a%20While%20talking%20about%20this%20with%20Jen%20she%20pointed%20out%20that%20calculating%20the%20betweenness%20centrality%20of%20nodes%20across%20the%20whole%20graph%20often%20doesn%26%238217%3bt%20make%20sense...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

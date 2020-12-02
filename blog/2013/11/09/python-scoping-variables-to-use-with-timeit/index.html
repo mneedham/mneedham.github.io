@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Python: Scoping variables to use with timeit" />
         
-          <meta name="twitter:description" content="import query_profiler as qp attempts = [ {&#34;query&#34;: &#39;&#39;&#39;MATCH (player:Player)-[:played]-&gt;stats-[:in]-&gt;game, stats-[:for]-&gt;team WHERE game&lt;-[:away_team]-team RETURN player.name, SUM(stats.goals) AS goals ORDER BY goals DESC LIMIT 10&#39;&#39;&#39;} ] qp.profile(attempts, iterations=5, runs=3) from py2neo import neo4j import timeit graph_db = neo4j.GraphDatabaseService() def run_query(query, params): query = neo4j.CypherQuery(graph_db, query) return query.execute(**params).data def profile(attempts, iterations=10, runs=3): print &#34;&#34; for attempt in attempts: query = attempt[&#34;query&#34;] potential_params = attempt.get(&#34;params&#34;) params = {} if potential_params == None else potential_params timings = timeit." />
+          <meta name="twitter:description" content="I&#8217;ve been playing around with Python&#8217;s timeit library to help benchmark some Neo4j cypher queries but I ran into some problems when trying to give it accessible to variables in my program.
+ I had the following python script which I would call from the terminal using python top-away-scorers.py:
+ import query_profiler as qp attempts = [ {&#34;query&#34;: &#39;&#39;&#39;MATCH (player:Player)-[:played]-&gt;stats-[:in]-&gt;game, stats-[:for]-&gt;team WHERE game&lt;-[:away_team]-team RETURN player.name, SUM(stats.goals) AS goals ORDER BY goals DESC LIMIT 10&#39;&#39;&#39;} ] qp." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/11/09/python-scoping-variables-to-use-with-timeit/" />
 
@@ -33,7 +35,9 @@
         <title> Python: Scoping variables to use with timeit &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="import query_profiler as qp attempts = [ {&#34;query&#34;: &#39;&#39;&#39;MATCH (player:Player)-[:played]-&gt;stats-[:in]-&gt;game, stats-[:for]-&gt;team WHERE game&lt;-[:away_team]-team RETURN player.name, SUM(stats.goals) AS goals ORDER BY goals DESC LIMIT 10&#39;&#39;&#39;} ] qp.profile(attempts, iterations=5, runs=3) from py2neo import neo4j import timeit graph_db = neo4j.GraphDatabaseService() def run_query(query, params): query = neo4j.CypherQuery(graph_db, query) return query.execute(**params).data def profile(attempts, iterations=10, runs=3): print &#34;&#34; for attempt in attempts: query = attempt[&#34;query&#34;] potential_params = attempt.get(&#34;params&#34;) params = {} if potential_params == None else potential_params timings = timeit." />
+        <meta name="description" content="I&#8217;ve been playing around with Python&#8217;s timeit library to help benchmark some Neo4j cypher queries but I ran into some problems when trying to give it accessible to variables in my program.
+ I had the following python script which I would call from the terminal using python top-away-scorers.py:
+ import query_profiler as qp attempts = [ {&#34;query&#34;: &#39;&#39;&#39;MATCH (player:Player)-[:played]-&gt;stats-[:in]-&gt;game, stats-[:for]-&gt;team WHERE game&lt;-[:away_team]-team RETURN player.name, SUM(stats.goals) AS goals ORDER BY goals DESC LIMIT 10&#39;&#39;&#39;} ] qp." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-11-09",
-        "description": "import query_profiler as qp attempts = [ {\x26#34;query\x26#34;: \x26#39;\x26#39;\x26#39;MATCH (player:Player)-[:played]-\x26gt;stats-[:in]-\x26gt;game, stats-[:for]-\x26gt;team WHERE game\x26lt;-[:away_team]-team RETURN player.name, SUM(stats.goals) AS goals ORDER BY goals DESC LIMIT 10\x26#39;\x26#39;\x26#39;} ] qp.profile(attempts, iterations=5, runs=3) from py2neo import neo4j import timeit graph_db = neo4j.GraphDatabaseService() def run_query(query, params): query = neo4j.CypherQuery(graph_db, query) return query.execute(**params).data def profile(attempts, iterations=10, runs=3): print \x26#34;\x26#34; for attempt in attempts: query = attempt[\x26#34;query\x26#34;] potential_params = attempt.get(\x26#34;params\x26#34;) params = {} if potential_params == None else potential_params timings = timeit.",
-        "wordCount":  344 
+        "description": "I\x26#8217;ve been playing around with Python\x26#8217;s timeit library to help benchmark some Neo4j cypher queries but I ran into some problems when trying to give it accessible to variables in my program.\n I had the following python script which I would call from the terminal using python top-away-scorers.py:\n import query_profiler as qp attempts = [ {\x22query\x22: \x27\x27\x27MATCH (player:Player)-[:played]-\x26gt;stats-[:in]-\x26gt;game, stats-[:for]-\x26gt;team WHERE game\x26lt;-[:away_team]-team RETURN player.name, SUM(stats.goals) AS goals ORDER BY goals DESC LIMIT 10\x27\x27\x27} ] qp.",
+        "wordCount":  516 
     }
     </script>
     
@@ -172,113 +176,151 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Python: Scoping variables to use with timeit</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> query_profiler <span style="color:#f92672">as</span> qp
+    <div class="paragraph">
+<p>I&#8217;ve been playing around with Python&#8217;s <a href="http://docs.python.org/2/library/timeit.html">timeit</a> library to help <a href="http://www.markhneedham.com/blog/2013/11/08/neo4j-2-0-0-m06-applying-wes-freemans-cypher-optimisation-tricks/">benchmark some Neo4j cypher queries</a> but I ran into some problems when trying to give it accessible to variables in my program.</p>
+</div>
+<div class="paragraph">
+<p>I had the following python script which I would call from the terminal using <cite>python top-away-scorers.py</cite>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import query_profiler as qp
 
-attempts <span style="color:#f92672">=</span> [
-{<span style="color:#e6db74">&#34;query&#34;</span>: <span style="color:#e6db74">&#39;&#39;&#39;MATCH (player:Player)-[:played]-&gt;stats-[:in]-&gt;game, stats-[:for]-&gt;team
-</span><span style="color:#e6db74">             WHERE game&lt;-[:away_team]-team
-</span><span style="color:#e6db74">             RETURN player.name, SUM(stats.goals) AS goals
-</span><span style="color:#e6db74">             ORDER BY goals DESC
-</span><span style="color:#e6db74">             LIMIT 10&#39;&#39;&#39;</span>}
+attempts = [
+{"query": '''MATCH (player:Player)-[:played]-&gt;stats-[:in]-&gt;game, stats-[:for]-&gt;team
+             WHERE game&lt;-[:away_team]-team
+             RETURN player.name, SUM(stats.goals) AS goals
+             ORDER BY goals DESC
+             LIMIT 10'''}
 ]
 
-qp<span style="color:#f92672">.</span>profile(attempts, iterations<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>, runs<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> py2neo <span style="color:#f92672">import</span> neo4j
-<span style="color:#f92672">import</span> timeit
+qp.profile(attempts, iterations=5, runs=3)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><cite>query_profiler</cite> initially read like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from py2neo import neo4j
+import timeit
 
-graph_db <span style="color:#f92672">=</span> neo4j<span style="color:#f92672">.</span>GraphDatabaseService()
+graph_db = neo4j.GraphDatabaseService()
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">run_query</span>(query, params):
-	query <span style="color:#f92672">=</span> neo4j<span style="color:#f92672">.</span>CypherQuery(graph_db, query)
-	<span style="color:#66d9ef">return</span> query<span style="color:#f92672">.</span>execute(<span style="color:#f92672">**</span>params)<span style="color:#f92672">.</span>data
+def run_query(query, params):
+	query = neo4j.CypherQuery(graph_db, query)
+	return query.execute(**params).data
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">profile</span>(attempts, iterations<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>, runs<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>):
-	<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;&#34;</span>
+def profile(attempts, iterations=10, runs=3):
+	print ""
 
-	<span style="color:#66d9ef">for</span> attempt <span style="color:#f92672">in</span> attempts:
-		query <span style="color:#f92672">=</span> attempt[<span style="color:#e6db74">&#34;query&#34;</span>]
-		potential_params <span style="color:#f92672">=</span> attempt<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;params&#34;</span>)
-		
-		params <span style="color:#f92672">=</span> {} <span style="color:#66d9ef">if</span> potential_params <span style="color:#f92672">==</span> None <span style="color:#66d9ef">else</span> potential_params
-	
-		timings <span style="color:#f92672">=</span> timeit<span style="color:#f92672">.</span>repeat(<span style="color:#e6db74">&#34;run_query(query, params)&#34;</span>, setup<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;from query_profiler import run_query&#34;</span>, number<span style="color:#f92672">=</span>iterations, repeat<span style="color:#f92672">=</span>runs)
+	for attempt in attempts:
+		query = attempt["query"]
+		potential_params = attempt.get("params")
 
-		<span style="color:#66d9ef">print</span> re<span style="color:#f92672">.</span>sub(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[ </span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">]&#39;</span>, <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>, re<span style="color:#f92672">.</span>sub(<span style="color:#e6db74">&#39;[ </span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">]+&#39;</span>, <span style="color:#e6db74">&#39; &#39;</span>, query))
-		<span style="color:#66d9ef">print</span> timings
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ python top-away-scorers.py 
+		params = {} if potential_params == None else potential_params
 
-Traceback <span style="color:#f92672">(</span>most recent call last<span style="color:#f92672">)</span>:
-  File <span style="color:#e6db74">&#34;top-away-scorers.py&#34;</span>, line 11, in &lt;module&gt;
-    qp.profile<span style="color:#f92672">(</span>attempts, iterations<span style="color:#f92672">=</span>5, runs<span style="color:#f92672">=</span>3<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;/Users/markhneedham/code/cypher-query-tuning/query_profiler.py&#34;</span>, line 19, in profile
-    timings <span style="color:#f92672">=</span> timeit.repeat<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;run_query(query, params)&#34;</span>, setup<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;from query_profiler import run_query&#34;</span>, number<span style="color:#f92672">=</span>iterations, repeat<span style="color:#f92672">=</span>runs<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py&#34;</span>, line 233, in repeat
-    <span style="color:#66d9ef">return</span> Timer<span style="color:#f92672">(</span>stmt, setup, timer<span style="color:#f92672">)</span>.repeat<span style="color:#f92672">(</span>repeat, number<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py&#34;</span>, line 221, in repeat
-    t <span style="color:#f92672">=</span> self.timeit<span style="color:#f92672">(</span>number<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py&#34;</span>, line 194, in timeit
-    timing <span style="color:#f92672">=</span> self.inner<span style="color:#f92672">(</span>it, self.timer<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;&lt;timeit-src&gt;&#34;</span>, line 6, in inner
-NameError: global name <span style="color:#e6db74">&#39;query&#39;</span> is not defined
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">profile</span>(attempts, iterations<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>, runs<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>):
-	<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;&#34;</span>
+		timings = timeit.repeat("run_query(query, params)", setup="from query_profiler import run_query", number=iterations, repeat=runs)
 
-	<span style="color:#66d9ef">for</span> attempt <span style="color:#f92672">in</span> attempts:
-		query <span style="color:#f92672">=</span> attempt[<span style="color:#e6db74">&#34;query&#34;</span>]
-		potential_params <span style="color:#f92672">=</span> attempt<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;params&#34;</span>)
-		
-		params <span style="color:#f92672">=</span> {} <span style="color:#66d9ef">if</span> potential_params <span style="color:#f92672">==</span> None <span style="color:#66d9ef">else</span> potential_params
-	
-		timings <span style="color:#f92672">=</span> timeit<span style="color:#f92672">.</span>repeat(<span style="color:#e6db74">&#34;run_query(query, params)&#34;</span>, setup<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;from query_profiler import run_query, query, params&#34;</span>, number<span style="color:#f92672">=</span>iterations, repeat<span style="color:#f92672">=</span>runs)
+		print re.sub('\n[ \t]', '\n', re.sub('[ \t]+', ' ', query))
+		print timings</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>but when I ran top-away-scorers.py I got the following exception:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ python top-away-scorers.py
 
-		<span style="color:#66d9ef">print</span> re<span style="color:#f92672">.</span>sub(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[ </span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">]&#39;</span>, <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>, re<span style="color:#f92672">.</span>sub(<span style="color:#e6db74">&#39;[ </span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">]+&#39;</span>, <span style="color:#e6db74">&#39; &#39;</span>, query))
-		<span style="color:#66d9ef">print</span> timings
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ python top-away-scorers.py 
+Traceback (most recent call last):
+  File "top-away-scorers.py", line 11, in &lt;module&gt;
+    qp.profile(attempts, iterations=5, runs=3)
+  File "/Users/markhneedham/code/cypher-query-tuning/query_profiler.py", line 19, in profile
+    timings = timeit.repeat("run_query(query, params)", setup="from query_profiler import run_query", number=iterations, repeat=runs)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py", line 233, in repeat
+    return Timer(stmt, setup, timer).repeat(repeat, number)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py", line 221, in repeat
+    t = self.timeit(number)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py", line 194, in timeit
+    timing = self.inner(it, self.timer)
+  File "&lt;timeit-src&gt;", line 6, in inner
+NameError: global name 'query' is not defined</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As far as I understand, timeit couldn&#8217;t understand what 'query' is because we didn&#8217;t explicitly import it in the setup and it doesn&#8217;t automatically pick up values from the scope its running in.</p>
+</div>
+<div class="paragraph">
+<p>I tried adding query and params to the list of imports from query_profiler like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def profile(attempts, iterations=10, runs=3):
+	print ""
 
-Traceback <span style="color:#f92672">(</span>most recent call last<span style="color:#f92672">)</span>:
-  File <span style="color:#e6db74">&#34;top-away-scorers.py&#34;</span>, line 11, in &lt;module&gt;
-    qp.profile<span style="color:#f92672">(</span>attempts, iterations<span style="color:#f92672">=</span>5, runs<span style="color:#f92672">=</span>3<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;/Users/markhneedham/code/cypher-query-tuning/query_profiler.py&#34;</span>, line 21, in profile
-    timings <span style="color:#f92672">=</span> timeit.repeat<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;run_query(query, params)&#34;</span>, setup<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;from query_profiler import run_query, query, params&#34;</span>, number<span style="color:#f92672">=</span>iterations, repeat<span style="color:#f92672">=</span>runs<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py&#34;</span>, line 233, in repeat
-    <span style="color:#66d9ef">return</span> Timer<span style="color:#f92672">(</span>stmt, setup, timer<span style="color:#f92672">)</span>.repeat<span style="color:#f92672">(</span>repeat, number<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py&#34;</span>, line 221, in repeat
-    t <span style="color:#f92672">=</span> self.timeit<span style="color:#f92672">(</span>number<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py&#34;</span>, line 194, in timeit
-    timing <span style="color:#f92672">=</span> self.inner<span style="color:#f92672">(</span>it, self.timer<span style="color:#f92672">)</span>
-  File <span style="color:#e6db74">&#34;&lt;timeit-src&gt;&#34;</span>, line 3, in inner
-ImportError: cannot import name query
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">profile</span>(attempts, iterations<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>, runs<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>):
-	<span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;&#34;</span>
+	for attempt in attempts:
+		query = attempt["query"]
+		potential_params = attempt.get("params")
 
-	<span style="color:#66d9ef">for</span> attempt <span style="color:#f92672">in</span> attempts:
-		<span style="color:#66d9ef">global</span> query
-		query <span style="color:#f92672">=</span> attempt[<span style="color:#e6db74">&#34;query&#34;</span>]
-		potential_params <span style="color:#f92672">=</span> attempt<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;params&#34;</span>)
-		
-		<span style="color:#66d9ef">global</span> params
-		params <span style="color:#f92672">=</span> {} <span style="color:#66d9ef">if</span> potential_params <span style="color:#f92672">==</span> None <span style="color:#66d9ef">else</span> potential_params
-	
-		timings <span style="color:#f92672">=</span> timeit<span style="color:#f92672">.</span>repeat(<span style="color:#e6db74">&#34;run_query(query, params)&#34;</span>, setup<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;from query_profiler import run_query, query, params&#34;</span>, number<span style="color:#f92672">=</span>iterations, repeat<span style="color:#f92672">=</span>runs)
+		params = {} if potential_params == None else potential_params
 
-		<span style="color:#66d9ef">print</span> re<span style="color:#f92672">.</span>sub(<span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[ </span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">]&#39;</span>, <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>, re<span style="color:#f92672">.</span>sub(<span style="color:#e6db74">&#39;[ </span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">]+&#39;</span>, <span style="color:#e6db74">&#39; &#39;</span>, query))
-		<span style="color:#66d9ef">print</span> timings
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+		timings = timeit.repeat("run_query(query, params)", setup="from query_profiler import run_query, query, params", number=iterations, repeat=runs)
+
+		print re.sub('\n[ \t]', '\n', re.sub('[ \t]+', ' ', query))
+		print timings</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unfortunately that didn&#8217;t work:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ python top-away-scorers.py
+
+Traceback (most recent call last):
+  File "top-away-scorers.py", line 11, in &lt;module&gt;
+    qp.profile(attempts, iterations=5, runs=3)
+  File "/Users/markhneedham/code/cypher-query-tuning/query_profiler.py", line 21, in profile
+    timings = timeit.repeat("run_query(query, params)", setup="from query_profiler import run_query, query, params", number=iterations, repeat=runs)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py", line 233, in repeat
+    return Timer(stmt, setup, timer).repeat(repeat, number)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py", line 221, in repeat
+    t = self.timeit(number)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/timeit.py", line 194, in timeit
+    timing = self.inner(it, self.timer)
+  File "&lt;timeit-src&gt;", line 3, in inner
+ImportError: cannot import name query</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I eventually came across the <a href="http://docs.python.org/2/reference/simple_stmts.html#grammar-token-global_stmt">global</a> keyword which allows me to scope query and params in a way that we can import them from the query_profiler module:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def profile(attempts, iterations=10, runs=3):
+	print ""
+
+	for attempt in attempts:
+		global query
+		query = attempt["query"]
+		potential_params = attempt.get("params")
+
+		global params
+		params = {} if potential_params == None else potential_params
+
+		timings = timeit.repeat("run_query(query, params)", setup="from query_profiler import run_query, query, params", number=iterations, repeat=runs)
+
+		print re.sub('\n[ \t]', '\n', re.sub('[ \t]+', ' ', query))
+		print timings</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m generally wary of using anything global but in this case it seems necessary&#8230;&#8203;or I&#8217;ve completely misunderstood how you&#8217;re meant to use timeit.</p>
+</div>
+<div class="paragraph">
+<p>Any Pythonistas able to shed some light?</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -313,7 +355,7 @@ ImportError: cannot import name query
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/11/09/python-scoping-variables-to-use-with-timeit/&amp;title=Python%3a%20Scoping%20variables%20to%20use%20with%20timeit&amp;summary=import%20query_profiler%20as%20qp%20attempts%20%3d%20%5b%20%7b%26%2334%3bquery%26%2334%3b%3a%20%26%2339%3b%26%2339%3b%26%2339%3bMATCH%20%28player%3aPlayer%29-%5b%3aplayed%5d-%26gt%3bstats-%5b%3ain%5d-%26gt%3bgame%2c%20stats-%5b%3afor%5d-%26gt%3bteam%20WHERE%20game%26lt%3b-%5b%3aaway_team%5d-team%20RETURN%20player.name%2c%20SUM%28stats.goals%29%20AS%20goals%20ORDER%20BY%20goals%20DESC%20LIMIT%2010%26%2339%3b%26%2339%3b%26%2339%3b%7d%20%5d%20qp.profile%28attempts%2c%20iterations%3d5%2c%20runs%3d3%29%20from%20py2neo%20import%20neo4j%20import%20timeit%20graph_db%20%3d%20neo4j.GraphDatabaseService%28%29%20def%20run_query%28query%2c%20params%29%3a%20query%20%3d%20neo4j.CypherQuery%28graph_db%2c%20query%29%20return%20query.execute%28%2a%2aparams%29.data%20def%20profile%28attempts%2c%20iterations%3d10%2c%20runs%3d3%29%3a%20print%20%26%2334%3b%26%2334%3b%20for%20attempt%20in%20attempts%3a%20query%20%3d%20attempt%5b%26%2334%3bquery%26%2334%3b%5d%20potential_params%20%3d%20attempt.get%28%26%2334%3bparams%26%2334%3b%29%20params%20%3d%20%7b%7d%20if%20potential_params%20%3d%3d%20None%20else%20potential_params%20timings%20%3d%20timeit...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/11/09/python-scoping-variables-to-use-with-timeit/&amp;title=Python%3a%20Scoping%20variables%20to%20use%20with%20timeit&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20Python%26%238217%3bs%20timeit%20library%20to%20help%20benchmark%20some%20Neo4j%20cypher%20queries%20but%20I%20ran%20into%20some%20problems%20when%20trying%20to%20give%20it%20accessible%20to%20variables%20in%20my%20program.%0a%20I%20had%20the%20following%20python%20script%20which%20I%20would%20call%20from%20the%20terminal%20using%20python%20top-away-scorers.py%3a%0a%20import%20query_profiler%20as%20qp%20attempts%20%3d%20%5b%20%7b%22query%22%3a%20%27%27%27MATCH%20%28player%3aPlayer%29-%5b%3aplayed%5d-%26gt%3bstats-%5b%3ain%5d-%26gt%3bgame%2c%20stats-%5b%3afor%5d-%26gt%3bteam%20WHERE%20game%26lt%3b-%5b%3aaway_team%5d-team%20RETURN%20player.name%2c%20SUM%28stats.goals%29%20AS%20goals%20ORDER%20BY%20goals%20DESC%20LIMIT%2010%27%27%27%7d%20%5d%20qp...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -23,9 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Fluent NHibernate and the 2nd level cache" />
         
-          <meta name="twitter:description" content="We&rsquo;ve been trying to cache some objects using NHibernate&rsquo;s second level cache which always proves to be a trickier task than I remember it being the previous time!
-We&rsquo;re storing some reference data in the database and then using LINQ to NHibernate to query for the specific row that we want based on some user entered criteria.
-We can cache that query by calling &lsquo;SetCacheable&rsquo; on the &lsquo;QueryOptions&rsquo; property of our query:" />
+          <meta name="twitter:description" content="We&#8217;ve been trying to cache some objects using NHibernate&#8217;s second level cache which always proves to be a trickier task than I remember it being the previous time!
+ We&#8217;re storing some reference data in the database and then using LINQ to NHibernate to query for the specific row that we want based on some user entered criteria.
+ We can cache that query by calling &#39;SetCacheable&#39; on the &#39;QueryOptions&#39; property of our query:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/06/16/fluent-nhibernate-and-the-2nd-level-cache/" />
 
@@ -36,9 +36,9 @@ We can cache that query by calling &lsquo;SetCacheable&rsquo; on the &lsquo;Quer
         <title> Fluent NHibernate and the 2nd level cache &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="We&rsquo;ve been trying to cache some objects using NHibernate&rsquo;s second level cache which always proves to be a trickier task than I remember it being the previous time!
-We&rsquo;re storing some reference data in the database and then using LINQ to NHibernate to query for the specific row that we want based on some user entered criteria.
-We can cache that query by calling &lsquo;SetCacheable&rsquo; on the &lsquo;QueryOptions&rsquo; property of our query:" />
+        <meta name="description" content="We&#8217;ve been trying to cache some objects using NHibernate&#8217;s second level cache which always proves to be a trickier task than I remember it being the previous time!
+ We&#8217;re storing some reference data in the database and then using LINQ to NHibernate to query for the specific row that we want based on some user entered criteria.
+ We can cache that query by calling &#39;SetCacheable&#39; on the &#39;QueryOptions&#39; property of our query:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,8 +67,8 @@ We can cache that query by calling &lsquo;SetCacheable&rsquo; on the &lsquo;Quer
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-06-16",
-        "description": "We\x26rsquo;ve been trying to cache some objects using NHibernate\x26rsquo;s second level cache which always proves to be a trickier task than I remember it being the previous time!\nWe\x26rsquo;re storing some reference data in the database and then using LINQ to NHibernate to query for the specific row that we want based on some user entered criteria.\nWe can cache that query by calling \x26lsquo;SetCacheable\x26rsquo; on the \x26lsquo;QueryOptions\x26rsquo; property of our query:",
-        "wordCount":  431 
+        "description": "We\x26#8217;ve been trying to cache some objects using NHibernate\x26#8217;s second level cache which always proves to be a trickier task than I remember it being the previous time!\n We\x26#8217;re storing some reference data in the database and then using LINQ to NHibernate to query for the specific row that we want based on some user entered criteria.\n We can cache that query by calling \x27SetCacheable\x27 on the \x27QueryOptions\x27 property of our query:",
+        "wordCount":  492 
     }
     </script>
     
@@ -179,83 +179,126 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Fluent NHibernate and the 2nd level cache</h1>
-    <p>We&rsquo;ve been trying to cache some objects using NHibernate&rsquo;s second level cache which always proves to be a trickier task than I remember it being the previous time!</p>
-<p>We&rsquo;re storing some reference data in the database and then using LINQ to NHibernate to query for the specific row that we want based on some user entered criteria.</p>
-<p>We can cache that query by calling &lsquo;SetCacheable&rsquo; on the &lsquo;QueryOptions&rsquo; property of our query:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OurRepository</span>
+    <div class="paragraph">
+<p>We&#8217;ve been trying to cache some objects using NHibernate&#8217;s second level cache which always proves to be a trickier task than I remember it being the previous time!</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;re storing some reference data in the database and then using LINQ to NHibernate to query for the specific row that we want based on some user entered criteria.</p>
+</div>
+<div class="paragraph">
+<p>We can cache that query by calling 'SetCacheable' on the 'QueryOptions' property of our query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class OurRepository
 {
-	<span style="color:#66d9ef">public</span> ReferenceDataObject Find(<span style="color:#66d9ef">string</span> criteria1, <span style="color:#66d9ef">string</span> criteria2)
+	public ReferenceDataObject Find(string criteria1, string criteria2)
 	{
-		<span style="color:#66d9ef">var</span> query = session.Linq&lt;ReferenceDataObject&gt;();
-		query.QueryOptions.SetCachable(<span style="color:#66d9ef">true</span>).SetCacheMode(CacheMode.Normal);
-		<span style="color:#75715e">// and so on
-</span><span style="color:#75715e"></span>	}
-}
-</code></pre></div><p>That helps to ensure that if we do the exact same query again it won&rsquo;t go to the database again. Instead it will just retrieve the id of the appropriate object from the 2nd level cache and then go and retrieve that.</p>
-<p>In order to ensure that the &lsquo;ReferenceDataObject&rsquo; does not get retrieved from the database each time we need to ensure that it is cached as well.</p>
+		var query = session.Linq&lt;ReferenceDataObject&gt;();
+		query.QueryOptions.SetCachable(true).SetCacheMode(CacheMode.Normal);
+		// and so on
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That helps to ensure that if we do the exact same query again it won&#8217;t go to the database again. Instead it will just retrieve the id of the appropriate object from the 2nd level cache and then go and retrieve that.</p>
+</div>
+<div class="paragraph">
+<p>In order to ensure that the 'ReferenceDataObject' does not get retrieved from the database each time we need to ensure that it is cached as well.</p>
+</div>
+<div class="paragraph">
 <p>We can do that by adding the following to its mapping file:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReferenceDataObjectMappings</span> : ClassMap&lt;ReferenceDataObject&gt;
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class ReferenceDataObjectMappings : ClassMap&lt;ReferenceDataObject&gt;
 {
 	...
 
 	Cache.ReadOnly();
 
-	<span style="color:#75715e">// or
-</span><span style="color:#75715e"></span>
+	// or
+
 	Cache.ReadWrite();
 
-	<span style="color:#75715e">// depending on whether we want to update the value in the cache based on it changing in the database or not
-</span><span style="color:#75715e"></span>
+	// depending on whether we want to update the value in the cache based on it changing in the database or not
+
 	..
 
-}
-</code></pre></div><p>The next step is to ensure that we have the query cache and second level cache turned on in the place where we configure our session factory:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-Fluently
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The next step is to ensure that we have the query cache and second level cache turned on in the place where we configure our session factory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">Fluently
 .Configure()
-.Database(MsSqlConfiguration.MsSql2000.ConnectionString(<span style="color:#e6db74">&#34;connection string&#34;</span>)
-	.Cache(c =&gt; c.UseQueryCache().ProviderClass(<span style="color:#66d9ef">typeof</span>(NHibernate.Caches.SysCache.SysCacheProvider).AssemblyQualifiedName)))
+.Database(MsSqlConfiguration.MsSql2000.ConnectionString("connection string")
+	.Cache(c =&gt; c.UseQueryCache().ProviderClass(typeof(NHibernate.Caches.SysCache.SysCacheProvider).AssemblyQualifiedName)))
 .Mappings(m =&gt; m.FluentMappings.AddFromAssemblyOf&lt;ICurrentSessionFactory&gt;())
-.BuildSessionFactory();
-</code></pre></div><p>The &lsquo;SysCacheProvider&rsquo; is one we can use for web applications although there are all sorts of others available too.</p>
+.BuildSessionFactory();</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The 'SysCacheProvider' is one we can use for web applications although there are all sorts of others available too.</p>
+</div>
+<div class="paragraph">
 <p>Having got all this setup we wrote an integration test which added an item to the reference data table and then tried to retrieve it several times with the theory being that we would only see one call to the database.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
-</span><span style="color:#a6e22e">[Test]</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldCacheTheReferenceData()
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">[Test]
+public void ShouldCacheTheReferenceData()
 {
-	<span style="color:#66d9ef">var</span> myReferenceObject = <span style="color:#66d9ef">new</span> ReferenceDataObject(...);
-	
-	using(<span style="color:#66d9ef">var</span> session = SessionFactory.OpenSession())
+	var myReferenceObject = new ReferenceDataObject(...);
+
+	using(var session = SessionFactory.OpenSession())
 	{
 		session.Save(myReferenceDataObject);
 		session.Flush();
 	}
-	
-	<span style="color:#75715e">// try and retrieve the object a few times here
-</span><span style="color:#75715e"></span>}
-</code></pre></div><p>Unfortunately we were seeing the database being hit every single time which confused us greatly until we came across  <!-- raw HTML omitted -->the following explanation on Gabriel Schenker&rsquo;s blog<!-- raw HTML omitted -->:</p>
-<!-- raw HTML omitted -->
+
+	// try and retrieve the object a few times here
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unfortunately we were seeing the database being hit every single time which confused us greatly until we came across  <a href="http://blogs.hibernatingrhinos.com/nhibernate/archive/2008/11/09/first-and-second-level-caching-in-nhibernate.aspx">the following explanation on Gabriel Schenker&#8217;s blog</a>:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>A common error (It happened to me as well!) is to <strong>forget to commit or omit a transaction when adding or changing an entity/aggregate to the database</strong>. If we now access the entity/aggregate from another session then the 2nd level cache will not be prepared to provide us the cached instances and NHibernate makes an (unexpected round trip to the database).</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
 <p>We need to change our test to commit the object in a transaction if we want the object to be propagated down to the 2nd level cache:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
-</span><span style="color:#a6e22e">[Test]</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldCacheTheReferenceData()
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">[Test]
+public void ShouldCacheTheReferenceData()
 {
-	<span style="color:#66d9ef">var</span> myReferenceObject = <span style="color:#66d9ef">new</span> ReferenceDataObject(...);
-	
-	using(<span style="color:#66d9ef">var</span> session = SessionFactory.OpenSession())
+	var myReferenceObject = new ReferenceDataObject(...);
+
+	using(var session = SessionFactory.OpenSession())
 	{
-		using(<span style="color:#66d9ef">var</span> tx = session.BeginTransaction())
+		using(var tx = session.BeginTransaction())
 		{
     			session.Save(myReferenceObject);
-    			tx.Commit();        <span style="color:#75715e">// important otherwise caching does NOT work!
-</span><span style="color:#75715e"></span>		}
+    			tx.Commit();        // important otherwise caching does NOT work!
+		}
 	}
-	
-	<span style="color:#75715e">// try and retrieve the object a few times here
-</span><span style="color:#75715e"></span>}
-</code></pre></div>
+
+	// try and retrieve the object a few times here
+}</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -289,7 +332,7 @@ Fluently
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/06/16/fluent-nhibernate-and-the-2nd-level-cache/&amp;title=Fluent%20NHibernate%20and%20the%202nd%20level%20cache&amp;summary=We%26rsquo%3bve%20been%20trying%20to%20cache%20some%20objects%20using%20NHibernate%26rsquo%3bs%20second%20level%20cache%20which%20always%20proves%20to%20be%20a%20trickier%20task%20than%20I%20remember%20it%20being%20the%20previous%20time%21%0aWe%26rsquo%3bre%20storing%20some%20reference%20data%20in%20the%20database%20and%20then%20using%20LINQ%20to%20NHibernate%20to%20query%20for%20the%20specific%20row%20that%20we%20want%20based%20on%20some%20user%20entered%20criteria.%0aWe%20can%20cache%20that%20query%20by%20calling%20%26lsquo%3bSetCacheable%26rsquo%3b%20on%20the%20%26lsquo%3bQueryOptions%26rsquo%3b%20property%20of%20our%20query%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/06/16/fluent-nhibernate-and-the-2nd-level-cache/&amp;title=Fluent%20NHibernate%20and%20the%202nd%20level%20cache&amp;summary=We%26%238217%3bve%20been%20trying%20to%20cache%20some%20objects%20using%20NHibernate%26%238217%3bs%20second%20level%20cache%20which%20always%20proves%20to%20be%20a%20trickier%20task%20than%20I%20remember%20it%20being%20the%20previous%20time%21%0a%20We%26%238217%3bre%20storing%20some%20reference%20data%20in%20the%20database%20and%20then%20using%20LINQ%20to%20NHibernate%20to%20query%20for%20the%20specific%20row%20that%20we%20want%20based%20on%20some%20user%20entered%20criteria.%0a%20We%20can%20cache%20that%20query%20by%20calling%20%27SetCacheable%27%20on%20the%20%27QueryOptions%27%20property%20of%20our%20query%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

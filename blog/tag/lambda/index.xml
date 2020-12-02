@@ -17,7 +17,9 @@
       <pubDate>Wed, 05 Apr 2017 23:49:45 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/04/05/aws-lambda-programatically-scheduling-a-cloudwatchevent/</guid>
-      <description>import boto3 lambda_client = boto3.client(&amp;#39;lambda&amp;#39;) events_client = boto3.client(&amp;#39;events&amp;#39;) fn_name = &amp;#34;HelloWorld&amp;#34; fn_role = &amp;#39;arn:aws:iam::[your-aws-id]:role/lambda_basic_execution&amp;#39; fn_response = lambda_client.create_function( FunctionName=fn_name, Runtime=&amp;#39;python2.7&amp;#39;, Role=fn_role, Handler=&amp;#34;{0}.lambda_handler&amp;#34;.format(fn_name), Code={&amp;#39;ZipFile&amp;#39;: open(&amp;#34;{0}.zip&amp;#34;.format(fn_name), &amp;#39;rb&amp;#39;).read(), }, ) fn_arn = fn_response[&amp;#39;FunctionArn&amp;#39;] frequency = &amp;#34;rate(1 hour)&amp;#34; name = &amp;#34;{0}-Trigger&amp;#34;.format(fn_name) rule_response = events_client.put_rule( Name=name, ScheduleExpression=frequency, State=&amp;#39;ENABLED&amp;#39;, ) lambda_client.add_permission( FunctionName=fn_name, StatementId=&amp;#34;{0}-Event&amp;#34;.format(name), Action=&amp;#39;lambda:InvokeFunction&amp;#39;, Principal=&amp;#39;events.amazonaws.com&amp;#39;, SourceArn=rule_response[&amp;#39;RuleArn&amp;#39;], ) events_client.put_targets( Rule=name, Targets=[ { &amp;#39;Id&amp;#39;: &amp;#34;1&amp;#34;, &amp;#39;Arn&amp;#39;: fn_arn, }, ] ) $ aws events list-rules --query &amp;#34;Rules[?Name==&amp;#39;HelloWorld-Trigger&amp;#39;]&amp;#34; [ { &amp;#34;State&amp;#34;: &amp;#34;ENABLED&amp;#34;, &amp;#34;ScheduleExpression&amp;#34;: &amp;#34;rate(1 hour)&amp;#34;, &amp;#34;Name&amp;#34;: &amp;#34;HelloWorld-Trigger&amp;#34;, &amp;#34;Arn&amp;#34;: &amp;#34;arn:aws:events:us-east-1:[your-aws-id]:rule/HelloWorld-Trigger&amp;#34; } ] $ aws events list-targets-by-rule --rule HelloWorld-Trigger { &amp;#34;Targets&amp;#34;: [ { &amp;#34;Id&amp;#34;: &amp;#34;1&amp;#34;, &amp;#34;Arn&amp;#34;: &amp;#34;arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld&amp;#34; } ] } $ aws lambda get-policy --function-name HelloWorld { &amp;#34;Policy&amp;#34;: &amp;#34;{\&amp;#34;Version\&amp;#34;:\&amp;#34;2012-10-17\&amp;#34;,\&amp;#34;Id\&amp;#34;:\&amp;#34;default\&amp;#34;,\&amp;#34;Statement\&amp;#34;:[{\&amp;#34;Sid\&amp;#34;:\&amp;#34;HelloWorld-Trigger-Event\&amp;#34;,\&amp;#34;Effect\&amp;#34;:\&amp;#34;Allow\&amp;#34;,\&amp;#34;Principal\&amp;#34;:{\&amp;#34;Service\&amp;#34;:\&amp;#34;events.</description>
+      <description>I recently wrote a blog post showing how to create a Python &#39;Hello World&#39; AWS lambda function and manually invoke it, but what I really wanted to do was have it run automatically every hour.
+ To achieve that in AWS Lambda land we need to create a CloudWatch Event. The documentation describes them as follows:
+  Using simple rules that you can quickly set up, you can match events and route them to one or more target functions or streams.</description>
     </item>
     
     <item>
@@ -26,7 +28,10 @@
       <pubDate>Mon, 03 Apr 2017 05:49:53 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/04/03/aws-lambda-encrypted-environment-variables/</guid>
-      <description>import boto3 import os from base64 import b64decode def lambda_handler(event, context): encrypted = os.environ[&amp;#39;ENCRYPTED_VALUE&amp;#39;] decrypted = boto3.client(&amp;#39;kms&amp;#39;).decrypt(CiphertextBlob=b64decode(encrypted))[&amp;#39;Plaintext&amp;#39;] # Don&amp;#39;t print out your decrypted value in a real function! This is just to show how it works. print(&amp;#34;Decrypted value:&amp;#34;, decrypted) plain_text = os.environ[&amp;#34;PLAIN_TEXT_VALUE&amp;#34;] print(&amp;#34;Plain text:&amp;#34;, plain_text) zip HelloWorldEncrypted.zip HelloWorldEncrypted.py import boto3 from base64 import b64encode fn_name = &amp;#34;HelloWorldEncrypted&amp;#34; kms_key = &amp;#34;arn:aws:kms:[aws-zone]:[your-aws-id]:key/[your-kms-key-id]&amp;#34; fn_role = &amp;#39;arn:aws:iam::[your-aws-id]:role/lambda_basic_execution&amp;#39; lambda_client = boto3.client(&amp;#39;lambda&amp;#39;) kms_client = boto3.client(&amp;#39;kms&amp;#39;) encrypt_me = &amp;#34;abcdefg&amp;#34; encrypted = b64encode(kms_client.</description>
+      <description>Continuing on from my post showing how to create a &#39;Hello World&#39; AWS lambda function I wanted to pass encrypted environment variables to my function.
+ The following function takes in both an encrypted and unencrypted variable and prints them out.
+ Don&amp;#8217;t print out encrypted variables in a real function, this is just so we can see the example working!
+ import boto3 import os from base64 import b64decode def lambda_handler(event, context): encrypted = os.</description>
     </item>
     
     <item>
@@ -35,9 +40,9 @@
       <pubDate>Mon, 15 Dec 2008 23:52:17 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2008/12/15/cs-lamba-foreach-only-on-lists/</guid>
-      <description>One of my favourite things introduced into C# recently is the new ForEachmethod which can be applied to (apparently only!) lists.
-Last week we had a situation where we wanted to make use of the ForEach method on an IDictionary which we were using to store a collection of Seleniumclients.
-IDictionary&amp;lt;string, ISelenium&amp;gt; seleniumClients = new Dictionary&amp;lt;string, ISelenium&amp;gt;(); We wanted to write a piece of code to exit all of the clients when our tests had completed.</description>
+      <description>One of my favourite things introduced into C# recently is the new ForEach method which can be applied to (apparently only!) lists.
+ Last week we had a situation where we wanted to make use of the ForEach method on an IDictionary which we were using to store a collection of Selenium clients.
+ IDictionary&amp;lt;string, ISelenium&amp;gt; seleniumClients = new Dictionary&amp;lt;string, ISelenium&amp;gt;();   We wanted to write a piece of code to exit all of the clients when our tests had completed.</description>
     </item>
     
     <item>
@@ -47,8 +52,8 @@ IDictionary&amp;lt;string, ISelenium&amp;gt; seleniumClients = new Dictionary&am
       
       <guid>https://markhneedham.com/blog/2008/11/24/c-new-language-features-conciseness-v-readability/</guid>
       <description>One of the things I really disliked when I first came across C# 3.0 code was lambda functions.
-At the time I remember speaking to my Tech Leadand expressing the opinion that they were making the code harder to understand and were valuing conciseness over readability.
-After a week of reading about the new C# features and understanding how they worked the code was now more readable to me and a lot of the boiler plate code that I had come to expect was no longer necessary.</description>
+ At the time I remember speaking to my Tech Lead and expressing the opinion that they were making the code harder to understand and were valuing conciseness over readability.
+ After a week of reading about the new C# features and understanding how they worked the code was now more readable to me and a lot of the boiler plate code that I had come to expect was no longer necessary.</description>
     </item>
     
   </channel>

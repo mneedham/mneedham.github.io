@@ -22,9 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Sentiment analysis of morning pages" />
         
-          <meta name="twitter:description" content="There is no wrong way to do Morning Pages – they are not high art.
-They are not even “writing.” They are about anything and everything that crosses your mind– and they are for your eyes only.
-Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the day at hand. Do not over-think Morning Pages: just put three pages of anything on the page…and then do three more pages tomorrow." />
+          <meta name="twitter:description" content="A couple of months ago I came across a cool blog post by Julia Silge where she runs a sentiment analysis algorithm over her tweet stream to see how her tweet sentiment has varied over time.
+ I wanted to give it a try but couldn&#8217;t figure out how to get a dump of my tweets so I decided to try it out on the text from my morning pages writing which I&#8217;ve been experimenting with for a few months." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/07/09/r-sentiment-analysis-of-morning-pages/" />
 
@@ -35,9 +34,8 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
         <title> R: Sentiment analysis of morning pages &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="There is no wrong way to do Morning Pages – they are not high art.
-They are not even “writing.” They are about anything and everything that crosses your mind– and they are for your eyes only.
-Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the day at hand. Do not over-think Morning Pages: just put three pages of anything on the page…and then do three more pages tomorrow." />
+        <meta name="description" content="A couple of months ago I came across a cool blog post by Julia Silge where she runs a sentiment analysis algorithm over her tweet stream to see how her tweet sentiment has varied over time.
+ I wanted to give it a try but couldn&#8217;t figure out how to get a dump of my tweets so I decided to try it out on the text from my morning pages writing which I&#8217;ve been experimenting with for a few months." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +64,8 @@ Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-07-09",
-        "description": "There is no wrong way to do Morning Pages – they are not high art.\nThey are not even “writing.” They are about anything and everything that crosses your mind– and they are for your eyes only.\nMorning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the day at hand. Do not over-think Morning Pages: just put three pages of anything on the page…and then do three more pages tomorrow.",
-        "wordCount":  590 
+        "description": "A couple of months ago I came across a cool blog post by Julia Silge where she runs a sentiment analysis algorithm over her tweet stream to see how her tweet sentiment has varied over time.\n I wanted to give it a try but couldn\x26#8217;t figure out how to get a dump of my tweets so I decided to try it out on the text from my morning pages writing which I\x26#8217;ve been experimenting with for a few months.",
+        "wordCount":  1266 
     }
     </script>
     
@@ -176,142 +174,249 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Sentiment analysis of morning pages</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><em>There is no wrong way to do Morning Pages</em> – they are not high art.</p>
-<p>They are not even “writing.” They are about anything and everything that crosses your mind– and they are for your eyes only.</p>
-<p>Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the day at hand. Do not over-think Morning Pages: just put three pages of anything on the page…and then do three more pages tomorrow.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">library</span>(syuzhet)
-<span style="color:#a6e22e">library</span>(lubridate)
-<span style="color:#a6e22e">library</span>(ggplot2)
-<span style="color:#a6e22e">library</span>(scales)
-<span style="color:#a6e22e">library</span>(reshape2)
-<span style="color:#a6e22e">library</span>(dplyr)
+    <div class="paragraph">
+<p>A couple of months ago I came across a cool blog post by <a href="https://twitter.com/juliasilge">Julia Silge</a> where she <a href="http://juliasilge.com/blog/Joy-to-the-World/">runs a sentiment analysis algorithm over her tweet stream</a> to see how her tweet sentiment has varied over time.</p>
+</div>
+<div class="paragraph">
+<p>I wanted to give it a try but couldn&#8217;t figure out how to get a dump of my tweets so I decided to try it out on the text from my <a href="http://juliacameronlive.com/basic-tools/morning-pages/">morning pages</a> writing which I&#8217;ve been experimenting with for a few months.</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s an explanation of morning pages if you haven&#8217;t come across it before:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Morning Pages are three pages of longhand, stream of consciousness writing, done first thing in the morning. <strong>There is no wrong way to do Morning Pages</strong>&#8201;&#8212;&#8201;they are not high art. They are not even &#8220;writing.&#8221; They are about anything and everything that crosses your mind-- and they are for your eyes only. Morning Pages provoke, clarify, comfort, cajole, prioritize and synchronize the day at hand. Do not over-think Morning Pages: just put three pages of anything on the page&#8230;&#8203;and then do three more pages tomorrow.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>Most of my writing is complete gibberish but I thought it&#8217;d be fun to see how my mood changes over time and see if it identifies any peaks or troughs in sentiment that I could then look into further.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve got one file per day so we&#8217;ll start by building a data frame containing the text, one row per day:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">library(syuzhet)
+library(lubridate)
+library(ggplot2)
+library(scales)
+library(reshape2)
+library(dplyr)
 
-root<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/path/to/files&#34;</span>
-files <span style="color:#f92672">=</span> <span style="color:#a6e22e">list.files</span>(root)
+root="/path/to/files"
+files = list.files(root)
 
-df <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>(file <span style="color:#f92672">=</span> files, stringsAsFactors<span style="color:#f92672">=</span><span style="color:#66d9ef">FALSE</span>)
-df<span style="color:#f92672">$</span>fullPath <span style="color:#f92672">=</span> <span style="color:#a6e22e">paste</span>(root, df<span style="color:#f92672">$</span>file, sep <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/&#34;</span>)
-df<span style="color:#f92672">$</span>text <span style="color:#f92672">=</span> <span style="color:#a6e22e">sapply</span>(df<span style="color:#f92672">$</span>fullPath, get_text_as_string)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">names</span>(df)
+df = data.frame(file = files, stringsAsFactors=FALSE)
+df$fullPath = paste(root, df$file, sep = "/")
+df$text = sapply(df$fullPath, get_text_as_string)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We end up with a data frame with 3 fields:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; names(df)
 
-[1] <span style="color:#e6db74">&#34;file&#34;</span>     <span style="color:#e6db74">&#34;fullPath&#34;</span> <span style="color:#e6db74">&#34;text&#34;</span>   
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">get_nrc_sentiment</span>(df<span style="color:#f92672">$</span>text) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">head</span>()
+[1] "file"     "fullPath" "text"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next we&#8217;ll run the sentiment analysis function - <cite>syuzhet#get_nrc_sentiment</cite> - over the data frame and get a score for each type of sentiment for each entry:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">get_nrc_sentiment(df$text) %&gt;% head()
 
   anger anticipation disgust fear joy sadness surprise trust negative positive
-<span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">7</span>           <span style="color:#ae81ff">14</span>       <span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">8</span>       <span style="color:#ae81ff">6</span>        <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">12</span>       <span style="color:#ae81ff">14</span>       <span style="color:#ae81ff">27</span>
-<span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">11</span>           <span style="color:#ae81ff">12</span>       <span style="color:#ae81ff">2</span>   <span style="color:#ae81ff">13</span>   <span style="color:#ae81ff">9</span>      <span style="color:#ae81ff">10</span>        <span style="color:#ae81ff">4</span>    <span style="color:#ae81ff">11</span>       <span style="color:#ae81ff">22</span>       <span style="color:#ae81ff">24</span>
-<span style="color:#ae81ff">3</span>     <span style="color:#ae81ff">6</span>           <span style="color:#ae81ff">12</span>       <span style="color:#ae81ff">3</span>    <span style="color:#ae81ff">8</span>   <span style="color:#ae81ff">7</span>       <span style="color:#ae81ff">7</span>        <span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">13</span>       <span style="color:#ae81ff">16</span>       <span style="color:#ae81ff">21</span>
-<span style="color:#ae81ff">4</span>     <span style="color:#ae81ff">5</span>           <span style="color:#ae81ff">17</span>       <span style="color:#ae81ff">4</span>    <span style="color:#ae81ff">7</span>  <span style="color:#ae81ff">10</span>       <span style="color:#ae81ff">6</span>        <span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">13</span>       <span style="color:#ae81ff">16</span>       <span style="color:#ae81ff">37</span>
-<span style="color:#ae81ff">5</span>     <span style="color:#ae81ff">4</span>           <span style="color:#ae81ff">13</span>       <span style="color:#ae81ff">3</span>    <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">7</span>       <span style="color:#ae81ff">9</span>        <span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">14</span>       <span style="color:#ae81ff">16</span>       <span style="color:#ae81ff">25</span>
-<span style="color:#ae81ff">6</span>     <span style="color:#ae81ff">7</span>           <span style="color:#ae81ff">11</span>       <span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">8</span>       <span style="color:#ae81ff">8</span>        <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">15</span>       <span style="color:#ae81ff">16</span>       <span style="color:#ae81ff">26</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-df <span style="color:#f92672">=</span> <span style="color:#a6e22e">cbind</span>(df, <span style="color:#a6e22e">get_nrc_sentiment</span>(df<span style="color:#f92672">$</span>text))
-df<span style="color:#f92672">$</span>date <span style="color:#f92672">=</span> <span style="color:#a6e22e">ymd</span>(<span style="color:#a6e22e">sapply</span>(df<span style="color:#f92672">$</span>file, <span style="color:#a6e22e">function</span>(file) <span style="color:#a6e22e">unlist</span>(<span style="color:#a6e22e">strsplit</span>(file, <span style="color:#e6db74">&#34;[.]&#34;</span>))[1]))
-df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(<span style="color:#f92672">-</span>text, <span style="color:#f92672">-</span>fullPath, <span style="color:#f92672">-</span>file) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">head</span>()
+1     7           14       5    7   8       6        6    12       14       27
+2    11           12       2   13   9      10        4    11       22       24
+3     6           12       3    8   7       7        5    13       16       21
+4     5           17       4    7  10       6        7    13       16       37
+5     4           13       3    7   7       9        5    14       16       25
+6     7           11       5    7   8       8        6    15       16       26</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;ll merge these columns into our original data frame:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">df = cbind(df, get_nrc_sentiment(df$text))
+df$date = ymd(sapply(df$file, function(file) unlist(strsplit(file, "[.]"))[1]))
+df %&gt;% select(-text, -fullPath, -file) %&gt;% head()
 
   anger anticipation disgust fear joy sadness surprise trust negative positive       date
-<span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">7</span>           <span style="color:#ae81ff">14</span>       <span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">8</span>       <span style="color:#ae81ff">6</span>        <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">12</span>       <span style="color:#ae81ff">14</span>       <span style="color:#ae81ff">27</span> <span style="color:#ae81ff">2016-01-02</span>
-<span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">11</span>           <span style="color:#ae81ff">12</span>       <span style="color:#ae81ff">2</span>   <span style="color:#ae81ff">13</span>   <span style="color:#ae81ff">9</span>      <span style="color:#ae81ff">10</span>        <span style="color:#ae81ff">4</span>    <span style="color:#ae81ff">11</span>       <span style="color:#ae81ff">22</span>       <span style="color:#ae81ff">24</span> <span style="color:#ae81ff">2016-01-03</span>
-<span style="color:#ae81ff">3</span>     <span style="color:#ae81ff">6</span>           <span style="color:#ae81ff">12</span>       <span style="color:#ae81ff">3</span>    <span style="color:#ae81ff">8</span>   <span style="color:#ae81ff">7</span>       <span style="color:#ae81ff">7</span>        <span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">13</span>       <span style="color:#ae81ff">16</span>       <span style="color:#ae81ff">21</span> <span style="color:#ae81ff">2016-01-04</span>
-<span style="color:#ae81ff">4</span>     <span style="color:#ae81ff">5</span>           <span style="color:#ae81ff">17</span>       <span style="color:#ae81ff">4</span>    <span style="color:#ae81ff">7</span>  <span style="color:#ae81ff">10</span>       <span style="color:#ae81ff">6</span>        <span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">13</span>       <span style="color:#ae81ff">16</span>       <span style="color:#ae81ff">37</span> <span style="color:#ae81ff">2016-01-05</span>
-<span style="color:#ae81ff">5</span>     <span style="color:#ae81ff">4</span>           <span style="color:#ae81ff">13</span>       <span style="color:#ae81ff">3</span>    <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">7</span>       <span style="color:#ae81ff">9</span>        <span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">14</span>       <span style="color:#ae81ff">16</span>       <span style="color:#ae81ff">25</span> <span style="color:#ae81ff">2016-01-06</span>
-<span style="color:#ae81ff">6</span>     <span style="color:#ae81ff">7</span>           <span style="color:#ae81ff">11</span>       <span style="color:#ae81ff">5</span>    <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">8</span>       <span style="color:#ae81ff">8</span>        <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">15</span>       <span style="color:#ae81ff">16</span>       <span style="color:#ae81ff">26</span> <span style="color:#ae81ff">2016-01-07</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-posnegtime <span style="color:#f92672">&lt;-</span> df <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">group_by</span>(date <span style="color:#f92672">=</span> <span style="color:#a6e22e">cut</span>(date, breaks<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1 week&#34;</span>)) <span style="color:#f92672">%&gt;%</span>
-  <span style="color:#a6e22e">summarise</span>(negative <span style="color:#f92672">=</span> <span style="color:#a6e22e">mean</span>(negative), positive <span style="color:#f92672">=</span> <span style="color:#a6e22e">mean</span>(positive)) <span style="color:#f92672">%&gt;%</span> 
+1     7           14       5    7   8       6        6    12       14       27 2016-01-02
+2    11           12       2   13   9      10        4    11       22       24 2016-01-03
+3     6           12       3    8   7       7        5    13       16       21 2016-01-04
+4     5           17       4    7  10       6        7    13       16       37 2016-01-05
+5     4           13       3    7   7       9        5    14       16       25 2016-01-06
+6     7           11       5    7   8       8        6    15       16       26 2016-01-07</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally we can build some 'sentiment over time' charts like Julia has in her post:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">posnegtime &lt;- df %&gt;%
+  group_by(date = cut(date, breaks="1 week")) %&gt;%
+  summarise(negative = mean(negative), positive = mean(positive)) %&gt;%
   melt
 
-<span style="color:#a6e22e">names</span>(posnegtime) <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;sentiment&#34;</span>, <span style="color:#e6db74">&#34;meanvalue&#34;</span>)
-posnegtime<span style="color:#f92672">$</span>sentiment <span style="color:#f92672">=</span> <span style="color:#a6e22e">factor</span>(posnegtime<span style="color:#f92672">$</span>sentiment,<span style="color:#a6e22e">levels</span>(posnegtime<span style="color:#f92672">$</span>sentiment)<span style="color:#a6e22e">[c</span>(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">1</span>)])
+names(posnegtime) &lt;- c("date", "sentiment", "meanvalue")
+posnegtime$sentiment = factor(posnegtime$sentiment,levels(posnegtime$sentiment)[c(2,1)])
 
-<span style="color:#a6e22e">ggplot</span>(data <span style="color:#f92672">=</span> posnegtime, <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.Date</span>(date), y <span style="color:#f92672">=</span> meanvalue, group <span style="color:#f92672">=</span> sentiment)) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">geom_line</span>(size <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.5</span>, alpha <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.7</span>, <span style="color:#a6e22e">aes</span>(color <span style="color:#f92672">=</span> sentiment)) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">geom_point</span>(size <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">ylim</span>(<span style="color:#ae81ff">0</span>, <span style="color:#66d9ef">NA</span>) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">scale_colour_manual</span>(values <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;springgreen4&#34;</span>, <span style="color:#e6db74">&#34;firebrick3&#34;</span>)) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">theme</span>(legend.title<span style="color:#f92672">=</span><span style="color:#a6e22e">element_blank</span>(), axis.title.x <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_blank</span>()) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">scale_x_date</span>(breaks <span style="color:#f92672">=</span> <span style="color:#a6e22e">date_breaks</span>(<span style="color:#e6db74">&#34;1 month&#34;</span>), labels <span style="color:#f92672">=</span> <span style="color:#a6e22e">date_format</span>(<span style="color:#e6db74">&#34;%b %Y&#34;</span>)) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">ylab</span>(<span style="color:#e6db74">&#34;Average sentiment score&#34;</span>) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Sentiment Over Time&#34;</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(negative <span style="color:#f92672">==</span> <span style="color:#a6e22e">max</span>(negative)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(date)
+ggplot(data = posnegtime, aes(x = as.Date(date), y = meanvalue, group = sentiment)) +
+  geom_line(size = 2.5, alpha = 0.7, aes(color = sentiment)) +
+  geom_point(size = 0.5) +
+  ylim(0, NA) +
+  scale_colour_manual(values = c("springgreen4", "firebrick3")) +
+  theme(legend.title=element_blank(), axis.title.x = element_blank()) +
+  scale_x_date(breaks = date_breaks("1 month"), labels = date_format("%b %Y")) +
+  ylab("Average sentiment score") +
+  ggtitle("Sentiment Over Time")</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2016/07/2016-07-05_06-47-12.png" alt="2016 07 05 06 47 12" width="580">
+</div>
+</div>
+<div class="paragraph">
+<p>So overall it seems like my writing displays more positive sentiment than negative which is nice to know. The chart shows a rolling one week average and there isn&#8217;t a single week where there&#8217;s more negative sentiment than positive.</p>
+</div>
+<div class="paragraph">
+<p>I thought it&#8217;d be fun to drill into the highest negative and positive days to see what was going on there:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; df %&gt;% filter(negative == max(negative)) %&gt;% select(date)
 
         date
-<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2016-03-19</span>
+1 2016-03-19
 
-<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(positive <span style="color:#f92672">==</span> <span style="color:#a6e22e">max</span>(positive)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(date)
+&gt; df %&gt;% filter(positive == max(positive)) %&gt;% select(date)
 
         date
-<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2016-01-05</span>
-<span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2016-06-20</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">get_nrc_sentiment</span>(<span style="color:#e6db74">&#34;There was one section that I didn&#39;t quite understand so will have another go at reading that.&#34;</span>)
+1 2016-01-05
+2 2016-06-20</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On the 19th March I was really frustrated because my boiler had broken down and I had to buy a new one - I&#8217;d completely forgotten how annoyed I was, so thanks sentiment analysis for reminding me!</p>
+</div>
+<div class="paragraph">
+<p>I couldn&#8217;t find anything particularly positive on the 5th January or 20th June. The 5th January was the day after my birthday so perhaps I was happy about that but I couldn&#8217;t see any particular evidence that was the case.</p>
+</div>
+<div class="paragraph">
+<p>Playing around with the <cite>get_nrc_sentiment</cite> function it does seem to identify positive sentiment when I wouldn&#8217;t say there is any. For example here&#8217;s some example sentences from my writing today:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; get_nrc_sentiment("There was one section that I didn't quite understand so will have another go at reading that.")
 
   anger anticipation disgust fear joy sadness surprise trust negative positive
-<span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">0</span>            <span style="color:#ae81ff">0</span>       <span style="color:#ae81ff">0</span>    <span style="color:#ae81ff">0</span>   <span style="color:#ae81ff">0</span>       <span style="color:#ae81ff">0</span>        <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>        <span style="color:#ae81ff">0</span>        <span style="color:#ae81ff">1</span>
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">get_nrc_sentiment</span>(<span style="color:#e6db74">&#34;Bit of a delay in starting my writing for the day...for some reason was feeling wheezy again.&#34;</span>)
+1     0            0       0    0   0       0        0     0        0        1</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; get_nrc_sentiment("Bit of a delay in starting my writing for the day...for some reason was feeling wheezy again.")
 
   anger anticipation disgust fear joy sadness surprise trust negative positive
-<span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">2</span>            <span style="color:#ae81ff">1</span>       <span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">2</span>   <span style="color:#ae81ff">1</span>       <span style="color:#ae81ff">2</span>        <span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">1</span>        <span style="color:#ae81ff">2</span>        <span style="color:#ae81ff">2</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R">
-difftime <span style="color:#f92672">&lt;-</span> df <span style="color:#f92672">%&gt;%</span> 
-  <span style="color:#a6e22e">group_by</span>(date <span style="color:#f92672">=</span> <span style="color:#a6e22e">cut</span>(date, breaks<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1 week&#34;</span>)) <span style="color:#f92672">%&gt;%</span>
-  <span style="color:#a6e22e">summarise</span>(diff <span style="color:#f92672">=</span> <span style="color:#a6e22e">mean</span>(positive) <span style="color:#f92672">-</span> <span style="color:#a6e22e">mean</span>(negative))
+1     2            1       2    2   1       2        1     1        2        2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I don&#8217;t think there&#8217;s any positive sentiment in either of those sentences but the function claims 3 bits of positive sentiment! It would be interesting to see if I fare any better with <a href="https://cran.r-project.org/web/packages/syuzhet/vignettes/syuzhet-vignette.html">Stanford&#8217;s sentiment extraction tool which you can use with syuzhet</a> but requires a bit of setup first.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ll give that a try next but in terms of getting an overview of my mood I thought I might get a better picture if I looked for the difference between positive and negative sentiment rather than absolute values.</p>
+</div>
+<div class="paragraph">
+<p>The following code does the trick:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-R" data-lang="R">difftime &lt;- df %&gt;%
+  group_by(date = cut(date, breaks="1 week")) %&gt;%
+  summarise(diff = mean(positive) - mean(negative))
 
-<span style="color:#a6e22e">ggplot</span>(data <span style="color:#f92672">=</span> difftime, <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> <span style="color:#a6e22e">as.Date</span>(date), y <span style="color:#f92672">=</span> diff)) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">geom_line</span>(size <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.5</span>, alpha <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.7</span>) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">geom_point</span>(size <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">ylim</span>(<span style="color:#ae81ff">0</span>, <span style="color:#66d9ef">NA</span>) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">scale_colour_manual</span>(values <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;springgreen4&#34;</span>, <span style="color:#e6db74">&#34;firebrick3&#34;</span>)) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">theme</span>(legend.title<span style="color:#f92672">=</span><span style="color:#a6e22e">element_blank</span>(), axis.title.x <span style="color:#f92672">=</span> <span style="color:#a6e22e">element_blank</span>()) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">scale_x_date</span>(breaks <span style="color:#f92672">=</span> <span style="color:#a6e22e">date_breaks</span>(<span style="color:#e6db74">&#34;1 month&#34;</span>), labels <span style="color:#f92672">=</span> <span style="color:#a6e22e">date_format</span>(<span style="color:#e6db74">&#34;%b %Y&#34;</span>)) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">ylab</span>(<span style="color:#e6db74">&#34;Average sentiment difference score&#34;</span>) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Sentiment Over Time&#34;</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(diff <span style="color:#f92672">=</span> positive <span style="color:#f92672">-</span> negative) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(diff <span style="color:#f92672">==</span> <span style="color:#a6e22e">max</span>(diff)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(date)
+ggplot(data = difftime, aes(x = as.Date(date), y = diff)) +
+  geom_line(size = 2.5, alpha = 0.7) +
+  geom_point(size = 0.5) +
+  ylim(0, NA) +
+  scale_colour_manual(values = c("springgreen4", "firebrick3")) +
+  theme(legend.title=element_blank(), axis.title.x = element_blank()) +
+  scale_x_date(breaks = date_breaks("1 month"), labels = date_format("%b %Y")) +
+  ylab("Average sentiment difference score") +
+  ggtitle("Sentiment Over Time")</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2016/07/2016-07-09_07-05-34.png" alt="2016 07 09 07 05 34" width="580">
+</div>
+</div>
+<div class="paragraph">
+<p>This one identifies peak happiness in mid January/February. We can find the peak day for this measure as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; df %&gt;% mutate(diff = positive - negative) %&gt;% filter(diff == max(diff)) %&gt;% select(date)
 
         date
-<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2016-02-25</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R">
-<span style="color:#f92672">&gt;</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(diff <span style="color:#f92672">=</span> positive <span style="color:#f92672">-</span> negative) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(diff <span style="color:#f92672">==</span> <span style="color:#a6e22e">max</span>(diff)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(<span style="color:#f92672">-</span>text, <span style="color:#f92672">-</span>file, <span style="color:#f92672">-</span>fullPath)
+1 2016-02-25</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or if we want to see the individual scores:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-R" data-lang="R">&gt; df %&gt;% mutate(diff = positive - negative) %&gt;% filter(diff == max(diff)) %&gt;% select(-text, -file, -fullPath)
 
   anger anticipation disgust fear joy sadness surprise trust negative positive       date diff
-<span style="color:#ae81ff">1</span>     <span style="color:#ae81ff">0</span>           <span style="color:#ae81ff">11</span>       <span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">3</span>   <span style="color:#ae81ff">7</span>       <span style="color:#ae81ff">1</span>        <span style="color:#ae81ff">6</span>     <span style="color:#ae81ff">6</span>        <span style="color:#ae81ff">3</span>       <span style="color:#ae81ff">31</span> <span style="color:#ae81ff">2016-02-25</span>   <span style="color:#ae81ff">28</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+1     0           11       2    3   7       1        6     6        3       31 2016-02-25   28</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After reading through the entry for this day I&#8217;m wondering if the individual pieces of sentiment might be more interesting than the positive/negative score.</p>
+</div>
+<div class="paragraph">
+<p>On the 25th February I was:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>quite excited about reading a distributed systems book I&#8217;d just bought (I know?!)</p>
+</li>
+<li>
+<p>thinking about how to apply the <a href="http://tagging.pui.ch/automated_tag_clustering">tag clustering technique</a> to meetup topics</p>
+</li>
+<li>
+<p>preparing <a href="https://www.youtube.com/watch?v=VGCCVNlZmRI">my submission to PyData London</a> and thinking about what was gonna go in it</p>
+</li>
+<li>
+<p>thinking about the soak testing we were about to start doing on our project</p>
+<div class="paragraph">
+<p>&lt;/ul&gt;</p>
+</div>
+<div class="paragraph">
+<p>Each of those is a type of anticipation so it makes sense that this day scores highly. I looked through some other days which specifically rank highly for anticipation and couldn&#8217;t figure out what I was anticipating so even this is a bit hit and miss!</p>
+</div>
+<div class="paragraph">
+<p>I have a few avenues to explore further but if you have any other ideas for what I can try next let me know in the comments.</p>
+</div>
+</li>
+</ul>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -346,7 +451,7 @@ difftime <span style="color:#f92672">&lt;-</span> df <span style="color:#f92672"
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/07/09/r-sentiment-analysis-of-morning-pages/&amp;title=R%3a%20Sentiment%20analysis%20of%20morning%20pages&amp;summary=There%20is%20no%20wrong%20way%20to%20do%20Morning%20Pages%20%e2%80%93%20they%20are%20not%20high%20art.%0aThey%20are%20not%20even%20%e2%80%9cwriting.%e2%80%9d%20They%20are%20about%20anything%20and%20everything%20that%20crosses%20your%20mind%e2%80%93%20and%20they%20are%20for%20your%20eyes%20only.%0aMorning%20Pages%20provoke%2c%20clarify%2c%20comfort%2c%20cajole%2c%20prioritize%20and%20synchronize%20the%20day%20at%20hand.%20Do%20not%20over-think%20Morning%20Pages%3a%20just%20put%20three%20pages%20of%20anything%20on%20the%20page%e2%80%a6and%20then%20do%20three%20more%20pages%20tomorrow...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/07/09/r-sentiment-analysis-of-morning-pages/&amp;title=R%3a%20Sentiment%20analysis%20of%20morning%20pages&amp;summary=A%20couple%20of%20months%20ago%20I%20came%20across%20a%20cool%20blog%20post%20by%20Julia%20Silge%20where%20she%20runs%20a%20sentiment%20analysis%20algorithm%20over%20her%20tweet%20stream%20to%20see%20how%20her%20tweet%20sentiment%20has%20varied%20over%20time.%0a%20I%20wanted%20to%20give%20it%20a%20try%20but%20couldn%26%238217%3bt%20figure%20out%20how%20to%20get%20a%20dump%20of%20my%20tweets%20so%20I%20decided%20to%20try%20it%20out%20on%20the%20text%20from%20my%20morning%20pages%20writing%20which%20I%26%238217%3bve%20been%20experimenting%20with%20for%20a%20few%20months...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

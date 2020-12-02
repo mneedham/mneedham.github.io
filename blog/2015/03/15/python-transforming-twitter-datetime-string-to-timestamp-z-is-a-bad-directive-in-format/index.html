@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Python: Transforming Twitter datetime string to timestamp (z&#39; is a bad directive in format)" />
         
-          <meta name="twitter:description" content="from datetime import datetime date = &#34;Sat Mar 14 18:43:19 &#43;0000 2015&#34; &gt;&gt;&gt; datetime.strptime(date, &#34;%a %b %d%H:%M:%S %z %Y&#34;) Traceback (most recent call last): File &#34;&lt;stdin&gt;&#34;, line 1, in &lt;module&gt; File &#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/_strptime.py&#34;, line 317, in _strptime (bad_directive, format)) ValueError: &#39;z&#39; is a bad directive in format &#39;%a %b %d%H:%M:%S %z %Y&#39; $ pip install python-dateutil from dateutil import parser parsed_date = parser.parse(date) &gt;&gt;&gt; parsed_date datetime.datetime(2015, 3, 14, 18, 43, 19, tzinfo=tzutc()) import calendar timestamp = calendar." />
+          <meta name="twitter:description" content="I&#8217;ve been playing around with importing Twitter data into Neo4j and since Neo4j can&#8217;t store dates natively just yet I needed to convert a date string to timestamp.
+ I started with the following which unfortunately throws an exception:
+ from datetime import datetime date = &#34;Sat Mar 14 18:43:19 &#43;0000 2015&#34; &gt;&gt;&gt; datetime.strptime(date, &#34;%a %b %d %H:%M:%S %z %Y&#34;) Traceback (most recent call last): File &#34;&lt;stdin&gt;&#34;, line 1, in &lt;module&gt; File &#34;" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/03/15/python-transforming-twitter-datetime-string-to-timestamp-z-is-a-bad-directive-in-format/" />
 
@@ -33,7 +35,9 @@
         <title> Python: Transforming Twitter datetime string to timestamp (z&#39; is a bad directive in format) &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="from datetime import datetime date = &#34;Sat Mar 14 18:43:19 &#43;0000 2015&#34; &gt;&gt;&gt; datetime.strptime(date, &#34;%a %b %d%H:%M:%S %z %Y&#34;) Traceback (most recent call last): File &#34;&lt;stdin&gt;&#34;, line 1, in &lt;module&gt; File &#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/_strptime.py&#34;, line 317, in _strptime (bad_directive, format)) ValueError: &#39;z&#39; is a bad directive in format &#39;%a %b %d%H:%M:%S %z %Y&#39; $ pip install python-dateutil from dateutil import parser parsed_date = parser.parse(date) &gt;&gt;&gt; parsed_date datetime.datetime(2015, 3, 14, 18, 43, 19, tzinfo=tzutc()) import calendar timestamp = calendar." />
+        <meta name="description" content="I&#8217;ve been playing around with importing Twitter data into Neo4j and since Neo4j can&#8217;t store dates natively just yet I needed to convert a date string to timestamp.
+ I started with the following which unfortunately throws an exception:
+ from datetime import datetime date = &#34;Sat Mar 14 18:43:19 &#43;0000 2015&#34; &gt;&gt;&gt; datetime.strptime(date, &#34;%a %b %d %H:%M:%S %z %Y&#34;) Traceback (most recent call last): File &#34;&lt;stdin&gt;&#34;, line 1, in &lt;module&gt; File &#34;" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-03-15",
-        "description": "from datetime import datetime date = \x26#34;Sat Mar 14 18:43:19 \x2b0000 2015\x26#34; \x26gt;\x26gt;\x26gt; datetime.strptime(date, \x26#34;%a %b %d%H:%M:%S %z %Y\x26#34;) Traceback (most recent call last): File \x26#34;\x26lt;stdin\x26gt;\x26#34;, line 1, in \x26lt;module\x26gt; File \x26#34;\/System\/Library\/Frameworks\/Python.framework\/Versions\/2.7\/lib\/python2.7\/_strptime.py\x26#34;, line 317, in _strptime (bad_directive, format)) ValueError: \x26#39;z\x26#39; is a bad directive in format \x26#39;%a %b %d%H:%M:%S %z %Y\x26#39; $ pip install python-dateutil from dateutil import parser parsed_date = parser.parse(date) \x26gt;\x26gt;\x26gt; parsed_date datetime.datetime(2015, 3, 14, 18, 43, 19, tzinfo=tzutc()) import calendar timestamp = calendar.",
-        "wordCount":  79 
+        "description": "I\x26#8217;ve been playing around with importing Twitter data into Neo4j and since Neo4j can\x26#8217;t store dates natively just yet I needed to convert a date string to timestamp.\n I started with the following which unfortunately throws an exception:\n from datetime import datetime date = \x22Sat Mar 14 18:43:19 \x2b0000 2015\x22 \x26gt;\x26gt;\x26gt; datetime.strptime(date, \x22%a %b %d %H:%M:%S %z %Y\x22) Traceback (most recent call last): File \x22\x26lt;stdin\x26gt;\x22, line 1, in \x26lt;module\x26gt; File \x22",
+        "wordCount":  180 
     }
     </script>
     
@@ -172,38 +176,62 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Python: Transforming Twitter datetime string to timestamp (z&#39; is a bad directive in format)</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> datetime <span style="color:#f92672">import</span> datetime
-date <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Sat Mar 14 18:43:19 +0000 2015&#34;</span>
+    <div class="paragraph">
+<p>I&#8217;ve been playing around with importing Twitter data into Neo4j and since Neo4j can&#8217;t store dates natively just yet I needed to convert a date string to timestamp.</p>
+</div>
+<div class="paragraph">
+<p>I started with the following which unfortunately throws an exception:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from datetime import datetime
+date = "Sat Mar 14 18:43:19 +0000 2015"
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> datetime<span style="color:#f92672">.</span>strptime(date, <span style="color:#e6db74">&#34;%a %b </span><span style="color:#e6db74">%d</span><span style="color:#e6db74"> %H:%M:%S %z %Y&#34;</span>)
+&gt;&gt;&gt; datetime.strptime(date, "%a %b %d %H:%M:%S %z %Y")
 
 Traceback (most recent call last):
-  File <span style="color:#e6db74">&#34;&lt;stdin&gt;&#34;</span>, line <span style="color:#ae81ff">1</span>, <span style="color:#f92672">in</span> <span style="color:#f92672">&lt;</span>module<span style="color:#f92672">&gt;</span>
-  File <span style="color:#e6db74">&#34;/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/_strptime.py&#34;</span>, line <span style="color:#ae81ff">317</span>, <span style="color:#f92672">in</span> _strptime
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/_strptime.py", line 317, in _strptime
     (bad_directive, format))
-<span style="color:#a6e22e">ValueError</span>: <span style="color:#e6db74">&#39;z&#39;</span> <span style="color:#f92672">is</span> a bad directive <span style="color:#f92672">in</span> format <span style="color:#e6db74">&#39;%a %b </span><span style="color:#e6db74">%d</span><span style="color:#e6db74"> %H:%M:%S %z %Y&#39;</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ pip install python-dateutil
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> dateutil <span style="color:#f92672">import</span> parser
-parsed_date <span style="color:#f92672">=</span> parser<span style="color:#f92672">.</span>parse(date)
+ValueError: 'z' is a bad directive in format '%a %b %d %H:%M:%S %z %Y'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><a href="https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior">%z is actually a valid option</a> used to extract the timezone but my googling suggests it not working is one of the idiosyncrasies of strptime.</p>
+</div>
+<div class="paragraph">
+<p>I eventually came across the <cite>python-dateutil</cite> library, as <a href="http://stackoverflow.com/questions/3305413/python-strptime-and-timezones">recommended by Joe Shaw on StackOverflow</a>.</p>
+</div>
+<div class="paragraph">
+<p>Using that library the problem is suddenly much simpler:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ pip install python-dateutil</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from dateutil import parser
+parsed_date = parser.parse(date)
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> parsed_date
-datetime<span style="color:#f92672">.</span>datetime(<span style="color:#ae81ff">2015</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">18</span>, <span style="color:#ae81ff">43</span>, <span style="color:#ae81ff">19</span>, tzinfo<span style="color:#f92672">=</span>tzutc())
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> calendar
-timestamp <span style="color:#f92672">=</span> calendar<span style="color:#f92672">.</span>timegm(parser<span style="color:#f92672">.</span>parse(date)<span style="color:#f92672">.</span>timetuple())
+&gt;&gt;&gt; parsed_date
+datetime.datetime(2015, 3, 14, 18, 43, 19, tzinfo=tzutc())</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To get to a timestamp we can use calendar as I&#8217;ve <a href="http://www.markhneedham.com/blog/2014/10/20/python-converting-a-date-string-to-timestamp/">described before</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import calendar
+timestamp = calendar.timegm(parser.parse(date).timetuple())
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> timestamp
-<span style="color:#ae81ff">1426358599</span>
-</code></pre></div>
+&gt;&gt;&gt; timestamp
+1426358599</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -237,7 +265,7 @@ timestamp <span style="color:#f92672">=</span> calendar<span style="color:#f9267
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/03/15/python-transforming-twitter-datetime-string-to-timestamp-z-is-a-bad-directive-in-format/&amp;title=Python%3a%20Transforming%20Twitter%20datetime%20string%20to%20timestamp%20%28z%27%20is%20a%20bad%20directive%20in%20format%29&amp;summary=from%20datetime%20import%20datetime%20date%20%3d%20%26%2334%3bSat%20Mar%2014%2018%3a43%3a19%20%2b0000%202015%26%2334%3b%20%26gt%3b%26gt%3b%26gt%3b%20datetime.strptime%28date%2c%20%26%2334%3b%25a%20%25b%20%25d%25H%3a%25M%3a%25S%20%25z%20%25Y%26%2334%3b%29%20Traceback%20%28most%20recent%20call%20last%29%3a%20File%20%26%2334%3b%26lt%3bstdin%26gt%3b%26%2334%3b%2c%20line%201%2c%20in%20%26lt%3bmodule%26gt%3b%20File%20%26%2334%3b%2fSystem%2fLibrary%2fFrameworks%2fPython.framework%2fVersions%2f2.7%2flib%2fpython2.7%2f_strptime.py%26%2334%3b%2c%20line%20317%2c%20in%20_strptime%20%28bad_directive%2c%20format%29%29%20ValueError%3a%20%26%2339%3bz%26%2339%3b%20is%20a%20bad%20directive%20in%20format%20%26%2339%3b%25a%20%25b%20%25d%25H%3a%25M%3a%25S%20%25z%20%25Y%26%2339%3b%20%24%20pip%20install%20python-dateutil%20from%20dateutil%20import%20parser%20parsed_date%20%3d%20parser.parse%28date%29%20%26gt%3b%26gt%3b%26gt%3b%20parsed_date%20datetime.datetime%282015%2c%203%2c%2014%2c%2018%2c%2043%2c%2019%2c%20tzinfo%3dtzutc%28%29%29%20import%20calendar%20timestamp%20%3d%20calendar...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/03/15/python-transforming-twitter-datetime-string-to-timestamp-z-is-a-bad-directive-in-format/&amp;title=Python%3a%20Transforming%20Twitter%20datetime%20string%20to%20timestamp%20%28z%27%20is%20a%20bad%20directive%20in%20format%29&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20importing%20Twitter%20data%20into%20Neo4j%20and%20since%20Neo4j%20can%26%238217%3bt%20store%20dates%20natively%20just%20yet%20I%20needed%20to%20convert%20a%20date%20string%20to%20timestamp.%0a%20I%20started%20with%20the%20following%20which%20unfortunately%20throws%20an%20exception%3a%0a%20from%20datetime%20import%20datetime%20date%20%3d%20%22Sat%20Mar%2014%2018%3a43%3a19%20%2b0000%202015%22%20%26gt%3b%26gt%3b%26gt%3b%20datetime.strptime%28date%2c%20%22%25a%20%25b%20%25d%20%25H%3a%25M%3a%25S%20%25z%20%25Y%22%29%20Traceback%20%28most%20recent%20call%20last%29%3a%20File%20%22%26lt%3bstdin%26gt%3b%22%2c%20line%201%2c%20in%20%26lt%3bmodule%26gt%3b%20File%20%22..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

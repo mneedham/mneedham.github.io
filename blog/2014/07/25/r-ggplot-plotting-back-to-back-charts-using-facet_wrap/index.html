@@ -22,7 +22,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: ggplot  - Plotting back to back charts using facet_wrap" />
         
-          <meta name="twitter:description" content="timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin=&quot;1970-01-01&quot;, tz = &quot;GMT&quot;) query = &quot;MATCH (e:Event)&lt;-[:TO]-(response {response: &#39;yes&#39;}) WITH e, COLLECT(response) AS yeses MATCH (e)&lt;-[:TO]-(response {response: &#39;no&#39;})&lt;-[:NEXT]-() WITH e, COLLECT(response) &#43; yeses AS responses UNWIND responses AS response RETURN response.time AS time, e.time &#43; e.utc_offset AS eventTime, response.response AS response&quot; allRSVPs = cypher(graph, query) allRSVPs$time = timestampToDate(allRSVPs$time) allRSVPs$eventTime = timestampToDate(allRSVPs$eventTime) allRSVPs$difference = as.numeric(allRSVPs$eventTime - allRSVPs$time, units=&quot;days&quot;) &gt; allRSVPs[1:10,] time eventTime response difference 1 2014-06-13 21:49:20 2014-07-22 18:30:00 no 38." />
+          <meta name="twitter:description" content="Earlier in the week I showed a way to plot back to back charts using R&#8217;s ggplot library but looking back on the code it felt like it was a bit hacky to &#39;glue&#39; two charts together using a grid.
+ I wanted to find a better way.
+ To recap, I came up with the following charts showing the RSVPs to Neo4j London meetup events using this code:
+   The first thing we need to do to simplify chart generation is to return &#39;yes&#39; and &#39;no&#39; responses in the same cypher query, like so:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/07/25/r-ggplot-plotting-back-to-back-charts-using-facet_wrap/" />
 
@@ -33,7 +36,10 @@
         <title> R: ggplot  - Plotting back to back charts using facet_wrap &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin=&quot;1970-01-01&quot;, tz = &quot;GMT&quot;) query = &quot;MATCH (e:Event)&lt;-[:TO]-(response {response: &#39;yes&#39;}) WITH e, COLLECT(response) AS yeses MATCH (e)&lt;-[:TO]-(response {response: &#39;no&#39;})&lt;-[:NEXT]-() WITH e, COLLECT(response) &#43; yeses AS responses UNWIND responses AS response RETURN response.time AS time, e.time &#43; e.utc_offset AS eventTime, response.response AS response&quot; allRSVPs = cypher(graph, query) allRSVPs$time = timestampToDate(allRSVPs$time) allRSVPs$eventTime = timestampToDate(allRSVPs$eventTime) allRSVPs$difference = as.numeric(allRSVPs$eventTime - allRSVPs$time, units=&quot;days&quot;) &gt; allRSVPs[1:10,] time eventTime response difference 1 2014-06-13 21:49:20 2014-07-22 18:30:00 no 38." />
+        <meta name="description" content="Earlier in the week I showed a way to plot back to back charts using R&#8217;s ggplot library but looking back on the code it felt like it was a bit hacky to &#39;glue&#39; two charts together using a grid.
+ I wanted to find a better way.
+ To recap, I came up with the following charts showing the RSVPs to Neo4j London meetup events using this code:
+   The first thing we need to do to simplify chart generation is to return &#39;yes&#39; and &#39;no&#39; responses in the same cypher query, like so:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +68,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-07-25",
-        "description": "timestampToDate \x26lt;- function(x) as.POSIXct(x \/ 1000, origin=\x26quot;1970-01-01\x26quot;, tz = \x26quot;GMT\x26quot;) query = \x26quot;MATCH (e:Event)\x26lt;-[:TO]-(response {response: \x27yes\x27}) WITH e, COLLECT(response) AS yeses MATCH (e)\x26lt;-[:TO]-(response {response: \x27no\x27})\x26lt;-[:NEXT]-() WITH e, COLLECT(response) \x2b yeses AS responses UNWIND responses AS response RETURN response.time AS time, e.time \x2b e.utc_offset AS eventTime, response.response AS response\x26quot; allRSVPs = cypher(graph, query) allRSVPs$time = timestampToDate(allRSVPs$time) allRSVPs$eventTime = timestampToDate(allRSVPs$eventTime) allRSVPs$difference = as.numeric(allRSVPs$eventTime - allRSVPs$time, units=\x26quot;days\x26quot;) \x26gt; allRSVPs[1:10,] time eventTime response difference 1 2014-06-13 21:49:20 2014-07-22 18:30:00 no 38.",
-        "wordCount":  214 
+        "description": "Earlier in the week I showed a way to plot back to back charts using R\x26#8217;s ggplot library but looking back on the code it felt like it was a bit hacky to \x27glue\x27 two charts together using a grid.\n I wanted to find a better way.\n To recap, I came up with the following charts showing the RSVPs to Neo4j London meetup events using this code:\n   The first thing we need to do to simplify chart generation is to return \x27yes\x27 and \x27no\x27 responses in the same cypher query, like so:",
+        "wordCount":  640 
     }
     </script>
     
@@ -172,88 +178,147 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: ggplot  - Plotting back to back charts using facet_wrap</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin=&quot;1970-01-01&quot;, tz = &quot;GMT&quot;)
+    <div class="paragraph">
+<p>Earlier in the week I showed a way to <a href="http://www.markhneedham.com/blog/2014/07/20/r-ggplot-plotting-back-to-back-bar-charts/">plot back to back charts using R&#8217;s ggplot library</a> but looking back on the code it felt like it was a bit hacky to 'glue' two charts together using a grid.</p>
+</div>
+<div class="paragraph">
+<p>I wanted to find a better way.</p>
+</div>
+<div class="paragraph">
+<p>To recap, I came up with the following charts showing the RSVPs to Neo4j London meetup events <a href="https://github.com/mneedham/neo4j-meetup/blob/master/rScripts/rsvps.R">using this code</a>:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/07/2014-07-20_17-42-401.png" alt="2014 07 20 17 42 40" width="573">
+</div>
+</div>
+<div class="paragraph">
+<p>The first thing we need to do to simplify chart generation is to return 'yes' and 'no' responses in the same cypher query, like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin="1970-01-01", tz = "GMT")
 
-query = &quot;MATCH (e:Event)&lt;-[:TO]-(response {response: 'yes'})
+query = "MATCH (e:Event)&lt;-[:TO]-(response {response: 'yes'})
          WITH e, COLLECT(response) AS yeses
          MATCH (e)&lt;-[:TO]-(response {response: 'no'})&lt;-[:NEXT]-()
          WITH e, COLLECT(response) + yeses AS responses
          UNWIND responses AS response
-         RETURN response.time AS time, e.time + e.utc_offset AS eventTime, response.response AS response&quot;
+         RETURN response.time AS time, e.time + e.utc_offset AS eventTime, response.response AS response"
 allRSVPs = cypher(graph, query)
 allRSVPs$time = timestampToDate(allRSVPs$time)
 allRSVPs$eventTime = timestampToDate(allRSVPs$eventTime)
-allRSVPs$difference = as.numeric(allRSVPs$eventTime - allRSVPs$time, units=&quot;days&quot;)
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> allRSVPs[1<span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>,]
+allRSVPs$difference = as.numeric(allRSVPs$eventTime - allRSVPs$time, units="days")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The query is a bit verbose because we want to capture the 'no' responses when they initially said yes which is why we check for a 'NEXT' relationship when looking for the negative responses.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s inspect allRSVPs:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; allRSVPs[1:10,]
                   time           eventTime response difference
-<span style="color:#ae81ff">1</span>  <span style="color:#ae81ff">2014-06-13</span> <span style="color:#ae81ff">21</span><span style="color:#f92672">:</span><span style="color:#ae81ff">49</span><span style="color:#f92672">:</span><span style="color:#ae81ff">20</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>       no   <span style="color:#ae81ff">38.86157</span>
-<span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">2014-07-02</span> <span style="color:#ae81ff">22</span><span style="color:#f92672">:</span><span style="color:#ae81ff">24</span><span style="color:#f92672">:</span><span style="color:#ae81ff">06</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">19.83743</span>
-<span style="color:#ae81ff">3</span>  <span style="color:#ae81ff">2014-05-23</span> <span style="color:#ae81ff">23</span><span style="color:#f92672">:</span><span style="color:#ae81ff">46</span><span style="color:#f92672">:</span><span style="color:#ae81ff">02</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">59.78053</span>
-<span style="color:#ae81ff">4</span>  <span style="color:#ae81ff">2014-06-23</span> <span style="color:#ae81ff">21</span><span style="color:#f92672">:</span><span style="color:#ae81ff">07</span><span style="color:#f92672">:</span><span style="color:#ae81ff">11</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">28.89084</span>
-<span style="color:#ae81ff">5</span>  <span style="color:#ae81ff">2014-06-06</span> <span style="color:#ae81ff">15</span><span style="color:#f92672">:</span><span style="color:#ae81ff">09</span><span style="color:#f92672">:</span><span style="color:#ae81ff">29</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">46.13925</span>
-<span style="color:#ae81ff">6</span>  <span style="color:#ae81ff">2014-05-31</span> <span style="color:#ae81ff">13</span><span style="color:#f92672">:</span><span style="color:#ae81ff">03</span><span style="color:#f92672">:</span><span style="color:#ae81ff">09</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">52.22698</span>
-<span style="color:#ae81ff">7</span>  <span style="color:#ae81ff">2014-05-23</span> <span style="color:#ae81ff">23</span><span style="color:#f92672">:</span><span style="color:#ae81ff">46</span><span style="color:#f92672">:</span><span style="color:#ae81ff">02</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">59.78053</span>
-<span style="color:#ae81ff">8</span>  <span style="color:#ae81ff">2014-07-02</span> <span style="color:#ae81ff">12</span><span style="color:#f92672">:</span><span style="color:#ae81ff">28</span><span style="color:#f92672">:</span><span style="color:#ae81ff">22</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">20.25113</span>
-<span style="color:#ae81ff">9</span>  <span style="color:#ae81ff">2014-06-30</span> <span style="color:#ae81ff">23</span><span style="color:#f92672">:</span><span style="color:#ae81ff">44</span><span style="color:#f92672">:</span><span style="color:#ae81ff">39</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">21.78149</span>
-<span style="color:#ae81ff">10</span> <span style="color:#ae81ff">2014-06-06</span> <span style="color:#ae81ff">15</span><span style="color:#f92672">:</span><span style="color:#ae81ff">35</span><span style="color:#f92672">:</span><span style="color:#ae81ff">53</span> <span style="color:#ae81ff">2014-07-22</span> <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">30</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>      yes   <span style="color:#ae81ff">46.12091</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">ggplot</span>(allRSVPs, <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> difference, fill<span style="color:#f92672">=</span>response)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_bar</span>(binwidth<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">ggplot</span>(allRSVPs, <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> difference, fill<span style="color:#f92672">=</span>response)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_bar</span>(binwidth<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">facet_wrap</span>(<span style="color:#f92672">~</span> response, nrow<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>, ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">ggplot</span>(allRSVPs, <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> difference, fill<span style="color:#f92672">=</span>response)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">scale_fill_manual</span>(values<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;#FF0000&#34;</span>, <span style="color:#e6db74">&#34;#00FF00&#34;</span>)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_bar</span>(binwidth<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">facet_wrap</span>(<span style="color:#f92672">~</span> response, nrow<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>, ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">ggplot</span>(allRSVPs, <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> difference, fill<span style="color:#f92672">=</span>response)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">scale_fill_manual</span>(values<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;#FF0000&#34;</span>, <span style="color:#e6db74">&#34;#00FF00&#34;</span>)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_bar</span>(binwidth<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">facet_wrap</span>(<span style="color:#f92672">~</span> response, nrow<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>, ncol<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>, as.table <span style="color:#f92672">=</span> <span style="color:#66d9ef">FALSE</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-allRSVPs<span style="color:#f92672">$</span>dayOfWeek <span style="color:#f92672">=</span> <span style="color:#a6e22e">format</span>(allRSVPs<span style="color:#f92672">$</span>eventTime, <span style="color:#e6db74">&#34;%A&#34;</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">ggplot</span>(allRSVPs, <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> difference, fill<span style="color:#f92672">=</span>response)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">scale_fill_manual</span>(values<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;#FF0000&#34;</span>, <span style="color:#e6db74">&#34;#00FF00&#34;</span>)) <span style="color:#f92672">+</span> 
-  <span style="color:#a6e22e">geom_bar</span>(binwidth<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span>
-  <span style="color:#a6e22e">facet_wrap</span>(<span style="color:#f92672">~</span> response <span style="color:#f92672">+</span> dayOfWeek, as.table <span style="color:#f92672">=</span> <span style="color:#66d9ef">FALSE</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+1  2014-06-13 21:49:20 2014-07-22 18:30:00       no   38.86157
+2  2014-07-02 22:24:06 2014-07-22 18:30:00      yes   19.83743
+3  2014-05-23 23:46:02 2014-07-22 18:30:00      yes   59.78053
+4  2014-06-23 21:07:11 2014-07-22 18:30:00      yes   28.89084
+5  2014-06-06 15:09:29 2014-07-22 18:30:00      yes   46.13925
+6  2014-05-31 13:03:09 2014-07-22 18:30:00      yes   52.22698
+7  2014-05-23 23:46:02 2014-07-22 18:30:00      yes   59.78053
+8  2014-07-02 12:28:22 2014-07-22 18:30:00      yes   20.25113
+9  2014-06-30 23:44:39 2014-07-22 18:30:00      yes   21.78149
+10 2014-06-06 15:35:53 2014-07-22 18:30:00      yes   46.12091</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve returned the actual response with each row so that we can distinguish between responses. It will also come in useful for pivoting our single chart later on.</p>
+</div>
+<div class="paragraph">
+<p>The next step is to get ggplot to generate our side by side charts. I started off by plotting both types of response on the same chart:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">ggplot(allRSVPs, aes(x = difference, fill=response)) +
+  geom_bar(binwidth=1)</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/07/2014-07-25_22-14-28.png" alt="2014 07 25 22 14 28" width="519">
+</div>
+</div>
+<div class="paragraph">
+<p>This one stacks the 'yes' and 'no' responses on top of each other which isn&#8217;t what we want as it&#8217;s difficult to compare the two.</p>
+</div>
+<div class="paragraph">
+<p>What we need is the <cite>http://docs.ggplot2.org/0.9.3.1/facet_wrap.html<span class="facet_wrap"></cite></span> function which allows us to generate multiple charts grouped by key. We&#8217;ll group by 'response':</p>
+</div>
+<div class="paragraph">
+<p>&lt;/p&gt;</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">ggplot(allRSVPs, aes(x = difference, fill=response)) +
+  geom_bar(binwidth=1) +
+  facet_wrap(~ response, nrow=2, ncol=1)</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/07/2014-07-25_22-34-46.png" alt="2014 07 25 22 34 46" width="522">
+</div>
+</div>
+<div class="paragraph">
+<p>The only thing we&#8217;re missing now is the red and green colours which is where the <cite>http://docs.ggplot2.org/0.9.3.1/scale_manual.html[scale_fill_manual] function comes in handy:</cite> <sub>~</sub>r ggplot(allRSVPs, aes(x = difference, fill=response)) + scale_fill_manual(values=c("#FF0000", "#00FF00")) + geom_bar(binwidth=1) + facet_wrap(~ response, nrow=2, ncol=1) <sub>~</sub></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/07/2014-07-25_22-39-56.png" alt="2014 07 25 22 39 56" width="519">
+</div>
+</div>
+<div class="paragraph">
+<p>If we want to show the 'yes' chart on top we can pass in an extra parameter to <cite>facet_wrap</cite> to change where it places the highest value: <sub>~</sub>r ggplot(allRSVPs, aes(x = difference, fill=response)) + scale_fill_manual(values=c("#FF0000", "#00FF00")) + geom_bar(binwidth=1) + facet_wrap(~ response, nrow=2, ncol=1, as.table = FALSE) <sub>~</sub></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/07/2014-07-25_22-43-29.png" alt="2014 07 25 22 43 29" width="519">
+</div>
+</div>
+<div class="paragraph">
+<p>We could go one step further and group by response and day. First let&#8217;s add a 'day' column to our data frame: <sub>~</sub>r allRSVPs$dayOfWeek = format(allRSVPs$eventTime, "%A") <sub>~</sub></p>
+</div>
+<div class="paragraph">
+<p>And now let&#8217;s plot the charts using both columns: <sub>~</sub>r ggplot(allRSVPs, aes(x = difference, fill=response)) + scale_fill_manual(values=c("#FF0000", "#00FF00")) + geom_bar(binwidth=1) + facet_wrap(~ response + dayOfWeek, as.table = FALSE) <sub>~</sub></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/07/2014-07-25_22-49-57.png" alt="2014 07 25 22 49 57" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>The distribution of dropouts looks fairly similar for all the days - Thursday is just at an order of magnitude below the other days because we haven&#8217;t run many events on Thursdays so far.</p>
+</div>
+<div class="paragraph">
+<p>At a glance it doesn&#8217;t appear that so many people sign up for Thursday events on the day or one day before.</p>
+</div>
+<div class="paragraph">
+<p>One potential hypothesis is that people have things planned for Thursday whereas they decide more last minute what to do on the other days.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll have to run some more events on Thursdays to see whether that trend holds out.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/neo4j-meetup/blob/master/rScripts/rsvpsTake2.R">code is on github</a> if you want to play with it</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -288,7 +353,7 @@ allRSVPs<span style="color:#f92672">$</span>dayOfWeek <span style="color:#f92672
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/07/25/r-ggplot-plotting-back-to-back-charts-using-facet_wrap/&amp;title=R%3a%20ggplot%20%20-%20Plotting%20back%20to%20back%20charts%20using%20facet_wrap&amp;summary=timestampToDate%20%26lt%3b-%20function%28x%29%20as.POSIXct%28x%20%2f%201000%2c%20origin%3d%26quot%3b1970-01-01%26quot%3b%2c%20tz%20%3d%20%26quot%3bGMT%26quot%3b%29%20query%20%3d%20%26quot%3bMATCH%20%28e%3aEvent%29%26lt%3b-%5b%3aTO%5d-%28response%20%7bresponse%3a%20%27yes%27%7d%29%20WITH%20e%2c%20COLLECT%28response%29%20AS%20yeses%20MATCH%20%28e%29%26lt%3b-%5b%3aTO%5d-%28response%20%7bresponse%3a%20%27no%27%7d%29%26lt%3b-%5b%3aNEXT%5d-%28%29%20WITH%20e%2c%20COLLECT%28response%29%20%2b%20yeses%20AS%20responses%20UNWIND%20responses%20AS%20response%20RETURN%20response.time%20AS%20time%2c%20e.time%20%2b%20e.utc_offset%20AS%20eventTime%2c%20response.response%20AS%20response%26quot%3b%20allRSVPs%20%3d%20cypher%28graph%2c%20query%29%20allRSVPs%24time%20%3d%20timestampToDate%28allRSVPs%24time%29%20allRSVPs%24eventTime%20%3d%20timestampToDate%28allRSVPs%24eventTime%29%20allRSVPs%24difference%20%3d%20as.numeric%28allRSVPs%24eventTime%20-%20allRSVPs%24time%2c%20units%3d%26quot%3bdays%26quot%3b%29%20%26gt%3b%20allRSVPs%5b1%3a10%2c%5d%20time%20eventTime%20response%20difference%201%202014-06-13%2021%3a49%3a20%202014-07-22%2018%3a30%3a00%20no%2038...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/07/25/r-ggplot-plotting-back-to-back-charts-using-facet_wrap/&amp;title=R%3a%20ggplot%20%20-%20Plotting%20back%20to%20back%20charts%20using%20facet_wrap&amp;summary=Earlier%20in%20the%20week%20I%20showed%20a%20way%20to%20plot%20back%20to%20back%20charts%20using%20R%26%238217%3bs%20ggplot%20library%20but%20looking%20back%20on%20the%20code%20it%20felt%20like%20it%20was%20a%20bit%20hacky%20to%20%27glue%27%20two%20charts%20together%20using%20a%20grid.%0a%20I%20wanted%20to%20find%20a%20better%20way.%0a%20To%20recap%2c%20I%20came%20up%20with%20the%20following%20charts%20showing%20the%20RSVPs%20to%20Neo4j%20London%20meetup%20events%20using%20this%20code%3a%0a%20%20%20The%20first%20thing%20we%20need%20to%20do%20to%20simplify%20chart%20generation%20is%20to%20return%20%27yes%27%20and%20%27no%27%20responses%20in%20the%20same%20cypher%20query%2c%20like%20so%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

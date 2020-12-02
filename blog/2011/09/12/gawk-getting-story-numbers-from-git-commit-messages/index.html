@@ -22,9 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="gawk: Getting story numbers from git commit messages" />
         
-          <meta name="twitter:description" content="As I mentioned in my previous post I&rsquo;ve been writing a little application to create graphs based on our git repository history and in one of them we wanted to try and create a graph showing which people had been working on which stories.
-I needed a way to extract a story number from the git commit message and then store them all in a text file.
-A typical commit with a story number in might look like this:" />
+          <meta name="twitter:description" content="As I mentioned in my previous post I&#8217;ve been writing a little application to create graphs based on our git repository history and in one of them we wanted to try and create a graph showing which people had been working on which stories.
+ I needed a way to extract a story number from the git commit message and then store them all in a text file.
+ A typical commit with a story number in might look like this:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2011/09/12/gawk-getting-story-numbers-from-git-commit-messages/" />
 
@@ -35,9 +35,9 @@ A typical commit with a story number in might look like this:" />
         <title> gawk: Getting story numbers from git commit messages &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="As I mentioned in my previous post I&rsquo;ve been writing a little application to create graphs based on our git repository history and in one of them we wanted to try and create a graph showing which people had been working on which stories.
-I needed a way to extract a story number from the git commit message and then store them all in a text file.
-A typical commit with a story number in might look like this:" />
+        <meta name="description" content="As I mentioned in my previous post I&#8217;ve been writing a little application to create graphs based on our git repository history and in one of them we wanted to try and create a graph showing which people had been working on which stories.
+ I needed a way to extract a story number from the git commit message and then store them all in a text file.
+ A typical commit with a story number in might look like this:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +66,8 @@ A typical commit with a story number in might look like this:" />
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2011-09-12",
-        "description": "As I mentioned in my previous post I\x26rsquo;ve been writing a little application to create graphs based on our git repository history and in one of them we wanted to try and create a graph showing which people had been working on which stories.\nI needed a way to extract a story number from the git commit message and then store them all in a text file.\nA typical commit with a story number in might look like this:",
-        "wordCount":  251 
+        "description": "As I mentioned in my previous post I\x26#8217;ve been writing a little application to create graphs based on our git repository history and in one of them we wanted to try and create a graph showing which people had been working on which stories.\n I needed a way to extract a story number from the git commit message and then store them all in a text file.\n A typical commit with a story number in might look like this:",
+        "wordCount":  257 
     }
     </script>
     
@@ -176,23 +176,45 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">gawk: Getting story numbers from git commit messages</h1>
-    <p>As I mentioned in my previous post I&rsquo;ve been writing a little application to create graphs based on our git repository history and in one of them we wanted to try and create a graph showing which people had been working on which stories.</p>
+    <div class="paragraph">
+<p>As I mentioned in my previous post I&#8217;ve been writing a little application to create graphs based on our git repository history and in one of them we wanted to try and create a graph showing which people had been working on which stories.</p>
+</div>
+<div class="paragraph">
 <p>I needed a way to extract a story number from the git commit message and then store them all in a text file.</p>
+</div>
+<div class="paragraph">
 <p>A typical commit with a story number in might look like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Mark/Uday #689 some awesome scala refactoring
-</code></pre></div><p>I couldn&rsquo;t think of an easy way to do this with my current knowledge of sed or the Mac version of awk but the <!-- raw HTML omitted --><!-- raw HTML omitted -->match<!-- raw HTML omitted --><!-- raw HTML omitted --> function of gawk (GNU awk) makes this really easy.</p>
-<!-- raw HTML omitted -->
-<p>Search string for the longest, leftmost substring matched by the regular expression, regexp and return the character position, or index, at which that substring begins (one, if it starts at the beginning of string). If no match is found, return zero.</p>
-<p>&hellip;</p>
-<p>If array is present, it is cleared, and then the zeroth element of array is set to the entire portion of string matched by regexp.</p>
-<!-- raw HTML omitted -->
-<p>The <!-- raw HTML omitted -->array<!-- raw HTML omitted --> argument is what I needed and it&rsquo;s only available as a gawk extension according to the documentation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Mark/Uday #689 some awesome scala refactoring</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I couldn&#8217;t think of an easy way to do this with my current knowledge of sed or the Mac version of awk but the <cite>http://www.gnu.org/software/gawk/manual/gawk.html#index-g_t_0040code_007bmatch_0028_0029_007d-function-1373<span class="match"></cite></span> function of gawk (GNU awk) makes this really easy.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>match(string, regexp [, array]) Search string for the longest, leftmost substring matched by the regular expression, regexp and return the character position, or index, at which that substring begins (one, if it starts at the beginning of string). If no match is found, return zero. ... If array is present, it is cleared, and then the zeroth element of array is set to the entire portion of string matched by regexp.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>The <cite>array</cite> argument is what I needed and it&#8217;s only available as a gawk extension according to the documentation.</p>
+</div>
+<div class="paragraph">
 <p>I ended up with the following command to strip the story numbers:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-git log --no-merges --pretty=&#34;format:%s&#34; | 
-gawk &#39;{ match($0, /#([0-9]+)/, arr); if(arr[1] != &#34;&#34;) print arr[1] }&#39;
-</code></pre></div><p>I had to install gawk using ports on my Mac but on Fedora the default installation of awk is gawk.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">git log --no-merges --pretty="format:%s" |
+gawk '{ match($0, /#([0-9]+)/, arr); if(arr[1] != "") print arr[1] }'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I had to install gawk using ports on my Mac but on Fedora the default installation of awk is gawk.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -227,7 +249,7 @@ gawk &#39;{ match($0, /#([0-9]+)/, arr); if(arr[1] != &#34;&#34;) print arr[1] }
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/09/12/gawk-getting-story-numbers-from-git-commit-messages/&amp;title=gawk%3a%20Getting%20story%20numbers%20from%20git%20commit%20messages&amp;summary=As%20I%20mentioned%20in%20my%20previous%20post%20I%26rsquo%3bve%20been%20writing%20a%20little%20application%20to%20create%20graphs%20based%20on%20our%20git%20repository%20history%20and%20in%20one%20of%20them%20we%20wanted%20to%20try%20and%20create%20a%20graph%20showing%20which%20people%20had%20been%20working%20on%20which%20stories.%0aI%20needed%20a%20way%20to%20extract%20a%20story%20number%20from%20the%20git%20commit%20message%20and%20then%20store%20them%20all%20in%20a%20text%20file.%0aA%20typical%20commit%20with%20a%20story%20number%20in%20might%20look%20like%20this%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/09/12/gawk-getting-story-numbers-from-git-commit-messages/&amp;title=gawk%3a%20Getting%20story%20numbers%20from%20git%20commit%20messages&amp;summary=As%20I%20mentioned%20in%20my%20previous%20post%20I%26%238217%3bve%20been%20writing%20a%20little%20application%20to%20create%20graphs%20based%20on%20our%20git%20repository%20history%20and%20in%20one%20of%20them%20we%20wanted%20to%20try%20and%20create%20a%20graph%20showing%20which%20people%20had%20been%20working%20on%20which%20stories.%0a%20I%20needed%20a%20way%20to%20extract%20a%20story%20number%20from%20the%20git%20commit%20message%20and%20then%20store%20them%20all%20in%20a%20text%20file.%0a%20A%20typical%20commit%20with%20a%20story%20number%20in%20might%20look%20like%20this%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

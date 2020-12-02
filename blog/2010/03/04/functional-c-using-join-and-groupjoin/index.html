@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Functional C#: Using Join and GroupJoin" />
         
-          <meta name="twitter:description" content="An interesting problem which I&rsquo;ve come across a few times recently is where we have two collections which we want to use together in some way and get a result which could either be another collection or some other value.
-In one which Chrisand I were playing around with we had a collection of years and a collection of cars with corresponding years and the requirement was to show all the years on the page with the first car we found for that year or an empty value if there was no car for that year." />
+          <meta name="twitter:description" content="An interesting problem which I&#8217;ve come across a few times recently is where we have two collections which we want to use together in some way and get a result which could either be another collection or some other value.
+ In one which Chris and I were playing around with we had a collection of years and a collection of cars with corresponding years and the requirement was to show all the years on the page with the first car we found for that year or an empty value if there was no car for that year." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/03/04/functional-c-using-join-and-groupjoin/" />
 
@@ -35,8 +35,8 @@ In one which Chrisand I were playing around with we had a collection of years an
         <title> Functional C#: Using Join and GroupJoin &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="An interesting problem which I&rsquo;ve come across a few times recently is where we have two collections which we want to use together in some way and get a result which could either be another collection or some other value.
-In one which Chrisand I were playing around with we had a collection of years and a collection of cars with corresponding years and the requirement was to show all the years on the page with the first car we found for that year or an empty value if there was no car for that year." />
+        <meta name="description" content="An interesting problem which I&#8217;ve come across a few times recently is where we have two collections which we want to use together in some way and get a result which could either be another collection or some other value.
+ In one which Chris and I were playing around with we had a collection of years and a collection of cars with corresponding years and the requirement was to show all the years on the page with the first car we found for that year or an empty value if there was no car for that year." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ In one which Chrisand I were playing around with we had a collection of years an
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-03-04",
-        "description": "An interesting problem which I\x26rsquo;ve come across a few times recently is where we have two collections which we want to use together in some way and get a result which could either be another collection or some other value.\nIn one which Chrisand I were playing around with we had a collection of years and a collection of cars with corresponding years and the requirement was to show all the years on the page with the first car we found for that year or an empty value if there was no car for that year.",
-        "wordCount":  630 
+        "description": "An interesting problem which I\x26#8217;ve come across a few times recently is where we have two collections which we want to use together in some way and get a result which could either be another collection or some other value.\n In one which Chris and I were playing around with we had a collection of years and a collection of cars with corresponding years and the requirement was to show all the years on the page with the first car we found for that year or an empty value if there was no car for that year.",
+        "wordCount":  631 
     }
     </script>
     
@@ -177,70 +177,116 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Functional C#: Using Join and GroupJoin</h1>
-    <p>An interesting problem which I&rsquo;ve come across a few times recently is where we have two collections which we want to use together in some way and get a result which could either be another collection or some other value.</p>
-<p>In one which <!-- raw HTML omitted -->Chris<!-- raw HTML omitted --> and I were playing around with we had a collection of years and a collection of cars with corresponding years and the requirement was to show all the years on the page with the first car we found for that year or an empty value if there was no car for that year.</p>
+    <div class="paragraph">
+<p>An interesting problem which I&#8217;ve come across a few times recently is where we have two collections which we want to use together in some way and get a result which could either be another collection or some other value.</p>
+</div>
+<div class="paragraph">
+<p>In one which <a href="http://enginechris.wordpress.com">Chris</a> and I were playing around with we had a collection of years and a collection of cars with corresponding years and the requirement was to show all the years on the page with the first car we found for that year or an empty value if there was no car for that year.</p>
+</div>
+<div class="paragraph">
 <p>We effectively needed to do a left join on the cars collection.</p>
+</div>
+<div class="paragraph">
 <p>This is an imperative way of solving the problem:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Car</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Car
 {
-     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> Year { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
-     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> Description { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
-}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> years = <span style="color:#66d9ef">new</span>[] { <span style="color:#ae81ff">2000</span>, <span style="color:#ae81ff">2001</span>, <span style="color:#ae81ff">2002</span>, <span style="color:#ae81ff">2003</span> };
-<span style="color:#66d9ef">var</span> cars = <span style="color:#66d9ef">new</span>[] { <span style="color:#66d9ef">new</span> Car { Year = <span style="color:#ae81ff">2000</span>, Description = <span style="color:#e6db74">&#34;Honda&#34;</span> }, <span style="color:#66d9ef">new</span> Car { Year = <span style="color:#ae81ff">2003</span>, Description = <span style="color:#e6db74">&#34;Ford&#34;</span> } };
+     public int Year { get; set; }
+     public string Description { get; set; }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var years = new[] { 2000, 2001, 2002, 2003 };
+var cars = new[] { new Car { Year = 2000, Description = "Honda" }, new Car { Year = 2003, Description = "Ford" } };
 
-<span style="color:#66d9ef">var</span> newCars = <span style="color:#66d9ef">new</span> List&lt;Car&gt;();
-<span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> year <span style="color:#66d9ef">in</span> years)
+var newCars = new List&lt;Car&gt;();
+foreach (var year in years)
 {
-    <span style="color:#66d9ef">var</span> car = cars.Where(x =&gt; x.Year == year).FirstOrDefault() ?? <span style="color:#66d9ef">new</span> Car  { Year = year, Description = <span style="color:#e6db74">&#34;&#34;</span>};
+    var car = cars.Where(x =&gt; x.Year == year).FirstOrDefault() ?? new Car  { Year = year, Description = ""};
     newCars.Add(car);
-}
-</code></pre></div><p>We can actually achieve the same result in a more declarative way by making use of &lsquo;<!-- raw HTML omitted -->GroupJoin<!-- raw HTML omitted -->&rsquo;:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> newCars = years.GroupJoin(cars, 
-                              year =&gt; year, 
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can actually achieve the same result in a more declarative way by making use of 'http://msdn.microsoft.com/en-us/library/bb534297.aspx[GroupJoin]':</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var newCars = years.GroupJoin(cars,
+                              year =&gt; year,
                               car =&gt; car.Year,
-                              (year, theCars) =&gt;  theCars.FirstOrDefault() ??  <span style="color:#66d9ef">new</span> Car { Year = year, Description = <span style="color:#e6db74">&#34;&#34;</span>  });
-</code></pre></div><p>&lsquo;GroupJoin&rsquo; is useful if we want to keep all of the items in the first collection and get a collection of the items in the second collection which match for the specified keys.</p>
+                              (year, theCars) =&gt;  theCars.FirstOrDefault() ??  new Car { Year = year, Description = ""  });</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>'GroupJoin' is useful if we want to keep all of the items in the first collection and get a collection of the items in the second collection which match for the specified keys.</p>
+</div>
+<div class="paragraph">
 <p>In this case it allows us to identify where there are no matching cars for a specific year and then just set a blank description for those years.</p>
-<p>One nice side effect is that if we later want to include multiple cars for a year then we shouldn&rsquo;t have to change the code too much to achieve that.</p>
+</div>
+<div class="paragraph">
+<p>One nice side effect is that if we later want to include multiple cars for a year then we shouldn&#8217;t have to change the code too much to achieve that.</p>
+</div>
+<div class="paragraph">
 <p>Another example which I came across is where we have one collection which contains filter criteria which it needs to apply against the other collection.</p>
+</div>
+<div class="paragraph">
 <p>We have a collection of years and need to indicate whether there is a matching car for each of those years.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
-</span><span style="color:#a6e22e">[Test]</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> JoinExample()
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">[Test]
+public void JoinExample()
 {
-    <span style="color:#66d9ef">var</span> years = <span style="color:#66d9ef">new</span>[] { <span style="color:#ae81ff">2000</span>, <span style="color:#ae81ff">2003</span> };
-    <span style="color:#66d9ef">var</span> cars = <span style="color:#66d9ef">new</span>[] { <span style="color:#66d9ef">new</span> Car { Year = <span style="color:#ae81ff">2000</span>, Description = <span style="color:#e6db74">&#34;Honda&#34;</span> },
-                       <span style="color:#66d9ef">new</span> Car { Year = <span style="color:#ae81ff">2003</span>, Description = <span style="color:#e6db74">&#34;Ford&#34;</span> },
-                       <span style="color:#66d9ef">new</span> Car { Year = <span style="color:#ae81ff">2003</span>, Description = <span style="color:#e6db74">&#34;Mercedes&#34;</span>}};
+    var years = new[] { 2000, 2003 };
+    var cars = new[] { new Car { Year = 2000, Description = "Honda" },
+                       new Car { Year = 2003, Description = "Ford" },
+                       new Car { Year = 2003, Description = "Mercedes"}};
 
     Assert.That(AreThereMatchingCars(years, cars), Is.True);
-}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">bool</span> AreThereMatchingCars(IEnumerable&lt;<span style="color:#66d9ef">int</span>&gt; years, IEnumerable&lt;Car&gt; cars)
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public bool AreThereMatchingCars(IEnumerable&lt;int&gt; years, IEnumerable&lt;Car&gt; cars)
 {
-    <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> year <span style="color:#66d9ef">in</span> years)
+    foreach (var year in years)
     {
-        <span style="color:#66d9ef">if</span>(cars.Where(c =&gt; c.Year == year).Count() == <span style="color:#ae81ff">0</span>)
+        if(cars.Where(c =&gt; c.Year == year).Count() == 0)
         {
-            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+            return false;
         }
     }
-    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
-}
-</code></pre></div><p>We can rewrite this function like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">bool</span> AreThereMatchingCars(IEnumerable&lt;<span style="color:#66d9ef">int</span>&gt; years, IEnumerable&lt;Car&gt; cars)
+    return true;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can rewrite this function like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public bool AreThereMatchingCars(IEnumerable&lt;int&gt; years, IEnumerable&lt;Car&gt; cars)
 {
-    <span style="color:#66d9ef">var</span> distinctCars = cars.GroupBy(x =&gt; x.Year).Select(x =&gt; x.First());
-    <span style="color:#66d9ef">return</span> years.Join(distinctCars, y =&gt; y, c =&gt; c.Year, (y, c) =&gt; c).Count() == years.Count();
-}
-</code></pre></div><p>This actually become more complicated than we expected because we were working out if there were matching cars for each of the specified years by checking the number of filter items and then comparing it to the number of items when we joined that collection with our collection of cars.</p>
+    var distinctCars = cars.GroupBy(x =&gt; x.Year).Select(x =&gt; x.First());
+    return years.Join(distinctCars, y =&gt; y, c =&gt; c.Year, (y, c) =&gt; c).Count() == years.Count();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This actually become more complicated than we expected because we were working out if there were matching cars for each of the specified years by checking the number of filter items and then comparing it to the number of items when we joined that collection with our collection of cars.</p>
+</div>
+<div class="paragraph">
 <p>If we have more than one car for the same year that logic falls down so we needed to get just one car per year which is what the first line of the function does.</p>
-<p>I can&rsquo;t decide whether or not the code is easier to read and understand by making use of these functions but it&rsquo;s an approach that I picked up when playing around with F# so it&rsquo;s interesting that it can still be applied in C# code as well.</p>
+</div>
+<div class="paragraph">
+<p>I can&#8217;t decide whether or not the code is easier to read and understand by making use of these functions but it&#8217;s an approach that I picked up when playing around with F# so it&#8217;s interesting that it can still be applied in C# code as well.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -275,7 +321,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/04/functional-c-using-join-and-groupjoin/&amp;title=Functional%20C%23%3a%20Using%20Join%20and%20GroupJoin&amp;summary=An%20interesting%20problem%20which%20I%26rsquo%3bve%20come%20across%20a%20few%20times%20recently%20is%20where%20we%20have%20two%20collections%20which%20we%20want%20to%20use%20together%20in%20some%20way%20and%20get%20a%20result%20which%20could%20either%20be%20another%20collection%20or%20some%20other%20value.%0aIn%20one%20which%20Chrisand%20I%20were%20playing%20around%20with%20we%20had%20a%20collection%20of%20years%20and%20a%20collection%20of%20cars%20with%20corresponding%20years%20and%20the%20requirement%20was%20to%20show%20all%20the%20years%20on%20the%20page%20with%20the%20first%20car%20we%20found%20for%20that%20year%20or%20an%20empty%20value%20if%20there%20was%20no%20car%20for%20that%20year...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/04/functional-c-using-join-and-groupjoin/&amp;title=Functional%20C%23%3a%20Using%20Join%20and%20GroupJoin&amp;summary=An%20interesting%20problem%20which%20I%26%238217%3bve%20come%20across%20a%20few%20times%20recently%20is%20where%20we%20have%20two%20collections%20which%20we%20want%20to%20use%20together%20in%20some%20way%20and%20get%20a%20result%20which%20could%20either%20be%20another%20collection%20or%20some%20other%20value.%0a%20In%20one%20which%20Chris%20and%20I%20were%20playing%20around%20with%20we%20had%20a%20collection%20of%20years%20and%20a%20collection%20of%20cars%20with%20corresponding%20years%20and%20the%20requirement%20was%20to%20show%20all%20the%20years%20on%20the%20page%20with%20the%20first%20car%20we%20found%20for%20that%20year%20or%20an%20empty%20value%20if%20there%20was%20no%20car%20for%20that%20year...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

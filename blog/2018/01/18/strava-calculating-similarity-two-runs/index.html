@@ -68,8 +68,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2018-01-18",
-        "description": "import polyline polyline.decode(\x26#39;u{~vFvyys@fS]\x26#39;) [(40.63179, -8.65708), (40.62855, -8.65693)] The sequences are \x26ldquo;warped\x26rdquo; non-linearly in the time dimension to determine a measure of their similarity independent of certain non-linear variations in the time dimension.\nimport os import polyline import requests from fastdtw import fastdtw token = os.environ[\x26#34;TOKEN\x26#34;] headers = {\x26#39;Authorization\x26#39;: \x26#34;Bearer {0}\x26#34;.format(token)} def find_points(activity_id): r = requests.get(\x26#34;https:\/\/www.strava.com\/api\/v3\/activities\/{0}\x26#34;.format(activity_id), headers=headers) response = r.json() line = response[\x26#34;map\x26#34;][\x26#34;polyline\x26#34;] return polyline.decode(line) from scipy.spatial.distance import euclidean activity1_id = 1361109741 activity2_id = 1346460542 distance, path = fastdtw(find_points(activity1_id), find_points(activity2_id), dist=euclidean) \x26gt;\x26gt;\x26gt; print(distance) 2.",
-        "wordCount":  98 
+        "description": "I go running several times a week and wanted to compare my runs against each other to see how similar they are.\n I record my runs with the Strava app and it has an API that returns lat\/long coordinates for each run in the Google encoded polyline algorithm format.\n We can use the polyline library to decode these values into a list of lat\/long tuples. For example:\n import polyline polyline.",
+        "wordCount":  343 
     }
     </script>
     
@@ -190,55 +190,91 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Strava: Calculating the similarity of two runs</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> polyline
-polyline<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;u{~vFvyys@fS]&#39;</span>)
-[(<span style="color:#ae81ff">40.63179</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">8.65708</span>), (<span style="color:#ae81ff">40.62855</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">8.65693</span>)]
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>The sequences are &ldquo;warped&rdquo; non-linearly in the time dimension to determine a measure of their similarity independent of certain non-linear variations in the time dimension.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> os
-<span style="color:#f92672">import</span> polyline
-<span style="color:#f92672">import</span> requests
-<span style="color:#f92672">from</span> fastdtw <span style="color:#f92672">import</span> fastdtw
+    <div class="paragraph">
+<p>I go running several times a week and wanted to compare my runs against each other to see how similar they are.</p>
+</div>
+<div class="paragraph">
+<p>I record my runs with the <a href="https://www.strava.com/">Strava</a> app and it has an <a href="https://strava.github.io/api">API</a> that returns lat/long coordinates for each run in the <a href="https://strava.github.io/api/#polylines">Google encoded polyline algorithm format</a>.</p>
+</div>
+<div class="paragraph">
+<p>We can use the <a href="https://pypi.python.org/pypi/polyline/">polyline</a> library to decode these values into a list of lat/long tuples. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import polyline
+polyline.decode('u{~vFvyys@fS]')
+[(40.63179, -8.65708), (40.62855, -8.65693)]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once we&#8217;ve got the route defined as a set of coordinates we need to compare them. My Googling led me to an algorithm called <a href="https://en.wikipedia.org/wiki/Dynamic_time_warping">Dynamic Time Warping</a></p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>DTW is a method that calculates an optimal match between two given sequences (e.g. time series) with certain restrictions. The sequences are "warped" non-linearly in the time dimension to determine a measure of their similarity independent of certain non-linear variations in the time dimension.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>The <a href="https://pypi.python.org/pypi/fastdtw">fastdtw</a> library implements an approximation of this library and returns a value indicating the distance between sets of points.</p>
+</div>
+<div class="paragraph">
+<p>We can see how to apply fastdtw and polyline against Strava data in the following example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import os
+import polyline
+import requests
+from fastdtw import fastdtw
 
-token <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>environ[<span style="color:#e6db74">&#34;TOKEN&#34;</span>]
-headers <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#39;Authorization&#39;</span>: <span style="color:#e6db74">&#34;Bearer {0}&#34;</span><span style="color:#f92672">.</span>format(token)}
+token = os.environ["TOKEN"]
+headers = {'Authorization': "Bearer {0}".format(token)}
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">find_points</span>(activity_id):
-    r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;https://www.strava.com/api/v3/activities/{0}&#34;</span><span style="color:#f92672">.</span>format(activity_id), headers<span style="color:#f92672">=</span>headers)
-    response <span style="color:#f92672">=</span> r<span style="color:#f92672">.</span>json()
-    line <span style="color:#f92672">=</span> response[<span style="color:#e6db74">&#34;map&#34;</span>][<span style="color:#e6db74">&#34;polyline&#34;</span>]
-    <span style="color:#66d9ef">return</span> polyline<span style="color:#f92672">.</span>decode(line)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> scipy.spatial.distance <span style="color:#f92672">import</span> euclidean
+def find_points(activity_id):
+    r = requests.get("https://www.strava.com/api/v3/activities/{0}".format(activity_id), headers=headers)
+    response = r.json()
+    line = response["map"]["polyline"]
+    return polyline.decode(line)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s try it out on two runs, <a href="https://www.strava.com/activities/1361109741">1361109741</a> and <a href="https://www.strava.com/activities/1346460542">1346460542</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from scipy.spatial.distance import euclidean
 
-activity1_id <span style="color:#f92672">=</span> <span style="color:#ae81ff">1361109741</span>
-activity2_id <span style="color:#f92672">=</span> <span style="color:#ae81ff">1346460542</span>
+activity1_id = 1361109741
+activity2_id = 1346460542
 
-distance, path <span style="color:#f92672">=</span> fastdtw(find_points(activity1_id), find_points(activity2_id), dist<span style="color:#f92672">=</span>euclidean)
+distance, path = fastdtw(find_points(activity1_id), find_points(activity2_id), dist=euclidean)
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span>(distance)
-<span style="color:#ae81ff">2.91985018100644</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-activity1_id <span style="color:#f92672">=</span> <span style="color:#ae81ff">1361109741</span>
-activity2_id <span style="color:#f92672">=</span> <span style="color:#ae81ff">1246017379</span>
+&gt;&gt;&gt; print(distance)
+2.91985018100644</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These two runs are both near my house so the value is small. Let&#8217;s change the second route to be <a href="https://www.strava.com/activities/1246017379">from my trip to New York</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">activity1_id = 1361109741
+activity2_id = 1246017379
 
-distance, path <span style="color:#f92672">=</span> fastdtw(find_points(activity1_id), find_points(activity2_id), dist<span style="color:#f92672">=</span>euclidean)
+distance, path = fastdtw(find_points(activity1_id), find_points(activity2_id), dist=euclidean)
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span>(distance)
-<span style="color:#ae81ff">29383.492965394034</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+&gt;&gt;&gt; print(distance)
+29383.492965394034</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Much bigger!</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not really interested in the actual value returned but I am interested in the relative values. I&#8217;m building a little application to generate routes that I should run and I want it to come up with a routes that are different to recent ones that I&#8217;ve run. This score can now form part of the criteria.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -273,7 +309,7 @@ distance, path <span style="color:#f92672">=</span> fastdtw(find_points(activity
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2018/01/18/strava-calculating-similarity-two-runs/&amp;title=Strava%3a%20Calculating%20the%20similarity%20of%20two%20runs&amp;summary=import%20polyline%20polyline.decode%28%26%2339%3bu%7b~vFvyys%40fS%5d%26%2339%3b%29%20%5b%2840.63179%2c%20-8.65708%29%2c%20%2840.62855%2c%20-8.65693%29%5d%20The%20sequences%20are%20%26ldquo%3bwarped%26rdquo%3b%20non-linearly%20in%20the%20time%20dimension%20to%20determine%20a%20measure%20of%20their%20similarity%20independent%20of%20certain%20non-linear%20variations%20in%20the%20time%20dimension.%0aimport%20os%20import%20polyline%20import%20requests%20from%20fastdtw%20import%20fastdtw%20token%20%3d%20os.environ%5b%26%2334%3bTOKEN%26%2334%3b%5d%20headers%20%3d%20%7b%26%2339%3bAuthorization%26%2339%3b%3a%20%26%2334%3bBearer%20%7b0%7d%26%2334%3b.format%28token%29%7d%20def%20find_points%28activity_id%29%3a%20r%20%3d%20requests.get%28%26%2334%3bhttps%3a%2f%2fwww.strava.com%2fapi%2fv3%2factivities%2f%7b0%7d%26%2334%3b.format%28activity_id%29%2c%20headers%3dheaders%29%20response%20%3d%20r.json%28%29%20line%20%3d%20response%5b%26%2334%3bmap%26%2334%3b%5d%5b%26%2334%3bpolyline%26%2334%3b%5d%20return%20polyline.decode%28line%29%20from%20scipy.spatial.distance%20import%20euclidean%20activity1_id%20%3d%201361109741%20activity2_id%20%3d%201346460542%20distance%2c%20path%20%3d%20fastdtw%28find_points%28activity1_id%29%2c%20find_points%28activity2_id%29%2c%20dist%3deuclidean%29%20%26gt%3b%26gt%3b%26gt%3b%20print%28distance%29%202...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2018/01/18/strava-calculating-similarity-two-runs/&amp;title=Strava%3a%20Calculating%20the%20similarity%20of%20two%20runs&amp;summary=I%20go%20running%20several%20times%20a%20week%20and%20wanted%20to%20compare%20my%20runs%20against%20each%20other%20to%20see%20how%20similar%20they%20are.%0a%20I%20record%20my%20runs%20with%20the%20Strava%20app%20and%20it%20has%20an%20API%20that%20returns%20lat%2flong%20coordinates%20for%20each%20run%20in%20the%20Google%20encoded%20polyline%20algorithm%20format.%0a%20We%20can%20use%20the%20polyline%20library%20to%20decode%20these%20values%20into%20a%20list%20of%20lat%2flong%20tuples.%20For%20example%3a%0a%20import%20polyline%20polyline...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

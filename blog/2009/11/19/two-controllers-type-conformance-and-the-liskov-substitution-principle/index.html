@@ -22,9 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Two controllers, type conformance and the Liskov Substitution Principle " />
         
-          <meta name="twitter:description" content="An interesting object orientation related problem that Raphand I were looking at recently revolved around the design of two controllers in the application we&rsquo;ve been working on.
-The two controllers in question look roughly like this:
-public class GenericController extends Controller { private final SomeFactory someFactory; public GenericController(SomeFactory someFactory); this.someFactory = someFactory; } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { // do some stuff but never use &#39;request&#39; or &#39;response&#39;  } } public class MoreSpecificController extends GenericController { private final SomeFactory someFactory; public MoreSpecificController(SomeFactory someFactory); super(someFactory); } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { ." />
+          <meta name="twitter:description" content="An interesting object orientation related problem that Raph and I were looking at recently revolved around the design of two controllers in the application we&#8217;ve been working on.
+ The two controllers in question look roughly like this:
+ public class GenericController extends Controller { private final SomeFactory someFactory; public GenericController(SomeFactory someFactory); this.someFactory = someFactory; } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { // do some stuff but never use &#39;request&#39; or &#39;response&#39; } }   public class MoreSpecificController extends GenericController { private final SomeFactory someFactory; public MoreSpecificController(SomeFactory someFactory); super(someFactory); } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { ." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/11/19/two-controllers-type-conformance-and-the-liskov-substitution-principle/" />
 
@@ -35,9 +35,9 @@ public class GenericController extends Controller { private final SomeFactory so
         <title> Two controllers, type conformance and the Liskov Substitution Principle  &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="An interesting object orientation related problem that Raphand I were looking at recently revolved around the design of two controllers in the application we&rsquo;ve been working on.
-The two controllers in question look roughly like this:
-public class GenericController extends Controller { private final SomeFactory someFactory; public GenericController(SomeFactory someFactory); this.someFactory = someFactory; } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { // do some stuff but never use &#39;request&#39; or &#39;response&#39;  } } public class MoreSpecificController extends GenericController { private final SomeFactory someFactory; public MoreSpecificController(SomeFactory someFactory); super(someFactory); } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { ." />
+        <meta name="description" content="An interesting object orientation related problem that Raph and I were looking at recently revolved around the design of two controllers in the application we&#8217;ve been working on.
+ The two controllers in question look roughly like this:
+ public class GenericController extends Controller { private final SomeFactory someFactory; public GenericController(SomeFactory someFactory); this.someFactory = someFactory; } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { // do some stuff but never use &#39;request&#39; or &#39;response&#39; } }   public class MoreSpecificController extends GenericController { private final SomeFactory someFactory; public MoreSpecificController(SomeFactory someFactory); super(someFactory); } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { ." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +66,8 @@ public class GenericController extends Controller { private final SomeFactory so
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-11-19",
-        "description": "An interesting object orientation related problem that Raphand I were looking at recently revolved around the design of two controllers in the application we\x26rsquo;ve been working on.\nThe two controllers in question look roughly like this:\npublic class GenericController extends Controller { private final SomeFactory someFactory; public GenericController(SomeFactory someFactory); this.someFactory = someFactory; } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { \/\/ do some stuff but never use \x26#39;request\x26#39; or \x26#39;response\x26#39;  } } public class MoreSpecificController extends GenericController { private final SomeFactory someFactory; public MoreSpecificController(SomeFactory someFactory); super(someFactory); } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { .",
-        "wordCount":  387 
+        "description": "An interesting object orientation related problem that Raph and I were looking at recently revolved around the design of two controllers in the application we\x26#8217;ve been working on.\n The two controllers in question look roughly like this:\n public class GenericController extends Controller { private final SomeFactory someFactory; public GenericController(SomeFactory someFactory); this.someFactory = someFactory; } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { \/\/ do some stuff but never use \x27request\x27 or \x27response\x27 } }   public class MoreSpecificController extends GenericController { private final SomeFactory someFactory; public MoreSpecificController(SomeFactory someFactory); super(someFactory); } public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { .",
+        "wordCount":  479 
     }
     </script>
     
@@ -176,62 +176,106 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Two controllers, type conformance and the Liskov Substitution Principle </h1>
-    <p>An interesting object orientation related problem that <!-- raw HTML omitted -->Raph<!-- raw HTML omitted --> and I were looking at recently revolved around the design of two controllers in the application we&rsquo;ve been working on.</p>
+    <div class="paragraph">
+<p>An interesting object orientation related problem that <a href="http://twitter.com/raphscallion">Raph</a> and I were looking at recently revolved around the design of two controllers in the application we&#8217;ve been working on.</p>
+</div>
+<div class="paragraph">
 <p>The two controllers in question look roughly like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GenericController</span> <span style="color:#66d9ef">extends</span> Controller <span style="color:#f92672">{</span>
-	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> SomeFactory someFactory<span style="color:#f92672">;</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class GenericController extends Controller {
+	private final SomeFactory someFactory;
 
-	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">GenericController</span><span style="color:#f92672">(</span>SomeFactory someFactory<span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">someFactory</span> <span style="color:#f92672">=</span> someFactory<span style="color:#f92672">;</span>
-	<span style="color:#f92672">}</span>
+	public GenericController(SomeFactory someFactory);
+        this.someFactory = someFactory;
+	}
 
-    <span style="color:#66d9ef">public</span> ModelAndView <span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
-        <span style="color:#75715e">// do some stuff but never use &#39;request&#39; or &#39;response&#39;
-</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MoreSpecificController</span> <span style="color:#66d9ef">extends</span> GenericController <span style="color:#f92672">{</span>
-	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> SomeFactory someFactory<span style="color:#f92672">;</span>
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // do some stuff but never use 'request' or 'response'
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class MoreSpecificController extends GenericController {
+	private final SomeFactory someFactory;
 
-	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">MoreSpecificController</span><span style="color:#f92672">(</span>SomeFactory someFactory<span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">super</span><span style="color:#f92672">(</span>someFactory<span style="color:#f92672">);</span>
-	<span style="color:#f92672">}</span>
+	public MoreSpecificController(SomeFactory someFactory);
+        super(someFactory);
+	}
 
-    <span style="color:#66d9ef">public</span> ModelAndView <span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
-    		<span style="color:#f92672">...</span>    
-		<span style="color:#75715e">// do some stuff which does use &#39;request&#39;
-</span><span style="color:#75715e"></span>		String someValue <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span><span style="color:#a6e22e">getParameter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;someParameter&#34;</span><span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>We noticed from the way that we wrote tests for these two classes that we seem to be breaking the principle of type conformance as defined in Meilir Page Jones&rsquo; &lsquo;<!-- raw HTML omitted -->Fundamentals of Object Oriented Design in UML<!-- raw HTML omitted -->&rsquo; and more commonly referred to as the <!-- raw HTML omitted -->Liskov Substitution Principle<!-- raw HTML omitted -->.</p>
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    		...
+		// do some stuff which does use 'request'
+		String someValue = request.getParameter("someParameter");
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We noticed from the way that we wrote tests for these two classes that we seem to be breaking the principle of type conformance as defined in Meilir Page Jones' 'http://www.amazon.com/gp/product/020169946X?ie=UTF8&amp;tag=marneesblo-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=020169946X[Fundamentals of Object Oriented Design in UML]' and more commonly referred to as the <a href="http://www.objectmentor.com/resources/articles/lsp.pdf">Liskov Substitution Principle</a>.</p>
+</div>
+<div class="paragraph">
 <p>The principle states:</p>
-<!-- raw HTML omitted -->
-<p>This means that wherever we make use of &lsquo;GenericController&rsquo; in our code it should be possible to pass in an instance of &lsquo;MoreSpecificController&rsquo; and it would adhere to the same contract.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>If S is a true subtype of T, then S must conform to T. In other words, an object of type S can be provided in any context where an object of T is expected and correctness is still preserved when any accessor operation of the object is executed</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>This means that wherever we make use of 'GenericController' in our code it should be possible to pass in an instance of 'MoreSpecificController' and it would adhere to the same contract.</p>
+</div>
+<div class="paragraph">
 <p>Our tests for each of the controllers looked a bit like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#a6e22e">@Test</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">someTest</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-	GenericController genericController <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GenericController<span style="color:#f92672">();</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Test
+public void someTest() {
+	GenericController genericController = new GenericController();
 
-	genericController<span style="color:#f92672">.</span><span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(</span><span style="color:#66d9ef">null</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+	genericController.handleRequest(null, null);
 
-	<span style="color:#75715e">// and so on
-</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#a6e22e">@Test</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">someTest</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-	MoreSpecificController moreSpecificController <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MoreSpecificController<span style="color:#f92672">();</span>
+	// and so on
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Test
+public void someTest() {
+	MoreSpecificController moreSpecificController = new MoreSpecificController();
 
-	moreSpecificController<span style="color:#f92672">.</span><span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(</span>mock<span style="color:#f92672">(</span>HttpServletRequest<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">),</span> mock<span style="color:#f92672">(</span>HttpServletResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">));</span>
+	moreSpecificController.handleRequest(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
 
-	<span style="color:#75715e">// and so on
-</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</code></pre></div><p>In &lsquo;MoreSpecificController&rsquo; we need to get a value from the request which means that we can&rsquo;t have it as null in the test. In &lsquo;GenericController&rsquo; the request is actually irrelevant so we can pass in a null value.</p>
-<p>This means that the pre condition for &lsquo;MoreSpecificController&rsquo; is stronger than the pre condition for &lsquo;GenericController&rsquo; which violates the principle of contravariance which states the following:</p>
-<!-- raw HTML omitted -->
-<p>The reason this might cause a problem is because if a client had a reference to a &lsquo;GenericController&rsquo; they should expect that they can treat an instance of &lsquo;MoreSpecificController&rsquo; as if it was a &lsquo;GenericController&rsquo; which should mean that we can pass null values for request and response.</p>
-<p>We weren&rsquo;t ever referring to a &lsquo;GenericController&rsquo; when we instantiated a &lsquo;MoreSpecificController&rsquo; in our code base so it didn&rsquo;t prove to be a problem but in theory it seems like something we&rsquo;d want to avoid.</p>
+	// and so on
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In 'MoreSpecificController' we need to get a value from the request which means that we can&#8217;t have it as null in the test. In 'GenericController' the request is actually irrelevant so we can pass in a null value.</p>
+</div>
+<div class="paragraph">
+<p>This means that the pre condition for 'MoreSpecificController' is stronger than the pre condition for 'GenericController' which violates the principle of contravariance which states the following:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Every operation&#8217;s precondition is no stronger than the corresponding operation in the superclass. The strength of operation preconditions in the subclass goes in the opposite direction to the strength of the class invariant. That is, the operations preconditions get, if anything, weaker</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>The reason this might cause a problem is because if a client had a reference to a 'GenericController' they should expect that they can treat an instance of 'MoreSpecificController' as if it was a 'GenericController' which should mean that we can pass null values for request and response.</p>
+</div>
+<div class="paragraph">
+<p>We weren&#8217;t ever referring to a 'GenericController' when we instantiated a 'MoreSpecificController' in our code base so it didn&#8217;t prove to be a problem but in theory it seems like something we&#8217;d want to avoid.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -266,7 +310,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/11/19/two-controllers-type-conformance-and-the-liskov-substitution-principle/&amp;title=Two%20controllers%2c%20type%20conformance%20and%20the%20Liskov%20Substitution%20Principle%20&amp;summary=An%20interesting%20object%20orientation%20related%20problem%20that%20Raphand%20I%20were%20looking%20at%20recently%20revolved%20around%20the%20design%20of%20two%20controllers%20in%20the%20application%20we%26rsquo%3bve%20been%20working%20on.%0aThe%20two%20controllers%20in%20question%20look%20roughly%20like%20this%3a%0apublic%20class%20GenericController%20extends%20Controller%20%7b%20private%20final%20SomeFactory%20someFactory%3b%20public%20GenericController%28SomeFactory%20someFactory%29%3b%20this.someFactory%20%3d%20someFactory%3b%20%7d%20public%20ModelAndView%20handleRequest%28HttpServletRequest%20request%2c%20HttpServletResponse%20response%29%20throws%20Exception%20%7b%20%2f%2f%20do%20some%20stuff%20but%20never%20use%20%26%2339%3brequest%26%2339%3b%20or%20%26%2339%3bresponse%26%2339%3b%20%20%7d%20%7d%20public%20class%20MoreSpecificController%20extends%20GenericController%20%7b%20private%20final%20SomeFactory%20someFactory%3b%20public%20MoreSpecificController%28SomeFactory%20someFactory%29%3b%20super%28someFactory%29%3b%20%7d%20public%20ModelAndView%20handleRequest%28HttpServletRequest%20request%2c%20HttpServletResponse%20response%29%20throws%20Exception%20%7b%20...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/11/19/two-controllers-type-conformance-and-the-liskov-substitution-principle/&amp;title=Two%20controllers%2c%20type%20conformance%20and%20the%20Liskov%20Substitution%20Principle%20&amp;summary=An%20interesting%20object%20orientation%20related%20problem%20that%20Raph%20and%20I%20were%20looking%20at%20recently%20revolved%20around%20the%20design%20of%20two%20controllers%20in%20the%20application%20we%26%238217%3bve%20been%20working%20on.%0a%20The%20two%20controllers%20in%20question%20look%20roughly%20like%20this%3a%0a%20public%20class%20GenericController%20extends%20Controller%20%7b%20private%20final%20SomeFactory%20someFactory%3b%20public%20GenericController%28SomeFactory%20someFactory%29%3b%20this.someFactory%20%3d%20someFactory%3b%20%7d%20public%20ModelAndView%20handleRequest%28HttpServletRequest%20request%2c%20HttpServletResponse%20response%29%20throws%20Exception%20%7b%20%2f%2f%20do%20some%20stuff%20but%20never%20use%20%27request%27%20or%20%27response%27%20%7d%20%7d%20%20%20public%20class%20MoreSpecificController%20extends%20GenericController%20%7b%20private%20final%20SomeFactory%20someFactory%3b%20public%20MoreSpecificController%28SomeFactory%20someFactory%29%3b%20super%28someFactory%29%3b%20%7d%20public%20ModelAndView%20handleRequest%28HttpServletRequest%20request%2c%20HttpServletResponse%20response%29%20throws%20Exception%20%7b%20...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

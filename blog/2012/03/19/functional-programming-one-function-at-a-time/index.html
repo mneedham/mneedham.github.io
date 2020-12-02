@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Functional Programming: One function at a time" />
         
-          <meta name="twitter:description" content="As I mentioned in an earlier post I got a bit stuck working out all the diagonals in the 20x20 grid of Project Euler problem 11and my colleague Uday ended up showing me how to do it.
-I realised while watching him solve the problem that we&rsquo;d been using quite different approaches to solving the problem and that his way worked way better than mine, at least in this context." />
+          <meta name="twitter:description" content="As I mentioned in an earlier post I got a bit stuck working out all the diagonals in the 20x20 grid of Project Euler problem 11 and my colleague Uday ended up showing me how to do it.
+ I realised while watching him solve the problem that we&#8217;d been using quite different approaches to solving the problem and that his way worked way better than mine, at least in this context." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/03/19/functional-programming-one-function-at-a-time/" />
 
@@ -35,8 +35,8 @@ I realised while watching him solve the problem that we&rsquo;d been using quite
         <title> Functional Programming: One function at a time &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="As I mentioned in an earlier post I got a bit stuck working out all the diagonals in the 20x20 grid of Project Euler problem 11and my colleague Uday ended up showing me how to do it.
-I realised while watching him solve the problem that we&rsquo;d been using quite different approaches to solving the problem and that his way worked way better than mine, at least in this context." />
+        <meta name="description" content="As I mentioned in an earlier post I got a bit stuck working out all the diagonals in the 20x20 grid of Project Euler problem 11 and my colleague Uday ended up showing me how to do it.
+ I realised while watching him solve the problem that we&#8217;d been using quite different approaches to solving the problem and that his way worked way better than mine, at least in this context." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ I realised while watching him solve the problem that we&rsquo;d been using quite
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-03-19",
-        "description": "As I mentioned in an earlier post I got a bit stuck working out all the diagonals in the 20x20 grid of Project Euler problem 11and my colleague Uday ended up showing me how to do it.\nI realised while watching him solve the problem that we\x26rsquo;d been using quite different approaches to solving the problem and that his way worked way better than mine, at least in this context.",
-        "wordCount":  469 
+        "description": "As I mentioned in an earlier post I got a bit stuck working out all the diagonals in the 20x20 grid of Project Euler problem 11 and my colleague Uday ended up showing me how to do it.\n I realised while watching him solve the problem that we\x26#8217;d been using quite different approaches to solving the problem and that his way worked way better than mine, at least in this context.",
+        "wordCount":  502 
     }
     </script>
     
@@ -177,40 +177,90 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Functional Programming: One function at a time</h1>
-    <p>As I mentioned in an earlier post I got a bit stuck working out all the diagonals in the 20x20 grid of <!-- raw HTML omitted -->Project Euler problem 11<!-- raw HTML omitted --> and my <!-- raw HTML omitted -->colleague Uday ended up showing me how to do it<!-- raw HTML omitted -->.</p>
-<p>I realised while watching him solve the problem that we&rsquo;d been using quite different approaches to solving the problem and that his way worked way better than mine, at least in this context.</p>
+    <div class="paragraph">
+<p>As I mentioned in an earlier post I got a bit stuck working out all the diagonals in the 20x20 grid of <a href="http://projecteuler.net/problem=11">Project Euler problem 11</a> and my <a href="http://www.markhneedham.com/blog/2012/03/13/functional-programming-shaping-the-data-to-fit-a-function/">colleague Uday ended up showing me how to do it</a>.</p>
+</div>
+<div class="paragraph">
+<p>I realised while watching him solve the problem that we&#8217;d been using quite different approaches to solving the problem and that his way worked way better than mine, at least in this context.</p>
+</div>
+<div class="paragraph">
 <p>My approach was to try and drive out the solution from the top down which meant in this case:</p>
-<!-- raw HTML omitted -->
-<p>I was stuck for ages trying to work out how to do that whereas Uday made it much easier by just focusing on one of the functions that we&rsquo;d need, getting that to work and then moving onto the next one.</p>
-<p>After we&rsquo;d iterated with that approach a few times we had a bunch of functions that we could compose together to solve the initial problem.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Get all of the diagonals left to right by iterating over a 2 dimensional array and accumulating sub arrays of the values 1 row and 1 column greater than the current position.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>I was stuck for ages trying to work out how to do that whereas Uday made it much easier by just focusing on one of the functions that we&#8217;d need, getting that to work and then moving onto the next one.</p>
+</div>
+<div class="paragraph">
+<p>After we&#8217;d iterated with that approach a few times we had a bunch of functions that we could compose together to solve the initial problem.</p>
+</div>
+<div class="paragraph">
 <p>We started with a simple function to find the value at position (x,y) in the array:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">findValue</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> [[<span style="color:#66d9ef">Int</span>]] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>
-<span style="color:#a6e22e">findValue</span> x y grid <span style="color:#f92672">=</span> (grid <span style="color:#f92672">!!</span> x) <span style="color:#f92672">!!</span> y 
-</code></pre></div><p>We then worked on writing a function in the REPL which would find all the diagonals going down from the current position</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-[findValue (<span style="color:#ae81ff">0</span><span style="color:#f92672">+</span>z) (<span style="color:#ae81ff">0</span><span style="color:#f92672">+</span>z) grid <span style="color:#f92672">|</span> z <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span><span style="color:#ae81ff">19</span>]]
-</code></pre></div><p>We eventually realised that running that from anywhere but the top left hand corner would throw an exception since we&rsquo;d gone out of bounds of the array:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; [findValue (1+z) (1+z) grid | z &lt;- [0..19]]
-[49,31,23,51,3,67,20,97,45,3,24,44,52,26,32,40,4,5,48,*** Exception: Prelude.(!!): index too large
-</code></pre></div><p>We then wrote a function to check that a given point was actually in the array:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">hasItemSingle</span> <span style="color:#f92672">::</span> [a] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Bool</span>
-<span style="color:#a6e22e">hasItemSingle</span> array position <span style="color:#f92672">=</span> position <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> (length array <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&gt;=</span> position
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">findValue :: Int -&gt; Int -&gt; [[Int]] -&gt; Int
+findValue x y grid = (grid !! x) !! y</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We then worked on writing a function in the REPL which would find all the diagonals going down from the current position</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">[findValue (0+z) (0+z) grid | z &lt;- [0..19]]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We eventually realised that running that from anywhere but the top left hand corner would throw an exception since we&#8217;d gone out of bounds of the array:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; [findValue (1+z) (1+z) grid | z &lt;- [0..19]]
+[49,31,23,51,3,67,20,97,45,3,24,44,52,26,32,40,4,5,48,*** Exception: Prelude.(!!): index too large</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We then wrote a function to check that a given point was actually in the array:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">hasItemSingle :: [a] -&gt; Int -&gt; Bool
+hasItemSingle array position = position &gt;= 0 &amp;&amp; (length array - 1) &gt;= position
 
-<span style="color:#a6e22e">hasItem</span> <span style="color:#f92672">::</span> [[a]] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Bool</span>
-<span style="color:#a6e22e">hasItem</span> array x y <span style="color:#f92672">=</span> hasItemSingle array x <span style="color:#f92672">&amp;&amp;</span> hasItemSingle (array <span style="color:#f92672">!!</span> x) y
-</code></pre></div><p>And our function to calculate the diagonals then used that:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; [findValue (1+z) (1+z) grid | z &lt;- [0..19], hasItem grid (1+z) (1+z) ]
-[49,31,23,51,3,67,20,97,45,3,24,44,52,26,32,40,4,5,48]
-</code></pre></div><p>That function eventually ended up like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">diagonalAt</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> [[<span style="color:#66d9ef">Int</span>]] <span style="color:#f92672">-&gt;</span> [<span style="color:#66d9ef">Int</span>]
-<span style="color:#a6e22e">diagonalAt</span> x y grid <span style="color:#f92672">=</span> [findValue (x<span style="color:#f92672">+</span>z) (y<span style="color:#f92672">+</span>z) grid <span style="color:#f92672">|</span> z <span style="color:#f92672">&lt;-</span> [<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>(length grid)], hasItem grid (x <span style="color:#f92672">+</span> z) (y <span style="color:#f92672">+</span> z)]
-</code></pre></div><p>The nice thing about taking this approach of only thinking about one function at a time is that you can actually make some progress since you only need to think about a small part of the problem as compared to the whole thing.</p>
+hasItem :: [[a]] -&gt; Int -&gt; Int -&gt; Bool
+hasItem array x y = hasItemSingle array x &amp;&amp; hasItemSingle (array !! x) y</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And our function to calculate the diagonals then used that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; [findValue (1+z) (1+z) grid | z &lt;- [0..19], hasItem grid (1+z) (1+z) ]
+[49,31,23,51,3,67,20,97,45,3,24,44,52,26,32,40,4,5,48]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That function eventually ended up like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">diagonalAt :: Int -&gt; Int -&gt; [[Int]] -&gt; [Int]
+diagonalAt x y grid = [findValue (x+z) (y+z) grid | z &lt;- [0..(length grid)], hasItem grid (x + z) (y + z)]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The nice thing about taking this approach of only thinking about one function at a time is that you can actually make some progress since you only need to think about a small part of the problem as compared to the whole thing.</p>
+</div>
+<div class="paragraph">
 <p>I still start off trying to solve a problem from the outside in but if I get stuck then I start looking for some simple functions that I can write to get started and help me work towards an overall solution.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -245,7 +295,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/03/19/functional-programming-one-function-at-a-time/&amp;title=Functional%20Programming%3a%20One%20function%20at%20a%20time&amp;summary=As%20I%20mentioned%20in%20an%20earlier%20post%20I%20got%20a%20bit%20stuck%20working%20out%20all%20the%20diagonals%20in%20the%2020x20%20grid%20of%20Project%20Euler%20problem%2011and%20my%20colleague%20Uday%20ended%20up%20showing%20me%20how%20to%20do%20it.%0aI%20realised%20while%20watching%20him%20solve%20the%20problem%20that%20we%26rsquo%3bd%20been%20using%20quite%20different%20approaches%20to%20solving%20the%20problem%20and%20that%20his%20way%20worked%20way%20better%20than%20mine%2c%20at%20least%20in%20this%20context...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/03/19/functional-programming-one-function-at-a-time/&amp;title=Functional%20Programming%3a%20One%20function%20at%20a%20time&amp;summary=As%20I%20mentioned%20in%20an%20earlier%20post%20I%20got%20a%20bit%20stuck%20working%20out%20all%20the%20diagonals%20in%20the%2020x20%20grid%20of%20Project%20Euler%20problem%2011%20and%20my%20colleague%20Uday%20ended%20up%20showing%20me%20how%20to%20do%20it.%0a%20I%20realised%20while%20watching%20him%20solve%20the%20problem%20that%20we%26%238217%3bd%20been%20using%20quite%20different%20approaches%20to%20solving%20the%20problem%20and%20that%20his%20way%20worked%20way%20better%20than%20mine%2c%20at%20least%20in%20this%20context...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

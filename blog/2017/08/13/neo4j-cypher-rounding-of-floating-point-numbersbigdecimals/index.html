@@ -64,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-08-13",
-        "description": "with \x26quot;8.37\x26quot; as rawNumeric RETURN toFloat(rawNumeric) * 1000000 AS numeric ╒═════════════════╕ │\x26quot;numeric\x26quot; │ ╞═════════════════╡ │8369999.999999999│ └─────────────────┘ $ ls -lh plugins\/ total 3664 -rw-r--r--@ 1 markneedham staff 1.8M 9 Aug 09:14 apoc-3.2.0.4-all.jar $ docker run -v $PWD\/plugins:\/plugins \\  -p 7474:7474 \\  -p 7687:7687 \\  -e NEO4J_AUTH=\x26#34;none\x26#34; \\  neo4j:3.2.3 with \x26quot;8.37\x26quot; as rawNumeric RETURN apoc.number.exact.mul(rawNumeric,\x26quot;1000000\x26quot;) AS apocConversion ╒════════════════╕ │\x26quot;apocConversion\x26quot;│ ╞════════════════╡ │\x26quot;8370000.00\x26quot; │ └────────────────┘ with \x26quot;8.37\x26quot; as rawNumeric RETURN toFloat(apoc.",
-        "wordCount":  75 
+        "description": "I was doing some data cleaning a few days ago and wanting to multiply a value by 1 million. My Cypher code to do this looked like this:\n with \x228.37\x22 as rawNumeric RETURN toFloat(rawNumeric) * 1000000 AS numeric ╒═════════════════╕ │\x22numeric\x22 │ ╞═════════════════╡ │8369999.999999999│ └─────────────────┘   Unfortunately that suffers from the classic rounding error when working with floating point numbers. I couldn\x26#8217;t figure out a way to solve it using pure Cypher, but there tends to be an APOC function to solve every problem and this was no exception.",
+        "wordCount":  214 
     }
     </script>
     
@@ -178,50 +178,79 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Rounding of floating point numbers/BigDecimals</h1>
-    <!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-with &quot;8.37&quot; as rawNumeric 
+    <div class="paragraph">
+<p>I was doing some data cleaning a few days ago and wanting to multiply a value by 1 million. My <a href="https://neo4j.com/developer/cypher-query-language/">Cypher</a> code to do this looked like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">with "8.37" as rawNumeric
 RETURN toFloat(rawNumeric) * 1000000 AS numeric
 
 ╒═════════════════╕
-│&quot;numeric&quot;        │
+│"numeric"        │
 ╞═════════════════╡
 │8369999.999999999│
-└─────────────────┘
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ ls -lh plugins/
-total <span style="color:#ae81ff">3664</span>
--rw-r--r--@ <span style="color:#ae81ff">1</span> markneedham  staff   1.8M  <span style="color:#ae81ff">9</span> Aug 09:14 apoc-3.2.0.4-all.jar
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ docker run -v $PWD/plugins:/plugins <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    -p 7474:7474 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    -p 7687:7687 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    -e NEO4J_AUTH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;none&#34;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    neo4j:3.2.3
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-with &quot;8.37&quot; as rawNumeric 
-RETURN apoc.number.exact.mul(rawNumeric,&quot;1000000&quot;) AS apocConversion
+└─────────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unfortunately that suffers from the classic rounding error when working with floating point numbers. I couldn&#8217;t figure out a way to solve it using pure Cypher, but there tends to be an <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/">APOC</a> function to solve every problem and <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/index32.html#_handle_biginteger_and_bigdecimal">this was no exception</a>.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m using Neo4j 3.2.3 so I downloaded the corresponding APOC jar and put it in a plugins directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ ls -lh plugins/
+total 3664
+-rw-r--r--@ 1 markneedham  staff   1.8M  9 Aug 09:14 apoc-3.2.0.4-all.jar</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m using Docker so I needed to tell that where my plugins folder lives:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ docker run -v $PWD/plugins:/plugins \
+    -p 7474:7474 \
+    -p 7687:7687 \
+    -e NEO4J_AUTH="none" \
+    neo4j:3.2.3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re reading to try out our new function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">with "8.37" as rawNumeric
+RETURN apoc.number.exact.mul(rawNumeric,"1000000") AS apocConversion
 
 ╒════════════════╕
-│&quot;apocConversion&quot;│
+│"apocConversion"│
 ╞════════════════╡
-│&quot;8370000.00&quot;    │
-└────────────────┘
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-with &quot;8.37&quot; as rawNumeric 
-RETURN toFloat(apoc.number.exact.mul(rawNumeric,&quot;1000000&quot;)) AS apocConversion
+│"8370000.00"    │
+└────────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That almost does what we want, but the result is a string rather than numeric value. It&#8217;s not too difficult to fix though:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">with "8.37" as rawNumeric
+RETURN toFloat(apoc.number.exact.mul(rawNumeric,"1000000")) AS apocConversion
 
 ╒════════════════╕
-│&quot;apocConversion&quot;│
+│"apocConversion"│
 ╞════════════════╡
 │8370000         │
-└────────────────┘
-</code></pre><!-- raw HTML omitted -->
+└────────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s more like it!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -256,7 +285,7 @@ RETURN toFloat(apoc.number.exact.mul(rawNumeric,&quot;1000000&quot;)) AS apocCon
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/08/13/neo4j-cypher-rounding-of-floating-point-numbersbigdecimals/&amp;title=Neo4j%3a%20Cypher%20-%20Rounding%20of%20floating%20point%20numbers%2fBigDecimals&amp;summary=with%20%26quot%3b8.37%26quot%3b%20as%20rawNumeric%20RETURN%20toFloat%28rawNumeric%29%20%2a%201000000%20AS%20numeric%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bnumeric%26quot%3b%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%828369999.999999999%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20%24%20ls%20-lh%20plugins%2f%20total%203664%20-rw-r--r--%40%201%20markneedham%20staff%201.8M%209%20Aug%2009%3a14%20apoc-3.2.0.4-all.jar%20%24%20docker%20run%20-v%20%24PWD%2fplugins%3a%2fplugins%20%5c%20%20-p%207474%3a7474%20%5c%20%20-p%207687%3a7687%20%5c%20%20-e%20NEO4J_AUTH%3d%26%2334%3bnone%26%2334%3b%20%5c%20%20neo4j%3a3.2.3%20with%20%26quot%3b8.37%26quot%3b%20as%20rawNumeric%20RETURN%20apoc.number.exact.mul%28rawNumeric%2c%26quot%3b1000000%26quot%3b%29%20AS%20apocConversion%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bapocConversion%26quot%3b%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%26quot%3b8370000.00%26quot%3b%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20with%20%26quot%3b8.37%26quot%3b%20as%20rawNumeric%20RETURN%20toFloat%28apoc...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/08/13/neo4j-cypher-rounding-of-floating-point-numbersbigdecimals/&amp;title=Neo4j%3a%20Cypher%20-%20Rounding%20of%20floating%20point%20numbers%2fBigDecimals&amp;summary=I%20was%20doing%20some%20data%20cleaning%20a%20few%20days%20ago%20and%20wanting%20to%20multiply%20a%20value%20by%201%20million.%20My%20Cypher%20code%20to%20do%20this%20looked%20like%20this%3a%0a%20with%20%228.37%22%20as%20rawNumeric%20RETURN%20toFloat%28rawNumeric%29%20%2a%201000000%20AS%20numeric%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%22numeric%22%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%828369999.999999999%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20%20%20Unfortunately%20that%20suffers%20from%20the%20classic%20rounding%20error%20when%20working%20with%20floating%20point%20numbers.%20I%20couldn%26%238217%3bt%20figure%20out%20a%20way%20to%20solve%20it%20using%20pure%20Cypher%2c%20but%20there%20tends%20to%20be%20an%20APOC%20function%20to%20solve%20every%20problem%20and%20this%20was%20no%20exception...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

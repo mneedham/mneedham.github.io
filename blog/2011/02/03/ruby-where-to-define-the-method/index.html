@@ -23,9 +23,9 @@
         <meta name="twitter:title" content="Ruby: Where to define the method?" />
         
           <meta name="twitter:description" content="In our application we deal with items which can be put into a shopping cart.
-An item is defined like so:
-class Item &lt; ActiveRecord::Base end One problem that we had to solve recently was working out how to display a message to the user if the item they wanted to buy was out of stock.
-We can find out if items are out of stock by making a call to an external service:" />
+ An item is defined like so:
+ class Item &lt; ActiveRecord::Base end   One problem that we had to solve recently was working out how to display a message to the user if the item they wanted to buy was out of stock.
+ We can find out if items are out of stock by making a call to an external service:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2011/02/03/ruby-where-to-define-the-method/" />
 
@@ -37,9 +37,9 @@ We can find out if items are out of stock by making a call to an external servic
 
     
         <meta name="description" content="In our application we deal with items which can be put into a shopping cart.
-An item is defined like so:
-class Item &lt; ActiveRecord::Base end One problem that we had to solve recently was working out how to display a message to the user if the item they wanted to buy was out of stock.
-We can find out if items are out of stock by making a call to an external service:" />
+ An item is defined like so:
+ class Item &lt; ActiveRecord::Base end   One problem that we had to solve recently was working out how to display a message to the user if the item they wanted to buy was out of stock.
+ We can find out if items are out of stock by making a call to an external service:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -68,7 +68,7 @@ We can find out if items are out of stock by making a call to an external servic
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2011-02-03",
-        "description": "In our application we deal with items which can be put into a shopping cart.\nAn item is defined like so:\nclass Item \x26lt; ActiveRecord::Base end One problem that we had to solve recently was working out how to display a message to the user if the item they wanted to buy was out of stock.\nWe can find out if items are out of stock by making a call to an external service:",
+        "description": "In our application we deal with items which can be put into a shopping cart.\n An item is defined like so:\n class Item \x26lt; ActiveRecord::Base end   One problem that we had to solve recently was working out how to display a message to the user if the item they wanted to buy was out of stock.\n We can find out if items are out of stock by making a call to an external service:",
         "wordCount":  217 
     }
     </script>
@@ -178,48 +178,78 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Ruby: Where to define the method?</h1>
-    <p>In our application we deal with items which can be put into a shopping cart.</p>
+    <div class="paragraph">
+<p>In our application we deal with items which can be put into a shopping cart.</p>
+</div>
+<div class="paragraph">
 <p>An item is defined like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Item</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ActiveRecord</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Base</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">class Item &lt; ActiveRecord::Base
 
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>One problem that we had to solve recently was working out how to display a message to the user if the item they wanted to buy was out of stock.</p>
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>One problem that we had to solve recently was working out how to display a message to the user if the item they wanted to buy was out of stock.</p>
+</div>
+<div class="paragraph">
 <p>We can find out if items are out of stock by making a call to an external service:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">out_of_stock_items</span>
-  items_from_external_service_call<span style="color:#f92672">.</span>map <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>i<span style="color:#f92672">|</span>
-    item <span style="color:#f92672">=</span> look_up_item_by(i<span style="color:#f92672">[</span><span style="color:#e6db74">:id</span><span style="color:#f92672">]</span>)
-    item<span style="color:#f92672">.</span>number_available <span style="color:#f92672">=</span> i<span style="color:#f92672">[</span><span style="color:#e6db74">:number_available</span><span style="color:#f92672">]</span>
-    <span style="color:#f92672">...</span>
-  <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>Line 5 is the interesting one because we needed to work out where to define the &lsquo;number_available&rsquo; method.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">def out_of_stock_items
+  items_from_external_service_call.map do |i|
+    item = look_up_item_by(i[:id])
+    item.number_available = i[:number_available]
+    ...
+  end
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Line 5 is the interesting one because we needed to work out where to define the 'number_available' method.</p>
+</div>
+<div class="paragraph">
 <p>The easiest way to do it is this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Item</span> <span style="color:#f92672">&lt;</span> <span style="color:#66d9ef">ActiveRecord</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Base</span>
-  <span style="color:#66d9ef">attr_accessor</span> <span style="color:#e6db74">:number_available</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>But it seems a bit misleading because the concept of availability doesn&rsquo;t exist in every context that we use the &lsquo;Item&rsquo; object.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">class Item &lt; ActiveRecord::Base
+  attr_accessor :number_available
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But it seems a bit misleading because the concept of availability doesn&#8217;t exist in every context that we use the 'Item' object.</p>
+</div>
+<div class="paragraph">
 <p>Another approach could be to add an instance method to each of the cart items in that context which is a bit more complicated:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">out_of_stock_items</span>
-  items_from_external_service_call<span style="color:#f92672">.</span>map <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>i<span style="color:#f92672">|</span>
-    item <span style="color:#f92672">=</span> look_up_item_by(i<span style="color:#f92672">[</span><span style="color:#e6db74">:id</span><span style="color:#f92672">]</span>)
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">def out_of_stock_items
+  items_from_external_service_call.map do |i|
+    item = look_up_item_by(i[:id])
 
-    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">item</span><span style="color:#f92672">.</span><span style="color:#a6e22e">number_available</span><span style="color:#f92672">=</span>(value)
-      @number_available <span style="color:#f92672">=</span> value
-    <span style="color:#66d9ef">end</span>
+    def item.number_available=(value)
+      @number_available = value
+    end
 
-    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">item</span><span style="color:#f92672">.</span><span style="color:#a6e22e">number_available</span>
+    def item.number_available
       @number_available
-    <span style="color:#66d9ef">end</span>
+    end
 
-    item<span style="color:#f92672">.</span>number_available <span style="color:#f92672">=</span> i<span style="color:#f92672">[</span><span style="color:#e6db74">:number_available</span><span style="color:#f92672">]</span>
-    <span style="color:#f92672">...</span>
-  <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>Right now we&rsquo;ve gone for the easier option and put the method onto the &lsquo;Item&rsquo; class but I&rsquo;d be curious how others would solve this problem&hellip;</p>
+    item.number_available = i[:number_available]
+    ...
+  end
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Right now we&#8217;ve gone for the easier option and put the method onto the 'Item' class but I&#8217;d be curious how others would solve this problem&#8230;&#8203;</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -254,7 +284,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/02/03/ruby-where-to-define-the-method/&amp;title=Ruby%3a%20Where%20to%20define%20the%20method%3f&amp;summary=In%20our%20application%20we%20deal%20with%20items%20which%20can%20be%20put%20into%20a%20shopping%20cart.%0aAn%20item%20is%20defined%20like%20so%3a%0aclass%20Item%20%26lt%3b%20ActiveRecord%3a%3aBase%20end%20One%20problem%20that%20we%20had%20to%20solve%20recently%20was%20working%20out%20how%20to%20display%20a%20message%20to%20the%20user%20if%20the%20item%20they%20wanted%20to%20buy%20was%20out%20of%20stock.%0aWe%20can%20find%20out%20if%20items%20are%20out%20of%20stock%20by%20making%20a%20call%20to%20an%20external%20service%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/02/03/ruby-where-to-define-the-method/&amp;title=Ruby%3a%20Where%20to%20define%20the%20method%3f&amp;summary=In%20our%20application%20we%20deal%20with%20items%20which%20can%20be%20put%20into%20a%20shopping%20cart.%0a%20An%20item%20is%20defined%20like%20so%3a%0a%20class%20Item%20%26lt%3b%20ActiveRecord%3a%3aBase%20end%20%20%20One%20problem%20that%20we%20had%20to%20solve%20recently%20was%20working%20out%20how%20to%20display%20a%20message%20to%20the%20user%20if%20the%20item%20they%20wanted%20to%20buy%20was%20out%20of%20stock.%0a%20We%20can%20find%20out%20if%20items%20are%20out%20of%20stock%20by%20making%20a%20call%20to%20an%20external%20service%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

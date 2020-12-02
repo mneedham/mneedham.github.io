@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Cypher - Step by step to creating a linked list of adjacent nodes using UNWIND" />
         
-          <meta name="twitter:description" content="CREATE (:Season {name: &quot;2013/2014&quot;, timestamp: 1375315200}) CREATE (:Season {name: &quot;2012/2013&quot;, timestamp: 1343779200}) CREATE (:Season {name: &quot;2011/2012&quot;, timestamp: 1312156800}) CREATE (:Season {name: &quot;2010/2011&quot;, timestamp: 1280620800}) CREATE (:Season {name: &quot;2009/2010&quot;, timestamp: 1249084800}) MATCH (s:Season) WITH s ORDER BY s.timestamp WITH COLLECT(s) AS seasons FOREACH(i in RANGE(0, length(seasons)-2) | FOREACH(si in [seasons[i]] | FOREACH(si2 in [seasons[i&#43;1]] | MERGE (si)-[:NEXT]-&gt;(si2)))) MATCH (s:Season) WITH s ORDER BY s.timestamp RETURN COLLECT(s) AS seasons ==&gt; &#43;-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; ==&gt; | seasons | ==&gt; &#43;-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; ==&gt; | [Node[1973]{timestamp:1249084800,name:&quot;2009/2010&quot;},Node[1972]{timestamp:1280620800,name:&quot;2010/2011&quot;},Node[1971]{timestamp:1312156800,name:&quot;2011/2012&quot;},Node[1970]{timestamp:1343779200,name:&quot;2012/2013&quot;},Node[1969]{timestamp:1375315200,name:&quot;2013/2014&quot;}] | ==&gt; &#43;-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; 2009/2010	2010/2011 2010/2011	2011/2012 2011/2012	2012/2013 2012/2013	2013/2014 &gt;&gt;&gt; seasons = [&#34;2009/2010&#34;, &#34;2010/2011&#34;, &#34;2011/2012&#34;, &#34;2012/2013&#34;, &#34;2013/2014&#34;] &gt;&gt;&gt; zip(seasons, seasons[1:]) [(&#39;2009/2010&#39;, &#39;2010/2011&#39;), (&#39;2010/2011&#39;, &#39;2011/2012&#39;), (&#39;2011/2012&#39;, &#39;2012/2013&#39;), (&#39;2012/2013&#39;, &#39;2013/2014&#39;)] return RANGE(0,4) ==&gt; &#43;-------------&#43; ==&gt; | RANGE(0,4) | ==&gt; &#43;-------------&#43; ==&gt; | [0,1,2,3,4] | ==&gt; &#43;-------------&#43; UNWIND RANGE(0,4) as idx RETURN idx, idx &#43;1; ==&gt; &#43;--------------&#43; ==&gt; | idx | idx &#43;1 | ==&gt; &#43;--------------&#43; ==&gt; | 0 | 1 | ==&gt; | 1 | 2 | ==&gt; | 2 | 3 | ==&gt; | 3 | 4 | ==&gt; | 4 | 5 | ==&gt; &#43;--------------&#43; ==&gt; 5 rows MATCH (s:Season) WITH s ORDER BY s." />
+          <meta name="twitter:description" content="In late 2013 I wrote a post showing how to create a linked list connecting different football seasons together using Neo4j&#8217;s Cypher query language, a post I&#8217;ve frequently copy &amp; pasted from!
+ Now 18 months later, and using Neo4j 2.2 rather than 2.0, we can actually solve this problem in what I believe is a more intuitive way using the http://neo4j.com/docs/stable/query-unwind.html function. Credit for the idea goes to Michael, I&#8217;m just the messenger." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/06/04/neo4j-cypher-step-by-step-to-creating-a-linked-list-of-adjacent-nodes-using-unwind/" />
 
@@ -33,7 +34,8 @@
         <title> Neo4j: Cypher - Step by step to creating a linked list of adjacent nodes using UNWIND &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="CREATE (:Season {name: &quot;2013/2014&quot;, timestamp: 1375315200}) CREATE (:Season {name: &quot;2012/2013&quot;, timestamp: 1343779200}) CREATE (:Season {name: &quot;2011/2012&quot;, timestamp: 1312156800}) CREATE (:Season {name: &quot;2010/2011&quot;, timestamp: 1280620800}) CREATE (:Season {name: &quot;2009/2010&quot;, timestamp: 1249084800}) MATCH (s:Season) WITH s ORDER BY s.timestamp WITH COLLECT(s) AS seasons FOREACH(i in RANGE(0, length(seasons)-2) | FOREACH(si in [seasons[i]] | FOREACH(si2 in [seasons[i&#43;1]] | MERGE (si)-[:NEXT]-&gt;(si2)))) MATCH (s:Season) WITH s ORDER BY s.timestamp RETURN COLLECT(s) AS seasons ==&gt; &#43;-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; ==&gt; | seasons | ==&gt; &#43;-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; ==&gt; | [Node[1973]{timestamp:1249084800,name:&quot;2009/2010&quot;},Node[1972]{timestamp:1280620800,name:&quot;2010/2011&quot;},Node[1971]{timestamp:1312156800,name:&quot;2011/2012&quot;},Node[1970]{timestamp:1343779200,name:&quot;2012/2013&quot;},Node[1969]{timestamp:1375315200,name:&quot;2013/2014&quot;}] | ==&gt; &#43;-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------&#43; 2009/2010	2010/2011 2010/2011	2011/2012 2011/2012	2012/2013 2012/2013	2013/2014 &gt;&gt;&gt; seasons = [&#34;2009/2010&#34;, &#34;2010/2011&#34;, &#34;2011/2012&#34;, &#34;2012/2013&#34;, &#34;2013/2014&#34;] &gt;&gt;&gt; zip(seasons, seasons[1:]) [(&#39;2009/2010&#39;, &#39;2010/2011&#39;), (&#39;2010/2011&#39;, &#39;2011/2012&#39;), (&#39;2011/2012&#39;, &#39;2012/2013&#39;), (&#39;2012/2013&#39;, &#39;2013/2014&#39;)] return RANGE(0,4) ==&gt; &#43;-------------&#43; ==&gt; | RANGE(0,4) | ==&gt; &#43;-------------&#43; ==&gt; | [0,1,2,3,4] | ==&gt; &#43;-------------&#43; UNWIND RANGE(0,4) as idx RETURN idx, idx &#43;1; ==&gt; &#43;--------------&#43; ==&gt; | idx | idx &#43;1 | ==&gt; &#43;--------------&#43; ==&gt; | 0 | 1 | ==&gt; | 1 | 2 | ==&gt; | 2 | 3 | ==&gt; | 3 | 4 | ==&gt; | 4 | 5 | ==&gt; &#43;--------------&#43; ==&gt; 5 rows MATCH (s:Season) WITH s ORDER BY s." />
+        <meta name="description" content="In late 2013 I wrote a post showing how to create a linked list connecting different football seasons together using Neo4j&#8217;s Cypher query language, a post I&#8217;ve frequently copy &amp; pasted from!
+ Now 18 months later, and using Neo4j 2.2 rather than 2.0, we can actually solve this problem in what I believe is a more intuitive way using the http://neo4j.com/docs/stable/query-unwind.html function. Credit for the idea goes to Michael, I&#8217;m just the messenger." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-06-04",
-        "description": "CREATE (:Season {name: \x26quot;2013\/2014\x26quot;, timestamp: 1375315200}) CREATE (:Season {name: \x26quot;2012\/2013\x26quot;, timestamp: 1343779200}) CREATE (:Season {name: \x26quot;2011\/2012\x26quot;, timestamp: 1312156800}) CREATE (:Season {name: \x26quot;2010\/2011\x26quot;, timestamp: 1280620800}) CREATE (:Season {name: \x26quot;2009\/2010\x26quot;, timestamp: 1249084800}) MATCH (s:Season) WITH s ORDER BY s.timestamp WITH COLLECT(s) AS seasons FOREACH(i in RANGE(0, length(seasons)-2) | FOREACH(si in [seasons[i]] | FOREACH(si2 in [seasons[i\x2b1]] | MERGE (si)-[:NEXT]-\x26gt;(si2)))) MATCH (s:Season) WITH s ORDER BY s.timestamp RETURN COLLECT(s) AS seasons ==\x26gt; \x2b-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\x2b ==\x26gt; | seasons | ==\x26gt; \x2b-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\x2b ==\x26gt; | [Node[1973]{timestamp:1249084800,name:\x26quot;2009\/2010\x26quot;},Node[1972]{timestamp:1280620800,name:\x26quot;2010\/2011\x26quot;},Node[1971]{timestamp:1312156800,name:\x26quot;2011\/2012\x26quot;},Node[1970]{timestamp:1343779200,name:\x26quot;2012\/2013\x26quot;},Node[1969]{timestamp:1375315200,name:\x26quot;2013\/2014\x26quot;}] | ==\x26gt; \x2b-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\x2b 2009\/2010\t2010\/2011 2010\/2011\t2011\/2012 2011\/2012\t2012\/2013 2012\/2013\t2013\/2014 \x26gt;\x26gt;\x26gt; seasons = [\x26#34;2009\/2010\x26#34;, \x26#34;2010\/2011\x26#34;, \x26#34;2011\/2012\x26#34;, \x26#34;2012\/2013\x26#34;, \x26#34;2013\/2014\x26#34;] \x26gt;\x26gt;\x26gt; zip(seasons, seasons[1:]) [(\x26#39;2009\/2010\x26#39;, \x26#39;2010\/2011\x26#39;), (\x26#39;2010\/2011\x26#39;, \x26#39;2011\/2012\x26#39;), (\x26#39;2011\/2012\x26#39;, \x26#39;2012\/2013\x26#39;), (\x26#39;2012\/2013\x26#39;, \x26#39;2013\/2014\x26#39;)] return RANGE(0,4) ==\x26gt; \x2b-------------\x2b ==\x26gt; | RANGE(0,4) | ==\x26gt; \x2b-------------\x2b ==\x26gt; | [0,1,2,3,4] | ==\x26gt; \x2b-------------\x2b UNWIND RANGE(0,4) as idx RETURN idx, idx \x2b1; ==\x26gt; \x2b--------------\x2b ==\x26gt; | idx | idx \x2b1 | ==\x26gt; \x2b--------------\x2b ==\x26gt; | 0 | 1 | ==\x26gt; | 1 | 2 | ==\x26gt; | 2 | 3 | ==\x26gt; | 3 | 4 | ==\x26gt; | 4 | 5 | ==\x26gt; \x2b--------------\x2b ==\x26gt; 5 rows MATCH (s:Season) WITH s ORDER BY s.",
-        "wordCount":  277 
+        "description": "In late 2013 I wrote a post showing how to create a linked list connecting different football seasons together using Neo4j\x26#8217;s Cypher query language, a post I\x26#8217;ve frequently copy \x26amp; pasted from!\n Now 18 months later, and using Neo4j 2.2 rather than 2.0, we can actually solve this problem in what I believe is a more intuitive way using the http:\/\/neo4j.com\/docs\/stable\/query-unwind.html function. Credit for the idea goes to Michael, I\x26#8217;m just the messenger.",
+        "wordCount":  631 
     }
     </script>
     
@@ -172,28 +174,43 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Step by step to creating a linked list of adjacent nodes using UNWIND</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-CREATE (:Season {name: &quot;2013/2014&quot;, timestamp: 1375315200})
-CREATE (:Season {name: &quot;2012/2013&quot;, timestamp: 1343779200})
-CREATE (:Season {name: &quot;2011/2012&quot;, timestamp: 1312156800})
-CREATE (:Season {name: &quot;2010/2011&quot;, timestamp: 1280620800})
-CREATE (:Season {name: &quot;2009/2010&quot;, timestamp: 1249084800})
-</code></pre><pre><code class="language-cypher" data-lang="cypher">
-MATCH (s:Season)
+    <div class="paragraph">
+<p>In late 2013 I wrote a post showing <a href="http://www.markhneedham.com/blog/2013/11/22/neo4j-cypher-creating-relationships-between-nodes-from-adjacent-rows-in-a-query/">how to create a linked list connecting different football seasons together</a> using Neo4j&#8217;s Cypher query language, a post I&#8217;ve frequently copy &amp; pasted from!</p>
+</div>
+<div class="paragraph">
+<p>Now 18 months later, and using Neo4j 2.2 rather than 2.0, we can actually solve this problem in what I believe is a more intuitive way using the <cite>http://neo4j.com/docs/stable/query-unwind.html<span class="UNWIND"></cite></span> function. Credit for the idea goes to <a href="https://twitter.com/mesirii">Michael</a>, I&#8217;m just the messenger.</p>
+</div>
+<div class="paragraph">
+<p>To recap, we had a collection of football seasons and we wanted to connect adjacent seasons to each other to allow easy querying between seasons. The following is the code we used:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CREATE (:Season {name: "2013/2014", timestamp: 1375315200})
+CREATE (:Season {name: "2012/2013", timestamp: 1343779200})
+CREATE (:Season {name: "2011/2012", timestamp: 1312156800})
+CREATE (:Season {name: "2010/2011", timestamp: 1280620800})
+CREATE (:Season {name: "2009/2010", timestamp: 1249084800})</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (s:Season)
 WITH s
 ORDER BY s.timestamp
 WITH COLLECT(s) AS seasons
- 
-FOREACH(i in RANGE(0, length(seasons)-2) | 
-    FOREACH(si in [seasons[i]] | 
-        FOREACH(si2 in [seasons[i+1]] | 
-            MERGE (si)-[:NEXT]-&gt;(si2))))
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (s:Season)
+
+FOREACH(i in RANGE(0, length(seasons)-2) |
+    FOREACH(si in [seasons[i]] |
+        FOREACH(si2 in [seasons[i+1]] |
+            MERGE (si)-[:NEXT]-&gt;(si2))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Our goal is to replace those 3 <cite>FOREACH</cite> loops with something a bit easier to understand. To start with, let&#8217;s run the first part of the query to get some intuition of what we&#8217;re trying to do:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (s:Season)
 WITH s
 ORDER BY s.timestamp
 RETURN COLLECT(s) AS seasons
@@ -201,33 +218,55 @@ RETURN COLLECT(s) AS seasons
 ==&gt; +-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ==&gt; | seasons                                                                                                                                                                                                                                                     |
 ==&gt; +-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-==&gt; | [Node[1973]{timestamp:1249084800,name:&quot;2009/2010&quot;},Node[1972]{timestamp:1280620800,name:&quot;2010/2011&quot;},Node[1971]{timestamp:1312156800,name:&quot;2011/2012&quot;},Node[1970]{timestamp:1343779200,name:&quot;2012/2013&quot;},Node[1969]{timestamp:1375315200,name:&quot;2013/2014&quot;}] |
-==&gt; +-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-2009/2010	2010/2011
+==&gt; | [Node[1973]{timestamp:1249084800,name:"2009/2010"},Node[1972]{timestamp:1280620800,name:"2010/2011"},Node[1971]{timestamp:1312156800,name:"2011/2012"},Node[1970]{timestamp:1343779200,name:"2012/2013"},Node[1969]{timestamp:1375315200,name:"2013/2014"}] |
+==&gt; +-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So at this point we&#8217;ve got all the seasons in an array going from 2009/2010 up to 2013/2014. We want to create a 'NEXT' relationship between 2009/2010 -&gt; 2010/2011, 2010/2011 -&gt; 2011/2012 and so on.</p>
+</div>
+<div class="paragraph">
+<p>To achieve this we need to get the adjacent seasons split into two columns, like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">2009/2010	2010/2011
 2010/2011	2011/2012
 2011/2012	2012/2013
-2012/2013	2013/2014
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">&gt;&gt;&gt;</span> seasons <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;2009/2010&#34;</span>, <span style="color:#e6db74">&#34;2010/2011&#34;</span>, <span style="color:#e6db74">&#34;2011/2012&#34;</span>, <span style="color:#e6db74">&#34;2012/2013&#34;</span>, <span style="color:#e6db74">&#34;2013/2014&#34;</span>]
+2012/2013	2013/2014</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we can get the data into that format then we can apply a <cite>MERGE</cite> between the two fields to create the 'NEXT' relationship. So how do we do that?</p>
+</div>
+<div class="paragraph">
+<p>If we were in Python we&#8217;d be calling for the zip function which we could apply like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">&gt;&gt;&gt; seasons = ["2009/2010", "2010/2011", "2011/2012", "2012/2013", "2013/2014"]
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> zip(seasons, seasons[<span style="color:#ae81ff">1</span>:])
-[(<span style="color:#e6db74">&#39;2009/2010&#39;</span>, <span style="color:#e6db74">&#39;2010/2011&#39;</span>), (<span style="color:#e6db74">&#39;2010/2011&#39;</span>, <span style="color:#e6db74">&#39;2011/2012&#39;</span>), (<span style="color:#e6db74">&#39;2011/2012&#39;</span>, <span style="color:#e6db74">&#39;2012/2013&#39;</span>), (<span style="color:#e6db74">&#39;2012/2013&#39;</span>, <span style="color:#e6db74">&#39;2013/2014&#39;</span>)]
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-return RANGE(0,4)
+&gt;&gt;&gt; zip(seasons, seasons[1:])
+[('2009/2010', '2010/2011'), ('2010/2011', '2011/2012'), ('2011/2012', '2012/2013'), ('2012/2013', '2013/2014')]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unfortunately we don&#8217;t have an equivalent function in Cypher but we can achieve the same outcome by creating 2 columns with adjacent integer values. The <cite>RANGE</cite> and <cite>UNWIND</cite> functions are our friends here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">return RANGE(0,4)
 
 ==&gt; +-------------+
 ==&gt; | RANGE(0,4)  |
 ==&gt; +-------------+
 ==&gt; | [0,1,2,3,4] |
-==&gt; +-------------+
-</code></pre><pre><code class="language-cypher" data-lang="cypher">
-UNWIND RANGE(0,4) as idx 
+==&gt; +-------------+</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">UNWIND RANGE(0,4) as idx
 RETURN idx, idx +1;
 
 ==&gt; +--------------+
@@ -239,40 +278,54 @@ RETURN idx, idx +1;
 ==&gt; | 3   | 4      |
 ==&gt; | 4   | 5      |
 ==&gt; +--------------+
-==&gt; 5 rows
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (s:Season)
+==&gt; 5 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now all we need to do is plug this code into our original query where 'idx' and 'idx + 1' represent indexes into the array of seasons. We use a range which stops 1 element early since there isn&#8217;t anywhere to connect our last season to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (s:Season)
 WITH s
 ORDER BY s.timestamp
 WITH COLLECT(s) AS seasons
-UNWIND RANGE(0,LENGTH(seasons) - 2) as idx 
+UNWIND RANGE(0,LENGTH(seasons) - 2) as idx
 RETURN seasons[idx], seasons[idx+1]
 
 ==&gt; +-------------------------------------------------------------------------------------------------------+
 ==&gt; | seasons[idx]                                      | seasons[idx+1]                                    |
 ==&gt; +-------------------------------------------------------------------------------------------------------+
-==&gt; | Node[1973]{timestamp:1249084800,name:&quot;2009/2010&quot;} | Node[1972]{timestamp:1280620800,name:&quot;2010/2011&quot;} |
-==&gt; | Node[1972]{timestamp:1280620800,name:&quot;2010/2011&quot;} | Node[1971]{timestamp:1312156800,name:&quot;2011/2012&quot;} |
-==&gt; | Node[1971]{timestamp:1312156800,name:&quot;2011/2012&quot;} | Node[1970]{timestamp:1343779200,name:&quot;2012/2013&quot;} |
-==&gt; | Node[1970]{timestamp:1343779200,name:&quot;2012/2013&quot;} | Node[1969]{timestamp:1375315200,name:&quot;2013/2014&quot;} |
+==&gt; | Node[1973]{timestamp:1249084800,name:"2009/2010"} | Node[1972]{timestamp:1280620800,name:"2010/2011"} |
+==&gt; | Node[1972]{timestamp:1280620800,name:"2010/2011"} | Node[1971]{timestamp:1312156800,name:"2011/2012"} |
+==&gt; | Node[1971]{timestamp:1312156800,name:"2011/2012"} | Node[1970]{timestamp:1343779200,name:"2012/2013"} |
+==&gt; | Node[1970]{timestamp:1343779200,name:"2012/2013"} | Node[1969]{timestamp:1375315200,name:"2013/2014"} |
 ==&gt; +-------------------------------------------------------------------------------------------------------+
-==&gt; 4 rows
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (s:Season)
+==&gt; 4 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;ve got all the adjacent seasons lined up we complete the query with a call to <cite>MERGE</cite>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (s:Season)
 WITH s
 ORDER BY s.timestamp
 WITH COLLECT(s) AS seasons
-UNWIND RANGE(0,LENGTH(seasons) - 2) as idx 
+UNWIND RANGE(0,LENGTH(seasons) - 2) as idx
 WITH seasons[idx] AS s1, seasons[idx+1] AS s2
 MERGE (s1)-[:NEXT]-&gt;(s2)
 
 ==&gt; +-------------------+
 ==&gt; | No data returned. |
 ==&gt; +-------------------+
-==&gt; Relationships created: 4
-</code></pre><!-- raw HTML omitted -->
+==&gt; Relationships created: 4</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And we&#8217;re done. Hopefully I can remember this approach more than I did the initial one!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -307,7 +360,7 @@ MERGE (s1)-[:NEXT]-&gt;(s2)
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/06/04/neo4j-cypher-step-by-step-to-creating-a-linked-list-of-adjacent-nodes-using-unwind/&amp;title=Neo4j%3a%20Cypher%20-%20Step%20by%20step%20to%20creating%20a%20linked%20list%20of%20adjacent%20nodes%20using%20UNWIND&amp;summary=CREATE%20%28%3aSeason%20%7bname%3a%20%26quot%3b2013%2f2014%26quot%3b%2c%20timestamp%3a%201375315200%7d%29%20CREATE%20%28%3aSeason%20%7bname%3a%20%26quot%3b2012%2f2013%26quot%3b%2c%20timestamp%3a%201343779200%7d%29%20CREATE%20%28%3aSeason%20%7bname%3a%20%26quot%3b2011%2f2012%26quot%3b%2c%20timestamp%3a%201312156800%7d%29%20CREATE%20%28%3aSeason%20%7bname%3a%20%26quot%3b2010%2f2011%26quot%3b%2c%20timestamp%3a%201280620800%7d%29%20CREATE%20%28%3aSeason%20%7bname%3a%20%26quot%3b2009%2f2010%26quot%3b%2c%20timestamp%3a%201249084800%7d%29%20MATCH%20%28s%3aSeason%29%20WITH%20s%20ORDER%20BY%20s.timestamp%20WITH%20COLLECT%28s%29%20AS%20seasons%20FOREACH%28i%20in%20RANGE%280%2c%20length%28seasons%29-2%29%20%7c%20FOREACH%28si%20in%20%5bseasons%5bi%5d%5d%20%7c%20FOREACH%28si2%20in%20%5bseasons%5bi%2b1%5d%5d%20%7c%20MERGE%20%28si%29-%5b%3aNEXT%5d-%26gt%3b%28si2%29%29%29%29%20MATCH%20%28s%3aSeason%29%20WITH%20s%20ORDER%20BY%20s.timestamp%20RETURN%20COLLECT%28s%29%20AS%20seasons%20%3d%3d%26gt%3b%20%2b-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20seasons%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20%5bNode%5b1973%5d%7btimestamp%3a1249084800%2cname%3a%26quot%3b2009%2f2010%26quot%3b%7d%2cNode%5b1972%5d%7btimestamp%3a1280620800%2cname%3a%26quot%3b2010%2f2011%26quot%3b%7d%2cNode%5b1971%5d%7btimestamp%3a1312156800%2cname%3a%26quot%3b2011%2f2012%26quot%3b%7d%2cNode%5b1970%5d%7btimestamp%3a1343779200%2cname%3a%26quot%3b2012%2f2013%26quot%3b%7d%2cNode%5b1969%5d%7btimestamp%3a1375315200%2cname%3a%26quot%3b2013%2f2014%26quot%3b%7d%5d%20%7c%20%3d%3d%26gt%3b%20%2b-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------%2b%202009%2f2010%092010%2f2011%202010%2f2011%092011%2f2012%202011%2f2012%092012%2f2013%202012%2f2013%092013%2f2014%20%26gt%3b%26gt%3b%26gt%3b%20seasons%20%3d%20%5b%26%2334%3b2009%2f2010%26%2334%3b%2c%20%26%2334%3b2010%2f2011%26%2334%3b%2c%20%26%2334%3b2011%2f2012%26%2334%3b%2c%20%26%2334%3b2012%2f2013%26%2334%3b%2c%20%26%2334%3b2013%2f2014%26%2334%3b%5d%20%26gt%3b%26gt%3b%26gt%3b%20zip%28seasons%2c%20seasons%5b1%3a%5d%29%20%5b%28%26%2339%3b2009%2f2010%26%2339%3b%2c%20%26%2339%3b2010%2f2011%26%2339%3b%29%2c%20%28%26%2339%3b2010%2f2011%26%2339%3b%2c%20%26%2339%3b2011%2f2012%26%2339%3b%29%2c%20%28%26%2339%3b2011%2f2012%26%2339%3b%2c%20%26%2339%3b2012%2f2013%26%2339%3b%29%2c%20%28%26%2339%3b2012%2f2013%26%2339%3b%2c%20%26%2339%3b2013%2f2014%26%2339%3b%29%5d%20return%20RANGE%280%2c4%29%20%3d%3d%26gt%3b%20%2b-------------%2b%20%3d%3d%26gt%3b%20%7c%20RANGE%280%2c4%29%20%7c%20%3d%3d%26gt%3b%20%2b-------------%2b%20%3d%3d%26gt%3b%20%7c%20%5b0%2c1%2c2%2c3%2c4%5d%20%7c%20%3d%3d%26gt%3b%20%2b-------------%2b%20UNWIND%20RANGE%280%2c4%29%20as%20idx%20RETURN%20idx%2c%20idx%20%2b1%3b%20%3d%3d%26gt%3b%20%2b--------------%2b%20%3d%3d%26gt%3b%20%7c%20idx%20%7c%20idx%20%2b1%20%7c%20%3d%3d%26gt%3b%20%2b--------------%2b%20%3d%3d%26gt%3b%20%7c%200%20%7c%201%20%7c%20%3d%3d%26gt%3b%20%7c%201%20%7c%202%20%7c%20%3d%3d%26gt%3b%20%7c%202%20%7c%203%20%7c%20%3d%3d%26gt%3b%20%7c%203%20%7c%204%20%7c%20%3d%3d%26gt%3b%20%7c%204%20%7c%205%20%7c%20%3d%3d%26gt%3b%20%2b--------------%2b%20%3d%3d%26gt%3b%205%20rows%20MATCH%20%28s%3aSeason%29%20WITH%20s%20ORDER%20BY%20s...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/06/04/neo4j-cypher-step-by-step-to-creating-a-linked-list-of-adjacent-nodes-using-unwind/&amp;title=Neo4j%3a%20Cypher%20-%20Step%20by%20step%20to%20creating%20a%20linked%20list%20of%20adjacent%20nodes%20using%20UNWIND&amp;summary=In%20late%202013%20I%20wrote%20a%20post%20showing%20how%20to%20create%20a%20linked%20list%20connecting%20different%20football%20seasons%20together%20using%20Neo4j%26%238217%3bs%20Cypher%20query%20language%2c%20a%20post%20I%26%238217%3bve%20frequently%20copy%20%26amp%3b%20pasted%20from%21%0a%20Now%2018%20months%20later%2c%20and%20using%20Neo4j%202.2%20rather%20than%202.0%2c%20we%20can%20actually%20solve%20this%20problem%20in%20what%20I%20believe%20is%20a%20more%20intuitive%20way%20using%20the%20http%3a%2f%2fneo4j.com%2fdocs%2fstable%2fquery-unwind.html%20function.%20Credit%20for%20the%20idea%20goes%20to%20Michael%2c%20I%26%238217%3bm%20just%20the%20messenger...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

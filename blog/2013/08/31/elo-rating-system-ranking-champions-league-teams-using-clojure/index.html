@@ -23,7 +23,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Elo Rating System: Ranking Champions League teams using Clojure" />
         
-          <meta name="twitter:description" content="(defn ranking-after-win [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (&#43; ranking (* importance (- 1 (expected ranking opponent-ranking) )))) (defn ranking-after-loss [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (&#43; ranking (* importance (- 0 (expected ranking opponent-ranking) )))) (defn expected [my-ranking opponent-ranking] (/ 1.0 (&#43; 1 (math/expt 10 (/ (- opponent-ranking my-ranking) 400))))) &gt; (ranking-after-win { :ranking 1200 :opponent-ranking 1500 :importance 32 }) 1227.1686541692377 &gt; (expected 1200 1500) 0.15097955721132328 (defn top-teams [number matches] (let [teams-with-rankings (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams matches)))] (take number (sort-by (fn [x] (:points (val x))) &gt; (seq (reduce process-match teams-with-rankings matches)))))) (defn process-match [ts match] (let [{:keys [home away home_score away_score]} match] (cond (&gt; home_score away_score) (-&gt; ts (update-in [home :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (&gt; away_score home_score) (-&gt; ts (update-in [home :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (= home_score away_score) ts))) &gt; (take 5 all-matches) ({:home &#34;Tampere&#34;, :away &#34;Pyunik Erewan&#34;, :home_score 0, :away_score 4} {:home &#34;Pyunik Erewan&#34;, :away &#34;Tampere&#34;, :home_score 2, :away_score 0} {:home &#34;Skonto Riga&#34;, :away &#34;Barry Town&#34;, :home_score 5, :away_score 0} {:home &#34;Barry Town&#34;, :away &#34;Skonto Riga&#34;, :home_score 0, :away_score 1} {:home &#34;Portadown&#34;, :away &#34;Belshina Bobruisk&#34;, :home_score 0, :away_score 0}) &gt; (extract-teams (take 5 all-matches)) #{&#34;Portadown&#34; &#34;Tampere&#34; &#34;Pyunik Erewan&#34; &#34;Barry Town&#34; &#34;Skonto Riga&#34;} &gt; (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches))) (&#34;Portadown&#34; {:points 1200} &#34;Tampere&#34; {:points 1200} &#34;Pyunik Erewan&#34; {:points 1200} &#34;Barry Town&#34; {:points 1200} &#34;Skonto Riga&#34; {:points 1200}) &gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches)))) {&#34;Portadown&#34; {:points 1200}, &#34;Tampere&#34; {:points 1200}, &#34;Pyunik Erewan&#34; {:points 1200}, &#34;Barry Town&#34; {:points 1200}, &#34;Skonto Riga&#34; {:points 1200}} &gt; (top-teams 10 all-matches) ([&#34;CF Barcelona&#34; {:points 1343." />
+          <meta name="twitter:description" content="As I mentioned in an earlier blog post I&#8217;ve been learning about ranking systems and one of the first ones I came across was the Elo rating system which is most famously used to rank chess players.
+ The Elo rating system uses the following formula to work out a player/team&#8217;s ranking after they&#8217;ve participated in a match:
+  R&#39; = R &#43; K * (S - E)
+   R&#39; is the new rating" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/08/31/elo-rating-system-ranking-champions-league-teams-using-clojure/" />
 
@@ -34,7 +37,10 @@
         <title> Elo Rating System: Ranking Champions League teams using Clojure &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="(defn ranking-after-win [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (&#43; ranking (* importance (- 1 (expected ranking opponent-ranking) )))) (defn ranking-after-loss [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (&#43; ranking (* importance (- 0 (expected ranking opponent-ranking) )))) (defn expected [my-ranking opponent-ranking] (/ 1.0 (&#43; 1 (math/expt 10 (/ (- opponent-ranking my-ranking) 400))))) &gt; (ranking-after-win { :ranking 1200 :opponent-ranking 1500 :importance 32 }) 1227.1686541692377 &gt; (expected 1200 1500) 0.15097955721132328 (defn top-teams [number matches] (let [teams-with-rankings (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams matches)))] (take number (sort-by (fn [x] (:points (val x))) &gt; (seq (reduce process-match teams-with-rankings matches)))))) (defn process-match [ts match] (let [{:keys [home away home_score away_score]} match] (cond (&gt; home_score away_score) (-&gt; ts (update-in [home :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (&gt; away_score home_score) (-&gt; ts (update-in [home :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (= home_score away_score) ts))) &gt; (take 5 all-matches) ({:home &#34;Tampere&#34;, :away &#34;Pyunik Erewan&#34;, :home_score 0, :away_score 4} {:home &#34;Pyunik Erewan&#34;, :away &#34;Tampere&#34;, :home_score 2, :away_score 0} {:home &#34;Skonto Riga&#34;, :away &#34;Barry Town&#34;, :home_score 5, :away_score 0} {:home &#34;Barry Town&#34;, :away &#34;Skonto Riga&#34;, :home_score 0, :away_score 1} {:home &#34;Portadown&#34;, :away &#34;Belshina Bobruisk&#34;, :home_score 0, :away_score 0}) &gt; (extract-teams (take 5 all-matches)) #{&#34;Portadown&#34; &#34;Tampere&#34; &#34;Pyunik Erewan&#34; &#34;Barry Town&#34; &#34;Skonto Riga&#34;} &gt; (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches))) (&#34;Portadown&#34; {:points 1200} &#34;Tampere&#34; {:points 1200} &#34;Pyunik Erewan&#34; {:points 1200} &#34;Barry Town&#34; {:points 1200} &#34;Skonto Riga&#34; {:points 1200}) &gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches)))) {&#34;Portadown&#34; {:points 1200}, &#34;Tampere&#34; {:points 1200}, &#34;Pyunik Erewan&#34; {:points 1200}, &#34;Barry Town&#34; {:points 1200}, &#34;Skonto Riga&#34; {:points 1200}} &gt; (top-teams 10 all-matches) ([&#34;CF Barcelona&#34; {:points 1343." />
+        <meta name="description" content="As I mentioned in an earlier blog post I&#8217;ve been learning about ranking systems and one of the first ones I came across was the Elo rating system which is most famously used to rank chess players.
+ The Elo rating system uses the following formula to work out a player/team&#8217;s ranking after they&#8217;ve participated in a match:
+  R&#39; = R &#43; K * (S - E)
+   R&#39; is the new rating" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +69,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-08-31",
-        "description": "(defn ranking-after-win [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (\x2b ranking (* importance (- 1 (expected ranking opponent-ranking) )))) (defn ranking-after-loss [{ ranking :ranking opponent-ranking :opponent-ranking importance :importance}] (\x2b ranking (* importance (- 0 (expected ranking opponent-ranking) )))) (defn expected [my-ranking opponent-ranking] (\/ 1.0 (\x2b 1 (math\/expt 10 (\/ (- opponent-ranking my-ranking) 400))))) \x26gt; (ranking-after-win { :ranking 1200 :opponent-ranking 1500 :importance 32 }) 1227.1686541692377 \x26gt; (expected 1200 1500) 0.15097955721132328 (defn top-teams [number matches] (let [teams-with-rankings (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams matches)))] (take number (sort-by (fn [x] (:points (val x))) \x26gt; (seq (reduce process-match teams-with-rankings matches)))))) (defn process-match [ts match] (let [{:keys [home away home_score away_score]} match] (cond (\x26gt; home_score away_score) (-\x26gt; ts (update-in [home :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (\x26gt; away_score home_score) (-\x26gt; ts (update-in [home :points] #(ranking-after-loss {:ranking % :opponent-ranking (:points (get ts away)) :importance 32})) (update-in [away :points] #(ranking-after-win {:ranking % :opponent-ranking (:points (get ts home)) :importance 32}))) (= home_score away_score) ts))) \x26gt; (take 5 all-matches) ({:home \x26#34;Tampere\x26#34;, :away \x26#34;Pyunik Erewan\x26#34;, :home_score 0, :away_score 4} {:home \x26#34;Pyunik Erewan\x26#34;, :away \x26#34;Tampere\x26#34;, :home_score 2, :away_score 0} {:home \x26#34;Skonto Riga\x26#34;, :away \x26#34;Barry Town\x26#34;, :home_score 5, :away_score 0} {:home \x26#34;Barry Town\x26#34;, :away \x26#34;Skonto Riga\x26#34;, :home_score 0, :away_score 1} {:home \x26#34;Portadown\x26#34;, :away \x26#34;Belshina Bobruisk\x26#34;, :home_score 0, :away_score 0}) \x26gt; (extract-teams (take 5 all-matches)) #{\x26#34;Portadown\x26#34; \x26#34;Tampere\x26#34; \x26#34;Pyunik Erewan\x26#34; \x26#34;Barry Town\x26#34; \x26#34;Skonto Riga\x26#34;} \x26gt; (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches))) (\x26#34;Portadown\x26#34; {:points 1200} \x26#34;Tampere\x26#34; {:points 1200} \x26#34;Pyunik Erewan\x26#34; {:points 1200} \x26#34;Barry Town\x26#34; {:points 1200} \x26#34;Skonto Riga\x26#34; {:points 1200}) \x26gt; (apply array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take 5 all-matches)))) {\x26#34;Portadown\x26#34; {:points 1200}, \x26#34;Tampere\x26#34; {:points 1200}, \x26#34;Pyunik Erewan\x26#34; {:points 1200}, \x26#34;Barry Town\x26#34; {:points 1200}, \x26#34;Skonto Riga\x26#34; {:points 1200}} \x26gt; (top-teams 10 all-matches) ([\x26#34;CF Barcelona\x26#34; {:points 1343.",
-        "wordCount":  480 
+        "description": "As I mentioned in an earlier blog post I\x26#8217;ve been learning about ranking systems and one of the first ones I came across was the Elo rating system which is most famously used to rank chess players.\n The Elo rating system uses the following formula to work out a player\/team\x26#8217;s ranking after they\x26#8217;ve participated in a match:\n  R\x27 = R \x2b K * (S - E)\n   R\x27 is the new rating",
+        "wordCount":  566 
     }
     </script>
     
@@ -175,122 +181,89 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Elo Rating System: Ranking Champions League teams using Clojure</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(defn ranking-after-win
-  [{ ranking <span style="color:#e6db74">:ranking</span> opponent-ranking <span style="color:#e6db74">:opponent-ranking</span> importance <span style="color:#e6db74">:importance}]</span>
-  (<span style="color:#a6e22e">+</span> ranking (<span style="color:#a6e22e">*</span> importance (<span style="color:#a6e22e">-</span> <span style="color:#ae81ff">1</span> (expected ranking opponent-ranking) ))))
-
-(defn ranking-after-loss
-  [{ ranking <span style="color:#e6db74">:ranking</span> opponent-ranking <span style="color:#e6db74">:opponent-ranking</span> importance <span style="color:#e6db74">:importance}]</span>
-  (<span style="color:#a6e22e">+</span> ranking (<span style="color:#a6e22e">*</span> importance (<span style="color:#a6e22e">-</span> <span style="color:#ae81ff">0</span> (expected ranking opponent-ranking) ))))
-
-(defn expected [my-ranking opponent-ranking]
-  (<span style="color:#a6e22e">/</span> <span style="color:#ae81ff">1.0</span>
-     (<span style="color:#a6e22e">+</span> <span style="color:#ae81ff">1</span> (math/expt <span style="color:#ae81ff">10</span> (<span style="color:#a6e22e">/</span> (<span style="color:#a6e22e">-</span> opponent-ranking my-ranking) <span style="color:#ae81ff">400</span>)))))
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (ranking-after-win { <span style="color:#e6db74">:ranking</span> <span style="color:#ae81ff">1200</span> <span style="color:#e6db74">:opponent-ranking</span> <span style="color:#ae81ff">1500</span> <span style="color:#e6db74">:importance</span> <span style="color:#ae81ff">32</span> })
-<span style="color:#ae81ff">1227.1686541692377</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (expected <span style="color:#ae81ff">1200</span> <span style="color:#ae81ff">1500</span>)
-<span style="color:#ae81ff">0.15097955721132328</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(defn top-teams [number matches]
-  (<span style="color:#66d9ef">let</span> [teams-with-rankings
-    (<span style="color:#a6e22e">apply</span> array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams matches)))]
-      (take <span style="color:#a6e22e">number</span>
-        (sort-by (fn [x] (<span style="color:#e6db74">:points</span> (val x)))
-                 <span style="color:#a6e22e">&gt;</span>
-                 (seq (<span style="color:#a6e22e">reduce</span> process-match teams-with-rankings matches))))))
-
-(defn process-match [ts match]
-  (<span style="color:#66d9ef">let</span> [{:keys [home away home_score away_score]} match]
-    (cond
-     (<span style="color:#a6e22e">&gt;</span> home_score away_score)
-     (-&gt; ts
-         (update-in  [home <span style="color:#e6db74">:points]</span>
-                     <span style="color:#f92672">#(</span>ranking-after-win {:ranking % <span style="color:#e6db74">:opponent-ranking</span> (<span style="color:#e6db74">:points</span> (<span style="color:#a6e22e">get</span> ts away)) <span style="color:#e6db74">:importance</span> 32}))
-         (update-in  [away <span style="color:#e6db74">:points]</span>
-                     <span style="color:#f92672">#(</span>ranking-after-loss {:ranking % <span style="color:#e6db74">:opponent-ranking</span> (<span style="color:#e6db74">:points</span> (<span style="color:#a6e22e">get</span> ts home)) <span style="color:#e6db74">:importance</span> 32}))) 
-     (<span style="color:#a6e22e">&gt;</span> away_score home_score)
-     (-&gt; ts
-         (update-in  [home <span style="color:#e6db74">:points]</span>
-                     <span style="color:#f92672">#(</span>ranking-after-loss {:ranking % <span style="color:#e6db74">:opponent-ranking</span> (<span style="color:#e6db74">:points</span>  (<span style="color:#a6e22e">get</span> ts away)) <span style="color:#e6db74">:importance</span> 32}))
-         (update-in  [away <span style="color:#e6db74">:points]</span>
-                     <span style="color:#f92672">#(</span>ranking-after-win {:ranking % <span style="color:#e6db74">:opponent-ranking</span> (<span style="color:#e6db74">:points</span> (<span style="color:#a6e22e">get</span> ts home)) <span style="color:#e6db74">:importance</span> 32})))
-     (<span style="color:#a6e22e">=</span> home_score away_score) ts)))
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (take <span style="color:#ae81ff">5</span> all-matches)
-({:home <span style="color:#e6db74">&#34;Tampere&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away</span> <span style="color:#e6db74">&#34;Pyunik Erewan&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:home_score</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away_score</span> 4} {:home <span style="color:#e6db74">&#34;Pyunik Erewan&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away</span> <span style="color:#e6db74">&#34;Tampere&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:home_score</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away_score</span> 0} {:home <span style="color:#e6db74">&#34;Skonto Riga&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away</span> <span style="color:#e6db74">&#34;Barry Town&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:home_score</span> <span style="color:#ae81ff">5</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away_score</span> 0} {:home <span style="color:#e6db74">&#34;Barry Town&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away</span> <span style="color:#e6db74">&#34;Skonto Riga&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:home_score</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away_score</span> 1} {:home <span style="color:#e6db74">&#34;Portadown&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away</span> <span style="color:#e6db74">&#34;Belshina Bobruisk&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:home_score</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:away_score</span> 0})
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (extract-teams (take <span style="color:#ae81ff">5</span> all-matches))
-<span style="color:#960050;background-color:#1e0010">#</span>{<span style="color:#e6db74">&#34;Portadown&#34;</span> <span style="color:#e6db74">&#34;Tampere&#34;</span> <span style="color:#e6db74">&#34;Pyunik Erewan&#34;</span> <span style="color:#e6db74">&#34;Barry Town&#34;</span> <span style="color:#e6db74">&#34;Skonto Riga&#34;</span>}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take <span style="color:#ae81ff">5</span> all-matches)))
-(<span style="color:#e6db74">&#34;Portadown&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Tampere&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Pyunik Erewan&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Barry Town&#34;</span> {:points 1200} <span style="color:#e6db74">&#34;Skonto Riga&#34;</span> {:points 1200})
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">apply</span> array-map (mapcat (fn [x] [x {:points 1200}]) (extract-teams (take <span style="color:#ae81ff">5</span> all-matches))))
-{<span style="color:#e6db74">&#34;Portadown&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Tampere&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Pyunik Erewan&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Barry Town&#34;</span> {:points 1200}, <span style="color:#e6db74">&#34;Skonto Riga&#34;</span> {:points 1200}}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (top-teams <span style="color:#ae81ff">10</span> all-matches)
-([<span style="color:#e6db74">&#34;CF Barcelona&#34;</span> {:points 1343.900393287903}] 
- [<span style="color:#e6db74">&#34;Manchester United&#34;</span> {:points 1292.4731214788262}] 
- [<span style="color:#e6db74">&#34;FC Valencia&#34;</span> {:points 1277.1820905112208}] 
- [<span style="color:#e6db74">&#34;Internazionale Milaan&#34;</span> {:points 1269.8028023141364}] 
- [<span style="color:#e6db74">&#34;AC Milan&#34;</span> {:points 1257.4564374787687}]
- [<span style="color:#e6db74">&#34;Juventus Turijn&#34;</span> {:points 1254.2498432522466}] 
- [<span style="color:#e6db74">&#34;Real Madrid&#34;</span> {:points 1248.0758162475993}] 
- [<span style="color:#e6db74">&#34;Deportivo La Coruna&#34;</span> {:points 1235.7792317210403}] 
- [<span style="color:#e6db74">&#34;Borussia Dortmund&#34;</span> {:points 1231.1671952364256}] 
- [<span style="color:#e6db74">&#34;Sparta Praag&#34;</span> {:points 1229.3249513256828}])
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(defn show-matches [team matches]
-  (-&gt;&gt; matches
-       (filter <span style="color:#f92672">#(</span>or (<span style="color:#a6e22e">=</span> team (<span style="color:#e6db74">:home</span> %)) (<span style="color:#a6e22e">=</span> team (<span style="color:#e6db74">:away</span> %))))
-       (<span style="color:#a6e22e">map</span> <span style="color:#f92672">#(</span>show-opposition team %))))
-
-(defn show-opposition [team match]
-  (<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">=</span> team (<span style="color:#e6db74">:home</span> match))
-    {:opposition (<span style="color:#e6db74">:away</span> match) <span style="color:#e6db74">:score</span> (str (<span style="color:#e6db74">:home_score</span> match) <span style="color:#e6db74">&#34;-&#34;</span> (<span style="color:#e6db74">:away_score</span> match))}
-    {:opposition (<span style="color:#e6db74">:home</span> match) <span style="color:#e6db74">:score</span> (str (<span style="color:#e6db74">:away_score</span> match) <span style="color:#e6db74">&#34;-&#34;</span> (<span style="color:#e6db74">:home_score</span> match))}))
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-ranking-algorithms.parse&gt; (show-matches <span style="color:#e6db74">&#34;Juventus Turijn&#34;</span> all-matches)
-({:opposition <span style="color:#e6db74">&#34;Feyenoord&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;1-1&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Dynamo Kiev&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;5-0&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Newcastle United&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;2-0&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Newcastle United&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;0-1&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Feyenoord&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;2-0&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Dynamo Kiev&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;2-1&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Deportivo La Coruna&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;2-2&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;FC Basel&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;4-0&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Manchester United&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;1-2&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Manchester United&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;0-3&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Deportivo La Coruna&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;3-2&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;FC Basel&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;1-2&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;CF Barcelona&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;1-1&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;CF Barcelona&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;2-1&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Real Madrid&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;1-2&#34;</span>} 
- {:opposition <span style="color:#e6db74">&#34;Real Madrid&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:score</span> <span style="color:#e6db74">&#34;3-1&#34;</span>})
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+    <div class="paragraph">
+<p>As I mentioned in an earlier blog post <a href="http://www.markhneedham.com/blog/2013/08/24/ranking-systems-what-ive-learnt-so-far/">I&#8217;ve been learning about ranking systems</a> and one of the first ones I came across was the <a href="http://en.wikipedia.org/wiki/Elo_rating_system">Elo rating system</a> which is most famously used to rank chess players.</p>
+</div>
+<div class="paragraph">
+<p>The Elo rating system uses the following formula to work out a player/team&#8217;s ranking after they&#8217;ve participated in a match:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>R' = R + K * (S - E)</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>R' is the new rating</p>
+</li>
+<li>
+<p>R is the old rating</p>
+</li>
+<li>
+<p>K is a maximum value for increase or decrease of rating (16 or 32 for ELO)</p>
+</li>
+<li>
+<p>S is the score for a game</p>
+</li>
+<li>
+<p>E is the expected score for a game</p>
+<div class="paragraph">
+<p>I converted that formula into the following Clojure functions:</p>
+</div>
+<div class="paragraph">
+<p>which would be called like this to work out the new ranking of a team ranked 1200 that beat a team ranked 1500:</p>
+</div>
+<div class="paragraph">
+<p>The way it works is that we first work out the likelihood that we should win the match by calling <cite>expected</cite>:</p>
+</div>
+<div class="paragraph">
+<p>This tells us that we have a 15% chance of winning the match so if we do win then our ranking should be increased by a large amount as we aren&#8217;t expected to win. In this case a win gives us a points increase of '32 * (1-0.15)' which is ~27 points.</p>
+</div>
+<div class="paragraph">
+<p>I kept things simple by always setting the importance/maximum value of increase or decrease to 32. The <a href="http://www.eloratings.net/system.html">World Football Rankings</a> took a different approach where they vary it based on the importance of a match and the margin of victory.</p>
+</div>
+<div class="paragraph">
+<p>I decided to try out the algorithm on the 2002/2003 Champions League season. I was able to <a href="http://www.rsssf.com/ec/ec200203det.html">grab the data</a> from The Rec Sport Soccer Statistics Foundation and I&#8217;ve written previously about <a href="http://www.markhneedham.com/blog/2013/08/26/clojureenlive-screen-scraping-a-html-file-from-disk/">how I scraped it using Enlive</a>.</p>
+</div>
+<div class="paragraph">
+<p>With a lot of help from <a href="https://twitter.com/pbostrom">Paul Bostrom</a> I ended up with the following code to run a reduce over the matches while updating team rankings after each match:</p>
+</div>
+<div class="paragraph">
+<p>The <cite>matches</cite> parameter that we pass into <cite>top-teams</cite> <a href="https://github.com/mneedham/ranking-algorithms/blob/master/src/ranking_algorithms/parse.clj#L20">looks like this</a>:</p>
+</div>
+<div class="paragraph">
+<p>And calling <cite>https://github.com/mneedham/ranking-algorithms/blob/master/src/ranking_algorithms/parse.clj#L22<span class="extract-teams"></cite></span> on it gets us a set of all the teams involved:</p>
+</div>
+<div class="paragraph">
+<p>We then <cite>http://clojuredocs.org/clojure_core/clojure.core/mapcat<span class="mapcat"></cite></span> over it to get a vector containing team/default points pairs:</p>
+</div>
+<div class="paragraph">
+<p>before calling <cite>http://clojuredocs.org/clojure_core/clojure.core/array-map<span class="array-map"></cite></span> to make a hash of the result:</p>
+</div>
+<div class="paragraph">
+<p>We then apply a reduce over all the matches and call the function <cite>process-match</cite> on each iteration to update team rankings appropriately. The final step is to sort the teams by their ranking so we can list the top teams:</p>
+</div>
+<div class="paragraph">
+<p>Interestingly the winners (Juventus) are only in 5th place and the top 2 places are occupied by teams that lost in the Quarter Final. I wrote the following functions to investigate what was going on:</p>
+</div>
+<div class="paragraph">
+<p>If we call it with Juventus we can see how they performed in their matches:</p>
+</div>
+<div class="paragraph">
+<p>Although I&#8217;m missing the final - I need to fix the parser to pick that match up and it was a draw anyway - they actually only won 8 of their matches outright. Barcelona, on the other hand, won 13 matches although 2 of those were qualifiers.</p>
+</div>
+<div class="paragraph">
+<p>The next step is to take into account the importance of the match rather than applying an importance of 32 across the board and adding some value to winning a tie/match even if it&#8217;s on penalties or away goals.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/ranking-algorithms/tree/master/src/ranking_algorithms">code is on github</a> if you want to play around with it or have suggestions for something else I can try out.</p>
+</div>
+</li>
+</ul>
+</div>
+</blockquote>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -325,7 +298,7 @@ ranking-algorithms.parse&gt; (show-matches <span style="color:#e6db74">&#34;Juve
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/08/31/elo-rating-system-ranking-champions-league-teams-using-clojure/&amp;title=Elo%20Rating%20System%3a%20Ranking%20Champions%20League%20teams%20using%20Clojure&amp;summary=%28defn%20ranking-after-win%20%5b%7b%20ranking%20%3aranking%20opponent-ranking%20%3aopponent-ranking%20importance%20%3aimportance%7d%5d%20%28%2b%20ranking%20%28%2a%20importance%20%28-%201%20%28expected%20ranking%20opponent-ranking%29%20%29%29%29%29%20%28defn%20ranking-after-loss%20%5b%7b%20ranking%20%3aranking%20opponent-ranking%20%3aopponent-ranking%20importance%20%3aimportance%7d%5d%20%28%2b%20ranking%20%28%2a%20importance%20%28-%200%20%28expected%20ranking%20opponent-ranking%29%20%29%29%29%29%20%28defn%20expected%20%5bmy-ranking%20opponent-ranking%5d%20%28%2f%201.0%20%28%2b%201%20%28math%2fexpt%2010%20%28%2f%20%28-%20opponent-ranking%20my-ranking%29%20400%29%29%29%29%29%20%26gt%3b%20%28ranking-after-win%20%7b%20%3aranking%201200%20%3aopponent-ranking%201500%20%3aimportance%2032%20%7d%29%201227.1686541692377%20%26gt%3b%20%28expected%201200%201500%29%200.15097955721132328%20%28defn%20top-teams%20%5bnumber%20matches%5d%20%28let%20%5bteams-with-rankings%20%28apply%20array-map%20%28mapcat%20%28fn%20%5bx%5d%20%5bx%20%7b%3apoints%201200%7d%5d%29%20%28extract-teams%20matches%29%29%29%5d%20%28take%20number%20%28sort-by%20%28fn%20%5bx%5d%20%28%3apoints%20%28val%20x%29%29%29%20%26gt%3b%20%28seq%20%28reduce%20process-match%20teams-with-rankings%20matches%29%29%29%29%29%29%20%28defn%20process-match%20%5bts%20match%5d%20%28let%20%5b%7b%3akeys%20%5bhome%20away%20home_score%20away_score%5d%7d%20match%5d%20%28cond%20%28%26gt%3b%20home_score%20away_score%29%20%28-%26gt%3b%20ts%20%28update-in%20%5bhome%20%3apoints%5d%20%23%28ranking-after-win%20%7b%3aranking%20%25%20%3aopponent-ranking%20%28%3apoints%20%28get%20ts%20away%29%29%20%3aimportance%2032%7d%29%29%20%28update-in%20%5baway%20%3apoints%5d%20%23%28ranking-after-loss%20%7b%3aranking%20%25%20%3aopponent-ranking%20%28%3apoints%20%28get%20ts%20home%29%29%20%3aimportance%2032%7d%29%29%29%20%28%26gt%3b%20away_score%20home_score%29%20%28-%26gt%3b%20ts%20%28update-in%20%5bhome%20%3apoints%5d%20%23%28ranking-after-loss%20%7b%3aranking%20%25%20%3aopponent-ranking%20%28%3apoints%20%28get%20ts%20away%29%29%20%3aimportance%2032%7d%29%29%20%28update-in%20%5baway%20%3apoints%5d%20%23%28ranking-after-win%20%7b%3aranking%20%25%20%3aopponent-ranking%20%28%3apoints%20%28get%20ts%20home%29%29%20%3aimportance%2032%7d%29%29%29%20%28%3d%20home_score%20away_score%29%20ts%29%29%29%20%26gt%3b%20%28take%205%20all-matches%29%20%28%7b%3ahome%20%26%2334%3bTampere%26%2334%3b%2c%20%3aaway%20%26%2334%3bPyunik%20Erewan%26%2334%3b%2c%20%3ahome_score%200%2c%20%3aaway_score%204%7d%20%7b%3ahome%20%26%2334%3bPyunik%20Erewan%26%2334%3b%2c%20%3aaway%20%26%2334%3bTampere%26%2334%3b%2c%20%3ahome_score%202%2c%20%3aaway_score%200%7d%20%7b%3ahome%20%26%2334%3bSkonto%20Riga%26%2334%3b%2c%20%3aaway%20%26%2334%3bBarry%20Town%26%2334%3b%2c%20%3ahome_score%205%2c%20%3aaway_score%200%7d%20%7b%3ahome%20%26%2334%3bBarry%20Town%26%2334%3b%2c%20%3aaway%20%26%2334%3bSkonto%20Riga%26%2334%3b%2c%20%3ahome_score%200%2c%20%3aaway_score%201%7d%20%7b%3ahome%20%26%2334%3bPortadown%26%2334%3b%2c%20%3aaway%20%26%2334%3bBelshina%20Bobruisk%26%2334%3b%2c%20%3ahome_score%200%2c%20%3aaway_score%200%7d%29%20%26gt%3b%20%28extract-teams%20%28take%205%20all-matches%29%29%20%23%7b%26%2334%3bPortadown%26%2334%3b%20%26%2334%3bTampere%26%2334%3b%20%26%2334%3bPyunik%20Erewan%26%2334%3b%20%26%2334%3bBarry%20Town%26%2334%3b%20%26%2334%3bSkonto%20Riga%26%2334%3b%7d%20%26gt%3b%20%28mapcat%20%28fn%20%5bx%5d%20%5bx%20%7b%3apoints%201200%7d%5d%29%20%28extract-teams%20%28take%205%20all-matches%29%29%29%20%28%26%2334%3bPortadown%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bTampere%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bPyunik%20Erewan%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bBarry%20Town%26%2334%3b%20%7b%3apoints%201200%7d%20%26%2334%3bSkonto%20Riga%26%2334%3b%20%7b%3apoints%201200%7d%29%20%26gt%3b%20%28apply%20array-map%20%28mapcat%20%28fn%20%5bx%5d%20%5bx%20%7b%3apoints%201200%7d%5d%29%20%28extract-teams%20%28take%205%20all-matches%29%29%29%29%20%7b%26%2334%3bPortadown%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bTampere%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bPyunik%20Erewan%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bBarry%20Town%26%2334%3b%20%7b%3apoints%201200%7d%2c%20%26%2334%3bSkonto%20Riga%26%2334%3b%20%7b%3apoints%201200%7d%7d%20%26gt%3b%20%28top-teams%2010%20all-matches%29%20%28%5b%26%2334%3bCF%20Barcelona%26%2334%3b%20%7b%3apoints%201343...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/08/31/elo-rating-system-ranking-champions-league-teams-using-clojure/&amp;title=Elo%20Rating%20System%3a%20Ranking%20Champions%20League%20teams%20using%20Clojure&amp;summary=As%20I%20mentioned%20in%20an%20earlier%20blog%20post%20I%26%238217%3bve%20been%20learning%20about%20ranking%20systems%20and%20one%20of%20the%20first%20ones%20I%20came%20across%20was%20the%20Elo%20rating%20system%20which%20is%20most%20famously%20used%20to%20rank%20chess%20players.%0a%20The%20Elo%20rating%20system%20uses%20the%20following%20formula%20to%20work%20out%20a%20player%2fteam%26%238217%3bs%20ranking%20after%20they%26%238217%3bve%20participated%20in%20a%20match%3a%0a%20%20R%27%20%3d%20R%20%2b%20K%20%2a%20%28S%20-%20E%29%0a%20%20%20R%27%20is%20the%20new%20rating..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

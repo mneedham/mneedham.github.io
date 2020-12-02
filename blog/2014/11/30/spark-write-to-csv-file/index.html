@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Spark: Write to CSV file" />
         
-          <meta name="twitter:description" content="import au.com.bytecode.opencsv.CSVParser import org.apache.spark.rdd.RDD import org.apache.spark.SparkContext._ def dropHeader(data: RDD[String]): RDD[String] = { data.mapPartitionsWithIndex((idx, lines) =&gt; { if (idx == 0) { lines.drop(1) } lines }) } // https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2 val crimeFile = &#34;/Users/markneedham/Downloads/Crimes_-_2001_to_present.csv&#34; val crimeData = sc.textFile(crimeFile).cache() val withoutHeader: RDD[String] = dropHeader(crimeData) val file = &#34;/tmp/primaryTypes.csv&#34; FileUtil.fullyDelete(new File(file)) val partitions: RDD[(String, Int)] = withoutHeader.mapPartitions(lines =&gt; { val parser = new CSVParser(&#39;,&#39;) lines.map(line =&gt; { val columns = parser.parseLine(line) (columns(5), 1) }) }) val counts = partitions." />
+          <meta name="twitter:description" content="A couple of weeks ago I wrote how I&#8217;d been using Spark to explore a City of Chicago Crime data set and having worked out how many of each crime had been committed I wanted to write that to a CSV file.
+ Spark provides a saveAsTextFile function which allows us to save RDD&#8217;s so I refactored my code into the following format to allow me to use that:
+ import au." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/11/30/spark-write-to-csv-file/" />
 
@@ -33,7 +35,9 @@
         <title> Spark: Write to CSV file &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="import au.com.bytecode.opencsv.CSVParser import org.apache.spark.rdd.RDD import org.apache.spark.SparkContext._ def dropHeader(data: RDD[String]): RDD[String] = { data.mapPartitionsWithIndex((idx, lines) =&gt; { if (idx == 0) { lines.drop(1) } lines }) } // https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2 val crimeFile = &#34;/Users/markneedham/Downloads/Crimes_-_2001_to_present.csv&#34; val crimeData = sc.textFile(crimeFile).cache() val withoutHeader: RDD[String] = dropHeader(crimeData) val file = &#34;/tmp/primaryTypes.csv&#34; FileUtil.fullyDelete(new File(file)) val partitions: RDD[(String, Int)] = withoutHeader.mapPartitions(lines =&gt; { val parser = new CSVParser(&#39;,&#39;) lines.map(line =&gt; { val columns = parser.parseLine(line) (columns(5), 1) }) }) val counts = partitions." />
+        <meta name="description" content="A couple of weeks ago I wrote how I&#8217;d been using Spark to explore a City of Chicago Crime data set and having worked out how many of each crime had been committed I wanted to write that to a CSV file.
+ Spark provides a saveAsTextFile function which allows us to save RDD&#8217;s so I refactored my code into the following format to allow me to use that:
+ import au." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-11-30",
-        "description": "import au.com.bytecode.opencsv.CSVParser import org.apache.spark.rdd.RDD import org.apache.spark.SparkContext._ def dropHeader(data: RDD[String]): RDD[String] = { data.mapPartitionsWithIndex((idx, lines) =\x26gt; { if (idx == 0) { lines.drop(1) } lines }) } \/\/ https:\/\/data.cityofchicago.org\/Public-Safety\/Crimes-2001-to-present\/ijzp-q8t2 val crimeFile = \x26#34;\/Users\/markneedham\/Downloads\/Crimes_-_2001_to_present.csv\x26#34; val crimeData = sc.textFile(crimeFile).cache() val withoutHeader: RDD[String] = dropHeader(crimeData) val file = \x26#34;\/tmp\/primaryTypes.csv\x26#34; FileUtil.fullyDelete(new File(file)) val partitions: RDD[(String, Int)] = withoutHeader.mapPartitions(lines =\x26gt; { val parser = new CSVParser(\x26#39;,\x26#39;) lines.map(line =\x26gt; { val columns = parser.parseLine(line) (columns(5), 1) }) }) val counts = partitions.",
-        "wordCount":  472 
+        "description": "A couple of weeks ago I wrote how I\x26#8217;d been using Spark to explore a City of Chicago Crime data set and having worked out how many of each crime had been committed I wanted to write that to a CSV file.\n Spark provides a saveAsTextFile function which allows us to save RDD\x26#8217;s so I refactored my code into the following format to allow me to use that:\n import au.",
+        "wordCount":  738 
     }
     </script>
     
@@ -172,84 +176,111 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Spark: Write to CSV file</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">import</span> au.com.bytecode.opencsv.CSVParser
-<span style="color:#66d9ef">import</span> org.apache.spark.rdd.RDD
-<span style="color:#66d9ef">import</span> org.apache.spark.SparkContext._
+    <div class="paragraph">
+<p>A couple of weeks ago I wrote how I&#8217;d been <a href="http://www.markhneedham.com/blog/2014/11/16/spark-parse-csv-file-and-group-by-column-value/">using Spark to explore a City of Chicago Crime data set</a> and having worked out how many of each crime had been committed I wanted to write that to a CSV file.</p>
+</div>
+<div class="paragraph">
+<p>Spark provides a <cite>saveAsTextFile</cite> function which allows us to save RDD&#8217;s so I refactored my code into the following format to allow me to use that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">import au.com.bytecode.opencsv.CSVParser
+import org.apache.spark.rdd.RDD
+import org.apache.spark.SparkContext._
 
-<span style="color:#66d9ef">def</span> dropHeader<span style="color:#f92672">(</span>data<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">RDD</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">RDD</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> <span style="color:#f92672">{</span>
-  data<span style="color:#f92672">.</span>mapPartitionsWithIndex<span style="color:#f92672">((</span>idx<span style="color:#f92672">,</span> lines<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>idx <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-      lines<span style="color:#f92672">.</span>drop<span style="color:#f92672">(</span><span style="color:#ae81ff">1</span><span style="color:#f92672">)</span>
-    <span style="color:#f92672">}</span>
+def dropHeader(data: RDD[String]): RDD[String] = {
+  data.mapPartitionsWithIndex((idx, lines) =&gt; {
+    if (idx == 0) {
+      lines.drop(1)
+    }
     lines
-  <span style="color:#f92672">})</span>
-<span style="color:#f92672">}</span>
+  })
+}
 
-<span style="color:#75715e">// https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> crimeFile <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;/Users/markneedham/Downloads/Crimes_-_2001_to_present.csv&#34;</span>
+// https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2
+val crimeFile = "/Users/markneedham/Downloads/Crimes_-_2001_to_present.csv"
 
-<span style="color:#66d9ef">val</span> crimeData <span style="color:#66d9ef">=</span> sc<span style="color:#f92672">.</span>textFile<span style="color:#f92672">(</span>crimeFile<span style="color:#f92672">).</span>cache<span style="color:#f92672">()</span>
-<span style="color:#66d9ef">val</span> withoutHeader<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">RDD</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> dropHeader<span style="color:#f92672">(</span>crimeData<span style="color:#f92672">)</span>
+val crimeData = sc.textFile(crimeFile).cache()
+val withoutHeader: RDD[String] = dropHeader(crimeData)
 
-<span style="color:#66d9ef">val</span> file <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;/tmp/primaryTypes.csv&#34;</span>
-<span style="color:#a6e22e">FileUtil</span><span style="color:#f92672">.</span>fullyDelete<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> <span style="color:#a6e22e">File</span><span style="color:#f92672">(</span>file<span style="color:#f92672">))</span>
+val file = "/tmp/primaryTypes.csv"
+FileUtil.fullyDelete(new File(file))
 
-<span style="color:#66d9ef">val</span> partitions<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">RDD</span><span style="color:#f92672">[(</span><span style="color:#66d9ef">String</span>, <span style="color:#66d9ef">Int</span><span style="color:#f92672">)]</span> <span style="color:#66d9ef">=</span> withoutHeader<span style="color:#f92672">.</span>mapPartitions<span style="color:#f92672">(</span>lines <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">{</span>
-  <span style="color:#66d9ef">val</span> parser <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">CSVParser</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;,&#39;</span><span style="color:#f92672">)</span>
-  lines<span style="color:#f92672">.</span>map<span style="color:#f92672">(</span>line <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">val</span> columns <span style="color:#66d9ef">=</span> parser<span style="color:#f92672">.</span>parseLine<span style="color:#f92672">(</span>line<span style="color:#f92672">)</span>
-    <span style="color:#f92672">(</span>columns<span style="color:#f92672">(</span><span style="color:#ae81ff">5</span><span style="color:#f92672">),</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">)</span>
-  <span style="color:#f92672">})</span>
-<span style="color:#f92672">})</span>
+val partitions: RDD[(String, Int)] = withoutHeader.mapPartitions(lines =&gt; {
+  val parser = new CSVParser(',')
+  lines.map(line =&gt; {
+    val columns = parser.parseLine(line)
+    (columns(5), 1)
+  })
+})
 
-<span style="color:#66d9ef">val</span> counts <span style="color:#66d9ef">=</span> partitions<span style="color:#f92672">.</span>
-  reduceByKey <span style="color:#f92672">{</span><span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">,</span>y<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> x <span style="color:#f92672">+</span> y<span style="color:#f92672">}.</span>
-  sortBy <span style="color:#f92672">{</span><span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">-</span>value<span style="color:#f92672">}.</span>
-  map <span style="color:#f92672">{</span> <span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Array</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">).</span>mkString<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">}</span>
+val counts = partitions.
+  reduceByKey {case (x,y) =&gt; x + y}.
+  sortBy {case (key, value) =&gt; -value}.
+  map { case (key, value) =&gt; Array(key, value).mkString(",") }
 
-counts<span style="color:#f92672">.</span>saveAsTextFile<span style="color:#f92672">(</span>file<span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ ls -lah /tmp/primaryTypes.csv/
-total <span style="color:#ae81ff">496</span>
-drwxr-xr-x  <span style="color:#ae81ff">66</span> markneedham  wheel   2.2K <span style="color:#ae81ff">30</span> Nov 07:17 .
-drwxrwxrwt  <span style="color:#ae81ff">80</span> root         wheel   2.7K <span style="color:#ae81ff">30</span> Nov 07:16 ..
--rw-r--r--   <span style="color:#ae81ff">1</span> markneedham  wheel     8B <span style="color:#ae81ff">30</span> Nov 07:16 ._SUCCESS.crc
--rw-r--r--   <span style="color:#ae81ff">1</span> markneedham  wheel    12B <span style="color:#ae81ff">30</span> Nov 07:16 .part-00000.crc
--rw-r--r--   <span style="color:#ae81ff">1</span> markneedham  wheel    12B <span style="color:#ae81ff">30</span> Nov 07:16 .part-00001.crc
--rw-r--r--   <span style="color:#ae81ff">1</span> markneedham  wheel    12B <span style="color:#ae81ff">30</span> Nov 07:16 .part-00002.crc
--rw-r--r--   <span style="color:#ae81ff">1</span> markneedham  wheel    12B <span style="color:#ae81ff">30</span> Nov 07:16 .part-00003.crc
+counts.saveAsTextFile(file)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that code from the Spark shell we end up with a folder called <cite>/tmp/primaryTypes.csv</cite> containing multiple part files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ ls -lah /tmp/primaryTypes.csv/
+total 496
+drwxr-xr-x  66 markneedham  wheel   2.2K 30 Nov 07:17 .
+drwxrwxrwt  80 root         wheel   2.7K 30 Nov 07:16 ..
+-rw-r--r--   1 markneedham  wheel     8B 30 Nov 07:16 ._SUCCESS.crc
+-rw-r--r--   1 markneedham  wheel    12B 30 Nov 07:16 .part-00000.crc
+-rw-r--r--   1 markneedham  wheel    12B 30 Nov 07:16 .part-00001.crc
+-rw-r--r--   1 markneedham  wheel    12B 30 Nov 07:16 .part-00002.crc
+-rw-r--r--   1 markneedham  wheel    12B 30 Nov 07:16 .part-00003.crc
 ...
--rwxrwxrwx   <span style="color:#ae81ff">1</span> markneedham  wheel     0B <span style="color:#ae81ff">30</span> Nov 07:16 _SUCCESS
--rwxrwxrwx   <span style="color:#ae81ff">1</span> markneedham  wheel    28B <span style="color:#ae81ff">30</span> Nov 07:16 part-00000
--rwxrwxrwx   <span style="color:#ae81ff">1</span> markneedham  wheel    17B <span style="color:#ae81ff">30</span> Nov 07:16 part-00001
--rwxrwxrwx   <span style="color:#ae81ff">1</span> markneedham  wheel    23B <span style="color:#ae81ff">30</span> Nov 07:16 part-00002
--rwxrwxrwx   <span style="color:#ae81ff">1</span> markneedham  wheel    16B <span style="color:#ae81ff">30</span> Nov 07:16 part-00003
-...
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat /tmp/primaryTypes.csv/part-00000
+-rwxrwxrwx   1 markneedham  wheel     0B 30 Nov 07:16 _SUCCESS
+-rwxrwxrwx   1 markneedham  wheel    28B 30 Nov 07:16 part-00000
+-rwxrwxrwx   1 markneedham  wheel    17B 30 Nov 07:16 part-00001
+-rwxrwxrwx   1 markneedham  wheel    23B 30 Nov 07:16 part-00002
+-rwxrwxrwx   1 markneedham  wheel    16B 30 Nov 07:16 part-00003
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we look at some of those part files we can see that it&#8217;s written the crime types and counts as expected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat /tmp/primaryTypes.csv/part-00000
 THEFT,859197
 BATTERY,757530
 
 $ cat /tmp/primaryTypes.csv/part-00003
-BURGLARY,257310
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">val</span> counts <span style="color:#66d9ef">=</span> partitions<span style="color:#f92672">.</span>repartition<span style="color:#f92672">(</span><span style="color:#ae81ff">1</span><span style="color:#f92672">).</span>
-  reduceByKey <span style="color:#f92672">{</span><span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">,</span>y<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> x <span style="color:#f92672">+</span> y<span style="color:#f92672">}.</span>
-  sortBy <span style="color:#f92672">{</span><span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">-</span>value<span style="color:#f92672">}.</span>
-  map <span style="color:#f92672">{</span> <span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Array</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">).</span>mkString<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">}</span>
+BURGLARY,257310</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is fine if we&#8217;re going to <a href="http://stackoverflow.com/questions/23527941/how-to-write-to-csv-in-spark">pass those CSV files into another Hadoop based job</a> but I actually want a single CSV file so it&#8217;s not quite what I want.</p>
+</div>
+<div class="paragraph">
+<p>One way to achieve this is to force everything to be calculated on one partition which will mean we only get one part file generated:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">val counts = partitions.repartition(1).
+  reduceByKey {case (x,y) =&gt; x + y}.
+  sortBy {case (key, value) =&gt; -value}.
+  map { case (key, value) =&gt; Array(key, value).mkString(",") }
 
 
-counts<span style="color:#f92672">.</span>saveAsTextFile<span style="color:#f92672">(</span>file<span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat !$
+counts.saveAsTextFile(file)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>part-00000 now looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat !$
 cat /tmp/primaryTypes.csv/part-00000
 THEFT,859197
 BATTERY,757530
@@ -285,41 +316,65 @@ NON-CRIMINAL,12
 RITUALISM,12
 OTHER OFFENSE ,6
 NON - CRIMINAL,2
-NON-CRIMINAL <span style="color:#f92672">(</span>SUBJECT SPECIFIED<span style="color:#f92672">)</span>,2
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-libraryDependencies += &#34;org.apache.hadoop&#34; % &#34;hadoop-hdfs&#34; % &#34;2.5.2&#34;
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">import</span> org.apache.hadoop.conf.Configuration
-<span style="color:#66d9ef">import</span> org.apache.hadoop.fs._
+NON-CRIMINAL (SUBJECT SPECIFIED),2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This works but it&#8217;s quite a bit slower than when we were doing the aggregation across partitions so it&#8217;s not ideal.</p>
+</div>
+<div class="paragraph">
+<p>Instead, what we can do is make use of one of <a href="http://mail-archives.apache.org/mod_mbox/spark-user/201310.mbox/%<a href="mailto:3C5271F0B6.7000701@icsi.berkeley.edu">3C5271F0B6.7000701@icsi.berkeley.edu</a>%3E">Hadoop&#8217;s merge functions</a> which squashes part files together into a single file.</p>
+</div>
+<div class="paragraph">
+<p>First we import Hadoop into our SBT file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.5.2"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s bring our merge function into the Spark shell:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs._
 
-<span style="color:#66d9ef">def</span> merge<span style="color:#f92672">(</span>srcPath<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">,</span> dstPath<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Unit</span> <span style="color:#f92672">=</span>  <span style="color:#f92672">{</span>
-  <span style="color:#66d9ef">val</span> hadoopConfig <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Configuration</span><span style="color:#f92672">()</span>
-  <span style="color:#66d9ef">val</span> hdfs <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">FileSystem</span><span style="color:#f92672">.</span>get<span style="color:#f92672">(</span>hadoopConfig<span style="color:#f92672">)</span>
-  <span style="color:#a6e22e">FileUtil</span><span style="color:#f92672">.</span>copyMerge<span style="color:#f92672">(</span>hdfs<span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Path</span><span style="color:#f92672">(</span>srcPath<span style="color:#f92672">),</span> hdfs<span style="color:#f92672">,</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Path</span><span style="color:#f92672">(</span>dstPath<span style="color:#f92672">),</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">,</span> hadoopConfig<span style="color:#f92672">,</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">val</span> file <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;/tmp/primaryTypes.csv&#34;</span>
-<span style="color:#a6e22e">FileUtil</span><span style="color:#f92672">.</span>fullyDelete<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> <span style="color:#a6e22e">File</span><span style="color:#f92672">(</span>file<span style="color:#f92672">))</span>
+def merge(srcPath: String, dstPath: String): Unit =  {
+  val hadoopConfig = new Configuration()
+  val hdfs = FileSystem.get(hadoopConfig)
+  FileUtil.copyMerge(hdfs, new Path(srcPath), hdfs, new Path(dstPath), false, hadoopConfig, null)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And now let&#8217;s make use of it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">val file = "/tmp/primaryTypes.csv"
+FileUtil.fullyDelete(new File(file))
 
-<span style="color:#66d9ef">val</span> destinationFile<span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;/tmp/singlePrimaryTypes.csv&#34;</span>
-<span style="color:#a6e22e">FileUtil</span><span style="color:#f92672">.</span>fullyDelete<span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> <span style="color:#a6e22e">File</span><span style="color:#f92672">(</span>destinationFile<span style="color:#f92672">))</span>
+val destinationFile= "/tmp/singlePrimaryTypes.csv"
+FileUtil.fullyDelete(new File(destinationFile))
 
-<span style="color:#66d9ef">val</span> counts <span style="color:#66d9ef">=</span> partitions<span style="color:#f92672">.</span>
-reduceByKey <span style="color:#f92672">{</span><span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>x<span style="color:#f92672">,</span>y<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> x <span style="color:#f92672">+</span> y<span style="color:#f92672">}.</span>
-sortBy <span style="color:#f92672">{</span><span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">-</span>value<span style="color:#f92672">}.</span>
-map <span style="color:#f92672">{</span> <span style="color:#66d9ef">case</span> <span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Array</span><span style="color:#f92672">(</span>key<span style="color:#f92672">,</span> value<span style="color:#f92672">).</span>mkString<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">}</span>
+val counts = partitions.
+reduceByKey {case (x,y) =&gt; x + y}.
+sortBy {case (key, value) =&gt; -value}.
+map { case (key, value) =&gt; Array(key, value).mkString(",") }
 
-counts<span style="color:#f92672">.</span>saveAsTextFile<span style="color:#f92672">(</span>file<span style="color:#f92672">)</span>
+counts.saveAsTextFile(file)
 
-merge<span style="color:#f92672">(</span>file<span style="color:#f92672">,</span> destinationFile<span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat /tmp/singlePrimaryTypes.csv
+merge(file, destinationFile)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And now we&#8217;ve got the best of both worlds:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat /tmp/singlePrimaryTypes.csv
 THEFT,859197
 BATTERY,757530
 NARCOTICS,489528
@@ -354,8 +409,12 @@ RITUALISM,12
 NON-CRIMINAL,12
 OTHER OFFENSE ,6
 NON - CRIMINAL,2
-NON-CRIMINAL <span style="color:#f92672">(</span>SUBJECT SPECIFIED<span style="color:#f92672">)</span>,2
-</code></pre></div><!-- raw HTML omitted -->
+NON-CRIMINAL (SUBJECT SPECIFIED),2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The full code is available as a <a href="https://gist.github.com/mneedham/2fa4752749c8aba7f6b3">gist</a> if you want to play around with it.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -390,7 +449,7 @@ NON-CRIMINAL <span style="color:#f92672">(</span>SUBJECT SPECIFIED<span style="c
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/11/30/spark-write-to-csv-file/&amp;title=Spark%3a%20Write%20to%20CSV%20file&amp;summary=import%20au.com.bytecode.opencsv.CSVParser%20import%20org.apache.spark.rdd.RDD%20import%20org.apache.spark.SparkContext._%20def%20dropHeader%28data%3a%20RDD%5bString%5d%29%3a%20RDD%5bString%5d%20%3d%20%7b%20data.mapPartitionsWithIndex%28%28idx%2c%20lines%29%20%3d%26gt%3b%20%7b%20if%20%28idx%20%3d%3d%200%29%20%7b%20lines.drop%281%29%20%7d%20lines%20%7d%29%20%7d%20%2f%2f%20https%3a%2f%2fdata.cityofchicago.org%2fPublic-Safety%2fCrimes-2001-to-present%2fijzp-q8t2%20val%20crimeFile%20%3d%20%26%2334%3b%2fUsers%2fmarkneedham%2fDownloads%2fCrimes_-_2001_to_present.csv%26%2334%3b%20val%20crimeData%20%3d%20sc.textFile%28crimeFile%29.cache%28%29%20val%20withoutHeader%3a%20RDD%5bString%5d%20%3d%20dropHeader%28crimeData%29%20val%20file%20%3d%20%26%2334%3b%2ftmp%2fprimaryTypes.csv%26%2334%3b%20FileUtil.fullyDelete%28new%20File%28file%29%29%20val%20partitions%3a%20RDD%5b%28String%2c%20Int%29%5d%20%3d%20withoutHeader.mapPartitions%28lines%20%3d%26gt%3b%20%7b%20val%20parser%20%3d%20new%20CSVParser%28%26%2339%3b%2c%26%2339%3b%29%20lines.map%28line%20%3d%26gt%3b%20%7b%20val%20columns%20%3d%20parser.parseLine%28line%29%20%28columns%285%29%2c%201%29%20%7d%29%20%7d%29%20val%20counts%20%3d%20partitions...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/11/30/spark-write-to-csv-file/&amp;title=Spark%3a%20Write%20to%20CSV%20file&amp;summary=A%20couple%20of%20weeks%20ago%20I%20wrote%20how%20I%26%238217%3bd%20been%20using%20Spark%20to%20explore%20a%20City%20of%20Chicago%20Crime%20data%20set%20and%20having%20worked%20out%20how%20many%20of%20each%20crime%20had%20been%20committed%20I%20wanted%20to%20write%20that%20to%20a%20CSV%20file.%0a%20Spark%20provides%20a%20saveAsTextFile%20function%20which%20allows%20us%20to%20save%20RDD%26%238217%3bs%20so%20I%20refactored%20my%20code%20into%20the%20following%20format%20to%20allow%20me%20to%20use%20that%3a%0a%20import%20au...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

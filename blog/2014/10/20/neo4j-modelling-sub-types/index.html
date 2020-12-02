@@ -22,7 +22,11 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Modelling sub types" />
         
-          <meta name="twitter:description" content="LOAD CSV WITH HEADERS FROM &quot;file:/Users/markneedham/projects/neo4j-subtypes/data/dogs.csv&quot; AS line MERGE (animalType:AnimalType {name: &quot;Dog&quot;}) MERGE (breedGroup:BreedGroup {name: line.BreedGroup}) MERGE (breed:Breed {name: line.PrimaryBreed}) MERGE (animal:Animal {id: line.TagIdentity, primaryColour: line.PrimaryColour, size: line.Size}) MERGE (animalType)&lt;-[:PARENT]-(breedGroup) MERGE (breedGroup)&lt;-[:PARENT]-(breed) MERGE (breed)&lt;-[:PARENT]-(animal) MATCH (animalType:AnimalType)&lt;-[:PARENT*]-(animal) RETURN animalType, COUNT(*) AS animals ORDER BY animals DESC ==&gt; &#43;--------------------------------&#43; ==&gt; | animalType | animals | ==&gt; &#43;--------------------------------&#43; ==&gt; | Node[89]{name:&#34;Dog&#34;} | 131 | ==&gt; &#43;--------------------------------&#43; ==&gt; 1 row MATCH path = (animalType:AnimalType)&lt;-[:PARENT]-(breedGroup)&lt;-[:PARENT*]-(animal) RETURN [node IN nodes(path) | node." />
+          <meta name="twitter:description" content="A question which sometimes comes up when discussing graph data modelling is how you go about modelling sub/super types.
+ In my experience there are two reasons why we might want to do this:
+   To ensure that certain properties exist on bits of data
+  To write drill down queries based on those types
+   At the moment the former isn&#8217;t built into Neo4j and you&#8217;d only be able to achieve it by wiring up some code in a pre commit hook of a transaction event handler so we&#8217;ll focus on the latter." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/10/20/neo4j-modelling-sub-types/" />
 
@@ -33,7 +37,11 @@
         <title> Neo4j: Modelling sub types &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="LOAD CSV WITH HEADERS FROM &quot;file:/Users/markneedham/projects/neo4j-subtypes/data/dogs.csv&quot; AS line MERGE (animalType:AnimalType {name: &quot;Dog&quot;}) MERGE (breedGroup:BreedGroup {name: line.BreedGroup}) MERGE (breed:Breed {name: line.PrimaryBreed}) MERGE (animal:Animal {id: line.TagIdentity, primaryColour: line.PrimaryColour, size: line.Size}) MERGE (animalType)&lt;-[:PARENT]-(breedGroup) MERGE (breedGroup)&lt;-[:PARENT]-(breed) MERGE (breed)&lt;-[:PARENT]-(animal) MATCH (animalType:AnimalType)&lt;-[:PARENT*]-(animal) RETURN animalType, COUNT(*) AS animals ORDER BY animals DESC ==&gt; &#43;--------------------------------&#43; ==&gt; | animalType | animals | ==&gt; &#43;--------------------------------&#43; ==&gt; | Node[89]{name:&#34;Dog&#34;} | 131 | ==&gt; &#43;--------------------------------&#43; ==&gt; 1 row MATCH path = (animalType:AnimalType)&lt;-[:PARENT]-(breedGroup)&lt;-[:PARENT*]-(animal) RETURN [node IN nodes(path) | node." />
+        <meta name="description" content="A question which sometimes comes up when discussing graph data modelling is how you go about modelling sub/super types.
+ In my experience there are two reasons why we might want to do this:
+   To ensure that certain properties exist on bits of data
+  To write drill down queries based on those types
+   At the moment the former isn&#8217;t built into Neo4j and you&#8217;d only be able to achieve it by wiring up some code in a pre commit hook of a transaction event handler so we&#8217;ll focus on the latter." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +70,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-10-20",
-        "description": "LOAD CSV WITH HEADERS FROM \x26quot;file:\/Users\/markneedham\/projects\/neo4j-subtypes\/data\/dogs.csv\x26quot; AS line MERGE (animalType:AnimalType {name: \x26quot;Dog\x26quot;}) MERGE (breedGroup:BreedGroup {name: line.BreedGroup}) MERGE (breed:Breed {name: line.PrimaryBreed}) MERGE (animal:Animal {id: line.TagIdentity, primaryColour: line.PrimaryColour, size: line.Size}) MERGE (animalType)\x26lt;-[:PARENT]-(breedGroup) MERGE (breedGroup)\x26lt;-[:PARENT]-(breed) MERGE (breed)\x26lt;-[:PARENT]-(animal) MATCH (animalType:AnimalType)\x26lt;-[:PARENT*]-(animal) RETURN animalType, COUNT(*) AS animals ORDER BY animals DESC ==\x26gt; \x2b--------------------------------\x2b ==\x26gt; | animalType | animals | ==\x26gt; \x2b--------------------------------\x2b ==\x26gt; | Node[89]{name:\x26#34;Dog\x26#34;} | 131 | ==\x26gt; \x2b--------------------------------\x2b ==\x26gt; 1 row MATCH path = (animalType:AnimalType)\x26lt;-[:PARENT]-(breedGroup)\x26lt;-[:PARENT*]-(animal) RETURN [node IN nodes(path) | node.",
-        "wordCount":  248 
+        "description": "A question which sometimes comes up when discussing graph data modelling is how you go about modelling sub\/super types.\n In my experience there are two reasons why we might want to do this:\n   To ensure that certain properties exist on bits of data\n  To write drill down queries based on those types\n   At the moment the former isn\x26#8217;t built into Neo4j and you\x26#8217;d only be able to achieve it by wiring up some code in a pre commit hook of a transaction event handler so we\x26#8217;ll focus on the latter.",
+        "wordCount":  611 
     }
     </script>
     
@@ -172,97 +180,169 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Modelling sub types</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-LOAD CSV WITH HEADERS FROM &quot;file:/Users/markneedham/projects/neo4j-subtypes/data/dogs.csv&quot; AS line
-MERGE (animalType:AnimalType {name: &quot;Dog&quot;})
+    <div class="paragraph">
+<p>A question which sometimes comes up when discussing <a href="http://www.infoq.com/articles/let-me-graph-that-for-you">graph data modelling</a> is how you go about <a href="http://www.learndatamodeling.com/dm_super_type.php">modelling sub/super types</a>.</p>
+</div>
+<div class="paragraph">
+<p>In my experience there are two reasons why we might want to do this:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>To ensure that certain properties exist on bits of data</p>
+</li>
+<li>
+<p>To write drill down queries based on those types</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>At the moment the former isn&#8217;t built into Neo4j and you&#8217;d only be able to achieve it by wiring up some code in a pre commit hook of a <a href="http://docs.neo4j.org/chunked/stable/transactions-events.html">transaction event handler</a> so we&#8217;ll focus on the latter.</p>
+</div>
+<div class="paragraph">
+<p>The typical example used for showing how to design sub types is the animal kingdom and I managed to find a data set from <a href="http://portal.louisvilleky.gov/dataset/animaltag-data?page=16&amp;order=tag_tail&amp;sort=asc">Louiseville, Kentucky&#8217;s Animal Services</a> which we can use.</p>
+</div>
+<div class="paragraph">
+<p>In this case the sub types are used to represent the type of animal, breed group and breed. We then also have 'real data' in terms of actual dogs under the care of animal services.</p>
+</div>
+<div class="paragraph">
+<p>We effectively end up with two graphs in one - a model and a meta model:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/10/2014-10-20_22-32-31.png" alt="2014 10 20 22 32 31" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>The cypher query to create this graph looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">LOAD CSV WITH HEADERS FROM "file:/Users/markneedham/projects/neo4j-subtypes/data/dogs.csv" AS line
+MERGE (animalType:AnimalType {name: "Dog"})
 MERGE (breedGroup:BreedGroup {name: line.BreedGroup})
 MERGE (breed:Breed {name: line.PrimaryBreed})
 MERGE (animal:Animal {id: line.TagIdentity, primaryColour: line.PrimaryColour, size: line.Size})
 
 MERGE (animalType)&lt;-[:PARENT]-(breedGroup)
 MERGE (breedGroup)&lt;-[:PARENT]-(breed)
-MERGE (breed)&lt;-[:PARENT]-(animal)
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (animalType:AnimalType)&lt;-[:PARENT*]-(animal)
+MERGE (breed)&lt;-[:PARENT]-(animal)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We could then write a simple query to find out how many dogs we have:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (animalType:AnimalType)&lt;-[:PARENT*]-(animal)
 RETURN animalType, COUNT(*) AS animals
-ORDER BY animals DESC
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-<span style="color:#f92672">==</span>&gt; +--------------------------------+
-<span style="color:#f92672">==</span>&gt; | animalType           | animals |
-<span style="color:#f92672">==</span>&gt; +--------------------------------+
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>89<span style="color:#f92672">]{</span>name:<span style="color:#e6db74">&#34;Dog&#34;</span><span style="color:#f92672">}</span> | <span style="color:#ae81ff">131</span>     |
-<span style="color:#f92672">==</span>&gt; +--------------------------------+
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">1</span> row
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH path = (animalType:AnimalType)&lt;-[:PARENT]-(breedGroup)&lt;-[:PARENT*]-(animal)
+ORDER BY animals DESC</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">==&gt; +--------------------------------+
+==&gt; | animalType           | animals |
+==&gt; +--------------------------------+
+==&gt; | Node[89]{name:"Dog"} | 131     |
+==&gt; +--------------------------------+
+==&gt; 1 row</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or we could write a slightly more complex query to find the number of animals at each level of our type hierarchy:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH path = (animalType:AnimalType)&lt;-[:PARENT]-(breedGroup)&lt;-[:PARENT*]-(animal)
 RETURN [node IN nodes(path) | node.name][..-1] AS breed, COUNT(*) AS animals
 ORDER BY animals DESC
-LIMIT 5
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-==&gt; +-----------------------------------------------------+
+LIMIT 5</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">==&gt; +-----------------------------------------------------+
 ==&gt; | breed                                     | animals |
 ==&gt; +-----------------------------------------------------+
-==&gt; | [&#34;Dog&#34;,&#34;SETTER/RETRIEVE&#34;,&#34;LABRADOR RETR&#34;] | 15      |
-==&gt; | [&#34;Dog&#34;,&#34;SETTER/RETRIEVE&#34;,&#34;GOLDEN RETR&#34;]   | 13      |
-==&gt; | [&#34;Dog&#34;,&#34;POODLE&#34;,&#34;POODLE MIN&#34;]             | 10      |
-==&gt; | [&#34;Dog&#34;,&#34;TERRIER&#34;,&#34;MIN PINSCHER&#34;]          | 9       |
-==&gt; | [&#34;Dog&#34;,&#34;SHEPHERD&#34;,&#34;WELSH CORGI CAR&#34;]      | 6       |
+==&gt; | ["Dog","SETTER/RETRIEVE","LABRADOR RETR"] | 15      |
+==&gt; | ["Dog","SETTER/RETRIEVE","GOLDEN RETR"]   | 13      |
+==&gt; | ["Dog","POODLE","POODLE MIN"]             | 10      |
+==&gt; | ["Dog","TERRIER","MIN PINSCHER"]          | 9       |
+==&gt; | ["Dog","SHEPHERD","WELSH CORGI CAR"]      | 6       |
 ==&gt; +-----------------------------------------------------+
-==&gt; 5 rows
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (breedGroup:BreedGroup)
-WHERE breedGroup.name IN [&quot;SETTER/RETRIEVE&quot;, &quot;POODLE&quot;]
-MERGE (exercise:Exercise {type: &quot;2 hours hard exercise&quot;})
-MERGE (exercise)&lt;-[:REQUIRES_EXERCISE]-(breedGroup);
-</code></pre><pre><code class="language-cypher" data-lang="cypher">
-MATCH (breedGroup:BreedGroup)
-WHERE breedGroup.name IN [&quot;TERRIER&quot;, &quot;SHEPHERD&quot;]
-MERGE (exercise:Exercise {type: &quot;1 hour gentle exercise&quot;})
-MERGE (exercise)&lt;-[:REQUIRES_EXERCISE]-(breedGroup);
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (exercise:Exercise {type: &quot;2 hours hard exercise&quot;})&lt;-[:REQUIRES_EXERCISE]-()&lt;-[:PARENT*]-(dog)
+==&gt; 5 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We might then decide to add an exercise sub graph which indicates how much exercise each type of dog requires:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (breedGroup:BreedGroup)
+WHERE breedGroup.name IN ["SETTER/RETRIEVE", "POODLE"]
+MERGE (exercise:Exercise {type: "2 hours hard exercise"})
+MERGE (exercise)&lt;-[:REQUIRES_EXERCISE]-(breedGroup);</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (breedGroup:BreedGroup)
+WHERE breedGroup.name IN ["TERRIER", "SHEPHERD"]
+MERGE (exercise:Exercise {type: "1 hour gentle exercise"})
+MERGE (exercise)&lt;-[:REQUIRES_EXERCISE]-(breedGroup);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We could then query that to find out which dogs need to come out for 2 hours of hard exercise:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (exercise:Exercise {type: "2 hours hard exercise"})&lt;-[:REQUIRES_EXERCISE]-()&lt;-[:PARENT*]-(dog)
 WHERE NOT (dog)&lt;-[:PARENT]-()
 RETURN dog
-LIMIT 10
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-<span style="color:#f92672">==</span>&gt; +-----------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | dog                                                       |
-<span style="color:#f92672">==</span>&gt; +-----------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>541<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;664427&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;BLACK&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>542<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;543787&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;BLACK&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>543<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;584021&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;BLACK&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>544<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;584022&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;BLACK&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>545<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;664430&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;BLACK&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>546<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;535176&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;BLACK&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>567<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;613557&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;WHITE&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>568<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;531376&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;WHITE&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>569<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;613567&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;WHITE&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; | Node<span style="color:#f92672">[</span>570<span style="color:#f92672">]{</span>id:<span style="color:#e6db74">&#34;531379&#34;</span>,primaryColour:<span style="color:#e6db74">&#34;WHITE&#34;</span>,size:<span style="color:#e6db74">&#34;SMALL&#34;</span><span style="color:#f92672">}</span> |
-<span style="color:#f92672">==</span>&gt; +-----------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">10</span> rows
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (exercise:Exercise {type: &quot;2 hours hard exercise&quot;})&lt;-[:REQUIRES_EXERCISE]-()&lt;-[:PARENT*]-(dog:Animal)
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">==&gt; +-----------------------------------------------------------+
+==&gt; | dog                                                       |
+==&gt; +-----------------------------------------------------------+
+==&gt; | Node[541]{id:"664427",primaryColour:"BLACK",size:"SMALL"} |
+==&gt; | Node[542]{id:"543787",primaryColour:"BLACK",size:"SMALL"} |
+==&gt; | Node[543]{id:"584021",primaryColour:"BLACK",size:"SMALL"} |
+==&gt; | Node[544]{id:"584022",primaryColour:"BLACK",size:"SMALL"} |
+==&gt; | Node[545]{id:"664430",primaryColour:"BLACK",size:"SMALL"} |
+==&gt; | Node[546]{id:"535176",primaryColour:"BLACK",size:"SMALL"} |
+==&gt; | Node[567]{id:"613557",primaryColour:"WHITE",size:"SMALL"} |
+==&gt; | Node[568]{id:"531376",primaryColour:"WHITE",size:"SMALL"} |
+==&gt; | Node[569]{id:"613567",primaryColour:"WHITE",size:"SMALL"} |
+==&gt; | Node[570]{id:"531379",primaryColour:"WHITE",size:"SMALL"} |
+==&gt; +-----------------------------------------------------------+
+==&gt; 10 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this query we ensured that we only returned dogs rather than breeds by checking that there was no incoming <cite>PARENT</cite> relationship. Alternatively we could have filtered on the <cite>Animal</cite> label...</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (exercise:Exercise {type: "2 hours hard exercise"})&lt;-[:REQUIRES_EXERCISE]-()&lt;-[:PARENT*]-(dog:Animal)
 RETURN dog
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or if we wanted to only take the dogs out for exercise perhaps we&#8217;d have <cite>Dog</cite> label on the appropriate nodes.</p>
+</div>
+<div class="paragraph">
+<p>People are often curious why labels don&#8217;t have super/sub types between them but I tend to use labels for simple categorisation - anything more complicated and we may as well use the built in power of the graph model!</p>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/neo4j-subtypes">code is on github</a> should you wish to play with it.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -297,7 +377,7 @@ LIMIT 10
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/10/20/neo4j-modelling-sub-types/&amp;title=Neo4j%3a%20Modelling%20sub%20types&amp;summary=LOAD%20CSV%20WITH%20HEADERS%20FROM%20%26quot%3bfile%3a%2fUsers%2fmarkneedham%2fprojects%2fneo4j-subtypes%2fdata%2fdogs.csv%26quot%3b%20AS%20line%20MERGE%20%28animalType%3aAnimalType%20%7bname%3a%20%26quot%3bDog%26quot%3b%7d%29%20MERGE%20%28breedGroup%3aBreedGroup%20%7bname%3a%20line.BreedGroup%7d%29%20MERGE%20%28breed%3aBreed%20%7bname%3a%20line.PrimaryBreed%7d%29%20MERGE%20%28animal%3aAnimal%20%7bid%3a%20line.TagIdentity%2c%20primaryColour%3a%20line.PrimaryColour%2c%20size%3a%20line.Size%7d%29%20MERGE%20%28animalType%29%26lt%3b-%5b%3aPARENT%5d-%28breedGroup%29%20MERGE%20%28breedGroup%29%26lt%3b-%5b%3aPARENT%5d-%28breed%29%20MERGE%20%28breed%29%26lt%3b-%5b%3aPARENT%5d-%28animal%29%20MATCH%20%28animalType%3aAnimalType%29%26lt%3b-%5b%3aPARENT%2a%5d-%28animal%29%20RETURN%20animalType%2c%20COUNT%28%2a%29%20AS%20animals%20ORDER%20BY%20animals%20DESC%20%3d%3d%26gt%3b%20%2b--------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20animalType%20%7c%20animals%20%7c%20%3d%3d%26gt%3b%20%2b--------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20Node%5b89%5d%7bname%3a%26%2334%3bDog%26%2334%3b%7d%20%7c%20131%20%7c%20%3d%3d%26gt%3b%20%2b--------------------------------%2b%20%3d%3d%26gt%3b%201%20row%20MATCH%20path%20%3d%20%28animalType%3aAnimalType%29%26lt%3b-%5b%3aPARENT%5d-%28breedGroup%29%26lt%3b-%5b%3aPARENT%2a%5d-%28animal%29%20RETURN%20%5bnode%20IN%20nodes%28path%29%20%7c%20node...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/10/20/neo4j-modelling-sub-types/&amp;title=Neo4j%3a%20Modelling%20sub%20types&amp;summary=A%20question%20which%20sometimes%20comes%20up%20when%20discussing%20graph%20data%20modelling%20is%20how%20you%20go%20about%20modelling%20sub%2fsuper%20types.%0a%20In%20my%20experience%20there%20are%20two%20reasons%20why%20we%20might%20want%20to%20do%20this%3a%0a%20%20%20To%20ensure%20that%20certain%20properties%20exist%20on%20bits%20of%20data%0a%20%20To%20write%20drill%20down%20queries%20based%20on%20those%20types%0a%20%20%20At%20the%20moment%20the%20former%20isn%26%238217%3bt%20built%20into%20Neo4j%20and%20you%26%238217%3bd%20only%20be%20able%20to%20achieve%20it%20by%20wiring%20up%20some%20code%20in%20a%20pre%20commit%20hook%20of%20a%20transaction%20event%20handler%20so%20we%26%238217%3bll%20focus%20on%20the%20latter...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

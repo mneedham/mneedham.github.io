@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Active patterns for parsing xml" />
         
-          <meta name="twitter:description" content="I decided to spend some time doing some refactoring on the FeedBurner applicationthat I started working on last week and the first area I worked on was cleaning up the way that the xml we get from FeedBurner is parsed.
-While playing around with the application from the command lineI realised that it didn&rsquo;t actually cover error conditions - such as passing in an invalid feed name - very well and I thought this would be a good opportunity to make use of an active patternto handle this." />
+          <meta name="twitter:description" content="I decided to spend some time doing some refactoring on the FeedBurner application that I started working on last week and the first area I worked on was cleaning up the way that the xml we get from FeedBurner is parsed.
+ While playing around with the application from the command line I realised that it didn&#8217;t actually cover error conditions - such as passing in an invalid feed name - very well and I thought this would be a good opportunity to make use of an active pattern to handle this." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/07/19/f-active-patterns-for-parsing-xml/" />
 
@@ -35,8 +35,8 @@ While playing around with the application from the command lineI realised that i
         <title> F#: Active patterns for parsing xml &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I decided to spend some time doing some refactoring on the FeedBurner applicationthat I started working on last week and the first area I worked on was cleaning up the way that the xml we get from FeedBurner is parsed.
-While playing around with the application from the command lineI realised that it didn&rsquo;t actually cover error conditions - such as passing in an invalid feed name - very well and I thought this would be a good opportunity to make use of an active patternto handle this." />
+        <meta name="description" content="I decided to spend some time doing some refactoring on the FeedBurner application that I started working on last week and the first area I worked on was cleaning up the way that the xml we get from FeedBurner is parsed.
+ While playing around with the application from the command line I realised that it didn&#8217;t actually cover error conditions - such as passing in an invalid feed name - very well and I thought this would be a good opportunity to make use of an active pattern to handle this." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ While playing around with the application from the command lineI realised that i
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-07-19",
-        "description": "I decided to spend some time doing some refactoring on the FeedBurner applicationthat I started working on last week and the first area I worked on was cleaning up the way that the xml we get from FeedBurner is parsed.\nWhile playing around with the application from the command lineI realised that it didn\x26rsquo;t actually cover error conditions - such as passing in an invalid feed name - very well and I thought this would be a good opportunity to make use of an active patternto handle this.",
-        "wordCount":  817 
+        "description": "I decided to spend some time doing some refactoring on the FeedBurner application that I started working on last week and the first area I worked on was cleaning up the way that the xml we get from FeedBurner is parsed.\n While playing around with the application from the command line I realised that it didn\x26#8217;t actually cover error conditions - such as passing in an invalid feed name - very well and I thought this would be a good opportunity to make use of an active pattern to handle this.",
+        "wordCount":  825 
     }
     </script>
     
@@ -177,91 +177,127 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Active patterns for parsing xml</h1>
-    <p>I decided to spend some time doing some refactoring on the <!-- raw HTML omitted -->FeedBurner application<!-- raw HTML omitted --> that I started working on last week and the first area I worked on was cleaning up the way that the xml we get from FeedBurner is parsed.</p>
-<p>While <!-- raw HTML omitted -->playing around with the application from the command line<!-- raw HTML omitted --> I realised that it didn&rsquo;t actually cover error conditions - such as passing in an invalid feed name - very well and I thought this would be a good opportunity to make use of an <!-- raw HTML omitted -->active pattern<!-- raw HTML omitted --> to handle this.</p>
-<p>I wanted to try and test drive this bit of code so my first idea was to try and call the active pattern directly from my test - I am testing using <!-- raw HTML omitted -->NUnit 2.5<!-- raw HTML omitted --> which now allows us to create tests without the need for a class with a [TestFixture] attribute on:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#f92672">[&lt;</span><span style="color:#a6e22e">Test</span><span style="color:#f92672">&gt;]</span>
-<span style="color:#66d9ef">let</span> should_return_no_feed_given_invalid_xml () <span style="color:#f92672">=</span>
-	<span style="color:#66d9ef">let</span> feedType <span style="color:#f92672">=</span> Xml.<span style="color:#f92672">(|</span><span style="color:#a6e22e">NoFeedFound</span><span style="color:#f92672">|</span><span style="color:#a6e22e">FeedBurnerFeed</span><span style="color:#f92672">|)</span> <span style="color:#e6db74">&#34;invalid xml&#34;</span>
-	<span style="color:#f92672">//</span> other code
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> <span style="color:#f92672">(|</span><span style="color:#a6e22e">NoFeedFound</span><span style="color:#f92672">|</span><span style="color:#a6e22e">FeedBurnerFeed</span><span style="color:#f92672">|)</span> xml <span style="color:#f92672">=</span> 
-	<span style="color:#a6e22e">NoFeedFound</span>()
-</code></pre></div><p>The problem I ran into with this approach is that the value of feedType when this test ran was &lsquo;Microsoft.FSharp.Core.Choice`2+_Choice1Of2&rsquo; and I couldn&rsquo;t see a way to access this at compile time in order to assert against it. Either way a test asserting that the return value was &lsquo;Choice1Of2&rsquo; doesn&rsquo;t seem to be the most expressive test anyway.</p>
-<p>I chatted with about this a bit with <!-- raw HTML omitted -->Dave<!-- raw HTML omitted --> and he suggested that it would probably be easier to test the active pattern via the function while actually makes use of it.</p>
+    <div class="paragraph">
+<p>I decided to spend some time doing some refactoring on the <a href="http://www.markhneedham.com/blog/2009/07/12/f-a-day-writing-a-feedburner-graph-creator/">FeedBurner application</a> that I started working on last week and the first area I worked on was cleaning up the way that the xml we get from FeedBurner is parsed.</p>
+</div>
+<div class="paragraph">
+<p>While <a href="http://www.markhneedham.com/blog/2009/07/16/f-passing-command-line-arguments-to-a-script/">playing around with the application from the command line</a> I realised that it didn&#8217;t actually cover error conditions - such as passing in an invalid feed name - very well and I thought this would be a good opportunity to make use of an <a href="http://blogs.msdn.com/chrsmith/archive/2008/02/21/Introduction-to-F_2300_-Active-Patterns.aspx">active pattern</a> to handle this.</p>
+</div>
+<div class="paragraph">
+<p>I wanted to try and test drive this bit of code so my first idea was to try and call the active pattern directly from my test - I am testing using <a href="http://www.infoq.com/news/2009/05/nunit-release">NUnit 2.5</a> which now allows us to create tests without the need for a class with a [TestFixture] attribute on:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">[&lt;Test&gt;]
+let should_return_no_feed_given_invalid_xml () =
+	let feedType = Xml.(|NoFeedFound|FeedBurnerFeed|) "invalid xml"
+	// other code</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let (|NoFeedFound|FeedBurnerFeed|) xml =
+	NoFeedFound()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The problem I ran into with this approach is that the value of feedType when this test ran was 'Microsoft.FSharp.Core.Choice`2+_Choice1Of2' and I couldn&#8217;t see a way to access this at compile time in order to assert against it. Either way a test asserting that the return value was 'Choice1Of2' doesn&#8217;t seem to be the most expressive test anyway.</p>
+</div>
+<div class="paragraph">
+<p>I chatted with about this a bit with <a href="http://intwoplacesatonce.com/">Dave</a> and he suggested that it would probably be easier to test the active pattern via the function while actually makes use of it.</p>
+</div>
+<div class="paragraph">
 <p>I ended up with the following three tests:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">open</span> <span style="color:#a6e22e">FeedBurnerService</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">open FeedBurnerService
 
-<span style="color:#f92672">[&lt;</span><span style="color:#a6e22e">Test</span><span style="color:#f92672">&gt;]</span>
-<span style="color:#66d9ef">let</span> should_throw_exception_if_feed_xml_is_invalid () <span style="color:#f92672">=</span>
-    Assert.<span style="color:#a6e22e">Throws</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">FailureException</span><span style="color:#f92672">&gt;(</span><span style="color:#66d9ef">fun</span> () <span style="color:#f92672">-&gt;</span> FeedBurnerService.<span style="color:#a6e22e">Parse</span> <span style="color:#e6db74">&#34;some broken xml&#34;</span> <span style="color:#f92672">|&gt;</span> ignore<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> ignore
+[&lt;Test&gt;]
+let should_throw_exception_if_feed_xml_is_invalid () =
+    Assert.Throws&lt;FailureException&gt;(fun () -&gt; FeedBurnerService.Parse "some broken xml" |&gt; ignore) |&gt; ignore
 
-<span style="color:#f92672">[&lt;</span><span style="color:#a6e22e">Test</span><span style="color:#f92672">&gt;]</span>
-<span style="color:#66d9ef">let</span> should_throw_exception_if_no_feed_found () <span style="color:#f92672">=</span>
-    <span style="color:#66d9ef">let</span> feedXml <span style="color:#f92672">=</span> <span style="color:#f92672">@</span><span style="color:#e6db74">&#34;&lt;?xml version=&#34;&#34;1.0&#34;&#34; encoding=&#34;&#34;utf-8&#34;&#34; ?&gt;
-</span><span style="color:#e6db74">                    &lt;rsp stat=&#34;&#34;fail&#34;&#34;&gt;
-</span><span style="color:#e6db74">                        &lt;err code=&#34;&#34;1&#34;&#34; msg=&#34;&#34;Feed Not Found&#34;&#34; /&gt;
-</span><span style="color:#e6db74">                    &lt;/rsp&gt;&#34;</span>
+[&lt;Test&gt;]
+let should_throw_exception_if_no_feed_found () =
+    let feedXml = @"&lt;?xml version=""1.0"" encoding=""utf-8"" ?&gt;
+                    &lt;rsp stat=""fail""&gt;
+                        &lt;err code=""1"" msg=""Feed Not Found"" /&gt;
+                    &lt;/rsp&gt;"
 
-    Assert.<span style="color:#a6e22e">Throws</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">FailureException</span><span style="color:#f92672">&gt;((</span><span style="color:#66d9ef">fun</span> () <span style="color:#f92672">-&gt;</span> FeedBurnerService.<span style="color:#a6e22e">Parse</span> feedXml <span style="color:#f92672">|&gt;</span> ignore<span style="color:#f92672">),</span> <span style="color:#e6db74">&#34;Failed to process feed: Feed Not Found&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> ignore   
-                                    
-<span style="color:#f92672">[&lt;</span><span style="color:#a6e22e">Test</span><span style="color:#f92672">&gt;]</span>     
-<span style="color:#66d9ef">let</span> should_retrieve_circulation_and_date_if_valid_xml () <span style="color:#f92672">=</span>
-    <span style="color:#66d9ef">let</span> feedXml <span style="color:#f92672">=</span> <span style="color:#f92672">@</span><span style="color:#e6db74">&#34;&lt;?xml version=&#34;&#34;1.0&#34;&#34; encoding=&#34;&#34;UTF-8&#34;&#34;?&gt;
-</span><span style="color:#e6db74">                    &lt;rsp stat=&#34;&#34;ok&#34;&#34;&gt;
-</span><span style="color:#e6db74">                        &lt;feed id=&#34;&#34;tdv0bg210cr731gc3nssn512cg&#34;&#34; uri=&#34;&#34;MarkNeedham&#34;&#34;&gt;
-</span><span style="color:#e6db74">                            &lt;entry date=&#34;&#34;2009-07-16&#34;&#34; circulation=&#34;&#34;630&#34;&#34; hits=&#34;&#34;1389&#34;&#34; reach=&#34;&#34;629&#34;&#34; /&gt;
-</span><span style="color:#e6db74">                        &lt;/feed&gt;
-</span><span style="color:#e6db74">                    &lt;/rsp&gt;&#34;</span>
-    
-    <span style="color:#66d9ef">let</span> feedBurnerApi <span style="color:#f92672">=</span> FeedBurnerService.<span style="color:#a6e22e">Parse</span> feedXml
-    <span style="color:#66d9ef">let</span> entry <span style="color:#f92672">=</span> feedBurnerApi <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Entries</span> <span style="color:#f92672">|&gt;</span> Seq.hd
+    Assert.Throws&lt;FailureException&gt;((fun () -&gt; FeedBurnerService.Parse feedXml |&gt; ignore), "Failed to process feed: Feed Not Found") |&gt; ignore
 
-    Assert.<span style="color:#a6e22e">AreEqual</span><span style="color:#f92672">(</span>entry<span style="color:#f92672">.</span><span style="color:#a6e22e">Circulation</span><span style="color:#f92672">,</span> 630<span style="color:#f92672">)</span> 
-    Assert.<span style="color:#a6e22e">AreEqual</span><span style="color:#f92672">(</span>entry<span style="color:#f92672">.</span><span style="color:#a6e22e">Date</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;2009-07-16&#34;</span><span style="color:#f92672">)</span>
-</code></pre></div><p>The interesting thing here is that the &lsquo;Assert.Throws&rsquo; method takes in a C# delegate so we need to wrap the call to &lsquo;FeedBurnerService.Parse&rsquo; inside a function. As with <!-- raw HTML omitted -->xUnit.NET&rsquo;s equivalent method<!-- raw HTML omitted --> we need to ignore the results of the function call in these tests.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">module</span> <span style="color:#a6e22e">FeedBurnerService</span> <span style="color:#f92672">=</span> 
-    <span style="color:#66d9ef">open</span> System.Xml.<span style="color:#a6e22e">Linq</span>
-    <span style="color:#66d9ef">open</span> <span style="color:#a6e22e">System</span>
+[&lt;Test&gt;]
+let should_retrieve_circulation_and_date_if_valid_xml () =
+    let feedXml = @"&lt;?xml version=""1.0"" encoding=""UTF-8""?&gt;
+                    &lt;rsp stat=""ok""&gt;
+                        &lt;feed id=""tdv0bg210cr731gc3nssn512cg"" uri=""MarkNeedham""&gt;
+                            &lt;entry date=""2009-07-16"" circulation=""630"" hits=""1389"" reach=""629"" /&gt;
+                        &lt;/feed&gt;
+                    &lt;/rsp&gt;"
 
-    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetDescendants</span> element <span style="color:#f92672">(</span>xDocument<span style="color:#f92672">:</span><span style="color:#a6e22e">XDocument</span><span style="color:#f92672">)</span>  <span style="color:#f92672">=</span> xDocument<span style="color:#f92672">.</span><span style="color:#a6e22e">Descendants</span><span style="color:#f92672">(</span>xName element<span style="color:#f92672">)</span>
-    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">GetAttribute</span> element <span style="color:#f92672">(</span>xElement<span style="color:#f92672">:</span><span style="color:#a6e22e">XElement</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> xElement<span style="color:#f92672">.</span><span style="color:#a6e22e">Attribute</span><span style="color:#f92672">(</span>xName element<span style="color:#f92672">)</span>   
+    let feedBurnerApi = FeedBurnerService.Parse feedXml
+    let entry = feedBurnerApi |&gt; Entries |&gt; Seq.hd
 
-	<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">FeedBurnerApi</span><span style="color:#f92672">(</span>entries<span style="color:#f92672">:</span>seq<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&gt;)</span> <span style="color:#f92672">=</span>	
-    		member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Entries</span> <span style="color:#f92672">=</span> entries
-	<span style="color:#f92672">and</span>
-		<span style="color:#a6e22e">Entry</span><span style="color:#f92672">(</span>date <span style="color:#f92672">:</span> <span style="color:#66d9ef">string</span><span style="color:#f92672">,</span> circulation <span style="color:#f92672">:</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
-        		member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Date</span> <span style="color:#f92672">=</span> date 
-        		member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Circulation</span> <span style="color:#f92672">=</span> circulation
+    Assert.AreEqual(entry.Circulation, 630)
+    Assert.AreEqual(entry.Date, "2009-07-16")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The interesting thing here is that the 'Assert.Throws' method takes in a C# delegate so we need to wrap the call to 'FeedBurnerService.Parse' inside a function. As with <a href="http://www.markhneedham.com/blog/2009/03/28/f-forcing-type-to-unit-for-assertshouldthrow-in-xunitnet/">xUnit.NET&#8217;s equivalent method</a> we need to ignore the results of the function call in these tests.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">module FeedBurnerService =
+    open System.Xml.Linq
+    open System
 
-    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">Entries</span> <span style="color:#f92672">(</span>feedBurnerApi<span style="color:#f92672">:</span><span style="color:#a6e22e">FeedBurnerApi</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> feedBurnerApi<span style="color:#f92672">.</span><span style="color:#a6e22e">Entries</span> 
+    let GetDescendants element (xDocument:XDocument)  = xDocument.Descendants(xName element)
+    let GetAttribute element (xElement:XElement) = xElement.Attribute(xName element)
 
-    <span style="color:#66d9ef">let</span> <span style="color:#f92672">(|</span><span style="color:#a6e22e">NoFeedFound</span><span style="color:#f92672">|</span><span style="color:#a6e22e">FeedBurnerFeed</span><span style="color:#f92672">|)</span> xml <span style="color:#f92672">=</span> 
-        <span style="color:#66d9ef">try</span> 
-            <span style="color:#66d9ef">let</span> document <span style="color:#f92672">=</span> xml <span style="color:#f92672">|&gt;</span> XDocument.<span style="color:#a6e22e">Parse</span>
-            <span style="color:#66d9ef">let</span> entries <span style="color:#f92672">=</span> document <span style="color:#f92672">|&gt;</span> 
-                          <span style="color:#a6e22e">GetDescendants</span> <span style="color:#e6db74">&#34;entry&#34;</span> <span style="color:#f92672">|&gt;</span> 
-                          Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> element <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">GetAttribute</span> <span style="color:#e6db74">&#34;circulation&#34;</span> element<span style="color:#f92672">,</span> <span style="color:#a6e22e">GetAttribute</span> <span style="color:#e6db74">&#34;date&#34;</span> element<span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span>
-                          Seq.map <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> attribute <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Entry</span><span style="color:#f92672">(</span>circulation <span style="color:#f92672">=</span>  Int32.<span style="color:#a6e22e">Parse</span><span style="color:#f92672">((</span>fst attribute<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">),</span> date <span style="color:#f92672">=</span> <span style="color:#f92672">(</span>snd attribute<span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span> <span style="color:#f92672">)</span>
-            
-            <span style="color:#66d9ef">match</span> Seq.length entries <span style="color:#66d9ef">with</span> 
-                <span style="color:#f92672">|</span> 0 <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">NoFeedFound</span><span style="color:#f92672">((</span>document <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">GetDescendants</span> <span style="color:#e6db74">&#34;err&#34;</span> <span style="color:#f92672">|&gt;</span> Seq.hd <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">GetAttribute</span> <span style="color:#e6db74">&#34;msg&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">Value</span><span style="color:#f92672">)</span>
-                <span style="color:#f92672">|</span> <span style="color:#f92672">_</span> <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">FeedBurnerFeed</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> <span style="color:#a6e22e">FeedBurnerApi</span><span style="color:#f92672">(</span>entries<span style="color:#f92672">))</span>
-        <span style="color:#66d9ef">with</span> 
-            <span style="color:#f92672">|</span> <span style="color:#f92672">:?</span> System.Xml.<span style="color:#a6e22e">XmlException</span> <span style="color:#66d9ef">as</span> ex <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">NoFeedFound</span><span style="color:#f92672">(</span>ex<span style="color:#f92672">.</span><span style="color:#a6e22e">Message</span><span style="color:#f92672">)</span>
+	type FeedBurnerApi(entries:seq&lt;Entry&gt;) =
+    		member x.Entries = entries
+	and
+		Entry(date : string, circulation : int) =
+        		member x.Date = date
+        		member x.Circulation = circulation
 
-    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">Parse</span> xml <span style="color:#f92672">=</span>
-        <span style="color:#66d9ef">match</span> xml <span style="color:#66d9ef">with</span> 
-            <span style="color:#f92672">|</span> <span style="color:#a6e22e">NoFeedFound</span><span style="color:#f92672">(</span>error<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> failwith <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Failed to process feed: &#34;</span> <span style="color:#f92672">+</span> error<span style="color:#f92672">)</span>
-            <span style="color:#f92672">|</span> <span style="color:#a6e22e">FeedBurnerFeed</span><span style="color:#f92672">(</span>entries<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> entries  
-</code></pre></div><p>I continued using the idea of <!-- raw HTML omitted -->creating F# functions to wrap C# style method calls<!-- raw HTML omitted --> with the &lsquo;Entries&rsquo; function which delegates to the &lsquo;Entries&rsquo; property on &lsquo;FeedBurnerApi&rsquo; which reduces the need to store intermediate state. I probably could have done the same for the &lsquo;Date&rsquo; and &lsquo;Circulation&rsquo; properties although I couldn&rsquo;t see a significant improvement in the readability of the code by doing this.</p>
-<p>I have also made use of the &lsquo;and&rsquo; keyword to define the &lsquo;Entry&rsquo; type because it is referenced by the &lsquo;FeedBurnerApi&rsquo; type and therefore needs to be defined at that stage. The other way to ensure this was the case would be to define &lsquo;Entry&rsquo; before &lsquo;FeedBurnerApi&rsquo; although this doesn&rsquo;t seem to read as nicely to me.</p>
-<p>We are making use of a multi case active pattern in the code which means that the input we are processing with the active pattern can be split into two different things in this case. Don Syme goes into <!-- raw HTML omitted -->more detail on the different types of active patterns in his paper<!-- raw HTML omitted --> and <!-- raw HTML omitted -->Chris Smith also covers them in his post<!-- raw HTML omitted -->.</p>
-<p>The code for the active pattern feels a bit too imperative at the moment although I wasn&rsquo;t sure of the best way to cover the different scenarios without writing it this way - no doubt there is a more functional way to do this but I can&rsquo;t see it yet.</p>
+    let Entries (feedBurnerApi:FeedBurnerApi) = feedBurnerApi.Entries
+
+    let (|NoFeedFound|FeedBurnerFeed|) xml =
+        try
+            let document = xml |&gt; XDocument.Parse
+            let entries = document |&gt;
+                          GetDescendants "entry" |&gt;
+                          Seq.map (fun element -&gt; GetAttribute "circulation" element, GetAttribute "date" element) |&gt;
+                          Seq.map (fun attribute -&gt; new Entry(circulation =  Int32.Parse((fst attribute).Value), date = (snd attribute).Value) )
+
+            match Seq.length entries with
+                | 0 -&gt; NoFeedFound((document |&gt; GetDescendants "err" |&gt; Seq.hd |&gt; GetAttribute "msg").Value)
+                | _ -&gt; FeedBurnerFeed(new FeedBurnerApi(entries))
+        with
+            | :? System.Xml.XmlException as ex -&gt; NoFeedFound(ex.Message)
+
+    let Parse xml =
+        match xml with
+            | NoFeedFound(error) -&gt; failwith ("Failed to process feed: " + error)
+            | FeedBurnerFeed(entries) -&gt; entries</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I continued using the idea of <a href="http://www.markhneedham.com/blog/2009/07/12/f-wrapping-net-library-calls/">creating F# functions to wrap C# style method calls</a> with the 'Entries' function which delegates to the 'Entries' property on 'FeedBurnerApi' which reduces the need to store intermediate state. I probably could have done the same for the 'Date' and 'Circulation' properties although I couldn&#8217;t see a significant improvement in the readability of the code by doing this.</p>
+</div>
+<div class="paragraph">
+<p>I have also made use of the 'and' keyword to define the 'Entry' type because it is referenced by the 'FeedBurnerApi' type and therefore needs to be defined at that stage. The other way to ensure this was the case would be to define 'Entry' before 'FeedBurnerApi' although this doesn&#8217;t seem to read as nicely to me.</p>
+</div>
+<div class="paragraph">
+<p>We are making use of a multi case active pattern in the code which means that the input we are processing with the active pattern can be split into two different things in this case. Don Syme goes into <a href="http://blogs.msdn.com/dsyme/archive/2007/04/07/draft-paper-on-f-active-patterns.aspx">more detail on the different types of active patterns in his paper</a> and <a href="http://blogs.msdn.com/chrsmith/archive/2008/02/21/Introduction-to-F_2300_-Active-Patterns.aspx">Chris Smith also covers them in his post</a>.</p>
+</div>
+<div class="paragraph">
+<p>The code for the active pattern feels a bit too imperative at the moment although I wasn&#8217;t sure of the best way to cover the different scenarios without writing it this way - no doubt there is a more functional way to do this but I can&#8217;t see it yet.</p>
+</div>
+<div class="paragraph">
 <p>Making use of the active pattern in the code has made it much easier to work with than passing around a sequence of tuples as I was doing previously. It has also made it easy to exit from the program early if there is a problem with the data inputted.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -296,7 +332,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/19/f-active-patterns-for-parsing-xml/&amp;title=F%23%3a%20Active%20patterns%20for%20parsing%20xml&amp;summary=I%20decided%20to%20spend%20some%20time%20doing%20some%20refactoring%20on%20the%20FeedBurner%20applicationthat%20I%20started%20working%20on%20last%20week%20and%20the%20first%20area%20I%20worked%20on%20was%20cleaning%20up%20the%20way%20that%20the%20xml%20we%20get%20from%20FeedBurner%20is%20parsed.%0aWhile%20playing%20around%20with%20the%20application%20from%20the%20command%20lineI%20realised%20that%20it%20didn%26rsquo%3bt%20actually%20cover%20error%20conditions%20-%20such%20as%20passing%20in%20an%20invalid%20feed%20name%20-%20very%20well%20and%20I%20thought%20this%20would%20be%20a%20good%20opportunity%20to%20make%20use%20of%20an%20active%20patternto%20handle%20this...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/19/f-active-patterns-for-parsing-xml/&amp;title=F%23%3a%20Active%20patterns%20for%20parsing%20xml&amp;summary=I%20decided%20to%20spend%20some%20time%20doing%20some%20refactoring%20on%20the%20FeedBurner%20application%20that%20I%20started%20working%20on%20last%20week%20and%20the%20first%20area%20I%20worked%20on%20was%20cleaning%20up%20the%20way%20that%20the%20xml%20we%20get%20from%20FeedBurner%20is%20parsed.%0a%20While%20playing%20around%20with%20the%20application%20from%20the%20command%20line%20I%20realised%20that%20it%20didn%26%238217%3bt%20actually%20cover%20error%20conditions%20-%20such%20as%20passing%20in%20an%20invalid%20feed%20name%20-%20very%20well%20and%20I%20thought%20this%20would%20be%20a%20good%20opportunity%20to%20make%20use%20of%20an%20active%20pattern%20to%20handle%20this...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Detecting rogue spaces in CSV headers with LOAD CSV" />
         
-          <meta name="twitter:description" content="load csv with headers from &quot;file:///foo.csv&quot; as row RETURN row ╒══════════════════════════════════╕ │row │ ╞══════════════════════════════════╡ │{key1: a, key2: (null), key3: c}│ ├──────────────────────────────────┤ │{key1: d, key2: e, key3: f} │ └──────────────────────────────────┘ load csv with headers from &quot;file:///foo.csv&quot; as row WITH row WHERE NOT row.key2 is null RETURN row (no rows) load csv with headers from &quot;file:///foo.csv&quot; as row WITH row LIMIT 1 UNWIND keys(row) AS key RETURN key, SIZE(key) ╒═════╤═════════╕ │key │SIZE(key)│ ╞═════╪═════════╡ │key1 │4 │ ├─────┼─────────┤ │ key2│5 │ ├─────┼─────────┤ │ key3│5 │ └─────┴─────────┘ load csv with headers from &quot;file:///foo." />
+          <meta name="twitter:description" content="Last week I was helping someone load the data from a CSV file into Neo4j and we were having trouble filtering out rows which contained a null value in one of the columns.
+ This is what the data looked like:
+ load csv with headers from &#34;file:///foo.csv&#34; as row RETURN row   ╒══════════════════════════════════╕ │row │ ╞══════════════════════════════════╡ │{key1: a, key2: (null), key3: c}│ ├──────────────────────────────────┤ │{key1: d, key2: e, key3: f} │ └──────────────────────────────────┘   We&#8217;d like to filter out any rows which have &#39;key2&#39; as null, so let&#8217;s tweak our query to do that:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/10/19/neo4j-detecting-rogue-spaces-in-csv-headers-with-load-csv/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j: Detecting rogue spaces in CSV headers with LOAD CSV &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="load csv with headers from &quot;file:///foo.csv&quot; as row RETURN row ╒══════════════════════════════════╕ │row │ ╞══════════════════════════════════╡ │{key1: a, key2: (null), key3: c}│ ├──────────────────────────────────┤ │{key1: d, key2: e, key3: f} │ └──────────────────────────────────┘ load csv with headers from &quot;file:///foo.csv&quot; as row WITH row WHERE NOT row.key2 is null RETURN row (no rows) load csv with headers from &quot;file:///foo.csv&quot; as row WITH row LIMIT 1 UNWIND keys(row) AS key RETURN key, SIZE(key) ╒═════╤═════════╕ │key │SIZE(key)│ ╞═════╪═════════╡ │key1 │4 │ ├─────┼─────────┤ │ key2│5 │ ├─────┼─────────┤ │ key3│5 │ └─────┴─────────┘ load csv with headers from &quot;file:///foo." />
+        <meta name="description" content="Last week I was helping someone load the data from a CSV file into Neo4j and we were having trouble filtering out rows which contained a null value in one of the columns.
+ This is what the data looked like:
+ load csv with headers from &#34;file:///foo.csv&#34; as row RETURN row   ╒══════════════════════════════════╕ │row │ ╞══════════════════════════════════╡ │{key1: a, key2: (null), key3: c}│ ├──────────────────────────────────┤ │{key1: d, key2: e, key3: f} │ └──────────────────────────────────┘   We&#8217;d like to filter out any rows which have &#39;key2&#39; as null, so let&#8217;s tweak our query to do that:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-10-19",
-        "description": "load csv with headers from \x26quot;file:\/\/\/foo.csv\x26quot; as row RETURN row ╒══════════════════════════════════╕ │row │ ╞══════════════════════════════════╡ │{key1: a, key2: (null), key3: c}│ ├──────────────────────────────────┤ │{key1: d, key2: e, key3: f} │ └──────────────────────────────────┘ load csv with headers from \x26quot;file:\/\/\/foo.csv\x26quot; as row WITH row WHERE NOT row.key2 is null RETURN row (no rows) load csv with headers from \x26quot;file:\/\/\/foo.csv\x26quot; as row WITH row LIMIT 1 UNWIND keys(row) AS key RETURN key, SIZE(key) ╒═════╤═════════╕ │key │SIZE(key)│ ╞═════╪═════════╡ │key1 │4 │ ├─────┼─────────┤ │ key2│5 │ ├─────┼─────────┤ │ key3│5 │ └─────┴─────────┘ load csv with headers from \x26quot;file:\/\/\/foo.",
-        "wordCount":  182 
+        "description": "Last week I was helping someone load the data from a CSV file into Neo4j and we were having trouble filtering out rows which contained a null value in one of the columns.\n This is what the data looked like:\n load csv with headers from \x22file:\/\/\/foo.csv\x22 as row RETURN row   ╒══════════════════════════════════╕ │row │ ╞══════════════════════════════════╡ │{key1: a, key2: (null), key3: c}│ ├──────────────────────────────────┤ │{key1: d, key2: e, key3: f} │ └──────────────────────────────────┘   We\x26#8217;d like to filter out any rows which have \x27key2\x27 as null, so let\x26#8217;s tweak our query to do that:",
+        "wordCount":  347 
     }
     </script>
     
@@ -172,35 +176,61 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Detecting rogue spaces in CSV headers with LOAD CSV</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///foo.csv&quot; as row
-RETURN row
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒══════════════════════════════════╕
+    <div class="paragraph">
+<p>Last week I was helping someone load the data from a CSV file into Neo4j and we were having trouble filtering out rows which contained a null value in one of the columns.</p>
+</div>
+<div class="paragraph">
+<p>This is what the data looked like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///foo.csv" as row
+RETURN row</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒══════════════════════════════════╕
 │row                               │
 ╞══════════════════════════════════╡
 │{key1: a,  key2: (null),  key3: c}│
 ├──────────────────────────────────┤
 │{key1: d,  key2: e,  key3: f}     │
-└──────────────────────────────────┘
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///foo.csv&quot; as row
+└──────────────────────────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;d like to filter out any rows which have 'key2' as null, so let&#8217;s tweak our query to do that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///foo.csv" as row
 WITH row WHERE NOT row.key2 is null
-RETURN row
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-(no rows)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///foo.csv&quot; as row
+RETURN row</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">(no rows)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Hmmm that&#8217;s odd, it&#8217;s got rid of both rows. We&#8217;d expect to see the 2nd row since that doesn&#8217;t have a null value.</p>
+</div>
+<div class="paragraph">
+<p>At this point we might suspect that what we&#8217;re seeing on the screen isn&#8217;t actually what the data looks like. Let&#8217;s write the following query to check our header values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///foo.csv" as row
 WITH row LIMIT 1
 UNWIND keys(row) AS key
-RETURN key, SIZE(key)
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒═════╤═════════╕
+RETURN key, SIZE(key)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒═════╤═════════╕
 │key  │SIZE(key)│
 ╞═════╪═════════╡
 │key1 │4        │
@@ -208,15 +238,23 @@ RETURN key, SIZE(key)
 │ key2│5        │
 ├─────┼─────────┤
 │ key3│5        │
-└─────┴─────────┘
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///foo.csv&quot; as row
+└─────┴─────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The second column tells us that there are some extra characters in the columns for 'key2' and 'key3' or rather ' key2' and ' key3'. In this case they are spaces, but it could easily be another character:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///foo.csv" as row
 WITH row LIMIT 1
 UNWIND keys(row) AS key
-RETURN key, replace(key, &quot; &quot;, &quot;_SPACE_&quot;) AS spaces
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒═════╤═══════════╕
+RETURN key, replace(key, " ", "_SPACE_") AS spaces</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒═════╤═══════════╕
 │key  │spaces     │
 ╞═════╪═══════════╡
 │key1 │key1       │
@@ -224,15 +262,23 @@ RETURN key, replace(key, &quot; &quot;, &quot;_SPACE_&quot;) AS spaces
 │ key2│_SPACE_key2│
 ├─────┼───────────┤
 │ key3│_SPACE_key3│
-└─────┴───────────┘
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///foo.csv&quot; as row
+└─────┴───────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we clean up our CSV file and try again everything works as expected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///foo.csv" as row
 WITH row LIMIT 1
 UNWIND keys(row) AS key
-RETURN key, SIZE(key)
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒════╤═════════╕
+RETURN key, SIZE(key)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒════╤═════════╕
 │key │SIZE(key)│
 ╞════╪═════════╡
 │key1│4        │
@@ -240,18 +286,26 @@ RETURN key, SIZE(key)
 │key2│4        │
 ├────┼─────────┤
 │key3│4        │
-└────┴─────────┘
-</code></pre></div><pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///foo.csv&quot; as row
+└────┴─────────┘</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///foo.csv" as row
 WITH row WHERE NOT row.key2 is null
-RETURN row
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒═══════════════════════════╕
+RETURN row</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒═══════════════════════════╕
 │row                        │
 ╞═══════════════════════════╡
 │{key1: d, key2: e, key3: f}│
-└───────────────────────────┘
-</code></pre></div>
+└───────────────────────────┘</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -285,7 +339,7 @@ RETURN row
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/10/19/neo4j-detecting-rogue-spaces-in-csv-headers-with-load-csv/&amp;title=Neo4j%3a%20Detecting%20rogue%20spaces%20in%20CSV%20headers%20with%20LOAD%20CSV&amp;summary=load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2f%2f%2ffoo.csv%26quot%3b%20as%20row%20RETURN%20row%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82row%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7bkey1%3a%20a%2c%20key2%3a%20%28null%29%2c%20key3%3a%20c%7d%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%7bkey1%3a%20d%2c%20key2%3a%20e%2c%20key3%3a%20f%7d%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2f%2f%2ffoo.csv%26quot%3b%20as%20row%20WITH%20row%20WHERE%20NOT%20row.key2%20is%20null%20RETURN%20row%20%28no%20rows%29%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2f%2f%2ffoo.csv%26quot%3b%20as%20row%20WITH%20row%20LIMIT%201%20UNWIND%20keys%28row%29%20AS%20key%20RETURN%20key%2c%20SIZE%28key%29%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a4%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82key%20%e2%94%82SIZE%28key%29%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%aa%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82key1%20%e2%94%824%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%20key2%e2%94%825%20%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%bc%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%20key3%e2%94%825%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%b4%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2f%2f%2ffoo...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/10/19/neo4j-detecting-rogue-spaces-in-csv-headers-with-load-csv/&amp;title=Neo4j%3a%20Detecting%20rogue%20spaces%20in%20CSV%20headers%20with%20LOAD%20CSV&amp;summary=Last%20week%20I%20was%20helping%20someone%20load%20the%20data%20from%20a%20CSV%20file%20into%20Neo4j%20and%20we%20were%20having%20trouble%20filtering%20out%20rows%20which%20contained%20a%20null%20value%20in%20one%20of%20the%20columns.%0a%20This%20is%20what%20the%20data%20looked%20like%3a%0a%20load%20csv%20with%20headers%20from%20%22file%3a%2f%2f%2ffoo.csv%22%20as%20row%20RETURN%20row%20%20%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82row%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7bkey1%3a%20a%2c%20key2%3a%20%28null%29%2c%20key3%3a%20c%7d%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%7bkey1%3a%20d%2c%20key2%3a%20e%2c%20key3%3a%20f%7d%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20%20%20We%26%238217%3bd%20like%20to%20filter%20out%20any%20rows%20which%20have%20%27key2%27%20as%20null%2c%20so%20let%26%238217%3bs%20tweak%20our%20query%20to%20do%20that%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

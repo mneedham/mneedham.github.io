@@ -250,7 +250,9 @@
       <pubDate>Wed, 14 Mar 2018 16:53:33 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2018/03/14/neo4j-cypher-neo-clienterror-statement-typeerror-dont-know-add-double-string/</guid>
-      <description>RETURN toFloat(&amp;quot;1.0&amp;quot;) + &amp;quot; Mark&amp;quot; ╒══════════╕ │&amp;quot;result&amp;quot; │ ╞══════════╡ │&amp;quot;1.0 Mark&amp;quot;│ └──────────┘ RETURN toFloat(&amp;quot;1.0&amp;quot;) + &amp;quot; Mark&amp;quot; Neo.ClientError.Statement.TypeError: Don&#39;t know how to add `Double(1.000000e+00)` and `String(&amp;quot; Mark&amp;quot;)` CYPHER 3.2 RETURN toFloat(&amp;quot;1.0&amp;quot;) + &amp;quot; Mark&amp;quot; AS result RETURN toString(toFloat(&amp;quot;1.0&amp;quot;)) + &amp;quot; Mark&amp;quot; AS result </description>
+      <description>I recently upgraded a Neo4j backed application from Neo4j 3.2 to Neo4j 3.3 and came across an interesting change in behaviour around type coercion which led to my application throwing a bunch of errors.
+ In Neo4j 3.2 and earlier if you added a String to a Double it would coerce the Double to a String and concatenate the values. The following would therefore be valid Cypher:
+ RETURN toFloat(&#34;1.0&#34;) + &#34;</description>
     </item>
     
     <item>
@@ -259,7 +261,10 @@
       <pubDate>Fri, 01 Dec 2017 22:09:17 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/12/01/neo4j-cypher-property-values-can-primitive-types-arrays-thereof/</guid>
-      <description>CREATE (:Person {id: [1, &amp;quot;mark&amp;quot;, 2.0]}) Neo.ClientError.Statement.TypeError Property values can only be of primitive types or arrays thereof. CREATE (:Person {id: [value in [1, &amp;quot;mark&amp;quot;, 2.0] | toString(value)]}) Added 1 label, created 1 node, set 1 property, completed after 4 ms. </description>
+      <description>I ran into an interesting Cypher error message earlier this week while trying to create an array property on a node which I thought I&amp;#8217;d share.
+ This was the Cypher query I wrote:
+ CREATE (:Person {id: [1, &#34;mark&#34;, 2.0]})   which results in this error:
+ Neo.ClientError.Statement.TypeError Property values can only be of primitive types or arrays thereof.   We actually are storing an array of primitives but we have a mix of different types which isn&amp;#8217;t allowed.</description>
     </item>
     
     <item>
@@ -268,7 +273,10 @@
       <pubDate>Fri, 06 Oct 2017 16:13:33 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/10/06/neo4j-cypher-deleting-duplicate-nodes/</guid>
-      <description>UNWIND range(0, 100) AS id CREATE (p1:Person {id: toInteger(rand() * id)}) MERGE (p2:Person {id: toInteger(rand() * id)}) MERGE (p3:Person {id: toInteger(rand() * id)}) MERGE (p4:Person {id: toInteger(rand() * id)}) CREATE (p1)-[:KNOWS]-&amp;gt;(p2) CREATE (p1)-[:KNOWS]-&amp;gt;(p3) CREATE (p1)-[:KNOWS]-&amp;gt;(p4) Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms. MATCH (p:Person) WITH p.id as id, collect(p) AS nodes WHERE size(nodes) &amp;gt; 1 RETURN [ n in nodes | n.</description>
+      <description>I had a problem on a graph I was working on recently where I&amp;#8217;d managed to create duplicate nodes because I hadn&amp;#8217;t applied any unique constraints.
+ I wanted to remove the duplicates, and came across Jimmy Ruts&#39; excellent post which shows some ways to do this.
+ Let&amp;#8217;s first create a graph with some duplicate nodes to play with:
+ UNWIND range(0, 100) AS id CREATE (p1:Person {id: toInteger(rand() * id)}) MERGE (p2:Person {id: toInteger(rand() * id)}) MERGE (p3:Person {id: toInteger(rand() * id)}) MERGE (p4:Person {id: toInteger(rand() * id)}) CREATE (p1)-[:KNOWS]-&amp;gt;(p2) CREATE (p1)-[:KNOWS]-&amp;gt;(p3) CREATE (p1)-[:KNOWS]-&amp;gt;(p4) Added 173 labels, created 173 nodes, set 173 properties, created 5829 relationships, completed after 408 ms.</description>
     </item>
     
     <item>
@@ -277,7 +285,8 @@
       <pubDate>Tue, 19 Sep 2017 19:30:09 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/09/19/neo4j-cypher-create-cypher-map-with-dynamic-keys/</guid>
-      <description>WITH &amp;quot;a&amp;quot; as dynamicKey, &amp;quot;b&amp;quot; as dynamicValue RETURN { dynamicKey: dynamicValue } AS map ╒══════════════════╕ │&amp;quot;map&amp;quot; │ ╞══════════════════╡ │{&amp;quot;dynamicKey&amp;quot;:&amp;quot;b&amp;quot;}│ └──────────────────┘ CALL dbms.functions() yield name, description WHERE name STARTS WITH &amp;quot;apoc.map.from&amp;quot; RETURN name, description ╒═════════════════════╤═════════════════════════════════════════════════════╕ │&amp;quot;name&amp;quot; │&amp;quot;description&amp;quot; │ ╞═════════════════════╪═════════════════════════════════════════════════════╡ │&amp;quot;apoc.map.fromLists&amp;quot; │&amp;quot;apoc.map.fromLists([keys],[values])&amp;quot; │ ├─────────────────────┼─────────────────────────────────────────────────────┤ │&amp;quot;apoc.map.fromNodes&amp;quot; │&amp;quot;apoc.map.fromNodes(label, property)&amp;quot; │ ├─────────────────────┼─────────────────────────────────────────────────────┤ │&amp;quot;apoc.map.fromPairs&amp;quot; │&amp;quot;apoc.map.fromPairs([[key,value],[key2,value2],...])&amp;quot;│ ├─────────────────────┼─────────────────────────────────────────────────────┤ │&amp;quot;apoc.map.fromValues&amp;quot;│&amp;quot;apoc.map.fromValues([key1,value1,key2,value2,...])&amp;quot; │ └─────────────────────┴─────────────────────────────────────────────────────┘ WITH &amp;quot;a&amp;quot; as dynamicKey, &amp;quot;b&amp;quot; as dynamicValue RETURN apoc.map.fromValues([dynamicKey, dynamicValue]) AS map ╒═════════╕ │&amp;quot;map&amp;quot; │ ╞═════════╡ │{&amp;quot;a&amp;quot;:&amp;quot;b&amp;quot;}│ └─────────┘ WITH &amp;quot;a&amp;quot; as dynamicKey, &amp;quot;b&amp;quot; as dynamicValue RETURN apoc.</description>
+      <description>I was recently trying to create a map in a Cypher query but wanted to have dynamic keys in that map. I started off with this query:
+ WITH &#34;a&#34; as dynamicKey, &#34;b&#34; as dynamicValue RETURN { dynamicKey: dynamicValue } AS map ╒══════════════════╕ │&#34;map&#34; │ ╞══════════════════╡ │{&#34;dynamicKey&#34;:&#34;b&#34;}│ └──────────────────┘   Not quite what we want! We want dynamicKey to be evaluated rather than treated as a literal. As usual, APOC comes to the rescue!</description>
     </item>
     
     <item>
@@ -286,7 +295,8 @@
       <pubDate>Sun, 13 Aug 2017 07:23:46 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/08/13/neo4j-cypher-rounding-of-floating-point-numbersbigdecimals/</guid>
-      <description>with &amp;quot;8.37&amp;quot; as rawNumeric RETURN toFloat(rawNumeric) * 1000000 AS numeric ╒═════════════════╕ │&amp;quot;numeric&amp;quot; │ ╞═════════════════╡ │8369999.999999999│ └─────────────────┘ $ ls -lh plugins/ total 3664 -rw-r--r--@ 1 markneedham staff 1.8M 9 Aug 09:14 apoc-3.2.0.4-all.jar $ docker run -v $PWD/plugins:/plugins \  -p 7474:7474 \  -p 7687:7687 \  -e NEO4J_AUTH=&amp;#34;none&amp;#34; \  neo4j:3.2.3 with &amp;quot;8.37&amp;quot; as rawNumeric RETURN apoc.number.exact.mul(rawNumeric,&amp;quot;1000000&amp;quot;) AS apocConversion ╒════════════════╕ │&amp;quot;apocConversion&amp;quot;│ ╞════════════════╡ │&amp;quot;8370000.00&amp;quot; │ └────────────────┘ with &amp;quot;8.37&amp;quot; as rawNumeric RETURN toFloat(apoc.</description>
+      <description>I was doing some data cleaning a few days ago and wanting to multiply a value by 1 million. My Cypher code to do this looked like this:
+ with &#34;8.37&#34; as rawNumeric RETURN toFloat(rawNumeric) * 1000000 AS numeric ╒═════════════════╕ │&#34;numeric&#34; │ ╞═════════════════╡ │8369999.999999999│ └─────────────────┘   Unfortunately that suffers from the classic rounding error when working with floating point numbers. I couldn&amp;#8217;t figure out a way to solve it using pure Cypher, but there tends to be an APOC function to solve every problem and this was no exception.</description>
     </item>
     
     <item>
@@ -295,7 +305,9 @@
       <pubDate>Sun, 19 Feb 2017 22:39:05 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/02/19/neo4j-analysing-csv-file-using-load-csv-cypher/</guid>
-      <description>$ cat ~/Downloads/youtube_stats_pW9boJoUxO0.csv Video IDs:, pW9boJoUxO0, Start time:, Wed Feb 15 08:57:55 2017, End time:, Wed Feb 15 10:03:10 2017 Playbacks, Peak concurrent viewers, Total view time (hours), Average session length (minutes) 348, 112, 97.125, 16.7456896552, Country code, AR, AT, BE, BR, BY, CA, CH, CL, CR, CZ, DE, DK, EC, EE, ES, FI, FR, GB, HU, IE, IL, IN, IT, LB, LU, LV, MY, NL, NO, NZ, PK, PL, QA, RO, RS, RU, SE, TR, US, VN, ZA Playbacks, 2, 2, 1, 14, 1, 10, 2, 1, 1, 1, 27, 1, 1, 1, 3, 1, 25, 54, 1, 4, 6, 8, 1, 1, 1, 1, 1, 23, 1, 1, 1, 1, 1, 1, 2, 6, 22, 1, 114, 1, 1 Peak concurrent viewers, 2, 1, 1, 4, 1, 5, 1, 1, 0, 0, 11, 1, 1, 1, 2, 1, 6, 25, 1, 3, 3, 2, 1, 1, 1, 1, 1, 9, 1, 1, 0, 1, 0, 1, 1, 3, 7, 0, 44, 1, 0 Total view time (hours), 1.</description>
+      <description>Last week we ran our first online meetup for several years and I wanted to wanted to analyse the stats that YouTube lets you download for an event.
+ The file I downloaded looked like this:
+ $ cat ~/Downloads/youtube_stats_pW9boJoUxO0.csv Video IDs:, pW9boJoUxO0, Start time:, Wed Feb 15 08:57:55 2017, End time:, Wed Feb 15 10:03:10 2017 Playbacks, Peak concurrent viewers, Total view time (hours), Average session length (minutes) 348, 112, 97.</description>
     </item>
     
     <item>
@@ -304,7 +316,8 @@
       <pubDate>Mon, 31 Oct 2016 19:31:46 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/10/31/neo4j-find-the-midpoint-between-two-latlongs/</guid>
-      <description>WITH 51.4931963543 AS lat1, -0.0475185810 AS lon1, 51.47908 AS lat2 , -0.05393950 AS lon2 WITH radians(lat1) AS rlat1, radians(lon1) AS rlon1, radians(lat2) AS rlat2, radians(lon2) AS rlon2, radians(lon2 - lon1) AS dLon WITH rlat1, rlon1, rlat2, rlon2, cos(rlat2) * cos(dLon) AS Bx, cos(rlat2) * sin(dLon) AS By WITH atan2(sin(rlat1) + sin(rlat2), sqrt( (cos(rlat1) + Bx) * (cos(rlat1) + Bx) + By * By )) AS lat3, rlon1 + atan2(By, cos(rlat1) + Bx) AS lon3 RETURN degrees(lat3) AS midLat, degrees(lon3) AS midLon ╒═════════════════╤═════════════════════╕ │midLat │midLon │ ╞═════════════════╪═════════════════════╡ │51.</description>
+      <description>Over the last couple of weekends I&amp;#8217;ve been playing around with some transport data and I wanted to run the A* algorithm to find the quickest route between two stations.
+ The A* algorithm takes an estimateEvaluator as one of its parameters and the evaluator looks at lat/longs of nodes to work out whether a path is worth following or not. I therefore needed to add lat/longs for each station and I found it surprisingly hard to find this location date for all the points in the dataset.</description>
     </item>
     
     <item>
@@ -313,7 +326,9 @@
       <pubDate>Sun, 30 Oct 2016 22:12:50 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/10/30/neo4j-create-dynamic-relationship-type/</guid>
-      <description>load csv with headers from &amp;quot;file:///people.csv&amp;quot; AS row RETURN row ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘ load csv with headers from &amp;quot;file:///people.csv&amp;quot; AS row MERGE (p1:Person {name: row.node1}) MERGE (p2:Person {name: row.node2}) FOREACH(ignoreMe IN CASE WHEN row.relationship = &amp;quot;MARRIED_TO&amp;quot; THEN [1] ELSE [] END | MERGE (p1)-[:MARRIED_TO]-&amp;gt;(p2)) FOREACH(ignoreMe IN CASE WHEN row.relationship = &amp;quot;FRIENDS&amp;quot; THEN [1] ELSE [] END | MERGE (p1)-[:FRIENDS]-&amp;gt;(p2)) load csv with headers from &amp;quot;file:///people.</description>
+      <description>One of the things I&amp;#8217;ve often found frustrating when importing data using Cypher, Neo4j&amp;#8217;s query language, is that it&amp;#8217;s quite difficult to create dynamic relationship types.
+ Say we have a CSV file structured like this:
+ load csv with headers from &#34;file:///people.csv&#34; AS row RETURN row   ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘   We want to create nodes with the relationship type specified in the file.</description>
     </item>
     
     <item>
@@ -322,7 +337,9 @@
       <pubDate>Sun, 02 Oct 2016 10:13:26 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/10/02/neo4j-procedure-call-inside-a-query-does-not-support-passing-arguments-implicitly-pass-explicitly-after-procedure-name-instead/</guid>
-      <description>CALL db.labels ╒══════════╕ │label │ ╞══════════╡ │Airport │ ├──────────┤ │Flight │ ├──────────┤ │Airline │ ├──────────┤ │Movie │ ├──────────┤ │AirportDay│ ├──────────┤ │Person │ ├──────────┤ │Engineer │ └──────────┘ CALL db.labels YIELD label WITH label WHERE tolower(label) contains &amp;quot;a&amp;quot; RETURN label Procedure call inside a query does not support passing arguments implicitly (pass explicitly after procedure name instead) (line 1, column 9 (offset: 8)) &amp;#34;CALL db.labels&amp;#34; ^ CALL db.labels() YIELD label WITH label WHERE tolower(label) contains &amp;quot;a&amp;quot; RETURN label ╒══════════╕ │label │ ╞══════════╡ │Airport │ ├──────────┤ │Airline │ ├──────────┤ │AirportDay│ └──────────┘ </description>
+      <description>A couple of days I was trying to write a Cypher query to filter the labels in my database.
+ I started with the following procedure call to get the list of all the labels:
+ CALL db.labels   ╒══════════╕ │label │ ╞══════════╡ │Airport │ ├──────────┤ │Flight │ ├──────────┤ │Airline │ ├──────────┤ │Movie │ ├──────────┤ │AirportDay│ ├──────────┤ │Person │ ├──────────┤ │Engineer │ └──────────┘   I was only interested in labels that contained the letter &#39;a&#39; so I tweaked the query to filter the output of the procedure:</description>
     </item>
     
     <item>
@@ -331,7 +348,9 @@
       <pubDate>Wed, 20 Jul 2016 17:32:19 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/07/20/neo4j-cypher-detecting-duplicates-using-relationships/</guid>
-      <description>MATCH (r:Resource {id: &amp;quot;168640&amp;quot;})-[:REFERENCES]-&amp;gt;(other) WITH r, COLLECT(other) as myReferences UNWIND myReferences AS reference OPTIONAL MATCH path = (other)-[:REFERENCES]-&amp;gt;(reference) WITH other, COUNT(path) AS otherReferences, SIZE(myReferences) AS myReferences WITH other, 1.0 * otherReferences / myReferences AS similarity WHERE similarity &amp;gt; 0.5 RETURN other.id, other.title, similarity ORDER BY similarity DESC LIMIT 10 ╒════════╤═══════════════════════════════════════════╤══════════╕ │other.id│other.title │similarity│ ╞════════╪═══════════════════════════════════════════╪══════════╡ │168640 │Authentication in the Taos operating system│1 │ ├────────┼───────────────────────────────────────────┼──────────┤ │174614 │Authentication in the Taos operating system│1 │ └────────┴───────────────────────────────────────────┴──────────┘ ╒════════╤════════════════════════════════════════════════════════════════╤══════════════════╕ │other.</description>
+      <description>I&amp;#8217;ve been building a graph of computer science papers on and off for a couple of months and now that I&amp;#8217;ve got a few thousand loaded in I realised that there are quite a few duplicates.
+ They&amp;#8217;re not duplicates in the sense that there are multiple entries with the same identifier but rather have different identifiers but seem to be the same paper!
+ e.g. there are a couple of papers titled &#39;Authentication in the Taos operating system&#39;:</description>
     </item>
     
     <item>
@@ -340,7 +359,9 @@
       <pubDate>Thu, 30 Jul 2015 06:23:03 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/07/30/neo4j-cypher-removing-consecutive-duplicates/</guid>
-      <description>RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&amp;gt; +-----------------------+ ==&amp;gt; | values | ==&amp;gt; +-----------------------+ ==&amp;gt; | [1,1,2,3,4,5,6,7,7,8] | ==&amp;gt; +-----------------------+ ==&amp;gt; 1 row WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx RETURN idx, idx+1, values[idx], values[idx+1] ==&amp;gt; +-------------------------------------------+ ==&amp;gt; | idx | idx+1 | values[idx] | values[idx+1] | ==&amp;gt; +-------------------------------------------+ ==&amp;gt; | 0 | 1 | 1 | 1 | ==&amp;gt; | 1 | 2 | 1 | 2 | ==&amp;gt; | 2 | 3 | 2 | 3 | ==&amp;gt; | 3 | 4 | 3 | 4 | ==&amp;gt; | 4 | 5 | 4 | 5 | ==&amp;gt; | 5 | 6 | 5 | 6 | ==&amp;gt; | 6 | 7 | 6 | 7 | ==&amp;gt; | 7 | 8 | 7 | 7 | ==&amp;gt; | 8 | 9 | 7 | 8 | ==&amp;gt; +-------------------------------------------+ ==&amp;gt; 9 rows WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx+1] AS b WHERE a &amp;lt;&amp;gt; b RETURN a,b ==&amp;gt; +-------+ ==&amp;gt; | a | b | ==&amp;gt; +-------+ ==&amp;gt; | 1 | 2 | ==&amp;gt; | 2 | 3 | ==&amp;gt; | 3 | 4 | ==&amp;gt; | 4 | 5 | ==&amp;gt; | 5 | 6 | ==&amp;gt; | 6 | 7 | ==&amp;gt; | 7 | 8 | ==&amp;gt; +-------+ ==&amp;gt; 7 rows WITH [1,1,2,3,4,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx+1] AS b WHERE a &amp;lt;&amp;gt; b RETURN COLLECT(a)[0] + COLLECT(b) AS noDuplicates ==&amp;gt; +-------------------+ ==&amp;gt; | noDuplicates | ==&amp;gt; +-------------------+ ==&amp;gt; | [1,2,3,4,5,6,7,8] | ==&amp;gt; +-------------------+ ==&amp;gt; 1 row WITH [1,1,1,2,3,4,5,5,6,7,7,8] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx+1] AS b WHERE a &amp;lt;&amp;gt; b RETURN COLLECT(a)[0] + COLLECT(b) AS noDuplicates ==&amp;gt; +-------------------+ ==&amp;gt; | noDuplicates | ==&amp;gt; +-------------------+ ==&amp;gt; | [1,2,3,4,5,6,7,8] | ==&amp;gt; +-------------------+ ==&amp;gt; 1 row WITH [1,1,1,2,3,4,5,5,6,7,7,8,1] AS values UNWIND RANGE(0, LENGTH(values) - 2) AS idx WITH values[idx] AS a, values[idx+1] AS b WHERE a &amp;lt;&amp;gt; b RETURN COLLECT(a)[0] + COLLECT(b) AS noDuplicates ==&amp;gt; +---------------------+ ==&amp;gt; | noDuplicates | ==&amp;gt; +---------------------+ ==&amp;gt; | [1,2,3,4,5,6,7,8,1] | ==&amp;gt; +---------------------+ ==&amp;gt; 1 row </description>
+      <description>When writing Cypher queries I sometimes find myself wanting to remove consecutive duplicates in collections that I&amp;#8217;ve joined together.
+ e.g we might start with the following query where 1 and 7 appear consecutively:
+ RETURN [1,1,2,3,4,5,6,7,7,8] AS values ==&amp;gt; +-----------------------+ ==&amp;gt; | values | ==&amp;gt; +-----------------------+ ==&amp;gt; | [1,1,2,3,4,5,6,7,7,8] | ==&amp;gt; +-----------------------+ ==&amp;gt; 1 row   We want to end up with [1,2,3,4,5,6,7,8]. We can start by exploding our array and putting consecutive elements next to each other:</description>
     </item>
     
     <item>
@@ -349,7 +370,9 @@
       <pubDate>Tue, 19 May 2015 22:45:48 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/05/19/neo4j-finding-all-shortest-paths/</guid>
-      <description>MATCH (p1:Person)-[:ACTED_IN]-&amp;gt;()&amp;lt;-[:ACTED_IN]-(p2:Person) MERGE (p1)-[:KNOWS]-(p2) MATCH (p1:Person {name: &amp;quot;Tom Hanks&amp;quot;}), (p2:Person {name: &amp;quot;Tom Cruise&amp;quot;}), path = shortestpath((p1)-[:KNOWS*]-(p2)) RETURN path MATCH (p1:Person), (p2:Person), path = shortestpath((p1)-[:KNOWS*]-(p2)) RETURN path ORDER BY LENGTH(path) DESC LIMIT 1 MATCH (p1:Person)-[:ACTED_IN]-&amp;gt;() WITH p1, COUNT(*) AS appearances ORDER BY appearances DESC LIMIT 10 WITH p1 AS p1, p1 AS p2 MATCH path = shortestpath((p1)-[:KNOWS*]-(p2)) RETURN path ORDER BY LENGTH(path) DESC LIMIT 1 MATCH (p1:Person)-[:ACTED_IN]-&amp;gt;() WITH p1, COUNT(*) AS appearances ORDER BY appearances DESC LIMIT 10 WITH COLLECT(p1) AS ps UNWIND ps AS p1 UNWIND ps AS p2 MATCH path = shortestpath((p1)-[:KNOWS*]-(p2)) RETURN path ORDER BY LENGTH(path) DESC LIMIT 1 </description>
+      <description>One of the Cypher language features we show in Neo4j training courses is the shortest path function which allows you to find the shortest path in terms of number of relationships between two nodes.
+ Using the movie graph, which you can import via the &#39;:play movies&#39; command in the browser, we&amp;#8217;ll first create a &#39;KNOWS&#39; relationship between any people that have appeared in the same movie:
+ MATCH (p1:Person)-[:ACTED_IN]-&amp;gt;()&amp;lt;-[:ACTED_IN]-(p2:Person) MERGE (p1)-[:KNOWS]-(p2)   Now that we&amp;#8217;ve got that relationship we can easily find the shortest path between two people, say Tom Cruise and Tom Hanks:</description>
     </item>
     
     <item>
@@ -358,7 +381,9 @@
       <pubDate>Mon, 04 May 2015 09:56:22 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/05/04/neo4j-load-csv-java-io-inputstreamreader-theres-a-field-starting-with-a-quote-and-whereas-it-ends-that-quote-there-seems-to-be-character-in-that-field-after-that-ending-quote-that-isnt-suppor/</guid>
-      <description>LOAD CSV FROM &amp;quot;file:///Users/markneedham/projects/neo4j-recommendations/lastfm-dataset-360K/usersha1-artmbid-artname-plays.tsv&amp;quot; AS row FIELDTERMINATOR &amp;quot;\t&amp;quot; return COUNT(*) At java.io.InputStreamReader@4d307fda:6484 there&#39;s a field starting with a quote and whereas it ends that quote there seems to be character in that field after that ending quote. That isn&#39;t supported. This is what I read: &#39;weird al&amp;quot;&#39; $ grep &amp;#34;\&amp;#34;weird&amp;#34; lastfm-dataset-360K/usersha1-artmbid-artname-plays.tsv | head -n 1 0015371426d2cbef354b2f680340de38d0ebd2f0	7746d775-9550-4360-b8d5-c37bd448ce01	&amp;#34;weird al&amp;#34; yankovic	4099 $ tr &amp;#34;\&amp;#34;&amp;#34; &amp;#34;&amp;#39;&amp;#34; &amp;lt; lastfm-dataset-360K/usersha1-artmbid-artname-plays.tsv &amp;gt; lastfm-dataset-360K/clean.tsv LOAD CSV FROM &amp;quot;file:///Users/markneedham/projects/neo4j-recommendations/lastfm-dataset-360K/clean.</description>
+      <description>I recently came across the last.fm dataset via Ben Frederickson&amp;#8217;s blog and thought it&amp;#8217;d be an interesting one to load into Neo4j and explore.
+ I started with a simple query to parse the CSV file and count the number of rows:
+ LOAD CSV FROM &#34;file:///Users/markneedham/projects/neo4j-recommendations/lastfm-dataset-360K/usersha1-artmbid-artname-plays.tsv&#34; AS row FIELDTERMINATOR &#34;\t&#34; return COUNT(*) At java.io.InputStreamReader@4d307fda:6484 there&#39;s a field starting with a quote and whereas it ends that quote there seems to be character in that field after that ending quote.</description>
     </item>
     
     <item>
@@ -379,7 +404,8 @@
       <pubDate>Sun, 29 Jun 2014 02:56:53 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/06/29/neo4j-cypher-vs-clojure-for-group-by-and-sorting/</guid>
-      <description>CREATE (event1:Event {name: &amp;quot;Future Event 1&amp;quot;, timestamp: 1414002772427 }) CREATE (event2:Event {name: &amp;quot;Future Event 2&amp;quot;, timestamp: 1424002772427 }) CREATE (event3:Event {name: &amp;quot;Future Event 3&amp;quot;, timestamp: 1416002772427 }) CREATE (event4:Event {name: &amp;quot;Past Event 1&amp;quot;, timestamp: 1403002772427 }) CREATE (event5:Event {name: &amp;quot;Past Event 2&amp;quot;, timestamp: 1402002772427 }) $ MATCH (e:Event) RETURN e; ==&amp;gt; +------------------------------------------------------------+ ==&amp;gt; | e | ==&amp;gt; +------------------------------------------------------------+ ==&amp;gt; | Node[15414]{name:&amp;quot;Future Event 1&amp;quot;,timestamp:1414002772427} | ==&amp;gt; | Node[15415]{name:&amp;quot;Future Event 2&amp;quot;,timestamp:1424002772427} | ==&amp;gt; | Node[15416]{name:&amp;quot;Future Event 3&amp;quot;,timestamp:1416002772427} | ==&amp;gt; | Node[15417]{name:&amp;quot;Past Event 1&amp;quot;,timestamp:1403002772427} | ==&amp;gt; | Node[15418]{name:&amp;quot;Past Event 2&amp;quot;,timestamp:1402002772427} | ==&amp;gt; +------------------------------------------------------------+ ==&amp;gt; 5 rows ==&amp;gt; 13 ms (def sorted-query &amp;#34;MATCH (e:Event) WITH COLLECT(e) AS events WITH [e IN events WHERE e.</description>
+      <description>One of the points that I emphasised during my talk on building Neo4j backed applications using Clojure last week is understanding when to use Cypher to solve a problem and when to use the programming language.
+ A good example of this is in the meetup application I&amp;#8217;ve been working on. I have a collection of events and want to display past events in descending order and future events in ascending order.</description>
     </item>
     
     <item>
@@ -388,7 +414,9 @@
       <pubDate>Tue, 17 Jun 2014 23:41:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/06/17/neo4j-load-csv-handling-conditionals/</guid>
-      <description>match_id,player,player_id,time,type &amp;#34;1012&amp;#34;,&amp;#34;Antonin Panenka&amp;#34;,&amp;#34;174835&amp;#34;,21,&amp;#34;penalty&amp;#34; &amp;#34;1012&amp;#34;,&amp;#34;Faisal Al Dakhil&amp;#34;,&amp;#34;2204&amp;#34;,57,&amp;#34;goal&amp;#34; &amp;#34;102&amp;#34;,&amp;#34;Roger Milla&amp;#34;,&amp;#34;79318&amp;#34;,106,&amp;#34;goal&amp;#34; &amp;#34;102&amp;#34;,&amp;#34;Roger Milla&amp;#34;,&amp;#34;79318&amp;#34;,108,&amp;#34;goal&amp;#34; &amp;#34;102&amp;#34;,&amp;#34;Bernardo Redin&amp;#34;,&amp;#34;44555&amp;#34;,115,&amp;#34;goal&amp;#34; &amp;#34;102&amp;#34;,&amp;#34;Andre Kana-biyik&amp;#34;,&amp;#34;174649&amp;#34;,44,&amp;#34;yellow&amp;#34; LOAD CSV WITH HEADERS FROM &amp;quot;https://raw.githubusercontent.com/mneedham/neo4j-worldcup/master/data/import/events.csv&amp;quot; AS csvLine // removed for conciseness // goals FOREACH(n IN (CASE WHEN csvLine.type IN [&amp;quot;penalty&amp;quot;, &amp;quot;goal&amp;quot;, &amp;quot;owngoal&amp;quot;] THEN [1] else [] END) | FOREACH(t IN CASE WHEN team = home THEN [home] ELSE [away] END | MERGE (stats)-[:SCORED_GOAL]-&amp;gt;(penalty:Goal {time: csvLine.time, type: csvLine.type}) )	) // cards FOREACH(n IN (CASE WHEN csvLine.</description>
+      <description>While building up the Neo4j World Cup Graph I&amp;#8217;ve been making use of the http://neo4j.com/blog/neo4j-2-1-graph-etl function and I frequently found myself needing to do different things depending on the value in one of the columns.
+ For example I have one CSV file which contains the different events that can happen in a football match:
+ match_id,player,player_id,time,type &#34;1012&#34;,&#34;Antonin Panenka&#34;,&#34;174835&#34;,21,&#34;penalty&#34; &#34;1012&#34;,&#34;Faisal Al Dakhil&#34;,&#34;2204&#34;,57,&#34;goal&#34; &#34;102&#34;,&#34;Roger Milla&#34;,&#34;79318&#34;,106,&#34;goal&#34; &#34;102&#34;,&#34;Roger Milla&#34;,&#34;79318&#34;,108,&#34;goal&#34; &#34;102&#34;,&#34;Bernardo Redin&#34;,&#34;44555&#34;,115,&#34;goal&#34; &#34;102&#34;,&#34;Andre Kana-biyik&#34;,&#34;174649&#34;,44,&#34;yellow&#34;   If the type is &#39;penalty&#39;, &#39;owngoal&#39; or &#39;goal&#39; then I want to create a SCORED_GOAL relationship whereas if it&amp;#8217;s &#39;yellow&#39;, &#39;yellowred&#39; or &#39;red&#39; then I want to create a RECEIVED_CARD relationship instead.</description>
     </item>
     
     <item>
@@ -407,7 +435,9 @@
       <pubDate>Sun, 25 May 2014 22:17:35 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/05/25/neo4j-cypher-rounding-a-float-value-to-decimal-places/</guid>
-      <description>RETURN toFloat(&amp;quot;12.336666&amp;quot;) AS value WITH toFloat(&amp;quot;12.336666&amp;quot;) AS value RETURN round(100 * value) / 100 AS value 12.34 WITH 2 as precision WITH toFloat(&amp;quot;12.336666&amp;quot;) AS value, 10^precision AS factor RETURN round(factor * value)/factor AS value WITH 4 as precision WITH toFloat(&amp;quot;12.336666&amp;quot;) AS value, 10^precision AS factor RETURN round(factor * value)/factor AS value 12.3367 </description>
+      <description>About 6 months ago Jacqui Read created a github issue explaining how she wanted to round a float value to a number of decimal places but was unable to do so due to the http://docs.neo4j.org/chunked/stable/query-functions-mathematical.html#functions-round function not taking the appropriate parameter.
+ I found myself wanting to do the same thing last week where I initially had the following value:
+ RETURN toFloat(&#34;12.336666&#34;) AS value   I wanted to round that to 2 decimal places and Wes suggested multiplying the value before using ROUND and then dividing afterwards to achieve that.</description>
     </item>
     
     <item>
@@ -416,7 +446,10 @@
       <pubDate>Sun, 25 May 2014 10:48:39 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/05/25/neo4j-2-1-passing-around-node-ids-vs-unwind/</guid>
-      <description>MATCH (g:Group) WITH g ORDER BY g.name LIMIT 5 WITH COLLECT(id(g)) AS groups MATCH (g1) WHERE id(g1) IN groups MATCH (g2) WHERE id(g2) IN groups OPTIONAL MATCH path = (g1)&amp;lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&amp;gt;(g2) RETURN g1.name, g2.name, CASE WHEN path is null THEN 0 ELSE COUNT(path) END AS overlap MATCH (g:Group) WITH g ORDER BY g.name LIMIT 5 WITH COLLECT(g) AS groups MATCH (g1) WHERE g1 IN groups MATCH (g2) WHERE g2 IN groups OPTIONAL MATCH path = (g1)&amp;lt;-[:MEMBER_OF]-()-[:MEMBER_OF]-&amp;gt;(g2) RETURN g1.</description>
+      <description>When Neo4j 2.1 is released we&amp;#8217;ll have the UNWIND clause which makes working with collections of things easier.
+ In my blog post about creating adjacency matrices we wanted to show how many people were members of the first 5 meetup groups ordered alphabetically and then check how many were members of each of the other groups.
+ Without the UNWIND clause we&amp;#8217;d have to do this:
+ MATCH (g:Group) WITH g ORDER BY g.</description>
     </item>
     
     <item>
@@ -435,7 +468,9 @@
       <pubDate>Fri, 28 Feb 2014 22:57:59 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/02/28/neo4j-cypher-finding-directors-who-acted-in-their-own-movie/</guid>
-      <description>MATCH (a)-[:ACTED_IN]-&amp;gt;(m)&amp;lt;-[:DIRECTED]-(d) WHERE a.name = d.name RETURN a MATCH (a)-[:ACTED_IN]-&amp;gt;(m)&amp;lt;-[:DIRECTED]-(d) WHERE a = d RETURN a MATCH (a)-[:ACTED_IN]-&amp;gt;(m)&amp;lt;-[:DIRECTED]-(a) RETURN a </description>
+      <description>I&amp;#8217;ve been doing quite a few Intro to Neo4j sessions recently and since it contains a lot of problems for the attendees to work on I get to see how first time users of Cypher actually use it.
+ A couple of hours in we want to write a query to find directors who acted in their own film based on the following model.
+   A common answer is the following:</description>
     </item>
     
     <item>
@@ -444,7 +479,10 @@
       <pubDate>Thu, 20 Feb 2014 18:22:43 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/02/20/neo4j-cypher-set-based-operations/</guid>
-      <description>public class SetBasedOperations { private static final Label PERSON = DynamicLabel.label( &amp;#34;Person&amp;#34; ); private static final Label OFFICE = DynamicLabel.label( &amp;#34;Office&amp;#34; ); private static final DynamicRelationshipType COLLEAGUES = DynamicRelationshipType.withName( &amp;#34;COLLEAGUES&amp;#34; ); private static final DynamicRelationshipType MEMBER_OF = DynamicRelationshipType.withName( &amp;#34;MEMBER_OF&amp;#34; ); public static void main( String[] args ) throws IOException { Random random = new Random(); String path = &amp;#34;/tmp/set-based-operations&amp;#34;; FileUtils.deleteRecursively( new File( path ) ); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); Transaction tx = db.</description>
+      <description>I was recently reminded of a Neo4j cypher query that I wrote a couple of years ago to find the colleagues that I hadn&amp;#8217;t worked with in the ThoughtWorks London office.
+ The model looked like this:
+   And I created the following fake data set of the aforementioned model:
+ public class SetBasedOperations { private static final Label PERSON = DynamicLabel.label( &#34;Person&#34; ); private static final Label OFFICE = DynamicLabel.</description>
     </item>
     
     <item>
@@ -453,7 +491,9 @@
       <pubDate>Mon, 17 Feb 2014 14:11:07 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/02/17/neo4j-creating-nodes-and-relationships-from-a-list-of-maps/</guid>
-      <description>MERGE (me:User {userId: 1} ) SET me.name = &amp;quot;Mark&amp;quot; FOREACH (f IN [{userId: 2, name: &amp;quot;Michael&amp;quot;}, {userId: 3, name: &amp;quot;Peter&amp;quot;}] | MERGE (u:User {userId: f.userId}) SET u = f MERGE (me)-[:FRIENDS_WITH]-&amp;gt;(u)) MERGE (me:User { userId: {userId} }) SET me.name = {name} FOREACH(f IN {friends} | MERGE (u:User {userId: f.userId }) SET u = f MERGE (me)-[:FRIENDS_WITH]-&amp;gt;(u)) public class ListsOfMapsCypher { public static void main( String[] args ) { ObjectNode request = JsonNodeFactory.</description>
+      <description>Last week Alistair and I were porting some Neo4j cypher queries from 1.8 to 2.0 and one of the queries we had to change was an interesting one that created a bunch of relationships from a list/array of maps.
+ In the query we had a user &#39;Mark&#39; and wanted to create &#39;FRIENDS_WITH&#39; relationships to Peter and Michael.
+   The application passed in a list of maps representing Peter and Michael as a parameter but if we remove the parameters the query looked like this:</description>
     </item>
     
     <item>
@@ -462,7 +502,9 @@
       <pubDate>Fri, 31 Jan 2014 07:14:53 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2014/01/31/neo4j-2-0-0-cypher-index-hints-and-neo-clienterror-schema-nosuchindex/</guid>
-      <description>CREATE INDEX ON :Player(name) MATCH p USING INDEX p:Player(name) WHERE p.name = &amp;quot;Wayne Rooney&amp;quot; RETURN p Cannot use index hint in this context. The label and property comparison must be specified on a non-optional node Label: `Player` Property name: `name` Neo.ClientError.Schema.NoSuchIndex MATCH (p:Player) USING INDEX p:Player(name) WHERE p.name = &amp;quot;Wayne Rooney&amp;quot; RETURN p MATCH (p:Player) USING INDEX p:Player(name) WHERE p.name = &amp;quot;Wayne Rooney&amp;quot; OR p.name = &amp;quot;Robin Van Persie&amp;quot; RETURN p Cannot use index hint in this context.</description>
+      <description>One of the features added into the more recent versions of Neo4j&amp;#8217;s cypher query language is the ability to tell Cypher which index you&amp;#8217;d like to use in your queries.
+ We&amp;#8217;ll use the football dataset, so let&amp;#8217;s start by creating an index on the &#39;name&#39; property of nodes labelled &#39;Player&#39;:
+ CREATE INDEX ON :Player(name)   Let&amp;#8217;s say we want to write a query to find &#39;Wayne Rooney&#39; while explicitly using this index.</description>
     </item>
     
     <item>
@@ -471,25 +513,31 @@
       <pubDate>Tue, 10 Dec 2013 23:46:46 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/12/10/neo4j-cypher-getting-the-hang-of-merge/</guid>
-      <description>public class Merge { private static Label PERSON = DynamicLabel.label(&amp;#34;Person&amp;#34;); public static void main(String[] args) throws IOException { File dbFile = new File(&amp;#34;/tmp/test-db&amp;#34;); FileUtils.deleteRecursively(dbFile); Faker faker = new Faker(); Random random = new Random(); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(dbFile.getPath()); Transaction tx = db.beginTx(); for (int i = 0; i &amp;lt; 100000; i++) { Node person = db.createNode(PERSON); person.setProperty(&amp;#34;name&amp;#34;, faker.name()); person.setProperty(&amp;#34;firstName&amp;#34;, faker.firstName()); person.setProperty(&amp;#34;lastName&amp;#34;, faker.lastName()); person.setProperty(&amp;#34;country&amp;#34;, faker.country()); person.setProperty(&amp;#34;age&amp;#34;, random.nextInt(50)); } tx.success(); tx.close(); } } $ MATCH (p:Person) RETURN p LIMIT 5; ==&amp;gt; +------------------------------------------------------------------------------------------------------------------+ ==&amp;gt; | p | ==&amp;gt; +------------------------------------------------------------------------------------------------------------------+ ==&amp;gt; | Node[1344]{name:&amp;quot;Benton Swaniawski&amp;quot;,firstName:&amp;quot;Rossie&amp;quot;,lastName:&amp;quot;Ankunding&amp;quot;,country:&amp;quot;Guadeloupe&amp;quot;,age:30} | ==&amp;gt; | Node[1345]{name:&amp;quot;Dagmar Bartell&amp;quot;,firstName:&amp;quot;Ashlynn&amp;quot;,lastName:&amp;quot;Watsica&amp;quot;,country:&amp;quot;French Guiana&amp;quot;,age:35} | ==&amp;gt; | Node[1346]{name:&amp;quot;Ms.</description>
+      <description>I&amp;#8217;ve been trying to get the hang of cypher&amp;#8217;s MERGE function and started out by writing a small file to import some people with random properties using the java-faker library.
+ public class Merge { private static Label PERSON = DynamicLabel.label(&#34;Person&#34;); public static void main(String[] args) throws IOException { File dbFile = new File(&#34;/tmp/test-db&#34;); FileUtils.deleteRecursively(dbFile); Faker faker = new Faker(); Random random = new Random(); GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(dbFile.getPath()); Transaction tx = db.</description>
     </item>
     
     <item>
-      <title>Neo4j 2.0.0-M06 -&gt; 2.0.0-RC1: Optional relationships with OPTIONAL MATCH</title>
+      <title>Neo4j 2.0.0-M06 \-&gt; 2.0.0-RC1: Optional relationships with OPTIONAL MATCH</title>
       <link>https://markhneedham.com/blog/2013/11/23/neo4j-2-0-0-m06-2-0-0-rc1-optional-relationships-with-optional-match/</link>
       <pubDate>Sat, 23 Nov 2013 22:54:58 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/11/23/neo4j-2-0-0-m06-2-0-0-rc1-optional-relationships-with-optional-match/</guid>
-      <description>CREATE (steve:Person {name: &amp;quot;Steve&amp;quot;}) CREATE (john:Person {name: &amp;quot;John&amp;quot;}) CREATE (david:Person {name: &amp;quot;David&amp;quot;}) CREATE (paul:Person {name: &amp;quot;Paul&amp;quot;}) CREATE (sam:Person {name: &amp;quot;Sam&amp;quot;}) CREATE (londonOffice:Office {name: &amp;quot;London Office&amp;quot;}) CREATE UNIQUE (steve)-[:WORKS_IN]-&amp;gt;(londonOffice) CREATE UNIQUE (john)-[:WORKS_IN]-&amp;gt;(londonOffice) CREATE UNIQUE (david)-[:WORKS_IN]-&amp;gt;(londonOffice) CREATE UNIQUE (paul)-[:WORKS_IN]-&amp;gt;(londonOffice) CREATE UNIQUE (sam)-[:WORKS_IN]-&amp;gt;(londonOffice) CREATE UNIQUE (steve)-[:COLLEAGUES_WITH]-&amp;gt;(john) CREATE UNIQUE (steve)-[:COLLEAGUES_WITH]-&amp;gt;(david) MATCH (person:Person)-[:WORKS_IN]-&amp;gt;(office)&amp;lt;-[:WORKS_IN]-(potentialColleague) WHERE person.name = &amp;quot;Steve&amp;quot; AND office.name = &amp;quot;London Office&amp;quot; WITH person, potentialColleague MATCH (potentialColleague)-[c?:COLLEAGUES_WITH]-(person) WHERE c IS null RETURN potentialColleague ==&amp;gt; +----------------------+ ==&amp;gt; | potentialColleague | ==&amp;gt; +----------------------+ ==&amp;gt; | Node[4]{name:&amp;#34;Paul&amp;#34;} | ==&amp;gt; | Node[5]{name:&amp;#34;Sam&amp;#34;} | ==&amp;gt; +----------------------+ ==&amp;gt; SyntaxException: Question mark is no longer used for optional patterns - use OPTIONAL MATCH instead (line 1, column 199) ==&amp;gt; &amp;#34;MATCH (person:Person)-[:WORKS_IN]-&amp;gt;(office)&amp;lt;-[:WORKS_IN]-(potentialColleague) WHERE person.</description>
+      <description>One of the breaking changes in Neo4j 2.0.0-RC1 compared to previous versions is that the -[?]-&amp;gt; syntax for matching optional relationships has been retired and replaced with the http://docs.neo4j.org/chunked/milestone/query-optional-match.html construct.
+ An example where we might want to match an optional relationship could be if we want to find colleagues that we haven&amp;#8217;t worked with given the following model:
+   Suppose we have the following data set:
+ CREATE (steve:Person {name: &#34;</description>
     </item>
     
     <item>
-      <title>Neo4j 2.0.0-M06 -&gt; 2.0.0-RC1: Working with path expressions</title>
+      <title>Neo4j 2.0.0-M06 \-&gt; 2.0.0-RC1: Working with path expressions</title>
       <link>https://markhneedham.com/blog/2013/11/23/neo4j-2-0-0-m06-2-0-0-rc1-working-with-path-expressions/</link>
       <pubDate>Sat, 23 Nov 2013 10:30:41 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/11/23/neo4j-2-0-0-m06-2-0-0-rc1-working-with-path-expressions/</guid>
-      <description>MATCH (player:Player)-[:played|subbed_on]-&amp;gt;stats WITH stats.goals AS goals, player, stats-[:in]-&amp;gt;()-[:on_tv]-() as onTv RETURN player.name, SUM(CASE WHEN onTv = FALSE THEN goals ELSE 0 END) as nonTvGoals, SUM(CASE WHEN onTv = TRUE THEN goals ELSE 0 END) as tvGoals, SUM(goals) as allGoals ORDER BY tvGoals DESC LIMIT 10 ==&amp;gt; +------------------------------------------------------+ ==&amp;gt; | player.name | nonTvGoals | tvGoals | allGoals | ==&amp;gt; +------------------------------------------------------+ ==&amp;gt; | &amp;#34;Robin Van Persie&amp;#34; | 11 | 15 | 26 | ==&amp;gt; | &amp;#34;Gareth Bale&amp;#34; | 8 | 13 | 21 | ==&amp;gt; | &amp;#34;Luis Suárez&amp;#34; | 12 | 11 | 23 | ==&amp;gt; | &amp;#34;Theo Walcott&amp;#34; | 5 | 9 | 14 | ==&amp;gt; | &amp;#34;Demba Ba&amp;#34; | 7 | 8 | 15 | ==&amp;gt; | &amp;#34;Santi Cazorla&amp;#34; | 5 | 7 | 12 | ==&amp;gt; | &amp;#34;Edin Dzeko&amp;#34; | 7 | 7 | 14 | ==&amp;gt; | &amp;#34;Carlos Tevez&amp;#34; | 5 | 6 | 11 | ==&amp;gt; | &amp;#34;Juan Mata&amp;#34; | 6 | 6 | 12 | ==&amp;gt; | &amp;#34;Steven Gerrard&amp;#34; | 3 | 6 | 9 | ==&amp;gt; +------------------------------------------------------+ ==&amp;gt; +--------------------------------------------------------+ ==&amp;gt; | player.</description>
+      <description>We recently released Neo4j 2.0.0-RC1 and since there were some breaking changes from Neo4j 2.0.0-M06 I decided to check if I needed to update any of my football graph queries.
+ On query which no longer worked as I expected was the following one which calculated the top goal scorers for televised games:
+ MATCH (player:Player)-[:played|subbed_on]-&amp;gt;stats WITH stats.goals AS goals, player, stats-[:in]-&amp;gt;()-[:on_tv]-() as onTv RETURN player.name, SUM(CASE WHEN onTv = FALSE THEN goals ELSE 0 END) as nonTvGoals, SUM(CASE WHEN onTv = TRUE THEN goals ELSE 0 END) as tvGoals, SUM(goals) as allGoals ORDER BY tvGoals DESC LIMIT 10   This is what that section of the graph looks like visually:</description>
     </item>
     
     <item>
@@ -498,7 +546,9 @@
       <pubDate>Fri, 22 Nov 2013 22:45:32 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/11/22/neo4j-cypher-creating-relationships-between-nodes-from-adjacent-rows-in-a-query/</guid>
-      <description>CREATE (:Season {name: &amp;quot;2013/2014&amp;quot;, timestamp: 1375315200}) CREATE (:Season {name: &amp;quot;2012/2013&amp;quot;, timestamp: 1343779200}) CREATE (:Season {name: &amp;quot;2011/2012&amp;quot;, timestamp: 1312156800}) CREATE (:Season {name: &amp;quot;2010/2011&amp;quot;, timestamp: 1280620800}) CREATE (:Season {name: &amp;quot;2009/2010&amp;quot;, timestamp: 1249084800}) // return all the matches for 2010/2011, 2011/2012, 2012/2013 MATCH (base:Season)&amp;lt;-[:NEXT*0..2]-(s) WHERE base.name = &amp;quot;2012/2013&amp;quot; MATCH s-[:contains]-&amp;gt;game RETURN game MATCH (s:Season) WITH s ORDER BY s.timestamp RETURN s ==&amp;gt; +------------------------------------------------+ ==&amp;gt; | s | ==&amp;gt; +------------------------------------------------+ ==&amp;gt; | Node[0]{name:&amp;#34;2009/2010&amp;#34;,timestamp:1249084800} | ==&amp;gt; | Node[1]{name:&amp;#34;2010/2011&amp;#34;,timestamp:1280620800} | ==&amp;gt; | Node[2]{name:&amp;#34;2011/2012&amp;#34;,timestamp:1312156800} | ==&amp;gt; | Node[3]{name:&amp;#34;2012/2013&amp;#34;,timestamp:1343779200} | ==&amp;gt; | Node[4]{name:&amp;#34;2013/2014&amp;#34;,timestamp:1375315200} | ==&amp;gt; +------------------------------------------------+ MATCH (s:Season) WITH s ORDER BY s.</description>
+      <description>I want to introduce the concept of a season into my graph so I can have import matches for multiple years and then vary the time period which queries take into account.
+ I started by creating season nodes like this:
+ CREATE (:Season {name: &#34;2013/2014&#34;, timestamp: 1375315200}) CREATE (:Season {name: &#34;2012/2013&#34;, timestamp: 1343779200}) CREATE (:Season {name: &#34;2011/2012&#34;, timestamp: 1312156800}) CREATE (:Season {name: &#34;2010/2011&#34;, timestamp: 1280620800}) CREATE (:Season {name: &#34;2009/2010&#34;, timestamp: 1249084800})   I wanted to add a &#39;NEXT&#39; relationship between the seasons so that I could have an in graph season index which would allow me to write queries like the following:</description>
     </item>
     
     <item>
@@ -507,7 +557,10 @@
       <pubDate>Sun, 13 Oct 2013 21:59:51 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/10/13/neo4jcypher-getting-rid-of-an-optional-match/</guid>
-      <description>MATCH (player:Player) WITH player MATCH player-[:played|subbed_on]-&amp;gt;stats-[:in]-&amp;gt;game-[t?:on_tv]-&amp;gt;channel WITH COLLECT({goals: stats.goals, type: TYPE(t)}) AS games, player RETURN player.name, REDUCE(goals = 0, h IN [g IN games WHERE g.type IS NULL] | goals + h.goals) AS nonTvGoals, REDUCE(goals = 0, h IN [g IN games WHERE g.type &amp;lt;&amp;gt; NULL] | goals + h.goals) AS tvGoals, REDUCE(goals = 0, h in games | goals + h.goals) AS totalGoals ORDER BY tvGoals DESC LIMIT 10 ==&amp;gt; +--------------------------------------------------------+ ==&amp;gt; | player.</description>
+      <description>I was looking back over some of the queries I wrote for my football data set and I came across one I&amp;#8217;d written to work out how many goals players scored in matches that were televised.
+ The data model looks like this:
+   My initial query to work out the top 10 scorers in televised games was as follows:
+ MATCH (player:Player) WITH player MATCH player-[:played|subbed_on]-&amp;gt;stats-[:in]-&amp;gt;game-[t?:on_tv]-&amp;gt;channel WITH COLLECT({goals: stats.</description>
     </item>
     
     <item>
@@ -516,7 +569,9 @@
       <pubDate>Thu, 03 Oct 2013 16:16:02 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/10/03/neo4jcypher-converting-queries-from-1-9-to-2-0-cant-use-optional-patterns-without-explicit-start-clause/</guid>
-      <description>START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-&amp;gt;stats-[:in]-&amp;gt;game-[t?:on_tv]-&amp;gt;channel WITH COLLECT([stats.goals, TYPE(t)]) AS games, player RETURN player.name, REDUCE(goals = 0, g&#39; IN FILTER(g IN games WHERE HEAD(TAIL(g)) IS NULL)| goals + HEAD(g&#39;)) AS nonTvGoals, REDUCE(goals = 0, g&#39; IN FILTER(g IN games WHERE HEAD(TAIL(g)) &amp;lt;&amp;gt; NULL)| goals + HEAD(g&#39;)) AS tvGoals, REDUCE(goals = 0, g&#39; in games | goals + HEAD(g&#39;)) AS totalGoals ORDER BY tvGoals DESC LIMIT 10 ==&amp;gt; +--------------------------------------------------------+ ==&amp;gt; | player.name | nonTvGoals | tvGoals | totalGoals | ==&amp;gt; +--------------------------------------------------------+ ==&amp;gt; | &amp;#34;Robin Van Persie&amp;#34; | 11 | 15 | 26 | ==&amp;gt; | &amp;#34;Gareth Bale&amp;#34; | 8 | 13 | 21 | ==&amp;gt; | &amp;#34;Luis Suárez&amp;#34; | 12 | 11 | 23 | ==&amp;gt; | &amp;#34;Theo Walcott&amp;#34; | 5 | 9 | 14 | ==&amp;gt; | &amp;#34;Demba Ba&amp;#34; | 7 | 8 | 15 | ==&amp;gt; | &amp;#34;Edin Dzeko&amp;#34; | 7 | 7 | 14 | ==&amp;gt; | &amp;#34;Santi Cazorla&amp;#34; | 5 | 7 | 12 | ==&amp;gt; | &amp;#34;Juan Mata&amp;#34; | 6 | 6 | 12 | ==&amp;gt; | &amp;#34;Steven Gerrard&amp;#34; | 3 | 6 | 9 | ==&amp;gt; | &amp;#34;Carlos Tevez&amp;#34; | 5 | 6 | 11 | ==&amp;gt; +--------------------------------------------------------+ ==&amp;gt; 10 rows START player = node:players(&#39;name:*&#39;) SET player :Player RETURN player CREATE INDEX on :Player(name) MATCH (player:Player)-[:played|subbed_on]-&amp;gt;stats-[:in]-&amp;gt;game-[t?</description>
+      <description>I&amp;#8217;ve been playing around with the most recent Neo4j 2.0 milestone release - 2.0.0-M05 - and one of the first things I did was translate the queries from my football data set which were written against Neo4j 1.9.
+ The following query calculates the number of goals scored by players in matches that were shown on television, not on television and in total.
+ START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-&amp;gt;stats-[:in]-&amp;gt;game-[t?:on_tv]-&amp;gt;channel WITH COLLECT([stats.goals, TYPE(t)]) AS games, player RETURN player.</description>
     </item>
     
     <item>
@@ -525,7 +580,8 @@
       <pubDate>Mon, 30 Sep 2013 21:34:01 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/09/30/neo4jcypher-translating-1-9-filter-queries-to-use-2-0-list-comprehensions/</guid>
-      <description>START team = node:teams(&#39;name:*&#39;) MATCH team&amp;lt;-[:for]-like_this&amp;lt;-[:started|as_sub]-player-[r?:sent_off_in|booked_in]-&amp;gt;game&amp;lt;-[:in]-like_this WITH team, COLLECT(r) AS cards WITH team, FILTER(x IN cards: TYPE(x) = &amp;quot;sent_off_in&amp;quot;) AS reds, FILTER(x IN cards: TYPE(x) = &amp;quot;booked_in&amp;quot;) AS yellows RETURN team.name, LENGTH(reds) AS redCards, LENGTH(yellows) AS yellowCards ORDER BY (yellowCards*1 + redCards*3) DESC ==&amp;gt; +-------------------------------------------------+ ==&amp;gt; | team.name | redCards | yellowCards | ==&amp;gt; +-------------------------------------------------+ ==&amp;gt; | &amp;#34;Stoke City&amp;#34; | 4 | 81 | ==&amp;gt; | &amp;#34;Newcastle United&amp;#34; | 4 | 74 | ==&amp;gt; | &amp;#34;Aston Villa&amp;#34; | 3 | 74 | ==&amp;gt; | &amp;#34;West Ham United&amp;#34; | 1 | 74 | ==&amp;gt; | &amp;#34;West Bromwich Albion&amp;#34; | 4 | 63 | ==&amp;gt; | &amp;#34;Sunderland&amp;#34; | 3 | 63 | ==&amp;gt; | &amp;#34;Wigan Athletic&amp;#34; | 2 | 66 | ==&amp;gt; | &amp;#34;Manchester City&amp;#34; | 3 | 62 | ==&amp;gt; | &amp;#34;Everton&amp;#34; | 3 | 62 | ==&amp;gt; | &amp;#34;Queens Park Rangers&amp;#34; | 3 | 60 | ==&amp;gt; | &amp;#34;Swansea City&amp;#34; | 2 | 59 | ==&amp;gt; | &amp;#34;Norwich City&amp;#34; | 1 | 60 | ==&amp;gt; | &amp;#34;Chelsea&amp;#34; | 3 | 53 | ==&amp;gt; | &amp;#34;Liverpool&amp;#34; | 2 | 54 | ==&amp;gt; | &amp;#34;Manchester United&amp;#34; | 1 | 57 | ==&amp;gt; | &amp;#34;Tottenham Hotspur&amp;#34; | 2 | 54 | ==&amp;gt; | &amp;#34;Arsenal&amp;#34; | 5 | 44 | ==&amp;gt; | &amp;#34;Fulham&amp;#34; | 3 | 48 | ==&amp;gt; | &amp;#34;Southampton&amp;#34; | 2 | 44 | ==&amp;gt; | &amp;#34;Reading&amp;#34; | 1 | 45 | ==&amp;gt; +-------------------------------------------------+ ==&amp;gt; 20 rows ==&amp;gt; SyntaxException: Invalid input &amp;#39;(&amp;#39;: expected an identifier character, whitespace, NodeLabel, &amp;#39;.</description>
+      <description>I was looking back over some cypher queries I&amp;#8217;d written earlier in the year against my football data set to find some examples of where list comprehensions could be useful and I came across this query which is used to work out which teams were the most badly behaved in terms of accumulating red and yellow cards:
+ START team = node:teams(&#39;name:*&#39;) MATCH team&amp;lt;-[:for]-like_this&amp;lt;-[:started|as_sub]-player-[r?:sent_off_in|booked_in]-&amp;gt;game&amp;lt;-[:in]-like_this WITH team, COLLECT(r) AS cards WITH team, FILTER(x IN cards: TYPE(x) = &#34;</description>
     </item>
     
     <item>
@@ -534,7 +590,9 @@
       <pubDate>Sat, 27 Jul 2013 09:30:26 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/07/27/neo4jcypher-getting-the-hang-of-query-parameters/</guid>
-      <description>require &amp;#39;open-uri&amp;#39; open(&amp;#34;data/people.cyp&amp;#34;, &amp;#39;w&amp;#39;) { |f| (1..500).each do |value| f.puts(&amp;#34;CREATE (p:Person{name: \&amp;#34;#{value}\&amp;#34;})&amp;#34;) end } CREATE (:Person{name: &amp;quot;person1&amp;quot;}) CREATE (:Person{name: &amp;quot;person2&amp;quot;}) CREATE (:Person{name: &amp;quot;person3&amp;quot;}) CREATE (:Person{name: &amp;quot;person4&amp;quot;}) CREATE (:Person{name: &amp;quot;person5&amp;quot;}) ... ==&amp;gt; +-------------------+ ==&amp;gt; | No data returned. | ==&amp;gt; +-------------------+ ==&amp;gt; Nodes created: 500 ==&amp;gt; Properties set: 500 ==&amp;gt; Labels added: 500 ==&amp;gt; 27706 ms require &amp;#39;neography&amp;#39; params = { :name =&amp;gt; &amp;#34;Mark&amp;#34; } Neography::Rest.new.execute_query(&amp;#34;CREATE (:Person {name: {name} })&amp;#34;, params) neo4j-sh (0)$ match p:Person return p; ==&amp;gt; +----------------------+ ==&amp;gt; | p | ==&amp;gt; +----------------------+ ==&amp;gt; | Node[1]{name:&amp;#34;Mark&amp;#34;} | ==&amp;gt; +----------------------+ ==&amp;gt; 1 row ==&amp;gt; 175 ms require &amp;#39;neography&amp;#39; params = { :name =&amp;gt; [] } (1.</description>
+      <description>For as long as I&amp;#8217;ve been using neo4j&#39;s cypher query language Michael has been telling me to use parameters in my queries but the performance of the queries was always acceptable so I didn&amp;#8217;t feel the need.
+ However, recently I was playing around with a data set and I created ~500 nodes using code similar to this:
+ require &#39;open-uri&#39; open(&#34;data/people.cyp&#34;, &#39;w&#39;) { |f| (1..500).each do |value| f.puts(&#34;CREATE (p:Person{name: \&#34;</description>
     </item>
     
     <item>
@@ -543,7 +601,10 @@
       <pubDate>Thu, 27 Jun 2013 10:32:18 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/06/27/neo4jcypher-aggregating-relationships-within-a-path/</guid>
-      <description>CREATE (email1 { name: &#39;Email 1&#39;, title: &#39;Some stuff&#39; }) CREATE (email2 { name: &#39;Email 2&#39;, title: &amp;quot;Absolutely irrelevant&amp;quot; }) CREATE (email3 { name: &#39;Email 3&#39;, title: &amp;quot;Something else&amp;quot; }) CREATE (person1 { name: &#39;Mark&#39; }) CREATE (person2 { name: &#39;Jim&#39; }) CREATE (person3 { name: &#39;Alistair&#39; }) CREATE (person1)-[:SENT]-&amp;gt;(email1) CREATE (person2)-[:RECEIVED]-&amp;gt;(email1) CREATE (person3)-[:RECEIVED]-&amp;gt;(email1) CREATE (person1)-[:SENT]-&amp;gt;(email2) CREATE (person2)-[:RECEIVED]-&amp;gt;(email2) CREATE (person2)-[:SENT]-&amp;gt;(email3) CREATE (person1)-[:RECEIVED]-&amp;gt;(email3) +-------------------------------------------+ | Person 1 | Person 2 | P1 -&amp;gt; P2 | P2 -&amp;gt; P1 | |-------------------------------------------| | Alistair | Mark | 0 | 1 | | Jim | Mark | 1 | 2 | +-------------------------------------------+ START email = node:node_auto_index(&#39;name:&amp;quot;Email 1&amp;quot; name:&amp;quot;Email 2&amp;quot; name: &amp;quot;Email 3&amp;quot;&#39;) MATCH sender-[:SENT]-&amp;gt;email&amp;lt;-[:RECEIVED]-receiver RETURN sender.</description>
+      <description>I recently came across an interesting use case of paths in a graph where we wanted to calculate the frequency of communication between two people by showing how frequently each emailed the other.
+ The model looked like this:
+   which we can create with the following cypher statements:
+ CREATE (email1 { name: &#39;Email 1&#39;, title: &#39;Some stuff&#39; }) CREATE (email2 { name: &#39;Email 2&#39;, title: &#34;Absolutely irrelevant&#34;</description>
     </item>
     
     <item>
@@ -552,7 +613,9 @@
       <pubDate>Thu, 20 Jun 2013 07:21:46 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/06/20/neo4j-a-simple-example-using-the-jdbc-driver/</guid>
-      <description>&amp;lt;dependencies&amp;gt; ... &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.neo4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;neo4j-jdbc&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.9&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;/dependencies&amp;gt; &amp;lt;repositories&amp;gt; &amp;lt;repository&amp;gt; &amp;lt;id&amp;gt;neo4j-maven&amp;lt;/id&amp;gt; &amp;lt;name&amp;gt;neo4j maven&amp;lt;/name&amp;gt; &amp;lt;url&amp;gt;http://m2.neo4j.org&amp;lt;/url&amp;gt; &amp;lt;/repository&amp;gt; &amp;lt;/repositories&amp;gt; Neo4jConnection connect = new Driver(). connect(&amp;#34;jdbc:neo4j://localhost:7474&amp;#34;, new Properties()); Exception in thread &amp;#34;main&amp;#34; java.lang.NoClassDefFoundError: org/neo4j/cypherdsl/grammar/Execute at org.neo4j.jdbc.Driver.&amp;lt;init&amp;gt;(Driver.java:52) at org.neo4j.jdbc.Driver.&amp;lt;clinit&amp;gt;(Driver.java:43) at com.centrica.bigquery.JDBCTest.main(JDBCTest.java:17) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:601) at com.intellij.rt.execution.application.AppMain.main(AppMain.java:120) Caused by: java.lang.ClassNotFoundException: org.neo4j.cypherdsl.grammar.Execute at java.net.URLClassLoader$1.run(URLClassLoader.java:366) at java.net.URLClassLoader$1.run(URLClassLoader.java:355) at java.security.AccessController.doPrivileged(Native Method) at java.net.URLClassLoader.findClass(URLClassLoader.java:354) at java.lang.ClassLoader.loadClass(ClassLoader.java:423) at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308) at java.lang.ClassLoader.loadClass(ClassLoader.java:356) ... 8 more &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.</description>
+      <description>Michael recently pointed me to the neo4j JDBC driver which he and Rickard have written so I thought I&amp;#8217;d try and port the code from my previous post to use that instead of the console.
+ To start with I added the following dependencies to my POM file:
+ &amp;lt;dependencies&amp;gt; ... &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;org.neo4j&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;neo4j-jdbc&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;1.9&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;/dependencies&amp;gt; &amp;lt;repositories&amp;gt; &amp;lt;repository&amp;gt; &amp;lt;id&amp;gt;neo4j-maven&amp;lt;/id&amp;gt; &amp;lt;name&amp;gt;neo4j maven&amp;lt;/name&amp;gt; &amp;lt;url&amp;gt;http://m2.neo4j.org&amp;lt;/url&amp;gt; &amp;lt;/repository&amp;gt; &amp;lt;/repositories&amp;gt;   I then tried to create a connection to a local neo4j server instance that I had running on port 7474:</description>
     </item>
     
     <item>
@@ -561,7 +624,9 @@
       <pubDate>Sat, 15 Jun 2013 13:04:53 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/06/15/neo4jcypher-finding-single-hop-paths/</guid>
-      <description>CREATE (ranieri {name: &amp;quot;Claudio Ranieri&amp;quot;}) CREATE (mourinho {name: &amp;quot;Jose Mourinho&amp;quot;}) CREATE (grant {name: &amp;quot;Avram Grant&amp;quot;}) CREATE (scolari {name: &amp;quot;Luiz Felipe Scolari&amp;quot;}) CREATE (wilkins {name: &amp;quot;Ray Wilkins&amp;quot;}) CREATE (hiddink {name: &amp;quot;Guus Hiddink&amp;quot;}) CREATE (ancelotti {name: &amp;quot;Carlo Ancelotti&amp;quot;}) CREATE (villasBoas {name: &amp;quot;Andre Villas Boas&amp;quot;}) CREATE (diMatteo {name: &amp;quot;Roberto Di Matteo&amp;quot;}) CREATE (benitez {name: &amp;quot;Rafael Benitez&amp;quot;}) CREATE (ranieri)-[:SUCCEEDED_BY]-&amp;gt;(mourinho) CREATE (mourinho)-[:SUCCEEDED_BY]-&amp;gt;(grant) CREATE (grant)-[:SUCCEEDED_BY]-&amp;gt;(scolari) CREATE (scolari)-[:SUCCEEDED_BY]-&amp;gt;(wilkins) CREATE (wilkins)-[:SUCCEEDED_BY]-&amp;gt;(hiddink) CREATE (hiddink)-[:SUCCEEDED_BY]-&amp;gt;(ancelotti) CREATE (ancelotti)-[:SUCCEEDED_BY]-&amp;gt;(villasBoas) CREATE (villasBoas)-[:SUCCEEDED_BY]-&amp;gt;(diMatteo) CREATE (diMatteo)-[:SUCCEEDED_BY]-&amp;gt;(benitez) CREATE (benitez)-[:SUCCEEDED_BY]-&amp;gt;(mourinho) START m = node:node_auto_index(name=&amp;quot;Claudio Ranieri&amp;quot;) MATCH path = (m)-[rel:SUCCEEDED_BY*]-&amp;gt;(successor) RETURN EXTRACT(n IN NODES(path): n.</description>
+      <description>The neo4j docs have a few examples explaining how to to write cypher queries dealing with path ranges but an interesting variation that I came across recently is where we want to find the individual hops in a path.
+ I thought the managers that Chelsea have had since Roman Abramovich took over would serve as a useful data set to show how this works.
+ So we create all the managers and a &#39;SUCCEEDED_BY&#39; relationship between them as follows:</description>
     </item>
     
     <item>
@@ -570,7 +635,9 @@
       <pubDate>Sat, 15 Jun 2013 09:53:15 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/06/15/neo4jcypherlucene-dealing-with-special-characters/</guid>
-      <description>CREATE ({name: &amp;quot;-one&amp;quot;}) CREATE ({name: &amp;quot;-two&amp;quot;}) CREATE ({name: &amp;quot;-three&amp;quot;}) CREATE ({name: &amp;quot;four&amp;quot;}) START p = node:node_auto_index(&amp;quot;name:-*&amp;quot;) RETURN p; ==&amp;gt; RuntimeException: org.apache.lucene.queryParser.ParseException: Cannot parse &amp;#39;name:-*&amp;#39;: Encountered &amp;#34; &amp;#34;-&amp;#34; &amp;#34;- &amp;#34;&amp;#34; at line 1, column 5. ==&amp;gt; Was expecting one of: ==&amp;gt; &amp;lt;BAREOPER&amp;gt; ... ==&amp;gt; &amp;#34;(&amp;#34; ... ==&amp;gt; &amp;#34;*&amp;#34; ... ==&amp;gt; &amp;lt;QUOTED&amp;gt; ... ==&amp;gt; &amp;lt;TERM&amp;gt; ... ==&amp;gt; &amp;lt;PREFIXTERM&amp;gt; ... ==&amp;gt; &amp;lt;WILDTERM&amp;gt; ... ==&amp;gt; &amp;#34;[&amp;#34; ... ==&amp;gt; &amp;#34;{&amp;#34; ... ==&amp;gt; &amp;lt;NUMBER&amp;gt; ... ==&amp;gt; START p = node:node_auto_index(&amp;quot;name:\-*&amp;quot;) RETURN p; ==&amp;gt; SyntaxException: invalid escape sequence ==&amp;gt; ==&amp;gt; Think we should have better error message here?</description>
+      <description>neo4j uses Lucene to handle indexing of nodes and relationships in the graph but something that can be a bit confusing at first is how to handle special characters in Lucene queries.
+ For example let&amp;#8217;s say we set up a database with the following data:
+ CREATE ({name: &#34;-one&#34;}) CREATE ({name: &#34;-two&#34;}) CREATE ({name: &#34;-three&#34;}) CREATE ({name: &#34;four&#34;})   And for whatever reason we only wanted to return the nodes that begin with a hyphen.</description>
     </item>
     
     <item>
@@ -579,7 +646,9 @@
       <pubDate>Sun, 09 Jun 2013 14:02:27 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/06/09/neo4jcypher-2-0-the-case-statement/</guid>
-      <description>CREATE (year2013 { name: &amp;quot;2013&amp;quot; }) CREATE (january2013 { name: &amp;quot;January&amp;quot; }) CREATE (january012013 { name: &amp;quot;1st&amp;quot; }) CREATE (january022013 { name: &amp;quot;2nd&amp;quot; }) CREATE (january032013 { name: &amp;quot;3rd&amp;quot; }) CREATE (january042013 { name: &amp;quot;4th&amp;quot; }) CREATE (january052013 { name: &amp;quot;5th&amp;quot; }) CREATE (chelsea { name: &amp;quot;Chelsea&amp;quot;, type: &amp;quot;team&amp;quot; }) CREATE (joseMourinho { name: &amp;quot;Jose Mourinho&amp;quot;}) CREATE (mourinhoChelsea { name: &amp;quot;Mourinho tenure at Chelsea&amp;quot; }) CREATE (manUtd { name: &amp;quot;Manchester United&amp;quot;, type: &amp;quot;team&amp;quot; }) CREATE (davidMoyes { name: &amp;quot;David Moyes&amp;quot;}) CREATE (davidMoyesUnited { name: &amp;quot;Moyes tenure at Manchester United&amp;quot; }) CREATE (year2013)-[:`January`]-(january2013) CREATE (january2013)-[:`01`]-(january012013) CREATE (january2013)-[:`02`]-(january022013) CREATE (january2013)-[:`03`]-(january032013) CREATE (january2013)-[:`04`]-(january042013) CREATE (january2013)-[:`05`]-(january052013) CREATE (january012013)-[:NEXT]-(january022013) CREATE (january022013)-[:NEXT]-(january032013) CREATE (january032013)-[:NEXT]-(january042013) CREATE (january042013)-[:NEXT]-(january052013) CREATE (mourinhoChelsea)-[:HIRED_ON {date: &amp;quot;January 1st 2013&amp;quot;}]-&amp;gt;(january012013) CREATE (mourinhoChelsea)-[:MANAGER]-&amp;gt;(joseMourinho) CREATE (mourinhoChelsea)-[:TEAM]-&amp;gt;(chelsea) CREATE (mourinhoChelsea)-[:FIRED_ON]-&amp;gt;(january032013) CREATE (davidMoyesUnited)-[:HIRED_ON {date: &amp;quot;January 2nd 2013&amp;quot;}]-&amp;gt;(january022013) CREATE (davidMoyesUnited)-[:MANAGER]-&amp;gt;(davidMoyes) CREATE (davidMoyesUnited)-[:TEAM]-&amp;gt;(manUtd) START team = node:node_auto_index(&#39;name:&amp;quot;Chelsea&amp;quot; name:&amp;quot;Manchester United&amp;quot;&#39;), date = node:node_auto_index(name=&amp;quot;5th&amp;quot;) MATCH date&amp;lt;-[:NEXT*0.</description>
+      <description>I&amp;#8217;ve been playing around with how you might model Premier League managers tenures at different clubs in neo4j and eventually decided on the following model:
+   The date modelling is based on an approach I first came across in a shutl presentation and is described in more detail in the docs.
+ I created a dummy data set with some made up appointments and dismissals and then tried to write a query to show me who was the manager for a team on a specific date.</description>
     </item>
     
     <item>
@@ -588,7 +657,8 @@
       <pubDate>Fri, 31 May 2013 00:37:57 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/05/31/neo4jcypher-400-response-paths-cant-be-created-inside-of-foreach/</guid>
-      <description>require &amp;#39;neography&amp;#39; neo = Neography::Rest.new neo.execute_query(&amp;#34;create (me {name: &amp;#39;Mark&amp;#39;})&amp;#34;) query = &amp;#34; START n=node:node_auto_index(name={name})&amp;#34; query &amp;lt;&amp;lt; &amp;#34; FOREACH (friend in {friends} : CREATE f=friend, n-[:FRIEND]-&amp;gt;f)&amp;#34; neo.execute_query(query, {&amp;#34;name&amp;#34; =&amp;gt; &amp;#34;Mark&amp;#34;, &amp;#34;friends&amp;#34; =&amp;gt; [{ &amp;#34;name&amp;#34; =&amp;gt; &amp;#34;Will&amp;#34;}, {&amp;#34;name&amp;#34; =&amp;gt; &amp;#34;Paul&amp;#34;}]}) START p = node:node_auto_index(name=&amp;quot;Mark&amp;quot;) MATCH p-[:FRIEND]-f RETURN f ==&amp;gt; +----------------------+ ==&amp;gt; | f | ==&amp;gt; +----------------------+ ==&amp;gt; | Node[2]{name:&amp;#34;Will&amp;#34;} | ==&amp;gt; | Node[3]{name:&amp;#34;Paul&amp;#34;} | ==&amp;gt; +----------------------+ ==&amp;gt; 2 rows ==&amp;gt; 37 ms /Users/markhneedham/.</description>
+      <description>In the neo4j 1.9 milestone releases if we wanted to create multiple relationships from a node we could use the following cypher syntax:
+ require &#39;neography&#39; neo = Neography::Rest.new neo.execute_query(&#34;create (me {name: &#39;Mark&#39;})&#34;) query = &#34; START n=node:node_auto_index(name={name})&#34; query &amp;lt;&amp;lt; &#34; FOREACH (friend in {friends} : CREATE f=friend, n-[:FRIEND]-&amp;gt;f)&#34; neo.execute_query(query, {&#34;name&#34; =&amp;gt; &#34;Mark&#34;, &#34;friends&#34; =&amp;gt; [{ &#34;name&#34; =&amp;gt; &#34;Will&#34;}, {&#34;name&#34; =&amp;gt; &#34;Paul&#34;}]})   To check that the &#39;FRIEND&#39; relationships have been created we&amp;#8217;d write the following query:</description>
     </item>
     
     <item>
@@ -597,7 +667,9 @@
       <pubDate>Sat, 25 May 2013 12:21:55 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/05/25/neo4jcypher-properties-or-relationships-its-easy-to-switch/</guid>
-      <description>CREATE (frenchConnection { name: &amp;quot;French Connection&amp;quot; }) CREATE (dress1 { name: &amp;quot;Halter Dress&amp;quot;, colour: &amp;quot;Blue&amp;quot;})-[:BRAND]-(frenchConnection) CREATE (dress2 { name: &amp;quot;Another Dress&amp;quot;, colour: &amp;quot;Yellow&amp;quot;})-[:BRAND]-(frenchConnection) CREATE (dress3 { name: &amp;quot;Different Dress&amp;quot;, colour: &amp;quot;Blue&amp;quot;})-[:BRAND]-(frenchConnection) RETURN dress1, dress2, dress3 ==&amp;gt; +--------------------------------------------------------------------------------------------------------------------------------------------+ ==&amp;gt; | dress1 | dress2 | dress3 | ==&amp;gt; +--------------------------------------------------------------------------------------------------------------------------------------------+ ==&amp;gt; | Node[2]{name:&amp;#34;Halter Dress&amp;#34;,colour:&amp;#34;Blue&amp;#34;} | Node[3]{name:&amp;#34;Another Dress&amp;#34;,colour:&amp;#34;Yellow&amp;#34;} | Node[4]{name:&amp;#34;Different Dress&amp;#34;,colour:&amp;#34;Blue&amp;#34;} | ==&amp;gt; +--------------------------------------------------------------------------------------------------------------------------------------------+ ==&amp;gt; 1 row ==&amp;gt; Nodes created: 4 ==&amp;gt; Relationships created: 3 ==&amp;gt; Properties set: 7 ==&amp;gt; 179 ms START brand = node:node_auto_index(name=&amp;quot;French Connection&amp;quot;) MATCH brand&amp;lt;-[:BRAND]-product WHERE product.</description>
+      <description>I&amp;#8217;ve written previously about how I&amp;#8217;ve converted properties on nodes into relationships and over the past week there was an interesting discussion on the neo4j mailing list about where each is appropriate.
+ Jim gives quite a neat summary of the difference between the two on the thread:
+  Properties are the data that an entity like a node [or relationship] holds. Relationships simply form the semantic glue (type, direction, cardinality) between nodes.</description>
     </item>
     
     <item>
@@ -606,7 +678,9 @@
       <pubDate>Sun, 19 May 2013 22:15:06 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/05/19/neo4jcypher-keep-longest-path-when-finding-taxonomy/</guid>
-      <description>CREATE (cat { name: &amp;quot;Cat&amp;quot; }) CREATE (subcat1 { name: &amp;quot;SubCat1&amp;quot; }) CREATE (subcat2 { name: &amp;quot;SubCat2&amp;quot; }) CREATE (subsubcat1 { name: &amp;quot;SubSubCat1&amp;quot; }) CREATE (product1 { name: &amp;quot;Product1&amp;quot; }) CREATE (cat)-[:CHILD]-subcat1-[:CHILD]-subsubcat1 CREATE (product1)-[:HAS_CATEGORY]-(subsubcat1) START product=node:node_auto_index(name=&amp;quot;Product1&amp;quot;) MATCH product-[:HAS_CATEGORY]-category, taxonomy=category&amp;lt;-[:CHILD*1..]-parent RETURN product, EXTRACT(n IN NODES(taxonomy): n.name) ==&amp;gt; +--------------------------------------------------------------------+ ==&amp;gt; | product | EXTRACT(n IN NODES(taxonomy): n.name) | ==&amp;gt; +--------------------------------------------------------------------+ ==&amp;gt; | Node[888]{name:&amp;#34;Product1&amp;#34;} | [&amp;#34;SubSubCat1&amp;#34;,&amp;#34;SubCat1&amp;#34;] | ==&amp;gt; | Node[888]{name:&amp;#34;Product1&amp;#34;} | [&amp;#34;SubSubCat1&amp;#34;,&amp;#34;SubCat1&amp;#34;,&amp;#34;Cat&amp;#34;] | ==&amp;gt; +--------------------------------------------------------------------+ ==&amp;gt; 2 rows START product=node:node_auto_index(name=&amp;quot;Product1&amp;quot;) MATCH product-[:HAS_CATEGORY]-category, taxonomy=category&amp;lt;-[:CHILD*1.</description>
+      <description>I&amp;#8217;ve been playing around with modelling a product taxonomy and one thing that I wanted to do was find out the full path where a product sits under the tree.
+ I created a simple data set to show the problem:
+ CREATE (cat { name: &#34;Cat&#34; }) CREATE (subcat1 { name: &#34;SubCat1&#34; }) CREATE (subcat2 { name: &#34;SubCat2&#34; }) CREATE (subsubcat1 { name: &#34;SubSubCat1&#34; }) CREATE (product1 { name: &#34;</description>
     </item>
     
     <item>
@@ -615,7 +689,9 @@
       <pubDate>Tue, 30 Apr 2013 07:02:09 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/04/30/neo4jcypher-returning-a-row-with-zero-count-when-no-relationship-exists/</guid>
-      <description>START game = node:matches(&#39;match_id:*&#39;) MATCH game&amp;lt;-[:sent_off_in]-player-[:played]-&amp;gt;likeThis-[:in]-&amp;gt;game, likeThis-[:for]-&amp;gt;team RETURN team.name, COUNT(game) AS redCards ORDER BY redCards LIMIT 5 +------------------------------+ | team.name | redCards | +------------------------------+ | &amp;#34;Sunderland&amp;#34; | 1 | | &amp;#34;West Ham United&amp;#34; | 1 | | &amp;#34;Norwich City&amp;#34; | 1 | | &amp;#34;Reading&amp;#34; | 1 | | &amp;#34;Liverpool&amp;#34; | 2 | +------------------------------+ 5 rows START game = node:matches(&#39;match_id:*&#39;) MATCH game&amp;lt;-[?:sent_off_in]-player-[:played]-&amp;gt;likeThis-[:in]-&amp;gt;game, likeThis-[:for]-&amp;gt;team RETURN team.name, COUNT(game) AS redCards ORDER BY redCards ASC LIMIT 5 +-----------------------------+ | team.</description>
+      <description>I&amp;#8217;ve been trying to see if I can match some of the football stats that OptaJoe posts on twitter and one that I was looking at yesterday was around the number of red cards different teams have received.
+  1 - Sunderland have picked up their first PL red card of the season. The only team without one now are Man Utd. Angels.
+   To refresh this is the sub graph that we&amp;#8217;ll need to look at to work it out:</description>
     </item>
     
     <item>
@@ -624,7 +700,8 @@
       <pubDate>Tue, 16 Apr 2013 21:41:58 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/04/16/neo4jcypher-redundant-relationships/</guid>
-      <description>START player = node:players(&amp;#39;name:*&amp;#39;) MATCH player-[:started|as_sub]-playedLike-[:in]-game-[r?:scored_in]-player WITH player, COUNT(DISTINCT game) AS games, COLLECT(r) AS allGoals RETURN player.name, games, LENGTH(allGoals) AS goals ORDER BY goals DESC LIMIT 5 +------------------------------------+ | player.name | games | goals | +------------------------------------+ | &amp;#34;Luis Suárez&amp;#34; | 30 | 22 | | &amp;#34;Robin Van Persie&amp;#34; | 30 | 19 | | &amp;#34;Gareth Bale&amp;#34; | 27 | 17 | | &amp;#34;Michu&amp;#34; | 29 | 16 | | &amp;#34;Demba Ba&amp;#34; | 28 | 15 | +------------------------------------+ 5 rows 1 ms START player = node:players(&#39;name:*&#39;) MATCH player-[:played]-playedLike-[:in]-game-[r?</description>
+      <description>Last week I was writing a query to find the top scorers in the Premier League so far this season alongside the number of games they&amp;#8217;ve played in which initially read like this:
+ START player = node:players(&#39;name:*&#39;) MATCH player-[:started|as_sub]-playedLike-[:in]-game-[r?:scored_in]-player WITH player, COUNT(DISTINCT game) AS games, COLLECT(r) AS allGoals RETURN player.name, games, LENGTH(allGoals) AS goals ORDER BY goals DESC LIMIT 5   +------------------------------------+ | player.name | games | goals | +------------------------------------+ | &#34;</description>
     </item>
     
     <item>
@@ -633,7 +710,9 @@
       <pubDate>Sun, 24 Mar 2013 13:00:29 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/24/neo4jcypher-cyphertypeexception-failed-merging-number-with-relationship/</guid>
-      <description>game-[:on_tv]-channel START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-stats-[:in]-game-[t?:on_tv]-channel RETURN player.name, COLLECT([stats.goals, t]) AS games LIMIT 10 CypherTypeException: Failed merging Number with Relationship START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-stats-[:in]-game-[t?:on_tv]-channel RETURN player.name, COLLECT([stats.goals, TYPE(t)]) AS games LIMIT 10 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ | player.name | games | +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ | &amp;#34;Djibril Cissé&amp;#34; | [[0,&amp;lt;null&amp;gt;],[1,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;]] | | &amp;#34;Markus Rosenberg&amp;#34; | [[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;]] | | &amp;#34;Gabriel Agbonlahor&amp;#34; | [[0,&amp;#34;on_tv&amp;#34;],[1,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[1,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[1,&amp;#34;on_tv&amp;#34;],[1,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[1,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;]] | | &amp;#34;Shaun Derry&amp;#34; | [[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;]] | | &amp;#34;Marouane Fellaini&amp;#34; | [[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;],[1,&amp;#34;on_tv&amp;#34;],[1,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[1,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[2,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[2,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;]] | | &amp;#34;Jermaine Jenas&amp;#34; | [[0,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;]] | | &amp;#34;Sean Morrison&amp;#34; | [[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[1,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;]] | | &amp;#34;Claudio Yacob&amp;#34; | [[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;]] | | &amp;#34;Michael Owen&amp;#34; | [[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[1,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;]] | | &amp;#34;Tony Hibbert&amp;#34; | [[0,&amp;#34;on_tv&amp;#34;],[0,&amp;#34;on_tv&amp;#34;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;],[0,&amp;lt;null&amp;gt;]] | +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ 10 rows START player=node:players(&#39;name:*&#39;) MATCH player-[:played|subbed_on]-stats-[:in]-game-[t?</description>
+      <description>The latest thing that I added to my football graph was the matches that are shown on TV as I have the belief that players who score on televised games get more attention than players who score in other games.
+ I thought it&amp;#8217;d be interesting to work out who the top scorers are on each of these game types.
+ I added the following relationship type to allow me to do this:</description>
     </item>
     
     <item>
@@ -642,7 +721,9 @@
       <pubDate>Wed, 20 Mar 2013 02:54:43 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/20/neo4jcypher-with-collect-extract/</guid>
-      <description>START team = node:teams(&#39;name:&amp;quot;Manchester United&amp;quot;&#39;) MATCH team-[h:home_team|away_team]-game-[:on_day]-day RETURN DISTINCT day.name, COLLECT(TRIM(REPLACE(REPLACE(game.name, &amp;quot;Manchester United&amp;quot;, &amp;quot;&amp;quot;), &amp;quot;vs&amp;quot;, &amp;quot;&amp;quot;))) +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ | day.name | opponents | +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ | &amp;#34;Sunday&amp;#34; | [&amp;#34;Liverpool&amp;#34;,&amp;#34;Everton&amp;#34;,&amp;#34;Southampton&amp;#34;,&amp;#34;Liverpool&amp;#34;,&amp;#34;Newcastle United&amp;#34;,&amp;#34;Chelsea&amp;#34;,&amp;#34;Manchester City&amp;#34;,&amp;#34;Swansea City&amp;#34;,&amp;#34;Tottenham Hotspur&amp;#34;] | | &amp;#34;Wednesday&amp;#34; | [&amp;#34;Southampton&amp;#34;,&amp;#34;West Ham United&amp;#34;,&amp;#34;Newcastle United&amp;#34;] | | &amp;#34;Monday&amp;#34; | [&amp;#34;Everton&amp;#34;] | | &amp;#34;Saturday&amp;#34; | [&amp;#34;Reading&amp;#34;,&amp;#34;Fulham&amp;#34;,&amp;#34;Wigan Athletic&amp;#34;,&amp;#34;Tottenham Hotspur&amp;#34;,&amp;#34;Stoke City&amp;#34;,&amp;#34;Arsenal&amp;#34;,&amp;#34;Queens Park Rangers&amp;#34;,&amp;#34;Sunderland&amp;#34;,&amp;#34;West Bromwich Albion&amp;#34;,&amp;#34;Norwich City&amp;#34;,&amp;#34;Reading&amp;#34;,&amp;#34;Aston Villa&amp;#34;,&amp;#34;Norwich City&amp;#34;,&amp;#34;Fulham&amp;#34;,&amp;#34;Queens Park Rangers&amp;#34;] | | &amp;#34;Tuesday&amp;#34; | [&amp;#34;Wigan Athletic&amp;#34;] | +-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+ 5 rows START team = node:teams(&#39;name:&amp;quot;Manchester United&amp;quot;&#39;) MATCH team-[h:home_team|away_team]-game-[:on_day]-day WITH day.</description>
+      <description>As I mentioned in my last post I&amp;#8217;m trying to get the hang of the http://docs.neo4j.org/chunked/milestone/query-with.html statement in neo4j&amp;#8217;s cypher query language and I found another application when trying to work out which opponents teams played on certain days.
+ I started out with a query which grouped the data set by day and showed the opponents that were played on that day:
+ START team = node:teams(&#39;name:&#34;Manchester United&#34;&#39;) MATCH team-[h:home_team|away_team]-game-[:on_day]-day RETURN DISTINCT day.</description>
     </item>
     
     <item>
@@ -651,7 +732,9 @@
       <pubDate>Wed, 20 Mar 2013 00:25:00 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/20/neo4jcypher-getting-the-hang-of-the-with-statement/</guid>
-      <description>START player = node:players(&#39;name:&amp;quot;Luis Suárez&amp;quot;&#39;) MATCH game-[:in]-stats-[:played]-player, game-[:on_day]-day RETURN day.name, game.name +---------------------------------------------------+ | day.name | game.name | +---------------------------------------------------+ | &amp;#34;Saturday&amp;#34; | &amp;#34;Liverpool vs Southampton&amp;#34; | | &amp;#34;Saturday&amp;#34; | &amp;#34;Southampton vs Liverpool&amp;#34; | | &amp;#34;Saturday&amp;#34; | &amp;#34;Liverpool vs Reading&amp;#34; | | &amp;#34;Saturday&amp;#34; | &amp;#34;West Bromwich Albion vs Liverpool&amp;#34; | ... +---------------------------------------------------+ 29 rows START player = node:players(&#39;name:&amp;quot;Luis Suárez&amp;quot;&#39;) MATCH game-[:in]-stats-[:played]-player, game-[:on_day]-day RETURN day.name, COUNT(game.name) +--------------------------------+ | day.name | COUNT(game.name) | +--------------------------------+ | &amp;#34;Sunday&amp;#34; | 13 | | &amp;#34;Wednesday&amp;#34; | 4 | | &amp;#34;Monday&amp;#34; | 1 | | &amp;#34;Saturday&amp;#34; | 11 | +--------------------------------+ 4 rows START player = node:players(&#39;name:&amp;quot;Luis Suárez&amp;quot;&#39;) MATCH game-[:in]-stats-[:played]-player-[r?</description>
+      <description>I wrote a post a few weeks ago showing an example of a cypher query which made use of the WITH statement but I still don&amp;#8217;t completely understand how it works so I thought I&amp;#8217;d write some more queries that use it.
+ I wanted to find out whether Luis Suárez has a better scoring record depending on which day a match is played on.
+ We start out by finding all the matches that he&amp;#8217;s played in and which days those matches were on:</description>
     </item>
     
     <item>
@@ -660,7 +743,8 @@
       <pubDate>Mon, 18 Mar 2013 23:19:36 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/18/neo4jcypher-sql-style-group-by-with-limit-query/</guid>
-      <description>START team = node:teams(&#39;name:&amp;quot;Manchester United&amp;quot;&#39;) MATCH team-[:home_team|away_team]-game-[:scored_in]-player-[:played]-stats-[:for]-team, stats-[:in]-game RETURN DISTINCT player.name, stats.goals, game.name +--------------------------------------------------------------------------------+ | player.name | stats.goals | game.name | +--------------------------------------------------------------------------------+ | &amp;#34;Javier Hernández&amp;#34; | 1 | &amp;#34;Manchester United vs Wigan Athletic&amp;#34; | | &amp;#34;Robin Van Persie&amp;#34; | 1 | &amp;#34;Manchester United vs Sunderland&amp;#34; | | &amp;#34;Danny Welbeck&amp;#34; | 1 | &amp;#34;Manchester United vs Stoke City&amp;#34; | | &amp;#34;Rafael&amp;#34; | 1 | &amp;#34;Queens Park Rangers vs Manchester United&amp;#34; | | &amp;#34;Wayne Rooney&amp;#34; | 1 | &amp;#34;Manchester United vs Norwich City&amp;#34; | | &amp;#34;Shinji Kagawa&amp;#34; | 1 | &amp;#34;Manchester United vs Fulham&amp;#34; | | &amp;#34;Shinji Kagawa&amp;#34; | 3 | &amp;#34;Manchester United vs Norwich City&amp;#34; | .</description>
+      <description>A few weeks ago I wrote a blog post where I described how we could construct a SQL GROUP BY style query in cypher and last week I wanted to write a similar query but with what I think would be a LIMIT clause in SQL.
+ I wanted to find the maximum number of goals that players had scored in a match for a specific team and started off with the following query to find all the matches that players had scored in:</description>
     </item>
     
     <item>
@@ -669,7 +753,9 @@
       <pubDate>Sun, 10 Mar 2013 22:13:41 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/10/neo4jcypher-finding-football-stadiums-near-a-city-using-spatial/</guid>
-      <description>$ git clone git://github.com/neo4j/spatial.git spatial $ cd spatial $ mvn clean package -Dmaven.test.skip=true install $ unzip target/neo4j-spatial-0.11-SNAPSHOT-server-plugin.zip -d /path/to/neo4j-community-1.9.M04/plugins/ $ /path/to/neo4j-community-1.9.M04/bin/neo4j restart $ curl -L http://localhost:7474/db/data { &amp;#34;extensions&amp;#34; : { ... &amp;#34;SpatialPlugin&amp;#34; : { &amp;#34;addEditableLayer&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/addEditableLayer&amp;#34;, &amp;#34;addCQLDynamicLayer&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/addCQLDynamicLayer&amp;#34;, &amp;#34;findGeometriesWithinDistance&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/findGeometriesWithinDistance&amp;#34;, &amp;#34;updateGeometryFromWKT&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/updateGeometryFromWKT&amp;#34;, &amp;#34;addGeometryWKTToLayer&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/addGeometryWKTToLayer&amp;#34;, &amp;#34;getLayer&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/getLayer&amp;#34;, &amp;#34;addSimplePointLayer&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/addSimplePointLayer&amp;#34;, &amp;#34;findGeometriesInBBox&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/findGeometriesInBBox&amp;#34;, &amp;#34;addNodeToLayer&amp;#34; : &amp;#34;http://localhost:7474/db/data/ext/SpatialPlugin/graphdb/addNodeToLayer&amp;#34; }, … }, ... &amp;#34;neo4j_version&amp;#34; : &amp;#34;1.9.M04&amp;#34; Name,Team,Capacity,Latitude,Longitude &amp;#34;Adams Park&amp;#34;,&amp;#34;Wycombe Wanderers&amp;#34;,10284,51.</description>
+      <description>One of the things that I wanted to add to my football graph was something location related so I could try out neo4j spatial and I thought the easiest way to do that was to model the location of football stadiums.
+ To start with I needed to add spatial as an unmanaged extension to my neo4j plugins folder which involved doing the following:
+ $ git clone git://github.com/neo4j/spatial.git spatial $ cd spatial $ mvn clean package -Dmaven.</description>
     </item>
     
     <item>
@@ -678,7 +764,8 @@
       <pubDate>Wed, 06 Mar 2013 00:59:36 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/03/06/neo4j-make-properties-relationships/</guid>
-      <description>MATCH-[:in_month]-&amp;gt;MONTH START player = node:players(&#39;name:&amp;quot;Gareth Bale&amp;quot;&#39;), month=node:months(&#39;name:September&#39;) MATCH player-[:played_in]-game WHERE game-[:in_month]-month RETURN game.name, game.home_goals + &amp;quot;-&amp;quot; +game.away_goals AS score, game.date +----------------------------------------------------------------------------------+ | game.name | score | game.date | +----------------------------------------------------------------------------------+ | &amp;#34;Reading vs Tottenham Hotspur&amp;#34; | &amp;#34;1-3&amp;#34; | &amp;#34;2012-09-16 16:00:00 +0100&amp;#34; | | &amp;#34;Tottenham Hotspur vs Norwich City&amp;#34; | &amp;#34;1-1&amp;#34; | &amp;#34;2012-09-01 15:00:00 +0100&amp;#34; | | &amp;#34;Tottenham Hotspur vs Queens Park Rangers&amp;#34; | &amp;#34;2-1&amp;#34; | &amp;#34;2012-09-23 16:00:00 +0100&amp;#34; | | &amp;#34;Manchester United vs Tottenham Hotspur&amp;#34; | &amp;#34;2-3&amp;#34; | &amp;#34;2012-09-29 17:30:00 +0100&amp;#34; | +----------------------------------------------------------------------------------+ START month=node:months(&#39;name:December&#39;) MATCH month-[:in_month]-game WHERE ABS(game.</description>
+      <description>I spent some of the weekend working my way through Jim, Ian &amp;amp; Emil&#39;s book &#39;http://graphdatabases.com/[Graph Databases]&#39; and one of the things that they emphasise is that graphs allow us to make relationships first class citizens in our model.
+ Looking back on a couple of the graphs that I modelled last year I realise that I didn&amp;#8217;t quite get this and although the graphs I modelled had some relationships a lot of the time I was defining things as properties on nodes.</description>
     </item>
     
     <item>
@@ -687,7 +774,9 @@
       <pubDate>Sun, 24 Feb 2013 19:19:59 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/02/24/neo4jcypher-combining-count-and-collect-in-one-query/</guid>
-      <description>START player = node:players(&amp;#39;name:*&amp;#39;) MATCH player-[:missed_penalty_in]-game, player-[:played|subbed_on]-stats-[:in]-game, stats-[:for]-team, game-[:home_team]-home, game-[:away_team]-away RETURN player.name, team.name, home.name, away.name +-------------------------------------------------------------------------------------------------+ | player.name | team.name | home.name | away.name | +-------------------------------------------------------------------------------------------------+ | &amp;#34;Papiss Demba Cisse&amp;#34; | &amp;#34;Newcastle United&amp;#34; | &amp;#34;Newcastle United&amp;#34; | &amp;#34;Norwich City&amp;#34; | | &amp;#34;Wayne Rooney&amp;#34; | &amp;#34;Manchester United&amp;#34; | &amp;#34;Manchester United&amp;#34; | &amp;#34;Arsenal&amp;#34; | | &amp;#34;Mikel Arteta&amp;#34; | &amp;#34;Arsenal&amp;#34; | &amp;#34;Arsenal&amp;#34; | &amp;#34;Fulham&amp;#34; | | &amp;#34;David Silva&amp;#34; | &amp;#34;Manchester City&amp;#34; | &amp;#34;Manchester City&amp;#34; | &amp;#34;Southampton&amp;#34; | | &amp;#34;Frank Lampard&amp;#34; | &amp;#34;Chelsea&amp;#34; | &amp;#34;Manchester City&amp;#34; | &amp;#34;Chelsea&amp;#34; | | &amp;#34;Adel Taarabt&amp;#34; | &amp;#34;Queens Park Rangers&amp;#34; | &amp;#34;Queens Park Rangers&amp;#34; | &amp;#34;Norwich City&amp;#34; | | &amp;#34;Javier Hernández&amp;#34; | &amp;#34;Manchester United&amp;#34; | &amp;#34;Manchester United&amp;#34; | &amp;#34;Wigan Athletic&amp;#34; | | &amp;#34;Robin Van Persie&amp;#34; | &amp;#34;Manchester United&amp;#34; | &amp;#34;Southampton&amp;#34; | &amp;#34;Manchester United&amp;#34; | | &amp;#34;Jonathan Walters&amp;#34; | &amp;#34;Stoke City&amp;#34; | &amp;#34;Fulham&amp;#34; | &amp;#34;Stoke City&amp;#34; | | &amp;#34;Shane Long&amp;#34; | &amp;#34;West Bromwich Albion&amp;#34; | &amp;#34;West Bromwich Albion&amp;#34; | &amp;#34;Liverpool&amp;#34; | | &amp;#34;Steven Gerrard&amp;#34; | &amp;#34;Liverpool&amp;#34; | &amp;#34;Liverpool&amp;#34; | &amp;#34;West Bromwich Albion&amp;#34; | | &amp;#34;Lucas Piazon&amp;#34; | &amp;#34;Chelsea&amp;#34; | &amp;#34;Chelsea&amp;#34; | &amp;#34;Aston Villa&amp;#34; | +-------------------------------------------------------------------------------------------------+ 12 rows START player = node:players(&amp;#39;name:*&amp;#39;) MATCH player-[:missed_penalty_in]-game, player-[:played|subbed_on]-stats-[:in]-game, stats-[:for]-team RETURN DISTINCT team.</description>
+      <description>In my continued playing around with football data I wanted to write a cypher query against neo4j which would show me which teams had missed the most penalties this season and who missed them.
+ I started off with a query that returned all the penalties that have been missed this season and the games those misses happened in:
+ START player = node:players(&#39;name:*&#39;) MATCH player-[:missed_penalty_in]-game, player-[:played|subbed_on]-stats-[:in]-game, stats-[:for]-team, game-[:home_team]-home, game-[:away_team]-away RETURN player.</description>
     </item>
     
     <item>
@@ -696,7 +785,9 @@
       <pubDate>Tue, 19 Feb 2013 00:03:18 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/02/19/neo4jcypher-using-a-where-clause-to-filter-paths/</guid>
-      <description>START team = node:teams(&amp;#39;name:&amp;#34;Arsenal&amp;#34;&amp;#39;) MATCH team-[:home_team|away_team]-game-[:played_in]-player RETURN player.name, COUNT(player.name) as games ORDER BY games desc ------------------------------+ | player.name | games | +------------------------------+ | &amp;#34;Cazorla&amp;#34; | 25 | | &amp;#34;Arteta&amp;#34; | 22 | | &amp;#34;Mertesacker&amp;#34; | 22 | | &amp;#34;Vermaelen&amp;#34; | 22 | | &amp;#34;Podolski&amp;#34; | 21 | | &amp;#34;Gibbs&amp;#34; | 18 | | &amp;#34;Szczesny&amp;#34; | 17 | … | &amp;#34;Tiote&amp;#34; | 1 | | &amp;#34;Diame&amp;#34; | 1 | | &amp;#34;Ridgewell&amp;#34; | 1 | | &amp;#34;Lampard&amp;#34; | 1 | | &amp;#34;Bramble&amp;#34; | 1 | | &amp;#34;Simpson&amp;#34; | 1 | +------------------------------+ 258 rows START team = node:teams(&amp;#39;name:&amp;#34;Arsenal&amp;#34;&amp;#39;) MATCH team-[:home_team|away_team]-game-[:played_in]-player, player-[:played]-()-[:for]-team RETURN player.</description>
+      <description>One of the cypher queries that I wanted to write recently was one to find all the players that have started matches for Arsenal this season and the number of matches that they&amp;#8217;ve played in.
+ The data model that I&amp;#8217;m querying looks like this:
+   I started off with the following query which traverses from Arsenal to all the games that they&amp;#8217;ve taken part in and finds all the players who&amp;#8217;ve played in those games:</description>
     </item>
     
     <item>
@@ -705,7 +796,10 @@
       <pubDate>Sun, 17 Feb 2013 21:05:27 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/02/17/neo4jcypher-sql-style-group-by-functionality/</guid>
-      <description>START player = node:players(&amp;#39;name:*&amp;#39;) MATCH player-[:sent_off_in]-game-[:in_month]-month RETURN player.name, month.name +----------------------------+ | player.name | month.name | +----------------------------+ | &amp;#34;Jenkinson&amp;#34; | &amp;#34;February&amp;#34; | | &amp;#34;Chico&amp;#34; | &amp;#34;September&amp;#34; | | &amp;#34;Odemwingie&amp;#34; | &amp;#34;September&amp;#34; | | &amp;#34;Agger&amp;#34; | &amp;#34;August&amp;#34; | | &amp;#34;Cole&amp;#34; | &amp;#34;December&amp;#34; | | &amp;#34;Whitehead&amp;#34; | &amp;#34;August&amp;#34; | ... +----------------------------+ START player = node:players(&amp;#39;name:*&amp;#39;) MATCH player-[:sent_off_in]-game-[:in_month]-month RETURN COUNT(player.name) AS numberOfReds, month.name ORDER BY numberOfReds DESC +----------------------------+ | numberOfReds | month.name | +----------------------------+ | 7 | &amp;#34;October&amp;#34; | | 6 | &amp;#34;December&amp;#34; | | 4 | &amp;#34;September&amp;#34; | | 4 | &amp;#34;November&amp;#34; | | 3 | &amp;#34;August&amp;#34; | | 2 | &amp;#34;January&amp;#34; | | 2 | &amp;#34;February&amp;#34; | +----------------------------+ START player = node:players(&amp;#39;name:*&amp;#39;) MATCH player-[:sent_off_in]-game-[:in_month]-month, game-[:in_match]-stats-[:stats]-player, stats-[:played_for]-team RETURN player.</description>
+      <description>As I mentioned in a previous post I&amp;#8217;ve been playing around with some football related data over the last few days and one query I ran (using cypher) was to find all the players who&amp;#8217;ve been sent off this season in the Premiership.
+ The model in the graph around sending offs looks like this:
+   My initial query looked like this:
+ START player = node:players(&#39;name:*&#39;) MATCH player-[:sent_off_in]-game-[:in_month]-month RETURN player.</description>
     </item>
     
     <item>
@@ -714,7 +808,11 @@
       <pubDate>Sun, 17 Feb 2013 20:02:31 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/02/17/data-science-dont-filter-data-prematurely/</guid>
-      <description></description>
+      <description>Last year I wrote a post describing how I&amp;#8217;d gone about getting data for my ThoughtWorks graph and one mistake about my approach in retrospect is that I filtered the data too early.
+ My workflow looked like this:
+   Scrape internal application using web driver and save useful data to JSON files
+  Parse JSON files and load nodes/relationships into neo4j
+   The problem with the first step is that I was trying to determine up front what data was useful and as a result I ended up running the scrapping application multiple times when I realised I didn&amp;#8217;t have all the data I wanted.</description>
     </item>
     
     <item>
@@ -723,21 +821,20 @@
       <pubDate>Sun, 30 Sep 2012 19:47:32 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/09/30/neo4j-handling-sums-scientific-notation/</guid>
-      <description>In some of the recent work I&amp;rsquo;ve been doing with neo4j the queries I&amp;rsquo;ve written have been summing up the values from multiple nodes and after a certain number is reached the value returned used scientific notation.
-For example in a cypher query like this:
-START category = node:categories(&amp;#39;category_id:1&amp;#39;) MATCH p = category-[:has_child*1..5]-&amp;gt;subCategory-[:has_product]-&amp;gt;product-[:sold]-&amp;gt;sales RETURN EXTRACT(n in NODES(p) : n.category_id?),subCategory.category_id, SUM(sales.sales) I might get a result set like this:
-+------------------------------------------------------------------------------------------------+ | EXTRACT(n in NODES(p) : n.</description>
+      <description>In some of the recent work I&amp;#8217;ve been doing with neo4j the queries I&amp;#8217;ve written have been summing up the values from multiple nodes and after a certain number is reached the value returned used scientific notation.
+ For example in a cypher query like this:
+ START category = node:categories(&#39;category_id:1&#39;) MATCH p = category-[:has_child*1..5]-&amp;gt;subCategory-[:has_product]-&amp;gt;product-[:sold]-&amp;gt;sales RETURN EXTRACT(n in NODES(p) : n.category_id?),subCategory.category_id, SUM(sales.sales)   I might get a result set like this:</description>
     </item>
     
     <item>
-      <title>neo4j/cypher: CREATE UNIQUE - &#34;SyntaxException: string matching regex `$&#39; expected but `p&#39; found&#34;</title>
+      <title>neo4j/cypher: CREATE UNIQUE - &#34;SyntaxException: string matching regex ``$&#39; expected but ``p&#39; found&#34;</title>
       <link>https://markhneedham.com/blog/2012/09/09/neo4jcypher-create-unique-syntaxexception-string-matching-regex-expected-but-p-found/</link>
       <pubDate>Sun, 09 Sep 2012 22:29:33 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/09/09/neo4jcypher-create-unique-syntaxexception-string-matching-regex-expected-but-p-found/</guid>
-      <description>I&amp;rsquo;ve been playing around with the mutating cypher syntax of neo4j which allows you to make changes to the graph as well as query it, a feature introduced into cypher in May in release 1.8 M01.
-I was trying to make use of the &amp;lsquo;CREATE UNIQUE&amp;rsquo; syntax which allows you to create nodes/relationships if they&amp;rsquo;re missing but won&amp;rsquo;t do anything if they already exists.
-I had something like the following:</description>
+      <description>I&amp;#8217;ve been playing around with the mutating cypher syntax of neo4j which allows you to make changes to the graph as well as query it, a feature introduced into cypher in May in release 1.8 M01.
+ I was trying to make use of the &#39;http://docs.neo4j.org/chunked/milestone/query-create-unique.html[CREATE UNIQUE]&#39; syntax which allows you to create nodes/relationships if they&amp;#8217;re missing but won&amp;#8217;t do anything if they already exists.
+ I had something like the following:</description>
     </item>
     
     <item>
@@ -747,9 +844,9 @@ I had something like the following:</description>
       
       <guid>https://markhneedham.com/blog/2012/07/28/neo4j-multiple-starting-nodes-by-index-lookup/</guid>
       <description>I spent a bit of time this evening extracting some data from the ThoughtWorks graph for our marketing team who were interested in anything related to our three European offices in London, Manchester and Hamburg.
-The most interesting things we can explore relate to the relationship between people and the offices.
-The model around people and offices looks like this:
-I added a &amp;lsquo;current_home_office&amp;rsquo; relationship to make it easier to quickly get to the nodes of people who are currently working in a specific office.</description>
+ The most interesting things we can explore relate to the relationship between people and the offices.
+ The model around people and offices looks like this:
+   I added a &#39;current_home_office&#39; relationship to make it easier to quickly get to the nodes of people who are currently working in a specific office.</description>
     </item>
     
     <item>
@@ -758,9 +855,9 @@ I added a &amp;lsquo;current_home_office&amp;rsquo; relationship to make it easi
       <pubDate>Mon, 23 Jul 2012 22:23:10 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/07/23/neo4j-graph-global-vs-graph-local-queries/</guid>
-      <description>A few weeks ago I did a presentation at the ThoughtWorks EU away day on the graph I&amp;rsquo;ve been developing using neo4j and I wanted to show who the most connected people in each of our European offices were.
-I started with the following cypher query:
-START n = node(*) MATCH n-[r:colleagues*1..2]-&amp;gt;c, n-[r2:member_of]-&amp;gt;office WHERE n.type? = &amp;#39;person&amp;#39; AND (NOT(HAS(r2.end_date))) AND office.name = &amp;#39;London - UK South&amp;#39; AND (NOT(HAS(c.thoughtquitter))) RETURN n.name, count(distinct(c)) AS connections, office.</description>
+      <description>A few weeks ago I did a presentation at the ThoughtWorks EU away day on the graph I&amp;#8217;ve been developing using neo4j and I wanted to show who the most connected people in each of our European offices were.
+ I started with the following cypher query:
+ START n = node(*) MATCH n-[r:colleagues*1..2]-&amp;gt;c, n-[r2:member_of]-&amp;gt;office WHERE n.type? = &#39;person&#39; AND (NOT(HAS(r2.end_date))) AND office.name = &#39;London - UK South&#39; AND (NOT(HAS(c.thoughtquitter))) RETURN n.</description>
     </item>
     
     <item>
@@ -769,10 +866,11 @@ START n = node(*) MATCH n-[r:colleagues*1..2]-&amp;gt;c, n-[r2:member_of]-&amp;g
       <pubDate>Sat, 21 Jul 2012 22:46:06 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/07/21/neo4j-embracing-the-sub-graph/</guid>
-      <description>In May I wrote a blog post explaining how I&amp;rsquo;d been designing a neo4j graph by thinking about what questions I wanted to answer about the data.
-In the comments Josh Adell gave me the following advice:
-Keep your data model rich! Don&amp;rsquo;t be afraid to have as many relationships as you need. The power of graph databases comes from finding surprising results when you have strongly interconnected data.
-At the time I didn&amp;rsquo;t really understand the advice but I&amp;rsquo;ve since updated my graph so that it includes &amp;lsquo;colleagues&amp;rsquo; relationships which can be derived by looking at the projects that people had worked together on.</description>
+      <description>In May I wrote a blog post explaining how I&amp;#8217;d been designing a neo4j graph by thinking about what questions I wanted to answer about the data.
+ In the comments Josh Adell gave me the following advice:
+  The neat things about graphs is that multiple subgraphs can live in the same data-space.
+...
+Keep your data model rich! Don&amp;#8217;t be afraid to have as many relationships as you need.</description>
     </item>
     
     <item>
@@ -782,8 +880,9 @@ At the time I didn&amp;rsquo;t really understand the advice but I&amp;rsquo;ve s
       
       <guid>https://markhneedham.com/blog/2012/07/19/neo4j-shortest-path-with-and-without-cypher/</guid>
       <description>I was looking back at some code I wrote a few months ago to query a neo4j database to find the shortest path between two people via the colleagues relationships that exist.
-The initial code, written using neography, looked like this:
-neo = Neography::Rest.new start_node = neo.get_node(start_node_id) destination_node = neo.get_node(destination_node_id) neo.get_paths(start_node, destination_node, { &amp;#34;type&amp;#34; =&amp;gt; &amp;#34;colleagues&amp;#34; }, depth = 3, algorithm = &amp;#34;shortestPath&amp;#34;) The neography code eventually makes a POST request to /node/{start_id}/pathsand provides a JSON payload containing the other information about the query.</description>
+ &amp;lt;/img&amp;gt;
+ The initial code, written using neography, looked like this:
+ neo = Neography::Rest.new start_node = neo.get_node(start_node_id) destination_node = neo.get_node(destination_node_id) neo.get_paths(start_node, destination_node, { &#34;type&#34; =&amp;gt; &#34;colleagues&#34; }, depth = 3, algorithm = &#34;shortestPath&#34;)   The neography code eventually makes a POST request to /node/{start_id}/paths and provides a JSON payload containing the other information about the query.</description>
     </item>
     
     <item>
@@ -793,10 +892,9 @@ neo = Neography::Rest.new start_node = neo.get_node(start_node_id) destination_n
       
       <guid>https://markhneedham.com/blog/2012/06/24/neo4j-handling-optional-relationships/</guid>
       <description>On my ThoughtWorks neo4j there are now two different types of relationships between people nodes - they can either be colleagues or one can be the sponsor of the other.
-The graph looks like this:
-I wanted to get a list of all the sponsor pairs but also have some indicator of whether the two people have worked together.
-I started off by getting all of the sponsor pairs:
-START n = node(*) MATCH n-[r:sponsor_of]-&amp;gt;n2 RETURN n.</description>
+ The graph looks like this:
+   I wanted to get a list of all the sponsor pairs but also have some indicator of whether the two people have worked together.
+ I started off by getting all of the sponsor pairs:</description>
     </item>
     
     <item>
@@ -805,8 +903,8 @@ START n = node(*) MATCH n-[r:sponsor_of]-&amp;gt;n2 RETURN n.</description>
       <pubDate>Thu, 21 Jun 2012 05:02:32 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/06/21/visualising-a-neo4j-graph-using-gephi/</guid>
-      <description>At ThoughtWorks we don&amp;rsquo;t have line managers but people can choose to have a sponsor - typically someone who has worked in the company for longer/has more experience in the industry than them - who can help them navigate the organisation better.
-From hearing people talk about sponsors over the last 6 years it seemed like quite a few people sponsored the majority and there were probably a few people who didn&amp;rsquo;t have a sponsor.</description>
+      <description>At ThoughtWorks we don&amp;#8217;t have line managers but people can choose to have a sponsor - typically someone who has worked in the company for longer/has more experience in the industry than them - who can help them navigate the organisation better.
+ From hearing people talk about sponsors over the last 6 years it seemed like quite a few people sponsored the majority and there were probably a few people who didn&amp;#8217;t have a sponsor.</description>
     </item>
     
     <item>
@@ -815,10 +913,10 @@ From hearing people talk about sponsors over the last 6 years it seemed like qui
       <pubDate>Sat, 16 Jun 2012 10:41:03 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/06/16/neo4jcypher-finding-the-most-connected-node-on-the-graph/</guid>
-      <description>As I mentioned in another post about a month agoI&amp;rsquo;ve been playing around with a neo4j graph in which I have the following relationship between nodes:
-One thing I wanted to do was work out which node is the most connected on the graph, which would tell me who&amp;rsquo;s worked with the most people.
-I started off with the following cypher query:
-query = &amp;#34; START n = node(*)&amp;#34; query &amp;lt;&amp;lt; &amp;#34; MATCH n-[r:colleagues]-&amp;gt;c&amp;#34; query &amp;lt;&amp;lt; &amp;#34; WHERE n.</description>
+      <description>As I mentioned in another post about a month ago I&amp;#8217;ve been playing around with a neo4j graph in which I have the following relationship between nodes:
+   One thing I wanted to do was work out which node is the most connected on the graph, which would tell me who&amp;#8217;s worked with the most people.
+ I started off with the following cypher query:
+ query = &#34;</description>
     </item>
     
     <item>
@@ -827,9 +925,9 @@ query = &amp;#34; START n = node(*)&amp;#34; query &amp;lt;&amp;lt; &amp;#34; MA
       <pubDate>Sat, 12 May 2012 14:55:30 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/05/12/neo4jcypher-finding-the-shortest-path-between-two-nodes-while-applying-predicates/</guid>
-      <description>As I mentioned in a blog post about a week agoI decided to restructure the ThoughtWorks graph I&amp;rsquo;ve modelled in neo4j so that I could explicitly model projects and clients.
-As a result I had to update a traversal I&amp;rsquo;d written for finding the shortest path between two people in the graph.
-The original traversal query I had was really simple because I had a direct connection between the people nodes:</description>
+      <description>As I mentioned in a blog post about a week ago I decided to restructure the ThoughtWorks graph I&amp;#8217;ve modelled in neo4j so that I could explicitly model projects and clients.
+ As a result I had to update a traversal I&amp;#8217;d written for finding the shortest path between two people in the graph.
+ The original traversal query I had was really simple because I had a direct connection between the people nodes:</description>
     </item>
     
     <item>
@@ -838,8 +936,8 @@ The original traversal query I had was really simple because I had a direct conn
       <pubDate>Fri, 20 Apr 2012 07:10:57 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/04/20/neo4j-searching-for-nodes-by-name/</guid>
-      <description>As I mentioned in a post a few days ago I&amp;rsquo;ve been graphing connections between ThoughtWorks people using neo4j and wanted to build auto complete functionality so I can search for the names of people in the graph.
-The solution I came up was to create a Lucene index with an entry for each node and a common property on each document in the index so that I&amp;rsquo;d be able to get all the index entries easily.</description>
+      <description>As I mentioned in a post a few days ago I&amp;#8217;ve been graphing connections between ThoughtWorks people using neo4j and wanted to build auto complete functionality so I can search for the names of people in the graph.
+ The solution I came up was to create a Lucene index with an entry for each node and a common property on each document in the index so that I&amp;#8217;d be able to get all the index entries easily.</description>
     </item>
     
   </channel>

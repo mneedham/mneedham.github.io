@@ -63,8 +63,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-01-21",
-        "description": "As part of a recommendations with Neo4j talkthat I\x26rsquo;ve presented a few times over the last year I have a set of scripts that download some data from the meetup.com API.\nThey\x26rsquo;re all written in Python but I thought it\x26rsquo;d be a fun exercise to see what they\x26rsquo;d look like in Go. My eventual goal is to try and parallelise the API calls.\nThis is the Python version of the script:",
-        "wordCount":  578 
+        "description": "As part of a recommendations with Neo4j talk that I\x26#8217;ve presented a few times over the last year I have a set of scripts that download some data from the meetup.com API.\n They\x26#8217;re all written in Python but I thought it\x26#8217;d be a fun exercise to see what they\x26#8217;d look like in Go. My eventual goal is to try and parallelise the API calls.\n This is the Python version of the script:",
+        "wordCount":  581 
     }
     </script>
     
@@ -175,129 +175,168 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Go vs Python: Parsing a JSON response from a HTTP API</h1>
-    <p>As part of a <!-- raw HTML omitted -->recommendations with Neo4j talk<!-- raw HTML omitted --> that I&rsquo;ve presented a few times over the last year I have a set of scripts that download some data from the <!-- raw HTML omitted -->meetup.com API<!-- raw HTML omitted -->.</p>
-<p>They&rsquo;re all written in Python but I thought it&rsquo;d be a fun exercise to see what they&rsquo;d look like in Go. My eventual goal is to try and parallelise the API calls.</p>
+    <div class="paragraph">
+<p>As part of a <a href="https://www.meetup.com/graphdb-london/events/236256437/">recommendations with Neo4j talk</a> that I&#8217;ve presented a few times over the last year I have a set of scripts that download some data from the <a href="https://www.meetup.com/meetup_api/">meetup.com API</a>.</p>
+</div>
+<div class="paragraph">
+<p>They&#8217;re all written in Python but I thought it&#8217;d be a fun exercise to see what they&#8217;d look like in Go. My eventual goal is to try and parallelise the API calls.</p>
+</div>
+<div class="paragraph">
 <p>This is the Python version of the script:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> requests
-<span style="color:#f92672">import</span> os
-<span style="color:#f92672">import</span> json
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import requests
+import os
+import json
 
-key <span style="color:#f92672">=</span>  os<span style="color:#f92672">.</span>environ[<span style="color:#e6db74">&#39;MEETUP_API_KEY&#39;</span>]
-lat <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;51.5072&#34;</span>
-lon <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0.1275&#34;</span>
+key =  os.environ['MEETUP_API_KEY']
+lat = "51.5072"
+lon = "0.1275"
 
-seed_topic <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;nosql&#34;</span>
-uri <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}&#34;</span><span style="color:#f92672">.</span>format(seed_topic, lat, lon, key)
+seed_topic = "nosql"
+uri = "https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}".format(seed_topic, lat, lon, key)
 
-r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(uri)
-all_topics <span style="color:#f92672">=</span> [topic[<span style="color:#e6db74">&#34;urlkey&#34;</span>]  <span style="color:#66d9ef">for</span> result <span style="color:#f92672">in</span> r<span style="color:#f92672">.</span>json()[<span style="color:#e6db74">&#34;results&#34;</span>] <span style="color:#66d9ef">for</span> topic <span style="color:#f92672">in</span> result[<span style="color:#e6db74">&#34;topics&#34;</span>]]
+r = requests.get(uri)
+all_topics = [topic["urlkey"]  for result in r.json()["results"] for topic in result["topics"]]
 
-<span style="color:#66d9ef">for</span> topic <span style="color:#f92672">in</span> all_topics:
-    <span style="color:#66d9ef">print</span> topic
-</code></pre></div><p>We&rsquo;re using the <!-- raw HTML omitted -->requests<!-- raw HTML omitted --> library to send a request to the meetup API to get the groups which have the topic &lsquo;nosql&rsquo; in the London area. We then parse the response and print out the topics.</p>
+for topic in all_topics:
+    print topic</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;re using the <a href="http://docs.python-requests.org/en/master/">requests</a> library to send a request to the meetup API to get the groups which have the topic 'nosql' in the London area. We then parse the response and print out the topics.</p>
+</div>
+<div class="paragraph">
 <p>Now to do the same thing in Go! The first bit of the script is almost identical:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
-<span style="color:#f92672">import</span> (
-	<span style="color:#e6db74">&#34;fmt&#34;</span>
-	<span style="color:#e6db74">&#34;os&#34;</span>
-	<span style="color:#e6db74">&#34;net/http&#34;</span>
-	<span style="color:#e6db74">&#34;log&#34;</span>
-	<span style="color:#e6db74">&#34;time&#34;</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-go" data-lang="go">import (
+	"fmt"
+	"os"
+	"net/http"
+	"log"
+	"time"
 )
 
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">handleError</span>(<span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>) {
-	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
-		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
-		<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Fatal</span>(<span style="color:#a6e22e">err</span>)
+func handleError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
 	}
 }
 
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">httpClient</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Client</span>{<span style="color:#a6e22e">Timeout</span>: <span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>}
+func main() {
+	var httpClient = &amp;http.Client{Timeout: 10 * time.Second}
 
-	<span style="color:#a6e22e">seedTopic</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;nosql&#34;</span>
-	<span style="color:#a6e22e">lat</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;51.5072&#34;</span>
-	<span style="color:#a6e22e">lon</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;0.1275&#34;</span>
-	<span style="color:#a6e22e">key</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Getenv</span>(<span style="color:#e6db74">&#34;MEETUP_API_KEY&#34;</span>)
+	seedTopic := "nosql"
+	lat := "51.5072"
+	lon := "0.1275"
+	key := os.Getenv("MEETUP_API_KEY")
 
-	<span style="color:#a6e22e">uri</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;https://api.meetup.com/2/groups?&amp;topic=%s&amp;lat=%s&amp;lon=%s&amp;key=%s&#34;</span>, <span style="color:#a6e22e">seedTopic</span>, <span style="color:#a6e22e">lat</span>, <span style="color:#a6e22e">lon</span>, <span style="color:#a6e22e">key</span>)
+	uri := fmt.Sprintf("https://api.meetup.com/2/groups?&amp;topic=%s&amp;lat=%s&amp;lon=%s&amp;key=%s", seedTopic, lat, lon, key)
 
-	<span style="color:#a6e22e">response</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">httpClient</span>.<span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">uri</span>)
-	<span style="color:#a6e22e">handleError</span>(<span style="color:#a6e22e">err</span>)
-	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">Body</span>.<span style="color:#a6e22e">Close</span>()
-	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">response</span>)
-}
-</code></pre></div><p>If we run that this is the output we see:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ go cmd/blog/main.go
+	response, err := httpClient.Get(uri)
+	handleError(err)
+	defer response.Body.Close()
+	fmt.Println(response)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that this is the output we see:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ go cmd/blog/main.go
 
-&amp;<span style="color:#f92672">{</span><span style="color:#ae81ff">200</span> OK <span style="color:#ae81ff">200</span> HTTP/2.0 <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">0</span> map<span style="color:#f92672">[</span>X-Meetup-Request-Id:<span style="color:#f92672">[</span>2d3be3c7-a393-4127-b7aa-076f150499e6<span style="color:#f92672">]</span> X-Ratelimit-Reset:<span style="color:#f92672">[</span>10<span style="color:#f92672">]</span> Cf-Ray:<span style="color:#f92672">[</span>324093a73f1135d2-LHR<span style="color:#f92672">]</span> X-Oauth-Scopes:<span style="color:#f92672">[</span>basic<span style="color:#f92672">]</span> Etag:<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;35a941c5ea3df9df4204d8a4a2d60150&#34;</span><span style="color:#f92672">]</span> Server:<span style="color:#f92672">[</span>cloudflare-nginx<span style="color:#f92672">]</span> Set-Cookie:<span style="color:#f92672">[</span>__cfduid<span style="color:#f92672">=</span>d54db475299a62af4bb963039787e2e3d1484894864; expires<span style="color:#f92672">=</span>Sat, 20-Jan-18 06:47:44 GMT; path<span style="color:#f92672">=</span>/; domain<span style="color:#f92672">=</span>.meetup.com; HttpOnly<span style="color:#f92672">]</span> X-Meetup-Server:<span style="color:#f92672">[</span>api7<span style="color:#f92672">]</span> X-Ratelimit-Limit:<span style="color:#f92672">[</span>30<span style="color:#f92672">]</span> X-Ratelimit-Remaining:<span style="color:#f92672">[</span>29<span style="color:#f92672">]</span> X-Accepted-Oauth-Scopes:<span style="color:#f92672">[</span>basic<span style="color:#f92672">]</span> Vary:<span style="color:#f92672">[</span>Accept-Encoding,User-Agent,Accept-Language<span style="color:#f92672">]</span> Date:<span style="color:#f92672">[</span>Fri, <span style="color:#ae81ff">20</span> Jan <span style="color:#ae81ff">2017</span> 06:47:45 GMT<span style="color:#f92672">]</span> Content-Type:<span style="color:#f92672">[</span>application/json;charset<span style="color:#f92672">=</span>utf-8<span style="color:#f92672">]]</span> 0xc420442260 -1 <span style="color:#f92672">[]</span> false true map<span style="color:#f92672">[]</span> 0xc4200d01e0 0xc4202b2420<span style="color:#f92672">}</span>
-</code></pre></div><p>So far so good. Now we need to parse the response that comes back.</p>
-<p>Most of the examples that I came across <!-- raw HTML omitted -->suggest creating a struct with all the fields<!-- raw HTML omitted --> that you want to extract from the JSON document but that feels a bit over kill for such a simple script.</p>
+&amp;{200 OK 200 HTTP/2.0 2 0 map[X-Meetup-Request-Id:[2d3be3c7-a393-4127-b7aa-076f150499e6] X-Ratelimit-Reset:[10] Cf-Ray:[324093a73f1135d2-LHR] X-Oauth-Scopes:[basic] Etag:["35a941c5ea3df9df4204d8a4a2d60150"] Server:[cloudflare-nginx] Set-Cookie:[__cfduid=d54db475299a62af4bb963039787e2e3d1484894864; expires=Sat, 20-Jan-18 06:47:44 GMT; path=/; domain=.meetup.com; HttpOnly] X-Meetup-Server:[api7] X-Ratelimit-Limit:[30] X-Ratelimit-Remaining:[29] X-Accepted-Oauth-Scopes:[basic] Vary:[Accept-Encoding,User-Agent,Accept-Language] Date:[Fri, 20 Jan 2017 06:47:45 GMT] Content-Type:[application/json;charset=utf-8]] 0xc420442260 -1 [] false true map[] 0xc4200d01e0 0xc4202b2420}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So far so good. Now we need to parse the response that comes back.</p>
+</div>
+<div class="paragraph">
+<p>Most of the examples that I came across <a href="http://stackoverflow.com/questions/17156371/how-to-get-json-response-in-golang">suggest creating a struct with all the fields</a> that you want to extract from the JSON document but that feels a bit over kill for such a simple script.</p>
+</div>
+<div class="paragraph">
 <p>Instead we can just create maps of (string -&gt; interface{}) and then apply type conversions where appropriate. I ended up with the following code to extract the topics:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
-<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;encoding/json&#34;</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-go" data-lang="go">import "encoding/json"
 
-<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">target</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{}
-<span style="color:#a6e22e">decoder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">NewDecoder</span>(<span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">Body</span>)
-<span style="color:#a6e22e">decoder</span>.<span style="color:#a6e22e">Decode</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">target</span>)
+var target map[string]interface{}
+decoder := json.NewDecoder(response.Body)
+decoder.Decode(&amp;target)
 
-<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">rawGroup</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">target</span>[<span style="color:#e6db74">&#34;results&#34;</span>].([]<span style="color:#66d9ef">interface</span>{}) {
-    <span style="color:#a6e22e">group</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">rawGroup</span>.(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{})
-    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">rawTopic</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">group</span>[<span style="color:#e6db74">&#34;topics&#34;</span>].([]<span style="color:#66d9ef">interface</span>{}) {
-        <span style="color:#a6e22e">topic</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">rawTopic</span>.(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{})
-        <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">topic</span>[<span style="color:#e6db74">&#34;urlkey&#34;</span>])
+for _, rawGroup := range target["results"].([]interface{}) {
+    group := rawGroup.(map[string]interface{})
+    for _, rawTopic := range group["topics"].([]interface{}) {
+        topic := rawTopic.(map[string]interface{})
+        fmt.Println(topic["urlkey"])
     }
-}
-</code></pre></div><p>It&rsquo;s more verbose that the Python version because we have to explicitly type each thing we take out of the map at every stage, but it&rsquo;s not too bad. This is the full script:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
-<span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s more verbose that the Python version because we have to explicitly type each thing we take out of the map at every stage, but it&#8217;s not too bad. This is the full script:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-go" data-lang="go">package main
 
-<span style="color:#f92672">import</span> (
-	<span style="color:#e6db74">&#34;fmt&#34;</span>
-	<span style="color:#e6db74">&#34;os&#34;</span>
-	<span style="color:#e6db74">&#34;net/http&#34;</span>
-	<span style="color:#e6db74">&#34;log&#34;</span>
-	<span style="color:#e6db74">&#34;time&#34;</span>
-	<span style="color:#e6db74">&#34;encoding/json&#34;</span>
+import (
+	"fmt"
+	"os"
+	"net/http"
+	"log"
+	"time"
+	"encoding/json"
 )
 
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">handleError</span>(<span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>) {
-	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
-		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
-		<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Fatal</span>(<span style="color:#a6e22e">err</span>)
+func handleError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
 	}
 }
 
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">httpClient</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Client</span>{<span style="color:#a6e22e">Timeout</span>: <span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>}
+func main() {
+	var httpClient = &amp;http.Client{Timeout: 10 * time.Second}
 
-	<span style="color:#a6e22e">seedTopic</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;nosql&#34;</span>
-	<span style="color:#a6e22e">lat</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;51.5072&#34;</span>
-	<span style="color:#a6e22e">lon</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;0.1275&#34;</span>
-	<span style="color:#a6e22e">key</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Getenv</span>(<span style="color:#e6db74">&#34;MEETUP_API_KEY&#34;</span>)
+	seedTopic := "nosql"
+	lat := "51.5072"
+	lon := "0.1275"
+	key := os.Getenv("MEETUP_API_KEY")
 
-	<span style="color:#a6e22e">uri</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;https://api.meetup.com/2/groups?&amp;topic=%s&amp;lat=%s&amp;lon=%s&amp;key=%s&#34;</span>, <span style="color:#a6e22e">seedTopic</span>, <span style="color:#a6e22e">lat</span>, <span style="color:#a6e22e">lon</span>, <span style="color:#a6e22e">key</span>)
+	uri := fmt.Sprintf("https://api.meetup.com/2/groups?&amp;topic=%s&amp;lat=%s&amp;lon=%s&amp;key=%s", seedTopic, lat, lon, key)
 
-	<span style="color:#a6e22e">response</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">httpClient</span>.<span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">uri</span>)
-	<span style="color:#a6e22e">handleError</span>(<span style="color:#a6e22e">err</span>)
-	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">Body</span>.<span style="color:#a6e22e">Close</span>()
+	response, err := httpClient.Get(uri)
+	handleError(err)
+	defer response.Body.Close()
 
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">target</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{}
-	<span style="color:#a6e22e">decoder</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">json</span>.<span style="color:#a6e22e">NewDecoder</span>(<span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">Body</span>)
-	<span style="color:#a6e22e">decoder</span>.<span style="color:#a6e22e">Decode</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">target</span>)
+	var target map[string]interface{}
+	decoder := json.NewDecoder(response.Body)
+	decoder.Decode(&amp;target)
 
-	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">rawGroup</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">target</span>[<span style="color:#e6db74">&#34;results&#34;</span>].([]<span style="color:#66d9ef">interface</span>{}) {
-		<span style="color:#a6e22e">group</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">rawGroup</span>.(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{})
-		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">rawTopic</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">group</span>[<span style="color:#e6db74">&#34;topics&#34;</span>].([]<span style="color:#66d9ef">interface</span>{}) {
-			<span style="color:#a6e22e">topic</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">rawTopic</span>.(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{})
-			<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">topic</span>[<span style="color:#e6db74">&#34;urlkey&#34;</span>])
+	for _, rawGroup := range target["results"].([]interface{}) {
+		group := rawGroup.(map[string]interface{})
+		for _, rawTopic := range group["topics"].([]interface{}) {
+			topic := rawTopic.(map[string]interface{})
+			fmt.Println(topic["urlkey"])
 		}
 	}
-}
-</code></pre></div><p>Once I&rsquo;ve got these topics the next step is to make more API calls to get the groups for those topics.</p>
-<p>I want to make those API calls in parallel while making sure I don&rsquo;t exceed the rate limit restrictions on the API and I think I can make use of go routines, channels, and timers to do that. But that&rsquo;s for another post!</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once I&#8217;ve got these topics the next step is to make more API calls to get the groups for those topics.</p>
+</div>
+<div class="paragraph">
+<p>I want to make those API calls in parallel while making sure I don&#8217;t exceed the rate limit restrictions on the API and I think I can make use of go routines, channels, and timers to do that. But that&#8217;s for another post!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -332,7 +371,7 @@ $ go cmd/blog/main.go
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/01/21/go-vs-python-parsing-a-json-response-from-a-http-api/&amp;title=Go%20vs%20Python%3a%20Parsing%20a%20JSON%20response%20from%20a%20HTTP%20API&amp;summary=As%20part%20of%20a%20recommendations%20with%20Neo4j%20talkthat%20I%26rsquo%3bve%20presented%20a%20few%20times%20over%20the%20last%20year%20I%20have%20a%20set%20of%20scripts%20that%20download%20some%20data%20from%20the%20meetup.com%20API.%0aThey%26rsquo%3bre%20all%20written%20in%20Python%20but%20I%20thought%20it%26rsquo%3bd%20be%20a%20fun%20exercise%20to%20see%20what%20they%26rsquo%3bd%20look%20like%20in%20Go.%20My%20eventual%20goal%20is%20to%20try%20and%20parallelise%20the%20API%20calls.%0aThis%20is%20the%20Python%20version%20of%20the%20script%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/01/21/go-vs-python-parsing-a-json-response-from-a-http-api/&amp;title=Go%20vs%20Python%3a%20Parsing%20a%20JSON%20response%20from%20a%20HTTP%20API&amp;summary=As%20part%20of%20a%20recommendations%20with%20Neo4j%20talk%20that%20I%26%238217%3bve%20presented%20a%20few%20times%20over%20the%20last%20year%20I%20have%20a%20set%20of%20scripts%20that%20download%20some%20data%20from%20the%20meetup.com%20API.%0a%20They%26%238217%3bre%20all%20written%20in%20Python%20but%20I%20thought%20it%26%238217%3bd%20be%20a%20fun%20exercise%20to%20see%20what%20they%26%238217%3bd%20look%20like%20in%20Go.%20My%20eventual%20goal%20is%20to%20try%20and%20parallelise%20the%20API%20calls.%0a%20This%20is%20the%20Python%20version%20of%20the%20script%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

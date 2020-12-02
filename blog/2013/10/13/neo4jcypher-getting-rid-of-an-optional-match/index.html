@@ -23,7 +23,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="neo4j/cypher: Getting rid of an optional match" />
         
-          <meta name="twitter:description" content="MATCH (player:Player) WITH player MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel WITH COLLECT({goals: stats.goals, type: TYPE(t)}) AS games, player RETURN player.name, REDUCE(goals = 0, h IN [g IN games WHERE g.type IS NULL] | goals &#43; h.goals) AS nonTvGoals, REDUCE(goals = 0, h IN [g IN games WHERE g.type &lt;&gt; NULL] | goals &#43; h.goals) AS tvGoals, REDUCE(goals = 0, h in games | goals &#43; h.goals) AS totalGoals ORDER BY tvGoals DESC LIMIT 10 ==&gt; &#43;--------------------------------------------------------&#43; ==&gt; | player." />
+          <meta name="twitter:description" content="I was looking back over some of the queries I wrote for my football data set and I came across one I&#8217;d written to work out how many goals players scored in matches that were televised.
+ The data model looks like this:
+   My initial query to work out the top 10 scorers in televised games was as follows:
+ MATCH (player:Player) WITH player MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel WITH COLLECT({goals: stats." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/10/13/neo4jcypher-getting-rid-of-an-optional-match/" />
 
@@ -34,7 +37,10 @@
         <title> neo4j/cypher: Getting rid of an optional match &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="MATCH (player:Player) WITH player MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel WITH COLLECT({goals: stats.goals, type: TYPE(t)}) AS games, player RETURN player.name, REDUCE(goals = 0, h IN [g IN games WHERE g.type IS NULL] | goals &#43; h.goals) AS nonTvGoals, REDUCE(goals = 0, h IN [g IN games WHERE g.type &lt;&gt; NULL] | goals &#43; h.goals) AS tvGoals, REDUCE(goals = 0, h in games | goals &#43; h.goals) AS totalGoals ORDER BY tvGoals DESC LIMIT 10 ==&gt; &#43;--------------------------------------------------------&#43; ==&gt; | player." />
+        <meta name="description" content="I was looking back over some of the queries I wrote for my football data set and I came across one I&#8217;d written to work out how many goals players scored in matches that were televised.
+ The data model looks like this:
+   My initial query to work out the top 10 scorers in televised games was as follows:
+ MATCH (player:Player) WITH player MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel WITH COLLECT({goals: stats." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +69,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-10-13",
-        "description": "MATCH (player:Player) WITH player MATCH player-[:played|subbed_on]-\x26gt;stats-[:in]-\x26gt;game-[t?:on_tv]-\x26gt;channel WITH COLLECT({goals: stats.goals, type: TYPE(t)}) AS games, player RETURN player.name, REDUCE(goals = 0, h IN [g IN games WHERE g.type IS NULL] | goals \x2b h.goals) AS nonTvGoals, REDUCE(goals = 0, h IN [g IN games WHERE g.type \x26lt;\x26gt; NULL] | goals \x2b h.goals) AS tvGoals, REDUCE(goals = 0, h in games | goals \x2b h.goals) AS totalGoals ORDER BY tvGoals DESC LIMIT 10 ==\x26gt; \x2b--------------------------------------------------------\x2b ==\x26gt; | player.",
-        "wordCount":  480 
+        "description": "I was looking back over some of the queries I wrote for my football data set and I came across one I\x26#8217;d written to work out how many goals players scored in matches that were televised.\n The data model looks like this:\n   My initial query to work out the top 10 scorers in televised games was as follows:\n MATCH (player:Player) WITH player MATCH player-[:played|subbed_on]-\x26gt;stats-[:in]-\x26gt;game-[t?:on_tv]-\x26gt;channel WITH COLLECT({goals: stats.",
+        "wordCount":  718 
     }
     </script>
     
@@ -175,12 +181,24 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">neo4j/cypher: Getting rid of an optional match</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)
+    <div class="paragraph">
+<p>I was looking back over some of the queries I wrote for my football data set and I came across one I&#8217;d written to work out how many goals players scored in matches that were televised.</p>
+</div>
+<div class="paragraph">
+<p>The data model looks like this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2013/10/2013-10-13_22-31-19.png" alt="2013 10 13 22 31 19" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>My initial query to work out the top 10 scorers in televised games was as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)
 WITH player
 MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH COLLECT({goals: stats.goals, type: TYPE(t)}) AS games, player
@@ -189,80 +207,113 @@ RETURN player.name,
        REDUCE(goals = 0, h IN [g IN games WHERE g.type &lt;&gt; NULL] | goals + h.goals) AS tvGoals,
        REDUCE(goals = 0, h in games | goals + h.goals) AS totalGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-<span style="color:#f92672">==</span>&gt; +--------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | player.name        | nonTvGoals | tvGoals | totalGoals |
-<span style="color:#f92672">==</span>&gt; +--------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Robin Van Persie&#34;</span> | <span style="color:#ae81ff">11</span>         | <span style="color:#ae81ff">15</span>      | <span style="color:#ae81ff">26</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Gareth Bale&#34;</span>      | <span style="color:#ae81ff">8</span>          | <span style="color:#ae81ff">13</span>      | <span style="color:#ae81ff">21</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Luis Suárez&#34;</span>      | <span style="color:#ae81ff">12</span>         | <span style="color:#ae81ff">11</span>      | <span style="color:#ae81ff">23</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Theo Walcott&#34;</span>     | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">9</span>       | <span style="color:#ae81ff">14</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Demba Ba&#34;</span>         | <span style="color:#ae81ff">7</span>          | <span style="color:#ae81ff">8</span>       | <span style="color:#ae81ff">15</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Edin Dzeko&#34;</span>       | <span style="color:#ae81ff">7</span>          | <span style="color:#ae81ff">7</span>       | <span style="color:#ae81ff">14</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Santi Cazorla&#34;</span>    | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">7</span>       | <span style="color:#ae81ff">12</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Juan Mata&#34;</span>        | <span style="color:#ae81ff">6</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">12</span>         |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Steven Gerrard&#34;</span>   | <span style="color:#ae81ff">3</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">9</span>          |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Carlos Tevez&#34;</span>     | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">11</span>         |
-<span style="color:#f92672">==</span>&gt; +--------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">10</span> rows
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">520</span> ms
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we evaluate the query we see that Robin Van Persie scored most goals in televised games:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">==&gt; +--------------------------------------------------------+
+==&gt; | player.name        | nonTvGoals | tvGoals | totalGoals |
+==&gt; +--------------------------------------------------------+
+==&gt; | "Robin Van Persie" | 11         | 15      | 26         |
+==&gt; | "Gareth Bale"      | 8          | 13      | 21         |
+==&gt; | "Luis Suárez"      | 12         | 11      | 23         |
+==&gt; | "Theo Walcott"     | 5          | 9       | 14         |
+==&gt; | "Demba Ba"         | 7          | 8       | 15         |
+==&gt; | "Edin Dzeko"       | 7          | 7       | 14         |
+==&gt; | "Santi Cazorla"    | 5          | 7       | 12         |
+==&gt; | "Juan Mata"        | 6          | 6       | 12         |
+==&gt; | "Steven Gerrard"   | 3          | 6       | 9          |
+==&gt; | "Carlos Tevez"     | 5          | 6       | 11         |
+==&gt; +--------------------------------------------------------+
+==&gt; 10 rows
+==&gt; 520 ms</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The query takes 1/2 second to evaluate even after running it a few times and since using optional patterns often leads to slow queries I thought I should try and remove the optional <cite>on_tv</cite> relationship.</p>
+</div>
+<div class="paragraph">
+<p>I introduced it so that I could determine which matches were on TV, which then allowed me to aggregate goals scored in other games as well.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://twitter.com/wefreema">Wes</a> helped me do this although his first suggestion was to replace the <cite>REDUCE</cite> with a <cite>SUM</cite> to simplify the query. The <cite>CASE</cite> statement makes this easier:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)
 WITH player
 MATCH player-[:played|subbed_on]-&gt;stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH {goals: stats.goals, type: TYPE(t)} AS game, player
-RETURN player.name, 
+RETURN player.name,
        SUM(CASE WHEN game.type IS NULL THEN game.goals ELSE 0 END) as nonTvGoals,
        SUM(CASE WHEN game.type &lt;&gt; NULL THEN game.goals ELSE 0 END) as tvGoals,
        SUM(game.goals) as allGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)-[:played|subbed_on]-&gt;stats
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Our next step is to split up the finding of <cite>stats</cite> nodes (which represent a player&#8217;s performance in a match) from the finding of the TV channel that the match may have been shown on.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)-[:played|subbed_on]-&gt;stats
 WITH player, stats
 MATCH stats-[:in]-&gt;game-[t?:on_tv]-&gt;channel
 WITH {goals: stats.goals, type: TYPE(t)} AS game, player
-RETURN player.name, 
+RETURN player.name,
        SUM(CASE WHEN game.type IS NULL THEN game.goals ELSE 0 END) as nonTvGoals,
        SUM(CASE WHEN game.type &lt;&gt; NULL THEN game.goals ELSE 0 END) as tvGoals,
        SUM(game.goals) as allGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (player:Player)-[:played|subbed_on]-&gt;stats
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally we can make the <cite>on_tv</cite> relationship explicit and change the way we sum the goals slightly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (player:Player)-[:played|subbed_on]-&gt;stats
 WITH stats.goals AS goals, player, stats-[:in]-&gt;()-[:on_tv]-() as onTv
-RETURN player.name, 
+RETURN player.name,
        SUM(CASE WHEN onTv = FALSE THEN goals ELSE 0 END) as nonTvGoals,
        SUM(CASE WHEN onTv = TRUE THEN goals ELSE 0 END) as tvGoals,
        SUM(goals) as allGoals
 ORDER BY tvGoals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-<span style="color:#f92672">==</span>&gt; +------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | player.name        | nonTvGoals | tvGoals | allGoals |
-<span style="color:#f92672">==</span>&gt; +------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Robin Van Persie&#34;</span> | <span style="color:#ae81ff">11</span>         | <span style="color:#ae81ff">15</span>      | <span style="color:#ae81ff">26</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Gareth Bale&#34;</span>      | <span style="color:#ae81ff">8</span>          | <span style="color:#ae81ff">13</span>      | <span style="color:#ae81ff">21</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Luis Suárez&#34;</span>      | <span style="color:#ae81ff">12</span>         | <span style="color:#ae81ff">11</span>      | <span style="color:#ae81ff">23</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Theo Walcott&#34;</span>     | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">9</span>       | <span style="color:#ae81ff">14</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Demba Ba&#34;</span>         | <span style="color:#ae81ff">7</span>          | <span style="color:#ae81ff">8</span>       | <span style="color:#ae81ff">15</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Santi Cazorla&#34;</span>    | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">7</span>       | <span style="color:#ae81ff">12</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Edin Dzeko&#34;</span>       | <span style="color:#ae81ff">7</span>          | <span style="color:#ae81ff">7</span>       | <span style="color:#ae81ff">14</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Carlos Tevez&#34;</span>     | <span style="color:#ae81ff">5</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">11</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Juan Mata&#34;</span>        | <span style="color:#ae81ff">6</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">12</span>       |
-<span style="color:#f92672">==</span>&gt; | <span style="color:#e6db74">&#34;Steven Gerrard&#34;</span>   | <span style="color:#ae81ff">3</span>          | <span style="color:#ae81ff">6</span>       | <span style="color:#ae81ff">9</span>        |
-<span style="color:#f92672">==</span>&gt; +------------------------------------------------------+
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">10</span> rows
-<span style="color:#f92672">==</span>&gt; <span style="color:#ae81ff">219</span> ms
-</code></pre></div><!-- raw HTML omitted -->
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that a few times the query execution time has now halved:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">==&gt; +------------------------------------------------------+
+==&gt; | player.name        | nonTvGoals | tvGoals | allGoals |
+==&gt; +------------------------------------------------------+
+==&gt; | "Robin Van Persie" | 11         | 15      | 26       |
+==&gt; | "Gareth Bale"      | 8          | 13      | 21       |
+==&gt; | "Luis Suárez"      | 12         | 11      | 23       |
+==&gt; | "Theo Walcott"     | 5          | 9       | 14       |
+==&gt; | "Demba Ba"         | 7          | 8       | 15       |
+==&gt; | "Santi Cazorla"    | 5          | 7       | 12       |
+==&gt; | "Edin Dzeko"       | 7          | 7       | 14       |
+==&gt; | "Carlos Tevez"     | 5          | 6       | 11       |
+==&gt; | "Juan Mata"        | 6          | 6       | 12       |
+==&gt; | "Steven Gerrard"   | 3          | 6       | 9        |
+==&gt; +------------------------------------------------------+
+==&gt; 10 rows
+==&gt; 219 ms</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Thanks Wes for showing me how to do this!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -297,7 +348,7 @@ LIMIT 10
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/13/neo4jcypher-getting-rid-of-an-optional-match/&amp;title=neo4j%2fcypher%3a%20Getting%20rid%20of%20an%20optional%20match&amp;summary=MATCH%20%28player%3aPlayer%29%20WITH%20player%20MATCH%20player-%5b%3aplayed%7csubbed_on%5d-%26gt%3bstats-%5b%3ain%5d-%26gt%3bgame-%5bt%3f%3aon_tv%5d-%26gt%3bchannel%20WITH%20COLLECT%28%7bgoals%3a%20stats.goals%2c%20type%3a%20TYPE%28t%29%7d%29%20AS%20games%2c%20player%20RETURN%20player.name%2c%20REDUCE%28goals%20%3d%200%2c%20h%20IN%20%5bg%20IN%20games%20WHERE%20g.type%20IS%20NULL%5d%20%7c%20goals%20%2b%20h.goals%29%20AS%20nonTvGoals%2c%20REDUCE%28goals%20%3d%200%2c%20h%20IN%20%5bg%20IN%20games%20WHERE%20g.type%20%26lt%3b%26gt%3b%20NULL%5d%20%7c%20goals%20%2b%20h.goals%29%20AS%20tvGoals%2c%20REDUCE%28goals%20%3d%200%2c%20h%20in%20games%20%7c%20goals%20%2b%20h.goals%29%20AS%20totalGoals%20ORDER%20BY%20tvGoals%20DESC%20LIMIT%2010%20%3d%3d%26gt%3b%20%2b--------------------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20player...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/10/13/neo4jcypher-getting-rid-of-an-optional-match/&amp;title=neo4j%2fcypher%3a%20Getting%20rid%20of%20an%20optional%20match&amp;summary=I%20was%20looking%20back%20over%20some%20of%20the%20queries%20I%20wrote%20for%20my%20football%20data%20set%20and%20I%20came%20across%20one%20I%26%238217%3bd%20written%20to%20work%20out%20how%20many%20goals%20players%20scored%20in%20matches%20that%20were%20televised.%0a%20The%20data%20model%20looks%20like%20this%3a%0a%20%20%20My%20initial%20query%20to%20work%20out%20the%20top%2010%20scorers%20in%20televised%20games%20was%20as%20follows%3a%0a%20MATCH%20%28player%3aPlayer%29%20WITH%20player%20MATCH%20player-%5b%3aplayed%7csubbed_on%5d-%26gt%3bstats-%5b%3ain%5d-%26gt%3bgame-%5bt%3f%3aon_tv%5d-%26gt%3bchannel%20WITH%20COLLECT%28%7bgoals%3a%20stats...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -52,7 +52,9 @@
       <pubDate>Mon, 29 Jan 2018 06:51:10 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2018/01/29/tensorflow-kaggle-spooky-authors-bag-words-model/</guid>
-      <description>from __future__ import absolute_import from __future__ import division from __future__ import print_function import numpy as np import pandas as pd import tensorflow as tf from sklearn import preprocessing from sklearn.model_selection import train_test_split EMBEDDING_SIZE = 50 MAX_LABEL = 3 WORDS_FEATURE = &amp;#39;words&amp;#39; # Name of the input words feature. def bag_of_words_model(features, labels, mode): bow_column = tf.feature_column.categorical_column_with_identity(WORDS_FEATURE, num_buckets=n_words) bow_embedding_column = tf.feature_column.embedding_column(bow_column, dimension=EMBEDDING_SIZE) bow = tf.feature_column.input_layer(features, feature_columns=[bow_embedding_column]) logits = tf.layers.dense(bow, MAX_LABEL, activation=None) return create_estimator_spec(logits=logits, labels=labels, mode=mode) def create_estimator_spec(logits, labels, mode): predicted_classes = tf.</description>
+      <description>I&amp;#8217;ve been playing around with some Tensorflow tutorials recently and wanted to see if I could create a submission for Kaggle&amp;#8217;s Spooky Author Identification competition that I&amp;#8217;ve written about recently.
+ My model is based on one from the text classification tutorial. The tutorial shows how to create custom Estimators which we can learn more about in a post on the Google Developers blog.
+ Imports Let&amp;#8217;s get started. First, our imports:</description>
     </item>
     
     <item>
@@ -61,7 +63,9 @@
       <pubDate>Sun, 10 Dec 2017 07:55:43 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/12/10/scikit-learn-using-gridsearch-tune-hyper-parameters-votingclassifier/</guid>
-      <description>import pandas as pd from sklearn import linear_model from sklearn.ensemble import VotingClassifier from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline Y_COLUMN = &amp;#34;author&amp;#34; TEXT_COLUMN = &amp;#34;text&amp;#34; unigram_log_pipe = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer()), (&amp;#39;logreg&amp;#39;, linear_model.LogisticRegression()) ]) ngram_pipe = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer(ngram_range=(1, 2))), (&amp;#39;mnb&amp;#39;, MultinomialNB()) ]) tfidf_pipe = Pipeline([ (&amp;#39;tfidf&amp;#39;, TfidfVectorizer(min_df=3, max_features=None, strip_accents=&amp;#39;unicode&amp;#39;, analyzer=&amp;#39;word&amp;#39;, token_pattern=r&amp;#39;\w{1,}&amp;#39;, ngram_range=(1, 3), use_idf=1, smooth_idf=1, sublinear_tf=1, stop_words=&amp;#39;english&amp;#39;)), (&amp;#39;mnb&amp;#39;, MultinomialNB()) ]) classifiers = [ (&amp;#34;ngram&amp;#34;, ngram_pipe), (&amp;#34;unigram&amp;#34;, unigram_log_pipe), (&amp;#34;tfidf&amp;#34;, tfidf_pipe), ] mixed_pipe = Pipeline([ (&amp;#34;voting&amp;#34;, VotingClassifier(classifiers, voting=&amp;#34;soft&amp;#34;)) ]) from sklearn.</description>
+      <description>In my last blog post I showed how to create a multi class classification ensemble using scikit-learn&amp;#8217;s http://scikit-learn.org/stable/modules/ensemble.html#voting-classifier and finished mentioning that I didn&amp;#8217;t know which classifiers should be part of the ensemble.
+ We need to get a better score with each of the classifiers in the ensemble otherwise they can be excluded.
+ We have a TF/IDF based classifier as well as well as the classifiers I wrote about in the last post.</description>
     </item>
     
     <item>
@@ -70,7 +74,9 @@
       <pubDate>Tue, 05 Dec 2017 22:19:34 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/12/05/scikit-learn-building-multi-class-classification-ensemble/</guid>
-      <description>from sklearn import linear_model from sklearn.ensemble import VotingClassifier from sklearn.feature_extraction.text import CountVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline ngram_pipe = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer(ngram_range=(1, 2))), (&amp;#39;mnb&amp;#39;, MultinomialNB()) ]) unigram_log_pipe = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer()), (&amp;#39;logreg&amp;#39;, linear_model.LogisticRegression()) ]) classifiers = [ (&amp;#34;ngram&amp;#34;, ngram_pipe), (&amp;#34;unigram&amp;#34;, unigram_log_pipe), ] mixed_pipe = Pipeline([ (&amp;#34;voting&amp;#34;, VotingClassifier(classifiers, voting=&amp;#34;soft&amp;#34;)) ]) import pandas as pd import numpy as np from sklearn.model_selection import StratifiedKFold from sklearn import metrics Y_COLUMN = &amp;#34;author&amp;#34; TEXT_COLUMN = &amp;#34;text&amp;#34; def test_pipeline(df, nlp_pipeline): y = df[Y_COLUMN].</description>
+      <description>For the Kaggle Spooky Author Identification I wanted to combine multiple classifiers together into an ensemble and found the VotingClassifier that does exactly that.
+ We need to predict the probability that a sentence is written by one of three authors so the VotingClassifier needs to make a &#39;soft&#39; prediction. If we only needed to know the most likely author we could have it make a &#39;hard&#39; prediction instead.
+ We start with three classifiers which generate different n-gram based features.</description>
     </item>
     
   </channel>

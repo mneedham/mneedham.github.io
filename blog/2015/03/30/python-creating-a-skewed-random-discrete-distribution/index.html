@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Python: Creating a skewed random discrete distribution" />
         
-          <meta name="twitter:description" content="import math import numpy as np values = range(1, 209) probs = [1.0 / 208] * 208 for idx, prob in enumerate(probs): if idx &gt; 3 and idx &lt; 20: probs[idx] = probs[idx] * (1 &#43; math.log(idx &#43; 1)) if idx &gt; 20 and idx &lt; 40: probs[idx] = probs[idx] * (1 &#43; math.log((40 - idx) &#43; 1)) probs = [p / sum(probs) for p in probs] sample = np.random.choice(values, 1000, p=probs) &gt;&gt;&gt; print sample[:10] [ 33 9 22 126 54 4 20 17 45 56] import matplotlib matplotlib." />
+          <meta name="twitter:description" content="I&#8217;m planning to write a variant of the TF/IDF algorithm over the HIMYM corpus which weights in favour of term that appear in a medium number of documents and as a prerequisite needed a function that when given a number of documents would return a weighting.
+ It should return a higher value when a term appears in a medium number of documents i.e. if I pass in 10 I should get back a higher value than 200 as a term that appears in 10 episodes is likely to be more interesting than one which appears in almost every episode." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/03/30/python-creating-a-skewed-random-discrete-distribution/" />
 
@@ -33,7 +34,8 @@
         <title> Python: Creating a skewed random discrete distribution &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="import math import numpy as np values = range(1, 209) probs = [1.0 / 208] * 208 for idx, prob in enumerate(probs): if idx &gt; 3 and idx &lt; 20: probs[idx] = probs[idx] * (1 &#43; math.log(idx &#43; 1)) if idx &gt; 20 and idx &lt; 40: probs[idx] = probs[idx] * (1 &#43; math.log((40 - idx) &#43; 1)) probs = [p / sum(probs) for p in probs] sample = np.random.choice(values, 1000, p=probs) &gt;&gt;&gt; print sample[:10] [ 33 9 22 126 54 4 20 17 45 56] import matplotlib matplotlib." />
+        <meta name="description" content="I&#8217;m planning to write a variant of the TF/IDF algorithm over the HIMYM corpus which weights in favour of term that appear in a medium number of documents and as a prerequisite needed a function that when given a number of documents would return a weighting.
+ It should return a higher value when a term appears in a medium number of documents i.e. if I pass in 10 I should get back a higher value than 200 as a term that appears in 10 episodes is likely to be more interesting than one which appears in almost every episode." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-03-30",
-        "description": "import math import numpy as np values = range(1, 209) probs = [1.0 \/ 208] * 208 for idx, prob in enumerate(probs): if idx \x26gt; 3 and idx \x26lt; 20: probs[idx] = probs[idx] * (1 \x2b math.log(idx \x2b 1)) if idx \x26gt; 20 and idx \x26lt; 40: probs[idx] = probs[idx] * (1 \x2b math.log((40 - idx) \x2b 1)) probs = [p \/ sum(probs) for p in probs] sample = np.random.choice(values, 1000, p=probs) \x26gt;\x26gt;\x26gt; print sample[:10] [ 33 9 22 126 54 4 20 17 45 56] import matplotlib matplotlib.",
-        "wordCount":  117 
+        "description": "I\x26#8217;m planning to write a variant of the TF\/IDF algorithm over the HIMYM corpus which weights in favour of term that appear in a medium number of documents and as a prerequisite needed a function that when given a number of documents would return a weighting.\n It should return a higher value when a term appears in a medium number of documents i.e. if I pass in 10 I should get back a higher value than 200 as a term that appears in 10 episodes is likely to be more interesting than one which appears in almost every episode.",
+        "wordCount":  341 
     }
     </script>
     
@@ -172,53 +174,78 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Python: Creating a skewed random discrete distribution</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> math
-<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+    <div class="paragraph">
+<p>I&#8217;m planning to write a variant of the <a href="http://en.wikipedia.org/wiki/Tf%E2%80%93idf">TF/IDF</a> algorithm over the HIMYM corpus which weights in favour of term that appear in a medium number of documents and as a prerequisite needed a function that when given a number of documents would return a weighting.</p>
+</div>
+<div class="paragraph">
+<p>It should return a higher value when a term appears in a medium number of documents i.e. if I pass in 10 I should get back a higher value than 200 as a term that appears in 10 episodes is likely to be more interesting than one which appears in almost every episode.</p>
+</div>
+<div class="paragraph">
+<p>I went through a few different scipy distributions but none of them did exactly what I want so I ended up writing a sampling function which <a href="http://stackoverflow.com/questions/24854965/create-random-numbers-with-left-skewed-probability-distribution">chooses random numbers in a range with different probabilities</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import math
+import numpy as np
 
-values <span style="color:#f92672">=</span> range(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">209</span>)
-probs <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> <span style="color:#ae81ff">208</span>] <span style="color:#f92672">*</span> <span style="color:#ae81ff">208</span>
+values = range(1, 209)
+probs = [1.0 / 208] * 208
 
-<span style="color:#66d9ef">for</span> idx, prob <span style="color:#f92672">in</span> enumerate(probs):
-    <span style="color:#66d9ef">if</span> idx <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">and</span> idx <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">20</span>:
-        probs[idx] <span style="color:#f92672">=</span> probs[idx] <span style="color:#f92672">*</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> math<span style="color:#f92672">.</span>log(idx <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>))
-    <span style="color:#66d9ef">if</span> idx <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">20</span> <span style="color:#f92672">and</span> idx <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">40</span>:
-        probs[idx] <span style="color:#f92672">=</span> probs[idx] <span style="color:#f92672">*</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> math<span style="color:#f92672">.</span>log((<span style="color:#ae81ff">40</span> <span style="color:#f92672">-</span> idx) <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>))
+for idx, prob in enumerate(probs):
+    if idx &gt; 3 and idx &lt; 20:
+        probs[idx] = probs[idx] * (1 + math.log(idx + 1))
+    if idx &gt; 20 and idx &lt; 40:
+        probs[idx] = probs[idx] * (1 + math.log((40 - idx) + 1))
 
-probs <span style="color:#f92672">=</span> [p <span style="color:#f92672">/</span> sum(probs) <span style="color:#66d9ef">for</span> p <span style="color:#f92672">in</span> probs]
-sample <span style="color:#f92672">=</span>  np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>choice(values, <span style="color:#ae81ff">1000</span>, p<span style="color:#f92672">=</span>probs)
+probs = [p / sum(probs) for p in probs]
+sample =  np.random.choice(values, 1000, p=probs)
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span> sample[:<span style="color:#ae81ff">10</span>]
-[ <span style="color:#ae81ff">33</span>   <span style="color:#ae81ff">9</span>  <span style="color:#ae81ff">22</span> <span style="color:#ae81ff">126</span>  <span style="color:#ae81ff">54</span>   <span style="color:#ae81ff">4</span>  <span style="color:#ae81ff">20</span>  <span style="color:#ae81ff">17</span>  <span style="color:#ae81ff">45</span>  <span style="color:#ae81ff">56</span>]
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> matplotlib
-matplotlib<span style="color:#f92672">.</span>use(<span style="color:#e6db74">&#39;TkAgg&#39;</span>)
-<span style="color:#f92672">import</span> matplotlib.pyplot <span style="color:#f92672">as</span> plt
+&gt;&gt;&gt; print sample[:10]
+[ 33   9  22 126  54   4  20  17  45  56]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s visualise the distribution of this sample by plotting a histogram:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
-binwidth <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>
-plt<span style="color:#f92672">.</span>hist(sample, bins<span style="color:#f92672">=</span>np<span style="color:#f92672">.</span>arange(min(sample), max(sample) <span style="color:#f92672">+</span> binwidth, binwidth))
-plt<span style="color:#f92672">.</span>xlim([<span style="color:#ae81ff">0</span>, max(sample)])
-plt<span style="color:#f92672">.</span>show()
-</code></pre></div><!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span> np<span style="color:#f92672">.</span>bincount(sample)[<span style="color:#ae81ff">1</span>]
-<span style="color:#ae81ff">4</span>
+binwidth = 2
+plt.hist(sample, bins=np.arange(min(sample), max(sample) + binwidth, binwidth))
+plt.xlim([0, max(sample)])
+plt.show()</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/03/2015-03-30_23-25-05.png" alt="2015 03 30 23 25 05">
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s a bit hacky but it does seem to work in terms of weighting the values correctly. It would be nice if it I could smooth it off a bit better but I&#8217;m not sure how at the moment.</p>
+</div>
+<div class="paragraph">
+<p>One final thing we can do is get the count of any one of the values by using the <a href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.bincount.html">bincount</a> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">&gt;&gt;&gt; print np.bincount(sample)[1]
+4
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span> np<span style="color:#f92672">.</span>bincount(sample)[<span style="color:#ae81ff">10</span>]
-<span style="color:#ae81ff">16</span>
+&gt;&gt;&gt; print np.bincount(sample)[10]
+16
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#66d9ef">print</span> np<span style="color:#f92672">.</span>bincount(sample)[<span style="color:#ae81ff">206</span>]
-<span style="color:#ae81ff">3</span>
-</code></pre></div><!-- raw HTML omitted -->
+&gt;&gt;&gt; print np.bincount(sample)[206]
+3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now I need to plug this into the rest of my code and see if it actually works!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -253,7 +280,7 @@ plt<span style="color:#f92672">.</span>show()
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/03/30/python-creating-a-skewed-random-discrete-distribution/&amp;title=Python%3a%20Creating%20a%20skewed%20random%20discrete%20distribution&amp;summary=import%20math%20import%20numpy%20as%20np%20values%20%3d%20range%281%2c%20209%29%20probs%20%3d%20%5b1.0%20%2f%20208%5d%20%2a%20208%20for%20idx%2c%20prob%20in%20enumerate%28probs%29%3a%20if%20idx%20%26gt%3b%203%20and%20idx%20%26lt%3b%2020%3a%20probs%5bidx%5d%20%3d%20probs%5bidx%5d%20%2a%20%281%20%2b%20math.log%28idx%20%2b%201%29%29%20if%20idx%20%26gt%3b%2020%20and%20idx%20%26lt%3b%2040%3a%20probs%5bidx%5d%20%3d%20probs%5bidx%5d%20%2a%20%281%20%2b%20math.log%28%2840%20-%20idx%29%20%2b%201%29%29%20probs%20%3d%20%5bp%20%2f%20sum%28probs%29%20for%20p%20in%20probs%5d%20sample%20%3d%20np.random.choice%28values%2c%201000%2c%20p%3dprobs%29%20%26gt%3b%26gt%3b%26gt%3b%20print%20sample%5b%3a10%5d%20%5b%2033%209%2022%20126%2054%204%2020%2017%2045%2056%5d%20import%20matplotlib%20matplotlib...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/03/30/python-creating-a-skewed-random-discrete-distribution/&amp;title=Python%3a%20Creating%20a%20skewed%20random%20discrete%20distribution&amp;summary=I%26%238217%3bm%20planning%20to%20write%20a%20variant%20of%20the%20TF%2fIDF%20algorithm%20over%20the%20HIMYM%20corpus%20which%20weights%20in%20favour%20of%20term%20that%20appear%20in%20a%20medium%20number%20of%20documents%20and%20as%20a%20prerequisite%20needed%20a%20function%20that%20when%20given%20a%20number%20of%20documents%20would%20return%20a%20weighting.%0a%20It%20should%20return%20a%20higher%20value%20when%20a%20term%20appears%20in%20a%20medium%20number%20of%20documents%20i.e.%20if%20I%20pass%20in%2010%20I%20should%20get%20back%20a%20higher%20value%20than%20200%20as%20a%20term%20that%20appears%20in%2010%20episodes%20is%20likely%20to%20be%20more%20interesting%20than%20one%20which%20appears%20in%20almost%20every%20episode...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

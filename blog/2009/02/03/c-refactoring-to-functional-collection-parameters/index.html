@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="C#: Refactoring to functional collection parameters" />
         
-          <meta name="twitter:description" content="I wrote about a month or so ago about the functional collection parametersnow available in C# and certainly one of the most fun refactorings for me is trying to get code written using a for loop into a state where it is using one of these.
-With a bit of help from my colleague James Crisp, these are some of the most common refactorings that I have come across so far." />
+          <meta name="twitter:description" content="I wrote about a month or so ago about the functional collection parameters now available in C# and certainly one of the most fun refactorings for me is trying to get code written using a for loop into a state where it is using one of these.
+ With a bit of help from my colleague James Crisp, these are some of the most common refactorings that I have come across so far." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/02/03/c-refactoring-to-functional-collection-parameters/" />
 
@@ -35,8 +35,8 @@ With a bit of help from my colleague James Crisp, these are some of the most com
         <title> C#: Refactoring to functional collection parameters &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I wrote about a month or so ago about the functional collection parametersnow available in C# and certainly one of the most fun refactorings for me is trying to get code written using a for loop into a state where it is using one of these.
-With a bit of help from my colleague James Crisp, these are some of the most common refactorings that I have come across so far." />
+        <meta name="description" content="I wrote about a month or so ago about the functional collection parameters now available in C# and certainly one of the most fun refactorings for me is trying to get code written using a for loop into a state where it is using one of these.
+ With a bit of help from my colleague James Crisp, these are some of the most common refactorings that I have come across so far." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ With a bit of help from my colleague James Crisp, these are some of the most com
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-02-03",
-        "description": "I wrote about a month or so ago about the functional collection parametersnow available in C# and certainly one of the most fun refactorings for me is trying to get code written using a for loop into a state where it is using one of these.\nWith a bit of help from my colleague James Crisp, these are some of the most common refactorings that I have come across so far.",
-        "wordCount":  445 
+        "description": "I wrote about a month or so ago about the functional collection parameters now available in C# and certainly one of the most fun refactorings for me is trying to get code written using a for loop into a state where it is using one of these.\n With a bit of help from my colleague James Crisp, these are some of the most common refactorings that I have come across so far.",
+        "wordCount":  484 
     }
     </script>
     
@@ -177,90 +177,146 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">C#: Refactoring to functional collection parameters</h1>
-    <p>I wrote about a month or so ago about the <!-- raw HTML omitted -->functional collection parameters<!-- raw HTML omitted --> now available in C# and certainly one of the most fun refactorings for me is trying to get code written using a for loop into a state where it is using one of these.</p>
-<p>With a bit of help from my colleague <!-- raw HTML omitted -->James Crisp<!-- raw HTML omitted -->, these are some of the most common refactorings that I have come across so far.</p>
-<p>There&rsquo;s a little bit of repetition with regards to my previous post but I think it&rsquo;s interesting to see the procedural approach to solving this problems versus the functional approach.</p>
+    <div class="paragraph">
+<p>I wrote about a month or so ago about the <a href="http://www.markhneedham.com/blog/2008/12/17/functional-collection-parameters-in-c/">functional collection parameters</a> now available in C# and certainly one of the most fun refactorings for me is trying to get code written using a for loop into a state where it is using one of these.</p>
+</div>
+<div class="paragraph">
+<p>With a bit of help from my colleague <a href="http://jamescrisp.org/">James Crisp</a>, these are some of the most common refactorings that I have come across so far.</p>
+</div>
+<div class="paragraph">
+<p>There&#8217;s a little bit of repetition with regards to my previous post but I think it&#8217;s interesting to see the procedural approach to solving this problems versus the functional approach.</p>
+</div>
+<div class="paragraph">
 <p>For the sake of the examples, the following classes are common:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Foo
 {
-    <span style="color:#66d9ef">private</span> String bar;
-    <span style="color:#66d9ef">private</span> String baz;
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">bool</span> specialFlag;
+    private String bar;
+    private String baz;
+    private readonly bool specialFlag;
 
-    <span style="color:#66d9ef">public</span> Foo(<span style="color:#66d9ef">string</span> bar, <span style="color:#66d9ef">string</span> baz, <span style="color:#66d9ef">bool</span> specialFlag)
+    public Foo(string bar, string baz, bool specialFlag)
     {
-        <span style="color:#66d9ef">this</span>.bar = bar;
-        <span style="color:#66d9ef">this</span>.baz = baz;
-        <span style="color:#66d9ef">this</span>.specialFlag = specialFlag;
+        this.bar = bar;
+        this.baz = baz;
+        this.specialFlag = specialFlag;
     }
 
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">bool</span> HasSpecialFlag()
+    public bool HasSpecialFlag()
     {
-        <span style="color:#66d9ef">return</span> specialFlag;
+        return specialFlag;
     }
 }
 
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NewFoo</span>
+public class NewFoo
 {
-    <span style="color:#66d9ef">public</span> NewFoo(Foo foo)
-    {       
+    public NewFoo(Foo foo)
+    {
     }
 }
 
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NumericFoo</span>
+public class NumericFoo
 {
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> Value { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
-}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> foos = <span style="color:#66d9ef">new</span> List&lt;Foo&gt; {<span style="color:#66d9ef">new</span> Foo(<span style="color:#e6db74">&#34;bar1&#34;</span>, <span style="color:#e6db74">&#34;baz2&#34;</span>, <span style="color:#66d9ef">true</span>), <span style="color:#66d9ef">new</span> Foo(<span style="color:#e6db74">&#34;bar2&#34;</span>, <span style="color:#e6db74">&#34;baz2&#34;</span>, <span style="color:#66d9ef">false</span>)}.Where(foo =&gt; foo.HasSpecialFlag());
+    public int Value { get; set; }
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_going_from_one_collection_to_another_conditionally">Going from one collection to another conditionally</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var foos = new List&lt;Foo&gt; {new Foo("bar1", "baz2", true), new Foo("bar2", "baz2", false)}.Where(foo =&gt; foo.HasSpecialFlag());
 
-<span style="color:#66d9ef">var</span> newFoos = <span style="color:#66d9ef">new</span> List&lt;NewFoo&gt;();
-<span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> foo <span style="color:#66d9ef">in</span> foos)
+var newFoos = new List&lt;NewFoo&gt;();
+foreach (var foo in foos)
 {
-    newFoos.Add(<span style="color:#66d9ef">new</span> NewFoo(foo));
-}
-</code></pre></div><p>We started off well using the &lsquo;Where&rsquo; method to reduce the original list but we can do even better!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> foos = <span style="color:#66d9ef">new</span> List&lt;Foo&gt; {<span style="color:#66d9ef">new</span> Foo(<span style="color:#e6db74">&#34;bar1&#34;</span>, <span style="color:#e6db74">&#34;baz2&#34;</span>, <span style="color:#66d9ef">true</span>), <span style="color:#66d9ef">new</span> Foo(<span style="color:#e6db74">&#34;bar2&#34;</span>, <span style="color:#e6db74">&#34;baz2&#34;</span>, <span style="color:#66d9ef">false</span>)};
+    newFoos.Add(new NewFoo(foo));
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We started off well using the 'Where' method to reduce the original list but we can do even better!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var foos = new List&lt;Foo&gt; {new Foo("bar1", "baz2", true), new Foo("bar2", "baz2", false)};
 foos.Where(foo =&gt; foo.HasSpecialFlag())
-    .Select(foo =&gt; <span style="color:#66d9ef">new</span> NewFoo(foo));
-</code></pre></div><p>Not significantly less code but it removes the need for more state in our code and makes the code more expressive at the same time which can only be a good thing.</p>
-<!-- raw HTML omitted -->
+    .Select(foo =&gt; new NewFoo(foo));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Not significantly less code but it removes the need for more state in our code and makes the code more expressive at the same time which can only be a good thing.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_returning_just_one_result">Returning just one result</h2>
+<div class="sectionbody">
+<div class="paragraph">
 <p>I came across some code last week which was iterating through a collection and then returning the first item which matched a certain criteria.</p>
+</div>
+<div class="paragraph">
 <p>This would be useful if we wanted to get the first Foo object which has the special flag set for example.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">private</span> Foo GetSpecialFoo(List&lt;Foo&gt; foos)
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">private Foo GetSpecialFoo(List&lt;Foo&gt; foos)
 {
-    <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> foo <span style="color:#66d9ef">in</span> foos)
+    foreach (var foo in foos)
     {
-        <span style="color:#66d9ef">if</span>(foo.HasSpecialFlag())
+        if(foo.HasSpecialFlag())
         {
-            <span style="color:#66d9ef">return</span> foo;
+            return foo;
         }
     }
-    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
-}
-</code></pre></div><p>My initial thoughts on coming upon this code were that it should be possible to get rid of the loop but I wasn&rsquo;t sure how to do the return. Luckily the &lsquo;First&rsquo; method solves this problem.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">private</span> Foo GetSpecialFoo(List&lt;Foo&gt; foos)
+    return null;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>My initial thoughts on coming upon this code were that it should be possible to get rid of the loop but I wasn&#8217;t sure how to do the return. Luckily the 'First' method solves this problem.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">private Foo GetSpecialFoo(List&lt;Foo&gt; foos)
 {
-    <span style="color:#66d9ef">return</span> foos.Where(foo =&gt; foo.HasSpecialFlag()).First();
-}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> numericFoos = <span style="color:#66d9ef">new</span> List&lt;NumericFoo&gt; {<span style="color:#66d9ef">new</span> NumericFoo {Value = <span style="color:#ae81ff">2</span>}, <span style="color:#66d9ef">new</span> NumericFoo {Value = <span style="color:#ae81ff">5</span>}};
-<span style="color:#66d9ef">int</span> total = <span style="color:#ae81ff">0</span>;
-<span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> numericFoo <span style="color:#66d9ef">in</span> numericFoos)
+    return foos.Where(foo =&gt; foo.HasSpecialFlag()).First();
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_accumulating_some_values">Accumulating some values</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Adding values in collections together is surely one of the most common operations we do and functional collection parameters can help us here too.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var numericFoos = new List&lt;NumericFoo&gt; {new NumericFoo {Value = 2}, new NumericFoo {Value = 5}};
+int total = 0;
+foreach (var numericFoo in numericFoos)
 {
     total += numericFoo.Value;
-}
-</code></pre></div><p>Introducing a functional approach here gives us the following code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> numericFoos = <span style="color:#66d9ef">new</span> List&lt;NumericFoo&gt; {<span style="color:#66d9ef">new</span> NumericFoo {Value = <span style="color:#ae81ff">2</span>}, <span style="color:#66d9ef">new</span> NumericFoo {Value = <span style="color:#ae81ff">5</span>}};
-<span style="color:#66d9ef">int</span> total = numericFoos.Sum(foo =&gt; foo.Value);
-</code></pre></div>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Introducing a functional approach here gives us the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var numericFoos = new List&lt;NumericFoo&gt; {new NumericFoo {Value = 2}, new NumericFoo {Value = 5}};
+int total = numericFoos.Sum(foo =&gt; foo.Value);</code></pre>
+</div>
+</div>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -294,7 +350,7 @@ foos.Where(foo =&gt; foo.HasSpecialFlag())
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/02/03/c-refactoring-to-functional-collection-parameters/&amp;title=C%23%3a%20Refactoring%20to%20functional%20collection%20parameters&amp;summary=I%20wrote%20about%20a%20month%20or%20so%20ago%20about%20the%20functional%20collection%20parametersnow%20available%20in%20C%23%20and%20certainly%20one%20of%20the%20most%20fun%20refactorings%20for%20me%20is%20trying%20to%20get%20code%20written%20using%20a%20for%20loop%20into%20a%20state%20where%20it%20is%20using%20one%20of%20these.%0aWith%20a%20bit%20of%20help%20from%20my%20colleague%20James%20Crisp%2c%20these%20are%20some%20of%20the%20most%20common%20refactorings%20that%20I%20have%20come%20across%20so%20far...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/02/03/c-refactoring-to-functional-collection-parameters/&amp;title=C%23%3a%20Refactoring%20to%20functional%20collection%20parameters&amp;summary=I%20wrote%20about%20a%20month%20or%20so%20ago%20about%20the%20functional%20collection%20parameters%20now%20available%20in%20C%23%20and%20certainly%20one%20of%20the%20most%20fun%20refactorings%20for%20me%20is%20trying%20to%20get%20code%20written%20using%20a%20for%20loop%20into%20a%20state%20where%20it%20is%20using%20one%20of%20these.%0a%20With%20a%20bit%20of%20help%20from%20my%20colleague%20James%20Crisp%2c%20these%20are%20some%20of%20the%20most%20common%20refactorings%20that%20I%20have%20come%20across%20so%20far...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

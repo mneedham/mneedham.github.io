@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Erlang style messaging passing" />
         
-          <meta name="twitter:description" content="As I mentioned in my previous post about over loading methods in F# I&rsquo;ve been trying to refactor my twitter application into a state where it can concurrently process twitter statuses while continuing to retrieve more of them from the twitter website.
-I played around a bit with Erlang last year and one thing that I quite liked is the message passing between processes to allow operations to be performed concurrently." />
+          <meta name="twitter:description" content="As I mentioned in my previous post about over loading methods in F# I&#8217;ve been trying to refactor my twitter application into a state where it can concurrently process twitter statuses while continuing to retrieve more of them from the twitter website.
+ I played around a bit with Erlang last year and one thing that I quite liked is the message passing between processes to allow operations to be performed concurrently." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/05/02/f-erlang-style-messaging-passing/" />
 
@@ -34,8 +34,8 @@ I played around a bit with Erlang last year and one thing that I quite liked is 
         <title> F#: Erlang style messaging passing &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="As I mentioned in my previous post about over loading methods in F# I&rsquo;ve been trying to refactor my twitter application into a state where it can concurrently process twitter statuses while continuing to retrieve more of them from the twitter website.
-I played around a bit with Erlang last year and one thing that I quite liked is the message passing between processes to allow operations to be performed concurrently." />
+        <meta name="description" content="As I mentioned in my previous post about over loading methods in F# I&#8217;ve been trying to refactor my twitter application into a state where it can concurrently process twitter statuses while continuing to retrieve more of them from the twitter website.
+ I played around a bit with Erlang last year and one thing that I quite liked is the message passing between processes to allow operations to be performed concurrently." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ I played around a bit with Erlang last year and one thing that I quite liked is 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-05-02",
-        "description": "As I mentioned in my previous post about over loading methods in F# I\x26rsquo;ve been trying to refactor my twitter application into a state where it can concurrently process twitter statuses while continuing to retrieve more of them from the twitter website.\nI played around a bit with Erlang last year and one thing that I quite liked is the message passing between processes to allow operations to be performed concurrently.",
-        "wordCount":  798 
+        "description": "As I mentioned in my previous post about over loading methods in F# I\x26#8217;ve been trying to refactor my twitter application into a state where it can concurrently process twitter statuses while continuing to retrieve more of them from the twitter website.\n I played around a bit with Erlang last year and one thing that I quite liked is the message passing between processes to allow operations to be performed concurrently.",
+        "wordCount":  846 
     }
     </script>
     
@@ -174,103 +174,162 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Erlang style messaging passing</h1>
-    <p>As I mentioned in my previous post about over loading methods in F# I&rsquo;ve been trying to refactor my twitter application into a state where it can concurrently process twitter statuses while continuing to retrieve more of them from the twitter website.</p>
+    <div class="paragraph">
+<p>As I mentioned in my previous post about over loading methods in F# I&#8217;ve been trying to refactor my twitter application into a state where it can concurrently process twitter statuses while continuing to retrieve more of them from the twitter website.</p>
+</div>
+<div class="paragraph">
 <p>I played around a bit with Erlang last year and one thing that I quite liked is the message passing between processes to allow operations to be performed concurrently.</p>
-<p>I found a <!-- raw HTML omitted -->cool blog post by Matthew Podwysocki where he explains how we can achieve Erlang message passing in F# by using mail boxes<!-- raw HTML omitted --> so I decided to try and follow his example to see if I could do a similar thing with my twitter application.</p>
-<p>As far as I understand the Erlang approach to messaging follows the <!-- raw HTML omitted -->actor model<!-- raw HTML omitted --> which is defined as follows:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>I can definitely see the first two ideas in the solution that I&rsquo;ve ended up with but I&rsquo;m not sure how you would do the third.</p>
-<p>From reading Joe Armstrong&rsquo;s <!-- raw HTML omitted -->Programming Erlang<!-- raw HTML omitted --> book and <!-- raw HTML omitted -->Ulf Wiger&rsquo;s comment on Robert Pickering&rsquo;s blog<!-- raw HTML omitted -->, I understand that the code we can create in F# is not exactly the same as what we can do in Erlang since in Erlang each process has its own mailbox whereas in F# a thread can handle more than one mailbox.</p>
-<p>The reason for me wanting to do this is because the twitter API only allows me to retrieve 20 statuses at a time and if I&rsquo;m getting a large number of them my <!-- raw HTML omitted -->original design<!-- raw HTML omitted --> means that we are just waiting for the statuses to be accumulated before we can do anything else with them - I want to make this a bit more real time.</p>
+</div>
+<div class="paragraph">
+<p>I found a <a href="http://weblogs.asp.net/podwysocki/archive/2008/06/18/concurrency-in-net-learning-from-erlang.aspx">cool blog post by Matthew Podwysocki where he explains how we can achieve Erlang message passing in F# by using mail boxes</a> so I decided to try and follow his example to see if I could do a similar thing with my twitter application.</p>
+</div>
+<div class="paragraph">
+<p>As far as I understand the Erlang approach to messaging follows the <a href="http://en.wikipedia.org/wiki/Actor_model">actor model</a> which is defined as follows:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>An actor is a computational entity that, in response to a message it receives, can concurrently:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>send a finite number of messages to other actors</p>
+</li>
+<li>
+<p>create a finite number of new actors</p>
+</li>
+<li>
+<p>designate the behavior to be used for the next message it receives.</p>
+</li>
+</ul>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>I can definitely see the first two ideas in the solution that I&#8217;ve ended up with but I&#8217;m not sure how you would do the third.</p>
+</div>
+<div class="paragraph">
+<p>From reading Joe Armstrong&#8217;s <a href="http://www.amazon.co.uk/Programming-Erlang-Software-Concurrent-World/dp/193435600X/ref=sr_1_1?ie=UTF8&amp;s=books&amp;qid=1241182065&amp;sr=8-1">Programming Erlang</a> book and <a href="http://strangelights.com/blog/archive/2007/10/24/1601.aspx#2073">Ulf Wiger&#8217;s comment on Robert Pickering&#8217;s blog</a>, I understand that the code we can create in F# is not exactly the same as what we can do in Erlang since in Erlang each process has its own mailbox whereas in F# a thread can handle more than one mailbox.</p>
+</div>
+<div class="paragraph">
+<p>The reason for me wanting to do this is because the twitter API only allows me to retrieve 20 statuses at a time and if I&#8217;m getting a large number of them my <a href="http://www.markhneedham.com/blog/2009/04/18/f-refactoring-that-little-twitter-application-into-objects/">original design</a> means that we are just waiting for the statuses to be accumulated before we can do anything else with them - I want to make this a bit more real time.</p>
+</div>
+<div class="paragraph">
 <p>This is what the code looks like at the moment:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">open</span> <span style="color:#a6e22e">System</span>
-<span style="color:#66d9ef">open</span> Microsoft.FSharp.Control.<span style="color:#a6e22e">CommonExtensions</span>
-<span style="color:#66d9ef">open</span> Microsoft.FSharp.<span style="color:#a6e22e">Control</span>
-<span style="color:#66d9ef">open</span> System.<span style="color:#a6e22e">Threading</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">open System
+open Microsoft.FSharp.Control.CommonExtensions
+open Microsoft.FSharp.Control
+open System.Threading
 
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Message</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Phrase</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">TwitterStatus</span> <span style="color:#f92672">|</span> <span style="color:#a6e22e">Stop</span>
+type Message = Phrase of TwitterStatus | Stop
 
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">LinkProcessor</span><span style="color:#f92672">(</span>callBack<span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
-  <span style="color:#66d9ef">let</span> agent <span style="color:#f92672">=</span> MailboxProcessor.<span style="color:#a6e22e">Start</span><span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> inbox <span style="color:#f92672">-&gt;</span>
-    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">rec</span> loop () <span style="color:#f92672">=</span>
-      async <span style="color:#f92672">{</span>
-              <span style="color:#66d9ef">let</span><span style="color:#f92672">!</span> msg <span style="color:#f92672">=</span> inbox<span style="color:#f92672">.</span><span style="color:#a6e22e">Receive</span>()
-              <span style="color:#66d9ef">match</span> msg <span style="color:#66d9ef">with</span>
-              <span style="color:#f92672">|</span> <span style="color:#a6e22e">Phrase</span> item <span style="color:#f92672">-&gt;</span>
+type LinkProcessor(callBack) =
+  let agent = MailboxProcessor.Start(fun inbox -&gt;
+    let rec loop () =
+      async {
+              let! msg = inbox.Receive()
+              match msg with
+              | Phrase item -&gt;
                 callBack item
-                return<span style="color:#f92672">!</span> loop()
-              <span style="color:#f92672">|</span> <span style="color:#a6e22e">Stop</span> <span style="color:#f92672">-&gt;</span>
+                return! loop()
+              | Stop -&gt;
                 return ()
-            <span style="color:#f92672">}</span>
+            }
     loop()
-  <span style="color:#f92672">)</span>
-  
-     member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Send</span><span style="color:#f92672">(</span>message<span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
-        <span style="color:#66d9ef">match</span> box message <span style="color:#66d9ef">with</span>
-            <span style="color:#f92672">|</span> <span style="color:#f92672">:?</span> seq<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">TwitterStatus</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">as</span> message <span style="color:#f92672">-&gt;</span> message <span style="color:#f92672">|&gt;</span> Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> message <span style="color:#f92672">-&gt;</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Phrase</span><span style="color:#f92672">(</span>message<span style="color:#f92672">)))</span>
-            <span style="color:#f92672">|</span> <span style="color:#f92672">:?</span> <span style="color:#a6e22e">TwitterStatus</span> <span style="color:#66d9ef">as</span> message <span style="color:#f92672">-&gt;</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Phrase</span><span style="color:#f92672">(</span>message<span style="color:#f92672">))</span>
-            <span style="color:#f92672">|</span> <span style="color:#f92672">_</span> <span style="color:#f92672">-&gt;</span> failwith <span style="color:#e6db74">&#34;Unmatched message type&#34;</span> 
-   
-   member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Stop</span>() <span style="color:#f92672">=</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Stop</span><span style="color:#f92672">)</span>
+  )
 
-<span style="color:#66d9ef">let</span> linkProcessor <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">LinkProcessor</span><span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> status <span style="color:#f92672">-&gt;</span> printfn <span style="color:#e6db74">&#34;[%s] %s, thread id: (%d)&#34;</span> status<span style="color:#f92672">.</span>User.<span style="color:#a6e22e">ScreenName</span> status<span style="color:#f92672">.</span><span style="color:#a6e22e">Text</span> Thread.CurrentThread.<span style="color:#a6e22e">ManagedThreadId</span><span style="color:#f92672">)</span>
+     member x.Send(message) =
+        match box message with
+            | :? seq&lt;TwitterStatus&gt; as message -&gt; message |&gt; Seq.iter (fun message -&gt; agent.Post(Phrase(message)))
+            | :? TwitterStatus as message -&gt; agent.Post(Phrase(message))
+            | _ -&gt; failwith "Unmatched message type"
 
-<span style="color:#66d9ef">let</span> hasLink <span style="color:#f92672">(</span>message<span style="color:#f92672">:</span><span style="color:#a6e22e">TwitterStatus</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> message<span style="color:#f92672">.</span>Text.<span style="color:#a6e22e">Contains</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;http&#34;</span><span style="color:#f92672">)</span>
+   member x.Stop() = agent.Post(Stop)
 
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">MainProcessor</span>() <span style="color:#f92672">=</span>
-  <span style="color:#66d9ef">let</span> agent <span style="color:#f92672">=</span> MailboxProcessor.<span style="color:#a6e22e">Start</span><span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> inbox <span style="color:#f92672">-&gt;</span>
-    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">rec</span> loop () <span style="color:#f92672">=</span>
-      async <span style="color:#f92672">{</span>
-              <span style="color:#66d9ef">let</span><span style="color:#f92672">!</span> msg <span style="color:#f92672">=</span> inbox<span style="color:#f92672">.</span><span style="color:#a6e22e">Receive</span>()
-              <span style="color:#66d9ef">match</span> msg <span style="color:#66d9ef">with</span>
-              <span style="color:#f92672">|</span> <span style="color:#a6e22e">Phrase</span> item <span style="color:#66d9ef">when</span> item <span style="color:#f92672">|&gt;</span> hasLink <span style="color:#f92672">-&gt;</span> 
-                linkProcessor<span style="color:#f92672">.</span><span style="color:#a6e22e">Send</span><span style="color:#f92672">(</span>item<span style="color:#f92672">)</span>
-                return<span style="color:#f92672">!</span> loop()
-              <span style="color:#f92672">|</span> <span style="color:#a6e22e">Phrase</span> item <span style="color:#f92672">-&gt;</span>
-                printfn <span style="color:#e6db74">&#34;in mainprocessor, thread id: (%d)&#34;</span> Thread.CurrentThread.<span style="color:#a6e22e">ManagedThreadId</span>
-                return<span style="color:#f92672">!</span> loop()
-              <span style="color:#f92672">|</span> <span style="color:#a6e22e">Stop</span> <span style="color:#f92672">-&gt;</span>
+let linkProcessor = new LinkProcessor(fun status -&gt; printfn "[%s] %s, thread id: (%d)" status.User.ScreenName status.Text Thread.CurrentThread.ManagedThreadId)
+
+let hasLink (message:TwitterStatus) = message.Text.Contains("http")
+
+type MainProcessor() =
+  let agent = MailboxProcessor.Start(fun inbox -&gt;
+    let rec loop () =
+      async {
+              let! msg = inbox.Receive()
+              match msg with
+              | Phrase item when item |&gt; hasLink -&gt;
+                linkProcessor.Send(item)
+                return! loop()
+              | Phrase item -&gt;
+                printfn "in mainprocessor, thread id: (%d)" Thread.CurrentThread.ManagedThreadId
+                return! loop()
+              | Stop -&gt;
                 return ()
-            <span style="color:#f92672">}</span>
+            }
     loop()
-  <span style="color:#f92672">)</span>
-   
-   member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Send</span><span style="color:#f92672">(</span>message<span style="color:#f92672">)</span> <span style="color:#f92672">=</span>
-        <span style="color:#66d9ef">match</span> box message <span style="color:#66d9ef">with</span>
-            <span style="color:#f92672">|</span> <span style="color:#f92672">:?</span> seq<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">TwitterStatus</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">as</span> message <span style="color:#f92672">-&gt;</span> message <span style="color:#f92672">|&gt;</span> Seq.iter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> message <span style="color:#f92672">-&gt;</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Phrase</span><span style="color:#f92672">(</span>message<span style="color:#f92672">)))</span>
-            <span style="color:#f92672">|</span> <span style="color:#f92672">:?</span> <span style="color:#a6e22e">TwitterStatus</span> <span style="color:#66d9ef">as</span> message <span style="color:#f92672">-&gt;</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Phrase</span><span style="color:#f92672">(</span>message<span style="color:#f92672">))</span>
-            <span style="color:#f92672">|</span> <span style="color:#f92672">_</span> <span style="color:#f92672">-&gt;</span> failwith <span style="color:#e6db74">&#34;Unmatched message type&#34;</span> 
-   
-   member x<span style="color:#f92672">.</span><span style="color:#a6e22e">Stop</span>() <span style="color:#f92672">=</span> agent<span style="color:#f92672">.</span><span style="color:#a6e22e">Post</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Stop</span><span style="color:#f92672">)</span>
-   
-<span style="color:#66d9ef">let</span> centralProcessor <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">MainProcessor</span>()
-</code></pre></div><p>And this is the code where we process the statuses:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> <span style="color:#66d9ef">rec</span> findStatuses <span style="color:#f92672">(</span>args<span style="color:#f92672">:</span>int64 <span style="color:#f92672">*</span> <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span> seq<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">TwitterStatus</span><span style="color:#f92672">&gt;)</span> <span style="color:#f92672">=</span>
-    <span style="color:#66d9ef">let</span> findOldestStatus <span style="color:#f92672">(</span>statuses<span style="color:#f92672">:</span>seq<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">TwitterStatus</span><span style="color:#f92672">&gt;)</span> <span style="color:#f92672">=</span> 
-        statuses <span style="color:#f92672">|&gt;</span> Seq.sort_by <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> eachStatus <span style="color:#f92672">-&gt;</span> eachStatus<span style="color:#f92672">.</span><span style="color:#a6e22e">Id</span><span style="color:#f92672">)</span> <span style="color:#f92672">|&gt;</span> Seq.hd
-    <span style="color:#66d9ef">match</span> args <span style="color:#66d9ef">with</span> 
-    <span style="color:#f92672">|</span> <span style="color:#f92672">(_,</span> numberProcessed<span style="color:#f92672">,</span> statusesToSearch<span style="color:#f92672">,</span> soFar<span style="color:#f92672">)</span> <span style="color:#66d9ef">when</span> numberProcessed <span style="color:#f92672">&gt;=</span> statusesToSearch <span style="color:#f92672">-&gt;</span> soFar <span style="color:#f92672">|&gt;</span> ignore
-    <span style="color:#f92672">|</span> <span style="color:#f92672">(</span>lastId<span style="color:#f92672">,</span> numberProcessed<span style="color:#f92672">,</span> statusesToSearch<span style="color:#f92672">,</span> soFar<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span>  
-        <span style="color:#66d9ef">let</span> latestStatuses <span style="color:#f92672">=</span> getStatusesBefore lastId
-        centralProcessor<span style="color:#f92672">.</span><span style="color:#a6e22e">Send</span><span style="color:#f92672">(</span>latestStatuses<span style="color:#f92672">)</span>
-        findStatuses<span style="color:#f92672">(</span>findOldestStatus<span style="color:#f92672">(</span>latestStatuses<span style="color:#f92672">).</span><span style="color:#a6e22e">Id</span><span style="color:#f92672">,</span> numberProcessed <span style="color:#f92672">+</span> 20<span style="color:#f92672">,</span> statusesToSearch<span style="color:#f92672">,</span> Seq.append soFar latestStatuses<span style="color:#f92672">)</span>
-</code></pre></div><p>(The rest of the code is <!-- raw HTML omitted -->here<!-- raw HTML omitted -->)</p>
+  )
+
+   member x.Send(message) =
+        match box message with
+            | :? seq&lt;TwitterStatus&gt; as message -&gt; message |&gt; Seq.iter (fun message -&gt; agent.Post(Phrase(message)))
+            | :? TwitterStatus as message -&gt; agent.Post(Phrase(message))
+            | _ -&gt; failwith "Unmatched message type"
+
+   member x.Stop() = agent.Post(Stop)
+
+let centralProcessor = new MainProcessor()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And this is the code where we process the statuses:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let rec findStatuses (args:int64 * int * int * seq&lt;TwitterStatus&gt;) =
+    let findOldestStatus (statuses:seq&lt;TwitterStatus&gt;) =
+        statuses |&gt; Seq.sort_by (fun eachStatus -&gt; eachStatus.Id) |&gt; Seq.hd
+    match args with
+    | (_, numberProcessed, statusesToSearch, soFar) when numberProcessed &gt;= statusesToSearch -&gt; soFar |&gt; ignore
+    | (lastId, numberProcessed, statusesToSearch, soFar) -&gt;
+        let latestStatuses = getStatusesBefore lastId
+        centralProcessor.Send(latestStatuses)
+        findStatuses(findOldestStatus(latestStatuses).Id, numberProcessed + 20, statusesToSearch, Seq.append soFar latestStatuses)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>(The rest of the code is <a href="http://pastie.org/465092">here</a>)</p>
+</div>
+<div class="paragraph">
 <p>There is certainly some duplication in there - I think it should be possible to get a BaseMailboxProcessor - and I found it annoying that I needed to have a different type of mail box processor for each of the cases so that I could have different pattern matching in each.</p>
+</div>
+<div class="paragraph">
 <p>In Erlang that scaffolding is built into the language and you just need to care about the pattern matching which is the important thing here.</p>
-<p>I&rsquo;ve setup a callback function that&rsquo;s passed to the LinkProcessor which prints out the status when it processes it. The next step is to store that somewhere so I can view them later.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve setup a callback function that&#8217;s passed to the LinkProcessor which prints out the status when it processes it. The next step is to store that somewhere so I can view them later.</p>
+</div>
+<div class="paragraph">
 <p>Running this though the threadId is always the same. The console output looks like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-in mainprocessor, thread id: (6)
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">in mainprocessor, thread id: (6)
 in mainprocessor, thread id: (6)
 in mainprocessor, thread id: (6)
 in mainprocessor, thread id: (6)
 [jbristowe] Beautiful morning in downtown Edmonton: http://twitpic.com/4c6n8 #YEG, thread id: (6)
-[MParekh] ABC News does a fly-by correction of a critical 2007 Torture story. http://bit.ly/C9tNH, thread id: (6)
-</code></pre></div><p>They processing of statuses doesn&rsquo;t ever interleave either so it looks like the thread is switching its attention between the two mail boxes.</p>
-<p>I was expecting to see different threads processing each mail box but I&rsquo;m not sure whether that&rsquo;s a correct expectation or not?</p>
+[MParekh] ABC News does a fly-by correction of a critical 2007 Torture story. http://bit.ly/C9tNH, thread id: (6)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>They processing of statuses doesn&#8217;t ever interleave either so it looks like the thread is switching its attention between the two mail boxes.</p>
+</div>
+<div class="paragraph">
+<p>I was expecting to see different threads processing each mail box but I&#8217;m not sure whether that&#8217;s a correct expectation or not?</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -305,7 +364,7 @@ in mainprocessor, thread id: (6)
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/05/02/f-erlang-style-messaging-passing/&amp;title=F%23%3a%20Erlang%20style%20messaging%20passing&amp;summary=As%20I%20mentioned%20in%20my%20previous%20post%20about%20over%20loading%20methods%20in%20F%23%20I%26rsquo%3bve%20been%20trying%20to%20refactor%20my%20twitter%20application%20into%20a%20state%20where%20it%20can%20concurrently%20process%20twitter%20statuses%20while%20continuing%20to%20retrieve%20more%20of%20them%20from%20the%20twitter%20website.%0aI%20played%20around%20a%20bit%20with%20Erlang%20last%20year%20and%20one%20thing%20that%20I%20quite%20liked%20is%20the%20message%20passing%20between%20processes%20to%20allow%20operations%20to%20be%20performed%20concurrently...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/05/02/f-erlang-style-messaging-passing/&amp;title=F%23%3a%20Erlang%20style%20messaging%20passing&amp;summary=As%20I%20mentioned%20in%20my%20previous%20post%20about%20over%20loading%20methods%20in%20F%23%20I%26%238217%3bve%20been%20trying%20to%20refactor%20my%20twitter%20application%20into%20a%20state%20where%20it%20can%20concurrently%20process%20twitter%20statuses%20while%20continuing%20to%20retrieve%20more%20of%20them%20from%20the%20twitter%20website.%0a%20I%20played%20around%20a%20bit%20with%20Erlang%20last%20year%20and%20one%20thing%20that%20I%20quite%20liked%20is%20the%20message%20passing%20between%20processes%20to%20allow%20operations%20to%20be%20performed%20concurrently...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

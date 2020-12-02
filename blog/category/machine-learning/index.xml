@@ -52,7 +52,9 @@
       <pubDate>Mon, 29 Jan 2018 06:51:10 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2018/01/29/tensorflow-kaggle-spooky-authors-bag-words-model/</guid>
-      <description>from __future__ import absolute_import from __future__ import division from __future__ import print_function import numpy as np import pandas as pd import tensorflow as tf from sklearn import preprocessing from sklearn.model_selection import train_test_split EMBEDDING_SIZE = 50 MAX_LABEL = 3 WORDS_FEATURE = &amp;#39;words&amp;#39; # Name of the input words feature. def bag_of_words_model(features, labels, mode): bow_column = tf.feature_column.categorical_column_with_identity(WORDS_FEATURE, num_buckets=n_words) bow_embedding_column = tf.feature_column.embedding_column(bow_column, dimension=EMBEDDING_SIZE) bow = tf.feature_column.input_layer(features, feature_columns=[bow_embedding_column]) logits = tf.layers.dense(bow, MAX_LABEL, activation=None) return create_estimator_spec(logits=logits, labels=labels, mode=mode) def create_estimator_spec(logits, labels, mode): predicted_classes = tf.</description>
+      <description>I&amp;#8217;ve been playing around with some Tensorflow tutorials recently and wanted to see if I could create a submission for Kaggle&amp;#8217;s Spooky Author Identification competition that I&amp;#8217;ve written about recently.
+ My model is based on one from the text classification tutorial. The tutorial shows how to create custom Estimators which we can learn more about in a post on the Google Developers blog.
+ Imports Let&amp;#8217;s get started. First, our imports:</description>
     </item>
     
     <item>
@@ -61,8 +63,8 @@
       <pubDate>Wed, 14 Sep 2016 05:33:38 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/09/14/scikit-learn-first-steps-with-log_loss/</guid>
-      <description>&amp;gt;&amp;gt;&amp;gt; actual_labels = [&amp;#34;bam&amp;#34;, &amp;#34;ham&amp;#34;, &amp;#34;spam&amp;#34;] &amp;gt;&amp;gt;&amp;gt; from sklearn.metrics import log_loss &amp;gt;&amp;gt;&amp;gt; log_loss(actual_labels, [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) 2.1094237467877998e-15 &amp;gt;&amp;gt;&amp;gt; log_loss(actual_labels, [[0, 0, 1], [1, 0, 0], [0, 1, 0]]) 34.538776394910684 This means that the predicted probability for that given class would be less than exp(-1) or around 0.368.
-So, seeing a log loss greater than one can be expected in the cass that that your model only gives less than a 36% probability estimate for the correct class.</description>
+      <description>Over the last week I&amp;#8217;ve spent a little bit of time playing around with the data in the Kaggle TalkingData Mobile User Demographics competition, and came across a notebook written by dune_dweller showing how to run a logistic regression algorithm on the dataset.
+ The metric used to evaluate the output in this competition is multi class logarithmic loss, which is implemented by the http://scikit-learn.org/stable/modules/generated/sklearn.metrics.log_loss.html function in the scikit-learn library.</description>
     </item>
     
     <item>
@@ -71,9 +73,8 @@ So, seeing a log loss greater than one can be expected in the cass that that you
       <pubDate>Sat, 27 Aug 2016 20:32:09 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/27/scikit-learn-clustering-and-the-curse-of-dimensionality/</guid>
-      <description>But in very high-dimensional spaces, Euclidean distances tend to become inflated (this is an instance of the so-called “curse of dimensionality”).
-Running a dimensionality reduction algorithm such as PCA prior to k-means clustering can alleviate this problem and speed up the computations.
-from sklearn.metrics.pairwise import cosine_similarity import numpy as np def distances(a, b): return np.linalg.norm(a-b), cosine_similarity([a, b])[0][1] def mixed(n_zeros, n_ones): return np.concatenate((np.repeat([1], n_ones), np.repeat([0], n_zeros)), axis=0) def ones(n_ones): return np.repeat([1], n_ones) print distances(mixed(2, 2), ones(4)) print distances(mixed(3, 3), ones(6)) print distances(mixed(50, 50), ones(100)) print distances(mixed(300, 300), ones(600)) (1.</description>
+      <description>In my last post I attempted to cluster Game of Thrones episodes based on character appearances without much success. After I wrote that post I was flicking through the scikit-learn clustering documentation and noticed the following section which describes some of the weaknesses of the K-means clustering algorithm:
+  Inertia is not a normalized metric: we just know that lower values are better and zero is optimal. But in very high-dimensional spaces, Euclidean distances tend to become inflated (this is an instance of the so-called &amp;#8220;curse of dimensionality&amp;#8221;).</description>
     </item>
     
     <item>
@@ -82,7 +83,8 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Thu, 25 Aug 2016 22:07:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/25/scikit-learn-trying-to-find-clusters-of-game-of-thrones-episodes/</guid>
-      <description>&amp;gt;&amp;gt;&amp;gt; all.shape (60, 638) &amp;gt;&amp;gt;&amp;gt; all array([[0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], ..., [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0]]) &amp;gt;&amp;gt;&amp;gt; from sklearn.cluster import KMeans &amp;gt;&amp;gt;&amp;gt; n_clusters = 3 &amp;gt;&amp;gt;&amp;gt; km = KMeans(n_clusters=n_clusters, init=&amp;#39;k-means++&amp;#39;, max_iter=100, n_init=1) &amp;gt;&amp;gt;&amp;gt; cluster_labels = km.fit_predict(all) &amp;gt;&amp;gt;&amp;gt; cluster_labels array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], dtype=int32) &amp;gt;&amp;gt;&amp;gt; import numpy as np &amp;gt;&amp;gt;&amp;gt; np.</description>
+      <description>In my last post I showed how to find similar Game of Thrones episodes based on the characters that appear in different episodes. This allowed us to find similar episodes on an episode by episode basis, but I was curious whether there were groups of similar episodes that we could identify.
+ scikit-learn provides several clustering algorithms that can run over our episode vectors and hopefully find clusters of similar episodes.</description>
     </item>
     
     <item>
@@ -91,7 +93,8 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Mon, 22 Aug 2016 21:12:54 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/22/neo4jscikit-learn-calculating-the-cosine-similarity-of-game-of-thrones-episodes/</guid>
-      <description>:play http://guides.neo4j.com/got Episode 1 = [1, 1, 0] Episode 2 = [0, 1, 1] &amp;gt;&amp;gt;&amp;gt; from sklearn.metrics.pairwise import cosine_similarity &amp;gt;&amp;gt;&amp;gt; one = [1,1,0] &amp;gt;&amp;gt;&amp;gt; two = [0,1,1] &amp;gt;&amp;gt;&amp;gt; cosine_similarity([one, two]) array([[ 1. , 0.5], [ 0.5, 1. ]]) from neo4j.v1 import GraphDatabase, basic_auth driver = GraphDatabase.driver(&amp;#34;bolt://localhost&amp;#34;, auth=basic_auth(&amp;#34;neo4j&amp;#34;, &amp;#34;neo&amp;#34;)) session = driver.session() rows = session.run(&amp;#34;&amp;#34;&amp;#34; MATCH (c:Character), (e:Episode) OPTIONAL MATCH (c)-[appearance:APPEARED_IN]-&amp;gt;(e) RETURN e, c, appearance ORDER BY e.id, c.id&amp;#34;&amp;#34;&amp;#34;) &amp;gt;&amp;gt;&amp;gt; for row in rows: print row &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5415 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Addam Marbrand&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Addam_Marbrand&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5882 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Adrack Humble&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Adrack_Humble&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=6747 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Aegon V Targaryen&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Aegon_V_Targaryen&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5750 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Aemon&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Aemon&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5928 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Aeron Greyjoy&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Aeron_Greyjoy&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5503 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Aerys II Targaryen&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Aerys_II_Targaryen&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=6753 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Alannys Greyjoy&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Alannys_Greyjoy&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=6750 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Alerie Tyrell&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Alerie_Tyrell&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5753 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Alliser Thorne&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Alliser_Thorne&amp;#39;}&amp;gt; appearance=None&amp;gt; &amp;lt;Record e=&amp;lt;Node id=6780 labels=set([u&amp;#39;Episode&amp;#39;]) properties={u&amp;#39;season&amp;#39;: 1, u&amp;#39;number&amp;#39;: 1, u&amp;#39;id&amp;#39;: 1, u&amp;#39;title&amp;#39;: u&amp;#39;Winter Is Coming&amp;#39;}&amp;gt; c=&amp;lt;Node id=5858 labels=set([u&amp;#39;Character&amp;#39;]) properties={u&amp;#39;name&amp;#39;: u&amp;#39;Alton Lannister&amp;#39;, u&amp;#39;id&amp;#39;: u&amp;#39;/wiki/Alton_Lannister&amp;#39;}&amp;gt; appearance=None&amp;gt; episodes = {} for row in rows: if episodes.</description>
+      <description>A couple of months ago Praveena and I created a Game of Thrones dataset to use in a workshop and I thought it&amp;#8217;d be fun to run it through some machine learning algorithms and hopefully find some interesting insights.
+ The dataset is available as CSV files but for this analysis I&amp;#8217;m assuming that it&amp;#8217;s already been imported into neo4j. If you want to import the data you can run the tutorial by typing the following into the query bar of the neo4j browser:</description>
     </item>
     
     <item>
@@ -100,7 +103,8 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Fri, 03 Apr 2015 23:31:33 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/04/03/how-i-met-your-mother-story-arcs/</guid>
-      <description>#!/bin/bash find_term() { arc=${1} searchTerm=${2} episodes=$(grep --color -iE &amp;#34;${searchTerm}&amp;#34; data/import/sentences.csv | awk -F&amp;#34;,&amp;#34; &amp;#39;{ print $2 }&amp;#39; | sort | uniq) for episode in ${episodes}; do echo ${arc},${episode} done } find_term &amp;#34;Bro Code&amp;#34; &amp;#34;bro code&amp;#34; find_term &amp;#34;Legendary&amp;#34; &amp;#34;legen(.*)ary&amp;#34; find_term &amp;#34;Slutty Pumpkin&amp;#34; &amp;#34;slutty pumpkin&amp;#34; find_term &amp;#34;Magician&amp;#39;s Code&amp;#34; &amp;#34;magician&amp;#39;s code&amp;#34; find_term &amp;#34;Thanksgiving&amp;#34; &amp;#34;thanksgiving&amp;#34; find_term &amp;#34;The Playbook&amp;#34; &amp;#34;playbook&amp;#34; find_term &amp;#34;Slap Bet&amp;#34; &amp;#34;slap bet&amp;#34; find_term &amp;#34;Wrestlers and Robots&amp;#34; &amp;#34;wrestlers&amp;#34; find_term &amp;#34;Robin Sparkles&amp;#34; &amp;#34;sparkles&amp;#34; find_term &amp;#34;Blue French Horn&amp;#34; &amp;#34;blue french horn&amp;#34; find_term &amp;#34;Olive Theory&amp;#34; &amp;#34;olive&amp;#34; find_term &amp;#34;Thank You Linus&amp;#34; &amp;#34;thank you, linus&amp;#34; find_term &amp;#34;Have you met.</description>
+      <description>After weeks of playing around with various algorithms to extract story arcs in How I met your mother I&amp;#8217;ve come to the conclusion that I don&amp;#8217;t yet have the skills to completely automate this process so I&amp;#8217;m going to change my approach.
+ The new plan is to treat the outputs of the algorithms as suggestions for possible themes but then have a manual step where I extract what I think are interesting themes in the series.</description>
     </item>
     
     <item>
@@ -109,8 +113,8 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Tue, 24 Mar 2015 22:33:42 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/03/24/topic-modelling-working-out-the-optimal-number-of-topics/</guid>
-      <description>There are computational ways of searching for this, including using MALLETs hlda command, but for the reader of this tutorial, it is probably just quicker to cycle through a number of iterations (but for more see Griffiths, T. L., &amp;amp; Steyvers, M. (2004). Finding scientific topics. Proceedings of the National Academy of Science, 101, 5228-5235).
-As I understand it, the idea is to try and get a uniform spread of topics -&amp;gt; documents i.</description>
+      <description>In my continued exploration of topic modelling I came across The Programming Historian blog and a post showing how to derive topics from a corpus using the Java library mallet.
+ The instructions on the blog make it very easy to get up and running but as with other libraries I&amp;#8217;ve used, you have to specify how many topics the corpus consists of. I&amp;#8217;m never sure what value to select but the authors make the following suggestion:</description>
     </item>
     
     <item>
@@ -119,7 +123,8 @@ As I understand it, the idea is to try and get a uniform spread of topics -&amp;
       <pubDate>Thu, 05 Mar 2015 08:52:22 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/03/05/python-scikit-learnlda-extracting-topics-from-qcon-talk-abstracts/</guid>
-      <description>import csv from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer from sklearn.decomposition import NMF from collections import defaultdict from bs4 import BeautifulSoup, NavigableString from soupselect import select def uri_to_file_name(uri): return uri.replace(&amp;#34;/&amp;#34;, &amp;#34;-&amp;#34;) sessions = {} with open(&amp;#34;data/sessions.csv&amp;#34;, &amp;#34;r&amp;#34;) as sessions_file: reader = csv.reader(sessions_file, delimiter = &amp;#34;,&amp;#34;) reader.next() # header for row in reader: session_id = int(row[0]) filename = &amp;#34;data/sessions/&amp;#34; + uri_to_file_name(row[4]) page = open(filename).read() soup = BeautifulSoup(page) abstract = select(soup, &amp;#34;div.brenham-main-content p&amp;#34;) if abstract: sessions[session_id] = {&amp;#34;abstract&amp;#34; : abstract[0].</description>
+      <description>Following on from Rik van Bruggen&amp;#8217;s blog post on a QCon graph he&amp;#8217;s created ahead of this week&amp;#8217;s conference, I was curious whether we could extract any interesting relationships between talks based on their abstracts.
+ Talks are already grouped by their hosting track but there&amp;#8217;s likely to be some overlap in topics even for talks on different tracks. I therefore wanted to extract topics and connect each talk to the topic that describes it best.</description>
     </item>
     
     <item>
@@ -128,7 +133,8 @@ As I understand it, the idea is to try and get a uniform spread of topics -&amp;
       <pubDate>Wed, 30 Oct 2013 07:26:49 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/10/30/kaggle-titanic-python-pandas-attempt/</guid>
-      <description>import pandas as pd def addrow(df, row): return df.append(pd.DataFrame(row), ignore_index=True) def fare_in_bucket(fare, fare_bracket_size, bucket): return (fare &amp;gt; bucket * fare_bracket_size) &amp;amp; (fare &amp;lt;= ((bucket+1) * fare_bracket_size)) def build_survival_table(training_file): fare_ceiling = 40 train_df = pd.read_csv(training_file) train_df[train_df[&amp;#39;Fare&amp;#39;] &amp;gt;= 39.0] = 39.0 fare_bracket_size = 10 number_of_price_brackets = fare_ceiling / fare_bracket_size number_of_classes = 3 #There were 1st, 2nd and 3rd classes on board  survival_table = pd.DataFrame(columns=[&amp;#39;Sex&amp;#39;, &amp;#39;Pclass&amp;#39;, &amp;#39;PriceDist&amp;#39;, &amp;#39;Survived&amp;#39;, &amp;#39;NumberOfPeople&amp;#39;]) for pclass in range(1, number_of_classes + 1): # add 1 to handle 0 start for bucket in range(0, number_of_price_brackets): for sex in [&amp;#39;female&amp;#39;, &amp;#39;male&amp;#39;]: survival = train_df[(train_df[&amp;#39;Sex&amp;#39;] == sex) &amp;amp; (train_df[&amp;#39;Pclass&amp;#39;] == pclass) &amp;amp; fare_in_bucket(train_df[&amp;#34;Fare&amp;#34;], fare_bracket_size, bucket)] row = [dict(Pclass=pclass, Sex=sex, PriceDist = bucket, Survived = round(survival[&amp;#39;Survived&amp;#39;].</description>
+      <description>Nathan and I have been looking at Kaggle&amp;#8217;s Titanic problem and while working through the Python tutorial Nathan pointed out that we could greatly simplify the code if we used pandas instead.
+ The problem we had with numpy is that you use integers to reference columns. We spent a lot of time being thoroughly confused as to why something wasn&amp;#8217;t working only to realise we were using the wrong column.</description>
     </item>
     
     <item>
@@ -137,7 +143,8 @@ As I understand it, the idea is to try and get a uniform spread of topics -&amp;
       <pubDate>Sun, 10 Feb 2013 15:42:07 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/02/10/feature-extractionselection-what-ive-learnt-so-far/</guid>
-      <description></description>
+      <description>A couple of weeks ago I wrote about some feature extraction work that I&amp;#8217;d done on the Kaggle Digit Recognizer data set and having realised that I had no idea what I was doing I thought I should probably learn a bit more.
+ I came across Dunja Mladenic&amp;#8217;s &#39;http://videolectures.net/slsfs05_mladenic_drfsm[Dimensionality Reduction by Feature Selection in Machine Learning]&#39; presentation in which she sweeps across the landscape of feature selection and explains how everything fits together.</description>
     </item>
     
     <item>
@@ -146,9 +153,9 @@ As I understand it, the idea is to try and get a uniform spread of topics -&amp;
       <pubDate>Thu, 31 Jan 2013 23:24:55 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/01/31/kaggle-digit-recognizer-a-feature-extraction-fail/</guid>
-      <description>I&amp;rsquo;ve written a few blog postsabout our attempts at the Kaggle Digit Recogniserproblem and one thing we haven&amp;rsquo;t yet tried is feature extraction.
-Many people go straight from a data set to applying an algorithm. But there’s a huge space in between of important stuff. It’s easy to run a piece of code that predicts or classifies. That’s not the hard part. The hard part is doing it well.
-One needs to conduct exploratory data analysis as I’ve emphasized; and conduct feature selection as Will Cukierski emphasized.</description>
+      <description>I&amp;#8217;ve written a few blog posts about our attempts at the Kaggle Digit Recogniser problem and one thing we haven&amp;#8217;t yet tried is feature extraction.
+ Feature extraction in this context means that we&amp;#8217;d generate some other features to train a classifier with rather than relying on just the pixel values we were provided.
+ Every week Jen would try and persuade me that we should try it out but it wasn&amp;#8217;t until I was flicking through the notes from the Columbia Data Science class that it struck home:</description>
     </item>
     
     <item>
@@ -157,8 +164,8 @@ One needs to conduct exploratory data analysis as I’ve emphasized; and conduct
       <pubDate>Tue, 08 Jan 2013 00:48:07 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/01/08/kaggle-digit-recognizer-finding-pixels-with-no-variance-using-r/</guid>
-      <description>Many people go straight from a data set to applying an algorithm. But there’s a huge space in between of important stuff. It’s easy to run a piece of code that predicts or classifies. That’s not the hard part. The hard part is doing it well.
-initial &amp;lt;- read.csv(&amp;#34;train.csv&amp;#34;, nrows=10000, header = TRUE) # take a sample of 1000 rows of the input  sampleSet &amp;lt;- initial[sample(1:nrow(initial), 1000), ] # get all the labels sampleSet.</description>
+      <description>I&amp;#8217;ve written previously about our attempts at the Kaggle Digit Recogniser problem and our approach so far has been to use the data provided and plug it into different algorithms and see what we end up with.
+ From browsing through the forums we saw others mentioning feature extraction - an approach where we transform the data into another format , the thinking being that we can train a better classifier with better data.</description>
     </item>
     
     <item>
@@ -167,7 +174,8 @@ initial &amp;lt;- read.csv(&amp;#34;train.csv&amp;#34;, nrows=10000, header = TR
       <pubDate>Thu, 27 Dec 2012 00:08:01 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/12/27/mahout-parallelising-the-creation-of-decisiontrees/</guid>
-      <description>List&amp;lt;Node&amp;gt; trees = new ArrayList&amp;lt;Node&amp;gt;(); MultiDecisionForest forest = MultiDecisionForest.load(new Configuration(), new Path(&amp;#34;/path/to/mahout-tree&amp;#34;)); trees.addAll(forest.getTrees()); MultiDecisionForest forest = new MultiDecisionForest(trees); deb http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main deb-src http://ppa.launchpad.net/ieltonf/ppa/ubuntu oneiric main parallelise-forests.sh#!/bin/bash start=`date` startTime=`date &amp;#39;+%s&amp;#39;` numberOfRuns=$1 seq 1 ${numberOfRuns} | parallel -P 8 &amp;#34;./build-forest.sh&amp;#34; end=`date` endTime=`date &amp;#39;+%s&amp;#39;` echo &amp;#34;Started: ${start}&amp;#34; echo &amp;#34;Finished: ${end}&amp;#34; echo &amp;#34;Took: &amp;#34; $(expr $endTime - $startTime) build-forest.sh#!/bin/bash java -Xmx1024m -cp target/machinenursery-1.0.0-SNAPSHOT-standalone.jar main.java.MahoutPlaybox </description>
+      <description>A couple of months ago I wrote a blog post describing our use of Mahout random forests for the Kaggle Digit Recogniser Problem and after seeing how long it took to create forests with 500+ trees I wanted to see if this could be sped up by parallelising the process.
+ From looking at the https://github.com/apache/mahout/blob/trunk/core/src/main/java/org/apache/mahout/classifier/df/DecisionForest.java it seemed like it should be possible to create lots of small forests and then combine them together.</description>
     </item>
     
     <item>
@@ -176,7 +184,9 @@ initial &amp;lt;- read.csv(&amp;#34;train.csv&amp;#34;, nrows=10000, header = TR
       <pubDate>Wed, 12 Dec 2012 00:04:42 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/12/12/weka-saving-and-loading-classifiers/</guid>
-      <description>MultilayerPerceptron classifier = new MultilayerPerceptron(); classifier.buildClassifier(instances); // instances gets passed in from elsewhere  Debug.saveToFile(&amp;#34;/path/to/weka-neural-network&amp;#34;, classifier); SerializedClassifier classifier = new SerializedClassifier(); classifier.setModelFile(new File(&amp;#34;/path/to/weka-neural-network&amp;#34;)); </description>
+      <description>In our continued machine learning travels Jen and I have been building some classifiers using Weka and one thing we wanted to do was save the classifier and then reuse it later.
+ There is documentation for how to do this from the command line but we&amp;#8217;re doing everything programatically and wanted to be able to save our classifiers from Java code.
+ As it turns out it&amp;#8217;s not too tricky when you know which classes to call and saving a classifier to a file is as simple as this:</description>
     </item>
     
     <item>
@@ -185,9 +195,9 @@ initial &amp;lt;- read.csv(&amp;#34;train.csv&amp;#34;, nrows=10000, header = TR
       <pubDate>Thu, 29 Nov 2012 17:09:29 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/11/29/kaggle-digit-recognizer-weka-adaboost-attempt/</guid>
-      <description>In our latest attempt at Kaggle&amp;rsquo;s Digit RecognizerJenand I decided to try out boostingon our random forest algorithm, an approach that Jen had come across in a talk at the Clojure Conj.
-We couldn&amp;rsquo;t find any documentation that it was possible to apply boosting to Mahout&amp;rsquo;s random forest algorithm but we knew it was possible with Wekaso we decided to use that instead!
-As I understand it the way that boosting works in the context of random forests is that each of the trees in the forest will be assigned a weight based on how accurately it&amp;rsquo;s able to classify the data set and these weights are then used in the voting stage.</description>
+      <description>In our latest attempt at Kaggle&amp;#8217;s Digit Recognizer Jen and I decided to try out boosting on our random forest algorithm, an approach that Jen had come across in a talk at the Clojure Conj.
+ We couldn&amp;#8217;t find any documentation that it was possible to apply boosting to Mahout&amp;#8217;s random forest algorithm but we knew it was possible with Weka so we decided to use that instead!
+ As I understand it the way that boosting works in the context of random forests is that each of the trees in the forest will be assigned a weight based on how accurately it&amp;#8217;s able to classify the data set and these weights are then used in the voting stage.</description>
     </item>
     
     <item>
@@ -197,7 +207,7 @@ As I understand it the way that boosting works in the context of random forests 
       
       <guid>https://markhneedham.com/blog/2012/11/24/a-first-failed-attempt-at-natural-language-processing/</guid>
       <description>One of the things I find fascinating about dating websites is that the profiles of people are almost identical so I thought it would be an interesting exercise to grab some of the free text that people write about themselves and prove the similarity.
-I&amp;rsquo;d been talking to Matt Biddulphabout some Natural Language Processing (NLP) stuff he&amp;rsquo;d been working on and he wrote up a bunch of libraries, articles and books that he&amp;rsquo;d found useful.</description>
+ I&amp;#8217;d been talking to Matt Biddulph about some Natural Language Processing (NLP) stuff he&amp;#8217;d been working on and he wrote up a bunch of libraries, articles and books that he&amp;#8217;d found useful.</description>
     </item>
     
     <item>
@@ -206,9 +216,9 @@ I&amp;rsquo;d been talking to Matt Biddulphabout some Natural Language Processin
       <pubDate>Mon, 19 Nov 2012 13:31:49 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/11/19/learning-switching-between-theory-and-practice/</guid>
-      <description>In one of my first ever blog posts I wrote about the differences I&amp;rsquo;d experienced in learning the theory about a topic and then seeing it in practice.
-The way I remember learning at school and university was that you learn all the theory first and then put it into practice but I typically don&amp;rsquo;t find myself doing this whenever I learn something new.
-I spent a bit of time over the weekend learning more about neural networks as my colleague Jen Smithsuggested this might be a more effective technique for getting a higher accuracy scoreon the Kaggle Digit Recogniserproblem.</description>
+      <description>In one of my first ever blog posts I wrote about the differences I&amp;#8217;d experienced in learning the theory about a topic and then seeing it in practice.
+ The way I remember learning at school and university was that you learn all the theory first and then put it into practice but I typically don&amp;#8217;t find myself doing this whenever I learn something new.
+ I spent a bit of time over the weekend learning more about neural networks as my colleague Jen Smith suggested this might be a more effective technique for getting a higher accuracy score on the Kaggle Digit Recogniser problem.</description>
     </item>
     
     <item>
@@ -217,9 +227,9 @@ I spent a bit of time over the weekend learning more about neural networks as my
       <pubDate>Sat, 27 Oct 2012 22:03:30 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/27/mahout-using-a-saved-random-forestdecisiontree/</guid>
-      <description>One of the things that I wanted to do while playing around with random forestsusing Mahoutwas to save the random forest and then use use it again which is something Mahout does cater for.
-It was actually much easier to do this than I&amp;rsquo;d expected and assuming that we already have a DecisionForestbuilt we&amp;rsquo;d just need the following code to save it to disc:
-int numberOfTrees = 1; Data data = loadData(.</description>
+      <description>One of the things that I wanted to do while playing around with random forests using Mahout was to save the random forest and then use use it again which is something Mahout does cater for.
+ It was actually much easier to do this than I&amp;#8217;d expected and assuming that we already have a https://github.com/apache/mahout/blob/trunk/core/src/main/java/org/apache/mahout/classifier/df/DecisionForest.java built we&amp;#8217;d just need the following code to save it to disc:
+ int numberOfTrees = 1; Data data = loadData(.</description>
     </item>
     
     <item>
@@ -228,8 +238,8 @@ int numberOfTrees = 1; Data data = loadData(.</description>
       <pubDate>Sat, 27 Oct 2012 20:24:48 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/27/kaggle-digit-recognizer-mahout-random-forest-attempt/</guid>
-      <description>I&amp;rsquo;ve written previously about the K-meansapproachthat Jenand I took when trying to solve Kaggle&amp;rsquo;s Digit Recognizerand having stalled at about 80% accuracy we decided to try one of the algorithms suggested in the tutorials section- the random forest!
-We initially used a clojure random forests librarybut struggled to build the random forest from the training set data in a reasonable amount of time so we switched to Mahout&amp;rsquo;s versionwhich is based on Leo Breiman&amp;rsquo;s random forestspaper.</description>
+      <description>I&amp;#8217;ve written previously about the K-means approach that Jen and I took when trying to solve Kaggle&amp;#8217;s Digit Recognizer and having stalled at about 80% accuracy we decided to try one of the algorithms suggested in the tutorials section - the random forest!
+ We initially used a clojure random forests library but struggled to build the random forest from the training set data in a reasonable amount of time so we switched to Mahout&amp;#8217;s version which is based on Leo Breiman&amp;#8217;s random forests paper.</description>
     </item>
     
     <item>
@@ -238,8 +248,8 @@ We initially used a clojure random forests librarybut struggled to build the ran
       <pubDate>Sat, 27 Oct 2012 12:27:10 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/27/kaggle-digit-recognizer-k-means-optimisation-attempt/</guid>
-      <description>I recently wrote a blog post explaining how Jenand I used the K-means algorithmto classify digits in Kaggle&amp;rsquo;s Digit Recognizer problemand one of the things we&amp;rsquo;d read was that with this algorithm you often end up with situations where it&amp;rsquo;s difficult to classify a new item because if falls between two labels.
-We decided to have a look at the output of our classifier function to see whether or not that was the case.</description>
+      <description>I recently wrote a blog post explaining how Jen and I used the K-means algorithm to classify digits in Kaggle&amp;#8217;s Digit Recognizer problem and one of the things we&amp;#8217;d read was that with this algorithm you often end up with situations where it&amp;#8217;s difficult to classify a new item because if falls between two labels.
+ We decided to have a look at the output of our classifier function to see whether or not that was the case.</description>
     </item>
     
     <item>
@@ -248,9 +258,9 @@ We decided to have a look at the output of our classifier function to see whethe
       <pubDate>Tue, 23 Oct 2012 19:04:20 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/10/23/kaggle-digit-recognizer-a-k-means-attempt/</guid>
-      <description>Over the past couple of months Jen and I have been playing around with the Kaggle Digit Recognizer problem- a &amp;lsquo;competition&amp;rsquo; created to introduce people to Machine Learning.
-You are given an input file which contains multiple rows each containing 784 pixel values representing a 28x28 pixel image as well as a label indicating which number that image actually represents.
-One of the algorithms that we tried out for this problem was a variation on the k-means clusteringone whereby we took the values at each pixel location for each of the labels and came up with an average value for each pixel.</description>
+      <description>Over the past couple of months Jen and I have been playing around with the Kaggle Digit Recognizer problem - a &#39;competition&#39; created to introduce people to Machine Learning.
+  The goal in this competition is to take an image of a handwritten single digit, and determine what that digit is.
+   You are given an input file which contains multiple rows each containing 784 pixel values representing a 28x28 pixel image as well as a label indicating which number that image actually represents.</description>
     </item>
     
   </channel>

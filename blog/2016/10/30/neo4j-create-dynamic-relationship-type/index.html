@@ -24,7 +24,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Create dynamic relationship type" />
         
-          <meta name="twitter:description" content="load csv with headers from &quot;file:///people.csv&quot; AS row RETURN row ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘ load csv with headers from &quot;file:///people.csv&quot; AS row MERGE (p1:Person {name: row.node1}) MERGE (p2:Person {name: row.node2}) FOREACH(ignoreMe IN CASE WHEN row.relationship = &quot;MARRIED_TO&quot; THEN [1] ELSE [] END | MERGE (p1)-[:MARRIED_TO]-&gt;(p2)) FOREACH(ignoreMe IN CASE WHEN row.relationship = &quot;FRIENDS&quot; THEN [1] ELSE [] END | MERGE (p1)-[:FRIENDS]-&gt;(p2)) load csv with headers from &quot;file:///people." />
+          <meta name="twitter:description" content="One of the things I&#8217;ve often found frustrating when importing data using Cypher, Neo4j&#8217;s query language, is that it&#8217;s quite difficult to create dynamic relationship types.
+ Say we have a CSV file structured like this:
+ load csv with headers from &#34;file:///people.csv&#34; AS row RETURN row   ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘   We want to create nodes with the relationship type specified in the file." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/10/30/neo4j-create-dynamic-relationship-type/" />
 
@@ -35,7 +37,9 @@
         <title> Neo4j: Create dynamic relationship type &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="load csv with headers from &quot;file:///people.csv&quot; AS row RETURN row ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘ load csv with headers from &quot;file:///people.csv&quot; AS row MERGE (p1:Person {name: row.node1}) MERGE (p2:Person {name: row.node2}) FOREACH(ignoreMe IN CASE WHEN row.relationship = &quot;MARRIED_TO&quot; THEN [1] ELSE [] END | MERGE (p1)-[:MARRIED_TO]-&gt;(p2)) FOREACH(ignoreMe IN CASE WHEN row.relationship = &quot;FRIENDS&quot; THEN [1] ELSE [] END | MERGE (p1)-[:FRIENDS]-&gt;(p2)) load csv with headers from &quot;file:///people." />
+        <meta name="description" content="One of the things I&#8217;ve often found frustrating when importing data using Cypher, Neo4j&#8217;s query language, is that it&#8217;s quite difficult to create dynamic relationship types.
+ Say we have a CSV file structured like this:
+ load csv with headers from &#34;file:///people.csv&#34; AS row RETURN row   ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘   We want to create nodes with the relationship type specified in the file." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +68,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-10-30",
-        "description": "load csv with headers from \x26quot;file:\/\/\/people.csv\x26quot; AS row RETURN row ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘ load csv with headers from \x26quot;file:\/\/\/people.csv\x26quot; AS row MERGE (p1:Person {name: row.node1}) MERGE (p2:Person {name: row.node2}) FOREACH(ignoreMe IN CASE WHEN row.relationship = \x26quot;MARRIED_TO\x26quot; THEN [1] ELSE [] END | MERGE (p1)-[:MARRIED_TO]-\x26gt;(p2)) FOREACH(ignoreMe IN CASE WHEN row.relationship = \x26quot;FRIENDS\x26quot; THEN [1] ELSE [] END | MERGE (p1)-[:FRIENDS]-\x26gt;(p2)) load csv with headers from \x26quot;file:\/\/\/people.",
-        "wordCount":  104 
+        "description": "One of the things I\x26#8217;ve often found frustrating when importing data using Cypher, Neo4j\x26#8217;s query language, is that it\x26#8217;s quite difficult to create dynamic relationship types.\n Say we have a CSV file structured like this:\n load csv with headers from \x22file:\/\/\/people.csv\x22 AS row RETURN row   ╒═══════════════════════════════════════════════════════╕ │row │ ╞═══════════════════════════════════════════════════════╡ │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│ ├───────────────────────────────────────────────────────┤ │{node1: Mark, node2: Alistair, relationship: FRIENDS} │ └───────────────────────────────────────────────────────┘   We want to create nodes with the relationship type specified in the file.",
+        "wordCount":  229 
     }
     </script>
     
@@ -178,43 +182,78 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Create dynamic relationship type</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///people.csv&quot; AS row
-RETURN row
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-╒═══════════════════════════════════════════════════════╕
+    <div class="paragraph">
+<p>One of the things I&#8217;ve often found frustrating when importing data using Cypher, Neo4j&#8217;s query language, is that it&#8217;s quite difficult to create dynamic relationship types.</p>
+</div>
+<div class="paragraph">
+<p>Say we have a CSV file structured like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///people.csv" AS row
+RETURN row</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">╒═══════════════════════════════════════════════════════╕
 │row                                                    │
 ╞═══════════════════════════════════════════════════════╡
 │{node1: Mark, node2: Reshmee, relationship: MARRIED_TO}│
 ├───────────────────────────────────────────────────────┤
 │{node1: Mark, node2: Alistair, relationship: FRIENDS}  │
-└───────────────────────────────────────────────────────┘
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///people.csv&quot; AS row
+└───────────────────────────────────────────────────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We want to create nodes with the relationship type specified in the file. Unfortunately, in Cypher we can&#8217;t pass in relationship types so we have to resort to the FOREACH hack to create our relationships:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///people.csv" AS row
 MERGE (p1:Person {name: row.node1})
 MERGE (p2:Person {name: row.node2})
 
-FOREACH(ignoreMe IN CASE WHEN row.relationship = &quot;MARRIED_TO&quot; THEN [1] ELSE [] END |
+FOREACH(ignoreMe IN CASE WHEN row.relationship = "MARRIED_TO" THEN [1] ELSE [] END |
  MERGE (p1)-[:MARRIED_TO]-&gt;(p2))
 
-FOREACH(ignoreMe IN CASE WHEN row.relationship = &quot;FRIENDS&quot; THEN [1] ELSE [] END |
- MERGE (p1)-[:FRIENDS]-&gt;(p2))
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:///people.csv&quot; AS row
+FOREACH(ignoreMe IN CASE WHEN row.relationship = "FRIENDS" THEN [1] ELSE [] END |
+ MERGE (p1)-[:FRIENDS]-&gt;(p2))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This works, but:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Looks horrendous</p>
+</li>
+<li>
+<p>Doesn&#8217;t scale particularly well when we have multiple relationship types to deal with</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>As <a href="http://www.markhneedham.com/blog/2016/10/27/neo4j-dynamically-add-property/">in my last post</a> the <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/">APOC library</a> comes to the rescue again, this time in the form of the <cite>apoc.create.relationship</cite> procedure.</p>
+</div>
+<div class="paragraph">
+<p>This procedure allows us to change our initial query to read like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:///people.csv" AS row
 MERGE (p1:Person {name: row.node1})
 MERGE (p2:Person {name: row.node2})
 
 WITH p1, p2, row
 CALL apoc.create.relationship(p1, row.relationship, {}, p2) YIELD rel
-RETURN rel
-</code></pre><!-- raw HTML omitted -->
+RETURN rel</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Much better!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -249,7 +288,7 @@ RETURN rel
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/10/30/neo4j-create-dynamic-relationship-type/&amp;title=Neo4j%3a%20Create%20dynamic%20relationship%20type&amp;summary=load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2f%2f%2fpeople.csv%26quot%3b%20AS%20row%20RETURN%20row%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82row%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7bnode1%3a%20Mark%2c%20node2%3a%20Reshmee%2c%20relationship%3a%20MARRIED_TO%7d%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%7bnode1%3a%20Mark%2c%20node2%3a%20Alistair%2c%20relationship%3a%20FRIENDS%7d%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2f%2f%2fpeople.csv%26quot%3b%20AS%20row%20MERGE%20%28p1%3aPerson%20%7bname%3a%20row.node1%7d%29%20MERGE%20%28p2%3aPerson%20%7bname%3a%20row.node2%7d%29%20FOREACH%28ignoreMe%20IN%20CASE%20WHEN%20row.relationship%20%3d%20%26quot%3bMARRIED_TO%26quot%3b%20THEN%20%5b1%5d%20ELSE%20%5b%5d%20END%20%7c%20MERGE%20%28p1%29-%5b%3aMARRIED_TO%5d-%26gt%3b%28p2%29%29%20FOREACH%28ignoreMe%20IN%20CASE%20WHEN%20row.relationship%20%3d%20%26quot%3bFRIENDS%26quot%3b%20THEN%20%5b1%5d%20ELSE%20%5b%5d%20END%20%7c%20MERGE%20%28p1%29-%5b%3aFRIENDS%5d-%26gt%3b%28p2%29%29%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2f%2f%2fpeople...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/10/30/neo4j-create-dynamic-relationship-type/&amp;title=Neo4j%3a%20Create%20dynamic%20relationship%20type&amp;summary=One%20of%20the%20things%20I%26%238217%3bve%20often%20found%20frustrating%20when%20importing%20data%20using%20Cypher%2c%20Neo4j%26%238217%3bs%20query%20language%2c%20is%20that%20it%26%238217%3bs%20quite%20difficult%20to%20create%20dynamic%20relationship%20types.%0a%20Say%20we%20have%20a%20CSV%20file%20structured%20like%20this%3a%0a%20load%20csv%20with%20headers%20from%20%22file%3a%2f%2f%2fpeople.csv%22%20AS%20row%20RETURN%20row%20%20%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82row%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7bnode1%3a%20Mark%2c%20node2%3a%20Reshmee%2c%20relationship%3a%20MARRIED_TO%7d%e2%94%82%20%e2%94%9c%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%a4%20%e2%94%82%7bnode1%3a%20Mark%2c%20node2%3a%20Alistair%2c%20relationship%3a%20FRIENDS%7d%20%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20%20%20We%20want%20to%20create%20nodes%20with%20the%20relationship%20type%20specified%20in%20the%20file...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

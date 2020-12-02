@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="neo4j: Creating a custom index with neo4j.rb" />
         
-          <meta name="twitter:description" content="As I mentioned in my last postI&rsquo;ve been playing around with the TFL Bus stop location and routes APIand one thing I wanted to do was load all the bus stops into a neo4j database using the neo4j.rbgem.
-I initially populated the database via neographybut it was taking around 20 minutes each run and I figured it&rsquo;d probably be much quicker to populate it directly rather than using the REST API." />
+          <meta name="twitter:description" content="As I mentioned in my last post I&#8217;ve been playing around with the TFL Bus stop location and routes API and one thing I wanted to do was load all the bus stops into a neo4j database using the neo4j.rb gem.
+ I initially populated the database via neography but it was taking around 20 minutes each run and I figured it&#8217;d probably be much quicker to populate it directly rather than using the REST API." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/08/05/neo4j-creating-a-custom-index-with-neo4j-rb/" />
 
@@ -34,8 +34,8 @@ I initially populated the database via neographybut it was taking around 20 minu
         <title> neo4j: Creating a custom index with neo4j.rb &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="As I mentioned in my last postI&rsquo;ve been playing around with the TFL Bus stop location and routes APIand one thing I wanted to do was load all the bus stops into a neo4j database using the neo4j.rbgem.
-I initially populated the database via neographybut it was taking around 20 minutes each run and I figured it&rsquo;d probably be much quicker to populate it directly rather than using the REST API." />
+        <meta name="description" content="As I mentioned in my last post I&#8217;ve been playing around with the TFL Bus stop location and routes API and one thing I wanted to do was load all the bus stops into a neo4j database using the neo4j.rb gem.
+ I initially populated the database via neography but it was taking around 20 minutes each run and I figured it&#8217;d probably be much quicker to populate it directly rather than using the REST API." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ I initially populated the database via neographybut it was taking around 20 minu
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-08-05",
-        "description": "As I mentioned in my last postI\x26rsquo;ve been playing around with the TFL Bus stop location and routes APIand one thing I wanted to do was load all the bus stops into a neo4j database using the neo4j.rbgem.\nI initially populated the database via neographybut it was taking around 20 minutes each run and I figured it\x26rsquo;d probably be much quicker to populate it directly rather than using the REST API.",
-        "wordCount":  344 
+        "description": "As I mentioned in my last post I\x26#8217;ve been playing around with the TFL Bus stop location and routes API and one thing I wanted to do was load all the bus stops into a neo4j database using the neo4j.rb gem.\n I initially populated the database via neography but it was taking around 20 minutes each run and I figured it\x26#8217;d probably be much quicker to populate it directly rather than using the REST API.",
+        "wordCount":  352 
     }
     </script>
     
@@ -174,49 +174,83 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">neo4j: Creating a custom index with neo4j.rb</h1>
-    <p>As I <!-- raw HTML omitted -->mentioned in my last post<!-- raw HTML omitted --> I&rsquo;ve been playing around with the <!-- raw HTML omitted -->TFL Bus stop location and routes API<!-- raw HTML omitted --> and one thing I wanted to do was load all the bus stops into a neo4j database using the <!-- raw HTML omitted -->neo4j.rb<!-- raw HTML omitted --> gem.</p>
-<p>I initially populated the database via <!-- raw HTML omitted -->neography<!-- raw HTML omitted --> but it was taking around 20 minutes each run and I figured it&rsquo;d probably be much quicker to populate it directly rather than using the REST API.</p>
+    <div class="paragraph">
+<p>As I <a href="http://www.markhneedham.com/blog/2012/07/30/london-bus-stops-api-mapping-northingeasting-values-to-latlong/">mentioned in my last post</a> I&#8217;ve been playing around with the <a href="http://www.tfl.gov.uk/businessandpartners/syndication/16493.aspx#17463">TFL Bus stop location and routes API</a> and one thing I wanted to do was load all the bus stops into a neo4j database using the <a href="https://github.com/andreasronge/neo4j">neo4j.rb</a> gem.</p>
+</div>
+<div class="paragraph">
+<p>I initially populated the database via <a href="https://github.com/maxdemarzi/neography/">neography</a> but it was taking around 20 minutes each run and I figured it&#8217;d probably be much quicker to populate it directly rather than using the REST API.</p>
+</div>
+<div class="paragraph">
 <p>Creating nodes is reasonably simple, and the code to add bus stops looks like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-require <span style="color:#e6db74">&#39;neo4j&#39;</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">require 'neo4j'
 
-<span style="color:#66d9ef">Neo4j</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Transaction</span><span style="color:#f92672">.</span>run <span style="color:#66d9ef">do</span>
-  stops_to_add <span style="color:#f92672">=</span> <span style="color:#f92672">[</span> {<span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;Walworth Road&#34;</span>, <span style="color:#e6db74">:code</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">10001</span> }<span style="color:#f92672">]</span>
+Neo4j::Transaction.run do
+  stops_to_add = [ {:name =&gt; "Walworth Road", :code =&gt; 10001 }]
 
-  stops_to_add<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>stop<span style="color:#f92672">|</span>
-    node <span style="color:#f92672">=</span> <span style="color:#66d9ef">Neo4j</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Node</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> stop<span style="color:#f92672">[</span><span style="color:#e6db74">:name</span><span style="color:#f92672">]</span>, <span style="color:#e6db74">:code</span> <span style="color:#f92672">=&gt;</span> stop<span style="color:#f92672">[</span><span style="color:#e6db74">:code</span><span style="color:#f92672">]</span>, <span style="color:#e6db74">:type</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;stop&#34;</span>)
-    puts <span style="color:#e6db74">&#34;Code: </span><span style="color:#e6db74">#{</span>stop<span style="color:#f92672">[</span><span style="color:#e6db74">:code</span><span style="color:#f92672">]</span><span style="color:#e6db74">}</span><span style="color:#e6db74">, Stop: </span><span style="color:#e6db74">#{</span>stop<span style="color:#f92672">[</span><span style="color:#e6db74">:name</span><span style="color:#f92672">]</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
-  <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>I wanted to be able to search for bus stops using cypher so I needed to create an index for each stop to allow me to do that easily.</p>
-<p>I initially tried creating a <!-- raw HTML omitted -->Stop<!-- raw HTML omitted --> class and defining the index in there <!-- raw HTML omitted -->as suggested in the documentation<!-- raw HTML omitted --> but from what I could tell it created an index named after the string representation of the <!-- raw HTML omitted -->Stop<!-- raw HTML omitted --> object which made it difficult to use in <!-- raw HTML omitted -->cypher<!-- raw HTML omitted -->.</p>
-<p>Eventually I came across <!-- raw HTML omitted -->another page<!-- raw HTML omitted --> which explained that I needed to create a &lsquo;custom index&rsquo; if I wanted to be able to reference it by name.</p>
+  stops_to_add.each do |stop|
+    node = Neo4j::Node.new(:name =&gt; stop[:name], :code =&gt; stop[:code], :type =&gt; "stop")
+    puts "Code: #{stop[:code]}, Stop: #{stop[:name]}"
+  end
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I wanted to be able to search for bus stops using cypher so I needed to create an index for each stop to allow me to do that easily.</p>
+</div>
+<div class="paragraph">
+<p>I initially tried creating a <cite>Stop</cite> class and defining the index in there <a href="http://neo4j.rubyforge.org/guides/lucene.html">as suggested in the documentation</a> but from what I could tell it created an index named after the string representation of the <cite>Stop</cite> object which made it difficult to use in <a href="http://docs.neo4j.org/chunked/stable/cypher-query-lang.html">cypher</a>.</p>
+</div>
+<div class="paragraph">
+<p>Eventually I came across <a href="https://github.com/andreasronge/neo4j/wiki/Neo4j%3A%3ACore-Lucene">another page</a> which explained that I needed to create a 'custom index' if I wanted to be able to reference it by name.</p>
+</div>
+<div class="paragraph">
 <p>I ended up with the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StopsIndex</span>
-  <span style="color:#66d9ef">extend</span> <span style="color:#66d9ef">Neo4j</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Core</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Index</span><span style="color:#f92672">::</span><span style="color:#66d9ef">ClassMethods</span>
-  <span style="color:#66d9ef">include</span> <span style="color:#66d9ef">Neo4j</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Core</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Index</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">class StopsIndex
+  extend Neo4j::Core::Index::ClassMethods
+  include Neo4j::Core::Index
 
-  self<span style="color:#f92672">.</span>node_indexer <span style="color:#66d9ef">do</span>
-    index_names <span style="color:#e6db74">:exact</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#39;stops&#39;</span>
-    trigger_on <span style="color:#e6db74">:type</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;stop&#34;</span>
-  <span style="color:#66d9ef">end</span>
+  self.node_indexer do
+    index_names :exact =&gt; 'stops'
+    trigger_on :type =&gt; "stop"
+  end
 
-  index <span style="color:#e6db74">:code</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>As far as I understand this index gets triggered when you&rsquo;re inside a transaction adding a node of type &lsquo;stop&rsquo; which is what I&rsquo;m doing here.</p>
-<p>With the index defined this way it&rsquo;s now possible to look up stops using cypher:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-START stop = node:stops(code = &#34;10001&#34;)
-RETURN stop
-</code></pre></div><p>And when later on in the code I wanted to add a &lsquo;route&rsquo; between stops I could look up the stops like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">Neo4j</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Transaction</span><span style="color:#f92672">.</span>run <span style="color:#66d9ef">do</span>
-  stop1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">StopsIndex</span><span style="color:#f92672">.</span>find(<span style="color:#e6db74">&#34;code: </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">10001</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>)<span style="color:#f92672">.</span>first
-  stop2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">StopsIndex</span><span style="color:#f92672">.</span>find(<span style="color:#e6db74">&#34;code: </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">10002</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>)<span style="color:#f92672">.</span>first				
-  <span style="color:#66d9ef">Neo4j</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Relationship</span><span style="color:#f92672">.</span>new(<span style="color:#e6db74">:route</span>, stop1, stop2, { <span style="color:#e6db74">:bus_number</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">1</span> })
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>The <!-- raw HTML omitted -->full code for this is on github<!-- raw HTML omitted -->.</p>
+  index :code
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As far as I understand this index gets triggered when you&#8217;re inside a transaction adding a node of type 'stop' which is what I&#8217;m doing here.</p>
+</div>
+<div class="paragraph">
+<p>With the index defined this way it&#8217;s now possible to look up stops using cypher:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">START stop = node:stops(code = "10001")
+RETURN stop</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And when later on in the code I wanted to add a 'route' between stops I could look up the stops like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">Neo4j::Transaction.run do
+  stop1 = StopsIndex.find("code: \"10001\"").first
+  stop2 = StopsIndex.find("code: \"10002\"").first
+  Neo4j::Relationship.new(:route, stop1, stop2, { :bus_number =&gt; 1 })
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/london-buses/blob/master/data/load.rb">full code for this is on github</a>.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -251,7 +285,7 @@ RETURN stop
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/08/05/neo4j-creating-a-custom-index-with-neo4j-rb/&amp;title=neo4j%3a%20Creating%20a%20custom%20index%20with%20neo4j.rb&amp;summary=As%20I%20mentioned%20in%20my%20last%20postI%26rsquo%3bve%20been%20playing%20around%20with%20the%20TFL%20Bus%20stop%20location%20and%20routes%20APIand%20one%20thing%20I%20wanted%20to%20do%20was%20load%20all%20the%20bus%20stops%20into%20a%20neo4j%20database%20using%20the%20neo4j.rbgem.%0aI%20initially%20populated%20the%20database%20via%20neographybut%20it%20was%20taking%20around%2020%20minutes%20each%20run%20and%20I%20figured%20it%26rsquo%3bd%20probably%20be%20much%20quicker%20to%20populate%20it%20directly%20rather%20than%20using%20the%20REST%20API...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/08/05/neo4j-creating-a-custom-index-with-neo4j-rb/&amp;title=neo4j%3a%20Creating%20a%20custom%20index%20with%20neo4j.rb&amp;summary=As%20I%20mentioned%20in%20my%20last%20post%20I%26%238217%3bve%20been%20playing%20around%20with%20the%20TFL%20Bus%20stop%20location%20and%20routes%20API%20and%20one%20thing%20I%20wanted%20to%20do%20was%20load%20all%20the%20bus%20stops%20into%20a%20neo4j%20database%20using%20the%20neo4j.rb%20gem.%0a%20I%20initially%20populated%20the%20database%20via%20neography%20but%20it%20was%20taking%20around%2020%20minutes%20each%20run%20and%20I%20figured%20it%26%238217%3bd%20probably%20be%20much%20quicker%20to%20populate%20it%20directly%20rather%20than%20using%20the%20REST%20API...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

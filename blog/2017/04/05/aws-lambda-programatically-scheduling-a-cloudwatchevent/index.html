@@ -64,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-04-05",
-        "description": "import boto3 lambda_client = boto3.client(\x26#39;lambda\x26#39;) events_client = boto3.client(\x26#39;events\x26#39;) fn_name = \x26#34;HelloWorld\x26#34; fn_role = \x26#39;arn:aws:iam::[your-aws-id]:role\/lambda_basic_execution\x26#39; fn_response = lambda_client.create_function( FunctionName=fn_name, Runtime=\x26#39;python2.7\x26#39;, Role=fn_role, Handler=\x26#34;{0}.lambda_handler\x26#34;.format(fn_name), Code={\x26#39;ZipFile\x26#39;: open(\x26#34;{0}.zip\x26#34;.format(fn_name), \x26#39;rb\x26#39;).read(), }, ) fn_arn = fn_response[\x26#39;FunctionArn\x26#39;] frequency = \x26#34;rate(1 hour)\x26#34; name = \x26#34;{0}-Trigger\x26#34;.format(fn_name) rule_response = events_client.put_rule( Name=name, ScheduleExpression=frequency, State=\x26#39;ENABLED\x26#39;, ) lambda_client.add_permission( FunctionName=fn_name, StatementId=\x26#34;{0}-Event\x26#34;.format(name), Action=\x26#39;lambda:InvokeFunction\x26#39;, Principal=\x26#39;events.amazonaws.com\x26#39;, SourceArn=rule_response[\x26#39;RuleArn\x26#39;], ) events_client.put_targets( Rule=name, Targets=[ { \x26#39;Id\x26#39;: \x26#34;1\x26#34;, \x26#39;Arn\x26#39;: fn_arn, }, ] ) $ aws events list-rules --query \x26#34;Rules[?Name==\x26#39;HelloWorld-Trigger\x26#39;]\x26#34; [ { \x26#34;State\x26#34;: \x26#34;ENABLED\x26#34;, \x26#34;ScheduleExpression\x26#34;: \x26#34;rate(1 hour)\x26#34;, \x26#34;Name\x26#34;: \x26#34;HelloWorld-Trigger\x26#34;, \x26#34;Arn\x26#34;: \x26#34;arn:aws:events:us-east-1:[your-aws-id]:rule\/HelloWorld-Trigger\x26#34; } ] $ aws events list-targets-by-rule --rule HelloWorld-Trigger { \x26#34;Targets\x26#34;: [ { \x26#34;Id\x26#34;: \x26#34;1\x26#34;, \x26#34;Arn\x26#34;: \x26#34;arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld\x26#34; } ] } $ aws lambda get-policy --function-name HelloWorld { \x26#34;Policy\x26#34;: \x26#34;{\\\x26#34;Version\\\x26#34;:\\\x26#34;2012-10-17\\\x26#34;,\\\x26#34;Id\\\x26#34;:\\\x26#34;default\\\x26#34;,\\\x26#34;Statement\\\x26#34;:[{\\\x26#34;Sid\\\x26#34;:\\\x26#34;HelloWorld-Trigger-Event\\\x26#34;,\\\x26#34;Effect\\\x26#34;:\\\x26#34;Allow\\\x26#34;,\\\x26#34;Principal\\\x26#34;:{\\\x26#34;Service\\\x26#34;:\\\x26#34;events.",
-        "wordCount":  107 
+        "description": "I recently wrote a blog post showing how to create a Python \x27Hello World\x27 AWS lambda function and manually invoke it, but what I really wanted to do was have it run automatically every hour.\n To achieve that in AWS Lambda land we need to create a CloudWatch Event. The documentation describes them as follows:\n  Using simple rules that you can quickly set up, you can match events and route them to one or more target functions or streams.",
+        "wordCount":  300 
     }
     </script>
     
@@ -178,89 +178,131 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">AWS Lambda: Programmatically scheduling a CloudWatchEvent</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> boto3
+    <div class="paragraph">
+<p>I recently wrote a blog post showing how to <a href="http://www.markhneedham.com/blog/2017/04/02/aws-lambda-programatically-create-a-python-hello-world-function/">create a Python 'Hello World' AWS lambda function</a> and manually invoke it, but what I really wanted to do was have it run automatically every hour.</p>
+</div>
+<div class="paragraph">
+<p>To achieve that in AWS Lambda land we need to create a <a href="http://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html">CloudWatch Event</a>. The documentation describes them as follows:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Using simple rules that you can quickly set up, you can match events and route them to one or more target functions or streams.</p>
+</div>
+</blockquote>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2017/04/2017-04-05_23-06-36.png" alt="2017 04 05 23 06 36" width="364">
+</div>
+</div>
+<div class="paragraph">
+<p>This is actually really easy from the Amazon web console as you just need to click the 'Triggers' tab and then 'Add trigger'. It&#8217;s not obvious that there are actually three steps are involved as they&#8217;re abstracted from you.</p>
+</div>
+<div class="paragraph">
+<p>So what are <a href="http://docs.aws.amazon.com/AmazonCloudWatch/latest/events/RunLambdaSchedule.html">the steps</a>?</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create rule</p>
+</li>
+<li>
+<p>Give permission for that rule to execute</p>
+</li>
+<li>
+<p>Map the rule to the function</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>I forgot to do step 2) initially and then you just end up with a rule that never triggers, which isn&#8217;t particularly useful.</p>
+</div>
+<div class="paragraph">
+<p>The following code creates a 'Hello World' lambda function and runs it once an hour:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import boto3
 
-lambda_client <span style="color:#f92672">=</span> boto3<span style="color:#f92672">.</span>client(<span style="color:#e6db74">&#39;lambda&#39;</span>)
-events_client <span style="color:#f92672">=</span> boto3<span style="color:#f92672">.</span>client(<span style="color:#e6db74">&#39;events&#39;</span>)
+lambda_client = boto3.client('lambda')
+events_client = boto3.client('events')
 
-fn_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;HelloWorld&#34;</span>
-fn_role <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;arn:aws:iam::[your-aws-id]:role/lambda_basic_execution&#39;</span>
+fn_name = "HelloWorld"
+fn_role = 'arn:aws:iam::[your-aws-id]:role/lambda_basic_execution'
 
-fn_response <span style="color:#f92672">=</span> lambda_client<span style="color:#f92672">.</span>create_function(
-    FunctionName<span style="color:#f92672">=</span>fn_name,
-    Runtime<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;python2.7&#39;</span>,
-    Role<span style="color:#f92672">=</span>fn_role,
-    Handler<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{0}.lambda_handler&#34;</span><span style="color:#f92672">.</span>format(fn_name),
-    Code<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#39;ZipFile&#39;</span>: open(<span style="color:#e6db74">&#34;{0}.zip&#34;</span><span style="color:#f92672">.</span>format(fn_name), <span style="color:#e6db74">&#39;rb&#39;</span>)<span style="color:#f92672">.</span>read(), },
+fn_response = lambda_client.create_function(
+    FunctionName=fn_name,
+    Runtime='python2.7',
+    Role=fn_role,
+    Handler="{0}.lambda_handler".format(fn_name),
+    Code={'ZipFile': open("{0}.zip".format(fn_name), 'rb').read(), },
 )
 
-fn_arn <span style="color:#f92672">=</span> fn_response[<span style="color:#e6db74">&#39;FunctionArn&#39;</span>]
-frequency <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;rate(1 hour)&#34;</span>
-name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;{0}-Trigger&#34;</span><span style="color:#f92672">.</span>format(fn_name)
+fn_arn = fn_response['FunctionArn']
+frequency = "rate(1 hour)"
+name = "{0}-Trigger".format(fn_name)
 
-rule_response <span style="color:#f92672">=</span> events_client<span style="color:#f92672">.</span>put_rule(
-    Name<span style="color:#f92672">=</span>name,
-    ScheduleExpression<span style="color:#f92672">=</span>frequency,
-    State<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;ENABLED&#39;</span>,
+rule_response = events_client.put_rule(
+    Name=name,
+    ScheduleExpression=frequency,
+    State='ENABLED',
 )
 
-lambda_client<span style="color:#f92672">.</span>add_permission(
-    FunctionName<span style="color:#f92672">=</span>fn_name,
-    StatementId<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{0}-Event&#34;</span><span style="color:#f92672">.</span>format(name),
-    Action<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;lambda:InvokeFunction&#39;</span>,
-    Principal<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;events.amazonaws.com&#39;</span>,
-    SourceArn<span style="color:#f92672">=</span>rule_response[<span style="color:#e6db74">&#39;RuleArn&#39;</span>],
+lambda_client.add_permission(
+    FunctionName=fn_name,
+    StatementId="{0}-Event".format(name),
+    Action='lambda:InvokeFunction',
+    Principal='events.amazonaws.com',
+    SourceArn=rule_response['RuleArn'],
 )
 
-events_client<span style="color:#f92672">.</span>put_targets(
-    Rule<span style="color:#f92672">=</span>name,
-    Targets<span style="color:#f92672">=</span>[
+events_client.put_targets(
+    Rule=name,
+    Targets=[
         {
-            <span style="color:#e6db74">&#39;Id&#39;</span>: <span style="color:#e6db74">&#34;1&#34;</span>,
-            <span style="color:#e6db74">&#39;Arn&#39;</span>: fn_arn,
+            'Id': "1",
+            'Arn': fn_arn,
         },
     ]
-)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ aws events list-rules --query <span style="color:#e6db74">&#34;Rules[?Name==&#39;HelloWorld-Trigger&#39;]&#34;</span>
-<span style="color:#f92672">[</span>
-    <span style="color:#f92672">{</span>
-        <span style="color:#e6db74">&#34;State&#34;</span>: <span style="color:#e6db74">&#34;ENABLED&#34;</span>, 
-        <span style="color:#e6db74">&#34;ScheduleExpression&#34;</span>: <span style="color:#e6db74">&#34;rate(1 hour)&#34;</span>, 
-        <span style="color:#e6db74">&#34;Name&#34;</span>: <span style="color:#e6db74">&#34;HelloWorld-Trigger&#34;</span>, 
-        <span style="color:#e6db74">&#34;Arn&#34;</span>: <span style="color:#e6db74">&#34;arn:aws:events:us-east-1:[your-aws-id]:rule/HelloWorld-Trigger&#34;</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">]</span>
+)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can now check if our trigger has been configured correctly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ aws events list-rules --query "Rules[?Name=='HelloWorld-Trigger']"
+[
+    {
+        "State": "ENABLED",
+        "ScheduleExpression": "rate(1 hour)",
+        "Name": "HelloWorld-Trigger",
+        "Arn": "arn:aws:events:us-east-1:[your-aws-id]:rule/HelloWorld-Trigger"
+    }
+]
 
 $ aws events list-targets-by-rule --rule HelloWorld-Trigger
-<span style="color:#f92672">{</span>
-    <span style="color:#e6db74">&#34;Targets&#34;</span>: <span style="color:#f92672">[</span>
-        <span style="color:#f92672">{</span>
-            <span style="color:#e6db74">&#34;Id&#34;</span>: <span style="color:#e6db74">&#34;1&#34;</span>, 
-            <span style="color:#e6db74">&#34;Arn&#34;</span>: <span style="color:#e6db74">&#34;arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld&#34;</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">]</span>
-<span style="color:#f92672">}</span>
+{
+    "Targets": [
+        {
+            "Id": "1",
+            "Arn": "arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld"
+        }
+    ]
+}
 
 $ aws lambda get-policy --function-name HelloWorld
-<span style="color:#f92672">{</span>
-    <span style="color:#e6db74">&#34;Policy&#34;</span>: <span style="color:#e6db74">&#34;{\&#34;Version\&#34;:\&#34;2012-10-17\&#34;,\&#34;Id\&#34;:\&#34;default\&#34;,\&#34;Statement\&#34;:[{\&#34;Sid\&#34;:\&#34;HelloWorld-Trigger-Event\&#34;,\&#34;Effect\&#34;:\&#34;Allow\&#34;,\&#34;Principal\&#34;:{\&#34;Service\&#34;:\&#34;events.amazonaws.com\&#34;},\&#34;Action\&#34;:\&#34;lambda:InvokeFunction\&#34;,\&#34;Resource\&#34;:\&#34;arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld\&#34;,\&#34;Condition\&#34;:{\&#34;ArnLike\&#34;:{\&#34;AWS:SourceArn\&#34;:\&#34;arn:aws:events:us-east-1:[your-aws-id]:rule/HelloWorld-Trigger\&#34;}}}]}&#34;</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
+{
+    "Policy": "{\"Version\":\"2012-10-17\",\"Id\":\"default\",\"Statement\":[{\"Sid\":\"HelloWorld-Trigger-Event\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"lambda:InvokeFunction\",\"Resource\":\"arn:aws:lambda:us-east-1:[your-aws-id]:function:HelloWorld\",\"Condition\":{\"ArnLike\":{\"AWS:SourceArn\":\"arn:aws:events:us-east-1:[your-aws-id]:rule/HelloWorld-Trigger\"}}}]}"
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All looks good so we&#8217;re done!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -295,7 +337,7 @@ $ aws lambda get-policy --function-name HelloWorld
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/04/05/aws-lambda-programatically-scheduling-a-cloudwatchevent/&amp;title=AWS%20Lambda%3a%20Programmatically%20scheduling%20a%20CloudWatchEvent&amp;summary=import%20boto3%20lambda_client%20%3d%20boto3.client%28%26%2339%3blambda%26%2339%3b%29%20events_client%20%3d%20boto3.client%28%26%2339%3bevents%26%2339%3b%29%20fn_name%20%3d%20%26%2334%3bHelloWorld%26%2334%3b%20fn_role%20%3d%20%26%2339%3barn%3aaws%3aiam%3a%3a%5byour-aws-id%5d%3arole%2flambda_basic_execution%26%2339%3b%20fn_response%20%3d%20lambda_client.create_function%28%20FunctionName%3dfn_name%2c%20Runtime%3d%26%2339%3bpython2.7%26%2339%3b%2c%20Role%3dfn_role%2c%20Handler%3d%26%2334%3b%7b0%7d.lambda_handler%26%2334%3b.format%28fn_name%29%2c%20Code%3d%7b%26%2339%3bZipFile%26%2339%3b%3a%20open%28%26%2334%3b%7b0%7d.zip%26%2334%3b.format%28fn_name%29%2c%20%26%2339%3brb%26%2339%3b%29.read%28%29%2c%20%7d%2c%20%29%20fn_arn%20%3d%20fn_response%5b%26%2339%3bFunctionArn%26%2339%3b%5d%20frequency%20%3d%20%26%2334%3brate%281%20hour%29%26%2334%3b%20name%20%3d%20%26%2334%3b%7b0%7d-Trigger%26%2334%3b.format%28fn_name%29%20rule_response%20%3d%20events_client.put_rule%28%20Name%3dname%2c%20ScheduleExpression%3dfrequency%2c%20State%3d%26%2339%3bENABLED%26%2339%3b%2c%20%29%20lambda_client.add_permission%28%20FunctionName%3dfn_name%2c%20StatementId%3d%26%2334%3b%7b0%7d-Event%26%2334%3b.format%28name%29%2c%20Action%3d%26%2339%3blambda%3aInvokeFunction%26%2339%3b%2c%20Principal%3d%26%2339%3bevents.amazonaws.com%26%2339%3b%2c%20SourceArn%3drule_response%5b%26%2339%3bRuleArn%26%2339%3b%5d%2c%20%29%20events_client.put_targets%28%20Rule%3dname%2c%20Targets%3d%5b%20%7b%20%26%2339%3bId%26%2339%3b%3a%20%26%2334%3b1%26%2334%3b%2c%20%26%2339%3bArn%26%2339%3b%3a%20fn_arn%2c%20%7d%2c%20%5d%20%29%20%24%20aws%20events%20list-rules%20--query%20%26%2334%3bRules%5b%3fName%3d%3d%26%2339%3bHelloWorld-Trigger%26%2339%3b%5d%26%2334%3b%20%5b%20%7b%20%26%2334%3bState%26%2334%3b%3a%20%26%2334%3bENABLED%26%2334%3b%2c%20%26%2334%3bScheduleExpression%26%2334%3b%3a%20%26%2334%3brate%281%20hour%29%26%2334%3b%2c%20%26%2334%3bName%26%2334%3b%3a%20%26%2334%3bHelloWorld-Trigger%26%2334%3b%2c%20%26%2334%3bArn%26%2334%3b%3a%20%26%2334%3barn%3aaws%3aevents%3aus-east-1%3a%5byour-aws-id%5d%3arule%2fHelloWorld-Trigger%26%2334%3b%20%7d%20%5d%20%24%20aws%20events%20list-targets-by-rule%20--rule%20HelloWorld-Trigger%20%7b%20%26%2334%3bTargets%26%2334%3b%3a%20%5b%20%7b%20%26%2334%3bId%26%2334%3b%3a%20%26%2334%3b1%26%2334%3b%2c%20%26%2334%3bArn%26%2334%3b%3a%20%26%2334%3barn%3aaws%3alambda%3aus-east-1%3a%5byour-aws-id%5d%3afunction%3aHelloWorld%26%2334%3b%20%7d%20%5d%20%7d%20%24%20aws%20lambda%20get-policy%20--function-name%20HelloWorld%20%7b%20%26%2334%3bPolicy%26%2334%3b%3a%20%26%2334%3b%7b%5c%26%2334%3bVersion%5c%26%2334%3b%3a%5c%26%2334%3b2012-10-17%5c%26%2334%3b%2c%5c%26%2334%3bId%5c%26%2334%3b%3a%5c%26%2334%3bdefault%5c%26%2334%3b%2c%5c%26%2334%3bStatement%5c%26%2334%3b%3a%5b%7b%5c%26%2334%3bSid%5c%26%2334%3b%3a%5c%26%2334%3bHelloWorld-Trigger-Event%5c%26%2334%3b%2c%5c%26%2334%3bEffect%5c%26%2334%3b%3a%5c%26%2334%3bAllow%5c%26%2334%3b%2c%5c%26%2334%3bPrincipal%5c%26%2334%3b%3a%7b%5c%26%2334%3bService%5c%26%2334%3b%3a%5c%26%2334%3bevents...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/04/05/aws-lambda-programatically-scheduling-a-cloudwatchevent/&amp;title=AWS%20Lambda%3a%20Programmatically%20scheduling%20a%20CloudWatchEvent&amp;summary=I%20recently%20wrote%20a%20blog%20post%20showing%20how%20to%20create%20a%20Python%20%27Hello%20World%27%20AWS%20lambda%20function%20and%20manually%20invoke%20it%2c%20but%20what%20I%20really%20wanted%20to%20do%20was%20have%20it%20run%20automatically%20every%20hour.%0a%20To%20achieve%20that%20in%20AWS%20Lambda%20land%20we%20need%20to%20create%20a%20CloudWatch%20Event.%20The%20documentation%20describes%20them%20as%20follows%3a%0a%20%20Using%20simple%20rules%20that%20you%20can%20quickly%20set%20up%2c%20you%20can%20match%20events%20and%20route%20them%20to%20one%20or%20more%20target%20functions%20or%20streams...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

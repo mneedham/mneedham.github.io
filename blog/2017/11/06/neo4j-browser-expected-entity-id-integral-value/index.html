@@ -64,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-11-06",
-        "description": "unwind range(0,1000) AS id create (:Person {id: id}) :param ids: [0] match (p:Person) where p.id in {ids} return p ╒════════╕ │\x26quot;p\x26quot; │ ╞════════╡ │{\x26quot;id\x26quot;:0}│ └────────┘ match (p:Person) where id(p) in {ids} return p Neo.ClientError.Statement.TypeError Expected entity id to be an integral value match (p:Person) where id(p) in [id in {ids} | toInteger(id)] return p ╒════════╕ │\x26quot;p\x26quot; │ ╞════════╡ │{\x26quot;id\x26quot;:0}│ └────────┘ ",
-        "wordCount":  60 
+        "description": "I came across an interesting error while writing a Cypher query that used parameters in the Neo4j browser which I thought I should document for future me.\n We\x26#8217;ll start with a graph that has 1,000 people:\n unwind range(0,1000) AS id create (:Person {id: id})   Now we\x26#8217;ll try and retrieve some of those people via a parameter lookup:\n :param ids: [0]   match (p:Person) where p.",
+        "wordCount":  166 
     }
     </script>
     
@@ -178,41 +178,68 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j Browser: Expected entity id to be an integral value</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-unwind range(0,1000) AS id
-create (:Person {id: id})
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-:param ids: [0]
-</code></pre><pre><code class="language-cypher" data-lang="cypher">
-match (p:Person) where p.id in {ids}
+    <div class="paragraph">
+<p>I came across an interesting error while writing a Cypher query that used parameters in the Neo4j browser which I thought I should document for future me.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll start with a graph that has 1,000 people:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">unwind range(0,1000) AS id
+create (:Person {id: id})</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;ll try and retrieve some of those people via a parameter lookup:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">:param ids: [0]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">match (p:Person) where p.id in {ids}
 return p
 
 ╒════════╕
-│&quot;p&quot;     │
+│"p"     │
 ╞════════╡
-│{&quot;id&quot;:0}│
-└────────┘
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-match (p:Person) where id(p) in {ids}
+│{"id":0}│
+└────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All good so far. Now what about if we try and look them up by their internal node id instead:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">match (p:Person) where id(p) in {ids}
 return p
 
 Neo.ClientError.Statement.TypeError
-Expected entity id to be an integral value
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-match (p:Person) where id(p) in [id in {ids} | toInteger(id)]
+Expected entity id to be an integral value</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Hmm, that was unexpected. It turns out that to get this query to work we need to cast each of the integer values in the <cite>{ids}</cite> array to a 64 bit integer using the <cite>https://neo4j.com/docs/developer-manual/current/cypher/functions/scalar/#functions-tointeger<span class="toInteger"></cite></span> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">match (p:Person) where id(p) in [id in {ids} | toInteger(id)]
 return p
 
 ╒════════╕
-│&quot;p&quot;     │
+│"p"     │
 ╞════════╡
-│{&quot;id&quot;:0}│
-└────────┘
-</code></pre><!-- raw HTML omitted -->
+│{"id":0}│
+└────────┘</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Success!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -247,7 +274,7 @@ return p
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/11/06/neo4j-browser-expected-entity-id-integral-value/&amp;title=Neo4j%20Browser%3a%20Expected%20entity%20id%20to%20be%20an%20integral%20value&amp;summary=unwind%20range%280%2c1000%29%20AS%20id%20create%20%28%3aPerson%20%7bid%3a%20id%7d%29%20%3aparam%20ids%3a%20%5b0%5d%20match%20%28p%3aPerson%29%20where%20p.id%20in%20%7bids%7d%20return%20p%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bp%26quot%3b%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7b%26quot%3bid%26quot%3b%3a0%7d%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20match%20%28p%3aPerson%29%20where%20id%28p%29%20in%20%7bids%7d%20return%20p%20Neo.ClientError.Statement.TypeError%20Expected%20entity%20id%20to%20be%20an%20integral%20value%20match%20%28p%3aPerson%29%20where%20id%28p%29%20in%20%5bid%20in%20%7bids%7d%20%7c%20toInteger%28id%29%5d%20return%20p%20%e2%95%92%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%95%20%e2%94%82%26quot%3bp%26quot%3b%20%e2%94%82%20%e2%95%9e%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%90%e2%95%a1%20%e2%94%82%7b%26quot%3bid%26quot%3b%3a0%7d%e2%94%82%20%e2%94%94%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%80%e2%94%98%20..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/11/06/neo4j-browser-expected-entity-id-integral-value/&amp;title=Neo4j%20Browser%3a%20Expected%20entity%20id%20to%20be%20an%20integral%20value&amp;summary=I%20came%20across%20an%20interesting%20error%20while%20writing%20a%20Cypher%20query%20that%20used%20parameters%20in%20the%20Neo4j%20browser%20which%20I%20thought%20I%20should%20document%20for%20future%20me.%0a%20We%26%238217%3bll%20start%20with%20a%20graph%20that%20has%201%2c000%20people%3a%0a%20unwind%20range%280%2c1000%29%20AS%20id%20create%20%28%3aPerson%20%7bid%3a%20id%7d%29%20%20%20Now%20we%26%238217%3bll%20try%20and%20retrieve%20some%20of%20those%20people%20via%20a%20parameter%20lookup%3a%0a%20%3aparam%20ids%3a%20%5b0%5d%20%20%20match%20%28p%3aPerson%29%20where%20p...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,9 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Haskell: Finding the minimum &amp; maximum values of a Foldable in one pass" />
         
-          <meta name="twitter:description" content="I recently came across Dan Piponi&rsquo;s blog post &lsquo;Haskell Monoids &amp; their Uses&rsquo; and towards the end of the post he suggests creating monoids to work out the maximum and minimum values of a Foldable value in one pass.
-The foldMap function applies a function to each element of our structure and then accumulates the return values of each of these applications.
-A list is one example of a type which implements the Foldable type class like so:" />
+          <meta name="twitter:description" content="I recently came across Dan Piponi&#8217;s blog post &#39;http://blog.sigfpe.com/2009/01/haskell-monoids-and-their-uses.html[Haskell Monoids &amp; their Uses]&#39; and towards the end of the post he suggests creating monoids to work out the maximum and minimum values of a Foldable value in one pass.
+  The http://www.haskell.org/ghc/docs/6.12.2/html/libraries/base-4.2.0.1/Data-Foldable.html type class provides a generic approach to walking through a datastructure, accumulating values as we go. The foldMap function applies a function to each element of our structure and then accumulates the return values of each of these applications." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/05/28/haskell-finding-the-minimum-maximum-values-of-a-foldable-in-one-pass/" />
 
@@ -35,9 +34,8 @@ A list is one example of a type which implements the Foldable type class like so
         <title> Haskell: Finding the minimum &amp; maximum values of a Foldable in one pass &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I recently came across Dan Piponi&rsquo;s blog post &lsquo;Haskell Monoids &amp; their Uses&rsquo; and towards the end of the post he suggests creating monoids to work out the maximum and minimum values of a Foldable value in one pass.
-The foldMap function applies a function to each element of our structure and then accumulates the return values of each of these applications.
-A list is one example of a type which implements the Foldable type class like so:" />
+        <meta name="description" content="I recently came across Dan Piponi&#8217;s blog post &#39;http://blog.sigfpe.com/2009/01/haskell-monoids-and-their-uses.html[Haskell Monoids &amp; their Uses]&#39; and towards the end of the post he suggests creating monoids to work out the maximum and minimum values of a Foldable value in one pass.
+  The http://www.haskell.org/ghc/docs/6.12.2/html/libraries/base-4.2.0.1/Data-Foldable.html type class provides a generic approach to walking through a datastructure, accumulating values as we go. The foldMap function applies a function to each element of our structure and then accumulates the return values of each of these applications." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +64,8 @@ A list is one example of a type which implements the Foldable type class like so
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-05-28",
-        "description": "I recently came across Dan Piponi\x26rsquo;s blog post \x26lsquo;Haskell Monoids \x26amp; their Uses\x26rsquo; and towards the end of the post he suggests creating monoids to work out the maximum and minimum values of a Foldable value in one pass.\nThe foldMap function applies a function to each element of our structure and then accumulates the return values of each of these applications.\nA list is one example of a type which implements the Foldable type class like so:",
-        "wordCount":  638 
+        "description": "I recently came across Dan Piponi\x26#8217;s blog post \x27http:\/\/blog.sigfpe.com\/2009\/01\/haskell-monoids-and-their-uses.html[Haskell Monoids \x26amp; their Uses]\x27 and towards the end of the post he suggests creating monoids to work out the maximum and minimum values of a Foldable value in one pass.\n  The http:\/\/www.haskell.org\/ghc\/docs\/6.12.2\/html\/libraries\/base-4.2.0.1\/Data-Foldable.html type class provides a generic approach to walking through a datastructure, accumulating values as we go. The foldMap function applies a function to each element of our structure and then accumulates the return values of each of these applications.",
+        "wordCount":  656 
     }
     </script>
     
@@ -176,75 +174,146 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Haskell: Finding the minimum &amp; maximum values of a Foldable in one pass</h1>
-    <p>I recently came across Dan Piponi&rsquo;s blog post &lsquo;<!-- raw HTML omitted -->Haskell Monoids &amp; their Uses<!-- raw HTML omitted -->&rsquo; and towards the end of the post he suggests creating monoids to work out the maximum and minimum values of a Foldable value in one pass.</p>
-<!-- raw HTML omitted -->
-<p>The foldMap function applies a function to each element of our structure and then accumulates the return values of each of these applications.</p>
-<!-- raw HTML omitted -->
+    <div class="paragraph">
+<p>I recently came across Dan Piponi&#8217;s blog post 'http://blog.sigfpe.com/2009/01/haskell-monoids-and-their-uses.html[Haskell Monoids &amp; their Uses]' and towards the end of the post he suggests creating monoids to work out the maximum and minimum values of a Foldable value in one pass.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>The <cite>http://www.haskell.org/ghc/docs/6.12.2/html/libraries/base-4.2.0.1/Data-Foldable.html<span class="Foldable"></cite></span> type class provides a generic approach to walking through a datastructure, accumulating values as we go. The foldMap function applies a function to each element of our structure and then accumulates the return values of each of these applications.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
 <p>A list is one example of a type which implements the Foldable type class like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Foldable</span> <span style="color:#66d9ef">[]</span> <span style="color:#66d9ef">where</span>
-    foldr <span style="color:#f92672">=</span> <span style="color:#66d9ef">Prelude</span><span style="color:#f92672">.</span>foldr
-    foldl <span style="color:#f92672">=</span> <span style="color:#66d9ef">Prelude</span><span style="color:#f92672">.</span>foldl
-    foldl&#39; <span style="color:#f92672">=</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">.</span>foldl&#39;
-    foldr1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">Prelude</span><span style="color:#f92672">.</span>foldr1
-    foldl1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">Prelude</span><span style="color:#f92672">.</span>foldl1
-</code></pre></div><p>In this case it delegates all of the Foldable functions to previously defined functions from the Prelude or List modules.</p>
-<p>The &lsquo;foldMap&rsquo; function mentioned above has the following default implementation:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">foldMap</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Monoid</span> m <span style="color:#f92672">=&gt;</span> (a <span style="color:#f92672">-&gt;</span> m) <span style="color:#f92672">-&gt;</span> t a <span style="color:#f92672">-&gt;</span> m
-<span style="color:#a6e22e">foldMap</span> f <span style="color:#f92672">=</span> foldr (mappend <span style="color:#f92672">.</span> f) mempty
-</code></pre></div><p>Dan shows an example where we use &lsquo;foldMap&rsquo; to check whether any values in a Foldable have the value 1 by using the &lsquo;Any&rsquo; monoid:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> foldMap (<span style="color:#66d9ef">Any</span> <span style="color:#f92672">.</span> (<span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>)) [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">20</span>]
-<span style="color:#66d9ef">Any</span> {getAny <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>}
-</code></pre></div><p>I couldn&rsquo;t quite understand how it worked so I expanded the &lsquo;foldMap&rsquo; definition which results in the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">Data</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Foldable</span><span style="color:#f92672">.</span>foldr (<span style="color:#a6e22e">\</span>x acc <span style="color:#f92672">-&gt;</span> acc `mappend` (<span style="color:#66d9ef">Any</span> <span style="color:#f92672">.</span> (<span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>)) x) mempty [<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">20</span>]
-<span style="color:#66d9ef">Any</span> {getAny <span style="color:#f92672">=</span> <span style="color:#66d9ef">True</span>}
-</code></pre></div><p>So we&rsquo;re folding over the list with an initial seed value of &lsquo;Any False&rsquo; as that&rsquo;s what mempty will evaluate to. For each value we&rsquo;re then calling &lsquo;mappend&rsquo; with two &lsquo;Any&rsquo; values and passing on the result.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">instance Foldable [] where
+    foldr = Prelude.foldr
+    foldl = Prelude.foldl
+    foldl' = List.foldl'
+    foldr1 = Prelude.foldr1
+    foldl1 = Prelude.foldl1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case it delegates all of the Foldable functions to previously defined functions from the Prelude or List modules.</p>
+</div>
+<div class="paragraph">
+<p>The 'foldMap' function mentioned above has the following default implementation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">foldMap :: Monoid m =&gt; (a -&gt; m) -&gt; t a -&gt; m
+foldMap f = foldr (mappend . f) mempty</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Dan shows an example where we use 'foldMap' to check whether any values in a Foldable have the value 1 by using the 'Any' monoid:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; foldMap (Any . (== 1)) [1..20]
+Any {getAny = True}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I couldn&#8217;t quite understand how it worked so I expanded the 'foldMap' definition which results in the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; Data.Foldable.foldr (\x acc -&gt; acc `mappend` (Any . (== 1)) x) mempty [1..20]
+Any {getAny = True}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So we&#8217;re folding over the list with an initial seed value of 'Any False' as that&#8217;s what mempty will evaluate to. For each value we&#8217;re then calling 'mappend' with two 'Any' values and passing on the result.</p>
+</div>
+<div class="paragraph">
 <p>So in this example it would go like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span> `mappend` (<span style="color:#66d9ef">Any</span> <span style="color:#f92672">.</span> (<span style="color:#f92672">==</span><span style="color:#ae81ff">1</span>)) <span style="color:#ae81ff">20</span> <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span> `mappend` <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span> <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span>
-<span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span> `mappend` (<span style="color:#66d9ef">Any</span> <span style="color:#f92672">.</span> (<span style="color:#f92672">==</span><span style="color:#ae81ff">1</span>)) <span style="color:#ae81ff">19</span> <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span> `mappend` <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span> <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span>
-<span style="color:#f92672">...</span>
-<span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span> `mappend` (<span style="color:#66d9ef">Any</span> <span style="color:#f92672">.</span> (<span style="color:#f92672">==</span><span style="color:#ae81ff">1</span>)) <span style="color:#ae81ff">1</span> <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">False</span> `mappend` <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">True</span> <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Any</span> <span style="color:#66d9ef">True</span>
-</code></pre></div><p>In our case we need to define our own monoids to keep track of the maximum value in a Foldable:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">import</span> Data.Monoid
-<span style="color:#66d9ef">import</span> Data.Foldable
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">Any False `mappend` (Any . (==1)) 20 =&gt; Any False `mappend` Any False =&gt; Any False
+Any False `mappend` (Any . (==1)) 19 =&gt; Any False `mappend` Any False =&gt; Any False
+...
+Any False `mappend` (Any . (==1)) 1 =&gt; Any False `mappend` Any True =&gt; Any True</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our case we need to define our own monoids to keep track of the maximum value in a Foldable:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">import Data.Monoid
+import Data.Foldable
 
-<span style="color:#66d9ef">data</span> <span style="color:#66d9ef">MaxSoFar</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">MaxSoFar</span> { getMaxSoFar <span style="color:#f92672">::</span> a } <span style="color:#66d9ef">deriving</span> (<span style="color:#66d9ef">Eq</span>, <span style="color:#66d9ef">Ord</span>, <span style="color:#66d9ef">Read</span>, <span style="color:#66d9ef">Show</span>, <span style="color:#66d9ef">Bounded</span>)
-<span style="color:#66d9ef">instance</span> (<span style="color:#66d9ef">Num</span> a,  <span style="color:#66d9ef">Ord</span> a, <span style="color:#66d9ef">Bounded</span> a) <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Monoid</span> (<span style="color:#66d9ef">MaxSoFar</span> a) <span style="color:#66d9ef">where</span>
-  mempty <span style="color:#f92672">=</span> <span style="color:#66d9ef">MaxSoFar</span> (minBound)
-  <span style="color:#66d9ef">MaxSoFar</span> x `mappend` <span style="color:#66d9ef">MaxSoFar</span> y <span style="color:#f92672">=</span> <span style="color:#66d9ef">MaxSoFar</span> (max x y)
-</code></pre></div><p>We set &lsquo;mempty&rsquo; to the minimum possible Int value so that anything Int value compared to it will automatically become the max value when it gets compared to that.</p>
-<p>For &lsquo;mappend&rsquo; we take the values stored in the two &lsquo;MaxSoFar&rsquo; instances and then select the maximum and return a new MaxSoFar.</p>
+data MaxSoFar a = MaxSoFar { getMaxSoFar :: a } deriving (Eq, Ord, Read, Show, Bounded)
+instance (Num a,  Ord a, Bounded a) =&gt; Monoid (MaxSoFar a) where
+  mempty = MaxSoFar (minBound)
+  MaxSoFar x `mappend` MaxSoFar y = MaxSoFar (max x y)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We set 'mempty' to the minimum possible Int value so that anything Int value compared to it will automatically become the max value when it gets compared to that.</p>
+</div>
+<div class="paragraph">
+<p>For 'mappend' we take the values stored in the two 'MaxSoFar' instances and then select the maximum and return a new MaxSoFar.</p>
+</div>
+<div class="paragraph">
 <p>We call foldMap like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> foldMap (<span style="color:#66d9ef">MaxSoFar</span>) ([<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">20</span>] <span style="color:#f92672">::</span> [<span style="color:#66d9ef">Int</span>])
-<span style="color:#66d9ef">MaxSoFar</span> {getMaxSoFar <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>}
-</code></pre></div><p>MinSoFar is pretty similar in design:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">data</span> <span style="color:#66d9ef">MinSoFar</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">MinSoFar</span> { getMinSoFar <span style="color:#f92672">::</span> a } <span style="color:#66d9ef">deriving</span> (<span style="color:#66d9ef">Eq</span>, <span style="color:#66d9ef">Ord</span>, <span style="color:#66d9ef">Read</span>, <span style="color:#66d9ef">Show</span>, <span style="color:#66d9ef">Bounded</span>)
-<span style="color:#66d9ef">instance</span> (<span style="color:#66d9ef">Num</span> a,  <span style="color:#66d9ef">Ord</span> a, <span style="color:#66d9ef">Bounded</span> a) <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Monoid</span> (<span style="color:#66d9ef">MinSoFar</span> a) <span style="color:#66d9ef">where</span>
-  mempty <span style="color:#f92672">=</span> <span style="color:#66d9ef">MinSoFar</span> maxBound
-  <span style="color:#66d9ef">MinSoFar</span> x `mappend` <span style="color:#66d9ef">MinSoFar</span> y <span style="color:#f92672">=</span> <span style="color:#66d9ef">MinSoFar</span> (min x y) 
-</code></pre></div><p>And we can then combine them together like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> foldMap (<span style="color:#a6e22e">\</span>x <span style="color:#f92672">-&gt;</span> (<span style="color:#66d9ef">MaxSoFar</span> x, <span style="color:#66d9ef">MinSoFar</span> x)) ([<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">20</span>] <span style="color:#f92672">::</span> [<span style="color:#66d9ef">Int</span>])
-(<span style="color:#66d9ef">MaxSoFar</span> {getMaxSoFar <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>},<span style="color:#66d9ef">MinSoFar</span> {getMinSoFar <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>})
-</code></pre></div><p>This works because we can make use of what Dan calls the &lsquo;Product Monoid&rsquo;, which is a Monoid instance for a tuple:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">instance</span> (<span style="color:#66d9ef">Monoid</span> a, <span style="color:#66d9ef">Monoid</span> b) <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Monoid</span> (a,b) <span style="color:#66d9ef">where</span>
-  mempty <span style="color:#f92672">=</span> (mempty, mempty)
-  (a1,b1) `mappend` (a2,b2) <span style="color:#f92672">=</span> (a1 `mappend` a2, b1 `mappend` b2)
-</code></pre></div><p>So in our example the fold would go like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-(<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">9223372036854775808</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">9223372036854775807</span>) `mappend` (<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#ae81ff">20</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">20</span>) <span style="color:#f92672">=&gt;</span> (<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#ae81ff">20</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">20</span>)
-(<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#ae81ff">20</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">20</span>) `mappend` (<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#ae81ff">19</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">19</span>) <span style="color:#f92672">=&gt;</span> (<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#ae81ff">20</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">19</span>)
-<span style="color:#f92672">...</span>
-(<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#ae81ff">20</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">2</span>) `mappend` (<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#ae81ff">1</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">=&gt;</span> (<span style="color:#66d9ef">MaxSoFar</span> <span style="color:#ae81ff">20</span>, <span style="color:#66d9ef">MinSoFar</span> <span style="color:#ae81ff">1</span>)
-</code></pre></div><p>We could probably achieve the same thing without using monoids but I think this approach is pretty neat.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; foldMap (MaxSoFar) ([1..20] :: [Int])
+MaxSoFar {getMaxSoFar = 20}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>MinSoFar is pretty similar in design:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">data MinSoFar a = MinSoFar { getMinSoFar :: a } deriving (Eq, Ord, Read, Show, Bounded)
+instance (Num a,  Ord a, Bounded a) =&gt; Monoid (MinSoFar a) where
+  mempty = MinSoFar maxBound
+  MinSoFar x `mappend` MinSoFar y = MinSoFar (min x y)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And we can then combine them together like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; foldMap (\x -&gt; (MaxSoFar x, MinSoFar x)) ([1..20] :: [Int])
+(MaxSoFar {getMaxSoFar = 20},MinSoFar {getMinSoFar = 1})</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This works because we can make use of what Dan calls the 'Product Monoid', which is a Monoid instance for a tuple:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">instance (Monoid a, Monoid b) =&gt; Monoid (a,b) where
+  mempty = (mempty, mempty)
+  (a1,b1) `mappend` (a2,b2) = (a1 `mappend` a2, b1 `mappend` b2)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So in our example the fold would go like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">(MaxSoFar -9223372036854775808, MinSoFar 9223372036854775807) `mappend` (MaxSoFar 20, MinSoFar 20) =&gt; (MaxSoFar 20, MinSoFar 20)
+(MaxSoFar 20, MinSoFar 20) `mappend` (MaxSoFar 19, MinSoFar 19) =&gt; (MaxSoFar 20, MinSoFar 19)
+...
+(MaxSoFar 20, MinSoFar 2) `mappend` (MaxSoFar 1, MinSoFar 1) =&gt; (MaxSoFar 20, MinSoFar 1)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We could probably achieve the same thing without using monoids but I think this approach is pretty neat.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -279,7 +348,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/05/28/haskell-finding-the-minimum-maximum-values-of-a-foldable-in-one-pass/&amp;title=Haskell%3a%20Finding%20the%20minimum%20%26%20maximum%20values%20of%20a%20Foldable%20in%20one%20pass&amp;summary=I%20recently%20came%20across%20Dan%20Piponi%26rsquo%3bs%20blog%20post%20%26lsquo%3bHaskell%20Monoids%20%26amp%3b%20their%20Uses%26rsquo%3b%20and%20towards%20the%20end%20of%20the%20post%20he%20suggests%20creating%20monoids%20to%20work%20out%20the%20maximum%20and%20minimum%20values%20of%20a%20Foldable%20value%20in%20one%20pass.%0aThe%20foldMap%20function%20applies%20a%20function%20to%20each%20element%20of%20our%20structure%20and%20then%20accumulates%20the%20return%20values%20of%20each%20of%20these%20applications.%0aA%20list%20is%20one%20example%20of%20a%20type%20which%20implements%20the%20Foldable%20type%20class%20like%20so%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/05/28/haskell-finding-the-minimum-maximum-values-of-a-foldable-in-one-pass/&amp;title=Haskell%3a%20Finding%20the%20minimum%20%26%20maximum%20values%20of%20a%20Foldable%20in%20one%20pass&amp;summary=I%20recently%20came%20across%20Dan%20Piponi%26%238217%3bs%20blog%20post%20%27http%3a%2f%2fblog.sigfpe.com%2f2009%2f01%2fhaskell-monoids-and-their-uses.html%5bHaskell%20Monoids%20%26amp%3b%20their%20Uses%5d%27%20and%20towards%20the%20end%20of%20the%20post%20he%20suggests%20creating%20monoids%20to%20work%20out%20the%20maximum%20and%20minimum%20values%20of%20a%20Foldable%20value%20in%20one%20pass.%0a%20%20The%20http%3a%2f%2fwww.haskell.org%2fghc%2fdocs%2f6.12.2%2fhtml%2flibraries%2fbase-4.2.0.1%2fData-Foldable.html%20type%20class%20provides%20a%20generic%20approach%20to%20walking%20through%20a%20datastructure%2c%20accumulating%20values%20as%20we%20go.%20The%20foldMap%20function%20applies%20a%20function%20to%20each%20element%20of%20our%20structure%20and%20then%20accumulates%20the%20return%20values%20of%20each%20of%20these%20applications...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

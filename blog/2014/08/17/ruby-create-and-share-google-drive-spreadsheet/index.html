@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Ruby: Create and share Google Drive Spreadsheet" />
         
-          <meta name="twitter:description" content="require &#39;sinatra&#39; require &#39;json&#39; require &#34;google_drive&#34; require &#39;google/api_client&#39; CLIENT_ID = &#39;my client id&#39; CLIENT_SECRET = &#39;my client secret&#39; OAUTH_SCOPE = &#39;https://www.googleapis.com/auth/drive https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/&#39; REDIRECT_URI = &#39;http://localhost:9393/oauth2callback&#39; helpers do def partial (template, locals = {}) haml(template, :layout =&gt; false, :locals =&gt; locals) end end enable :sessions get &#39;/&#39; do haml :index end configure do google_client = Google::APIClient.new google_client.authorization.client_id = CLIENT_ID google_client.authorization.client_secret = CLIENT_SECRET google_client.authorization.scope = OAUTH_SCOPE google_client.authorization.redirect_uri = REDIRECT_URI set :google_client, google_client set :google_client_driver, google_client." />
+          <meta name="twitter:description" content="Over the weekend I&#8217;ve been trying to write some code to help me create and share a Google Drive spreadsheet and for the first bit Ihttp://www.markhneedham.com/blog/2014/08/17/ruby-google-drive-errorbadauthentication-googledriveauthenticationerror-infoinvalidsecondfactor/[started out with the Google Drive gem].
+ This worked reasonably well but that gem doesn&#8217;t have an API for changing the permissions on a document so I ended up using the google-api-client gem for that bit.
+ This tutorial provides a good quick start for getting up and running but it still has a manual step to copy/paste the &#39;OAuth token&#39; which I wanted to get rid of." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/08/17/ruby-create-and-share-google-drive-spreadsheet/" />
 
@@ -33,7 +35,9 @@
         <title> Ruby: Create and share Google Drive Spreadsheet &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="require &#39;sinatra&#39; require &#39;json&#39; require &#34;google_drive&#34; require &#39;google/api_client&#39; CLIENT_ID = &#39;my client id&#39; CLIENT_SECRET = &#39;my client secret&#39; OAUTH_SCOPE = &#39;https://www.googleapis.com/auth/drive https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/&#39; REDIRECT_URI = &#39;http://localhost:9393/oauth2callback&#39; helpers do def partial (template, locals = {}) haml(template, :layout =&gt; false, :locals =&gt; locals) end end enable :sessions get &#39;/&#39; do haml :index end configure do google_client = Google::APIClient.new google_client.authorization.client_id = CLIENT_ID google_client.authorization.client_secret = CLIENT_SECRET google_client.authorization.scope = OAUTH_SCOPE google_client.authorization.redirect_uri = REDIRECT_URI set :google_client, google_client set :google_client_driver, google_client." />
+        <meta name="description" content="Over the weekend I&#8217;ve been trying to write some code to help me create and share a Google Drive spreadsheet and for the first bit Ihttp://www.markhneedham.com/blog/2014/08/17/ruby-google-drive-errorbadauthentication-googledriveauthenticationerror-infoinvalidsecondfactor/[started out with the Google Drive gem].
+ This worked reasonably well but that gem doesn&#8217;t have an API for changing the permissions on a document so I ended up using the google-api-client gem for that bit.
+ This tutorial provides a good quick start for getting up and running but it still has a manual step to copy/paste the &#39;OAuth token&#39; which I wanted to get rid of." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-08-17",
-        "description": "require \x26#39;sinatra\x26#39; require \x26#39;json\x26#39; require \x26#34;google_drive\x26#34; require \x26#39;google\/api_client\x26#39; CLIENT_ID = \x26#39;my client id\x26#39; CLIENT_SECRET = \x26#39;my client secret\x26#39; OAUTH_SCOPE = \x26#39;https:\/\/www.googleapis.com\/auth\/drive https:\/\/docs.google.com\/feeds\/ https:\/\/docs.googleusercontent.com\/ https:\/\/spreadsheets.google.com\/feeds\/\x26#39; REDIRECT_URI = \x26#39;http:\/\/localhost:9393\/oauth2callback\x26#39; helpers do def partial (template, locals = {}) haml(template, :layout =\x26gt; false, :locals =\x26gt; locals) end end enable :sessions get \x26#39;\/\x26#39; do haml :index end configure do google_client = Google::APIClient.new google_client.authorization.client_id = CLIENT_ID google_client.authorization.client_secret = CLIENT_SECRET google_client.authorization.scope = OAUTH_SCOPE google_client.authorization.redirect_uri = REDIRECT_URI set :google_client, google_client set :google_client_driver, google_client.",
-        "wordCount":  263 
+        "description": "Over the weekend I\x26#8217;ve been trying to write some code to help me create and share a Google Drive spreadsheet and for the first bit Ihttp:\/\/www.markhneedham.com\/blog\/2014\/08\/17\/ruby-google-drive-errorbadauthentication-googledriveauthenticationerror-infoinvalidsecondfactor\/[started out with the Google Drive gem].\n This worked reasonably well but that gem doesn\x26#8217;t have an API for changing the permissions on a document so I ended up using the google-api-client gem for that bit.\n This tutorial provides a good quick start for getting up and running but it still has a manual step to copy\/paste the \x27OAuth token\x27 which I wanted to get rid of.",
+        "wordCount":  683 
     }
     </script>
     
@@ -172,72 +176,101 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Ruby: Create and share Google Drive Spreadsheet</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-require <span style="color:#e6db74">&#39;sinatra&#39;</span>
-require <span style="color:#e6db74">&#39;json&#39;</span>
-require <span style="color:#e6db74">&#34;google_drive&#34;</span>
-require <span style="color:#e6db74">&#39;google/api_client&#39;</span>
+    <div class="paragraph">
+<p>Over the weekend I&#8217;ve been trying to write some code to help me create and share a Google Drive spreadsheet and for the first bit Ihttp://www.markhneedham.com/blog/2014/08/17/ruby-google-drive-errorbadauthentication-googledriveauthenticationerror-infoinvalidsecondfactor/[started out with the Google Drive gem].</p>
+</div>
+<div class="paragraph">
+<p>This worked reasonably well but that gem doesn&#8217;t have an API for changing the permissions on a document so I ended up using the <a href="https://github.com/google/google-api-ruby-client">google-api-client</a> gem for that bit.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://developers.google.com/drive/web/quickstart/quickstart-ruby">This tutorial</a> provides a good quick start for getting up and running but it still has a manual step to copy/paste the 'OAuth token' which I wanted to get rid of.</p>
+</div>
+<div class="paragraph">
+<p>The first step is to create a project via the <a href="https://console.developers.google.com/project">Google Developers Console</a>. Once the project is created, click through to it and then click on 'credentials' on the left menu. Click on the "Create new Client ID" button to create the project credentials.</p>
+</div>
+<div class="paragraph">
+<p>You should see something like this on the right hand side of the screen:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/08/2014-08-17_16-29-39.png" alt="2014 08 17 16 29 39" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>These are the credentials that we&#8217;ll use in our code.</p>
+</div>
+<div class="paragraph">
+<p>Since I now have two libraries I need to satisfy the OAuth credentials for both, preferably without getting the user to go through the process twice.</p>
+</div>
+<div class="paragraph">
+<p>After a bit of trial and error I realised that it was easier to get the google-api-client to handle authentication and just pass in the token to the google-drive code.</p>
+</div>
+<div class="paragraph">
+<p>I wrote the following code using Sinatra to handle the OAuth authorisation with Google:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">require 'sinatra'
+require 'json'
+require "google_drive"
+require 'google/api_client'
 
-<span style="color:#66d9ef">CLIENT_ID</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;my client id&#39;</span>
-<span style="color:#66d9ef">CLIENT_SECRET</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;my client secret&#39;</span>
-<span style="color:#66d9ef">OAUTH_SCOPE</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;https://www.googleapis.com/auth/drive https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/&#39;</span>
-<span style="color:#66d9ef">REDIRECT_URI</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;http://localhost:9393/oauth2callback&#39;</span>
+CLIENT_ID = 'my client id'
+CLIENT_SECRET = 'my client secret'
+OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive https://docs.google.com/feeds/ https://docs.googleusercontent.com/ https://spreadsheets.google.com/feeds/'
+REDIRECT_URI = 'http://localhost:9393/oauth2callback'
 
-helpers <span style="color:#66d9ef">do</span>
-  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">partial</span> (template, locals <span style="color:#f92672">=</span> {})
-    haml(template, <span style="color:#e6db74">:layout</span> <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">false</span>, <span style="color:#e6db74">:locals</span> <span style="color:#f92672">=&gt;</span> locals)
-  <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
+helpers do
+  def partial (template, locals = {})
+    haml(template, :layout =&gt; false, :locals =&gt; locals)
+  end
+end
 
-enable <span style="color:#e6db74">:sessions</span>
+enable :sessions
 
-get <span style="color:#e6db74">&#39;/&#39;</span> <span style="color:#66d9ef">do</span>
-  haml <span style="color:#e6db74">:index</span>
-<span style="color:#66d9ef">end</span>
+get '/' do
+  haml :index
+end
 
-configure <span style="color:#66d9ef">do</span>
-  google_client <span style="color:#f92672">=</span> <span style="color:#66d9ef">Google</span><span style="color:#f92672">::</span><span style="color:#66d9ef">APIClient</span><span style="color:#f92672">.</span>new
-  google_client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>client_id <span style="color:#f92672">=</span> <span style="color:#66d9ef">CLIENT_ID</span>
-  google_client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>client_secret <span style="color:#f92672">=</span> <span style="color:#66d9ef">CLIENT_SECRET</span>
-  google_client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>scope <span style="color:#f92672">=</span> <span style="color:#66d9ef">OAUTH_SCOPE</span>
-  google_client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>redirect_uri <span style="color:#f92672">=</span> <span style="color:#66d9ef">REDIRECT_URI</span>
+configure do
+  google_client = Google::APIClient.new
+  google_client.authorization.client_id = CLIENT_ID
+  google_client.authorization.client_secret = CLIENT_SECRET
+  google_client.authorization.scope = OAUTH_SCOPE
+  google_client.authorization.redirect_uri = REDIRECT_URI
 
-  set <span style="color:#e6db74">:google_client</span>, google_client
-  set <span style="color:#e6db74">:google_client_driver</span>, google_client<span style="color:#f92672">.</span>discovered_api(<span style="color:#e6db74">&#39;drive&#39;</span>, <span style="color:#e6db74">&#39;v2&#39;</span>)
-<span style="color:#66d9ef">end</span>
+  set :google_client, google_client
+  set :google_client_driver, google_client.discovered_api('drive', 'v2')
+end
 
 
-post <span style="color:#e6db74">&#39;/login/&#39;</span> <span style="color:#66d9ef">do</span>
-  client <span style="color:#f92672">=</span> settings<span style="color:#f92672">.</span>google_client
-  redirect client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>authorization_uri
-<span style="color:#66d9ef">end</span>
+post '/login/' do
+  client = settings.google_client
+  redirect client.authorization.authorization_uri
+end
 
-get <span style="color:#e6db74">&#39;/oauth2callback&#39;</span> <span style="color:#66d9ef">do</span>
-  authorization_code <span style="color:#f92672">=</span> params<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;code&#39;</span><span style="color:#f92672">]</span>
+get '/oauth2callback' do
+  authorization_code = params['code']
 
-  client <span style="color:#f92672">=</span> settings<span style="color:#f92672">.</span>google_client
-  client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>code <span style="color:#f92672">=</span> authorization_code
-  client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>fetch_access_token!
+  client = settings.google_client
+  client.authorization.code = authorization_code
+  client.authorization.fetch_access_token!
 
-  oauth_token <span style="color:#f92672">=</span> client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>access_token
+  oauth_token = client.authorization.access_token
 
-  session<span style="color:#f92672">[</span><span style="color:#e6db74">:oauth_token</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> oauth_token
+  session[:oauth_token] = oauth_token
 
-  redirect <span style="color:#e6db74">&#39;/&#39;</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-haml" data-lang="haml">
-%html
+  redirect '/'
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And this is the code for the index page:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haml" data-lang="haml">%html
   %head
     %title Google Docs Spreadsheet
   %body
@@ -247,57 +280,73 @@ get <span style="color:#e6db74">&#39;/oauth2callback&#39;</span> <span style="co
 
       %div
         - unless session['oauth_token']
-          %form{:name =&gt; &quot;spreadsheet&quot;, :id =&gt; &quot;spreadsheet&quot;, :action =&gt; &quot;/login/&quot;, :method =&gt; &quot;post&quot;, :enctype =&gt; &quot;text/plain&quot;}
-            %input{:type =&gt; &quot;submit&quot;, :value =&gt; &quot;Authorise Google Account&quot;, :class =&gt; &quot;button&quot;}
+          %form{:name =&gt; "spreadsheet", :id =&gt; "spreadsheet", :action =&gt; "/login/", :method =&gt; "post", :enctype =&gt; "text/plain"}
+            %input{:type =&gt; "submit", :value =&gt; "Authorise Google Account", :class =&gt; "button"}
         - else
-          %form{:name =&gt; &quot;spreadsheet&quot;, :id =&gt; &quot;spreadsheet&quot;, :action =&gt; &quot;/spreadsheet/&quot;, :method =&gt; &quot;post&quot;, :enctype =&gt; &quot;text/plain&quot;}
-            %input{:type =&gt; &quot;submit&quot;, :value =&gt; &quot;Create Spreadsheet&quot;, :class =&gt; &quot;button&quot;}
+          %form{:name =&gt; "spreadsheet", :id =&gt; "spreadsheet", :action =&gt; "/spreadsheet/", :method =&gt; "post", :enctype =&gt; "text/plain"}
+            %input{:type =&gt; "submit", :value =&gt; "Create Spreadsheet", :class =&gt; "button"}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We initialise the Google API client inside the 'configure' block before each request gets handled and then from '/' the user can click a button which does a POST request to '/login/'.</p>
+</div>
+<div class="paragraph">
+<p>'/login/' redirects us to the OAuth authorisation URI where we select the Google account we want to use and login if necessary. We&#8217;ll then get redirected back to '/oauth2callback' where we extract the authorisation code and then get an authorisation token.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll store that token in the session so that we can use it later on.</p>
+</div>
+<div class="paragraph">
+<p>Now we need to create the spreadsheet and share that document with someone else:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">post '/spreadsheet/' do
+  client = settings.google_client
+  if session[:oauth_token]
+    client.authorization.access_token = session[:oauth_token]
+  end
 
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-post <span style="color:#e6db74">&#39;/spreadsheet/&#39;</span> <span style="color:#66d9ef">do</span>
-  client <span style="color:#f92672">=</span> settings<span style="color:#f92672">.</span>google_client
-  <span style="color:#66d9ef">if</span> session<span style="color:#f92672">[</span><span style="color:#e6db74">:oauth_token</span><span style="color:#f92672">]</span>
-    client<span style="color:#f92672">.</span>authorization<span style="color:#f92672">.</span>access_token <span style="color:#f92672">=</span> session<span style="color:#f92672">[</span><span style="color:#e6db74">:oauth_token</span><span style="color:#f92672">]</span>
-  <span style="color:#66d9ef">end</span>
+  google_drive_session = GoogleDrive.login_with_oauth(session[:oauth_token])
 
-  google_drive_session <span style="color:#f92672">=</span> <span style="color:#66d9ef">GoogleDrive</span><span style="color:#f92672">.</span>login_with_oauth(session<span style="color:#f92672">[</span><span style="color:#e6db74">:oauth_token</span><span style="color:#f92672">]</span>)
+  spreadsheet = google_drive_session.create_spreadsheet(title = "foobar")
+  ws = spreadsheet.worksheets[0]
 
-  spreadsheet <span style="color:#f92672">=</span> google_drive_session<span style="color:#f92672">.</span>create_spreadsheet(title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;foobar&#34;</span>)
-  ws <span style="color:#f92672">=</span> spreadsheet<span style="color:#f92672">.</span>worksheets<span style="color:#f92672">[</span><span style="color:#ae81ff">0</span><span style="color:#f92672">]</span>
+  ws[2, 1] = "foo"
+  ws[2, 2] = "bar"
+  ws.save()
 
-  ws<span style="color:#f92672">[</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;foo&#34;</span>
-  ws<span style="color:#f92672">[</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">2</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;bar&#34;</span>
-  ws<span style="color:#f92672">.</span>save()
+  file_id = ws.worksheet_feed_url.split("/")[-4]
 
-  file_id <span style="color:#f92672">=</span> ws<span style="color:#f92672">.</span>worksheet_feed_url<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;/&#34;</span>)<span style="color:#f92672">[-</span><span style="color:#ae81ff">4</span><span style="color:#f92672">]</span>
+  drive = settings.google_client_driver
 
-  drive <span style="color:#f92672">=</span> settings<span style="color:#f92672">.</span>google_client_driver
-
-  new_permission <span style="color:#f92672">=</span> drive<span style="color:#f92672">.</span>permissions<span style="color:#f92672">.</span>insert<span style="color:#f92672">.</span>request_schema<span style="color:#f92672">.</span>new({
-      <span style="color:#e6db74">&#39;value&#39;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;some_other_email@gmail.com&#34;</span>,
-      <span style="color:#e6db74">&#39;type&#39;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;user&#34;</span>,
-      <span style="color:#e6db74">&#39;role&#39;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;reader&#34;</span>
+  new_permission = drive.permissions.insert.request_schema.new({
+      'value' =&gt; "some_other_email@gmail.com",
+      'type' =&gt; "user",
+      'role' =&gt; "reader"
   })
 
-  result <span style="color:#f92672">=</span> client<span style="color:#f92672">.</span>execute(
-    <span style="color:#e6db74">:api_method</span> <span style="color:#f92672">=&gt;</span> drive<span style="color:#f92672">.</span>permissions<span style="color:#f92672">.</span>insert,
-    <span style="color:#e6db74">:body_object</span> <span style="color:#f92672">=&gt;</span> new_permission,
-    <span style="color:#e6db74">:parameters</span> <span style="color:#f92672">=&gt;</span> { <span style="color:#e6db74">&#39;fileId&#39;</span> <span style="color:#f92672">=&gt;</span> file_id })
+  result = client.execute(
+    :api_method =&gt; drive.permissions.insert,
+    :body_object =&gt; new_permission,
+    :parameters =&gt; { 'fileId' =&gt; file_id })
 
-  <span style="color:#66d9ef">if</span> result<span style="color:#f92672">.</span>status <span style="color:#f92672">==</span> <span style="color:#ae81ff">200</span>
-    p result<span style="color:#f92672">.</span>data
-  <span style="color:#66d9ef">else</span>
-    puts <span style="color:#e6db74">&#34;An error occurred: </span><span style="color:#e6db74">#{</span>result<span style="color:#f92672">.</span>data<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;error&#39;</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#39;message&#39;</span><span style="color:#f92672">]</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
-  <span style="color:#66d9ef">end</span>
+  if result.status == 200
+    p result.data
+  else
+    puts "An error occurred: #{result.data['error']['message']}"
+  end
 
-  <span style="color:#e6db74">&#34;spreadsheet created and shared&#34;</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+  "spreadsheet created and shared"
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we create a spreadsheet with some arbitrary values using the google-drive gem before <a href="https://developers.google.com/drive/v2/reference/permissions/insert">granting permission</a> to a different email address than the one which owns it. I&#8217;ve given that other user read permission on the document.</p>
+</div>
+<div class="paragraph">
+<p>One other thing to keep in mind is which 'scopes' the OAuth authentication is for. If you authenticate for one URI and then try to do something against another one you&#8217;ll get a 'http://geoffmcqueen.com/2010/03/14/token-invalid-authsub-token-has-wrong-scope-oauth-google-problem/[Token invalid - AuthSub token has wrong scope]' error.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -332,7 +381,7 @@ post <span style="color:#e6db74">&#39;/spreadsheet/&#39;</span> <span style="col
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/08/17/ruby-create-and-share-google-drive-spreadsheet/&amp;title=Ruby%3a%20Create%20and%20share%20Google%20Drive%20Spreadsheet&amp;summary=require%20%26%2339%3bsinatra%26%2339%3b%20require%20%26%2339%3bjson%26%2339%3b%20require%20%26%2334%3bgoogle_drive%26%2334%3b%20require%20%26%2339%3bgoogle%2fapi_client%26%2339%3b%20CLIENT_ID%20%3d%20%26%2339%3bmy%20client%20id%26%2339%3b%20CLIENT_SECRET%20%3d%20%26%2339%3bmy%20client%20secret%26%2339%3b%20OAUTH_SCOPE%20%3d%20%26%2339%3bhttps%3a%2f%2fwww.googleapis.com%2fauth%2fdrive%20https%3a%2f%2fdocs.google.com%2ffeeds%2f%20https%3a%2f%2fdocs.googleusercontent.com%2f%20https%3a%2f%2fspreadsheets.google.com%2ffeeds%2f%26%2339%3b%20REDIRECT_URI%20%3d%20%26%2339%3bhttp%3a%2f%2flocalhost%3a9393%2foauth2callback%26%2339%3b%20helpers%20do%20def%20partial%20%28template%2c%20locals%20%3d%20%7b%7d%29%20haml%28template%2c%20%3alayout%20%3d%26gt%3b%20false%2c%20%3alocals%20%3d%26gt%3b%20locals%29%20end%20end%20enable%20%3asessions%20get%20%26%2339%3b%2f%26%2339%3b%20do%20haml%20%3aindex%20end%20configure%20do%20google_client%20%3d%20Google%3a%3aAPIClient.new%20google_client.authorization.client_id%20%3d%20CLIENT_ID%20google_client.authorization.client_secret%20%3d%20CLIENT_SECRET%20google_client.authorization.scope%20%3d%20OAUTH_SCOPE%20google_client.authorization.redirect_uri%20%3d%20REDIRECT_URI%20set%20%3agoogle_client%2c%20google_client%20set%20%3agoogle_client_driver%2c%20google_client...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/08/17/ruby-create-and-share-google-drive-spreadsheet/&amp;title=Ruby%3a%20Create%20and%20share%20Google%20Drive%20Spreadsheet&amp;summary=Over%20the%20weekend%20I%26%238217%3bve%20been%20trying%20to%20write%20some%20code%20to%20help%20me%20create%20and%20share%20a%20Google%20Drive%20spreadsheet%20and%20for%20the%20first%20bit%20Ihttp%3a%2f%2fwww.markhneedham.com%2fblog%2f2014%2f08%2f17%2fruby-google-drive-errorbadauthentication-googledriveauthenticationerror-infoinvalidsecondfactor%2f%5bstarted%20out%20with%20the%20Google%20Drive%20gem%5d.%0a%20This%20worked%20reasonably%20well%20but%20that%20gem%20doesn%26%238217%3bt%20have%20an%20API%20for%20changing%20the%20permissions%20on%20a%20document%20so%20I%20ended%20up%20using%20the%20google-api-client%20gem%20for%20that%20bit.%0a%20This%20tutorial%20provides%20a%20good%20quick%20start%20for%20getting%20up%20and%20running%20but%20it%20still%20has%20a%20manual%20step%20to%20copy%2fpaste%20the%20%27OAuth%20token%27%20which%20I%20wanted%20to%20get%20rid%20of...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

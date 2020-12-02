@@ -22,10 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Haskell: A simple parsing example using pattern matching" />
         
-          <meta name="twitter:description" content="As part of the second question in the Google Code JamI needed to be able to parse lines of data which looked like this:
-3 1 5 15 13 11 where
-This seemed like it should be easy to do but my initial search led me to the Parsec chapterin Real World Haskell which seemed a bit over the top for my problem.
-All we really need to do is split on a space and then extract the parts of the resulting list." />
+          <meta name="twitter:description" content="As part of the second question in the Google Code Jam I needed to be able to parse lines of data which looked like this:
+ 3 1 5 15 13 11   where
+  The first integer will be N, the number of Googlers, and the second integer will be S, the number of surprising triplets of scores. The third integer will be p, as described above. Next will be N integers ti: the total points of the Googlers." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/04/15/haskell-a-simple-parsing-example-using-pattern-matching/" />
 
@@ -36,10 +35,9 @@ All we really need to do is split on a space and then extract the parts of the r
         <title> Haskell: A simple parsing example using pattern matching &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="As part of the second question in the Google Code JamI needed to be able to parse lines of data which looked like this:
-3 1 5 15 13 11 where
-This seemed like it should be easy to do but my initial search led me to the Parsec chapterin Real World Haskell which seemed a bit over the top for my problem.
-All we really need to do is split on a space and then extract the parts of the resulting list." />
+        <meta name="description" content="As part of the second question in the Google Code Jam I needed to be able to parse lines of data which looked like this:
+ 3 1 5 15 13 11   where
+  The first integer will be N, the number of Googlers, and the second integer will be S, the number of surprising triplets of scores. The third integer will be p, as described above. Next will be N integers ti: the total points of the Googlers." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -68,8 +66,8 @@ All we really need to do is split on a space and then extract the parts of the r
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-04-15",
-        "description": "As part of the second question in the Google Code JamI needed to be able to parse lines of data which looked like this:\n3 1 5 15 13 11 where\nThis seemed like it should be easy to do but my initial search led me to the Parsec chapterin Real World Haskell which seemed a bit over the top for my problem.\nAll we really need to do is split on a space and then extract the parts of the resulting list.",
-        "wordCount":  221 
+        "description": "As part of the second question in the Google Code Jam I needed to be able to parse lines of data which looked like this:\n 3 1 5 15 13 11   where\n  The first integer will be N, the number of Googlers, and the second integer will be S, the number of surprising triplets of scores. The third integer will be p, as described above. Next will be N integers ti: the total points of the Googlers.",
+        "wordCount":  271 
     }
     </script>
     
@@ -178,38 +176,85 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Haskell: A simple parsing example using pattern matching</h1>
-    <p>As part of <!-- raw HTML omitted -->the second question in the Google Code Jam<!-- raw HTML omitted --> I needed to be able to parse lines of data which looked like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-3 1 5 15 13 11
-</code></pre></div><p>where</p>
-<!-- raw HTML omitted -->
-<p>This seemed like it should be easy to do but my initial search led me to the <!-- raw HTML omitted --> Parsec chapter<!-- raw HTML omitted --> in Real World Haskell which seemed a bit over the top for my problem.</p>
+    <div class="paragraph">
+<p>As part of <a href="https://code.google.com/codejam/contest/1460488/dashboard#s=p1">the second question in the Google Code Jam</a> I needed to be able to parse lines of data which looked like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">3 1 5 15 13 11</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>where</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>The first integer will be N, the number of Googlers, and the second integer will be S, the number of surprising triplets of scores. The third integer will be p, as described above. Next will be N integers ti: the total points of the Googlers.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>This seemed like it should be easy to do but my initial search led me to the <a href="http://book.realworldhaskell.org/read/using-parsec.html">Parsec chapter</a> in Real World Haskell which seemed a bit over the top for my problem.</p>
+</div>
+<div class="paragraph">
 <p>All we really need to do is split on a space and then extract the parts of the resulting list.</p>
-<p>I thought there&rsquo;d be a &lsquo;split&rsquo; function to do that in the base libraries but if there is I couldn&rsquo;t see it.</p>
-<p>However, there are a bunch of useful functions in the &lsquo;<!-- raw HTML omitted -->Data.List.Split<!-- raw HTML omitted -->&rsquo; module which we can install using <!-- raw HTML omitted -->cabal<!-- raw HTML omitted --> - a RubyGems like tool which came with my Haskell installation.</p>
-<p>Installing the <!-- raw HTML omitted -->split module<!-- raw HTML omitted --> was as simple as:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-cabal update
-cabal install split
-</code></pre></div><p>There&rsquo;s a list of all the packages available through cabal <!-- raw HTML omitted -->here<!-- raw HTML omitted -->.</p>
-<p>I needed the <!-- raw HTML omitted -->splitOn<!-- raw HTML omitted --> function:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-import Data.List.Split
+</div>
+<div class="paragraph">
+<p>I thought there&#8217;d be a 'split' function to do that in the base libraries but if there is I couldn&#8217;t see it.</p>
+</div>
+<div class="paragraph">
+<p>However, there are a bunch of useful functions in the 'http://hackage.haskell.org/packages/archive/split/0.1.4.2/doc/html/Data-List-Split.html[Data.List.Split]' module which we can install using <a href="http://www.haskell.org/cabal/">cabal</a> - a RubyGems like tool which came with my Haskell installation.</p>
+</div>
+<div class="paragraph">
+<p>Installing the <a href="http://hackage.haskell.org/package/split-0.1.4.2">split module</a> was as simple as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">cabal update
+cabal install split</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There&#8217;s a list of all the packages available through cabal <a href="http://hackage.haskell.org/package/">here</a>.</p>
+</div>
+<div class="paragraph">
+<p>I needed the <cite>splitOn</cite> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">import Data.List.Split
 &gt; :t splitOn
-splitOn :: Eq a =&gt; [a] -&gt; [a] -&gt; [[a]]
-</code></pre></div><p>We can then split on a space and extract the  appropriate values using pattern matching like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">let</span> (<span style="color:#66d9ef">_</span><span style="color:#66d9ef">:</span>surprisingScores<span style="color:#66d9ef">:</span>p<span style="color:#66d9ef">:</span>googlers) <span style="color:#f92672">=</span> map (<span style="color:#a6e22e">\</span>x <span style="color:#f92672">-&gt;</span> read x <span style="color:#f92672">::</span> <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">$</span> splitOn <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#e6db74">&#34;3 1 5 15 13 11&#34;</span>
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; surprisingScores 
-1
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; p
-5
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-&gt; googlers 
-[15,13,11]
-</code></pre></div>
+splitOn :: Eq a =&gt; [a] -&gt; [a] -&gt; [[a]]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can then split on a space and extract the  appropriate values using pattern matching like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">let (_:surprisingScores:p:googlers) = map (\x -&gt; read x :: Int) $ splitOn " " "3 1 5 15 13 11"</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; surprisingScores
+1</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; p
+5</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">&gt; googlers
+[15,13,11]</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -243,7 +288,7 @@ splitOn :: Eq a =&gt; [a] -&gt; [a] -&gt; [[a]]
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/04/15/haskell-a-simple-parsing-example-using-pattern-matching/&amp;title=Haskell%3a%20A%20simple%20parsing%20example%20using%20pattern%20matching&amp;summary=As%20part%20of%20the%20second%20question%20in%20the%20Google%20Code%20JamI%20needed%20to%20be%20able%20to%20parse%20lines%20of%20data%20which%20looked%20like%20this%3a%0a3%201%205%2015%2013%2011%20where%0aThis%20seemed%20like%20it%20should%20be%20easy%20to%20do%20but%20my%20initial%20search%20led%20me%20to%20the%20Parsec%20chapterin%20Real%20World%20Haskell%20which%20seemed%20a%20bit%20over%20the%20top%20for%20my%20problem.%0aAll%20we%20really%20need%20to%20do%20is%20split%20on%20a%20space%20and%20then%20extract%20the%20parts%20of%20the%20resulting%20list...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/04/15/haskell-a-simple-parsing-example-using-pattern-matching/&amp;title=Haskell%3a%20A%20simple%20parsing%20example%20using%20pattern%20matching&amp;summary=As%20part%20of%20the%20second%20question%20in%20the%20Google%20Code%20Jam%20I%20needed%20to%20be%20able%20to%20parse%20lines%20of%20data%20which%20looked%20like%20this%3a%0a%203%201%205%2015%2013%2011%20%20%20where%0a%20%20The%20first%20integer%20will%20be%20N%2c%20the%20number%20of%20Googlers%2c%20and%20the%20second%20integer%20will%20be%20S%2c%20the%20number%20of%20surprising%20triplets%20of%20scores.%20The%20third%20integer%20will%20be%20p%2c%20as%20described%20above.%20Next%20will%20be%20N%20integers%20ti%3a%20the%20total%20points%20of%20the%20Googlers...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -17,7 +17,10 @@
       <pubDate>Tue, 30 Jul 2013 06:01:47 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/07/30/netcat-strange-behaviour-with-udp-only-receives-first-packet-sent/</guid>
-      <description>$ nc -kluv localhost 9000 $ lsof -Pni :9000 COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME nc 63289 markhneedham 5u IPv6 0xc99222a54b3975b5 0t0 UDP [::1]:9000 $ echo &amp;#34;mark&amp;#34; | nc -vvu localhost 9000 -4 Connection to localhost 9000 port [udp/cslistener] succeeded! $ nc -kluv localhost 9000 XXXXmark $ echo &amp;#34;mike&amp;#34; | nc -vvu localhost 9000 -4 Connection to localhost 9000 port [udp/cslistener] succeeded! $ nc -kluv localhost 9000 XXXXmark As soon as it received its first datagram (from port 52832), it issued a connect system call &amp;lsquo;connecting&amp;rsquo; it to the 127.</description>
+      <description>I was playing around with netcat yesterday to create a client and server which would communicate via UDP packets and I rediscovered some &#34;weird&#34; behaviour which I&amp;#8217;d previously encountered but not explained.
+ I started up a netcat server listening for UDP packets on port 9000 of my machine:
+ $ nc -kluv localhost 9000   We can check with lsof what running that command has done:
+ $ lsof -Pni :9000 COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME nc 63289 markhneedham 5u IPv6 0xc99222a54b3975b5 0t0 UDP [::1]:9000   We can see that the netcat process is listening on port 9000 so let&amp;#8217;s send it a UDP packet, using another netcat process:</description>
     </item>
     
     <item>
@@ -26,7 +29,9 @@
       <pubDate>Sun, 14 Jul 2013 14:31:44 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/07/14/java-testing-a-socket-is-listening-on-all-network-interfaceswildcard-interface/</guid>
-      <description>public class EchoServer { public static void main(String[] args) throws IOException { int port = 4444; ServerSocket serverSocket = new ServerSocket(port, 50, InetAddress.getByAddress(new byte[] {0x7f,0x00,0x00,0x01})); System.err.println(&amp;#34;Started server on port &amp;#34; + port); while (true) { Socket clientSocket = serverSocket.accept(); System.err.println(&amp;#34;Accepted connection from client: &amp;#34; + clientSocket.getRemoteSocketAddress() ); In in = new In (clientSocket); Out out = new Out(clientSocket); String s; while ((s = in.readLine()) != null) { out.println(s); } System.err.println(&amp;#34;Closing connection with client: &amp;#34; + clientSocket.</description>
+      <description>I previously wrote a blog post describing how I&amp;#8217;ve been trying to learn more about network sockets in which I created some server sockets and connected to them using netcat.
+ The next step was to do the same thing in Java and I started out by writing a server socket which echoed any messages sent by the client:
+ public class EchoServer { public static void main(String[] args) throws IOException { int port = 4444; ServerSocket serverSocket = new ServerSocket(port, 50, InetAddress.</description>
     </item>
     
     <item>
@@ -35,7 +40,9 @@
       <pubDate>Sun, 14 Jul 2013 09:52:17 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2013/07/14/learning-more-about-network-sockets/</guid>
-      <description>$ ifconfig -u lo0: flags=8049&amp;lt;UP,LOOPBACK,RUNNING,MULTICAST&amp;gt; mtu 16384 options=3&amp;lt;RXCSUM,TXCSUM&amp;gt; inet6 fe80::1%lo0 prefixlen 64 scopeid 0x1 inet 127.0.0.1 netmask 0xff000000 inet6 ::1 prefixlen 128 en0: flags=8863&amp;lt;UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST&amp;gt; mtu 1500 ether xxxxxxxxxxxx inet6 fe80::9afe:94ff:fe4f:ee50%en0 prefixlen 64 scopeid 0x4 inet 192.168.1.89 netmask 0xffffff00 broadcast 192.168.1.255 media: autoselect status: active p2p0: flags=8843&amp;lt;UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST&amp;gt; mtu 2304 ether xxxxxxxxxxxx media: autoselect status: inactive $ nc -l -k 127.0.0.1 4444 $ lsof -Pni :4444 COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME java 34178 markhneedham 35u IPv6 0x114b98295506482d 0t0 TCP 127.</description>
+      <description>While reading through some of the neo4j code a few weeks ago I realised that I didn&amp;#8217;t have a very good understanding about the mechanics behind network ports/sockets so I thought I&amp;#8217;d try to learn more.
+ In particular I&amp;#8217;d not considered what binding a socket to different network interfaces meant so I decided to setup a few examples using netcat to help me understand better.
+ To start with let&amp;#8217;s list the network interfaces that I have on my machine using ifconfig:</description>
     </item>
     
     <item>
@@ -44,9 +51,9 @@
       <pubDate>Sun, 23 Sep 2012 19:23:54 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/09/23/network-address-translation/</guid>
-      <description>I&amp;rsquo;ve often heard people talking about Network Address Translation (NAT) but I never really understood exactly how it worked until we started configuring some virtual data centres on my current project.
-This is an attempt at documenting my own current understanding so I won&amp;rsquo;t forget in future.
-In our case we&amp;rsquo;ve been provisioning a bunch of machines into different private networks, and each machine therefore has an IP in the range of IPv4 addresses reserved for private networks:</description>
+      <description>I&amp;#8217;ve often heard people talking about Network Address Translation (NAT) but I never really understood exactly how it worked until we started configuring some virtual data centres on my current project.
+ This is an attempt at documenting my own current understanding so I won&amp;#8217;t forget in future.
+ In our case we&amp;#8217;ve been provisioning a bunch of machines into different private networks, and each machine therefore has an IP in the range of IPv4 addresses reserved for private networks:</description>
     </item>
     
     <item>
@@ -55,10 +62,9 @@ In our case we&amp;rsquo;ve been provisioning a bunch of machines into different
       <pubDate>Sun, 15 Jul 2012 13:29:05 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/07/15/tcpdump-learning-how-to-read-udp-packets/</guid>
-      <description>Philand I spent some of Friday afternoon configuring statsd:
-We configured it to listen on its default port 8125 and then used netcat to send UDP packetsto see if it was working like so:
-echo -n &amp;#34;blah:36|c&amp;#34; | nc -w 1 -u -4 localhost 8125 We used tcpdump to capture any UDP packets on port 8125 like so:
-tcpdump -i lo udp port 8125 -vv -X To briefly explain the options we passed to it:</description>
+      <description>Phil and I spent some of Friday afternoon configuring statsd:
+  A network daemon that runs on the Node.js platform and listens for statistics, like counters and timers, sent over UDP and sends aggregates to one or more pluggable backend services
+   We configured it to listen on its default port 8125 and then used netcat to send UDP packets to see if it was working like so:</description>
     </item>
     
     <item>
@@ -67,9 +73,9 @@ tcpdump -i lo udp port 8125 -vv -X To briefly explain the options we passed to i
       <pubDate>Sun, 15 Jul 2012 08:14:16 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2012/07/15/netcat-localhost-resolution-not-working-when-sending-udp-packets/</guid>
-      <description>As part of some work we were doing last week Philand I needed to send UDP packets to a local port and check that they were being picked up.
-We initially tried sending a UDP packet to localhost port 8125 using netcat like so:
-echo -n &amp;#34;hello&amp;#34; | nc -w 1 -u localhost 8125 That message wasn&amp;rsquo;t being received by the application listening on the port so Phil decided to try and send the same packet from Ruby which worked fine:</description>
+      <description>As part of some work we were doing last week Phil and I needed to send UDP packets to a local port and check that they were being picked up.
+ We initially tried sending a UDP packet to localhost port 8125 using netcat like so:
+ echo -n &#34;hello&#34; | nc -w 1 -u localhost 8125   That message wasn&amp;#8217;t being received by the application listening on the port so Phil decided to try and send the same packet from Ruby which worked fine:</description>
     </item>
     
   </channel>

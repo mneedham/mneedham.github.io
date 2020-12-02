@@ -23,9 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Creating an object with functions to calculate conditional probability" />
         
-          <meta name="twitter:description" content="Now suppose you choose one of the bowls at random and, without looking, select a cookie at random. The cookie is vanilla.
-What is the probability that it came from Bowl 1?
-pmf = Pmf() pmf.Set(&#39;Bowl 1&#39;, 0.5) pmf.Set(&#39;Bowl 2&#39;, 0.5) pmf.Mult(&#39;Bowl 1&#39;, 0.75) pmf.Mult(&#39;Bowl 2&#39;, 0.5) pmf.Normalize() print pmf.Prob(&#39;Bowl 1&#39;) pBowl1 = 0.5 pBowl2 = 0.5 pVanillaGivenBowl1 = 0.75 pVanillaGivenBowl2 = 0.5 &gt; (pBowl1 * pVanillaGivenBowl1) / ((pBowl1 * pVanillaGivenBowl1) &#43; (PBowl2 * pVanillaGivenBowl2)) 0." />
+          <meta name="twitter:description" content="I&#8217;ve been working through Alan Downey&#8217;s Thinking Bayes and I thought it&#8217;d be an interesting exercise to translate some of the code from Python to R.
+ The first example is a simple one about conditional probablity and the author creates a class &#39;PMF&#39; (Probability Mass Function) to solve the following problem:
+  Suppose there are two bowls of cookies. Bowl 1 contains 30 vanilla cookies and 10 chocolate cookies." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/04/12/r-creating-an-object-with-functions-to-calculate-conditional-probability/" />
 
@@ -36,9 +36,9 @@ pmf = Pmf() pmf.Set(&#39;Bowl 1&#39;, 0.5) pmf.Set(&#39;Bowl 2&#39;, 0.5) pmf.Mu
         <title> R: Creating an object with functions to calculate conditional probability &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Now suppose you choose one of the bowls at random and, without looking, select a cookie at random. The cookie is vanilla.
-What is the probability that it came from Bowl 1?
-pmf = Pmf() pmf.Set(&#39;Bowl 1&#39;, 0.5) pmf.Set(&#39;Bowl 2&#39;, 0.5) pmf.Mult(&#39;Bowl 1&#39;, 0.75) pmf.Mult(&#39;Bowl 2&#39;, 0.5) pmf.Normalize() print pmf.Prob(&#39;Bowl 1&#39;) pBowl1 = 0.5 pBowl2 = 0.5 pVanillaGivenBowl1 = 0.75 pVanillaGivenBowl2 = 0.5 &gt; (pBowl1 * pVanillaGivenBowl1) / ((pBowl1 * pVanillaGivenBowl1) &#43; (PBowl2 * pVanillaGivenBowl2)) 0." />
+        <meta name="description" content="I&#8217;ve been working through Alan Downey&#8217;s Thinking Bayes and I thought it&#8217;d be an interesting exercise to translate some of the code from Python to R.
+ The first example is a simple one about conditional probablity and the author creates a class &#39;PMF&#39; (Probability Mass Function) to solve the following problem:
+  Suppose there are two bowls of cookies. Bowl 1 contains 30 vanilla cookies and 10 chocolate cookies." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,8 +67,8 @@ pmf = Pmf() pmf.Set(&#39;Bowl 1&#39;, 0.5) pmf.Set(&#39;Bowl 2&#39;, 0.5) pmf.Mu
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-04-12",
-        "description": "Now suppose you choose one of the bowls at random and, without looking, select a cookie at random. The cookie is vanilla.\nWhat is the probability that it came from Bowl 1?\npmf = Pmf() pmf.Set(\x26#39;Bowl 1\x26#39;, 0.5) pmf.Set(\x26#39;Bowl 2\x26#39;, 0.5) pmf.Mult(\x26#39;Bowl 1\x26#39;, 0.75) pmf.Mult(\x26#39;Bowl 2\x26#39;, 0.5) pmf.Normalize() print pmf.Prob(\x26#39;Bowl 1\x26#39;) pBowl1 = 0.5 pBowl2 = 0.5 pVanillaGivenBowl1 = 0.75 pVanillaGivenBowl2 = 0.5 \x26gt; (pBowl1 * pVanillaGivenBowl1) \/ ((pBowl1 * pVanillaGivenBowl1) \x2b (PBowl2 * pVanillaGivenBowl2)) 0.",
-        "wordCount":  189 
+        "description": "I\x26#8217;ve been working through Alan Downey\x26#8217;s Thinking Bayes and I thought it\x26#8217;d be an interesting exercise to translate some of the code from Python to R.\n The first example is a simple one about conditional probablity and the author creates a class \x27PMF\x27 (Probability Mass Function) to solve the following problem:\n  Suppose there are two bowls of cookies. Bowl 1 contains 30 vanilla cookies and 10 chocolate cookies.",
+        "wordCount":  471 
     }
     </script>
     
@@ -179,86 +179,135 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Creating an object with functions to calculate conditional probability</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>Now suppose you choose one of the bowls at random and, without looking, select a cookie at random. The cookie is vanilla.</p>
-<p>What is the probability that it came from Bowl 1?</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-pmf <span style="color:#f92672">=</span> Pmf()
-pmf<span style="color:#f92672">.</span>Set(<span style="color:#e6db74">&#39;Bowl 1&#39;</span>, <span style="color:#ae81ff">0.5</span>)
-pmf<span style="color:#f92672">.</span>Set(<span style="color:#e6db74">&#39;Bowl 2&#39;</span>, <span style="color:#ae81ff">0.5</span>)
+    <div class="paragraph">
+<p>I&#8217;ve been working through Alan Downey&#8217;s <a href="http://www.greenteapress.com/thinkbayes/">Thinking Bayes</a> and I thought it&#8217;d be an interesting exercise to translate some of the code from Python to R.</p>
+</div>
+<div class="paragraph">
+<p>The first example is a simple one about conditional probablity and the author creates a class 'PMF' (Probability Mass Function) to solve the following problem:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Suppose there are two bowls of cookies. Bowl 1 contains 30 vanilla cookies and 10 chocolate cookies. Bowl 2 contains 20 of each. Now suppose you choose one of the bowls at random and, without looking, select a cookie at random. The cookie is vanilla. What is the probability that it came from Bowl 1?</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>In Python the code looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">pmf = Pmf()
+pmf.Set('Bowl 1', 0.5)
+pmf.Set('Bowl 2', 0.5)
 
-pmf<span style="color:#f92672">.</span>Mult(<span style="color:#e6db74">&#39;Bowl 1&#39;</span>, <span style="color:#ae81ff">0.75</span>)
-pmf<span style="color:#f92672">.</span>Mult(<span style="color:#e6db74">&#39;Bowl 2&#39;</span>, <span style="color:#ae81ff">0.5</span>)
+pmf.Mult('Bowl 1', 0.75)
+pmf.Mult('Bowl 2', 0.5)
 
-pmf<span style="color:#f92672">.</span>Normalize()
+pmf.Normalize()
 
-<span style="color:#66d9ef">print</span> pmf<span style="color:#f92672">.</span>Prob(<span style="color:#e6db74">&#39;Bowl 1&#39;</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-pBowl1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>
-pBowl2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>
+print pmf.Prob('Bowl 1')</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The 'PMF' class is defined <a href="http://www.greenteapress.com/thinkbayes/thinkbayes.py">here</a>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>'Set' defines the prior probability of picking a cookie from either bowl i.e. in our case it&#8217;s random.</p>
+</li>
+<li>
+<p>'Mult' defines the likelihood of picking a vanilla biscuit from either bowl</p>
+</li>
+<li>
+<p>'Normalize' applies a normalisation so that our posterior probabilities add up to 1.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We want to create something similar in R and the actual calculation is stragiht forward:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">pBowl1 = 0.5
+pBowl2 = 0.5
 
-pVanillaGivenBowl1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.75</span>
-pVanillaGivenBowl2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>
+pVanillaGivenBowl1 = 0.75
+pVanillaGivenBowl2 = 0.5
 
-<span style="color:#f92672">&gt;</span> (pBowl1 <span style="color:#f92672">*</span> pVanillaGivenBowl1) <span style="color:#f92672">/</span> ((pBowl1 <span style="color:#f92672">*</span> pVanillaGivenBowl1) <span style="color:#f92672">+</span> (PBowl2 <span style="color:#f92672">*</span> pVanillaGivenBowl2))
-<span style="color:#ae81ff">0.6</span>
+&gt; (pBowl1 * pVanillaGivenBowl1) / ((pBowl1 * pVanillaGivenBowl1) + (PBowl2 * pVanillaGivenBowl2))
+0.6
 
-<span style="color:#f92672">&gt;</span> (pBowl2 <span style="color:#f92672">*</span> pVanillaGivenBowl2) <span style="color:#f92672">/</span> ((pBowl1 <span style="color:#f92672">*</span> pVanillaGivenBowl1) <span style="color:#f92672">+</span> (pBowl2 <span style="color:#f92672">*</span> pVanillaGivenBowl2))
-<span style="color:#ae81ff">0.4</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-create.pmf <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>() {
-  priors <span style="color:#f92672">&lt;&lt;-</span> <span style="color:#a6e22e">c</span>()
-  likelihoods <span style="color:#f92672">&lt;&lt;-</span> <span style="color:#a6e22e">c</span>()
-  <span style="color:#a6e22e">list</span>(
-    prior <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(option, probability) {
-      l <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(probability)  
-      <span style="color:#a6e22e">names</span>(l) <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(option)
-      priors <span style="color:#f92672">&lt;&lt;-</span> <span style="color:#a6e22e">c</span>(priors, l)
+&gt; (pBowl2 * pVanillaGivenBowl2) / ((pBowl1 * pVanillaGivenBowl1) + (pBowl2 * pVanillaGivenBowl2))
+0.4</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The problem is we have quite a bit of duplication and it doesn&#8217;t read as cleanly as the Python version.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not sure of the idiomatic way of handling this type of problem in R with mutable state in R but it seems like we can achieve this <a href="http://cran.r-project.org/doc/manuals/r-release/R-intro.html#Writing-your-own-functions">using functions</a>.</p>
+</div>
+<div class="paragraph">
+<p>I ended up writing the following function which returns a list of other functions to call.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">create.pmf = function() {
+  priors &lt;&lt;- c()
+  likelihoods &lt;&lt;- c()
+  list(
+    prior = function(option, probability) {
+      l = c(probability)
+      names(l) = c(option)
+      priors &lt;&lt;- c(priors, l)
     },
-    likelihood <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(option, probability) {
-      l <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(probability)  
-      <span style="color:#a6e22e">names</span>(l) <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(option)
-      likelihoods <span style="color:#f92672">&lt;&lt;-</span> <span style="color:#a6e22e">c</span>(likelihoods, l)
+    likelihood = function(option, probability) {
+      l = c(probability)
+      names(l) = c(option)
+      likelihoods &lt;&lt;- c(likelihoods, l)
     },
-    posterior <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(option) {
-      names <span style="color:#f92672">=</span> <span style="color:#a6e22e">names</span>(priors)
-      normalised <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0</span>
-      <span style="color:#a6e22e">for</span>(name in names) {
-        normalised <span style="color:#f92672">=</span> normalised <span style="color:#f92672">+</span> (priors[name] <span style="color:#f92672">*</span> likelihoods[name])
+    posterior = function(option) {
+      names = names(priors)
+      normalised = 0.0
+      for(name in names) {
+        normalised = normalised + (priors[name] * likelihoods[name])
       }
-      
-      (priors[option] <span style="color:#f92672">*</span> likelihoods[option]) <span style="color:#f92672">/</span> normalised
-    }    
+
+      (priors[option] * likelihoods[option]) / normalised
+    }
   )
-}
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-pmf <span style="color:#f92672">=</span> <span style="color:#a6e22e">create.pmf</span>()
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I couldn&#8217;t work out how to get 'priors' and 'likelihoods' to be lexically scoped so I&#8217;ve currently got those defined as global variables. I&#8217;m using a <a href="http://stackoverflow.com/questions/2858014/working-with-dictionaries-lists-in-r">list as a kind of dictionary following a suggestion on Stack Overflow</a>.</p>
+</div>
+<div class="paragraph">
+<p>The code doesn&#8217;t handle the unhappy path very well but it seems to work for the example from the book:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">pmf = create.pmf()
 
-pmf<span style="color:#f92672">$</span><span style="color:#a6e22e">prior</span>(<span style="color:#e6db74">&#34;Bowl 1&#34;</span>, <span style="color:#ae81ff">0.5</span>)
-pmf<span style="color:#f92672">$</span><span style="color:#a6e22e">prior</span>(<span style="color:#e6db74">&#34;Bowl 2&#34;</span>, <span style="color:#ae81ff">0.5</span>)
+pmf$prior("Bowl 1", 0.5)
+pmf$prior("Bowl 2", 0.5)
 
-pmf<span style="color:#f92672">$</span><span style="color:#a6e22e">likelihood</span>(<span style="color:#e6db74">&#34;Bowl 1&#34;</span>, <span style="color:#ae81ff">0.75</span>)
-pmf<span style="color:#f92672">$</span><span style="color:#a6e22e">likelihood</span>(<span style="color:#e6db74">&#34;Bowl 2&#34;</span>, <span style="color:#ae81ff">0.5</span>)
+pmf$likelihood("Bowl 1", 0.75)
+pmf$likelihood("Bowl 2", 0.5)
 
-<span style="color:#f92672">&gt;</span> pmf<span style="color:#f92672">$</span><span style="color:#a6e22e">posterior</span>(<span style="color:#e6db74">&#34;Bowl 1&#34;</span>)
-Bowl <span style="color:#ae81ff">1</span> 
-   <span style="color:#ae81ff">0.6</span> 
-<span style="color:#f92672">&gt;</span> pmf<span style="color:#f92672">$</span><span style="color:#a6e22e">posterior</span>(<span style="color:#e6db74">&#34;Bowl 2&#34;</span>)
-Bowl <span style="color:#ae81ff">2</span> 
-   <span style="color:#ae81ff">0.4</span> 
-</code></pre></div><!-- raw HTML omitted -->
+&gt; pmf$posterior("Bowl 1")
+Bowl 1
+   0.6
+&gt; pmf$posterior("Bowl 2")
+Bowl 2
+   0.4</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>How would you solve this type of problem? Is there a cleaner/better way?</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -293,7 +342,7 @@ Bowl <span style="color:#ae81ff">2</span>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/04/12/r-creating-an-object-with-functions-to-calculate-conditional-probability/&amp;title=R%3a%20Creating%20an%20object%20with%20functions%20to%20calculate%20conditional%20probability&amp;summary=Now%20suppose%20you%20choose%20one%20of%20the%20bowls%20at%20random%20and%2c%20without%20looking%2c%20select%20a%20cookie%20at%20random.%20The%20cookie%20is%20vanilla.%0aWhat%20is%20the%20probability%20that%20it%20came%20from%20Bowl%201%3f%0apmf%20%3d%20Pmf%28%29%20pmf.Set%28%26%2339%3bBowl%201%26%2339%3b%2c%200.5%29%20pmf.Set%28%26%2339%3bBowl%202%26%2339%3b%2c%200.5%29%20pmf.Mult%28%26%2339%3bBowl%201%26%2339%3b%2c%200.75%29%20pmf.Mult%28%26%2339%3bBowl%202%26%2339%3b%2c%200.5%29%20pmf.Normalize%28%29%20print%20pmf.Prob%28%26%2339%3bBowl%201%26%2339%3b%29%20pBowl1%20%3d%200.5%20pBowl2%20%3d%200.5%20pVanillaGivenBowl1%20%3d%200.75%20pVanillaGivenBowl2%20%3d%200.5%20%26gt%3b%20%28pBowl1%20%2a%20pVanillaGivenBowl1%29%20%2f%20%28%28pBowl1%20%2a%20pVanillaGivenBowl1%29%20%2b%20%28PBowl2%20%2a%20pVanillaGivenBowl2%29%29%200...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/04/12/r-creating-an-object-with-functions-to-calculate-conditional-probability/&amp;title=R%3a%20Creating%20an%20object%20with%20functions%20to%20calculate%20conditional%20probability&amp;summary=I%26%238217%3bve%20been%20working%20through%20Alan%20Downey%26%238217%3bs%20Thinking%20Bayes%20and%20I%20thought%20it%26%238217%3bd%20be%20an%20interesting%20exercise%20to%20translate%20some%20of%20the%20code%20from%20Python%20to%20R.%0a%20The%20first%20example%20is%20a%20simple%20one%20about%20conditional%20probablity%20and%20the%20author%20creates%20a%20class%20%27PMF%27%20%28Probability%20Mass%20Function%29%20to%20solve%20the%20following%20problem%3a%0a%20%20Suppose%20there%20are%20two%20bowls%20of%20cookies.%20Bowl%201%20contains%2030%20vanilla%20cookies%20and%2010%20chocolate%20cookies...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

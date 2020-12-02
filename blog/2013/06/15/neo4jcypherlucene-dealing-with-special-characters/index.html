@@ -24,7 +24,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="neo4j/cypher/Lucene: Dealing with special characters" />
         
-          <meta name="twitter:description" content="CREATE ({name: &quot;-one&quot;}) CREATE ({name: &quot;-two&quot;}) CREATE ({name: &quot;-three&quot;}) CREATE ({name: &quot;four&quot;}) START p = node:node_auto_index(&quot;name:-*&quot;) RETURN p; ==&gt; RuntimeException: org.apache.lucene.queryParser.ParseException: Cannot parse &#39;name:-*&#39;: Encountered &#34; &#34;-&#34; &#34;- &#34;&#34; at line 1, column 5. ==&gt; Was expecting one of: ==&gt; &lt;BAREOPER&gt; ... ==&gt; &#34;(&#34; ... ==&gt; &#34;*&#34; ... ==&gt; &lt;QUOTED&gt; ... ==&gt; &lt;TERM&gt; ... ==&gt; &lt;PREFIXTERM&gt; ... ==&gt; &lt;WILDTERM&gt; ... ==&gt; &#34;[&#34; ... ==&gt; &#34;{&#34; ... ==&gt; &lt;NUMBER&gt; ... ==&gt; START p = node:node_auto_index(&quot;name:\-*&quot;) RETURN p; ==&gt; SyntaxException: invalid escape sequence ==&gt; ==&gt; Think we should have better error message here?" />
+          <meta name="twitter:description" content="neo4j uses Lucene to handle indexing of nodes and relationships in the graph but something that can be a bit confusing at first is how to handle special characters in Lucene queries.
+ For example let&#8217;s say we set up a database with the following data:
+ CREATE ({name: &#34;-one&#34;}) CREATE ({name: &#34;-two&#34;}) CREATE ({name: &#34;-three&#34;}) CREATE ({name: &#34;four&#34;})   And for whatever reason we only wanted to return the nodes that begin with a hyphen." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/06/15/neo4jcypherlucene-dealing-with-special-characters/" />
 
@@ -35,7 +37,9 @@
         <title> neo4j/cypher/Lucene: Dealing with special characters &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="CREATE ({name: &quot;-one&quot;}) CREATE ({name: &quot;-two&quot;}) CREATE ({name: &quot;-three&quot;}) CREATE ({name: &quot;four&quot;}) START p = node:node_auto_index(&quot;name:-*&quot;) RETURN p; ==&gt; RuntimeException: org.apache.lucene.queryParser.ParseException: Cannot parse &#39;name:-*&#39;: Encountered &#34; &#34;-&#34; &#34;- &#34;&#34; at line 1, column 5. ==&gt; Was expecting one of: ==&gt; &lt;BAREOPER&gt; ... ==&gt; &#34;(&#34; ... ==&gt; &#34;*&#34; ... ==&gt; &lt;QUOTED&gt; ... ==&gt; &lt;TERM&gt; ... ==&gt; &lt;PREFIXTERM&gt; ... ==&gt; &lt;WILDTERM&gt; ... ==&gt; &#34;[&#34; ... ==&gt; &#34;{&#34; ... ==&gt; &lt;NUMBER&gt; ... ==&gt; START p = node:node_auto_index(&quot;name:\-*&quot;) RETURN p; ==&gt; SyntaxException: invalid escape sequence ==&gt; ==&gt; Think we should have better error message here?" />
+        <meta name="description" content="neo4j uses Lucene to handle indexing of nodes and relationships in the graph but something that can be a bit confusing at first is how to handle special characters in Lucene queries.
+ For example let&#8217;s say we set up a database with the following data:
+ CREATE ({name: &#34;-one&#34;}) CREATE ({name: &#34;-two&#34;}) CREATE ({name: &#34;-three&#34;}) CREATE ({name: &#34;four&#34;})   And for whatever reason we only wanted to return the nodes that begin with a hyphen." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +68,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-06-15",
-        "description": "CREATE ({name: \x26quot;-one\x26quot;}) CREATE ({name: \x26quot;-two\x26quot;}) CREATE ({name: \x26quot;-three\x26quot;}) CREATE ({name: \x26quot;four\x26quot;}) START p = node:node_auto_index(\x26quot;name:-*\x26quot;) RETURN p; ==\x26gt; RuntimeException: org.apache.lucene.queryParser.ParseException: Cannot parse \x26#39;name:-*\x26#39;: Encountered \x26#34; \x26#34;-\x26#34; \x26#34;- \x26#34;\x26#34; at line 1, column 5. ==\x26gt; Was expecting one of: ==\x26gt; \x26lt;BAREOPER\x26gt; ... ==\x26gt; \x26#34;(\x26#34; ... ==\x26gt; \x26#34;*\x26#34; ... ==\x26gt; \x26lt;QUOTED\x26gt; ... ==\x26gt; \x26lt;TERM\x26gt; ... ==\x26gt; \x26lt;PREFIXTERM\x26gt; ... ==\x26gt; \x26lt;WILDTERM\x26gt; ... ==\x26gt; \x26#34;[\x26#34; ... ==\x26gt; \x26#34;{\x26#34; ... ==\x26gt; \x26lt;NUMBER\x26gt; ... ==\x26gt; START p = node:node_auto_index(\x26quot;name:\\-*\x26quot;) RETURN p; ==\x26gt; SyntaxException: invalid escape sequence ==\x26gt; ==\x26gt; Think we should have better error message here?",
-        "wordCount":  180 
+        "description": "neo4j uses Lucene to handle indexing of nodes and relationships in the graph but something that can be a bit confusing at first is how to handle special characters in Lucene queries.\n For example let\x26#8217;s say we set up a database with the following data:\n CREATE ({name: \x22-one\x22}) CREATE ({name: \x22-two\x22}) CREATE ({name: \x22-three\x22}) CREATE ({name: \x22four\x22})   And for whatever reason we only wanted to return the nodes that begin with a hyphen.",
+        "wordCount":  335 
     }
     </script>
     
@@ -178,69 +182,112 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">neo4j/cypher/Lucene: Dealing with special characters</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-CREATE ({name: &quot;-one&quot;})
-CREATE ({name: &quot;-two&quot;})
-CREATE ({name: &quot;-three&quot;})
-CREATE ({name: &quot;four&quot;})
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START p = node:node_auto_index(&quot;name:-*&quot;) RETURN p;
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-==&gt; RuntimeException: org.apache.lucene.queryParser.ParseException: Cannot parse &#39;name:-*&#39;: Encountered &#34; &#34;-&#34; &#34;- &#34;&#34; at line 1, column 5.
+    <div class="paragraph">
+<p>neo4j uses <a href="http://lucene.apache.org/core/">Lucene</a> to handle indexing of nodes and relationships in the graph but something that can be a bit confusing at first is how to handle special characters in Lucene queries.</p>
+</div>
+<div class="paragraph">
+<p>For example let&#8217;s say we set up a database with the following data:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CREATE ({name: "-one"})
+CREATE ({name: "-two"})
+CREATE ({name: "-three"})
+CREATE ({name: "four"})</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And for whatever reason we only wanted to return the nodes that begin with a hyphen.</p>
+</div>
+<div class="paragraph">
+<p>A hyphen is a special character in Lucene so if we forget to escape it we&#8217;ll end up with an impressive stack trace:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START p = node:node_auto_index("name:-*") RETURN p;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">==&gt; RuntimeException: org.apache.lucene.queryParser.ParseException: Cannot parse 'name:-*': Encountered " "-" "- "" at line 1, column 5.
 ==&gt; Was expecting one of:
 ==&gt;     &lt;BAREOPER&gt; ...
-==&gt;     &#34;(&#34; ...
-==&gt;     &#34;*&#34; ...
+==&gt;     "(" ...
+==&gt;     "*" ...
 ==&gt;     &lt;QUOTED&gt; ...
 ==&gt;     &lt;TERM&gt; ...
 ==&gt;     &lt;PREFIXTERM&gt; ...
 ==&gt;     &lt;WILDTERM&gt; ...
-==&gt;     &#34;[&#34; ...
-==&gt;     &#34;{&#34; ...
+==&gt;     "[" ...
+==&gt;     "{" ...
 ==&gt;     &lt;NUMBER&gt; ...
+==&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So we change our query to escape the hyphen:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START p = node:node_auto_index("name:\-*") RETURN p;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>which results in the following exception:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">==&gt; SyntaxException: invalid escape sequence
 ==&gt;
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START p = node:node_auto_index(&quot;name:\-*&quot;) RETURN p;
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-==&gt; SyntaxException: invalid escape sequence
-==&gt; 
 ==&gt; Think we should have better error message here? Help us by sending this query to cypher@neo4j.org.
-==&gt; 
-==&gt; Thank you, the Neo4j Team.
-==&gt; 
-==&gt; &#34;START p = node:node_auto_index(&#34;name:\-*&#34;) RETURN p&#34;
 ==&gt;
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START p = node:node_auto_index(&quot;name:\\-*&quot;) RETURN p;
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-==&gt; +------------------------+
+==&gt; Thank you, the Neo4j Team.
+==&gt;
+==&gt; "START p = node:node_auto_index("name:\-*") RETURN p"
+==&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The problem is that the cypher parser also treats '\' as an escape character so we need to use two of them to make our query do what we want:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START p = node:node_auto_index("name:\\-*") RETURN p;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">==&gt; +------------------------+
 ==&gt; | p                      |
 ==&gt; +------------------------+
-==&gt; | Node[4]{name:&#34;-one&#34;}   |
-==&gt; | Node[5]{name:&#34;-two&#34;}   |
-==&gt; | Node[6]{name:&#34;-three&#34;} |
+==&gt; | Node[4]{name:"-one"}   |
+==&gt; | Node[5]{name:"-two"}   |
+==&gt; | Node[6]{name:"-three"} |
 ==&gt; +------------------------+
-==&gt; 3 rows
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-require <span style="color:#e6db74">&#39;neography&#39;</span>
+==&gt; 3 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Alternatively, as <a href="https://twitter.com/cleishm">Chris</a> pointed out, we could make use of parameters in which case we don&#8217;t need to worry about how the cypher parser handles escaping:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">require 'neography'
 
-neo <span style="color:#f92672">=</span> <span style="color:#66d9ef">Neography</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Rest</span><span style="color:#f92672">.</span>new
-query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;START p = node:node_auto_index({query}) RETURN p&#34;</span>
-result <span style="color:#f92672">=</span> neo<span style="color:#f92672">.</span>execute_query(query, { <span style="color:#e6db74">:query</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#39;name:\-*&#39;</span>})
+neo = Neography::Rest.new
+query = "START p = node:node_auto_index({query}) RETURN p"
+result = neo.execute_query(query, { :query =&gt; 'name:\-*'})
 
-p result<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">].</span>map { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x<span style="color:#f92672">[</span><span style="color:#ae81ff">0</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">]</span> }
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-$ bundle exec ruby params.rb
-[{&#34;name&#34;=&gt;&#34;-one&#34;}, {&#34;name&#34;=&gt;&#34;-two&#34;}, {&#34;name&#34;=&gt;&#34;-three&#34;}]
-</code></pre></div>
+p result["data"].map { |x| x[0]["data"] }</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ bundle exec ruby params.rb
+[{"name"=&gt;"-one"}, {"name"=&gt;"-two"}, {"name"=&gt;"-three"}]</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -274,7 +321,7 @@ $ bundle exec ruby params.rb
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/06/15/neo4jcypherlucene-dealing-with-special-characters/&amp;title=neo4j%2fcypher%2fLucene%3a%20Dealing%20with%20special%20characters&amp;summary=CREATE%20%28%7bname%3a%20%26quot%3b-one%26quot%3b%7d%29%20CREATE%20%28%7bname%3a%20%26quot%3b-two%26quot%3b%7d%29%20CREATE%20%28%7bname%3a%20%26quot%3b-three%26quot%3b%7d%29%20CREATE%20%28%7bname%3a%20%26quot%3bfour%26quot%3b%7d%29%20START%20p%20%3d%20node%3anode_auto_index%28%26quot%3bname%3a-%2a%26quot%3b%29%20RETURN%20p%3b%20%3d%3d%26gt%3b%20RuntimeException%3a%20org.apache.lucene.queryParser.ParseException%3a%20Cannot%20parse%20%26%2339%3bname%3a-%2a%26%2339%3b%3a%20Encountered%20%26%2334%3b%20%26%2334%3b-%26%2334%3b%20%26%2334%3b-%20%26%2334%3b%26%2334%3b%20at%20line%201%2c%20column%205.%20%3d%3d%26gt%3b%20Was%20expecting%20one%20of%3a%20%3d%3d%26gt%3b%20%26lt%3bBAREOPER%26gt%3b%20...%20%3d%3d%26gt%3b%20%26%2334%3b%28%26%2334%3b%20...%20%3d%3d%26gt%3b%20%26%2334%3b%2a%26%2334%3b%20...%20%3d%3d%26gt%3b%20%26lt%3bQUOTED%26gt%3b%20...%20%3d%3d%26gt%3b%20%26lt%3bTERM%26gt%3b%20...%20%3d%3d%26gt%3b%20%26lt%3bPREFIXTERM%26gt%3b%20...%20%3d%3d%26gt%3b%20%26lt%3bWILDTERM%26gt%3b%20...%20%3d%3d%26gt%3b%20%26%2334%3b%5b%26%2334%3b%20...%20%3d%3d%26gt%3b%20%26%2334%3b%7b%26%2334%3b%20...%20%3d%3d%26gt%3b%20%26lt%3bNUMBER%26gt%3b%20...%20%3d%3d%26gt%3b%20START%20p%20%3d%20node%3anode_auto_index%28%26quot%3bname%3a%5c-%2a%26quot%3b%29%20RETURN%20p%3b%20%3d%3d%26gt%3b%20SyntaxException%3a%20invalid%20escape%20sequence%20%3d%3d%26gt%3b%20%3d%3d%26gt%3b%20Think%20we%20should%20have%20better%20error%20message%20here%3f..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/06/15/neo4jcypherlucene-dealing-with-special-characters/&amp;title=neo4j%2fcypher%2fLucene%3a%20Dealing%20with%20special%20characters&amp;summary=neo4j%20uses%20Lucene%20to%20handle%20indexing%20of%20nodes%20and%20relationships%20in%20the%20graph%20but%20something%20that%20can%20be%20a%20bit%20confusing%20at%20first%20is%20how%20to%20handle%20special%20characters%20in%20Lucene%20queries.%0a%20For%20example%20let%26%238217%3bs%20say%20we%20set%20up%20a%20database%20with%20the%20following%20data%3a%0a%20CREATE%20%28%7bname%3a%20%22-one%22%7d%29%20CREATE%20%28%7bname%3a%20%22-two%22%7d%29%20CREATE%20%28%7bname%3a%20%22-three%22%7d%29%20CREATE%20%28%7bname%3a%20%22four%22%7d%29%20%20%20And%20for%20whatever%20reason%20we%20only%20wanted%20to%20return%20the%20nodes%20that%20begin%20with%20a%20hyphen...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

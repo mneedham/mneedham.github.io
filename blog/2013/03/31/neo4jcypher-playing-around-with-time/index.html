@@ -23,7 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="neo4j/cypher: Playing around with time" />
         
-          <meta name="twitter:description" content="&gt; DateTime.now.strftime(&#34;%H%M&#34;) =&gt; &#34;2200&#34; START game=node:times(&#39;time:*&#39;) RETURN game.time, COUNT(game) ORDER BY game.time &#43;-------------------------&#43; | game.time | COUNT(game) | &#43;-------------------------&#43; | 1245 | 21 | | 1330 | 21 | | 1500 | 163 | | 1600 | 29 | | 1730 | 22 | | 1945 | 21 | | 2000 | 19 | &#43;-------------------------&#43; 7 rows START game=node:matches(&#39;match_id:*&#39;) RETURN game.time, COUNT(game) ORDER BY game.time START game=node:times(&#39;time:[1600 TO 2000]&#39;) RETURN game." />
+          <meta name="twitter:description" content="I&#8217;ve done a bit of modelling with years and months in neo4j graphs that I&#8217;ve worked on previously but I haven&#8217;t ever done anything with time so I thought it&#8217;d be interesting to have a go with my football graph.
+ I came across this StackOverflow post on my travels which suggested that indexing nodes by time would be helpful and since I have a bunch of football matches with associated times I thought I&#8217;d try it out." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/03/31/neo4jcypher-playing-around-with-time/" />
 
@@ -34,7 +35,8 @@
         <title> neo4j/cypher: Playing around with time &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="&gt; DateTime.now.strftime(&#34;%H%M&#34;) =&gt; &#34;2200&#34; START game=node:times(&#39;time:*&#39;) RETURN game.time, COUNT(game) ORDER BY game.time &#43;-------------------------&#43; | game.time | COUNT(game) | &#43;-------------------------&#43; | 1245 | 21 | | 1330 | 21 | | 1500 | 163 | | 1600 | 29 | | 1730 | 22 | | 1945 | 21 | | 2000 | 19 | &#43;-------------------------&#43; 7 rows START game=node:matches(&#39;match_id:*&#39;) RETURN game.time, COUNT(game) ORDER BY game.time START game=node:times(&#39;time:[1600 TO 2000]&#39;) RETURN game." />
+        <meta name="description" content="I&#8217;ve done a bit of modelling with years and months in neo4j graphs that I&#8217;ve worked on previously but I haven&#8217;t ever done anything with time so I thought it&#8217;d be interesting to have a go with my football graph.
+ I came across this StackOverflow post on my travels which suggested that indexing nodes by time would be helpful and since I have a bunch of football matches with associated times I thought I&#8217;d try it out." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-03-31",
-        "description": "\x26gt; DateTime.now.strftime(\x26#34;%H%M\x26#34;) =\x26gt; \x26#34;2200\x26#34; START game=node:times(\x27time:*\x27) RETURN game.time, COUNT(game) ORDER BY game.time \x2b-------------------------\x2b | game.time | COUNT(game) | \x2b-------------------------\x2b | 1245 | 21 | | 1330 | 21 | | 1500 | 163 | | 1600 | 29 | | 1730 | 22 | | 1945 | 21 | | 2000 | 19 | \x2b-------------------------\x2b 7 rows START game=node:matches(\x27match_id:*\x27) RETURN game.time, COUNT(game) ORDER BY game.time START game=node:times(\x27time:[1600 TO 2000]\x27) RETURN game.",
-        "wordCount":  245 
+        "description": "I\x26#8217;ve done a bit of modelling with years and months in neo4j graphs that I\x26#8217;ve worked on previously but I haven\x26#8217;t ever done anything with time so I thought it\x26#8217;d be interesting to have a go with my football graph.\n I came across this StackOverflow post on my travels which suggested that indexing nodes by time would be helpful and since I have a bunch of football matches with associated times I thought I\x26#8217;d try it out.",
+        "wordCount":  474 
     }
     </script>
     
@@ -175,19 +177,34 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">neo4j/cypher: Playing around with time</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">DateTime</span><span style="color:#f92672">.</span>now<span style="color:#f92672">.</span>strftime(<span style="color:#e6db74">&#34;%H%M&#34;</span>)
-<span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;2200&#34;</span>
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START game=node:times('time:*')
+    <div class="paragraph">
+<p>I&#8217;ve done a bit of modelling with years and months in neo4j graphs that I&#8217;ve worked on previously but I haven&#8217;t ever done anything with time so I thought it&#8217;d be interesting to have a go with my football graph.</p>
+</div>
+<div class="paragraph">
+<p>I came across <a href="http://stackoverflow.com/questions/9138857/in-neo4j-how-can-i-index-by-date-and-search-in-a-date-range">this StackOverflow post</a> on my travels which suggested that indexing nodes by time would be helpful and since I have a bunch of football matches with associated times I thought I&#8217;d try it out.</p>
+</div>
+<div class="paragraph">
+<p>I created the key of the index by running code similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">&gt; DateTime.now.strftime("%H%M")
+=&gt; "2200"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can then write a query to show all the games at a certain time of day:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START game=node:times('time:*')
 RETURN game.time, COUNT(game)
-ORDER BY game.time
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-+-------------------------+
+ORDER BY game.time</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">+-------------------------+
 | game.time | COUNT(game) |
 +-------------------------+
 | 1245      | 21          |
@@ -198,19 +215,32 @@ ORDER BY game.time
 | 1945      | 21          |
 | 2000      | 19          |
 +-------------------------+
-7 rows
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START game=node:matches('match_id:*')
+7 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To be fair any index that referenced all the matches would allow us to do this. e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START game=node:matches('match_id:*')
 RETURN game.time, COUNT(game)
-ORDER BY game.time
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START game=node:times('time:[1600 TO 2000]')
+ORDER BY game.time</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The time based indexing becomes more interesting when we use Lucene&#8217;s <a href="http://lucene.apache.org/core/old_versioned_docs/versions/2_9_0/api/all/org/apache/lucene/search/NumericRangeQuery.html">numeric range query</a> syntax to only select matches which happened between certain times of day:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START game=node:times('time:[1600 TO 2000]')
 RETURN game.time, COUNT(game)
-ORDER BY game.time
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-+-------------------------+
+ORDER BY game.time</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">+-------------------------+
 | game.time | COUNT(game) |
 +-------------------------+
 | 1600      | 29          |
@@ -218,43 +248,66 @@ ORDER BY game.time
 | 1945      | 21          |
 | 2000      | 19          |
 +-------------------------+
-4 rows
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-START game=node:times('time:[1730 TO 2359]')
+4 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I couldn&#8217;t see a way to set an open ended value either side of the 'TO' so if we want to do that we just need to set a really high maximum value or really low minimum value.</p>
+</div>
+<div class="paragraph">
+<p>For example if we want to find all the evening matches we could use this query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START game=node:times('time:[1730 TO 2359]')
 RETURN game.time, COUNT(game)
-ORDER BY game.time
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-+-------------------------+
+ORDER BY game.time</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">+-------------------------+
 | game.time | COUNT(game) |
 +-------------------------+
 | 1730      | 22          |
 | 1945      | 21          |
 | 2000      | 19          |
 +-------------------------+
-3 rows
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">Time</span><span style="color:#f92672">.</span>new(<span style="color:#ae81ff">2013</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>to_i
-<span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">1356998400</span>
-</code></pre></div><pre><code class="language-cypher" data-lang="cypher">
-START game=node:times('time:[1730 TO 2359] AND date: [1356998400 TO 9999999999]')
-RETURN game.time, game.name, game.friendly_date
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-+------------------------------------------------------------------------------------+
+3 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I also indexed each match by its full timestamp so we could find all the evening games this year if we wanted as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">&gt; Time.new(2013,1,1).to_i
+=&gt; 1356998400</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">START game=node:times('time:[1730 TO 2359] AND date: [1356998400 TO 9999999999]')
+RETURN game.time, game.name, game.friendly_date</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">+------------------------------------------------------------------------------------+
 | game.time | game.name                                | game.friendly_date          |
 +------------------------------------------------------------------------------------+
-| 1730      | &#34;Wigan Athletic vs Liverpool&#34;            | &#34;2013-03-02 17:30:00 +0000&#34; |
-| 2000      | &#34;Aston Villa vs Manchester City&#34;         | &#34;2013-03-04 20:00:00 +0000&#34; |
-| 2000      | &#34;West Ham United vs Tottenham Hotspur&#34;   | &#34;2013-02-25 20:00:00 +0000&#34; |
-| 2000      | &#34;Liverpool vs West Bromwich Albion&#34;      | &#34;2013-02-11 20:00:00 +0000&#34; |
-| 1730      | &#34;Fulham vs Manchester United&#34;            | &#34;2013-02-02 17:30:00 +0000&#34; |
+| 1730      | "Wigan Athletic vs Liverpool"            | "2013-03-02 17:30:00 +0000" |
+| 2000      | "Aston Villa vs Manchester City"         | "2013-03-04 20:00:00 +0000" |
+| 2000      | "West Ham United vs Tottenham Hotspur"   | "2013-02-25 20:00:00 +0000" |
+| 2000      | "Liverpool vs West Bromwich Albion"      | "2013-02-11 20:00:00 +0000" |
+| 1730      | "Fulham vs Manchester United"            | "2013-02-02 17:30:00 +0000" |
 ...
-| 1945      | &#34;Chelsea vs Southampton&#34;                 | &#34;2013-01-16 19:45:00 +0000&#34; |
+| 1945      | "Chelsea vs Southampton"                 | "2013-01-16 19:45:00 +0000" |
 +------------------------------------------------------------------------------------+
-25 rows
-</code></pre></div>
+25 rows</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -288,7 +341,7 @@ RETURN game.time, game.name, game.friendly_date
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/03/31/neo4jcypher-playing-around-with-time/&amp;title=neo4j%2fcypher%3a%20Playing%20around%20with%20time&amp;summary=%26gt%3b%20DateTime.now.strftime%28%26%2334%3b%25H%25M%26%2334%3b%29%20%3d%26gt%3b%20%26%2334%3b2200%26%2334%3b%20START%20game%3dnode%3atimes%28%27time%3a%2a%27%29%20RETURN%20game.time%2c%20COUNT%28game%29%20ORDER%20BY%20game.time%20%2b-------------------------%2b%20%7c%20game.time%20%7c%20COUNT%28game%29%20%7c%20%2b-------------------------%2b%20%7c%201245%20%7c%2021%20%7c%20%7c%201330%20%7c%2021%20%7c%20%7c%201500%20%7c%20163%20%7c%20%7c%201600%20%7c%2029%20%7c%20%7c%201730%20%7c%2022%20%7c%20%7c%201945%20%7c%2021%20%7c%20%7c%202000%20%7c%2019%20%7c%20%2b-------------------------%2b%207%20rows%20START%20game%3dnode%3amatches%28%27match_id%3a%2a%27%29%20RETURN%20game.time%2c%20COUNT%28game%29%20ORDER%20BY%20game.time%20START%20game%3dnode%3atimes%28%27time%3a%5b1600%20TO%202000%5d%27%29%20RETURN%20game...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/03/31/neo4jcypher-playing-around-with-time/&amp;title=neo4j%2fcypher%3a%20Playing%20around%20with%20time&amp;summary=I%26%238217%3bve%20done%20a%20bit%20of%20modelling%20with%20years%20and%20months%20in%20neo4j%20graphs%20that%20I%26%238217%3bve%20worked%20on%20previously%20but%20I%20haven%26%238217%3bt%20ever%20done%20anything%20with%20time%20so%20I%20thought%20it%26%238217%3bd%20be%20interesting%20to%20have%20a%20go%20with%20my%20football%20graph.%0a%20I%20came%20across%20this%20StackOverflow%20post%20on%20my%20travels%20which%20suggested%20that%20indexing%20nodes%20by%20time%20would%20be%20helpful%20and%20since%20I%20have%20a%20bunch%20of%20football%20matches%20with%20associated%20times%20I%20thought%20I%26%238217%3bd%20try%20it%20out...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

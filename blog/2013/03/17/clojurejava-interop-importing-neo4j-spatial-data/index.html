@@ -24,7 +24,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="clojure/Java Interop - Importing neo4j spatial data" />
         
-          <meta name="twitter:description" content="package main.java; // imports excluded  public class StadiumsImport { public static void main(String[] args) throws IOException { List&lt;String&gt; lines = readFile(&#34;data/stadiums.csv&#34;); EmbeddedGraphDatabase db = new EmbeddedGraphDatabase(&#34;neo4j-community-1.9.M04/data/graph.db&#34;); Index&lt;Node&gt; stadiumsIndex = createSpatialIndex(db, &#34;stadiumsLocation&#34;); Transaction tx = db.beginTx(); for (String stadium : lines) { String[] columns = stadium.split(&#34;,&#34;); Index&lt;Node&gt; teamsIndex = db.index().forNodes(&#34;teams&#34;); String team = columns[1].replaceAll(&#34;\&#34;&#34;,&#34;&#34;); Node teamNode = teamsIndex.get(&#34;name&#34;, team).getSingle(); if(teamNode != null) { Node stadiumNode = db.createNode(); stadiumNode.setProperty(&#34;wkt&#34;, String.format(&#34;POINT(%s %s)&#34;, columns[4], columns[3])); stadiumNode." />
+          <meta name="twitter:description" content="I wrote a post about a week ago where I described how I&#8217;d added football stadiums to my football graph using neo4j spatial and after I&#8217;d done that I wanted to put it into my import script along with the rest of the data.
+ I thought leiningen would probably work quite well for this as you can point it at a Java class and have it be executed.
+ To start with I had to change the import code slightly to link stadiums to teams which have already been added to the graph:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/03/17/clojurejava-interop-importing-neo4j-spatial-data/" />
 
@@ -35,7 +37,9 @@
         <title> clojure/Java Interop - Importing neo4j spatial data &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="package main.java; // imports excluded  public class StadiumsImport { public static void main(String[] args) throws IOException { List&lt;String&gt; lines = readFile(&#34;data/stadiums.csv&#34;); EmbeddedGraphDatabase db = new EmbeddedGraphDatabase(&#34;neo4j-community-1.9.M04/data/graph.db&#34;); Index&lt;Node&gt; stadiumsIndex = createSpatialIndex(db, &#34;stadiumsLocation&#34;); Transaction tx = db.beginTx(); for (String stadium : lines) { String[] columns = stadium.split(&#34;,&#34;); Index&lt;Node&gt; teamsIndex = db.index().forNodes(&#34;teams&#34;); String team = columns[1].replaceAll(&#34;\&#34;&#34;,&#34;&#34;); Node teamNode = teamsIndex.get(&#34;name&#34;, team).getSingle(); if(teamNode != null) { Node stadiumNode = db.createNode(); stadiumNode.setProperty(&#34;wkt&#34;, String.format(&#34;POINT(%s %s)&#34;, columns[4], columns[3])); stadiumNode." />
+        <meta name="description" content="I wrote a post about a week ago where I described how I&#8217;d added football stadiums to my football graph using neo4j spatial and after I&#8217;d done that I wanted to put it into my import script along with the rest of the data.
+ I thought leiningen would probably work quite well for this as you can point it at a Java class and have it be executed.
+ To start with I had to change the import code slightly to link stadiums to teams which have already been added to the graph:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +68,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-03-17",
-        "description": "package main.java; \/\/ imports excluded  public class StadiumsImport { public static void main(String[] args) throws IOException { List\x26lt;String\x26gt; lines = readFile(\x26#34;data\/stadiums.csv\x26#34;); EmbeddedGraphDatabase db = new EmbeddedGraphDatabase(\x26#34;neo4j-community-1.9.M04\/data\/graph.db\x26#34;); Index\x26lt;Node\x26gt; stadiumsIndex = createSpatialIndex(db, \x26#34;stadiumsLocation\x26#34;); Transaction tx = db.beginTx(); for (String stadium : lines) { String[] columns = stadium.split(\x26#34;,\x26#34;); Index\x26lt;Node\x26gt; teamsIndex = db.index().forNodes(\x26#34;teams\x26#34;); String team = columns[1].replaceAll(\x26#34;\\\x26#34;\x26#34;,\x26#34;\x26#34;); Node teamNode = teamsIndex.get(\x26#34;name\x26#34;, team).getSingle(); if(teamNode != null) { Node stadiumNode = db.createNode(); stadiumNode.setProperty(\x26#34;wkt\x26#34;, String.format(\x26#34;POINT(%s %s)\x26#34;, columns[4], columns[3])); stadiumNode.",
-        "wordCount":  286 
+        "description": "I wrote a post about a week ago where I described how I\x26#8217;d added football stadiums to my football graph using neo4j spatial and after I\x26#8217;d done that I wanted to put it into my import script along with the rest of the data.\n I thought leiningen would probably work quite well for this as you can point it at a Java class and have it be executed.\n To start with I had to change the import code slightly to link stadiums to teams which have already been added to the graph:",
+        "wordCount":  671 
     }
     </script>
     
@@ -178,110 +182,155 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">clojure/Java Interop - Importing neo4j spatial data</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">package</span> main.java<span style="color:#f92672">;</span>
+    <div class="paragraph">
+<p>I wrote a post about a week ago where I described how I&#8217;d <a href="http://www.markhneedham.com/blog/2013/03/10/neo4jcypher-finding-football-stadiums-near-a-city-using-spatial/">added football stadiums to my football graph using neo4j spatial</a> and after I&#8217;d done that I wanted to put it into my import script along with the rest of the data.</p>
+</div>
+<div class="paragraph">
+<p>I thought <a href="https://github.com/technomancy/leiningen">leiningen</a> would probably work quite well for this as you can point it at a Java class and have it be executed.</p>
+</div>
+<div class="paragraph">
+<p>To start with I had to change the import code slightly to link stadiums to teams which have already been added to the graph:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package main.java;
 
-<span style="color:#75715e">// imports excluded
-</span><span style="color:#75715e"></span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StadiumsImport</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
-        List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> lines <span style="color:#f92672">=</span> readFile<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;data/stadiums.csv&#34;</span><span style="color:#f92672">);</span>
+// imports excluded
 
-        EmbeddedGraphDatabase db <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> EmbeddedGraphDatabase<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;neo4j-community-1.9.M04/data/graph.db&#34;</span><span style="color:#f92672">);</span>
-        Index<span style="color:#f92672">&lt;</span>Node<span style="color:#f92672">&gt;</span> stadiumsIndex <span style="color:#f92672">=</span> createSpatialIndex<span style="color:#f92672">(</span>db<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;stadiumsLocation&#34;</span><span style="color:#f92672">);</span>
-        Transaction tx <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">beginTx</span><span style="color:#f92672">();</span>
+public class StadiumsImport {
+    public static void main(String[] args) throws IOException {
+        List&lt;String&gt; lines = readFile("data/stadiums.csv");
 
-        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span>String stadium <span style="color:#f92672">:</span> lines<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            String<span style="color:#f92672">[]</span> columns <span style="color:#f92672">=</span> stadium<span style="color:#f92672">.</span><span style="color:#a6e22e">split</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">);</span>
-            Index<span style="color:#f92672">&lt;</span>Node<span style="color:#f92672">&gt;</span> teamsIndex <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">index</span><span style="color:#f92672">().</span><span style="color:#a6e22e">forNodes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;teams&#34;</span><span style="color:#f92672">);</span>
-            String team <span style="color:#f92672">=</span> columns<span style="color:#f92672">[</span>1<span style="color:#f92672">].</span><span style="color:#a6e22e">replaceAll</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\&#34;&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">);</span>
-            Node teamNode <span style="color:#f92672">=</span> teamsIndex<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> team<span style="color:#f92672">).</span><span style="color:#a6e22e">getSingle</span><span style="color:#f92672">();</span>
+        EmbeddedGraphDatabase db = new EmbeddedGraphDatabase("neo4j-community-1.9.M04/data/graph.db");
+        Index&lt;Node&gt; stadiumsIndex = createSpatialIndex(db, "stadiumsLocation");
+        Transaction tx = db.beginTx();
 
-            <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>teamNode <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                Node stadiumNode <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">createNode</span><span style="color:#f92672">();</span>
-                stadiumNode<span style="color:#f92672">.</span><span style="color:#a6e22e">setProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;wkt&#34;</span><span style="color:#f92672">,</span> String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;POINT(%s %s)&#34;</span><span style="color:#f92672">,</span> columns<span style="color:#f92672">[</span>4<span style="color:#f92672">],</span> columns<span style="color:#f92672">[</span>3<span style="color:#f92672">]));</span>
-                stadiumNode<span style="color:#f92672">.</span><span style="color:#a6e22e">setProperty</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">,</span> columns<span style="color:#f92672">[</span>0<span style="color:#f92672">].</span><span style="color:#a6e22e">replaceAll</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;\&#34;&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">));</span>
-                stadiumsIndex<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>stadiumNode<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;dummy&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;value&#34;</span><span style="color:#f92672">);</span>
-                teamNode<span style="color:#f92672">.</span><span style="color:#a6e22e">createRelationshipTo</span><span style="color:#f92672">(</span>stadiumNode<span style="color:#f92672">,</span> DynamicRelationshipType<span style="color:#f92672">.</span><span style="color:#a6e22e">withName</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;play_at&#34;</span><span style="color:#f92672">));</span>
-            <span style="color:#f92672">}</span>
+        for (String stadium : lines) {
+            String[] columns = stadium.split(",");
+            Index&lt;Node&gt; teamsIndex = db.index().forNodes("teams");
+            String team = columns[1].replaceAll("\"","");
+            Node teamNode = teamsIndex.get("name", team).getSingle();
 
-        <span style="color:#f92672">}</span>
+            if(teamNode != null) {
+                Node stadiumNode = db.createNode();
+                stadiumNode.setProperty("wkt", String.format("POINT(%s %s)", columns[4], columns[3]));
+                stadiumNode.setProperty("name", columns[0].replaceAll("\"",""));
+                stadiumsIndex.add(stadiumNode, "dummy", "value");
+                teamNode.createRelationshipTo(stadiumNode, DynamicRelationshipType.withName("play_at"));
+            }
 
-        tx<span style="color:#f92672">.</span><span style="color:#a6e22e">success</span><span style="color:#f92672">();</span>
-        tx<span style="color:#f92672">.</span><span style="color:#a6e22e">finish</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
+        }
 
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Index<span style="color:#f92672">&lt;</span>Node<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">createSpatialIndex</span><span style="color:#f92672">(</span>EmbeddedGraphDatabase db<span style="color:#f92672">,</span>  String indexName<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">return</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">index</span><span style="color:#f92672">().</span><span style="color:#a6e22e">forNodes</span><span style="color:#f92672">(</span>indexName<span style="color:#f92672">,</span> SpatialIndexProvider<span style="color:#f92672">.</span><span style="color:#a6e22e">SIMPLE_WKT_CONFIG</span><span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+        tx.success();
+        tx.finish();
+    }
 
-    <span style="color:#75715e">// readFile excluded
-</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-(defproject neo4jfootball &#34;1.0.0-SNAPSHOT&#34;
-  :description &#34;neo4j football project&#34;
-  :main &#34;main.java.StadiumsImport&#34;
-  :dependencies [[org.clojure/clojure &#34;1.4.0&#34;] 
-                 [org.neo4j/neo4j-spatial &#34;0.11-SNAPSHOT&#34;]
-                 [clojure-csv/clojure-csv &#34;2.0.0-alpha1&#34;]]
-  :jvm-opts [&#34;-Xmx2g&#34;]
-  :plugins [[lein-idea &#34;1.0.1&#34;]]
-  :repositories {&#34;local&#34; ~(str (.toURI (java.io.File. &#34;maven_repository&#34;)))}
-  :java-source-paths [&#34;src/main/java&#34;] )
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
- mvn install:install-file -Dfile=target/neo4j-spatial-0.11-SNAPSHOT.jar -DartifactId=neo4j-spatial -Dversion=0.11-SNAPSHOT -DgroupId=org.neo4j -Dpackaging=jar -DlocalRepositoryPath=/path/to/neo4j-football/maven_repository -DpomFile=pom.xml  
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(ns neo4jfootball.core
-  (<span style="color:#e6db74">:require</span> [clojure-csv.core <span style="color:#e6db74">:as</span> csv])
-  (<span style="color:#e6db74">:use</span> clojure.java.io)
-  (<span style="color:#e6db74">:import</span> (org.neo4j.kernel EmbeddedGraphDatabase) (org.neo4j.gis.spatial.indexprovider SpatialIndexProvider) (org.neo4j.graphdb DynamicRelationshipType)))
+    private static Index&lt;Node&gt; createSpatialIndex(EmbeddedGraphDatabase db,  String indexName) {
+        return db.index().forNodes(indexName, SpatialIndexProvider.SIMPLE_WKT_CONFIG);
+    }
+
+    // readFile excluded
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve excluded some bits of the code for brevity but it&#8217;s on <a href="https://gist.github.com/mneedham/5182948">this gist</a> if you&#8217;re interested.</p>
+</div>
+<div class="paragraph">
+<p>The only change from last week&#8217;s version is that we&#8217;re now looking up the team that a stadium belongs to and creating a 'play_at' relationship from the team to the stadium.</p>
+</div>
+<div class="paragraph">
+<p>I was then able to execute that code by calling 'lein run' based on the following project.clj file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">(defproject neo4jfootball "1.0.0-SNAPSHOT"
+  :description "neo4j football project"
+  :main "main.java.StadiumsImport"
+  :dependencies [[org.clojure/clojure "1.4.0"]
+                 [org.neo4j/neo4j-spatial "0.11-SNAPSHOT"]
+                 [clojure-csv/clojure-csv "2.0.0-alpha1"]]
+  :jvm-opts ["-Xmx2g"]
+  :plugins [[lein-idea "1.0.1"]]
+  :repositories {"local" ~(str (.toURI (java.io.File. "maven_repository")))}
+  :java-source-paths ["src/main/java"] )</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m using <a href="http://www.markhneedham.com/blog/2011/12/27/leiningen-using-goose-via-a-local-maven-repository/">a local Maven repository</a> to store the neo4j spatial JAR. The Maven entry was created by executed the following command from where I had the <a href="https://github.com/neo4j/spatial">neo4j spatial</a> project checked out:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"> mvn install:install-file -Dfile=target/neo4j-spatial-0.11-SNAPSHOT.jar -DartifactId=neo4j-spatial -Dversion=0.11-SNAPSHOT -DgroupId=org.neo4j -Dpackaging=jar -DlocalRepositoryPath=/path/to/neo4j-football/maven_repository -DpomFile=pom.xml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That worked reasonably well but I thought it&#8217;d be interesting to see what the above code would look like if it was written in clojure instead.</p>
+</div>
+<div class="paragraph">
+<p>This is what I ended up with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(ns neo4jfootball.core
+  (:require [clojure-csv.core :as csv])
+  (:use clojure.java.io)
+  (:import (org.neo4j.kernel EmbeddedGraphDatabase) (org.neo4j.gis.spatial.indexprovider SpatialIndexProvider) (org.neo4j.graphdb DynamicRelationshipType)))
 
 (defn take-csv [fname]
   (with-open [file (reader fname)]
     (csv/parse-csv (slurp file))))
 
-(defn transform [line] {:stadium (<span style="color:#a6e22e">get</span> line <span style="color:#ae81ff">0</span>) <span style="color:#e6db74">:team</span> (<span style="color:#a6e22e">get</span> line <span style="color:#ae81ff">1</span>) <span style="color:#e6db74">:lat</span> (<span style="color:#a6e22e">get</span> line <span style="color:#ae81ff">3</span>) <span style="color:#e6db74">:long</span> (<span style="color:#a6e22e">get</span> line <span style="color:#ae81ff">4</span>)})
+(defn transform [line] {:stadium (get line 0) :team (get line 1) :lat (get line 3) :long (get line 4)})
 
-(def not-nil? (comp <span style="color:#a6e22e">not</span> nil?))
+(def not-nil? (comp not nil?))
 
 (defn create-stadium-node [db line]
-  (<span style="color:#66d9ef">let</span> [stadium-node (<span style="color:#f92672">..</span> db createNode)]
-    (<span style="color:#f92672">..</span> stadium-node (setProperty <span style="color:#e6db74">&#34;wkt&#34;</span> (<span style="color:#a6e22e">format</span> <span style="color:#e6db74">&#34;POINT(%s %s)&#34;</span> (<span style="color:#e6db74">:long</span> line) (<span style="color:#e6db74">:lat</span> line))))
-    (<span style="color:#f92672">..</span> stadium-node (setProperty <span style="color:#e6db74">&#34;name&#34;</span> (<span style="color:#e6db74">:stadium</span> line)))
+  (let [stadium-node (.. db createNode)]
+    (.. stadium-node (setProperty "wkt" (format "POINT(%s %s)" (:long line) (:lat line))))
+    (.. stadium-node (setProperty "name" (:stadium line)))
   stadium-node))
 
 (defn -main []
   (do
-    (<span style="color:#66d9ef">let</span> [db (new EmbeddedGraphDatabase <span style="color:#e6db74">&#34;neo4j-community-1.9.M04/data/graph.db&#34;</span>)
-          tx (<span style="color:#f92672">.</span>beginTx db)
-          stadiums-index (<span style="color:#f92672">..</span> db index (forNodes <span style="color:#e6db74">&#34;stadiumsLocation&#34;</span> (SpatialIndexProvider/SIMPLE_WKT_CONFIG)))
-          teams-index    (<span style="color:#f92672">..</span> db index (forNodes <span style="color:#e6db74">&#34;teams&#34;</span>))]
-      (doseq [line (drop <span style="color:#ae81ff">1</span> (<span style="color:#a6e22e">map</span> transform (take-csv <span style="color:#e6db74">&#34;data/stadiums.csv&#34;</span>)))]
-        (<span style="color:#66d9ef">let</span> [team-node (<span style="color:#f92672">..</span> teams-index (<span style="color:#a6e22e">get</span> <span style="color:#e6db74">&#34;name&#34;</span> (<span style="color:#e6db74">:team</span> line)) getSingle)]
-          (<span style="color:#66d9ef">if</span> (not-nil? team-node)
-            (<span style="color:#66d9ef">let</span> [stadium-node (create-stadium-node db line)]
-              (<span style="color:#f92672">..</span> stadiums-index (add stadium-node <span style="color:#e6db74">&#34;dummy&#34;</span> <span style="color:#e6db74">&#34;value&#34;</span>))
-              (<span style="color:#f92672">..</span> team-node (createRelationshipTo stadium-node (DynamicRelationshipType/withName <span style="color:#e6db74">&#34;play_at&#34;</span>)))))))
-      (<span style="color:#f92672">..</span> tx success)
-      (<span style="color:#f92672">..</span> tx finish))))
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-lein run -m neo4jfootball.core
-</code></pre></div>
+    (let [db (new EmbeddedGraphDatabase "neo4j-community-1.9.M04/data/graph.db")
+          tx (.beginTx db)
+          stadiums-index (.. db index (forNodes "stadiumsLocation" (SpatialIndexProvider/SIMPLE_WKT_CONFIG)))
+          teams-index    (.. db index (forNodes "teams"))]
+      (doseq [line (drop 1 (map transform (take-csv "data/stadiums.csv")))]
+        (let [team-node (.. teams-index (get "name" (:team line)) getSingle)]
+          (if (not-nil? team-node)
+            (let [stadium-node (create-stadium-node db line)]
+              (.. stadiums-index (add stadium-node "dummy" "value"))
+              (.. team-node (createRelationshipTo stadium-node (DynamicRelationshipType/withName "play_at")))))))
+      (.. tx success)
+      (.. tx finish))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The code is simplified quite a bit by using the <a href="https://github.com/davidsantiago/clojure-csv">clojure CSV</a> library so I could probably have achieved similar in the Java version by using an equivalent library.</p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s a bit easier to see what properties of a row in the CSV file are being used where as a result of the <cite>transform</cite> function where we convert the array into a map.</p>
+</div>
+<div class="paragraph">
+<p>It would have taken quite a bit more code to achieve a similar thing in Java so I didn&#8217;t bother.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="http://clojure.org/java_interop">Java Interop page on the clojure website</a> was quite useful for working out how to call the various methods on the Java API.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m mainly using the <cite>http://clojure.org/java_interop#Java Interop-The Dot special form-(.. Classname-symbol member+)</cite> macro which allows us to chain Java method calls together. In a couple of cases we could just as easily have used the <cite>http://clojure.org/java_interop#Java Interop-The Dot special form-(. Classname-symbol (method-symbol args*)) or</cite> macro instead.</p>
+</div>
+<div class="paragraph">
+<p>We can then call this code from lein like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">lein run -m neo4jfootball.core</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -315,7 +364,7 @@ lein run -m neo4jfootball.core
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/03/17/clojurejava-interop-importing-neo4j-spatial-data/&amp;title=clojure%2fJava%20Interop%20-%20Importing%20neo4j%20spatial%20data&amp;summary=package%20main.java%3b%20%2f%2f%20imports%20excluded%20%20public%20class%20StadiumsImport%20%7b%20public%20static%20void%20main%28String%5b%5d%20args%29%20throws%20IOException%20%7b%20List%26lt%3bString%26gt%3b%20lines%20%3d%20readFile%28%26%2334%3bdata%2fstadiums.csv%26%2334%3b%29%3b%20EmbeddedGraphDatabase%20db%20%3d%20new%20EmbeddedGraphDatabase%28%26%2334%3bneo4j-community-1.9.M04%2fdata%2fgraph.db%26%2334%3b%29%3b%20Index%26lt%3bNode%26gt%3b%20stadiumsIndex%20%3d%20createSpatialIndex%28db%2c%20%26%2334%3bstadiumsLocation%26%2334%3b%29%3b%20Transaction%20tx%20%3d%20db.beginTx%28%29%3b%20for%20%28String%20stadium%20%3a%20lines%29%20%7b%20String%5b%5d%20columns%20%3d%20stadium.split%28%26%2334%3b%2c%26%2334%3b%29%3b%20Index%26lt%3bNode%26gt%3b%20teamsIndex%20%3d%20db.index%28%29.forNodes%28%26%2334%3bteams%26%2334%3b%29%3b%20String%20team%20%3d%20columns%5b1%5d.replaceAll%28%26%2334%3b%5c%26%2334%3b%26%2334%3b%2c%26%2334%3b%26%2334%3b%29%3b%20Node%20teamNode%20%3d%20teamsIndex.get%28%26%2334%3bname%26%2334%3b%2c%20team%29.getSingle%28%29%3b%20if%28teamNode%20%21%3d%20null%29%20%7b%20Node%20stadiumNode%20%3d%20db.createNode%28%29%3b%20stadiumNode.setProperty%28%26%2334%3bwkt%26%2334%3b%2c%20String.format%28%26%2334%3bPOINT%28%25s%20%25s%29%26%2334%3b%2c%20columns%5b4%5d%2c%20columns%5b3%5d%29%29%3b%20stadiumNode...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/03/17/clojurejava-interop-importing-neo4j-spatial-data/&amp;title=clojure%2fJava%20Interop%20-%20Importing%20neo4j%20spatial%20data&amp;summary=I%20wrote%20a%20post%20about%20a%20week%20ago%20where%20I%20described%20how%20I%26%238217%3bd%20added%20football%20stadiums%20to%20my%20football%20graph%20using%20neo4j%20spatial%20and%20after%20I%26%238217%3bd%20done%20that%20I%20wanted%20to%20put%20it%20into%20my%20import%20script%20along%20with%20the%20rest%20of%20the%20data.%0a%20I%20thought%20leiningen%20would%20probably%20work%20quite%20well%20for%20this%20as%20you%20can%20point%20it%20at%20a%20Java%20class%20and%20have%20it%20be%20executed.%0a%20To%20start%20with%20I%20had%20to%20change%20the%20import%20code%20slightly%20to%20link%20stadiums%20to%20teams%20which%20have%20already%20been%20added%20to%20the%20graph%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

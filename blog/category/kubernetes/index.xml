@@ -28,7 +28,9 @@
       <pubDate>Fri, 17 Nov 2017 18:10:28 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/11/17/kubernetes-1-8-using-cronjobs-take-neo4j-backups/</guid>
-      <description>minikube start --memory 8192 helm init &amp;amp;&amp;amp; kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/ helm install incubator/neo4j --name neo-helm --wait --set authEnabled=false,core.extraVars.NEO4J_dbms_backup_address=0.0.0.0:6362 kubectl exec neo-helm-neo4j-core-0 \  -- bin/cypher-shell --format verbose \  &amp;#34;CALL dbms.cluster.overview() YIELD id, role RETURN id, role&amp;#34; +-----------------------------------------------------+ | id | role | +-----------------------------------------------------+ | &amp;#34;0b3bfe6c-6a68-4af5-9dd2-e96b564df6e5&amp;#34; | &amp;#34;LEADER&amp;#34; | | &amp;#34;09e9bee8-bdc5-4e95-926c-16ea8213e6e7&amp;#34; | &amp;#34;FOLLOWER&amp;#34; | | &amp;#34;859b9b56-9bfc-42ae-90c3-02cedacfe720&amp;#34; | &amp;#34;FOLLOWER&amp;#34; | +-----------------------------------------------------+ kubectl exec neo-helm-neo4j-core-0 \  -- bin/cypher-shell --format verbose \  &amp;#34;UNWIND range(0,1000) AS id CREATE (:Person {id: id})&amp;#34; 0 rows available after 653 ms, consumed after another 0 ms Added 1001 nodes, Set 1001 properties, Added 1001 labels kind: PersistentVolumeClaim apiVersion: v1 metadata: name: backupdir-neo4j labels: app: neo4j-backup spec: accessModes: - ReadWriteOnce resources: requests: storage: 10Gi --- apiVersion: batch/v1beta1 kind: CronJob metadata: name: neo4j-backup spec: schedule: &amp;#34;*/1 * * * *&amp;#34; jobTemplate: spec: template: spec: volumes: - name: backupdir-neo4j persistentVolumeClaim: claimName: backupdir-neo4j containers: - name: neo4j-backup image: neo4j:3.</description>
+      <description>With the release of Kubernetes 1.8 Cronjobs have graduated to beta, which means we can now more easily run Neo4j backup jobs against Kubernetes clusters.
+ Before we learn how to write a Cronjob let&amp;#8217;s first create a local Kubernetes cluster and deploy Neo4j.
+ Spinup Kubernetes &amp;amp; Helm minikube start --memory 8192 helm init &amp;amp;&amp;amp; kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system     Deploy a Neo4j cluster helm repo add incubator https://kubernetes-charts-incubator.</description>
     </item>
     
     <item>
@@ -37,7 +39,11 @@
       <pubDate>Sat, 21 Oct 2017 10:06:55 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/10/21/kubernetes-simple-example-pod-running/</guid>
-      <description>kind: Pod apiVersion: v1 metadata: name: marks-dummy-pod spec: containers: - name: marks-dummy-pod image: ubuntu restartPolicy: Never $ kubectl apply -f pod_no_while.yaml pod &amp;#34;marks-dummy-pod&amp;#34; created $ kubectl get pods No resources found, use --show-all to see completed objects. $ kubectl get pods --show-all NAME READY STATUS RESTARTS AGE marks-dummy-pod 0/1 Completed 0 1m kind: Pod apiVersion: v1 metadata: name: marks-dummy-pod spec: containers: - name: marks-dummy-pod image: ubuntu command: [&amp;#34;/bin/bash&amp;#34;, &amp;#34;-ec&amp;#34;, &amp;#34;while :; do echo &amp;#39;.</description>
+      <description>I recently needed to create a Kubernetes pod that would &#39;just sit there&#39; while I used kube cp to copy some files to a persistent volume to which it was bound.
+ I started out with this naive pod spec:
+ pod_no_while.yaml
+ kind: Pod apiVersion: v1 metadata: name: marks-dummy-pod spec: containers: - name: marks-dummy-pod image: ubuntu restartPolicy: Never   Let&amp;#8217;s apply that template:
+ $ kubectl apply -f pod_no_while.</description>
     </item>
     
     <item>
@@ -46,7 +52,9 @@
       <pubDate>Wed, 14 Jun 2017 08:49:06 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/06/14/kubernetes-node-pod/</guid>
-      <description>$ kubectl get pod NAME READY STATUS RESTARTS AGE neo4j-core-0 1/1 Running 0 6m neo4j-core-1 1/1 Running 0 6m neo4j-core-2 1/1 Running 0 2m $ kubectl get pod -o wide NAME READY STATUS RESTARTS AGE IP NODE neo4j-core-0 1/1 Running 0 6m 10.32.3.6 gke-neo4j-cluster-default-pool-ded394fa-0kpw neo4j-core-1 1/1 Running 0 6m 10.32.3.7 gke-neo4j-cluster-default-pool-ded394fa-0kpw neo4j-core-2 1/1 Running 0 2m 10.32.0.10 gke-neo4j-cluster-default-pool-ded394fa-kp68 </description>
+      <description>When running Kubernetes on a cloud provider, rather than locally using minikube, it&amp;#8217;s useful to know which node a pod is running on.
+ The normal command to list pods doesn&amp;#8217;t contain this information:
+ $ kubectl get pod NAME READY STATUS RESTARTS AGE neo4j-core-0 1/1 Running 0 6m neo4j-core-1 1/1 Running 0 6m neo4j-core-2 1/1 Running 0 2m   I spent a while searching for a command that I could use before I came across Ta-Ching Chen&amp;#8217;s blog post while looking for something else.</description>
     </item>
     
     <item>
@@ -55,7 +63,8 @@
       <pubDate>Sun, 04 Dec 2016 12:37:49 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/12/04/kubernetes-simulating-a-network-partition/</guid>
-      <description>$ kubectl get pods NAME READY STATUS RESTARTS AGE neo4j-0 1/1 Running 0 6h neo4j-1 1/1 Running 0 6h neo4j-2 1/1 Running 0 6h $ kubectl exec neo4j-0 -- ls -alh /sbin/route lrwxrwxrwx 1 root root 12 Oct 18 18:58 /sbin/route -&amp;gt; /bin/busybox $ kubectl exec neo4j-0 -- bin/cypher-shell &amp;#34;CALL dbms.cluster.role()&amp;#34; role &amp;#34;FOLLOWER&amp;#34; Bye! $ kubectl exec neo4j-1 -- bin/cypher-shell &amp;#34;CALL dbms.cluster.role()&amp;#34; role &amp;#34;FOLLOWER&amp;#34; Bye! $ kubectl exec neo4j-2 -- bin/cypher-shell &amp;#34;CALL dbms.</description>
+      <description>A couple of weeks ago I wrote a post explaining how to create a Neo4j causal cluster using Kubernetes and ... the I wanted to work out how to simulate a network partition which would put the leader on the minority side and force an election.
+ We&amp;#8217;ve done this on our internal tooling on AWS using the https://en.wikipedia.org/wiki/Iptables command but unfortunately that isn&amp;#8217;t available in my container, which only has the utilities provided by BusyBox.</description>
     </item>
     
   </channel>

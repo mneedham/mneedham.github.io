@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Haskell: Strictness and the monadic bind" />
         
-          <meta name="twitter:description" content="union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray &lt;- arrayContainer ls &lt;- getAssocs actualArray leader1 &lt;- readArray actualArray x leader2 &lt;- readArray actualArray y let newValues = (map (\(index, value) -&gt; (index, leader1)) . filter (\(index, value) -&gt; value == leader2)) ls sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues return actualArray union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray &lt;- arrayContainer ls &lt;- getAssocs actualArray leader1 &lt;- readArray actualArray x leader2 &lt;- readArray actualArray y let newValues = (map (\(index, value) -&gt; (index, leader1)) ." />
+          <meta name="twitter:description" content="As I mentioned towards the end of my post about implementing the union find data structure in Haskell I wrote another version using a mutable array and having not seen much of a performance improvement started commenting out code to try and find the problem.
+ I eventually narrowed it down to the union function which was defined like so:
+ union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray &lt;- arrayContainer ls &lt;- getAssocs actualArray leader1 &lt;- readArray actualArray x leader2 &lt;- readArray actualArray y let newValues = (map (\(index, value) -&gt; (index, leader1)) ." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/12/31/haskell-strictness-and-the-monadic-bind/" />
 
@@ -33,7 +35,9 @@
         <title> Haskell: Strictness and the monadic bind &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray &lt;- arrayContainer ls &lt;- getAssocs actualArray leader1 &lt;- readArray actualArray x leader2 &lt;- readArray actualArray y let newValues = (map (\(index, value) -&gt; (index, leader1)) . filter (\(index, value) -&gt; value == leader2)) ls sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues return actualArray union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray &lt;- arrayContainer ls &lt;- getAssocs actualArray leader1 &lt;- readArray actualArray x leader2 &lt;- readArray actualArray y let newValues = (map (\(index, value) -&gt; (index, leader1)) ." />
+        <meta name="description" content="As I mentioned towards the end of my post about implementing the union find data structure in Haskell I wrote another version using a mutable array and having not seen much of a performance improvement started commenting out code to try and find the problem.
+ I eventually narrowed it down to the union function which was defined like so:
+ union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray &lt;- arrayContainer ls &lt;- getAssocs actualArray leader1 &lt;- readArray actualArray x leader2 &lt;- readArray actualArray y let newValues = (map (\(index, value) -&gt; (index, leader1)) ." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-12-31",
-        "description": "union :: IO (IOArray Int Int) -\x26gt; Int -\x26gt; Int -\x26gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray \x26lt;- arrayContainer ls \x26lt;- getAssocs actualArray leader1 \x26lt;- readArray actualArray x leader2 \x26lt;- readArray actualArray y let newValues = (map (\\(index, value) -\x26gt; (index, leader1)) . filter (\\(index, value) -\x26gt; value == leader2)) ls sequence $ map (\\(idx, val) -\x26gt; writeArray actualArray idx val) newValues return actualArray union :: IO (IOArray Int Int) -\x26gt; Int -\x26gt; Int -\x26gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray \x26lt;- arrayContainer ls \x26lt;- getAssocs actualArray leader1 \x26lt;- readArray actualArray x leader2 \x26lt;- readArray actualArray y let newValues = (map (\\(index, value) -\x26gt; (index, leader1)) .",
-        "wordCount":  282 
+        "description": "As I mentioned towards the end of my post about implementing the union find data structure in Haskell I wrote another version using a mutable array and having not seen much of a performance improvement started commenting out code to try and find the problem.\n I eventually narrowed it down to the union function which was defined like so:\n union :: IO (IOArray Int Int) -\x26gt; Int -\x26gt; Int -\x26gt; IO (IOArray Int Int) union arrayContainer x y = do actualArray \x26lt;- arrayContainer ls \x26lt;- getAssocs actualArray leader1 \x26lt;- readArray actualArray x leader2 \x26lt;- readArray actualArray y let newValues = (map (\\(index, value) -\x26gt; (index, leader1)) .",
+        "wordCount":  640 
     }
     </script>
     
@@ -172,58 +176,98 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Haskell: Strictness and the monadic bind</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">union</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">IO</span> (<span style="color:#66d9ef">IOArray</span> <span style="color:#66d9ef">Int</span> <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IO</span> (<span style="color:#66d9ef">IOArray</span> <span style="color:#66d9ef">Int</span> <span style="color:#66d9ef">Int</span>)
-<span style="color:#a6e22e">union</span> arrayContainer x y <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-    actualArray <span style="color:#f92672">&lt;-</span> arrayContainer
-    ls <span style="color:#f92672">&lt;-</span> getAssocs actualArray
-    leader1 <span style="color:#f92672">&lt;-</span> readArray actualArray x
-    leader2 <span style="color:#f92672">&lt;-</span> readArray actualArray y
-    <span style="color:#66d9ef">let</span> newValues <span style="color:#f92672">=</span> (map (<span style="color:#a6e22e">\</span>(index, value) <span style="color:#f92672">-&gt;</span> (index, leader1)) <span style="color:#f92672">.</span> filter (<span style="color:#a6e22e">\</span>(index, value) <span style="color:#f92672">-&gt;</span> value <span style="color:#f92672">==</span> leader2)) ls
-    sequence <span style="color:#f92672">$</span> map (<span style="color:#a6e22e">\</span>(idx, val) <span style="color:#f92672">-&gt;</span> writeArray actualArray idx val) newValues
-    return actualArray   
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">union</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">IO</span> (<span style="color:#66d9ef">IOArray</span> <span style="color:#66d9ef">Int</span> <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IO</span> (<span style="color:#66d9ef">IOArray</span> <span style="color:#66d9ef">Int</span> <span style="color:#66d9ef">Int</span>)
-<span style="color:#a6e22e">union</span> arrayContainer x y <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-    actualArray <span style="color:#f92672">&lt;-</span> arrayContainer
-    ls <span style="color:#f92672">&lt;-</span> getAssocs actualArray
-    leader1 <span style="color:#f92672">&lt;-</span> readArray actualArray x
-    leader2 <span style="color:#f92672">&lt;-</span> readArray actualArray y
-    <span style="color:#66d9ef">let</span> newValues <span style="color:#f92672">=</span> (map (<span style="color:#a6e22e">\</span>(index, value) <span style="color:#f92672">-&gt;</span> (index, leader1)) <span style="color:#f92672">.</span> filter (<span style="color:#a6e22e">\</span>(index, value) <span style="color:#f92672">-&gt;</span> value <span style="color:#f92672">==</span> leader2)) ls
-    <span style="color:#75715e">-- sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues</span>
-    return actualArray  
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">union</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">IO</span> (<span style="color:#66d9ef">IOArray</span> <span style="color:#66d9ef">Int</span> <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IO</span> (<span style="color:#66d9ef">IOArray</span> <span style="color:#66d9ef">Int</span> <span style="color:#66d9ef">Int</span>)
-<span style="color:#a6e22e">union</span> arrayContainer x y <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-    actualArray <span style="color:#f92672">&lt;-</span> arrayContainer
-    ls <span style="color:#f92672">&lt;-</span> getAssocs actualArray
-    leader1 <span style="color:#f92672">&lt;-</span> readArray actualArray x
-    leader2 <span style="color:#f92672">&lt;-</span> readArray actualArray y
-    <span style="color:#75715e">-- let newValues = (map (\(index, value) -&gt; (index, leader1)) . filter (\(index, value) -&gt; value == leader2)) ls</span>
-    <span style="color:#75715e">-- sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues</span>
-    return actualArray 
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">union</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">IO</span> (<span style="color:#66d9ef">IOArray</span> <span style="color:#66d9ef">Int</span> <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IO</span> (<span style="color:#66d9ef">IOArray</span> <span style="color:#66d9ef">Int</span> <span style="color:#66d9ef">Int</span>)
-<span style="color:#a6e22e">union</span> arrayContainer x y <span style="color:#f92672">=</span> <span style="color:#66d9ef">do</span>
-    actualArray <span style="color:#f92672">&lt;-</span> arrayContainer
-    <span style="color:#75715e">-- ls &lt;- getAssocs actualArray</span>
-    leader1 <span style="color:#f92672">&lt;-</span> readArray actualArray x
-    leader2 <span style="color:#f92672">&lt;-</span> readArray actualArray y
-    <span style="color:#75715e">-- let newValues = (map (\(index, value) -&gt; (index, leader1)) . filter (\(index, value) -&gt; value == leader2)) ls</span>
-    <span style="color:#75715e">-- sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues</span>
-    return actualArray  
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+    <div class="paragraph">
+<p>As I mentioned towards the end of my post about <a href="http://www.markhneedham.com/blog/2012/12/31/haskell-an-impressively-non-performant-union-find/">implementing the union find data structure in Haskell</a> I <a href="https://github.com/mneedham/algorithms2/blob/master/MutableLeaders.hs">wrote another version</a> using a mutable array and having not seen much of a performance improvement started commenting out code to try and find the problem.</p>
+</div>
+<div class="paragraph">
+<p>I eventually narrowed it down to the <cite>union</cite> function which was defined like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int)
+union arrayContainer x y = do
+    actualArray &lt;- arrayContainer
+    ls &lt;- getAssocs actualArray
+    leader1 &lt;- readArray actualArray x
+    leader2 &lt;- readArray actualArray y
+    let newValues = (map (\(index, value) -&gt; (index, leader1)) . filter (\(index, value) -&gt; value == leader2)) ls
+    sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues
+    return actualArray</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I was using Unix&#8217;s <cite>http://en.wikipedia.org/wiki/Time_(Unix)<span class="time"></cite></span> function to get the execution time since this meant I didn&#8217;t need to make any changes to the program and this level of granularity was ok.</p>
+</div>
+<div class="paragraph">
+<p>The first time I ran the program it executed in 36.379 seconds and my first hunch was that a lot of time was being taken up writing to the array so I commented out that line:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int)
+union arrayContainer x y = do
+    actualArray &lt;- arrayContainer
+    ls &lt;- getAssocs actualArray
+    leader1 &lt;- readArray actualArray x
+    leader2 &lt;- readArray actualArray y
+    let newValues = (map (\(index, value) -&gt; (index, leader1)) . filter (\(index, value) -&gt; value == leader2)) ls
+    -- sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues
+    return actualArray</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The execution time decreased to 33.381 seconds so the writing of the array was actually only a small part of the total execution time.</p>
+</div>
+<div class="paragraph">
+<p>I thought it was quite strange that it was taking so long to execute since things are generally lazily evaluated in Haskell and my assumption was that <cite>newValues</cite> wasn&#8217;t being evaluated since I hadn&#8217;t used it anywhere. I decided to comment that out to see what difference it would make:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int)
+union arrayContainer x y = do
+    actualArray &lt;- arrayContainer
+    ls &lt;- getAssocs actualArray
+    leader1 &lt;- readArray actualArray x
+    leader2 &lt;- readArray actualArray y
+    -- let newValues = (map (\(index, value) -&gt; (index, leader1)) . filter (\(index, value) -&gt; value == leader2)) ls
+    -- sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues
+    return actualArray</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The execution time was now 33.579 seconds so commenting out that line hadn&#8217;t actually made any difference. I assumed <cite>ls</cite> wasn&#8217;t being evaluated since it isn&#8217;t being used but I thought I&#8217;d better check:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">union :: IO (IOArray Int Int) -&gt; Int -&gt; Int -&gt; IO (IOArray Int Int)
+union arrayContainer x y = do
+    actualArray &lt;- arrayContainer
+    -- ls &lt;- getAssocs actualArray
+    leader1 &lt;- readArray actualArray x
+    leader2 &lt;- readArray actualArray y
+    -- let newValues = (map (\(index, value) -&gt; (index, leader1)) . filter (\(index, value) -&gt; value == leader2)) ls
+    -- sequence $ map (\(idx, val) -&gt; writeArray actualArray idx val) newValues
+    return actualArray</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The execution time now reduced to 3.882 seconds thereby suggesting that <cite>http://hackage.haskell.org/packages/archive/array/0.2.0.0/doc/html/Data-Array-MArray.html#v%3AgetAssocs<span class="getAssocs"></cite></span> was being strictly evaluated.</p>
+</div>
+<div class="paragraph">
+<p>We are doing what&#8217;s called a monadic bind which (at least) <a href="http://www.haskell.org/ghc/docs/7.2.2/html/users_guide/interactive-evaluation.html">within GHCI is strictly evaluated</a> but <a href="http://www.haskell.org/haskellwiki/What_a_Monad_is_not">isn&#8217;t necessarily evaluated like this everywhere else</a>:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Monad operations (bind and return) have to be non-strict in fact, always! However other operations can be specific to each monad. For instance some are strict (like IO), and some are non-strict (like []).</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>From my observations it would seem that the <cite>IOArray</cite> is one of those monads which evaluates bind strictly.</p>
+</div>
+<div class="paragraph">
+<p>I tried looking at the Haskell source code to see if I could find any code to prove what I&#8217;d observed but I&#8217;m not entirely sure what I should be looking for!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -258,7 +302,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/31/haskell-strictness-and-the-monadic-bind/&amp;title=Haskell%3a%20Strictness%20and%20the%20monadic%20bind&amp;summary=union%20%3a%3a%20IO%20%28IOArray%20Int%20Int%29%20-%26gt%3b%20Int%20-%26gt%3b%20Int%20-%26gt%3b%20IO%20%28IOArray%20Int%20Int%29%20union%20arrayContainer%20x%20y%20%3d%20do%20actualArray%20%26lt%3b-%20arrayContainer%20ls%20%26lt%3b-%20getAssocs%20actualArray%20leader1%20%26lt%3b-%20readArray%20actualArray%20x%20leader2%20%26lt%3b-%20readArray%20actualArray%20y%20let%20newValues%20%3d%20%28map%20%28%5c%28index%2c%20value%29%20-%26gt%3b%20%28index%2c%20leader1%29%29%20.%20filter%20%28%5c%28index%2c%20value%29%20-%26gt%3b%20value%20%3d%3d%20leader2%29%29%20ls%20sequence%20%24%20map%20%28%5c%28idx%2c%20val%29%20-%26gt%3b%20writeArray%20actualArray%20idx%20val%29%20newValues%20return%20actualArray%20union%20%3a%3a%20IO%20%28IOArray%20Int%20Int%29%20-%26gt%3b%20Int%20-%26gt%3b%20Int%20-%26gt%3b%20IO%20%28IOArray%20Int%20Int%29%20union%20arrayContainer%20x%20y%20%3d%20do%20actualArray%20%26lt%3b-%20arrayContainer%20ls%20%26lt%3b-%20getAssocs%20actualArray%20leader1%20%26lt%3b-%20readArray%20actualArray%20x%20leader2%20%26lt%3b-%20readArray%20actualArray%20y%20let%20newValues%20%3d%20%28map%20%28%5c%28index%2c%20value%29%20-%26gt%3b%20%28index%2c%20leader1%29%29%20...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/31/haskell-strictness-and-the-monadic-bind/&amp;title=Haskell%3a%20Strictness%20and%20the%20monadic%20bind&amp;summary=As%20I%20mentioned%20towards%20the%20end%20of%20my%20post%20about%20implementing%20the%20union%20find%20data%20structure%20in%20Haskell%20I%20wrote%20another%20version%20using%20a%20mutable%20array%20and%20having%20not%20seen%20much%20of%20a%20performance%20improvement%20started%20commenting%20out%20code%20to%20try%20and%20find%20the%20problem.%0a%20I%20eventually%20narrowed%20it%20down%20to%20the%20union%20function%20which%20was%20defined%20like%20so%3a%0a%20union%20%3a%3a%20IO%20%28IOArray%20Int%20Int%29%20-%26gt%3b%20Int%20-%26gt%3b%20Int%20-%26gt%3b%20IO%20%28IOArray%20Int%20Int%29%20union%20arrayContainer%20x%20y%20%3d%20do%20actualArray%20%26lt%3b-%20arrayContainer%20ls%20%26lt%3b-%20getAssocs%20actualArray%20leader1%20%26lt%3b-%20readArray%20actualArray%20x%20leader2%20%26lt%3b-%20readArray%20actualArray%20y%20let%20newValues%20%3d%20%28map%20%28%5c%28index%2c%20value%29%20-%26gt%3b%20%28index%2c%20leader1%29%29%20...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

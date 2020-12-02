@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Cypher - Creating a time tree down to the day" />
         
-          <meta name="twitter:description" content="WITH range(2011, 2014) AS years, range(1,12) as months FOREACH(year IN years | MERGE (y:Year {year: year}) FOREACH(month IN months | CREATE (m:Month {month: month}) MERGE (y)-[:HAS_MONTH]-&gt;(m) FOREACH(day IN (CASE WHEN month IN [1,3,5,7,8,10,12] THEN range(1,31) WHEN month = 2 THEN CASE WHEN year % 4 &lt;&gt; 0 THEN range(1,28) WHEN year % 100 &lt;&gt; 0 THEN range(1,29) WHEN year % 400 = 0 THEN range(1,29) ELSE range(1,28) END ELSE range(1,30) END) | CREATE (d:Day {day: day}) MERGE (m)-[:HAS_DAY]-&gt;(d)))) (jan31)-[:NEXT]-&gt;(feb1)-[:NEXT]-&gt;(feb2) MATCH (year:Year)-[:HAS_MONTH]-&gt;(month)-[:HAS_DAY]-&gt;(day) WITH year,month,day ORDER BY year." />
+          <meta name="twitter:description" content="Michael recently wrote a blog post showing how to create a time tree representing time down to the second using Neo4j&#8217;s Cypher query language, something I built on top of for a side project I&#8217;m working on.
+ The domain I want to model is RSVPs to meetup invites - I want to understand how much in advance people respond and how likely they are to drop out at a later stage." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/04/19/neo4j-cypher-creating-a-time-tree-down-to-the-day/" />
 
@@ -33,7 +34,8 @@
         <title> Neo4j: Cypher - Creating a time tree down to the day &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="WITH range(2011, 2014) AS years, range(1,12) as months FOREACH(year IN years | MERGE (y:Year {year: year}) FOREACH(month IN months | CREATE (m:Month {month: month}) MERGE (y)-[:HAS_MONTH]-&gt;(m) FOREACH(day IN (CASE WHEN month IN [1,3,5,7,8,10,12] THEN range(1,31) WHEN month = 2 THEN CASE WHEN year % 4 &lt;&gt; 0 THEN range(1,28) WHEN year % 100 &lt;&gt; 0 THEN range(1,29) WHEN year % 400 = 0 THEN range(1,29) ELSE range(1,28) END ELSE range(1,30) END) | CREATE (d:Day {day: day}) MERGE (m)-[:HAS_DAY]-&gt;(d)))) (jan31)-[:NEXT]-&gt;(feb1)-[:NEXT]-&gt;(feb2) MATCH (year:Year)-[:HAS_MONTH]-&gt;(month)-[:HAS_DAY]-&gt;(day) WITH year,month,day ORDER BY year." />
+        <meta name="description" content="Michael recently wrote a blog post showing how to create a time tree representing time down to the second using Neo4j&#8217;s Cypher query language, something I built on top of for a side project I&#8217;m working on.
+ The domain I want to model is RSVPs to meetup invites - I want to understand how much in advance people respond and how likely they are to drop out at a later stage." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-04-19",
-        "description": "WITH range(2011, 2014) AS years, range(1,12) as months FOREACH(year IN years | MERGE (y:Year {year: year}) FOREACH(month IN months | CREATE (m:Month {month: month}) MERGE (y)-[:HAS_MONTH]-\x26gt;(m) FOREACH(day IN (CASE WHEN month IN [1,3,5,7,8,10,12] THEN range(1,31) WHEN month = 2 THEN CASE WHEN year % 4 \x26lt;\x26gt; 0 THEN range(1,28) WHEN year % 100 \x26lt;\x26gt; 0 THEN range(1,29) WHEN year % 400 = 0 THEN range(1,29) ELSE range(1,28) END ELSE range(1,30) END) | CREATE (d:Day {day: day}) MERGE (m)-[:HAS_DAY]-\x26gt;(d)))) (jan31)-[:NEXT]-\x26gt;(feb1)-[:NEXT]-\x26gt;(feb2) MATCH (year:Year)-[:HAS_MONTH]-\x26gt;(month)-[:HAS_DAY]-\x26gt;(day) WITH year,month,day ORDER BY year.",
-        "wordCount":  242 
+        "description": "Michael recently wrote a blog post showing how to create a time tree representing time down to the second using Neo4j\x26#8217;s Cypher query language, something I built on top of for a side project I\x26#8217;m working on.\n The domain I want to model is RSVPs to meetup invites - I want to understand how much in advance people respond and how likely they are to drop out at a later stage.",
+        "wordCount":  517 
     }
     </script>
     
@@ -172,20 +174,29 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Creating a time tree down to the day</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-WITH range(2011, 2014) AS years, range(1,12) as months
-FOREACH(year IN years | 
+    <div class="paragraph">
+<p><a href="https://twitter.com/mesirii">Michael</a> recently wrote a blog post showing how to <a href="http://jexp.de/blog/2014/04/importing-forests-into-neo4j/">create a time tree representing time down to the second</a> using Neo4j&#8217;s Cypher query language, something I built on top of for <a href="https://github.com/mneedham/neo4j-meetup">a side project</a> I&#8217;m working on.</p>
+</div>
+<div class="paragraph">
+<p>The domain I want to model is RSVPs to meetup invites - I want to understand how much in advance people respond and how likely they are to drop out at a later stage.</p>
+</div>
+<div class="paragraph">
+<p>For this problem I only need to measure time down to the day so my task is a bit easier than Michael&#8217;s.</p>
+</div>
+<div class="paragraph">
+<p>After a bit of fiddling around with leap years I believe the following query will create a time tree representing all the days from 2011 - 2014, which covers the time the London Neo4j meetup has been running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH range(2011, 2014) AS years, range(1,12) as months
+FOREACH(year IN years |
   MERGE (y:Year {year: year})
-  FOREACH(month IN months | 
+  FOREACH(month IN months |
     CREATE (m:Month {month: month})
     MERGE (y)-[:HAS_MONTH]-&gt;(m)
-    FOREACH(day IN (CASE 
-                      WHEN month IN [1,3,5,7,8,10,12] THEN range(1,31) 
-                      WHEN month = 2 THEN 
+    FOREACH(day IN (CASE
+                      WHEN month IN [1,3,5,7,8,10,12] THEN range(1,31)
+                      WHEN month = 2 THEN
                         CASE
                           WHEN year % 4 &lt;&gt; 0 THEN range(1,28)
                           WHEN year % 100 &lt;&gt; 0 THEN range(1,29)
@@ -193,45 +204,75 @@ FOREACH(year IN years |
                           ELSE range(1,28)
                         END
                       ELSE range(1,30)
-                    END) |      
+                    END) |
       CREATE (d:Day {day: day})
-      MERGE (m)-[:HAS_DAY]-&gt;(d))))
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-(jan31)-[:NEXT]-&gt;(feb1)-[:NEXT]-&gt;(feb2)
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (year:Year)-[:HAS_MONTH]-&gt;(month)-[:HAS_DAY]-&gt;(day)
+      MERGE (m)-[:HAS_DAY]-&gt;(d))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The next step is to link adjacent days together so that we can easily traverse between adjacent days without needing to go back up and down the tree. For example we should have something like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">(jan31)-[:NEXT]-&gt;(feb1)-[:NEXT]-&gt;(feb2)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can build this by first collecting all the 'day' nodes in date order like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (year:Year)-[:HAS_MONTH]-&gt;(month)-[:HAS_DAY]-&gt;(day)
 WITH year,month,day
 ORDER BY year.year, month.month, day.day
 WITH collect(day) as days
-RETURN days
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (year:Year)-[:HAS_MONTH]-&gt;(month)-[:HAS_DAY]-&gt;(day)
+RETURN days</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And then <a href="http://www.markhneedham.com/blog/2014/04/19/neo4j-cypher-creating-relationships-between-a-collection-of-nodes-invalid-input/">iterating over adjacent nodes</a> to create the 'NEXT' relationship:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (year:Year)-[:HAS_MONTH]-&gt;(month)-[:HAS_DAY]-&gt;(day)
 WITH year,month,day
 ORDER BY year.year, month.month, day.day
 WITH collect(day) as days
-FOREACH(i in RANGE(0, length(days)-2) | 
-    FOREACH(day1 in [days[i]] | 
-        FOREACH(day2 in [days[i+1]] | 
-            CREATE UNIQUE (day1)-[:NEXT]-&gt;(day2))))
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (y:Year {year: 2014})-[:HAS_MONTH]-&gt;(m:Month {month: 2})-[:HAS_DAY]-&gt;(:Day {day: 1})&lt;-[:NEXT*0..5]-(day)
-RETURN y,m,day
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-WITH range(2011, 2014) AS years, range(1,12) as months
-FOREACH(year IN years | 
+FOREACH(i in RANGE(0, length(days)-2) |
+    FOREACH(day1 in [days[i]] |
+        FOREACH(day2 in [days[i+1]] |
+            CREATE UNIQUE (day1)-[:NEXT]-&gt;(day2))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if we want to find the previous 5 days from the 1st February 2014 we could write the following query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (y:Year {year: 2014})-[:HAS_MONTH]-&gt;(m:Month {month: 2})-[:HAS_DAY]-&gt;(:Day {day: 1})&lt;-[:NEXT*0..5]-(day)
+RETURN y,m,day</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/04/2014-04-19_22-14-04.png" alt="2014 04 19 22 14 04" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>If we want to we can create the time tree and then connect the day nodes all in one query by using 'WITH *' like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH range(2011, 2014) AS years, range(1,12) as months
+FOREACH(year IN years |
   MERGE (y:Year {year: year})
-  FOREACH(month IN months | 
+  FOREACH(month IN months |
     CREATE (m:Month {month: month})
     MERGE (y)-[:HAS_MONTH]-&gt;(m)
-    FOREACH(day IN (CASE 
-                      WHEN month IN [1,3,5,7,8,10,12] THEN range(1,31) 
-                      WHEN month = 2 THEN 
+    FOREACH(day IN (CASE
+                      WHEN month IN [1,3,5,7,8,10,12] THEN range(1,31)
+                      WHEN month = 2 THEN
                         CASE
                           WHEN year % 4 &lt;&gt; 0 THEN range(1,28)
                           WHEN year % 100 &lt;&gt; 0 THEN range(1,29)
@@ -239,7 +280,7 @@ FOREACH(year IN years |
                           ELSE range(1,28)
                         END
                       ELSE range(1,30)
-                    END) |      
+                    END) |
       CREATE (d:Day {day: day})
       MERGE (m)-[:HAS_DAY]-&gt;(d))))
 
@@ -249,13 +290,23 @@ MATCH (year:Year)-[:HAS_MONTH]-&gt;(month)-[:HAS_DAY]-&gt;(day)
 WITH year,month,day
 ORDER BY year.year, month.month, day.day
 WITH collect(day) as days
-FOREACH(i in RANGE(0, length(days)-2) | 
-    FOREACH(day1 in [days[i]] | 
-        FOREACH(day2 in [days[i+1]] | 
-            CREATE UNIQUE (day1)-[:NEXT]-&gt;(day2))))
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+FOREACH(i in RANGE(0, length(days)-2) |
+    FOREACH(day1 in [days[i]] |
+        FOREACH(day2 in [days[i+1]] |
+            CREATE UNIQUE (day1)-[:NEXT]-&gt;(day2))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now I need to connect the RSVP events to the tree!</p>
+</div>
+<div class="sect1">
+<h2 id="_updated_13th_august_2017">Updated: 13th August 2017</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I updated the Cypher query to fix a bug pointed out in the comments by Adam Hill and Colin.</p>
+</div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -290,7 +341,7 @@ FOREACH(i in RANGE(0, length(days)-2) |
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/04/19/neo4j-cypher-creating-a-time-tree-down-to-the-day/&amp;title=Neo4j%3a%20Cypher%20-%20Creating%20a%20time%20tree%20down%20to%20the%20day&amp;summary=WITH%20range%282011%2c%202014%29%20AS%20years%2c%20range%281%2c12%29%20as%20months%20FOREACH%28year%20IN%20years%20%7c%20MERGE%20%28y%3aYear%20%7byear%3a%20year%7d%29%20FOREACH%28month%20IN%20months%20%7c%20CREATE%20%28m%3aMonth%20%7bmonth%3a%20month%7d%29%20MERGE%20%28y%29-%5b%3aHAS_MONTH%5d-%26gt%3b%28m%29%20FOREACH%28day%20IN%20%28CASE%20WHEN%20month%20IN%20%5b1%2c3%2c5%2c7%2c8%2c10%2c12%5d%20THEN%20range%281%2c31%29%20WHEN%20month%20%3d%202%20THEN%20CASE%20WHEN%20year%20%25%204%20%26lt%3b%26gt%3b%200%20THEN%20range%281%2c28%29%20WHEN%20year%20%25%20100%20%26lt%3b%26gt%3b%200%20THEN%20range%281%2c29%29%20WHEN%20year%20%25%20400%20%3d%200%20THEN%20range%281%2c29%29%20ELSE%20range%281%2c28%29%20END%20ELSE%20range%281%2c30%29%20END%29%20%7c%20CREATE%20%28d%3aDay%20%7bday%3a%20day%7d%29%20MERGE%20%28m%29-%5b%3aHAS_DAY%5d-%26gt%3b%28d%29%29%29%29%20%28jan31%29-%5b%3aNEXT%5d-%26gt%3b%28feb1%29-%5b%3aNEXT%5d-%26gt%3b%28feb2%29%20MATCH%20%28year%3aYear%29-%5b%3aHAS_MONTH%5d-%26gt%3b%28month%29-%5b%3aHAS_DAY%5d-%26gt%3b%28day%29%20WITH%20year%2cmonth%2cday%20ORDER%20BY%20year...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/04/19/neo4j-cypher-creating-a-time-tree-down-to-the-day/&amp;title=Neo4j%3a%20Cypher%20-%20Creating%20a%20time%20tree%20down%20to%20the%20day&amp;summary=Michael%20recently%20wrote%20a%20blog%20post%20showing%20how%20to%20create%20a%20time%20tree%20representing%20time%20down%20to%20the%20second%20using%20Neo4j%26%238217%3bs%20Cypher%20query%20language%2c%20something%20I%20built%20on%20top%20of%20for%20a%20side%20project%20I%26%238217%3bm%20working%20on.%0a%20The%20domain%20I%20want%20to%20model%20is%20RSVPs%20to%20meetup%20invites%20-%20I%20want%20to%20understand%20how%20much%20in%20advance%20people%20respond%20and%20how%20likely%20they%20are%20to%20drop%20out%20at%20a%20later%20stage...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

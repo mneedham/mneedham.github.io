@@ -22,9 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Functional Thinking: Separating concerns" />
         
-          <meta name="twitter:description" content="Over the weekend I was trying to port some of the neo4j import code for the ThoughtWorks graph I&rsquo;ve been working on to make use of the REST Batch APIand I came across an interesting example of imperative vs functional thinking.
-I&rsquo;m using the neographygem to populate the graph and to start with I was just creating a person node and then creating an index entry for it:
-people_to_load = Set." />
+          <meta name="twitter:description" content="Over the weekend I was trying to port some of the neo4j import code for the ThoughtWorks graph I&#8217;ve been working on to make use of the REST Batch API and I came across an interesting example of imperative vs functional thinking.
+ I&#8217;m using the neography gem to populate the graph and to start with I was just creating a person node and then creating an index entry for it:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/06/12/functional-thinking-separating-concerns/" />
 
@@ -35,9 +34,8 @@ people_to_load = Set." />
         <title> Functional Thinking: Separating concerns &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Over the weekend I was trying to port some of the neo4j import code for the ThoughtWorks graph I&rsquo;ve been working on to make use of the REST Batch APIand I came across an interesting example of imperative vs functional thinking.
-I&rsquo;m using the neographygem to populate the graph and to start with I was just creating a person node and then creating an index entry for it:
-people_to_load = Set." />
+        <meta name="description" content="Over the weekend I was trying to port some of the neo4j import code for the ThoughtWorks graph I&#8217;ve been working on to make use of the REST Batch API and I came across an interesting example of imperative vs functional thinking.
+ I&#8217;m using the neography gem to populate the graph and to start with I was just creating a person node and then creating an index entry for it:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +64,8 @@ people_to_load = Set." />
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-06-12",
-        "description": "Over the weekend I was trying to port some of the neo4j import code for the ThoughtWorks graph I\x26rsquo;ve been working on to make use of the REST Batch APIand I came across an interesting example of imperative vs functional thinking.\nI\x26rsquo;m using the neographygem to populate the graph and to start with I was just creating a person node and then creating an index entry for it:\npeople_to_load = Set.",
-        "wordCount":  435 
+        "description": "Over the weekend I was trying to port some of the neo4j import code for the ThoughtWorks graph I\x26#8217;ve been working on to make use of the REST Batch API and I came across an interesting example of imperative vs functional thinking.\n I\x26#8217;m using the neography gem to populate the graph and to start with I was just creating a person node and then creating an index entry for it:",
+        "wordCount":  440 
     }
     </script>
     
@@ -176,50 +174,79 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Functional Thinking: Separating concerns</h1>
-    <p>Over the weekend I was trying to port some of the neo4j import code for the ThoughtWorks graph I&rsquo;ve been working on to make use of the <!-- raw HTML omitted -->REST Batch API<!-- raw HTML omitted --> and I came across an interesting example of imperative vs functional thinking.</p>
-<p>I&rsquo;m using the <!-- raw HTML omitted -->neography<!-- raw HTML omitted --> gem to populate the graph and to start with I was just creating a person node and then creating an index entry for it:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-people_to_load <span style="color:#f92672">=</span> <span style="color:#66d9ef">Set</span><span style="color:#f92672">.</span>new
-people_to_load <span style="color:#f92672">&lt;&lt;</span> { <span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;Mark Needham&#34;</span>, <span style="color:#e6db74">:id</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">1</span> }
-people_to_load <span style="color:#f92672">&lt;&lt;</span> { <span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;Jenn Smith&#34;</span>, <span style="color:#e6db74">:id</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">2</span> }
-people_to_load <span style="color:#f92672">&lt;&lt;</span> { <span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;Chris Ford&#34;</span>, <span style="color:#e6db74">:id</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">3</span> } 
+    <div class="paragraph">
+<p>Over the weekend I was trying to port some of the neo4j import code for the ThoughtWorks graph I&#8217;ve been working on to make use of the <a href="http://docs.neo4j.org/chunked/snapshot/rest-api-batch-ops.html">REST Batch API</a> and I came across an interesting example of imperative vs functional thinking.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m using the <a href="https://github.com/maxdemarzi/neography">neography</a> gem to populate the graph and to start with I was just creating a person node and then creating an index entry for it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">people_to_load = Set.new
+people_to_load &lt;&lt; { :name =&gt; "Mark Needham", :id =&gt; 1 }
+people_to_load &lt;&lt; { :name =&gt; "Jenn Smith", :id =&gt; 2 }
+people_to_load &lt;&lt; { :name =&gt; "Chris Ford", :id =&gt; 3 }
 
-command_index <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
-people_commands <span style="color:#f92672">=</span> people_to_load<span style="color:#f92672">.</span>inject(<span style="color:#f92672">[]</span>) <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>acc, person<span style="color:#f92672">|</span> 
-  acc <span style="color:#f92672">&lt;&lt;</span> <span style="color:#f92672">[</span><span style="color:#e6db74">:create_node</span>, {<span style="color:#e6db74">:id</span> <span style="color:#f92672">=&gt;</span> person<span style="color:#f92672">[</span><span style="color:#e6db74">:id</span><span style="color:#f92672">]</span>, <span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> person<span style="color:#f92672">[</span><span style="color:#e6db74">:name</span><span style="color:#f92672">]</span>}<span style="color:#f92672">]</span>
-  acc <span style="color:#f92672">&lt;&lt;</span> <span style="color:#f92672">[</span><span style="color:#e6db74">:add_node_to_index</span>, <span style="color:#e6db74">&#34;people&#34;</span>, <span style="color:#e6db74">&#34;name&#34;</span>, person<span style="color:#f92672">[</span><span style="color:#e6db74">:name</span><span style="color:#f92672">]</span>, <span style="color:#e6db74">&#34;{</span><span style="color:#e6db74">#{</span>command_index<span style="color:#e6db74">}</span><span style="color:#e6db74">}&#34;</span><span style="color:#f92672">]</span>
-  command_index <span style="color:#f92672">+=</span> <span style="color:#ae81ff">2</span>
+command_index = 0
+people_commands = people_to_load.inject([]) do |acc, person|
+  acc &lt;&lt; [:create_node, {:id =&gt; person[:id], :name =&gt; person[:name]}]
+  acc &lt;&lt; [:add_node_to_index, "people", "name", person[:name], "{#{command_index}}"]
+  command_index += 2
   acc
-<span style="color:#66d9ef">end</span>
+end
 
-<span style="color:#66d9ef">Neography</span><span style="color:#f92672">::</span><span style="color:#66d9ef">Rest</span><span style="color:#f92672">.</span>new<span style="color:#f92672">.</span>batch <span style="color:#f92672">*</span> people_commands
-</code></pre></div><p><!-- raw HTML omitted -->people_commands<!-- raw HTML omitted --> ends up containing the following arrays in the above example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
- [
-  [:create_node, {:id=&gt;&#34;1&#34;, :name=&gt;&#34;Mark Needham&#34;}], 
-  [:add_node_to_index, &#34;people&#34;, &#34;name&#34;, &#34;Mark Needham&#34;, &#34;{0}&#34;], 
-  [:create_node, {:id=&gt;&#34;2&#34;, :name=&gt;&#34;Jenn Smith&#34;}], 
-  [:add_node_to_index, &#34;people&#34;, &#34;name&#34;, &#34;Jenn Smith&#34;, &#34;{2}&#34;], 
-  [:create_node, {:id=&gt;&#34;3&#34;, :name=&gt;&#34;Chris Ford&#34;}, 
-  [:add_node_to_index, &#34;people&#34;, &#34;name&#34;, &#34;Chris Ford&#34;, &#34;{4}&#34;]
- ]
-</code></pre></div><p>We can refer to previously executed batch commands by referencing their &lsquo;job id&rsquo; which in this case is their 0 indexed position in the list of commands. e.g. the second command which indexes me refers to the node created in &lsquo;job id&rsquo; &lsquo;0&rsquo; i.e the first command in this batch</p>
-<p>In the neo4j REST API we&rsquo;d be able to define an arbitrary id for a command and then reference that later on but it&rsquo;s not implemented that way in neography.</p>
-<p>I thought having the &lsquo;command_index += 2&rsquo; was a bit rubbish because it&rsquo;s nothing to do with the problem I&rsquo;m trying to solve so I <!-- raw HTML omitted -->posted to twitter to see if there was a more functional way to do this<!-- raw HTML omitted -->.</p>
-<p>My colleague <!-- raw HTML omitted -->Chris Ford<!-- raw HTML omitted --> came up with a neat approach which involved using &lsquo;each_with_index&rsquo; to work out the index positions rather than having a counter. His final version looked like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-insert_commands <span style="color:#f92672">=</span> people_to_load<span style="color:#f92672">.</span>map <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>person<span style="color:#f92672">|</span>
-  <span style="color:#f92672">[</span><span style="color:#e6db74">:create_node</span>, {<span style="color:#e6db74">:id</span> <span style="color:#f92672">=&gt;</span> person<span style="color:#f92672">[</span><span style="color:#e6db74">:id</span><span style="color:#f92672">]</span>, <span style="color:#e6db74">:name</span> <span style="color:#f92672">=&gt;</span> person<span style="color:#f92672">[</span><span style="color:#e6db74">:name</span><span style="color:#f92672">]</span>}<span style="color:#f92672">]</span>
-<span style="color:#66d9ef">end</span>
+Neography::Rest.new.batch * people_commands</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><cite>people_commands</cite> ends up containing the following arrays in the above example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"> [
+  [:create_node, {:id=&gt;"1", :name=&gt;"Mark Needham"}],
+  [:add_node_to_index, "people", "name", "Mark Needham", "{0}"],
+  [:create_node, {:id=&gt;"2", :name=&gt;"Jenn Smith"}],
+  [:add_node_to_index, "people", "name", "Jenn Smith", "{2}"],
+  [:create_node, {:id=&gt;"3", :name=&gt;"Chris Ford"},
+  [:add_node_to_index, "people", "name", "Chris Ford", "{4}"]
+ ]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can refer to previously executed batch commands by referencing their 'job id' which in this case is their 0 indexed position in the list of commands. e.g. the second command which indexes me refers to the node created in 'job id' '0' i.e the first command in this batch</p>
+</div>
+<div class="paragraph">
+<p>In the neo4j REST API we&#8217;d be able to define an arbitrary id for a command and then reference that later on but it&#8217;s not implemented that way in neography.</p>
+</div>
+<div class="paragraph">
+<p>I thought having the 'command_index += 2' was a bit rubbish because it&#8217;s nothing to do with the problem I&#8217;m trying to solve so I <a href="https://twitter.com/markhneedham/status/211793005668077568">posted to twitter to see if there was a more functional way to do this</a>.</p>
+</div>
+<div class="paragraph">
+<p>My colleague <a href="https://twitter.com/#!/ctford">Chris Ford</a> came up with a neat approach which involved using 'each_with_index' to work out the index positions rather than having a counter. His final version looked like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">insert_commands = people_to_load.map do |person|
+  [:create_node, {:id =&gt; person[:id], :name =&gt; person[:name]}]
+end
 
-index_commands <span style="color:#f92672">=</span> people_to_load<span style="color:#f92672">.</span>each_with_index<span style="color:#f92672">.</span>map <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>person, index<span style="color:#f92672">|</span>
-  <span style="color:#f92672">[</span><span style="color:#e6db74">:add_node_to_index</span>, <span style="color:#e6db74">&#34;people&#34;</span>, <span style="color:#e6db74">&#34;name&#34;</span>, person<span style="color:#f92672">[</span><span style="color:#e6db74">:name</span><span style="color:#f92672">]</span>, <span style="color:#e6db74">&#34;{</span><span style="color:#e6db74">#{</span>index<span style="color:#e6db74">}</span><span style="color:#e6db74">}&#34;</span><span style="color:#f92672">]</span>
-<span style="color:#66d9ef">end</span>
+index_commands = people_to_load.each_with_index.map do |person, index|
+  [:add_node_to_index, "people", "name", person[:name], "{#{index}}"]
+end
 
-people_commands <span style="color:#f92672">=</span> insert_commands <span style="color:#f92672">+</span> index_commands
-</code></pre></div><p>The neat thing about this solution is that Chris has <!-- raw HTML omitted -->separated the two concerns<!-- raw HTML omitted --> - creating the node and indexing it.</p>
-<p>When I was thinking about this problem imperatively they seemed to belong together but there&rsquo;s actually no reason for that to be the case and we can write simpler code by separating them.</p>
-<p>We do iterate through the set twice but since it&rsquo;s not really that big it doesn&rsquo;t make too much difference. to the performance.</p>
+people_commands = insert_commands + index_commands</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The neat thing about this solution is that Chris has <strong>separated the two concerns</strong> - creating the node and indexing it.</p>
+</div>
+<div class="paragraph">
+<p>When I was thinking about this problem imperatively they seemed to belong together but there&#8217;s actually no reason for that to be the case and we can write simpler code by separating them.</p>
+</div>
+<div class="paragraph">
+<p>We do iterate through the set twice but since it&#8217;s not really that big it doesn&#8217;t make too much difference. to the performance.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -254,7 +281,7 @@ people_commands <span style="color:#f92672">=</span> insert_commands <span style
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/06/12/functional-thinking-separating-concerns/&amp;title=Functional%20Thinking%3a%20Separating%20concerns&amp;summary=Over%20the%20weekend%20I%20was%20trying%20to%20port%20some%20of%20the%20neo4j%20import%20code%20for%20the%20ThoughtWorks%20graph%20I%26rsquo%3bve%20been%20working%20on%20to%20make%20use%20of%20the%20REST%20Batch%20APIand%20I%20came%20across%20an%20interesting%20example%20of%20imperative%20vs%20functional%20thinking.%0aI%26rsquo%3bm%20using%20the%20neographygem%20to%20populate%20the%20graph%20and%20to%20start%20with%20I%20was%20just%20creating%20a%20person%20node%20and%20then%20creating%20an%20index%20entry%20for%20it%3a%0apeople_to_load%20%3d%20Set...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/06/12/functional-thinking-separating-concerns/&amp;title=Functional%20Thinking%3a%20Separating%20concerns&amp;summary=Over%20the%20weekend%20I%20was%20trying%20to%20port%20some%20of%20the%20neo4j%20import%20code%20for%20the%20ThoughtWorks%20graph%20I%26%238217%3bve%20been%20working%20on%20to%20make%20use%20of%20the%20REST%20Batch%20API%20and%20I%20came%20across%20an%20interesting%20example%20of%20imperative%20vs%20functional%20thinking.%0a%20I%26%238217%3bm%20using%20the%20neography%20gem%20to%20populate%20the%20graph%20and%20to%20start%20with%20I%20was%20just%20creating%20a%20person%20node%20and%20then%20creating%20an%20index%20entry%20for%20it%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

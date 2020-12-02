@@ -23,8 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Go: First attempt at channels" />
         
-          <meta name="twitter:description" content="We&rsquo;ll create two channels:
-package scrape import ( &#34;github.com/PuerkitoBio/goquery&#34; &#34;os&#34; &#34;bufio&#34; &#34;fmt&#34; &#34;log&#34; &#34;strings&#34; &#34;net/http&#34; &#34;io&#34; ) func checkError(err error) { if err != nil { fmt.Println(err) log.Fatal(err) } } type Blip struct { Link string Title string } func (blip Blip) Download() File { parts := strings.Split(blip.Link, &#34;/&#34;) fileName := &#34;rawData/items/&#34; &#43; parts[len(parts) - 1] if _, err := os.Stat(fileName); os.IsNotExist(err) { resp, err := http.Get(&#34;http://www.thoughtworks.com&#34; &#43; blip.Link) checkError(err) body := resp." />
+          <meta name="twitter:description" content="In a previous blog post I mentioned that I wanted to extract blips from The ThoughtWorks Radar into a CSV file and I thought this would be a good mini project for me to practice using Go.
+ In particular I wanted to try using channels and this seemed like a good chance to do that.
+ &lt;/p&gt; I watched a talk by Rob Pike on designing concurrent applications where he uses the following definition of concurrency:&lt;/p&gt;" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/12/24/go-first-attempt-at-channels/" />
 
@@ -35,8 +36,9 @@ package scrape import ( &#34;github.com/PuerkitoBio/goquery&#34; &#34;os&#34; &#
         <title> Go: First attempt at channels &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="We&rsquo;ll create two channels:
-package scrape import ( &#34;github.com/PuerkitoBio/goquery&#34; &#34;os&#34; &#34;bufio&#34; &#34;fmt&#34; &#34;log&#34; &#34;strings&#34; &#34;net/http&#34; &#34;io&#34; ) func checkError(err error) { if err != nil { fmt.Println(err) log.Fatal(err) } } type Blip struct { Link string Title string } func (blip Blip) Download() File { parts := strings.Split(blip.Link, &#34;/&#34;) fileName := &#34;rawData/items/&#34; &#43; parts[len(parts) - 1] if _, err := os.Stat(fileName); os.IsNotExist(err) { resp, err := http.Get(&#34;http://www.thoughtworks.com&#34; &#43; blip.Link) checkError(err) body := resp." />
+        <meta name="description" content="In a previous blog post I mentioned that I wanted to extract blips from The ThoughtWorks Radar into a CSV file and I thought this would be a good mini project for me to practice using Go.
+ In particular I wanted to try using channels and this seemed like a good chance to do that.
+ &lt;/p&gt; I watched a talk by Rob Pike on designing concurrent applications where he uses the following definition of concurrency:&lt;/p&gt;" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +67,8 @@ package scrape import ( &#34;github.com/PuerkitoBio/goquery&#34; &#34;os&#34; &#
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-12-24",
-        "description": "We\x26rsquo;ll create two channels:\npackage scrape import ( \x26#34;github.com\/PuerkitoBio\/goquery\x26#34; \x26#34;os\x26#34; \x26#34;bufio\x26#34; \x26#34;fmt\x26#34; \x26#34;log\x26#34; \x26#34;strings\x26#34; \x26#34;net\/http\x26#34; \x26#34;io\x26#34; ) func checkError(err error) { if err != nil { fmt.Println(err) log.Fatal(err) } } type Blip struct { Link string Title string } func (blip Blip) Download() File { parts := strings.Split(blip.Link, \x26#34;\/\x26#34;) fileName := \x26#34;rawData\/items\/\x26#34; \x2b parts[len(parts) - 1] if _, err := os.Stat(fileName); os.IsNotExist(err) { resp, err := http.Get(\x26#34;http:\/\/www.thoughtworks.com\x26#34; \x2b blip.Link) checkError(err) body := resp.",
-        "wordCount":  557 
+        "description": "In a previous blog post I mentioned that I wanted to extract blips from The ThoughtWorks Radar into a CSV file and I thought this would be a good mini project for me to practice using Go.\n In particular I wanted to try using channels and this seemed like a good chance to do that.\n \x26lt;\/p\x26gt; I watched a talk by Rob Pike on designing concurrent applications where he uses the following definition of concurrency:\x26lt;\/p\x26gt;",
+        "wordCount":  1088 
     }
     </script>
     
@@ -177,259 +179,370 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Go: First attempt at channels</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>We&rsquo;ll create two channels:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
-<span style="color:#f92672">package</span> <span style="color:#a6e22e">scrape</span>
+    <div class="paragraph">
+<p>In a <a href="http://www.markhneedham.com/blog/2016/12/23/neo4j-graphing-the-thoughtworks-technology-radar/">previous blog post</a> I mentioned that I wanted to extract blips from The ThoughtWorks Radar into a CSV file and I thought this would be a good mini project for me to practice using Go.</p>
+</div>
+<div class="paragraph">
+<p>In particular I wanted to try using <a href="https://tour.golang.org/concurrency/2">channels</a> and this seemed like a good chance to do that.</p>
+</div>
+<div class="paragraph">
+<p>&lt;/p&gt;
+I watched a talk by Rob Pike on <a href="https://talks.golang.org/2012/waza.slide#22">designing concurrent applications</a> where he uses the following <a href="https://talks.golang.org/2012/waza.slide#10">definition of concurrency</a>:&lt;/p&gt;</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Concurrency is a way to structure a program by breaking it into pieces that can be executed independently.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>He then demonstrates this with the following diagram:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2016/12/2016-12-23_19-52-30.png" alt="2016 12 23 19 52 30" width="413">
+</div>
+</div>
+<div class="paragraph">
+<p>I broke the scraping application down into four parts:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Find the links of blips to download -&gt;</p>
+</li>
+<li>
+<p>Download the blips -&gt;</p>
+</li>
+<li>
+<p>Scrape the data from each page -&gt;</p>
+</li>
+<li>
+<p>Write the data into a CSV file</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>I don&#8217;t think we gain much by parallelising steps 1) or 4) but steps 2) and 3) seem easily parallelisable. Therefore we&#8217;ll use a single goroutine for steps 1) and 4) and multiple goroutines for steps 2) and 3).</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll create two channels:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><cite>filesToScrape</cite></p>
+</li>
+<li>
+<p><cite>filesScraped</cite></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>And they will interact with our components like this:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>2) will write the path of the downloaded files into <cite>filesToScape</cite></p>
+</li>
+<li>
+<p>3) will read from <cite>filesToScrape</cite> and write the scraped content into <cite>filesScraped</cite></p>
+</li>
+<li>
+<p>4) will read from <cite>filesScraped</cite> and put that information into a CSV file.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>I decided to write a completely serial version of the scraping application first so that I could compare it to the parallel version. I had the following common code:</p>
+</div>
+<div class="paragraph">
+<p><cite>scrape/scrape.go</cite></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-go" data-lang="go">package scrape
 
-<span style="color:#f92672">import</span> (
-	<span style="color:#e6db74">&#34;github.com/PuerkitoBio/goquery&#34;</span>
-	<span style="color:#e6db74">&#34;os&#34;</span>
-	<span style="color:#e6db74">&#34;bufio&#34;</span>
-	<span style="color:#e6db74">&#34;fmt&#34;</span>
-	<span style="color:#e6db74">&#34;log&#34;</span>
-	<span style="color:#e6db74">&#34;strings&#34;</span>
-	<span style="color:#e6db74">&#34;net/http&#34;</span>
-	<span style="color:#e6db74">&#34;io&#34;</span>
+import (
+	"github.com/PuerkitoBio/goquery"
+	"os"
+	"bufio"
+	"fmt"
+	"log"
+	"strings"
+	"net/http"
+	"io"
 )
 
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">checkError</span>(<span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>) {
-	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
-		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
-		<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Fatal</span>(<span style="color:#a6e22e">err</span>)
+func checkError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
 	}
 }
 
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Blip</span> <span style="color:#66d9ef">struct</span> {
-	<span style="color:#a6e22e">Link</span>  <span style="color:#66d9ef">string</span>
-	<span style="color:#a6e22e">Title</span> <span style="color:#66d9ef">string</span>
+type Blip struct {
+	Link  string
+	Title string
 }
 
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">blip</span> <span style="color:#a6e22e">Blip</span>) <span style="color:#a6e22e">Download</span>() <span style="color:#a6e22e">File</span> {
-	<span style="color:#a6e22e">parts</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Split</span>(<span style="color:#a6e22e">blip</span>.<span style="color:#a6e22e">Link</span>, <span style="color:#e6db74">&#34;/&#34;</span>)
-	<span style="color:#a6e22e">fileName</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;rawData/items/&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">parts</span>[len(<span style="color:#a6e22e">parts</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>]
+func (blip Blip) Download() File {
+	parts := strings.Split(blip.Link, "/")
+	fileName := "rawData/items/" + parts[len(parts) - 1]
 
-	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Stat</span>(<span style="color:#a6e22e">fileName</span>); <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">IsNotExist</span>(<span style="color:#a6e22e">err</span>) {
-		<span style="color:#a6e22e">resp</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Get</span>(<span style="color:#e6db74">&#34;http://www.thoughtworks.com&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">blip</span>.<span style="color:#a6e22e">Link</span>)
-		<span style="color:#a6e22e">checkError</span>(<span style="color:#a6e22e">err</span>)
-		<span style="color:#a6e22e">body</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">resp</span>.<span style="color:#a6e22e">Body</span>
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		resp, err := http.Get("http://www.thoughtworks.com" + blip.Link)
+		checkError(err)
+		body := resp.Body
 
-		<span style="color:#a6e22e">file</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#a6e22e">fileName</span>)
-		<span style="color:#a6e22e">checkError</span>(<span style="color:#a6e22e">err</span>)
+		file, err := os.Create(fileName)
+		checkError(err)
 
-		<span style="color:#a6e22e">io</span>.<span style="color:#a6e22e">Copy</span>(<span style="color:#a6e22e">bufio</span>.<span style="color:#a6e22e">NewWriter</span>(<span style="color:#a6e22e">file</span>), <span style="color:#a6e22e">body</span>)
-		<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Close</span>()
-		<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">Close</span>()
+		io.Copy(bufio.NewWriter(file), body)
+		file.Close()
+		body.Close()
 	}
 
-	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">File</span>{<span style="color:#a6e22e">Title</span>: <span style="color:#a6e22e">blip</span>.<span style="color:#a6e22e">Title</span>, <span style="color:#a6e22e">Path</span>: <span style="color:#a6e22e">fileName</span> }
+	return File{Title: blip.Title, Path: fileName }
 }
 
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">File</span> <span style="color:#66d9ef">struct</span> {
-	<span style="color:#a6e22e">Title</span> <span style="color:#66d9ef">string</span>
-	<span style="color:#a6e22e">Path</span>  <span style="color:#66d9ef">string</span>
+type File struct {
+	Title string
+	Path  string
 }
 
-<span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">fileToScrape</span> <span style="color:#a6e22e">File</span> ) <span style="color:#a6e22e">Scrape</span>() <span style="color:#a6e22e">ScrapedFile</span> {
-	<span style="color:#a6e22e">file</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#a6e22e">fileToScrape</span>.<span style="color:#a6e22e">Path</span>)
-	<span style="color:#a6e22e">checkError</span>(<span style="color:#a6e22e">err</span>)
+func (fileToScrape File ) Scrape() ScrapedFile {
+	file, err := os.Open(fileToScrape.Path)
+	checkError(err)
 
-	<span style="color:#a6e22e">doc</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">goquery</span>.<span style="color:#a6e22e">NewDocumentFromReader</span>(<span style="color:#a6e22e">bufio</span>.<span style="color:#a6e22e">NewReader</span>(<span style="color:#a6e22e">file</span>))
-	<span style="color:#a6e22e">checkError</span>(<span style="color:#a6e22e">err</span>)
-	<span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Close</span>()
+	doc, err := goquery.NewDocumentFromReader(bufio.NewReader(file))
+	checkError(err)
+	file.Close()
 
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">entries</span> []<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>
-	<span style="color:#a6e22e">doc</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#e6db74">&#34;div.blip-timeline-item&#34;</span>).<span style="color:#a6e22e">Each</span>(<span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">goquery</span>.<span style="color:#a6e22e">Selection</span>) {
-		<span style="color:#a6e22e">entry</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>, <span style="color:#ae81ff">0</span>)
-		<span style="color:#a6e22e">entry</span>[<span style="color:#e6db74">&#34;time&#34;</span>] = <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#e6db74">&#34;div.blip-timeline-item__time&#34;</span>).<span style="color:#a6e22e">First</span>().<span style="color:#a6e22e">Text</span>()
-		<span style="color:#a6e22e">entry</span>[<span style="color:#e6db74">&#34;outcome&#34;</span>] = <span style="color:#a6e22e">strings</span>.<span style="color:#a6e22e">Trim</span>(<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#e6db74">&#34;div.blip-timeline-item__ring span&#34;</span>).<span style="color:#a6e22e">First</span>().<span style="color:#a6e22e">Text</span>(), <span style="color:#e6db74">&#34; &#34;</span>)
-		<span style="color:#a6e22e">entry</span>[<span style="color:#e6db74">&#34;description&#34;</span>] = <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#e6db74">&#34;div.blip-timeline-item__lead&#34;</span>).<span style="color:#a6e22e">First</span>().<span style="color:#a6e22e">Text</span>()
-		<span style="color:#a6e22e">entries</span> = append(<span style="color:#a6e22e">entries</span>, <span style="color:#a6e22e">entry</span>)
+	var entries []map[string]string
+	doc.Find("div.blip-timeline-item").Each(func(i int, s *goquery.Selection) {
+		entry := make(map[string]string, 0)
+		entry["time"] = s.Find("div.blip-timeline-item__time").First().Text()
+		entry["outcome"] = strings.Trim(s.Find("div.blip-timeline-item__ring span").First().Text(), " ")
+		entry["description"] = s.Find("div.blip-timeline-item__lead").First().Text()
+		entries = append(entries, entry)
 	})
 
-	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ScrapedFile</span>{<span style="color:#a6e22e">File</span>:<span style="color:#a6e22e">fileToScrape</span>, <span style="color:#a6e22e">Entries</span>:<span style="color:#a6e22e">entries</span>}
+	return ScrapedFile{File:fileToScrape, Entries:entries}
 }
 
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ScrapedFile</span> <span style="color:#66d9ef">struct</span> {
-	<span style="color:#a6e22e">File</span>    <span style="color:#a6e22e">File</span>
-	<span style="color:#a6e22e">Entries</span> []<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">string</span>
+type ScrapedFile struct {
+	File    File
+	Entries []map[string]string
 }
 
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">FindBlips</span>(<span style="color:#a6e22e">pathToRadar</span> <span style="color:#66d9ef">string</span>) []<span style="color:#a6e22e">Blip</span> {
-	<span style="color:#a6e22e">blips</span> <span style="color:#f92672">:=</span> make([]<span style="color:#a6e22e">Blip</span>, <span style="color:#ae81ff">0</span>)
+func FindBlips(pathToRadar string) []Blip {
+	blips := make([]Blip, 0)
 
-	<span style="color:#a6e22e">file</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#a6e22e">pathToRadar</span>)
-	<span style="color:#a6e22e">checkError</span>(<span style="color:#a6e22e">err</span>)
+	file, err := os.Open(pathToRadar)
+	checkError(err)
 
-	<span style="color:#a6e22e">doc</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">goquery</span>.<span style="color:#a6e22e">NewDocumentFromReader</span>(<span style="color:#a6e22e">bufio</span>.<span style="color:#a6e22e">NewReader</span>(<span style="color:#a6e22e">file</span>))
-	<span style="color:#a6e22e">checkError</span>(<span style="color:#a6e22e">err</span>)
+	doc, err := goquery.NewDocumentFromReader(bufio.NewReader(file))
+	checkError(err)
 
-	<span style="color:#a6e22e">doc</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#e6db74">&#34;.blip&#34;</span>).<span style="color:#a6e22e">Each</span>(<span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">i</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">s</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">goquery</span>.<span style="color:#a6e22e">Selection</span>) {
-		<span style="color:#a6e22e">item</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">Find</span>(<span style="color:#e6db74">&#34;a&#34;</span>)
-		<span style="color:#a6e22e">title</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">Text</span>()
-		<span style="color:#a6e22e">link</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">Attr</span>(<span style="color:#e6db74">&#34;href&#34;</span>)
-		<span style="color:#a6e22e">blips</span> = append(<span style="color:#a6e22e">blips</span>, <span style="color:#a6e22e">Blip</span>{<span style="color:#a6e22e">Title</span>: <span style="color:#a6e22e">title</span>, <span style="color:#a6e22e">Link</span>: <span style="color:#a6e22e">link</span> })
+	doc.Find(".blip").Each(func(i int, s *goquery.Selection) {
+		item := s.Find("a")
+		title := item.Text()
+		link, _ := item.Attr("href")
+		blips = append(blips, Blip{Title: title, Link: link })
 	})
 
-	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">blips</span>
-}
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
-<span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+	return blips
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that we&#8217;re using the <cite>https://github.com/PuerkitoBio/goquery<span class="goquery"></cite></span> library to scrape the HTML files that we download.</p>
+</div>
+<div class="paragraph">
+<p>A <cite>Blip</cite> is used to represent an item that appears on the radar e.g. <a href="https://www.thoughtworks.com/radar/platforms/net-core">.NET Core</a>. A <cite>File</cite> is a representation of that blip on my local file system and a <cite>ScrapedFile</cite> contains the local representation of a blip and has an array containing every appearance the blip has made in radars over time.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s have a look at the single threaded version of the scraper:</p>
+</div>
+<div class="paragraph">
+<p><cite>cmd/single/main.go</cite></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-go" data-lang="go">package main
 
-<span style="color:#f92672">import</span> (
-	<span style="color:#e6db74">&#34;fmt&#34;</span>
-	<span style="color:#e6db74">&#34;encoding/csv&#34;</span>
-	<span style="color:#e6db74">&#34;os&#34;</span>
-	<span style="color:#e6db74">&#34;github.com/mneedham/neo4j-thoughtworks-radar/scrape&#34;</span>
+import (
+	"fmt"
+	"encoding/csv"
+	"os"
+	"github.com/mneedham/neo4j-thoughtworks-radar/scrape"
 )
 
 
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">filesCompleted</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">ScrapedFile</span> = make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">ScrapedFile</span>)
-	<span style="color:#66d9ef">defer</span> close(<span style="color:#a6e22e">filesCompleted</span>)
+func main() {
+	var filesCompleted chan scrape.ScrapedFile = make(chan scrape.ScrapedFile)
+	defer close(filesCompleted)
 
-	<span style="color:#a6e22e">blips</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">FindBlips</span>(<span style="color:#e6db74">&#34;rawData/twRadar.html&#34;</span>)
+	blips := scrape.FindBlips("rawData/twRadar.html")
 
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">filesToScrape</span> []<span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">File</span>
-	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">blip</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">blips</span> {
-		<span style="color:#a6e22e">filesToScrape</span> = append(<span style="color:#a6e22e">filesToScrape</span>, <span style="color:#a6e22e">blip</span>.<span style="color:#a6e22e">Download</span>())
+	var filesToScrape []scrape.File
+	for _, blip := range blips {
+		filesToScrape = append(filesToScrape, blip.Download())
 	}
 
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">filesScraped</span> []<span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">ScrapedFile</span>
-	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">filesToScrape</span> {
-		<span style="color:#a6e22e">filesScraped</span> = append(<span style="color:#a6e22e">filesScraped</span>, <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Scrape</span>())
+	var filesScraped []scrape.ScrapedFile
+	for _, file := range filesToScrape {
+		filesScraped = append(filesScraped, file.Scrape())
 	}
 
-	<span style="color:#a6e22e">blipsCsvFile</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;import/blipsSingle.csv&#34;</span>)
-	<span style="color:#a6e22e">writer</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">csv</span>.<span style="color:#a6e22e">NewWriter</span>(<span style="color:#a6e22e">blipsCsvFile</span>)
-	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">blipsCsvFile</span>.<span style="color:#a6e22e">Close</span>()
+	blipsCsvFile, _ := os.Create("import/blipsSingle.csv")
+	writer := csv.NewWriter(blipsCsvFile)
+	defer blipsCsvFile.Close()
 
-	<span style="color:#a6e22e">writer</span>.<span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;technology&#34;</span>, <span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;suggestion&#34;</span> })
-	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">scrapedFile</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">filesScraped</span> {
-		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">scrapedFile</span>.<span style="color:#a6e22e">File</span>.<span style="color:#a6e22e">Title</span>)
-		<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">blip</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">scrapedFile</span>.<span style="color:#a6e22e">Entries</span> {
-			<span style="color:#a6e22e">writer</span>.<span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">string</span>{<span style="color:#a6e22e">scrapedFile</span>.<span style="color:#a6e22e">File</span>.<span style="color:#a6e22e">Title</span>, <span style="color:#a6e22e">blip</span>[<span style="color:#e6db74">&#34;time&#34;</span>], <span style="color:#a6e22e">blip</span>[<span style="color:#e6db74">&#34;outcome&#34;</span>] })
+	writer.Write([]string{"technology", "date", "suggestion" })
+	for _, scrapedFile := range filesScraped {
+		fmt.Println(scrapedFile.File.Title)
+		for _, blip := range scrapedFile.Entries {
+			writer.Write([]string{scrapedFile.File.Title, blip["time"], blip["outcome"] })
 		}
 	}
-	<span style="color:#a6e22e">writer</span>.<span style="color:#a6e22e">Flush</span>()
-}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ time go run cmd/single/main.go 
+	writer.Flush()
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><cite>rawData/twRadar.html</cite> is a local copy of the <a href="https://www.thoughtworks.com/radar/a-z">A-Z page</a> which contains all the blips. This version is reasonably simple: we create an array containing all the blips, scrape them into another array, and then that array into a CSV file. And if we run it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ time go run cmd/single/main.go
 
 real	3m10.354s
 user	0m1.140s
 sys	0m0.586s
 
-$ head -n10 import/blipsSingle.csv 
+$ head -n10 import/blipsSingle.csv
 technology,date,suggestion
 .NET Core,Nov 2016,Assess
 .NET Core,Nov 2015,Assess
 .NET Core,May 2015,Assess
-A single CI instance <span style="color:#66d9ef">for</span> all teams,Nov 2016,Hold
-A single CI instance <span style="color:#66d9ef">for</span> all teams,Apr 2016,Hold
+A single CI instance for all teams,Nov 2016,Hold
+A single CI instance for all teams,Apr 2016,Hold
 Acceptance test of journeys,Mar 2012,Trial
 Acceptance test of journeys,Jul 2011,Trial
 Acceptance test of journeys,Jan 2011,Trial
-Accumulate-only data,Nov 2015,Assess
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
-<span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+Accumulate-only data,Nov 2015,Assess</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It takes a few minutes and most of the time will be taken in the <cite>blip.Download()</cite> function - work which is easily parallelisable. Let&#8217;s have a look at the parallel version where goroutines use channels to communicate with each other:</p>
+</div>
+<div class="paragraph">
+<p><cite>cmd/parallel/main.go</cite></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-go" data-lang="go">package main
 
-<span style="color:#f92672">import</span> (
-	<span style="color:#e6db74">&#34;os&#34;</span>
-	<span style="color:#e6db74">&#34;encoding/csv&#34;</span>
-	<span style="color:#e6db74">&#34;github.com/mneedham/neo4j-thoughtworks-radar/scrape&#34;</span>
+import (
+	"os"
+	"encoding/csv"
+	"github.com/mneedham/neo4j-thoughtworks-radar/scrape"
 )
 
-<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">filesToScrape</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">File</span> = make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">File</span>)
-	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">filesScraped</span> <span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">ScrapedFile</span> = make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">ScrapedFile</span>)
-	<span style="color:#66d9ef">defer</span> close(<span style="color:#a6e22e">filesToScrape</span>)
-	<span style="color:#66d9ef">defer</span> close(<span style="color:#a6e22e">filesScraped</span>)
+func main() {
+	var filesToScrape chan scrape.File = make(chan scrape.File)
+	var filesScraped chan scrape.ScrapedFile = make(chan scrape.ScrapedFile)
+	defer close(filesToScrape)
+	defer close(filesScraped)
 
-	<span style="color:#a6e22e">blips</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">FindBlips</span>(<span style="color:#e6db74">&#34;rawData/twRadar.html&#34;</span>)
+	blips := scrape.FindBlips("rawData/twRadar.html")
 
-	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">blip</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">blips</span> {
-		<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">blip</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">Blip</span>) { <span style="color:#a6e22e">filesToScrape</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">blip</span>.<span style="color:#a6e22e">Download</span>() }(<span style="color:#a6e22e">blip</span>)
+	for _, blip := range blips {
+		go func(blip scrape.Blip) { filesToScrape &lt;- blip.Download() }(blip)
 	}
 
-	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">blips</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
-		<span style="color:#66d9ef">select</span> {
-		<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">file</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">filesToScrape</span>:
-			<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">file</span> <span style="color:#a6e22e">scrape</span>.<span style="color:#a6e22e">File</span>) { <span style="color:#a6e22e">filesScraped</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Scrape</span>() }(<span style="color:#a6e22e">file</span>)
+	for i := 0; i &lt; len(blips); i++ {
+		select {
+		case file := &lt;-filesToScrape:
+			go func(file scrape.File) { filesScraped &lt;- file.Scrape() }(file)
 		}
 	}
 
-	<span style="color:#a6e22e">blipsCsvFile</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#e6db74">&#34;import/blips.csv&#34;</span>)
-	<span style="color:#a6e22e">writer</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">csv</span>.<span style="color:#a6e22e">NewWriter</span>(<span style="color:#a6e22e">blipsCsvFile</span>)
-	<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">blipsCsvFile</span>.<span style="color:#a6e22e">Close</span>()
+	blipsCsvFile, _ := os.Create("import/blips.csv")
+	writer := csv.NewWriter(blipsCsvFile)
+	defer blipsCsvFile.Close()
 
-	<span style="color:#a6e22e">writer</span>.<span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;technology&#34;</span>, <span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;suggestion&#34;</span> })
-	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">blips</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
-		<span style="color:#66d9ef">select</span> {
-		<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">scrapedFile</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">filesScraped</span>:
-			<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">blip</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">scrapedFile</span>.<span style="color:#a6e22e">Entries</span> {
-				<span style="color:#a6e22e">writer</span>.<span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">string</span>{<span style="color:#a6e22e">scrapedFile</span>.<span style="color:#a6e22e">File</span>.<span style="color:#a6e22e">Title</span>, <span style="color:#a6e22e">blip</span>[<span style="color:#e6db74">&#34;time&#34;</span>], <span style="color:#a6e22e">blip</span>[<span style="color:#e6db74">&#34;outcome&#34;</span>] })
+	writer.Write([]string{"technology", "date", "suggestion" })
+	for i := 0; i &lt; len(blips); i++ {
+		select {
+		case scrapedFile := &lt;-filesScraped:
+			for _, blip := range scrapedFile.Entries {
+				writer.Write([]string{scrapedFile.File.Title, blip["time"], blip["outcome"] })
 			}
 		}
 	}
-	<span style="color:#a6e22e">writer</span>.<span style="color:#a6e22e">Flush</span>()
-}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ rm rawData/items/*
+	writer.Flush()
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s remove the files we just downloaded and give this version a try.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ rm rawData/items/*
 
-$ time go run cmd/parallel/main.go 
+$ time go run cmd/parallel/main.go
 
 real	0m6.689s
 user	0m2.544s
 sys	0m0.904s
 
-$ head -n10 import/blips.csv 
+$ head -n10 import/blips.csv
 technology,date,suggestion
 Zucchini,Oct 2012,Assess
-Reactive Extensions <span style="color:#66d9ef">for</span> .Net,May 2013,Assess
+Reactive Extensions for .Net,May 2013,Assess
 Manual infrastructure management,Mar 2012,Hold
 Manual infrastructure management,Jul 2011,Hold
 JavaScript micro frameworks,Oct 2012,Trial
 JavaScript micro frameworks,Mar 2012,Trial
-NPM <span style="color:#66d9ef">for</span> all the things,Apr 2016,Trial
-NPM <span style="color:#66d9ef">for</span> all the things,Nov 2015,Trial
-PowerShell,Mar 2012,Trial
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ wc -l import/blips.csv 
-    <span style="color:#ae81ff">1361</span> import/blips.csv
+NPM for all the things,Apr 2016,Trial
+NPM for all the things,Nov 2015,Trial
+PowerShell,Mar 2012,Trial</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So we&#8217;re down from 190 seconds to 7 seconds, pretty cool! One interesting thing is that the order of the values in the CSV file will be different since the goroutines won&#8217;t necessarily come back in the same order that they were launched. We do end up with the same number of values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ wc -l import/blips.csv
+    1361 import/blips.csv
 
-$ wc -l import/blipsSingle.csv 
-    <span style="color:#ae81ff">1361</span> import/blipsSingle.csv
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat import/blipsSingle.csv  | sort &gt; /tmp/blipsSingle.csv
+$ wc -l import/blipsSingle.csv
+    1361 import/blipsSingle.csv</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And we can check that the contents are identical:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat import/blipsSingle.csv  | sort &gt; /tmp/blipsSingle.csv
 
 $ cat import/blips.csv  | sort &gt; /tmp/blips.csv
 
-$ diff /tmp/blips.csv /tmp/blipsSingle.csv 
-</code></pre></div><!-- raw HTML omitted -->
+$ diff /tmp/blips.csv /tmp/blipsSingle.csv</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The code in this post is all on <a href="https://github.com/mneedham/neo4j-thoughtworks-radar">github</a>. I&#8217;m sure I&#8217;ve made some mistakes/there are ways that this could be done better so do let me know in the comments or I&#8217;m <a href="https://twitter.com/markhneedham">@markhneedham</a> on twitter.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -464,7 +577,7 @@ $ diff /tmp/blips.csv /tmp/blipsSingle.csv
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/12/24/go-first-attempt-at-channels/&amp;title=Go%3a%20First%20attempt%20at%20channels&amp;summary=We%26rsquo%3bll%20create%20two%20channels%3a%0apackage%20scrape%20import%20%28%20%26%2334%3bgithub.com%2fPuerkitoBio%2fgoquery%26%2334%3b%20%26%2334%3bos%26%2334%3b%20%26%2334%3bbufio%26%2334%3b%20%26%2334%3bfmt%26%2334%3b%20%26%2334%3blog%26%2334%3b%20%26%2334%3bstrings%26%2334%3b%20%26%2334%3bnet%2fhttp%26%2334%3b%20%26%2334%3bio%26%2334%3b%20%29%20func%20checkError%28err%20error%29%20%7b%20if%20err%20%21%3d%20nil%20%7b%20fmt.Println%28err%29%20log.Fatal%28err%29%20%7d%20%7d%20type%20Blip%20struct%20%7b%20Link%20string%20Title%20string%20%7d%20func%20%28blip%20Blip%29%20Download%28%29%20File%20%7b%20parts%20%3a%3d%20strings.Split%28blip.Link%2c%20%26%2334%3b%2f%26%2334%3b%29%20fileName%20%3a%3d%20%26%2334%3brawData%2fitems%2f%26%2334%3b%20%2b%20parts%5blen%28parts%29%20-%201%5d%20if%20_%2c%20err%20%3a%3d%20os.Stat%28fileName%29%3b%20os.IsNotExist%28err%29%20%7b%20resp%2c%20err%20%3a%3d%20http.Get%28%26%2334%3bhttp%3a%2f%2fwww.thoughtworks.com%26%2334%3b%20%2b%20blip.Link%29%20checkError%28err%29%20body%20%3a%3d%20resp...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/12/24/go-first-attempt-at-channels/&amp;title=Go%3a%20First%20attempt%20at%20channels&amp;summary=In%20a%20previous%20blog%20post%20I%20mentioned%20that%20I%20wanted%20to%20extract%20blips%20from%20The%20ThoughtWorks%20Radar%20into%20a%20CSV%20file%20and%20I%20thought%20this%20would%20be%20a%20good%20mini%20project%20for%20me%20to%20practice%20using%20Go.%0a%20In%20particular%20I%20wanted%20to%20try%20using%20channels%20and%20this%20seemed%20like%20a%20good%20chance%20to%20do%20that.%0a%20%26lt%3b%2fp%26gt%3b%20I%20watched%20a%20talk%20by%20Rob%20Pike%20on%20designing%20concurrent%20applications%20where%20he%20uses%20the%20following%20definition%20of%20concurrency%3a%26lt%3b%2fp%26gt%3b..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

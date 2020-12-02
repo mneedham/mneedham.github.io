@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: A procedure for the SLM clustering algorithm" />
         
-          <meta name="twitter:description" content="LOAD CSV FROM &quot;file:///Users/markneedham/projects/slm/karate_club_network.txt&quot; as row FIELDTERMINATOR &quot;\t&quot; MERGE (person1:Person {id: row[0]}) MERGE (person2:Person {id: row[1]}) MERGE (person1)-[:KNOWS]-&gt;(person2) public class ClusterAllTheThings { @Context public org.neo4j.graphdb.GraphDatabaseService db; @Procedure @PerformsWrites public Stream&lt;Cluster&gt; knows() throws IOException { String query = &#34;MATCH (person1:Person)-[r:KNOWS]-&gt;(person2:Person) \n&#34; &#43; &#34;RETURN person1.id AS p1, person2.id AS p2, toFloat(1) AS weight&#34;; Result rows = db.execute( query ); ModularityOptimizer.ModularityFunction modularityFunction = ModularityOptimizer.ModularityFunction.Standard; Network network = Network.create( modularityFunction, rows ); double resolution = 1." />
+          <meta name="twitter:description" content="In the middle of last year I blogged about the Smart Local Moving algorithmwhich is used for community detection in networks and with the upcoming introduction of procedures in Neo4j I thought it&#8217;d be fun to make that code accessible as one.
+ If you want to grab the code and follow along it&#8217;s sitting on the SLM repository on my github.
+ At the moment the procedure is hard coded to work with a KNOWS relationship between two nodes but that could easily be changed." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2016/02/28/neo4j-a-procedure-for-the-slm-clustering-algorithm/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j: A procedure for the SLM clustering algorithm &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="LOAD CSV FROM &quot;file:///Users/markneedham/projects/slm/karate_club_network.txt&quot; as row FIELDTERMINATOR &quot;\t&quot; MERGE (person1:Person {id: row[0]}) MERGE (person2:Person {id: row[1]}) MERGE (person1)-[:KNOWS]-&gt;(person2) public class ClusterAllTheThings { @Context public org.neo4j.graphdb.GraphDatabaseService db; @Procedure @PerformsWrites public Stream&lt;Cluster&gt; knows() throws IOException { String query = &#34;MATCH (person1:Person)-[r:KNOWS]-&gt;(person2:Person) \n&#34; &#43; &#34;RETURN person1.id AS p1, person2.id AS p2, toFloat(1) AS weight&#34;; Result rows = db.execute( query ); ModularityOptimizer.ModularityFunction modularityFunction = ModularityOptimizer.ModularityFunction.Standard; Network network = Network.create( modularityFunction, rows ); double resolution = 1." />
+        <meta name="description" content="In the middle of last year I blogged about the Smart Local Moving algorithmwhich is used for community detection in networks and with the upcoming introduction of procedures in Neo4j I thought it&#8217;d be fun to make that code accessible as one.
+ If you want to grab the code and follow along it&#8217;s sitting on the SLM repository on my github.
+ At the moment the procedure is hard coded to work with a KNOWS relationship between two nodes but that could easily be changed." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2016-02-28",
-        "description": "LOAD CSV FROM \x26quot;file:\/\/\/Users\/markneedham\/projects\/slm\/karate_club_network.txt\x26quot; as row FIELDTERMINATOR \x26quot;\\t\x26quot; MERGE (person1:Person {id: row[0]}) MERGE (person2:Person {id: row[1]}) MERGE (person1)-[:KNOWS]-\x26gt;(person2) public class ClusterAllTheThings { @Context public org.neo4j.graphdb.GraphDatabaseService db; @Procedure @PerformsWrites public Stream\x26lt;Cluster\x26gt; knows() throws IOException { String query = \x26#34;MATCH (person1:Person)-[r:KNOWS]-\x26gt;(person2:Person) \\n\x26#34; \x2b \x26#34;RETURN person1.id AS p1, person2.id AS p2, toFloat(1) AS weight\x26#34;; Result rows = db.execute( query ); ModularityOptimizer.ModularityFunction modularityFunction = ModularityOptimizer.ModularityFunction.Standard; Network network = Network.create( modularityFunction, rows ); double resolution = 1.",
-        "wordCount":  250 
+        "description": "In the middle of last year I blogged about the Smart Local Moving algorithmwhich is used for community detection in networks and with the upcoming introduction of procedures in Neo4j I thought it\x26#8217;d be fun to make that code accessible as one.\n If you want to grab the code and follow along it\x26#8217;s sitting on the SLM repository on my github.\n At the moment the procedure is hard coded to work with a KNOWS relationship between two nodes but that could easily be changed.",
+        "wordCount":  549 
     }
     </script>
     
@@ -172,115 +176,165 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: A procedure for the SLM clustering algorithm</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-LOAD CSV FROM &quot;file:///Users/markneedham/projects/slm/karate_club_network.txt&quot; as row
-FIELDTERMINATOR &quot;\t&quot;
+    <div class="paragraph">
+<p>In the middle of last year <a href="http://www.markhneedham.com/blog/2015/06/17/coding-explore-and-retreat/">I blogged about the Smart Local Moving algorithm</a>which is used for community detection in networks and with the <a href="http://jexp.de/blog/2016/02/neo4j-3-0-stored-procedures/">upcoming introduction of procedures</a> in Neo4j I thought it&#8217;d be fun to make that code accessible as one.</p>
+</div>
+<div class="paragraph">
+<p>If you want to grab the code and follow along it&#8217;s sitting on the <a href="https://github.com/mneedham/slm">SLM repository on my github</a>.</p>
+</div>
+<div class="paragraph">
+<p>At the moment the procedure is hard coded to work with a <cite>KNOWS</cite> relationship between two nodes but that could easily be changed.</p>
+</div>
+<div class="paragraph">
+<p>To check it&#8217;s working correctly I thought it&#8217;d make most sense to use the Karate Club data set described on the <a href="http://www.ludowaltman.nl/slm/">SLM home page</a>. I think this data set is originally from <a href="https://www.cs.cornell.edu/home/kleinber/networks-book/networks-book.pdf">Networks, Crowds and Markets</a>.</p>
+</div>
+<div class="paragraph">
+<p>I wrote the following LOAD CSV script to create the graph in Neo4j:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">LOAD CSV FROM "file:///Users/markneedham/projects/slm/karate_club_network.txt" as row
+FIELDTERMINATOR "\t"
 MERGE (person1:Person {id: row[0]})
 MERGE (person2:Person {id: row[1]})
-MERGE (person1)-[:KNOWS]-&gt;(person2)
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ClusterAllTheThings</span>
-<span style="color:#f92672">{</span>
-    <span style="color:#a6e22e">@Context</span>
-    <span style="color:#66d9ef">public</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">neo4j</span><span style="color:#f92672">.</span><span style="color:#a6e22e">graphdb</span><span style="color:#f92672">.</span><span style="color:#a6e22e">GraphDatabaseService</span> db<span style="color:#f92672">;</span>
+MERGE (person1)-[:KNOWS]-&gt;(person2)</code></pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2016/02/graph.png" alt="Graph" width="566">
+</div>
+</div>
+<div class="paragraph">
+<p>Next we need to call the procedure which will add an appropriate label to each node depending which community it belongs to. This is what the procedure code looks like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class ClusterAllTheThings
+{
+    @Context
+    public org.neo4j.graphdb.GraphDatabaseService db;
 
-    <span style="color:#a6e22e">@Procedure</span>
-    <span style="color:#a6e22e">@PerformsWrites</span>
-    <span style="color:#66d9ef">public</span> Stream<span style="color:#f92672">&lt;</span>Cluster<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">knows</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException
-    <span style="color:#f92672">{</span>
-        String query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;MATCH (person1:Person)-[r:KNOWS]-&gt;(person2:Person) \n&#34;</span> <span style="color:#f92672">+</span>
-                       <span style="color:#e6db74">&#34;RETURN person1.id AS p1, person2.id AS p2, toFloat(1) AS weight&#34;</span><span style="color:#f92672">;</span>
+    @Procedure
+    @PerformsWrites
+    public Stream&lt;Cluster&gt; knows() throws IOException
+    {
+        String query = "MATCH (person1:Person)-[r:KNOWS]-&gt;(person2:Person) \n" +
+                       "RETURN person1.id AS p1, person2.id AS p2, toFloat(1) AS weight";
 
-        Result rows <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span> query <span style="color:#f92672">);</span>
+        Result rows = db.execute( query );
 
-        ModularityOptimizer<span style="color:#f92672">.</span><span style="color:#a6e22e">ModularityFunction</span> modularityFunction <span style="color:#f92672">=</span> ModularityOptimizer<span style="color:#f92672">.</span><span style="color:#a6e22e">ModularityFunction</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Standard</span><span style="color:#f92672">;</span>
-        Network network <span style="color:#f92672">=</span> Network<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span> modularityFunction<span style="color:#f92672">,</span> rows <span style="color:#f92672">);</span>
+        ModularityOptimizer.ModularityFunction modularityFunction = ModularityOptimizer.ModularityFunction.Standard;
+        Network network = Network.create( modularityFunction, rows );
 
-        <span style="color:#66d9ef">double</span> resolution <span style="color:#f92672">=</span> 1<span style="color:#f92672">.</span><span style="color:#a6e22e">0</span><span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">int</span> nRandomStarts <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">int</span> nIterations <span style="color:#f92672">=</span> 10<span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">long</span> randomSeed <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+        double resolution = 1.0;
+        int nRandomStarts = 1;
+        int nIterations = 10;
+        long randomSeed = 0;
 
-        <span style="color:#66d9ef">double</span> modularity<span style="color:#f92672">;</span>
+        double modularity;
 
-        Random random <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Random<span style="color:#f92672">(</span> randomSeed <span style="color:#f92672">);</span>
+        Random random = new Random( randomSeed );
 
-        <span style="color:#66d9ef">double</span> resolution2 <span style="color:#f92672">=</span> modularityFunction<span style="color:#f92672">.</span><span style="color:#a6e22e">resolution</span><span style="color:#f92672">(</span> resolution<span style="color:#f92672">,</span> network <span style="color:#f92672">);</span>
+        double resolution2 = modularityFunction.resolution( resolution, network );
 
-        Map<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">,</span> Node<span style="color:#f92672">&gt;</span> cluster <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
-        <span style="color:#66d9ef">double</span> maxModularity <span style="color:#f92672">=</span> Double<span style="color:#f92672">.</span><span style="color:#a6e22e">NEGATIVE_INFINITY</span><span style="color:#f92672">;</span>
+        Map&lt;Integer, Node&gt; cluster = new HashMap&lt;&gt;();
+        double maxModularity = Double.NEGATIVE_INFINITY;
 
-        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> <span style="color:#66d9ef">int</span> randomStart <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> randomStart <span style="color:#f92672">&lt;</span> nRandomStarts<span style="color:#f92672">;</span> randomStart<span style="color:#f92672">++</span> <span style="color:#f92672">)</span>
-        <span style="color:#f92672">{</span>
-            network<span style="color:#f92672">.</span><span style="color:#a6e22e">initSingletonClusters</span><span style="color:#f92672">();</span>
+        for ( int randomStart = 0; randomStart &lt; nRandomStarts; randomStart++ )
+        {
+            network.initSingletonClusters();
 
-            <span style="color:#66d9ef">int</span> iteration <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
-            <span style="color:#66d9ef">do</span>
-            <span style="color:#f92672">{</span>
-                network<span style="color:#f92672">.</span><span style="color:#a6e22e">runSmartLocalMovingAlgorithm</span><span style="color:#f92672">(</span> resolution2<span style="color:#f92672">,</span> random <span style="color:#f92672">);</span>
-                iteration<span style="color:#f92672">++;</span>
+            int iteration = 0;
+            do
+            {
+                network.runSmartLocalMovingAlgorithm( resolution2, random );
+                iteration++;
 
-                modularity <span style="color:#f92672">=</span> network<span style="color:#f92672">.</span><span style="color:#a6e22e">calcQualityFunction</span><span style="color:#f92672">(</span> resolution2 <span style="color:#f92672">);</span>
-            <span style="color:#f92672">}</span> <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span> <span style="color:#f92672">(</span>iteration <span style="color:#f92672">&lt;</span> nIterations<span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
+                modularity = network.calcQualityFunction( resolution2 );
+            } while ( (iteration &lt; nIterations) );
 
-            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span> modularity <span style="color:#f92672">&gt;</span> maxModularity <span style="color:#f92672">)</span>
-            <span style="color:#f92672">{</span>
-                network<span style="color:#f92672">.</span><span style="color:#a6e22e">orderClustersByNNodes</span><span style="color:#f92672">();</span>
-                cluster <span style="color:#f92672">=</span> network<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodes</span><span style="color:#f92672">();</span>
-                maxModularity <span style="color:#f92672">=</span> modularity<span style="color:#f92672">;</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
+            if ( modularity &gt; maxModularity )
+            {
+                network.orderClustersByNNodes();
+                cluster = network.getNodes();
+                maxModularity = modularity;
+            }
+        }
 
-        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">,</span> Node<span style="color:#f92672">&gt;</span> entry <span style="color:#f92672">:</span> cluster<span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">()</span> <span style="color:#f92672">)</span>
-        <span style="color:#f92672">{</span>
-            Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> params <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
-            params<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;userId&#34;</span><span style="color:#f92672">,</span> String<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span>entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">()));</span>
+        for ( Map.Entry&lt;Integer, Node&gt; entry : cluster.entrySet() )
+        {
+            Map&lt;String, Object&gt; params = new HashMap&lt;&gt;();
+            params.put("userId", String.valueOf(entry.getKey()));
 
-            db<span style="color:#f92672">.</span><span style="color:#a6e22e">execute</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;MATCH (person:Person {id: {userId}})\n&#34;</span> <span style="color:#f92672">+</span>
-                       <span style="color:#e6db74">&#34;SET person:`&#34;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">(</span>format<span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;Community-%d`&#34;</span><span style="color:#f92672">,</span> entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getCluster</span><span style="color:#f92672">()</span> <span style="color:#f92672">)),</span>
-                    params<span style="color:#f92672">);</span>
-        <span style="color:#f92672">}</span>
+            db.execute("MATCH (person:Person {id: {userId}})\n" +
+                       "SET person:`" + (format( "Community-%d`", entry.getValue().getCluster() )),
+                    params);
+        }
 
-        <span style="color:#66d9ef">return</span> cluster
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">()</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">stream</span><span style="color:#f92672">()</span>
-                <span style="color:#f92672">.</span><span style="color:#a6e22e">map</span><span style="color:#f92672">(</span> <span style="color:#f92672">(</span> entry <span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> Cluster<span style="color:#f92672">(</span> entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getKey</span><span style="color:#f92672">(),</span> entry<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getCluster</span><span style="color:#f92672">()</span> <span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+        return cluster
+                .entrySet()
+                .stream()
+                .map( ( entry ) -&gt; new Cluster( entry.getKey(), entry.getValue().getCluster() ) );
+    }
 
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Cluster</span>
-    <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">long</span> id<span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">long</span> clusterId<span style="color:#f92672">;</span>
+    public static class Cluster
+    {
+        public long id;
+        public long clusterId;
 
-        <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">Cluster</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">int</span> id<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> clusterId <span style="color:#f92672">)</span>
-        <span style="color:#f92672">{</span>
-            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">id</span> <span style="color:#f92672">=</span> id<span style="color:#f92672">;</span>
-            <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">clusterId</span> <span style="color:#f92672">=</span> clusterId<span style="color:#f92672">;</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-CALL org.neo4j.slm.knows()
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ mvn clean package 
-$ cp target/slm-1.0.jar /path/to/neo4j/plugins/ 
-$ ./path/to/neo4j/bin/neo4j restart
-</code></pre></div><!-- raw HTML omitted -->
+        public Cluster( int id, int clusterId )
+        {
+            this.id = id;
+            this.clusterId = clusterId;
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve hardcoded some parameters to use defaults which could be exposed through the procedure to allow more control if necessary. The <cite>https://github.com/mneedham/slm/blob/master/src/main/java/org/neo4j/slm/Network.java#L69<span class="Network#create"></cite></span> function assumes it is going to receive a stream of rows containing columns 'p1', 'p2' and 'weight' to represent the 'source', 'destination' and 'weight' of the relationship between them.</p>
+</div>
+<div class="paragraph">
+<p>We call the procedure like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL org.neo4j.slm.knows()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It will return each of the nodes and the cluster it&#8217;s been assigned to and if we then visualise the network in the neo4j browser we&#8217;ll see this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2016/02/graph-1.png" alt="Graph  1" width="591">
+</div>
+</div>
+<div class="paragraph">
+<p>which is similar to the visualisation from the SLM home page:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2016/02/network.png" alt="Network">
+</div>
+</div>
+<div class="paragraph">
+<p>If you want to play around with the code feel free. You&#8217;ll need to run the following commands to create the JAR for the plugin and deploy it.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ mvn clean package
+$ cp target/slm-1.0.jar /path/to/neo4j/plugins/
+$ ./path/to/neo4j/bin/neo4j restart</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And you&#8217;ll need <a href="http://neo4j.com/download/other-releases/">the latest milestone of Neo4j</a> which has procedures enabled.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -315,7 +369,7 @@ $ ./path/to/neo4j/bin/neo4j restart
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/02/28/neo4j-a-procedure-for-the-slm-clustering-algorithm/&amp;title=Neo4j%3a%20A%20procedure%20for%20the%20SLM%20clustering%20algorithm&amp;summary=LOAD%20CSV%20FROM%20%26quot%3bfile%3a%2f%2f%2fUsers%2fmarkneedham%2fprojects%2fslm%2fkarate_club_network.txt%26quot%3b%20as%20row%20FIELDTERMINATOR%20%26quot%3b%5ct%26quot%3b%20MERGE%20%28person1%3aPerson%20%7bid%3a%20row%5b0%5d%7d%29%20MERGE%20%28person2%3aPerson%20%7bid%3a%20row%5b1%5d%7d%29%20MERGE%20%28person1%29-%5b%3aKNOWS%5d-%26gt%3b%28person2%29%20public%20class%20ClusterAllTheThings%20%7b%20%40Context%20public%20org.neo4j.graphdb.GraphDatabaseService%20db%3b%20%40Procedure%20%40PerformsWrites%20public%20Stream%26lt%3bCluster%26gt%3b%20knows%28%29%20throws%20IOException%20%7b%20String%20query%20%3d%20%26%2334%3bMATCH%20%28person1%3aPerson%29-%5br%3aKNOWS%5d-%26gt%3b%28person2%3aPerson%29%20%5cn%26%2334%3b%20%2b%20%26%2334%3bRETURN%20person1.id%20AS%20p1%2c%20person2.id%20AS%20p2%2c%20toFloat%281%29%20AS%20weight%26%2334%3b%3b%20Result%20rows%20%3d%20db.execute%28%20query%20%29%3b%20ModularityOptimizer.ModularityFunction%20modularityFunction%20%3d%20ModularityOptimizer.ModularityFunction.Standard%3b%20Network%20network%20%3d%20Network.create%28%20modularityFunction%2c%20rows%20%29%3b%20double%20resolution%20%3d%201...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2016/02/28/neo4j-a-procedure-for-the-slm-clustering-algorithm/&amp;title=Neo4j%3a%20A%20procedure%20for%20the%20SLM%20clustering%20algorithm&amp;summary=In%20the%20middle%20of%20last%20year%20I%20blogged%20about%20the%20Smart%20Local%20Moving%20algorithmwhich%20is%20used%20for%20community%20detection%20in%20networks%20and%20with%20the%20upcoming%20introduction%20of%20procedures%20in%20Neo4j%20I%20thought%20it%26%238217%3bd%20be%20fun%20to%20make%20that%20code%20accessible%20as%20one.%0a%20If%20you%20want%20to%20grab%20the%20code%20and%20follow%20along%20it%26%238217%3bs%20sitting%20on%20the%20SLM%20repository%20on%20my%20github.%0a%20At%20the%20moment%20the%20procedure%20is%20hard%20coded%20to%20work%20with%20a%20KNOWS%20relationship%20between%20two%20nodes%20but%20that%20could%20easily%20be%20changed...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

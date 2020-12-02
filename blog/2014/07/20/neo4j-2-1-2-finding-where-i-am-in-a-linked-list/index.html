@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j 2.1.2: Finding where I am in a linked list" />
         
-          <meta name="twitter:description" content="public class Chains { public static void main(String[] args) { String simpleChains = &#34;/tmp/longchains&#34;; populate( simpleChains, 10000 ); } private static void populate( String path, int chainSize ) { GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); try(Transaction tx = db.beginTx()) { Node currentNode = null; for ( int i = 0; i &lt; chainSize; i&#43;&#43; ) { Node node = db.createNode(); if(currentNode != null) { currentNode.createRelationshipTo( node, NEXT ); } currentNode = node; } tx." />
+          <meta name="twitter:description" content="I was recently asked how to calculate the position of a node in a linked list and realised that as the list increases in size this is one of the occasions when we should write an unmanaged extension rather than using cypher.
+ I wrote a quick bit of code to create a linked list with 10,000 elements in it:
+ public class Chains { public static void main(String[] args) { String simpleChains = &#34;" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/07/20/neo4j-2-1-2-finding-where-i-am-in-a-linked-list/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j 2.1.2: Finding where I am in a linked list &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="public class Chains { public static void main(String[] args) { String simpleChains = &#34;/tmp/longchains&#34;; populate( simpleChains, 10000 ); } private static void populate( String path, int chainSize ) { GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); try(Transaction tx = db.beginTx()) { Node currentNode = null; for ( int i = 0; i &lt; chainSize; i&#43;&#43; ) { Node node = db.createNode(); if(currentNode != null) { currentNode.createRelationshipTo( node, NEXT ); } currentNode = node; } tx." />
+        <meta name="description" content="I was recently asked how to calculate the position of a node in a linked list and realised that as the list increases in size this is one of the occasions when we should write an unmanaged extension rather than using cypher.
+ I wrote a quick bit of code to create a linked list with 10,000 elements in it:
+ public class Chains { public static void main(String[] args) { String simpleChains = &#34;" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-07-20",
-        "description": "public class Chains { public static void main(String[] args) { String simpleChains = \x26#34;\/tmp\/longchains\x26#34;; populate( simpleChains, 10000 ); } private static void populate( String path, int chainSize ) { GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path ); try(Transaction tx = db.beginTx()) { Node currentNode = null; for ( int i = 0; i \x26lt; chainSize; i\x2b\x2b ) { Node node = db.createNode(); if(currentNode != null) { currentNode.createRelationshipTo( node, NEXT ); } currentNode = node; } tx.",
-        "wordCount":  484 
+        "description": "I was recently asked how to calculate the position of a node in a linked list and realised that as the list increases in size this is one of the occasions when we should write an unmanaged extension rather than using cypher.\n I wrote a quick bit of code to create a linked list with 10,000 elements in it:\n public class Chains { public static void main(String[] args) { String simpleChains = \x22",
+        "wordCount":  817 
     }
     </script>
     
@@ -172,76 +176,102 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j 2.1.2: Finding where I am in a linked list</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Chains</span> 
-<span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span>
-    <span style="color:#f92672">{</span>
-        String simpleChains <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/tmp/longchains&#34;</span><span style="color:#f92672">;</span>
-        populate<span style="color:#f92672">(</span> simpleChains<span style="color:#f92672">,</span> 10000 <span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+    <div class="paragraph">
+<p>I was recently asked how to calculate the position of a node in a linked list and realised that as the list increases in size this is one of the occasions when we should write an <a href="http://docs.neo4j.org/chunked/stable/server-unmanaged-extensions.html">unmanaged extension</a> rather than using cypher.</p>
+</div>
+<div class="paragraph">
+<p>I wrote a quick bit of code to create a linked list with 10,000 elements in it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class Chains
+{
+    public static void main(String[] args)
+    {
+        String simpleChains = "/tmp/longchains";
+        populate( simpleChains, 10000 );
+    }
 
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">populate</span><span style="color:#f92672">(</span> String path<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> chainSize <span style="color:#f92672">)</span>
-    <span style="color:#f92672">{</span>
-        GraphDatabaseService db <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> GraphDatabaseFactory<span style="color:#f92672">().</span><span style="color:#a6e22e">newEmbeddedDatabase</span><span style="color:#f92672">(</span> path <span style="color:#f92672">);</span>
-        <span style="color:#66d9ef">try</span><span style="color:#f92672">(</span>Transaction tx <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">beginTx</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-            Node currentNode <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
-            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> <span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span> i <span style="color:#f92672">&lt;</span> chainSize<span style="color:#f92672">;</span> i<span style="color:#f92672">++</span> <span style="color:#f92672">)</span>
-            <span style="color:#f92672">{</span>
-                Node node <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">createNode</span><span style="color:#f92672">();</span>
+    private static void populate( String path, int chainSize )
+    {
+        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase( path );
+        try(Transaction tx = db.beginTx()) {
+            Node currentNode = null;
+            for ( int i = 0; i &lt; chainSize; i++ )
+            {
+                Node node = db.createNode();
 
-                <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>currentNode <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                    currentNode<span style="color:#f92672">.</span><span style="color:#a6e22e">createRelationshipTo</span><span style="color:#f92672">(</span> node<span style="color:#f92672">,</span> NEXT <span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
-                currentNode <span style="color:#f92672">=</span> node<span style="color:#f92672">;</span>
-            <span style="color:#f92672">}</span>
-            tx<span style="color:#f92672">.</span><span style="color:#a6e22e">success</span><span style="color:#f92672">();</span>
-        <span style="color:#f92672">}</span>
+                if(currentNode != null) {
+                    currentNode.createRelationshipTo( node, NEXT );
+                }
+                currentNode = node;
+            }
+            tx.success();
+        }
 
 
-        db<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-match n  where id(n) = {nodeId}  with n 
-match path = (n)-[:NEXT*]-&gt;() 
-RETURN id(n) AS nodeId, length(path) AS length 
-ORDER BY length DESC 
-LIMIT 1;
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">try</span><span style="color:#f92672">(</span>Transaction tx <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">beginTx</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-    Node startNode <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">getNodeById</span><span style="color:#f92672">(</span> nodeId <span style="color:#f92672">);</span>
-    TraversalDescription traversal <span style="color:#f92672">=</span> db<span style="color:#f92672">.</span><span style="color:#a6e22e">traversalDescription</span><span style="color:#f92672">();</span>
-    Traverser traverse <span style="color:#f92672">=</span> traversal
-            <span style="color:#f92672">.</span><span style="color:#a6e22e">depthFirst</span><span style="color:#f92672">()</span>
-            <span style="color:#f92672">.</span><span style="color:#a6e22e">relationships</span><span style="color:#f92672">(</span> NEXT<span style="color:#f92672">,</span> Direction<span style="color:#f92672">.</span><span style="color:#a6e22e">OUTGOING</span> <span style="color:#f92672">)</span>
-            <span style="color:#f92672">.</span><span style="color:#a6e22e">sort</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> Comparator<span style="color:#f92672">&lt;</span>Path<span style="color:#f92672">&gt;()</span>
-            <span style="color:#f92672">{</span>
-                <span style="color:#a6e22e">@Override</span>
-                <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">compare</span><span style="color:#f92672">(</span> Path o1<span style="color:#f92672">,</span> Path o2 <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
-                    <span style="color:#66d9ef">return</span> Integer<span style="color:#f92672">.</span><span style="color:#a6e22e">valueOf</span><span style="color:#f92672">(</span> o2<span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">()</span> <span style="color:#f92672">).</span><span style="color:#a6e22e">compareTo</span><span style="color:#f92672">(</span> o1 <span style="color:#f92672">.</span><span style="color:#a6e22e">length</span><span style="color:#f92672">()</span> <span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span> <span style="color:#f92672">)</span>
-            <span style="color:#f92672">.</span><span style="color:#a6e22e">traverse</span><span style="color:#f92672">(</span> startNode <span style="color:#f92672">);</span>
+        db.shutdown();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To find our distance from the end of the linked list we could write the following cypher query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">match n  where id(n) = {nodeId}  with n
+match path = (n)-[:NEXT*]-&gt;()
+RETURN id(n) AS nodeId, length(path) AS length
+ORDER BY length DESC
+LIMIT 1;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For simplicity we&#8217;re finding a node by it&#8217;s internal node id and then finding the 'NEXT' relationships going out from this node recursively. We then filter the results so that we only get the longest path back which will be our distance to the end of the list.</p>
+</div>
+<div class="paragraph">
+<p>I noticed that this query would sometimes take 10s of seconds so I wrote a version using the <a href="http://docs.neo4j.org/chunked/stable/tutorial-traversal-java-api.html">Java Traversal API</a> to see whether I could get it any quicker.</p>
+</div>
+<div class="paragraph">
+<p>This is the Java version:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">try(Transaction tx = db.beginTx()) {
+    Node startNode = db.getNodeById( nodeId );
+    TraversalDescription traversal = db.traversalDescription();
+    Traverser traverse = traversal
+            .depthFirst()
+            .relationships( NEXT, Direction.OUTGOING )
+            .sort( new Comparator&lt;Path&gt;()
+            {
+                @Override
+                public int compare( Path o1, Path o2 )
+                {
+                    return Integer.valueOf( o2.length() ).compareTo( o1 .length() );
+                }
+            } )
+            .traverse( startNode );
 
-    Collection<span style="color:#f92672">&lt;</span>Path<span style="color:#f92672">&gt;</span> paths <span style="color:#f92672">=</span> IteratorUtil<span style="color:#f92672">.</span><span style="color:#a6e22e">asCollection</span><span style="color:#f92672">(</span> traverse <span style="color:#f92672">);</span>
+    Collection&lt;Path&gt; paths = IteratorUtil.asCollection( traverse );
 
-    <span style="color:#66d9ef">int</span> maxLength <span style="color:#f92672">=</span> traverse<span style="color:#f92672">.</span><span style="color:#a6e22e">iterator</span><span style="color:#f92672">().</span><span style="color:#a6e22e">next</span><span style="color:#f92672">().</span><span style="color:#a6e22e">length</span><span style="color:#f92672">();</span>
-    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">print</span><span style="color:#f92672">(</span> maxLength <span style="color:#f92672">);</span>
+    int maxLength = traverse.iterator().next().length();
+    System.out.print( maxLength );
 
-    tx<span style="color:#f92672">.</span><span style="color:#a6e22e">failure</span><span style="color:#f92672">();</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
---------
+    tx.failure();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a bit more verbose than the cypher version but computes the same result. We&#8217;ve sorted the paths by length using a comparator to ensure we get the longest path back first.</p>
+</div>
+<div class="paragraph">
+<p>I created a little program to warm up the caches and kick off a few iterations where I queried from different nodes and returned the length and time taken. These were the results:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">--------
 (Traversal API) Node:    1, Length: 9998, Time (ms):  15
        (Cypher) Node:    1, Length: 9998, Time (ms): 26225
 (Traversal API) Node:  456, Length: 9543, Time (ms):  10
@@ -262,10 +292,15 @@ LIMIT 1;
        (Cypher) Node:  456, Length: 9543, Time (ms): 22296
 (Traversal API) Node:  761, Length: 9238, Time (ms):   8
        (Cypher) Node:  761, Length: 9238, Time (ms): 8739
---------
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
---------
+--------</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interestingly when I reduced the size of the linked list to 1000 the difference wasn&#8217;t so pronounced:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">--------
 (Traversal API) Node:    1, Length: 998, Time (ms):   5
        (Cypher) Node:    1, Length: 998, Time (ms): 174
 (Traversal API) Node:  456, Length: 543, Time (ms):   2
@@ -286,10 +321,18 @@ LIMIT 1;
        (Cypher) Node:  456, Length: 543, Time (ms):  48
 (Traversal API) Node:  761, Length: 238, Time (ms):   0
        (Cypher) Node:  761, Length: 238, Time (ms):  12
---------
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+--------</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>which is good news as most linked lists that we&#8217;ll create will be in the 10s - 100s range rather than 10,000 which was what I was faced with.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m sure cypher will reach parity for this type of query in future which will be great as I like writing cypher much more than I do Java. For now though it&#8217;s good to know we have a backup option to call on when necessary.</p>
+</div>
+<div class="paragraph">
+<p>The code is <a href="https://gist.github.com/mneedham/33d42fa1edca604946ec">available as a gist</a> if you want to play around with it further.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -324,7 +367,7 @@ LIMIT 1;
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/07/20/neo4j-2-1-2-finding-where-i-am-in-a-linked-list/&amp;title=Neo4j%202.1.2%3a%20Finding%20where%20I%20am%20in%20a%20linked%20list&amp;summary=public%20class%20Chains%20%7b%20public%20static%20void%20main%28String%5b%5d%20args%29%20%7b%20String%20simpleChains%20%3d%20%26%2334%3b%2ftmp%2flongchains%26%2334%3b%3b%20populate%28%20simpleChains%2c%2010000%20%29%3b%20%7d%20private%20static%20void%20populate%28%20String%20path%2c%20int%20chainSize%20%29%20%7b%20GraphDatabaseService%20db%20%3d%20new%20GraphDatabaseFactory%28%29.newEmbeddedDatabase%28%20path%20%29%3b%20try%28Transaction%20tx%20%3d%20db.beginTx%28%29%29%20%7b%20Node%20currentNode%20%3d%20null%3b%20for%20%28%20int%20i%20%3d%200%3b%20i%20%26lt%3b%20chainSize%3b%20i%2b%2b%20%29%20%7b%20Node%20node%20%3d%20db.createNode%28%29%3b%20if%28currentNode%20%21%3d%20null%29%20%7b%20currentNode.createRelationshipTo%28%20node%2c%20NEXT%20%29%3b%20%7d%20currentNode%20%3d%20node%3b%20%7d%20tx...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/07/20/neo4j-2-1-2-finding-where-i-am-in-a-linked-list/&amp;title=Neo4j%202.1.2%3a%20Finding%20where%20I%20am%20in%20a%20linked%20list&amp;summary=I%20was%20recently%20asked%20how%20to%20calculate%20the%20position%20of%20a%20node%20in%20a%20linked%20list%20and%20realised%20that%20as%20the%20list%20increases%20in%20size%20this%20is%20one%20of%20the%20occasions%20when%20we%20should%20write%20an%20unmanaged%20extension%20rather%20than%20using%20cypher.%0a%20I%20wrote%20a%20quick%20bit%20of%20code%20to%20create%20a%20linked%20list%20with%2010%2c000%20elements%20in%20it%3a%0a%20public%20class%20Chains%20%7b%20public%20static%20void%20main%28String%5b%5d%20args%29%20%7b%20String%20simpleChains%20%3d%20%22..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

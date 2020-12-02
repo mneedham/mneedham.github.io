@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Micro Services Style Data Work Flow" />
         
-          <meta name="twitter:description" content="" />
+          <meta name="twitter:description" content="Having worked on a few data related applications over the last ten months or so Ashok and I were recently discussing some of the things that we&#8217;ve learnt
+ One of the things he pointed out is that it&#8217;s very helpful to separate the different stages of a data work flow into their own applications/scripts.
+ I decided to try out this idea with some football data that I&#8217;m currently trying to model and I ended up with the following stages:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/02/18/micro-services-style-data-work-flow/" />
 
@@ -33,7 +35,9 @@
         <title> Micro Services Style Data Work Flow &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="" />
+        <meta name="description" content="Having worked on a few data related applications over the last ten months or so Ashok and I were recently discussing some of the things that we&#8217;ve learnt
+ One of the things he pointed out is that it&#8217;s very helpful to separate the different stages of a data work flow into their own applications/scripts.
+ I decided to try out this idea with some football data that I&#8217;m currently trying to model and I ended up with the following stages:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-02-18",
-        "description": "",
-        "wordCount":  0 
+        "description": "Having worked on a few data related applications over the last ten months or so Ashok and I were recently discussing some of the things that we\x26#8217;ve learnt\n One of the things he pointed out is that it\x26#8217;s very helpful to separate the different stages of a data work flow into their own applications\/scripts.\n I decided to try out this idea with some football data that I\x26#8217;m currently trying to model and I ended up with the following stages:",
+        "wordCount":  598 
     }
     </script>
     
@@ -172,25 +176,92 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Micro Services Style Data Work Flow</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+    <div class="paragraph">
+<p>Having worked on a few data related applications over the last ten months or so <a href="https://twitter.com/a5hok">Ashok</a> and I were recently discussing some of the things that we&#8217;ve learnt</p>
+</div>
+<div class="paragraph">
+<p>One of the things he pointed out is that it&#8217;s very helpful to <strong>separate the different stages of a data work flow</strong> into their own applications/scripts.</p>
+</div>
+<div class="paragraph">
+<p>I decided to try out this idea with some football data that I&#8217;m currently trying to model and I ended up with the following stages:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2013/02/data-workflow.png" alt="Data workflow" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>The stages do the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Find</strong> - Finds web pages which have the data we need and writes those URLs of those to a text file.</p>
+</li>
+<li>
+<p><strong>Download</strong> - Reads in the URLs and downloads the contents to the file system.</p>
+</li>
+<li>
+<p><strong>Extract</strong> - Reads in the web pages from the file system and using CSS selectors extracts appropriate data and saves JSON files to disk.</p>
+</li>
+<li>
+<p><strong>Import</strong> - Reads in the JSON files and creates nodes/relationships in neo4j.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>It&#8217;s reasonably similar to <a href="http://www.infoq.com/presentations/Micro-Services">micro services</a> except instead of using HTTP as the protocol between each part we use text files as the interface between different scripts.</p>
+</div>
+<div class="paragraph">
+<p>In fact it&#8217;s more like a variation of Unix pipelining as described in <a href="http://www.amazon.co.uk/Unix-Programming-Addison-Wesley-Professional-Computing/dp/0131429019/ref=sr_1_1?ie=UTF8&amp;qid=1361141666&amp;sr=8-1">The Art of Unix Programming</a> except we store the results of each stage of the pipeline instead of piping them directly into the next one.</p>
+</div>
+<div class="paragraph">
+<p>If following the Unix way isn&#8217;t enough of a reason to split up the problem like this there are a couple of other reasons why this approach is useful:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>We end up tweaking some parts more than others</strong> therefore it&#8217;s good if we don&#8217;t have to run all the steps each time we make a change e.g. I find that I spend much more time in the extract &amp; import stages than in the other two stages. Once I&#8217;ve got the script for getting all the data written it doesn&#8217;t seem to change that substantially.</p>
+</li>
+<li>
+<p><strong>We can choose the appropriate technology to do each of the jobs</strong>. In this case I find that any data processing is much easier to do in Ruby but the data import is significantly quicker if you use the Java API.</p>
+</li>
+<li>
+<p><strong>We can easily make changes to the work flow</strong> if we find a better way of doing things.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>That third advantage became clear to me on Saturday when I realised that waiting 3 minutes for the import stage to run each time was becoming quite frustrating.</p>
+</div>
+<div class="paragraph">
+<p>All node/relationship creation was happening via the REST interface from a Ruby script since that was the easiest way to get started.</p>
+</div>
+<div class="paragraph">
+<p>I was planning to plugin some Java code <a href="http://www.markhneedham.com/blog/2012/09/23/neo4j-the-batch-inserter-and-the-sunk-cost-fallacy/">using the batch importer</a> to speed things up until Ashok pointed me to a <a href="https://github.com/jexp/batch-import">CSV driven batch importer</a> which seemed like it might be even better.</p>
+</div>
+<div class="paragraph">
+<p>That batch importer takes CSV files of nodes and edges as its input so I needed to add another stage to the work flow if I wanted to use it:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2013/02/data-workflow-2.png" alt="Data workflow 2" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>I spent a few hours working on the 'Extract to CSV' stage and then replaced the initial 'Import' script with a call to the batch importer.</p>
+</div>
+<div class="paragraph">
+<p>It now takes 1.3 seconds to go through the last two stages instead of 3 minutes for the old import stage.</p>
+</div>
+<div class="paragraph">
+<p>Since all I added was another script that took a text file as input and created text files as output it was really easy to make this change to the work flow.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not sure how well this scales if you&#8217;re dealing with massive amounts of data but you can always split the data up into multiple files if the size becomes unmanageable.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -225,7 +296,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/02/18/micro-services-style-data-work-flow/&amp;title=Micro%20Services%20Style%20Data%20Work%20Flow&amp;summary=..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/02/18/micro-services-style-data-work-flow/&amp;title=Micro%20Services%20Style%20Data%20Work%20Flow&amp;summary=Having%20worked%20on%20a%20few%20data%20related%20applications%20over%20the%20last%20ten%20months%20or%20so%20Ashok%20and%20I%20were%20recently%20discussing%20some%20of%20the%20things%20that%20we%26%238217%3bve%20learnt%0a%20One%20of%20the%20things%20he%20pointed%20out%20is%20that%20it%26%238217%3bs%20very%20helpful%20to%20separate%20the%20different%20stages%20of%20a%20data%20work%20flow%20into%20their%20own%20applications%2fscripts.%0a%20I%20decided%20to%20try%20out%20this%20idea%20with%20some%20football%20data%20that%20I%26%238217%3bm%20currently%20trying%20to%20model%20and%20I%20ended%20up%20with%20the%20following%20stages%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

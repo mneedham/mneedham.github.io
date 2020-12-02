@@ -23,9 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="TDD: Only mock types you own" />
         
-          <meta name="twitter:description" content="Liz recently posted about mock objectsand the original &lsquo;mock roles, not objects&rsquo; paper and one thing that stood out for me is the idea that we should only mock types that we own.
-I think this is quite an important guideline to follow otherwise we can end up in a world of pain.
-One area which seems particularly vulnerable to this type of thing is when it comes to testing code which interacts with Hibernate." />
+          <meta name="twitter:description" content="Liz recently posted about mock objects and the original &#39;http://www.jmock.org/oopsla2004.pdf[mock roles, not objects]&#39; paper and one thing that stood out for me is the idea that we should only mock types that we own.
+ I think this is quite an important guideline to follow otherwise we can end up in a world of pain.
+ One area which seems particularly vulnerable to this type of thing is when it comes to testing code which interacts with Hibernate." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/12/13/tdd-only-mock-types-you-own/" />
 
@@ -36,9 +36,9 @@ One area which seems particularly vulnerable to this type of thing is when it co
         <title> TDD: Only mock types you own &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Liz recently posted about mock objectsand the original &lsquo;mock roles, not objects&rsquo; paper and one thing that stood out for me is the idea that we should only mock types that we own.
-I think this is quite an important guideline to follow otherwise we can end up in a world of pain.
-One area which seems particularly vulnerable to this type of thing is when it comes to testing code which interacts with Hibernate." />
+        <meta name="description" content="Liz recently posted about mock objects and the original &#39;http://www.jmock.org/oopsla2004.pdf[mock roles, not objects]&#39; paper and one thing that stood out for me is the idea that we should only mock types that we own.
+ I think this is quite an important guideline to follow otherwise we can end up in a world of pain.
+ One area which seems particularly vulnerable to this type of thing is when it comes to testing code which interacts with Hibernate." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,8 +67,8 @@ One area which seems particularly vulnerable to this type of thing is when it co
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-12-13",
-        "description": "Liz recently posted about mock objectsand the original \x26lsquo;mock roles, not objects\x26rsquo; paper and one thing that stood out for me is the idea that we should only mock types that we own.\nI think this is quite an important guideline to follow otherwise we can end up in a world of pain.\nOne area which seems particularly vulnerable to this type of thing is when it comes to testing code which interacts with Hibernate.",
-        "wordCount":  233 
+        "description": "Liz recently posted about mock objects and the original \x27http:\/\/www.jmock.org\/oopsla2004.pdf[mock roles, not objects]\x27 paper and one thing that stood out for me is the idea that we should only mock types that we own.\n I think this is quite an important guideline to follow otherwise we can end up in a world of pain.\n One area which seems particularly vulnerable to this type of thing is when it comes to testing code which interacts with Hibernate.",
+        "wordCount":  335 
     }
     </script>
     
@@ -179,16 +179,47 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">TDD: Only mock types you own</h1>
-    <p><!-- raw HTML omitted -->Liz recently posted about mock objects<!-- raw HTML omitted --> and the original &lsquo;<!-- raw HTML omitted -->mock roles, not objects<!-- raw HTML omitted -->&rsquo; paper and one thing that stood out for me is the idea that <!-- raw HTML omitted -->we should only mock types that we own<!-- raw HTML omitted -->.</p>
+    <div class="paragraph">
+<p><a href="http://lizdouglass.wordpress.com/2009/12/12/mock-objects/">Liz recently posted about mock objects</a> and the original 'http://www.jmock.org/oopsla2004.pdf[mock roles, not objects]' paper and one thing that stood out for me is the idea that <strong>we should only mock types that we own</strong>.</p>
+</div>
+<div class="paragraph">
 <p>I think this is quite an important guideline to follow otherwise we can end up in a world of pain.</p>
-<p>One area which seems particularly vulnerable to this type of thing is when it comes to <!-- raw HTML omitted -->testing code which interacts with Hibernate<!-- raw HTML omitted -->.</p>
-<p>A common pattern that I&rsquo;ve noticed is to create a mock for the &lsquo;<!-- raw HTML omitted -->EntityManager<!-- raw HTML omitted -->&rsquo; and then verify that certain methods on it were called when we persist or load an object for example.</p>
-<p>There are a couple of reasons why doing this isn&rsquo;t a great idea:</p>
-<!-- raw HTML omitted -->
+</div>
+<div class="paragraph">
+<p>One area which seems particularly vulnerable to this type of thing is when it comes to <a href="http://www.markhneedham.com/blog/category/hibernate/">testing code which interacts with Hibernate</a>.</p>
+</div>
+<div class="paragraph">
+<p>A common pattern that I&#8217;ve noticed is to create a mock for the 'http://docs.jboss.org/hibernate/stable/entitymanager/reference/en/html_single/[EntityManager]' and then verify that certain methods on it were called when we persist or load an object for example.</p>
+</div>
+<div class="paragraph">
+<p>There are a couple of reasons why doing this isn&#8217;t a great idea:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>We have no idea what the correct method calls are in the first place so we&#8217;re just guessing based on looking through the Hibernate code and selecting the methods that we think make it work correctly.</p>
+</li>
+<li>
+<p>If the library code gets changed then our tests break even though functionally the code might still work</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
 <p>The suggestion in the paper when confronted with this situation is to put a wrapper around the library and then presumably test that the correct methods were called on the wrapper.</p>
-<!-- raw HTML omitted -->
-<p>I&rsquo;ve never actually used that approach but I&rsquo;ve found that with Hibernate in particular it makes much more sense to write functional tests which <!-- raw HTML omitted -->verify the expected behaviour of using the library<!-- raw HTML omitted -->.</p>
-<p>With other libraries which perhaps don&rsquo;t have side effects like Hibernate does those tests would be closer to unit tests but the goal is still to test the result that we get from using the library rather than being concerned with the way that the library achieves that result.</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Programmers should not write mocks for fixed types, such as those defined by the runtime or external libraries. Instead they should write thin wrappers to implement the application abstractions in terms of the underlying infrastructure. Those wrappers will have been defined as part of a need-driven test.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve never actually used that approach but I&#8217;ve found that with Hibernate in particular it makes much more sense to write functional tests which <strong>verify the expected behaviour of using the library</strong>.</p>
+</div>
+<div class="paragraph">
+<p>With other libraries which perhaps don&#8217;t have side effects like Hibernate does those tests would be closer to unit tests but the goal is still to test the result that we get from using the library rather than being concerned with the way that the library achieves that result.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -223,7 +254,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/12/13/tdd-only-mock-types-you-own/&amp;title=TDD%3a%20Only%20mock%20types%20you%20own&amp;summary=Liz%20recently%20posted%20about%20mock%20objectsand%20the%20original%20%26lsquo%3bmock%20roles%2c%20not%20objects%26rsquo%3b%20paper%20and%20one%20thing%20that%20stood%20out%20for%20me%20is%20the%20idea%20that%20we%20should%20only%20mock%20types%20that%20we%20own.%0aI%20think%20this%20is%20quite%20an%20important%20guideline%20to%20follow%20otherwise%20we%20can%20end%20up%20in%20a%20world%20of%20pain.%0aOne%20area%20which%20seems%20particularly%20vulnerable%20to%20this%20type%20of%20thing%20is%20when%20it%20comes%20to%20testing%20code%20which%20interacts%20with%20Hibernate...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/12/13/tdd-only-mock-types-you-own/&amp;title=TDD%3a%20Only%20mock%20types%20you%20own&amp;summary=Liz%20recently%20posted%20about%20mock%20objects%20and%20the%20original%20%27http%3a%2f%2fwww.jmock.org%2foopsla2004.pdf%5bmock%20roles%2c%20not%20objects%5d%27%20paper%20and%20one%20thing%20that%20stood%20out%20for%20me%20is%20the%20idea%20that%20we%20should%20only%20mock%20types%20that%20we%20own.%0a%20I%20think%20this%20is%20quite%20an%20important%20guideline%20to%20follow%20otherwise%20we%20can%20end%20up%20in%20a%20world%20of%20pain.%0a%20One%20area%20which%20seems%20particularly%20vulnerable%20to%20this%20type%20of%20thing%20is%20when%20it%20comes%20to%20testing%20code%20which%20interacts%20with%20Hibernate...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

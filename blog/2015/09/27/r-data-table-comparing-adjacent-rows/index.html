@@ -23,7 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: data.table - Comparing adjacent rows" />
         
-          <meta name="twitter:description" content="&gt; blogDT = data.table(name = c(&#34;Property 1&#34;,&#34;Property 1&#34;,&#34;Property 1&#34;,&#34;Property 2&#34;,&#34;Property 2&#34;,&#34;Property 2&#34;), price = c(10000, 12500, 18000, 245000, 512000, 1000000)) &gt; blogDT name price 1: Property 1 10000 2: Property 1 12500 3: Property 1 18000 4: Property 2 245000 5: Property 2 512000 6: Property 2 1000000 &gt; blogDT[, lag.price := c(NA, price[-.N]), by = name] &gt; blogDT name price lag.price 1: Property 1 10000 NA 2: Property 1 12500 10000 3: Property 1 18000 12500 4: Property 2 245000 NA 5: Property 2 512000 245000 6: Property 2 1000000 512000 &gt; blogDT[, diff := price - lag." />
+          <meta name="twitter:description" content="As part of my exploration of the Land Registry price paid data set I wanted to compare the difference between consecutive sales of properties.
+ This means we need to group the sales by a property identifier and then get the previous sale price into a column on each row unless it&#8217;s the first sale in which case we&#8217;ll have &#39;NA&#39;. We can do this by creating a http://stackoverflow.com/questions/26291988/r-how-to-create-a-lag-variable-for-each-by-group variable." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/09/27/r-data-table-comparing-adjacent-rows/" />
 
@@ -34,7 +35,8 @@
         <title> R: data.table - Comparing adjacent rows &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="&gt; blogDT = data.table(name = c(&#34;Property 1&#34;,&#34;Property 1&#34;,&#34;Property 1&#34;,&#34;Property 2&#34;,&#34;Property 2&#34;,&#34;Property 2&#34;), price = c(10000, 12500, 18000, 245000, 512000, 1000000)) &gt; blogDT name price 1: Property 1 10000 2: Property 1 12500 3: Property 1 18000 4: Property 2 245000 5: Property 2 512000 6: Property 2 1000000 &gt; blogDT[, lag.price := c(NA, price[-.N]), by = name] &gt; blogDT name price lag.price 1: Property 1 10000 NA 2: Property 1 12500 10000 3: Property 1 18000 12500 4: Property 2 245000 NA 5: Property 2 512000 245000 6: Property 2 1000000 512000 &gt; blogDT[, diff := price - lag." />
+        <meta name="description" content="As part of my exploration of the Land Registry price paid data set I wanted to compare the difference between consecutive sales of properties.
+ This means we need to group the sales by a property identifier and then get the previous sale price into a column on each row unless it&#8217;s the first sale in which case we&#8217;ll have &#39;NA&#39;. We can do this by creating a http://stackoverflow.com/questions/26291988/r-how-to-create-a-lag-variable-for-each-by-group variable." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +65,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-09-27",
-        "description": "\x26gt; blogDT = data.table(name = c(\x26#34;Property 1\x26#34;,\x26#34;Property 1\x26#34;,\x26#34;Property 1\x26#34;,\x26#34;Property 2\x26#34;,\x26#34;Property 2\x26#34;,\x26#34;Property 2\x26#34;), price = c(10000, 12500, 18000, 245000, 512000, 1000000)) \x26gt; blogDT name price 1: Property 1 10000 2: Property 1 12500 3: Property 1 18000 4: Property 2 245000 5: Property 2 512000 6: Property 2 1000000 \x26gt; blogDT[, lag.price := c(NA, price[-.N]), by = name] \x26gt; blogDT name price lag.price 1: Property 1 10000 NA 2: Property 1 12500 10000 3: Property 1 18000 12500 4: Property 2 245000 NA 5: Property 2 512000 245000 6: Property 2 1000000 512000 \x26gt; blogDT[, diff := price - lag.",
-        "wordCount":  183 
+        "description": "As part of my exploration of the Land Registry price paid data set I wanted to compare the difference between consecutive sales of properties.\n This means we need to group the sales by a property identifier and then get the previous sale price into a column on each row unless it\x26#8217;s the first sale in which case we\x26#8217;ll have \x27NA\x27. We can do this by creating a http:\/\/stackoverflow.com\/questions\/26291988\/r-how-to-create-a-lag-variable-for-each-by-group variable.",
+        "wordCount":  343 
     }
     </script>
     
@@ -175,55 +177,79 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: data.table - Comparing adjacent rows</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> blogDT <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.table</span>(name <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;Property 1&#34;</span>,<span style="color:#e6db74">&#34;Property 1&#34;</span>,<span style="color:#e6db74">&#34;Property 1&#34;</span>,<span style="color:#e6db74">&#34;Property 2&#34;</span>,<span style="color:#e6db74">&#34;Property 2&#34;</span>,<span style="color:#e6db74">&#34;Property 2&#34;</span>), 
-                      price <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">10000</span>, <span style="color:#ae81ff">12500</span>, <span style="color:#ae81ff">18000</span>, <span style="color:#ae81ff">245000</span>, <span style="color:#ae81ff">512000</span>, <span style="color:#ae81ff">1000000</span>))
+    <div class="paragraph">
+<p>As part of my exploration of the <a href="https://data.gov.uk/dataset/land-registry-monthly-price-paid-data">Land Registry price paid data set</a> I wanted to compare the difference between consecutive sales of properties.</p>
+</div>
+<div class="paragraph">
+<p>This means we need to group the sales by a property identifier and then get the previous sale price into a column on each row unless it&#8217;s the first sale in which case we&#8217;ll have 'NA'. We can do this by creating a <cite>http://stackoverflow.com/questions/26291988/r-how-to-create-a-lag-variable-for-each-by-group<span class="lag"></cite></span> variable.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ll use a simpler data set which is very similar in structure to the Land Registry&#8217;s to demonstrate:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; blogDT = data.table(name = c("Property 1","Property 1","Property 1","Property 2","Property 2","Property 2"),
+                      price = c(10000, 12500, 18000, 245000, 512000, 1000000))
 
-<span style="color:#f92672">&gt;</span> blogDT
+&gt; blogDT
          name   price
-<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">10000</span>
-<span style="color:#ae81ff">2</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">12500</span>
-<span style="color:#ae81ff">3</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">18000</span>
-<span style="color:#ae81ff">4</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">245000</span>
-<span style="color:#ae81ff">5</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">512000</span>
-<span style="color:#ae81ff">6</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">1000000</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> blogDT[, lag.price <span style="color:#f92672">:=</span> <span style="color:#a6e22e">c</span>(<span style="color:#66d9ef">NA</span>, price[<span style="color:#ae81ff">-.</span>N]), by <span style="color:#f92672">=</span> name]
+1: Property 1   10000
+2: Property 1   12500
+3: Property 1   18000
+4: Property 2  245000
+5: Property 2  512000
+6: Property 2 1000000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We want to group by the 'name' column and then have the price on row 1 show on row 2, the price on row 2 on row 3, the price on row 4 on row 5 and the price on row 5 on row 6. To do that we&#8217;ll introduce a 'lag.price' column:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; blogDT[, lag.price := c(NA, price[-.N]), by = name]
 
-<span style="color:#f92672">&gt;</span> blogDT
+&gt; blogDT
          name   price lag.price
-<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">10000</span>        <span style="color:#66d9ef">NA</span>
-<span style="color:#ae81ff">2</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">12500</span>     <span style="color:#ae81ff">10000</span>
-<span style="color:#ae81ff">3</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">18000</span>     <span style="color:#ae81ff">12500</span>
-<span style="color:#ae81ff">4</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">245000</span>        <span style="color:#66d9ef">NA</span>
-<span style="color:#ae81ff">5</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">512000</span>    <span style="color:#ae81ff">245000</span>
-<span style="color:#ae81ff">6</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">1000000</span>    <span style="color:#ae81ff">512000</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> blogDT[, diff <span style="color:#f92672">:=</span> price <span style="color:#f92672">-</span> lag.price]
-<span style="color:#f92672">&gt;</span> blogDT
+1: Property 1   10000        NA
+2: Property 1   12500     10000
+3: Property 1   18000     12500
+4: Property 2  245000        NA
+5: Property 2  512000    245000
+6: Property 2 1000000    512000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next let&#8217;s calculate the difference between the two prices:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; blogDT[, diff := price - lag.price]
+&gt; blogDT
          name   price lag.price   diff
-<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">10000</span>        <span style="color:#66d9ef">NA</span>     <span style="color:#66d9ef">NA</span>
-<span style="color:#ae81ff">2</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">12500</span>     <span style="color:#ae81ff">10000</span>   <span style="color:#ae81ff">2500</span>
-<span style="color:#ae81ff">3</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">18000</span>     <span style="color:#ae81ff">12500</span>   <span style="color:#ae81ff">5500</span>
-<span style="color:#ae81ff">4</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">245000</span>        <span style="color:#66d9ef">NA</span>     <span style="color:#66d9ef">NA</span>
-<span style="color:#ae81ff">5</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">512000</span>    <span style="color:#ae81ff">245000</span> <span style="color:#ae81ff">267000</span>
-<span style="color:#ae81ff">6</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">1000000</span>    <span style="color:#ae81ff">512000</span> <span style="color:#ae81ff">488000</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> blogDT<span style="color:#a6e22e">[order</span>(<span style="color:#f92672">-</span>diff)]
+1: Property 1   10000        NA     NA
+2: Property 1   12500     10000   2500
+3: Property 1   18000     12500   5500
+4: Property 2  245000        NA     NA
+5: Property 2  512000    245000 267000
+6: Property 2 1000000    512000 488000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally let&#8217;s order the data table by the biggest price gains:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; blogDT[order(-diff)]
          name   price lag.price   diff
-<span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">1000000</span>    <span style="color:#ae81ff">512000</span> <span style="color:#ae81ff">488000</span>
-<span style="color:#ae81ff">2</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">512000</span>    <span style="color:#ae81ff">245000</span> <span style="color:#ae81ff">267000</span>
-<span style="color:#ae81ff">3</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">18000</span>     <span style="color:#ae81ff">12500</span>   <span style="color:#ae81ff">5500</span>
-<span style="color:#ae81ff">4</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">12500</span>     <span style="color:#ae81ff">10000</span>   <span style="color:#ae81ff">2500</span>
-<span style="color:#ae81ff">5</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">1</span>   <span style="color:#ae81ff">10000</span>        <span style="color:#66d9ef">NA</span>     <span style="color:#66d9ef">NA</span>
-<span style="color:#ae81ff">6</span><span style="color:#f92672">:</span> Property <span style="color:#ae81ff">2</span>  <span style="color:#ae81ff">245000</span>        <span style="color:#66d9ef">NA</span>     <span style="color:#66d9ef">NA</span>
-</code></pre></div>
+1: Property 2 1000000    512000 488000
+2: Property 2  512000    245000 267000
+3: Property 1   18000     12500   5500
+4: Property 1   12500     10000   2500
+5: Property 1   10000        NA     NA
+6: Property 2  245000        NA     NA</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -257,7 +283,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/09/27/r-data-table-comparing-adjacent-rows/&amp;title=R%3a%20data.table%20-%20Comparing%20adjacent%20rows&amp;summary=%26gt%3b%20blogDT%20%3d%20data.table%28name%20%3d%20c%28%26%2334%3bProperty%201%26%2334%3b%2c%26%2334%3bProperty%201%26%2334%3b%2c%26%2334%3bProperty%201%26%2334%3b%2c%26%2334%3bProperty%202%26%2334%3b%2c%26%2334%3bProperty%202%26%2334%3b%2c%26%2334%3bProperty%202%26%2334%3b%29%2c%20price%20%3d%20c%2810000%2c%2012500%2c%2018000%2c%20245000%2c%20512000%2c%201000000%29%29%20%26gt%3b%20blogDT%20name%20price%201%3a%20Property%201%2010000%202%3a%20Property%201%2012500%203%3a%20Property%201%2018000%204%3a%20Property%202%20245000%205%3a%20Property%202%20512000%206%3a%20Property%202%201000000%20%26gt%3b%20blogDT%5b%2c%20lag.price%20%3a%3d%20c%28NA%2c%20price%5b-.N%5d%29%2c%20by%20%3d%20name%5d%20%26gt%3b%20blogDT%20name%20price%20lag.price%201%3a%20Property%201%2010000%20NA%202%3a%20Property%201%2012500%2010000%203%3a%20Property%201%2018000%2012500%204%3a%20Property%202%20245000%20NA%205%3a%20Property%202%20512000%20245000%206%3a%20Property%202%201000000%20512000%20%26gt%3b%20blogDT%5b%2c%20diff%20%3a%3d%20price%20-%20lag...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/09/27/r-data-table-comparing-adjacent-rows/&amp;title=R%3a%20data.table%20-%20Comparing%20adjacent%20rows&amp;summary=As%20part%20of%20my%20exploration%20of%20the%20Land%20Registry%20price%20paid%20data%20set%20I%20wanted%20to%20compare%20the%20difference%20between%20consecutive%20sales%20of%20properties.%0a%20This%20means%20we%20need%20to%20group%20the%20sales%20by%20a%20property%20identifier%20and%20then%20get%20the%20previous%20sale%20price%20into%20a%20column%20on%20each%20row%20unless%20it%26%238217%3bs%20the%20first%20sale%20in%20which%20case%20we%26%238217%3bll%20have%20%27NA%27.%20We%20can%20do%20this%20by%20creating%20a%20http%3a%2f%2fstackoverflow.com%2fquestions%2f26291988%2fr-how-to-create-a-lag-variable-for-each-by-group%20variable...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

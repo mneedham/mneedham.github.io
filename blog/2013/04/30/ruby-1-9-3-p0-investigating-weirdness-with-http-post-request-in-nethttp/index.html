@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Ruby 1.9.3 p0: Investigating weirdness with HTTP POST request in net/http" />
         
-          <meta name="twitter:description" content="* lib/net/http.rb, lib/net/protocol.rb: Allow to configure to wait server returning &#39;100 continue&#39; response before sending HTTP request body. See NEWS for more detail. See #3622. Original patch is made by Eric Hodel &lt;drbrain@segment7.net&gt;. * test/net/http/test_http.rb: test it. * NEWS: Add new feature.  " />
+          <meta name="twitter:description" content="Thibaut and I spent the best part of the last couple of days trying to diagnose a problem we were having trying to make a POST request using rest-client to one of our services.
+ We have nginx fronting the application server so the request passes through there first:
+   The problem we were having was that the request was timing out on the client side before it had been processed and the request wasn&#8217;t reaching the application server." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/04/30/ruby-1-9-3-p0-investigating-weirdness-with-http-post-request-in-nethttp/" />
 
@@ -33,7 +35,9 @@
         <title> Ruby 1.9.3 p0: Investigating weirdness with HTTP POST request in net/http &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="* lib/net/http.rb, lib/net/protocol.rb: Allow to configure to wait server returning &#39;100 continue&#39; response before sending HTTP request body. See NEWS for more detail. See #3622. Original patch is made by Eric Hodel &lt;drbrain@segment7.net&gt;. * test/net/http/test_http.rb: test it. * NEWS: Add new feature.  " />
+        <meta name="description" content="Thibaut and I spent the best part of the last couple of days trying to diagnose a problem we were having trying to make a POST request using rest-client to one of our services.
+ We have nginx fronting the application server so the request passes through there first:
+   The problem we were having was that the request was timing out on the client side before it had been processed and the request wasn&#8217;t reaching the application server." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-04-30",
-        "description": "* lib\/net\/http.rb, lib\/net\/protocol.rb: Allow to configure to wait server returning \x27100 continue\x27 response before sending HTTP request body. See NEWS for more detail. See #3622. Original patch is made by Eric Hodel \x26lt;drbrain@segment7.net\x26gt;. * test\/net\/http\/test_http.rb: test it. * NEWS: Add new feature.  ",
-        "wordCount":  42 
+        "description": "Thibaut and I spent the best part of the last couple of days trying to diagnose a problem we were having trying to make a POST request using rest-client to one of our services.\n We have nginx fronting the application server so the request passes through there first:\n   The problem we were having was that the request was timing out on the client side before it had been processed and the request wasn\x26#8217;t reaching the application server.",
+        "wordCount":  614 
     }
     </script>
     
@@ -172,38 +176,76 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Ruby 1.9.3 p0: Investigating weirdness with HTTP POST request in net/http</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code>* lib/net/http.rb, lib/net/protocol.rb: Allow to configure to wait
-  server returning '100 continue' response before sending HTTP request
-  body. See NEWS for more detail. See #3622.
-  Original patch is made by Eric Hodel &lt;drbrain@segment7.net&gt;.
-
-* test/net/http/test_http.rb: test it.
-
-* NEWS: Add new feature.
-</code></pre>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+    <div class="paragraph">
+<p><a href="https://twitter.com/the_T_bot">Thibaut</a> and I spent the best part of the last couple of days trying to diagnose a problem we were having trying to make a POST request using <a href="https://www.ruby-toolbox.com/projects/rest-client">rest-client</a> to one of our services.</p>
+</div>
+<div class="paragraph">
+<p>We have nginx fronting the application server so the request passes through there first:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2013/04/post.png" alt="Post" width="335">
+</div>
+</div>
+<div class="paragraph">
+<p>The problem we were having was that the request was timing out on the client side before it had been processed and the request wasn&#8217;t reaching the application server.</p>
+</div>
+<div class="paragraph">
+<p>We initially thought there might be a problem with our nginx configuration because we don&#8217;t have many POST requests with largish (40kb) payloads so we initially tried tweaking the <a href="http://wiki.nginx.org/HttpProxyModule#proxy_buffer_size">proxy buffer size</a>.</p>
+</div>
+<div class="paragraph">
+<p>It was a bit of a long shot because changing that setting only reduces the likelihood that nginx writes the request body to disc and then loads it later which shouldn&#8217;t impact performance that much.</p>
+</div>
+<div class="paragraph">
+<p>The next thing we tried was replicating the request using <a href="http://curl.haxx.se/">cURL</a> with a smaller payload which worked fine. cURL had no problem with the bigger payload either.</p>
+</div>
+<div class="paragraph">
+<p>We therefore thought there must be a difference in the request headers being sent by rest-client and our initial investigation suggested that it might be to do with the 'http://stackoverflow.com/questions/2773396/whats-the-content-length-field-in-http-header[Content-Length]' header.</p>
+</div>
+<div class="paragraph">
+<p>There was a 1 byte difference in the value being sent by cURL and the one being sent by rest-client which was to do with the last character of the payload being a <a href="http://homepage.smc.edu/morgan_david/CS41/lineterminators.htm">0A</a> (linefeed) character.</p>
+</div>
+<div class="paragraph">
+<p>We changed the 'Content-Length' header on our cURL request to match that of the rest-client request (i.e. 1 byte too large) and were able to replicate the timeout problem.</p>
+</div>
+<div class="paragraph">
+<p>At this stage we thought that calling 'strip' on the body of our rest-client request would solve the problem as the 'Content-Length' header would now be set to the correct value. It did set the 'Content-Length' header properly but unfortunately didn&#8217;t get rid of the timeout.</p>
+</div>
+<div class="paragraph">
+<p>Our next step was to check whether or not we could get any request to work from rest-client so we tried using a smaller payload which worked fine.</p>
+</div>
+<div class="paragraph">
+<p>At this stage <a href="https://twitter.com/jasonneylon">Jason</a> heard us discussing what to do next and said that he&#8217;d come across it earlier and that upgrading our Ruby Version from '1.9.3p0' would solve all our woes.</p>
+</div>
+<div class="paragraph">
+<p>That Ruby version is a couple of years old and most of our servers are running '1.9.3p392' but somehow this one had slipped through the net.</p>
+</div>
+<div class="paragraph">
+<p>We <a href="http://www.markhneedham.com/blog/2013/04/27/treat-servers-as-cattle-spin-them-up-tear-them-down/">spun up a new server</a> with that version of Ruby installed and it did indeed fix the problem.</p>
+</div>
+<div class="paragraph">
+<p>However, we were curious what the fix was and had a look at the <a href="http://svn.ruby-lang.org/repos/ruby/tags/v1_9_3_125/ChangeLog">change log of the first patch release after '1.9.3p0'</a>. We noticed the following which seemed relevant:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Tue May 31 17:03:24 2011 Hiroshi Nakamura &lt;<a href="mailto:nahi@ruby-lang.org">nahi@ruby-lang.org</a>&gt; * lib/net/http.rb, lib/net/protocol.rb: Allow to configure to wait server returning '100 continue' response before sending HTTP request body. See NEWS for more detail. See #3622. Original patch is made by Eric Hodel &lt;<a href="mailto:drbrain@segment7.net">drbrain@segment7.net</a>&gt;. * test/net/http/test_http.rb: test it. * NEWS: Add new feature.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>One thing we noticed from looking at the requests with <a href="http://vccv.posterous.com/use-ngrep-to-inspect-http-headers">ngrep</a> was that cURL was setting the <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.2.3">100 Continue Expect request header</a> and rest-client wasn&#8217;t.</p>
+</div>
+<div class="paragraph">
+<p>When the payload size was small nginx didn&#8217;t seem to send a '100 Continue' response which was presumably why we weren&#8217;t seeing a problem with the small payloads.</p>
+</div>
+<div class="paragraph">
+<p>I wasn&#8217;t sure how to go about finding out exactly what was going wrong but given how long it took us to get to this point I thought I&#8217;d summarise what we tried and see if anyone could explain it to me.</p>
+</div>
+<div class="paragraph">
+<p>So if you&#8217;ve come across this problem (probably 2 years ago!) it&#8217;d be cool to know exactly what the problem was.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -238,7 +280,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/04/30/ruby-1-9-3-p0-investigating-weirdness-with-http-post-request-in-nethttp/&amp;title=Ruby%201.9.3%20p0%3a%20Investigating%20weirdness%20with%20HTTP%20POST%20request%20in%20net%2fhttp&amp;summary=%2a%20lib%2fnet%2fhttp.rb%2c%20lib%2fnet%2fprotocol.rb%3a%20Allow%20to%20configure%20to%20wait%20server%20returning%20%27100%20continue%27%20response%20before%20sending%20HTTP%20request%20body.%20See%20NEWS%20for%20more%20detail.%20See%20%233622.%20Original%20patch%20is%20made%20by%20Eric%20Hodel%20%26lt%3bdrbrain%40segment7.net%26gt%3b.%20%2a%20test%2fnet%2fhttp%2ftest_http.rb%3a%20test%20it.%20%2a%20NEWS%3a%20Add%20new%20feature.%20%20..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/04/30/ruby-1-9-3-p0-investigating-weirdness-with-http-post-request-in-nethttp/&amp;title=Ruby%201.9.3%20p0%3a%20Investigating%20weirdness%20with%20HTTP%20POST%20request%20in%20net%2fhttp&amp;summary=Thibaut%20and%20I%20spent%20the%20best%20part%20of%20the%20last%20couple%20of%20days%20trying%20to%20diagnose%20a%20problem%20we%20were%20having%20trying%20to%20make%20a%20POST%20request%20using%20rest-client%20to%20one%20of%20our%20services.%0a%20We%20have%20nginx%20fronting%20the%20application%20server%20so%20the%20request%20passes%20through%20there%20first%3a%0a%20%20%20The%20problem%20we%20were%20having%20was%20that%20the%20request%20was%20timing%20out%20on%20the%20client%20side%20before%20it%20had%20been%20processed%20and%20the%20request%20wasn%26%238217%3bt%20reaching%20the%20application%20server...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

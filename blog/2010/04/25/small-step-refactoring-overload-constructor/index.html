@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Small step refactoring: Overload constructor" />
         
-          <meta name="twitter:description" content="I&rsquo;ve previously written about some approaches that I&rsquo;ve been taught with respect to taking small stepswhen refactoring codeand another approach which a couple of colleagues have been using recently is the idea of overloading the constructorwhen refactoring objects.
-On a couple of occasions we&rsquo;ve been trying to completely change the way an object was designed and changing the current constructor would mean that we&rsquo;d have to change all the tests against that object before checking if the new design was actually going to work or not." />
+          <meta name="twitter:description" content="I&#8217;ve previously written about some approaches that I&#8217;ve been taught with respect to taking small steps when refactoring code and another approach which a couple of colleagues have been using recently is the idea of overloading the constructor when refactoring objects.
+ On a couple of occasions we&#8217;ve been trying to completely change the way an object was designed and changing the current constructor would mean that we&#8217;d have to change all the tests against that object before checking if the new design was actually going to work or not." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/04/25/small-step-refactoring-overload-constructor/" />
 
@@ -34,8 +34,8 @@ On a couple of occasions we&rsquo;ve been trying to completely change the way an
         <title> Small step refactoring: Overload constructor &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&rsquo;ve previously written about some approaches that I&rsquo;ve been taught with respect to taking small stepswhen refactoring codeand another approach which a couple of colleagues have been using recently is the idea of overloading the constructorwhen refactoring objects.
-On a couple of occasions we&rsquo;ve been trying to completely change the way an object was designed and changing the current constructor would mean that we&rsquo;d have to change all the tests against that object before checking if the new design was actually going to work or not." />
+        <meta name="description" content="I&#8217;ve previously written about some approaches that I&#8217;ve been taught with respect to taking small steps when refactoring code and another approach which a couple of colleagues have been using recently is the idea of overloading the constructor when refactoring objects.
+ On a couple of occasions we&#8217;ve been trying to completely change the way an object was designed and changing the current constructor would mean that we&#8217;d have to change all the tests against that object before checking if the new design was actually going to work or not." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ On a couple of occasions we&rsquo;ve been trying to completely change the way an
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-04-25",
-        "description": "I\x26rsquo;ve previously written about some approaches that I\x26rsquo;ve been taught with respect to taking small stepswhen refactoring codeand another approach which a couple of colleagues have been using recently is the idea of overloading the constructorwhen refactoring objects.\nOn a couple of occasions we\x26rsquo;ve been trying to completely change the way an object was designed and changing the current constructor would mean that we\x26rsquo;d have to change all the tests against that object before checking if the new design was actually going to work or not.",
-        "wordCount":  364 
+        "description": "I\x26#8217;ve previously written about some approaches that I\x26#8217;ve been taught with respect to taking small steps when refactoring code and another approach which a couple of colleagues have been using recently is the idea of overloading the constructor when refactoring objects.\n On a couple of occasions we\x26#8217;ve been trying to completely change the way an object was designed and changing the current constructor would mean that we\x26#8217;d have to change all the tests against that object before checking if the new design was actually going to work or not.",
+        "wordCount":  367 
     }
     </script>
     
@@ -174,55 +174,83 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Small step refactoring: Overload constructor</h1>
-    <p>I&rsquo;ve previously written about some approaches that I&rsquo;ve been taught with respect to <!-- raw HTML omitted -->taking small steps<!-- raw HTML omitted --> <!-- raw HTML omitted -->when refactoring code<!-- raw HTML omitted --> and another approach which a couple of colleagues have been using recently is the idea of <!-- raw HTML omitted -->overloading the constructor<!-- raw HTML omitted --> when refactoring objects.</p>
-<p>On a couple of occasions we&rsquo;ve been trying to completely change the way an object was designed and changing the current constructor would mean that we&rsquo;d have to change all the tests against that object before checking if the new design was actually going to work or not.</p>
-<p>Given a simple example where we want to change the following object to take in a completely different type and not use &lsquo;field1&rsquo; or &lsquo;field2&rsquo; anymore:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span>
+    <div class="paragraph">
+<p>I&#8217;ve previously written about some approaches that I&#8217;ve been taught with respect to <a href="http://www.markhneedham.com/blog/2010/02/24/refactoring-small-steps-to-pull-out-responsibilities/">taking small steps</a> <a href="http://www.markhneedham.com/blog/2009/05/26/refactoring-removing-duplication-more-safely/">when refactoring code</a> and another approach which a couple of colleagues have been using recently is the idea of <strong>overloading the constructor</strong> when refactoring objects.</p>
+</div>
+<div class="paragraph">
+<p>On a couple of occasions we&#8217;ve been trying to completely change the way an object was designed and changing the current constructor would mean that we&#8217;d have to change all the tests against that object before checking if the new design was actually going to work or not.</p>
+</div>
+<div class="paragraph">
+<p>Given a simple example where we want to change the following object to take in a completely different type and not use 'field1' or 'field2' anymore:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Foo
 {
-	<span style="color:#66d9ef">public</span> Foo(<span style="color:#66d9ef">string</span> field1, <span style="color:#66d9ef">int</span> field2)
+	public Foo(string field1, int field2)
 	{
-		<span style="color:#75715e">// and so on
-</span><span style="color:#75715e"></span>	}
-}
-</code></pre></div><p>One approach would be to change that constructor to take in the extra parameter and then gradually phase out the other parameters:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span>
+		// and so on
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>One approach would be to change that constructor to take in the extra parameter and then gradually phase out the other parameters:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Foo
 {
-	<span style="color:#66d9ef">public</span> Foo(<span style="color:#66d9ef">string</span> field1, <span style="color:#66d9ef">int</span> field2, Bar bar)
+	public Foo(string field1, int field2, Bar bar)
 	{
-		<span style="color:#75715e">// and so on
-</span><span style="color:#75715e"></span>	}
-}
-</code></pre></div><p>An alternative is to create another constructor and leave the old one as it is before changing the tests one by one to make use of the new approach.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span>
+		// and so on
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An alternative is to create another constructor and leave the old one as it is before changing the tests one by one to make use of the new approach.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Foo
 {
-	<span style="color:#66d9ef">public</span> Foo(<span style="color:#66d9ef">string</span> field1, <span style="color:#66d9ef">int</span> field2)
+	public Foo(string field1, int field2)
 	{
-		<span style="color:#75715e">// we gradually phase this one out
-</span><span style="color:#75715e"></span>	}
+		// we gradually phase this one out
+	}
 
-	<span style="color:#66d9ef">public</span>(Bar bar)
+	public(Bar bar)
 	{
-		<span style="color:#75715e">// the new constructor
-</span><span style="color:#75715e"></span>	}
-}
-</code></pre></div><p>Even if we want to still use &lsquo;field1&rsquo; and &lsquo;field2&rsquo; we can still make use of this approach and just default the extra value until we&rsquo;ve migrated our tests across.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span>
+		// the new constructor
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Even if we want to still use 'field1' and 'field2' we can still make use of this approach and just default the extra value until we&#8217;ve migrated our tests across.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class Foo
 {
-	<span style="color:#66d9ef">public</span> Foo(<span style="color:#66d9ef">string</span> field1, <span style="color:#66d9ef">int</span> field2, Bar bar)
+	public Foo(string field1, int field2, Bar bar)
 	{
-		<span style="color:#75715e">// and so on
-</span><span style="color:#75715e"></span>	}
+		// and so on
+	}
 
-	<span style="color:#66d9ef">public</span> Foo(<span style="color:#66d9ef">string</span> field1, <span style="color:#66d9ef">int</span> field2) : <span style="color:#66d9ef">this</span>(field1, field2, <span style="color:#66d9ef">new</span> Bar())
+	public Foo(string field1, int field2) : this(field1, field2, new Bar())
 	{
 	}
-}
-</code></pre></div><p>I quite like this approach as it allows us to keep the code compiling while we&rsquo;re making changes to it to improve the design.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I quite like this approach as it allows us to keep the code compiling while we&#8217;re making changes to it to improve the design.</p>
+</div>
+<div class="paragraph">
 <p>The main thing to remember with this approach is not to keep the old approach around for too long and to make sure we move our code across to use the new approach as quickly as possible otherwise it can become very confusing for other pairs which come across the code in this half way state.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -257,7 +285,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/04/25/small-step-refactoring-overload-constructor/&amp;title=Small%20step%20refactoring%3a%20Overload%20constructor&amp;summary=I%26rsquo%3bve%20previously%20written%20about%20some%20approaches%20that%20I%26rsquo%3bve%20been%20taught%20with%20respect%20to%20taking%20small%20stepswhen%20refactoring%20codeand%20another%20approach%20which%20a%20couple%20of%20colleagues%20have%20been%20using%20recently%20is%20the%20idea%20of%20overloading%20the%20constructorwhen%20refactoring%20objects.%0aOn%20a%20couple%20of%20occasions%20we%26rsquo%3bve%20been%20trying%20to%20completely%20change%20the%20way%20an%20object%20was%20designed%20and%20changing%20the%20current%20constructor%20would%20mean%20that%20we%26rsquo%3bd%20have%20to%20change%20all%20the%20tests%20against%20that%20object%20before%20checking%20if%20the%20new%20design%20was%20actually%20going%20to%20work%20or%20not...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/04/25/small-step-refactoring-overload-constructor/&amp;title=Small%20step%20refactoring%3a%20Overload%20constructor&amp;summary=I%26%238217%3bve%20previously%20written%20about%20some%20approaches%20that%20I%26%238217%3bve%20been%20taught%20with%20respect%20to%20taking%20small%20steps%20when%20refactoring%20code%20and%20another%20approach%20which%20a%20couple%20of%20colleagues%20have%20been%20using%20recently%20is%20the%20idea%20of%20overloading%20the%20constructor%20when%20refactoring%20objects.%0a%20On%20a%20couple%20of%20occasions%20we%26%238217%3bve%20been%20trying%20to%20completely%20change%20the%20way%20an%20object%20was%20designed%20and%20changing%20the%20current%20constructor%20would%20mean%20that%20we%26%238217%3bd%20have%20to%20change%20all%20the%20tests%20against%20that%20object%20before%20checking%20if%20the%20new%20design%20was%20actually%20going%20to%20work%20or%20not...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

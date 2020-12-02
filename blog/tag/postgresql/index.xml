@@ -17,7 +17,9 @@
       <pubDate>Mon, 01 May 2017 20:42:07 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/05/01/postgresql-error-argument-must-not-return-set/</guid>
-      <description>SELECT id, data-&amp;gt;&amp;#39;start_date&amp;#39; AS startDate, data-&amp;gt;&amp;#39;average_speed&amp;#39; AS averageSpeed FROM runs WHERE jsonb_array_elements(data-&amp;gt;&amp;#39;segment_efforts&amp;#39;)-&amp;gt;&amp;#39;segment&amp;#39;-&amp;gt;&amp;gt;&amp;#39;id&amp;#39; = &amp;#39;6818475&amp;#39; ERROR: argument of WHERE must not return a set LINE 3: WHERE jsonb_array_elements(data-&amp;gt;&amp;#39;segment_efforts&amp;#39;)-&amp;gt;&amp;#39;segmen... SELECT id, data-&amp;gt;&amp;#39;start_date&amp;#39; AS startDate, data-&amp;gt;&amp;#39;average_speed&amp;#39; AS averageSpeed FROM runs r, LATERAL jsonb_array_elements(r.data-&amp;gt;&amp;#39;segment_efforts&amp;#39;) segment WHERE segment -&amp;gt;&amp;#39;segment&amp;#39;-&amp;gt;&amp;gt;&amp;#39;id&amp;#39; = &amp;#39;6818475&amp;#39; id | startdate | averagespeed -----------+------------------------+--------------  455461182 | &amp;#34;2015-12-24T11:20:26Z&amp;#34; | 2.841 440088621 | &amp;#34;2015-11-27T06:10:42Z&amp;#34; | 2.975 407930503 | &amp;#34;2015-10-07T05:18:34Z&amp;#34; | 2.985 317170464 | &amp;#34;2015-06-03T04:44:59Z&amp;#34; | 2.</description>
+      <description>In my last post I showed how to load and query data from the Strava API in PostgreSQL and after executing some simple queries my next task was to query more complex part of the JSON structure.
+   Strava allows users to create segments, which are edited portions of road or trail where athletes can compete for time.
+ I wanted to write a query to find all the times that I&amp;#8217;d run a particular segment.</description>
     </item>
     
     <item>
@@ -26,7 +28,8 @@
       <pubDate>Mon, 01 May 2017 19:11:54 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/05/01/loading-and-analysing-strava-runs-using-postgresql-json-data-type/</guid>
-      <description>create database strava; \connect strava; CREATE TABLE runs ( id INTEGER NOT NULL, data jsonb ); ALTER TABLE runs ADD PRIMARY KEY(id); import requests import os import json import psycopg2 token = os.environ[&amp;#34;TOKEN&amp;#34;] headers = {&amp;#39;Authorization&amp;#39;: &amp;#34;Bearer {0}&amp;#34;.format(token)} with psycopg2.connect(&amp;#34;dbname=strava user=markneedham&amp;#34;) as conn: with conn.cursor() as cur: page = 1 while True: r = requests.get(&amp;#34;https://www.strava.com/api/v3/athlete/activities?page={0}&amp;#34;.format(page), headers = headers) response = r.json() if len(response) == 0: break else: for activity in response: r = requests.</description>
+      <description>In my last post I showed how to map Strava runs using data that I&amp;#8217;d extracted from their https://strava.github.io/api/v3/activities/ API, but the API returns a lot of other data that I discarded because I wasn&amp;#8217;t sure what I should keep.
+ The API returns a nested JSON structure so the easiest solution would be to save each run as an individual file but I&amp;#8217;ve always wanted to try out PostgreSQL&amp;#8217;s JSON data type and this seemed like a good opportunity.</description>
     </item>
     
   </channel>

@@ -23,9 +23,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Returning from methods" />
         
-          <meta name="twitter:description" content="When pair programmingthere are obviously times when you have different opinions about how things should be done.
-One of these is the way that we should return from methods. There seem to be two approaches when it comes to this:
-The Guard Blockis the best example of this. It is generally used at the start of methods to stop further execution of the method if the parameters are invalid for example:" />
+          <meta name="twitter:description" content="When pair programming there are obviously times when you have different opinions about how things should be done.
+ One of these is the way that we should return from methods. There seem to be two approaches when it comes to this:
+ Exit as quickly as possible The goal with this approach is as the title suggests, to get out of the method at the earliest possible moment.
+ The Guard Block is the best example of this." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2008/08/17/returning-from-methods/" />
 
@@ -36,9 +37,10 @@ The Guard Blockis the best example of this. It is generally used at the start of
         <title> Returning from methods &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="When pair programmingthere are obviously times when you have different opinions about how things should be done.
-One of these is the way that we should return from methods. There seem to be two approaches when it comes to this:
-The Guard Blockis the best example of this. It is generally used at the start of methods to stop further execution of the method if the parameters are invalid for example:" />
+        <meta name="description" content="When pair programming there are obviously times when you have different opinions about how things should be done.
+ One of these is the way that we should return from methods. There seem to be two approaches when it comes to this:
+ Exit as quickly as possible The goal with this approach is as the title suggests, to get out of the method at the earliest possible moment.
+ The Guard Block is the best example of this." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,8 +69,8 @@ The Guard Blockis the best example of this. It is generally used at the start of
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2008-08-17",
-        "description": "When pair programmingthere are obviously times when you have different opinions about how things should be done.\nOne of these is the way that we should return from methods. There seem to be two approaches when it comes to this:\nThe Guard Blockis the best example of this. It is generally used at the start of methods to stop further execution of the method if the parameters are invalid for example:",
-        "wordCount":  172 
+        "description": "When pair programming there are obviously times when you have different opinions about how things should be done.\n One of these is the way that we should return from methods. There seem to be two approaches when it comes to this:\n Exit as quickly as possible The goal with this approach is as the title suggests, to get out of the method at the earliest possible moment.\n The Guard Block is the best example of this.",
+        "wordCount":  404 
     }
     </script>
     
@@ -179,15 +181,54 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Returning from methods</h1>
-    <p>When <!-- raw HTML omitted -->pair programming<!-- raw HTML omitted --> there are obviously times when you have different opinions about how things should be done.</p>
+    <div class="paragraph">
+<p>When <a href="2008/02/10/pair-programming-introduction/">pair programming</a> there are obviously times when you have different opinions about how things should be done.</p>
+</div>
+<div class="paragraph">
 <p>One of these is the way that we should return from methods. There seem to be two approaches when it comes to this:</p>
-<!-- raw HTML omitted -->
-<p>The <!-- raw HTML omitted -->Guard Block<!-- raw HTML omitted --> is the best example of this. It is generally used at the start of methods to stop further execution of the method if the parameters are invalid for example:</p>
-<!-- raw HTML omitted -->
-<p>If that becomes the case, however, there&rsquo;s probably greater things to worry about with regards to the method than how best to return the result!</p>
-<!-- raw HTML omitted -->
-<p>Just in case it hasn&rsquo;t come across, I am a big advocate of the idea of returning early from methods as it means I don&rsquo;t have to understand the whole internals of a method if I only care about one branch.</p>
-<p>If a method gets into such a state that returning early becomes unreadable this would be a clear sign to me that the method is doing too much and should be refactored into smaller chunks.</p>
+</div>
+<div class="sect1">
+<h2 id="_exit_as_quickly_as_possible">Exit as quickly as possible</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The goal with this approach is as the title suggests, to get out of the method at the earliest possible moment.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="http://c2.com/cgi/wiki?GuardClause">Guard Block</a> is the best example of this. It is generally used at the start of methods to stop further execution of the method if the parameters are invalid for example:<table class="CodeRay" border="0"><tbody><tr><td class="line_numbers" title="click to toggle" onclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1<tt></tt>2<tt></tt>3<tt></tt>4<tt></tt>5<tt></tt><sub>~</sub>
+&lt;/td&gt;
+<td class="code"><pre ondblclick="with (this.style) { overflow = (overflow == 'auto' || overflow == '') ? 'visible' : 'auto' }">public <span class="pt">void</span> DoSomething(SomeObject someObject)<tt></tt>{<tt></tt>   <span class="r">if</span> (someObject == null) <span class="r">return</span>;<tt></tt>   <span class="c">// Do some other stuff</span><tt></tt>}<sub>~</sub>
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+When used in this way it is very similar to what would be called a pre condition in the world of <a href="http://archive.eiffel.com/doc/manuals/technology/contract/">Design by Contract</a>. It can also be used in methods which return a result:
+<table class="CodeRay" border="0"><tbody><tr><td class="line_numbers" title="click to toggle" onclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1<tt></tt>2<tt></tt>3<tt></tt>4<tt></tt>5<tt></tt><sub>~</sub>
+&lt;/td&gt;
+<td class="code"><pre ondblclick="with (this.style) { overflow = (overflow == 'auto' || overflow == '') ? 'visible' : 'auto' }">public SomeObject GetSomeObject()<tt></tt>{<tt></tt>   <span class="r">if</span>(ThisConditionHappens()) <span class="r">return</span> new SomeObject(thisParameter);<tt></tt>   <span class="r">return</span> new SomeObject(thatParameter);<tt></tt>}<sub>~</sub>
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+In this example there are only two execution paths so returining early is fine. When there start to become a lot of different branches, however,  the idea of returning in each place becomes counter productive and makes the code harder to read.</p>
+</div>
+<div class="paragraph">
+<p>If that becomes the case, however, there&#8217;s probably greater things to worry about with regards to the method than how best to return the result!
+<h3>Return everything at the end</h3>
+This approach is fairly self explanatory too. If my somewhat contrived example was written to return everything at the end it would look like this:
+<table class="CodeRay" border="0"><tbody><tr><td class="line_numbers" title="click to toggle" onclick="with (this.firstChild.style) { display = (display == '') ? 'none' : '' }"><pre>1<tt></tt>2<tt></tt>3<tt></tt>4<tt></tt>5<tt></tt>6<tt></tt>7<tt></tt>8<tt></tt>9<tt></tt><strong>10</strong><tt></tt>11<tt></tt>12<tt></tt>13<tt></tt><sub>~</sub>
+&lt;/td&gt;
+<td class="code"><pre ondblclick="with (this.style) { overflow = (overflow == 'auto' || overflow == '') ? 'visible' : 'auto' }">public SomeObject GetSomeObject()<tt></tt>{<tt></tt>    SomeObject someObject = null;<tt></tt>    <span class="r">if</span>(ThisConditionHappens())<tt></tt>    {<tt></tt>        someObject = new SomeObject(thisParameter);<tt></tt>    }<tt></tt>    <span class="r">else</span><tt></tt>    {<tt></tt>        someObject = new SomeObject(thatParameter);<tt></tt>    }<tt></tt>    <span class="r">return</span> someObject;<tt></tt>}<sub>~</sub>
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+This idea starts to come into its own when there are more possible paths of execution, although if this becomes the case it might be better to use the <a href="http://c2.com/cgi/wiki?CollectingParameter">collecting parameter</a> idiom to solve the problem.</p>
+</div>
+<div class="paragraph">
+<p>Just in case it hasn&#8217;t come across, I am a big advocate of the idea of returning early from methods as it means I don&#8217;t have to understand the whole internals of a method if I only care about one branch.</p>
+</div>
+<div class="paragraph">
+<p>If a method gets into such a state that returning early becomes unreadable this would be a clear sign to me that the method is doing too much and should be refactored into smaller chunks.</pre></td></pre></td></tr></tbody></table></pre></td></pre></td></tr></tbody></table></pre></td></pre></td></tr></tbody></table></p>
+</div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -222,7 +263,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/08/17/returning-from-methods/&amp;title=Returning%20from%20methods&amp;summary=When%20pair%20programmingthere%20are%20obviously%20times%20when%20you%20have%20different%20opinions%20about%20how%20things%20should%20be%20done.%0aOne%20of%20these%20is%20the%20way%20that%20we%20should%20return%20from%20methods.%20There%20seem%20to%20be%20two%20approaches%20when%20it%20comes%20to%20this%3a%0aThe%20Guard%20Blockis%20the%20best%20example%20of%20this.%20It%20is%20generally%20used%20at%20the%20start%20of%20methods%20to%20stop%20further%20execution%20of%20the%20method%20if%20the%20parameters%20are%20invalid%20for%20example%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/08/17/returning-from-methods/&amp;title=Returning%20from%20methods&amp;summary=When%20pair%20programming%20there%20are%20obviously%20times%20when%20you%20have%20different%20opinions%20about%20how%20things%20should%20be%20done.%0a%20One%20of%20these%20is%20the%20way%20that%20we%20should%20return%20from%20methods.%20There%20seem%20to%20be%20two%20approaches%20when%20it%20comes%20to%20this%3a%0a%20Exit%20as%20quickly%20as%20possible%20The%20goal%20with%20this%20approach%20is%20as%20the%20title%20suggests%2c%20to%20get%20out%20of%20the%20method%20at%20the%20earliest%20possible%20moment.%0a%20The%20Guard%20Block%20is%20the%20best%20example%20of%20this...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

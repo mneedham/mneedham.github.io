@@ -64,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2018-01-29",
-        "description": "from __future__ import absolute_import from __future__ import division from __future__ import print_function import numpy as np import pandas as pd import tensorflow as tf from sklearn import preprocessing from sklearn.model_selection import train_test_split EMBEDDING_SIZE = 50 MAX_LABEL = 3 WORDS_FEATURE = \x26#39;words\x26#39; # Name of the input words feature. def bag_of_words_model(features, labels, mode): bow_column = tf.feature_column.categorical_column_with_identity(WORDS_FEATURE, num_buckets=n_words) bow_embedding_column = tf.feature_column.embedding_column(bow_column, dimension=EMBEDDING_SIZE) bow = tf.feature_column.input_layer(features, feature_columns=[bow_embedding_column]) logits = tf.layers.dense(bow, MAX_LABEL, activation=None) return create_estimator_spec(logits=logits, labels=labels, mode=mode) def create_estimator_spec(logits, labels, mode): predicted_classes = tf.",
-        "wordCount":  302 
+        "description": "I\x26#8217;ve been playing around with some Tensorflow tutorials recently and wanted to see if I could create a submission for Kaggle\x26#8217;s Spooky Author Identification competition that I\x26#8217;ve written about recently.\n My model is based on one from the text classification tutorial. The tutorial shows how to create custom Estimators which we can learn more about in a post on the Google Developers blog.\n Imports Let\x26#8217;s get started. First, our imports:",
+        "wordCount":  643 
     }
     </script>
     
@@ -178,110 +178,171 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Tensorflow: Kaggle Spooky Authors Bag of Words Model</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> __future__ <span style="color:#f92672">import</span> absolute_import
-<span style="color:#f92672">from</span> __future__ <span style="color:#f92672">import</span> division
-<span style="color:#f92672">from</span> __future__ <span style="color:#f92672">import</span> print_function
+    <div class="paragraph">
+<p>I&#8217;ve been playing around with some Tensorflow tutorials recently and wanted to see if I could create a submission for <a href="https://www.kaggle.com/c/spooky-author-identification">Kaggle&#8217;s Spooky Author Identification competition</a> that I&#8217;ve written about recently.</p>
+</div>
+<div class="paragraph">
+<p>My model is based on one from the <a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/learn/text_classification.py">text classification tutorial</a>. The tutorial shows how to create custom Estimators which we can learn more about in <a href="https://developers.googleblog.com/2017/12/creating-custom-estimators-in-tensorflow.html">a post on the Google Developers blog</a>.</p>
+</div>
+<div class="sect1">
+<h2 id="_imports">Imports</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s get started. First, our imports:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
-<span style="color:#f92672">import</span> pandas <span style="color:#f92672">as</span> pd
-<span style="color:#f92672">import</span> tensorflow <span style="color:#f92672">as</span> tf
-<span style="color:#f92672">from</span> sklearn <span style="color:#f92672">import</span> preprocessing
-<span style="color:#f92672">from</span> sklearn.model_selection <span style="color:#f92672">import</span> train_test_split
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-EMBEDDING_SIZE <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>
-MAX_LABEL <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
-WORDS_FEATURE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;words&#39;</span>  <span style="color:#75715e"># Name of the input words feature.</span>
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve obviously got Tensorflow, but also scikit-learn which we&#8217;ll use to split our data into a training and test sets as well as convert the author names into numeric values.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_model_building_functions">Model building functions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Next we&#8217;ll create a function to create a bag of words model. This function calls another one that creates different <cite>EstimatorSpec</cite>s depending on the context it&#8217;s called from.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">EMBEDDING_SIZE = 50
+MAX_LABEL = 3
+WORDS_FEATURE = 'words'  # Name of the input words feature.
 
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">bag_of_words_model</span>(features, labels, mode):
-    bow_column <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>feature_column<span style="color:#f92672">.</span>categorical_column_with_identity(WORDS_FEATURE, num_buckets<span style="color:#f92672">=</span>n_words)
-    bow_embedding_column <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>feature_column<span style="color:#f92672">.</span>embedding_column(bow_column, dimension<span style="color:#f92672">=</span>EMBEDDING_SIZE)
-    bow <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>feature_column<span style="color:#f92672">.</span>input_layer(features, feature_columns<span style="color:#f92672">=</span>[bow_embedding_column])
-    logits <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>layers<span style="color:#f92672">.</span>dense(bow, MAX_LABEL, activation<span style="color:#f92672">=</span>None)
-    <span style="color:#66d9ef">return</span> create_estimator_spec(logits<span style="color:#f92672">=</span>logits, labels<span style="color:#f92672">=</span>labels, mode<span style="color:#f92672">=</span>mode)
+def bag_of_words_model(features, labels, mode):
+    bow_column = tf.feature_column.categorical_column_with_identity(WORDS_FEATURE, num_buckets=n_words)
+    bow_embedding_column = tf.feature_column.embedding_column(bow_column, dimension=EMBEDDING_SIZE)
+    bow = tf.feature_column.input_layer(features, feature_columns=[bow_embedding_column])
+    logits = tf.layers.dense(bow, MAX_LABEL, activation=None)
+    return create_estimator_spec(logits=logits, labels=labels, mode=mode)
 
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_estimator_spec</span>(logits, labels, mode):
-    predicted_classes <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>argmax(logits, <span style="color:#ae81ff">1</span>)
-    <span style="color:#66d9ef">if</span> mode <span style="color:#f92672">==</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>ModeKeys<span style="color:#f92672">.</span>PREDICT:
-        <span style="color:#66d9ef">return</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>EstimatorSpec(
-            mode<span style="color:#f92672">=</span>mode,
-            predictions<span style="color:#f92672">=</span>{
-                <span style="color:#e6db74">&#39;class&#39;</span>: predicted_classes,
-                <span style="color:#e6db74">&#39;prob&#39;</span>: tf<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>softmax(logits),
-                <span style="color:#e6db74">&#39;log_loss&#39;</span>: tf<span style="color:#f92672">.</span>nn<span style="color:#f92672">.</span>softmax(logits),
+def create_estimator_spec(logits, labels, mode):
+    predicted_classes = tf.argmax(logits, 1)
+    if mode == tf.estimator.ModeKeys.PREDICT:
+        return tf.estimator.EstimatorSpec(
+            mode=mode,
+            predictions={
+                'class': predicted_classes,
+                'prob': tf.nn.softmax(logits),
+                'log_loss': tf.nn.softmax(logits),
             })
 
-    loss <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>losses<span style="color:#f92672">.</span>sparse_softmax_cross_entropy(labels<span style="color:#f92672">=</span>labels, logits<span style="color:#f92672">=</span>logits)
-    <span style="color:#66d9ef">if</span> mode <span style="color:#f92672">==</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>ModeKeys<span style="color:#f92672">.</span>TRAIN:
-        optimizer <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>train<span style="color:#f92672">.</span>AdamOptimizer(learning_rate<span style="color:#f92672">=</span><span style="color:#ae81ff">0.01</span>)
-        train_op <span style="color:#f92672">=</span> optimizer<span style="color:#f92672">.</span>minimize(loss, global_step<span style="color:#f92672">=</span>tf<span style="color:#f92672">.</span>train<span style="color:#f92672">.</span>get_global_step())
-        <span style="color:#66d9ef">return</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>EstimatorSpec(mode, loss<span style="color:#f92672">=</span>loss, train_op<span style="color:#f92672">=</span>train_op)
+    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+    if mode == tf.estimator.ModeKeys.TRAIN:
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
+        train_op = optimizer.minimize(loss, global_step=tf.train.get_global_step())
+        return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op)
 
-    eval_metric_ops <span style="color:#f92672">=</span> {
-        <span style="color:#e6db74">&#39;accuracy&#39;</span>: tf<span style="color:#f92672">.</span>metrics<span style="color:#f92672">.</span>accuracy(labels<span style="color:#f92672">=</span>labels, predictions<span style="color:#f92672">=</span>predicted_classes)
+    eval_metric_ops = {
+        'accuracy': tf.metrics.accuracy(labels=labels, predictions=predicted_classes)
     }
-    <span style="color:#66d9ef">return</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>EstimatorSpec(mode<span style="color:#f92672">=</span>mode, loss<span style="color:#f92672">=</span>loss, eval_metric_ops<span style="color:#f92672">=</span>eval_metric_ops)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-Y_COLUMN <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;author&#34;</span>
-TEXT_COLUMN <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;text&#34;</span>
-le <span style="color:#f92672">=</span> preprocessing<span style="color:#f92672">.</span>LabelEncoder()
+    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_loading_data">Loading data</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now we&#8217;re ready to load our data.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">Y_COLUMN = "author"
+TEXT_COLUMN = "text"
+le = preprocessing.LabelEncoder()
 
-train_df <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_csv(<span style="color:#e6db74">&#34;train.csv&#34;</span>)
-X <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>Series(train_df[TEXT_COLUMN])
-y <span style="color:#f92672">=</span> le<span style="color:#f92672">.</span>fit_transform(train_df[Y_COLUMN]<span style="color:#f92672">.</span>copy())
-X_train, X_test, y_train, y_test <span style="color:#f92672">=</span> train_test_split(X, y, test_size<span style="color:#f92672">=</span><span style="color:#ae81ff">0.33</span>, random_state<span style="color:#f92672">=</span><span style="color:#ae81ff">42</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-MAX_DOCUMENT_LENGTH <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>
-vocab_processor <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>contrib<span style="color:#f92672">.</span>learn<span style="color:#f92672">.</span>preprocessing<span style="color:#f92672">.</span>VocabularyProcessor(MAX_DOCUMENT_LENGTH)
+train_df = pd.read_csv("train.csv")
+X = pd.Series(train_df[TEXT_COLUMN])
+y = le.fit_transform(train_df[Y_COLUMN].copy())
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only interesting thing here is the <cite>LabelEncoder</cite>. We&#8217;ll keep that around as we&#8217;ll use it later as well.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_transform_documents">Transform documents</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>At the moment our training and test dataframes contain text, but Tensorflow works with vectors so we need to convert our data into that format. We can use the <cite>http://tflearn.org/data_utils/#vocabulary-processor<span class="VocabularyProcessor"></cite></span> to do this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">MAX_DOCUMENT_LENGTH = 100
+vocab_processor = tf.contrib.learn.preprocessing.VocabularyProcessor(MAX_DOCUMENT_LENGTH)
 
-X_transform_train <span style="color:#f92672">=</span> vocab_processor<span style="color:#f92672">.</span>fit_transform(X_train)
-X_transform_test <span style="color:#f92672">=</span> vocab_processor<span style="color:#f92672">.</span>transform(X_test)
+X_transform_train = vocab_processor.fit_transform(X_train)
+X_transform_test = vocab_processor.transform(X_test)
 
-X_train <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(list(X_transform_train))
-X_test <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(list(X_transform_test))
+X_train = np.array(list(X_transform_train))
+X_test = np.array(list(X_transform_test))
 
-n_words <span style="color:#f92672">=</span> len(vocab_processor<span style="color:#f92672">.</span>vocabulary_)
-<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#39;Total words: </span><span style="color:#e6db74">%d</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">%</span> n_words)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-model_fn <span style="color:#f92672">=</span> bag_of_words_model
-classifier <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>Estimator(model_fn<span style="color:#f92672">=</span>model_fn)
+n_words = len(vocab_processor.vocabulary_)
+print('Total words: %d' % n_words)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_training_our_model">Training our model</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Finally we&#8217;re ready to train our model! We&#8217;ll call the Bag of Words model we created at the beginning and build a train input function where we pass in the training arrays that we just created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">model_fn = bag_of_words_model
+classifier = tf.estimator.Estimator(model_fn=model_fn)
 
-train_input_fn <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>inputs<span style="color:#f92672">.</span>numpy_input_fn(
-    x<span style="color:#f92672">=</span>{WORDS_FEATURE: X_train},
-    y<span style="color:#f92672">=</span>y_train,
-    batch_size<span style="color:#f92672">=</span>len(X_train),
-    num_epochs<span style="color:#f92672">=</span>None,
-    shuffle<span style="color:#f92672">=</span>True)
-classifier<span style="color:#f92672">.</span>train(input_fn<span style="color:#f92672">=</span>train_input_fn, steps<span style="color:#f92672">=</span><span style="color:#ae81ff">100</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-test_input_fn <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>inputs<span style="color:#f92672">.</span>numpy_input_fn(
-    x<span style="color:#f92672">=</span>{WORDS_FEATURE: X_test},
-    y<span style="color:#f92672">=</span>y_test,
-    num_epochs<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
-    shuffle<span style="color:#f92672">=</span>False)
+train_input_fn = tf.estimator.inputs.numpy_input_fn(
+    x={WORDS_FEATURE: X_train},
+    y=y_train,
+    batch_size=len(X_train),
+    num_epochs=None,
+    shuffle=True)
+classifier.train(input_fn=train_input_fn, steps=100)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_evaluating_our_model">Evaluating our model</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s see how our model fares. We&#8217;ll call the <cite>evaluate</cite> function with our test data:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">test_input_fn = tf.estimator.inputs.numpy_input_fn(
+    x={WORDS_FEATURE: X_test},
+    y=y_test,
+    num_epochs=1,
+    shuffle=False)
 
-scores <span style="color:#f92672">=</span> classifier<span style="color:#f92672">.</span>evaluate(input_fn<span style="color:#f92672">=</span>test_input_fn)
-<span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#39;Accuracy: {0:f}, Loss {1:f}&#39;</span><span style="color:#f92672">.</span>format(scores[<span style="color:#e6db74">&#39;accuracy&#39;</span>], scores[<span style="color:#e6db74">&#34;loss&#34;</span>]))
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-INFO:tensorflow:Saving checkpoints for 1 into /var/folders/k5/ssmkw9vd2yb3h5wnqlxnqbkw0000gn/T/tmpb6v4rrrn/model.ckpt.
+scores = classifier.evaluate(input_fn=test_input_fn)
+print('Accuracy: {0:f}, Loss {1:f}'.format(scores['accuracy'], scores["loss"]))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">INFO:tensorflow:Saving checkpoints for 1 into /var/folders/k5/ssmkw9vd2yb3h5wnqlxnqbkw0000gn/T/tmpb6v4rrrn/model.ckpt.
 INFO:tensorflow:loss = 1.0888131, step = 1
 INFO:tensorflow:Saving checkpoints for 100 into /var/folders/k5/ssmkw9vd2yb3h5wnqlxnqbkw0000gn/T/tmpb6v4rrrn/model.ckpt.
 INFO:tensorflow:Loss for final step: 0.18394235.
@@ -289,30 +350,54 @@ INFO:tensorflow:Starting evaluation at 2018-01-28-22:41:34
 INFO:tensorflow:Restoring parameters from /var/folders/k5/ssmkw9vd2yb3h5wnqlxnqbkw0000gn/T/tmpb6v4rrrn/model.ckpt-100
 INFO:tensorflow:Finished evaluation at 2018-01-28-22:41:34
 INFO:tensorflow:Saving dict for global step 100: accuracy = 0.8246673, global_step = 100, loss = 0.44942895
-Accuracy: 0.824667, Loss 0.449429
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-test_df <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_csv(<span style="color:#e6db74">&#34;test.csv&#34;</span>)
+Accuracy: 0.824667, Loss 0.449429</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Not too bad! I managed to get a log loss score of ~ 0.36 with a scikit-learn ensemble model but it is better than some of my first attempts.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_generating_predictions">Generating predictions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I wanted to see how it&#8217;d do against Kaggle&#8217;s test dataset so I generated a CSV file with predictions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">test_df = pd.read_csv("test.csv")
 
-X_test <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>Series(test_df[TEXT_COLUMN])
-X_test <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(list(vocab_processor<span style="color:#f92672">.</span>transform(X_test)))
+X_test = pd.Series(test_df[TEXT_COLUMN])
+X_test = np.array(list(vocab_processor.transform(X_test)))
 
-test_input_fn <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>estimator<span style="color:#f92672">.</span>inputs<span style="color:#f92672">.</span>numpy_input_fn(
-    x<span style="color:#f92672">=</span>{WORDS_FEATURE: X_test},
-    num_epochs<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>,
-    shuffle<span style="color:#f92672">=</span>False)
+test_input_fn = tf.estimator.inputs.numpy_input_fn(
+    x={WORDS_FEATURE: X_test},
+    num_epochs=1,
+    shuffle=False)
 
-predictions <span style="color:#f92672">=</span> classifier<span style="color:#f92672">.</span>predict(test_input_fn)
-y_predicted_classes <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(list(p[<span style="color:#e6db74">&#39;prob&#39;</span>] <span style="color:#66d9ef">for</span> p <span style="color:#f92672">in</span> predictions))
+predictions = classifier.predict(test_input_fn)
+y_predicted_classes = np.array(list(p['prob'] for p in predictions))
 
-output <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>DataFrame(y_predicted_classes, columns<span style="color:#f92672">=</span>le<span style="color:#f92672">.</span>classes_)
-output[<span style="color:#e6db74">&#34;id&#34;</span>] <span style="color:#f92672">=</span> test_df[<span style="color:#e6db74">&#34;id&#34;</span>]
-output<span style="color:#f92672">.</span>to_csv(<span style="color:#e6db74">&#34;output.csv&#34;</span>, index<span style="color:#f92672">=</span>False, float_format<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">%.6f</span><span style="color:#e6db74">&#39;</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+output = pd.DataFrame(y_predicted_classes, columns=le.classes_)
+output["id"] = test_df["id"]
+output.to_csv("output.csv", index=False, float_format='%.6f')</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we go:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2018/01/2018-01-29_06-44-30.png" alt="2018 01 29 06 44 30" width="456">
+</div>
+</div>
+<div class="paragraph">
+<p>The score is roughly the same as we saw with the test split of the training set. If you want to see all the code in one place I&#8217;ve <a href="https://github.com/mneedham/spooky-author-identification/blob/master/tf_test.py">put it on my Spooky Authors GitHub repository</a>.</p>
+</div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -347,7 +432,7 @@ output<span style="color:#f92672">.</span>to_csv(<span style="color:#e6db74">&#3
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2018/01/29/tensorflow-kaggle-spooky-authors-bag-words-model/&amp;title=Tensorflow%3a%20Kaggle%20Spooky%20Authors%20Bag%20of%20Words%20Model&amp;summary=from%20__future__%20import%20absolute_import%20from%20__future__%20import%20division%20from%20__future__%20import%20print_function%20import%20numpy%20as%20np%20import%20pandas%20as%20pd%20import%20tensorflow%20as%20tf%20from%20sklearn%20import%20preprocessing%20from%20sklearn.model_selection%20import%20train_test_split%20EMBEDDING_SIZE%20%3d%2050%20MAX_LABEL%20%3d%203%20WORDS_FEATURE%20%3d%20%26%2339%3bwords%26%2339%3b%20%23%20Name%20of%20the%20input%20words%20feature.%20def%20bag_of_words_model%28features%2c%20labels%2c%20mode%29%3a%20bow_column%20%3d%20tf.feature_column.categorical_column_with_identity%28WORDS_FEATURE%2c%20num_buckets%3dn_words%29%20bow_embedding_column%20%3d%20tf.feature_column.embedding_column%28bow_column%2c%20dimension%3dEMBEDDING_SIZE%29%20bow%20%3d%20tf.feature_column.input_layer%28features%2c%20feature_columns%3d%5bbow_embedding_column%5d%29%20logits%20%3d%20tf.layers.dense%28bow%2c%20MAX_LABEL%2c%20activation%3dNone%29%20return%20create_estimator_spec%28logits%3dlogits%2c%20labels%3dlabels%2c%20mode%3dmode%29%20def%20create_estimator_spec%28logits%2c%20labels%2c%20mode%29%3a%20predicted_classes%20%3d%20tf...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2018/01/29/tensorflow-kaggle-spooky-authors-bag-words-model/&amp;title=Tensorflow%3a%20Kaggle%20Spooky%20Authors%20Bag%20of%20Words%20Model&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20some%20Tensorflow%20tutorials%20recently%20and%20wanted%20to%20see%20if%20I%20could%20create%20a%20submission%20for%20Kaggle%26%238217%3bs%20Spooky%20Author%20Identification%20competition%20that%20I%26%238217%3bve%20written%20about%20recently.%0a%20My%20model%20is%20based%20on%20one%20from%20the%20text%20classification%20tutorial.%20The%20tutorial%20shows%20how%20to%20create%20custom%20Estimators%20which%20we%20can%20learn%20more%20about%20in%20a%20post%20on%20the%20Google%20Developers%20blog.%0a%20Imports%20Let%26%238217%3bs%20get%20started.%20First%2c%20our%20imports%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

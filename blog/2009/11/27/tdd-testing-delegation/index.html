@@ -22,9 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="TDD: Testing delegation" />
         
-          <meta name="twitter:description" content="I recently came across an interesting blog post by Rod Hilton on unit testingand it reminded me of a couple of conversations Phil, Raphand I were having about the best way to test classes which delegate some responsibility to another class.
-An example that we ran into recently was where we wrote some code which required one controller to delegate to another.
-public class ControllerOne extends Controller { public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { } } public class ControllerTwo extends Controller { private final ControllerOne controllerOne; public ControllerTwo(ControllerOne controllerOne) { this." />
+          <meta name="twitter:description" content="I recently came across an interesting blog post by Rod Hilton on unit testing and it reminded me of a couple of conversations Phil, Raph and I were having about the best way to test classes which delegate some responsibility to another class.
+ An example that we ran into recently was where we wrote some code which required one controller to delegate to another.
+ public class ControllerOne extends Controller { public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { } }   public class ControllerTwo extends Controller { private final ControllerOne controllerOne; public ControllerTwo(ControllerOne controllerOne) { this." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/11/27/tdd-testing-delegation/" />
 
@@ -35,9 +35,9 @@ public class ControllerOne extends Controller { public ModelAndView handleReques
         <title> TDD: Testing delegation &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I recently came across an interesting blog post by Rod Hilton on unit testingand it reminded me of a couple of conversations Phil, Raphand I were having about the best way to test classes which delegate some responsibility to another class.
-An example that we ran into recently was where we wrote some code which required one controller to delegate to another.
-public class ControllerOne extends Controller { public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { } } public class ControllerTwo extends Controller { private final ControllerOne controllerOne; public ControllerTwo(ControllerOne controllerOne) { this." />
+        <meta name="description" content="I recently came across an interesting blog post by Rod Hilton on unit testing and it reminded me of a couple of conversations Phil, Raph and I were having about the best way to test classes which delegate some responsibility to another class.
+ An example that we ran into recently was where we wrote some code which required one controller to delegate to another.
+ public class ControllerOne extends Controller { public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { } }   public class ControllerTwo extends Controller { private final ControllerOne controllerOne; public ControllerTwo(ControllerOne controllerOne) { this." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +66,8 @@ public class ControllerOne extends Controller { public ModelAndView handleReques
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-11-27",
-        "description": "I recently came across an interesting blog post by Rod Hilton on unit testingand it reminded me of a couple of conversations Phil, Raphand I were having about the best way to test classes which delegate some responsibility to another class.\nAn example that we ran into recently was where we wrote some code which required one controller to delegate to another.\npublic class ControllerOne extends Controller { public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { } } public class ControllerTwo extends Controller { private final ControllerOne controllerOne; public ControllerTwo(ControllerOne controllerOne) { this.",
-        "wordCount":  409 
+        "description": "I recently came across an interesting blog post by Rod Hilton on unit testing and it reminded me of a couple of conversations Phil, Raph and I were having about the best way to test classes which delegate some responsibility to another class.\n An example that we ran into recently was where we wrote some code which required one controller to delegate to another.\n public class ControllerOne extends Controller { public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception { } }   public class ControllerTwo extends Controller { private final ControllerOne controllerOne; public ControllerTwo(ControllerOne controllerOne) { this.",
+        "wordCount":  411 
     }
     </script>
     
@@ -176,58 +176,90 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">TDD: Testing delegation</h1>
-    <p>I recently came across an <!-- raw HTML omitted -->interesting blog post by Rod Hilton on unit testing<!-- raw HTML omitted --> and it reminded me of a couple of conversations <!-- raw HTML omitted -->Phil<!-- raw HTML omitted -->, <!-- raw HTML omitted -->Raph<!-- raw HTML omitted --> and I were having about the best way to test classes which delegate some responsibility to another class.</p>
+    <div class="paragraph">
+<p>I recently came across an <a href="http://www.rallydev.com/engblog/2009/11/17/units-are-not-classes/">interesting blog post by Rod Hilton on unit testing</a> and it reminded me of a couple of conversations <a href="http://fragmental.tw/">Phil</a>, <a href="http://twitter.com/raphscallion">Raph</a> and I were having about the best way to test classes which delegate some responsibility to another class.</p>
+</div>
+<div class="paragraph">
 <p>An example that we ran into recently was where we wrote some code which required one controller to delegate to another.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ControllerOne</span> <span style="color:#66d9ef">extends</span> Controller <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> ModelAndView <span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ControllerTwo</span> <span style="color:#66d9ef">extends</span> Controller <span style="color:#f92672">{</span>
-	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> ControllerOne controllerOne<span style="color:#f92672">;</span>
-	
-	<span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ControllerTwo</span><span style="color:#f92672">(</span>ControllerOne controllerOne<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-		<span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">controllerOne</span> <span style="color:#f92672">=</span> controllerOne<span style="color:#f92672">;</span>
-	<span style="color:#f92672">}</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class ControllerOne extends Controller {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class ControllerTwo extends Controller {
+	private final ControllerOne controllerOne;
 
-    <span style="color:#66d9ef">public</span> ModelAndView <span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(</span>HttpServletRequest request<span style="color:#f92672">,</span> HttpServletResponse response<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
-		<span style="color:#f92672">....</span>
-		<span style="color:#66d9ef">return</span> controllerOne<span style="color:#f92672">.</span><span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(...);</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>My initial thought when working out how to test this code was that we should check that the request is actually getting routed via ControllerOne:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#a6e22e">@Test</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">theTest</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-	ControllerOne controller One <span style="color:#f92672">=</span> mock<span style="color:#f92672">(</span>ControllerOne<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+	public ControllerTwo(ControllerOne controllerOne) {
+		this.controllerOne = controllerOne;
+	}
 
-	ControllerTwo controllerTwo <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ControllerTwo<span style="color:#f92672">(</span>controllerOne<span style="color:#f92672">);</span>
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		....
+		return controllerOne.handleRequest(...);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>My initial thought when working out how to test this code was that we should check that the request is actually getting routed via ControllerOne:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Test
+public void theTest() {
+	ControllerOne controller One = mock(ControllerOne.class);
 
-	controllerTwo<span style="color:#f92672">.</span><span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(...)</span>
+	ControllerTwo controllerTwo = new ControllerTwo(controllerOne);
 
-	verify<span style="color:#f92672">(</span>controllerOne<span style="color:#f92672">).</span><span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(...);</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>When we discussed this Raph and Phil both pointed out that we didn&rsquo;t care that specifically about the implementation of how the request was handled. What we care about is that the result we get after the request is handled is as expected.</p>
+	controllerTwo.handleRequest(...)
+
+	verify(controllerOne).handleRequest(...);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When we discussed this Raph and Phil both pointed out that we didn&#8217;t care that specifically about the implementation of how the request was handled. What we care about is that the result we get after the request is handled is as expected.</p>
+</div>
+<div class="paragraph">
 <p>We therefore changed our test to be more like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#a6e22e">@Test</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">theTest</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-	ControllerOne controller One <span style="color:#f92672">=</span> mock<span style="color:#f92672">(</span>ControllerOne<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
-	ModelAndView myModelAndView <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ModelAndView<span style="color:#f92672">();</span>
-	when<span style="color:#f92672">(</span>controllerOne<span style="color:#f92672">.</span><span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(...).</span><span style="color:#a6e22e">thenReturn</span><span style="color:#f92672">(</span>myModelAndView<span style="color:#f92672">);</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Test
+public void theTest() {
+	ControllerOne controller One = mock(ControllerOne.class);
+	ModelAndView myModelAndView = new ModelAndView();
+	when(controllerOne.handleRequest(...).thenReturn(myModelAndView);
 
-	ControllerTwo controllerTwo <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ControllerTwo<span style="color:#f92672">(</span>controllerOne<span style="color:#f92672">);</span>
+	ControllerTwo controllerTwo = new ControllerTwo(controllerOne);
 
-	ModelAndView actualModelAndView <span style="color:#f92672">=</span> controllerTwo<span style="color:#f92672">.</span><span style="color:#a6e22e">handleRequest</span><span style="color:#f92672">(...)</span>
+	ModelAndView actualModelAndView = controllerTwo.handleRequest(...)
 
-	assertThat<span style="color:#f92672">(</span>actualModelAndView<span style="color:#f92672">,</span> equalTo<span style="color:#f92672">(</span>myModelAndView<span style="color:#f92672">));</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>I&rsquo;ve been finding more and more recently that when it comes to writing tests which do some sort of delegation the &lsquo;stub + assert&rsquo; approach seems to work out better than just verifying.</p>
-<p>You lose the fine grained test that verifying mocks provides but we can still pretty much tell indirectly whether the dependency was called because if it wasn&rsquo;t then it&rsquo;s unlikely (but of course still possible) that we would have received the correct &lsquo;ModelAndView&rsquo; in our assertion.</p>
-<p>My current approach is that I&rsquo;d probably only mock and verify an interaction if the dependency is a service which makes a network call or similarly expensive call where the interaction is as important as the result obtained.</p>
-<p>For example we probably wouldn&rsquo;t want to make that call multiple times and with verification we&rsquo;re able to ensure that doesn&rsquo;t happen.</p>
-<p>I find as I&rsquo;ve used mocking frameworks more I feel like I&rsquo;m drifting from a <!-- raw HTML omitted -->mockist style of testing to one getting closer to the classicist approach<!-- raw HTML omitted -->. I wonder if that&rsquo;s quite a normal progression.</p>
+	assertThat(actualModelAndView, equalTo(myModelAndView));
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve been finding more and more recently that when it comes to writing tests which do some sort of delegation the 'stub + assert' approach seems to work out better than just verifying.</p>
+</div>
+<div class="paragraph">
+<p>You lose the fine grained test that verifying mocks provides but we can still pretty much tell indirectly whether the dependency was called because if it wasn&#8217;t then it&#8217;s unlikely (but of course still possible) that we would have received the correct 'ModelAndView' in our assertion.</p>
+</div>
+<div class="paragraph">
+<p>My current approach is that I&#8217;d probably only mock and verify an interaction if the dependency is a service which makes a network call or similarly expensive call where the interaction is as important as the result obtained.</p>
+</div>
+<div class="paragraph">
+<p>For example we probably wouldn&#8217;t want to make that call multiple times and with verification we&#8217;re able to ensure that doesn&#8217;t happen.</p>
+</div>
+<div class="paragraph">
+<p>I find as I&#8217;ve used mocking frameworks more I feel like I&#8217;m drifting from a <a href="http://martinfowler.com/articles/mocksArentStubs.html#ClassicalAndMockistTesting">mockist style of testing to one getting closer to the classicist approach</a>. I wonder if that&#8217;s quite a normal progression.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -262,7 +294,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/11/27/tdd-testing-delegation/&amp;title=TDD%3a%20Testing%20delegation&amp;summary=I%20recently%20came%20across%20an%20interesting%20blog%20post%20by%20Rod%20Hilton%20on%20unit%20testingand%20it%20reminded%20me%20of%20a%20couple%20of%20conversations%20Phil%2c%20Raphand%20I%20were%20having%20about%20the%20best%20way%20to%20test%20classes%20which%20delegate%20some%20responsibility%20to%20another%20class.%0aAn%20example%20that%20we%20ran%20into%20recently%20was%20where%20we%20wrote%20some%20code%20which%20required%20one%20controller%20to%20delegate%20to%20another.%0apublic%20class%20ControllerOne%20extends%20Controller%20%7b%20public%20ModelAndView%20handleRequest%28HttpServletRequest%20request%2c%20HttpServletResponse%20response%29%20throws%20Exception%20%7b%20%7d%20%7d%20public%20class%20ControllerTwo%20extends%20Controller%20%7b%20private%20final%20ControllerOne%20controllerOne%3b%20public%20ControllerTwo%28ControllerOne%20controllerOne%29%20%7b%20this...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/11/27/tdd-testing-delegation/&amp;title=TDD%3a%20Testing%20delegation&amp;summary=I%20recently%20came%20across%20an%20interesting%20blog%20post%20by%20Rod%20Hilton%20on%20unit%20testing%20and%20it%20reminded%20me%20of%20a%20couple%20of%20conversations%20Phil%2c%20Raph%20and%20I%20were%20having%20about%20the%20best%20way%20to%20test%20classes%20which%20delegate%20some%20responsibility%20to%20another%20class.%0a%20An%20example%20that%20we%20ran%20into%20recently%20was%20where%20we%20wrote%20some%20code%20which%20required%20one%20controller%20to%20delegate%20to%20another.%0a%20public%20class%20ControllerOne%20extends%20Controller%20%7b%20public%20ModelAndView%20handleRequest%28HttpServletRequest%20request%2c%20HttpServletResponse%20response%29%20throws%20Exception%20%7b%20%7d%20%7d%20%20%20public%20class%20ControllerTwo%20extends%20Controller%20%7b%20private%20final%20ControllerOne%20controllerOne%3b%20public%20ControllerTwo%28ControllerOne%20controllerOne%29%20%7b%20this...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

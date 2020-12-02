@@ -23,8 +23,10 @@
         <meta name="twitter:title" content="Performance tuning our data import: Gather precise data" />
         
           <meta name="twitter:description" content="One of the interesting problems that we have to solve on my current project is working out how to import a few million XML documents into our database in a reasonable amount of time.
-The stages of the import process are as follows:
-We&rsquo;ve been working on this quite a bit recently and one of the main things we&rsquo;ve learnt is the value of gathering detailing information about what&rsquo;s actually happening in the code." />
+ The stages of the import process are as follows:
+  Extract a bunch of ZIP files to the disc
+  Processing only the XML documents...
+  Load the XML document and determine whether the document is valid to import" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2011/07/29/performance-tuning-our-data-import-gather-precise-data/" />
 
@@ -36,8 +38,10 @@ We&rsquo;ve been working on this quite a bit recently and one of the main things
 
     
         <meta name="description" content="One of the interesting problems that we have to solve on my current project is working out how to import a few million XML documents into our database in a reasonable amount of time.
-The stages of the import process are as follows:
-We&rsquo;ve been working on this quite a bit recently and one of the main things we&rsquo;ve learnt is the value of gathering detailing information about what&rsquo;s actually happening in the code." />
+ The stages of the import process are as follows:
+  Extract a bunch of ZIP files to the disc
+  Processing only the XML documents...
+  Load the XML document and determine whether the document is valid to import" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +70,8 @@ We&rsquo;ve been working on this quite a bit recently and one of the main things
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2011-07-29",
-        "description": "One of the interesting problems that we have to solve on my current project is working out how to import a few million XML documents into our database in a reasonable amount of time.\nThe stages of the import process are as follows:\nWe\x26rsquo;ve been working on this quite a bit recently and one of the main things we\x26rsquo;ve learnt is the value of gathering detailing information about what\x26rsquo;s actually happening in the code.",
-        "wordCount":  394 
+        "description": "One of the interesting problems that we have to solve on my current project is working out how to import a few million XML documents into our database in a reasonable amount of time.\n The stages of the import process are as follows:\n  Extract a bunch of ZIP files to the disc\n  Processing only the XML documents...\n  Load the XML document and determine whether the document is valid to import",
+        "wordCount":  454 
     }
     </script>
     
@@ -176,24 +180,89 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Performance tuning our data import: Gather precise data</h1>
-    <p>One of the interesting problems that we have to solve on my current project is working out how to import a few million XML documents into our database in a reasonable amount of time.</p>
+    <div class="paragraph">
+<p>One of the interesting problems that we have to solve on my current project is working out how to import a few million XML documents into our database in a reasonable amount of time.</p>
+</div>
+<div class="paragraph">
 <p>The stages of the import process are as follows:</p>
-<!-- raw HTML omitted -->
-<p>We&rsquo;ve been working on this quite a bit recently and one of the main things we&rsquo;ve learnt is the value of gathering detailing information about what&rsquo;s actually happening in the code.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Extract a bunch of ZIP files to the disc</p>
+</li>
+<li>
+<p>Processing only the XML documents...</p>
+</li>
+<li>
+<p>Load the XML document and determine whether the document is valid to import</p>
+</li>
+<li>
+<p>Add some meta data to the document for database indexing</p>
+</li>
+<li>
+<p>Import the document into the database</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve been working on this quite a bit recently and one of the main things we&#8217;ve learnt is the value of gathering detailing information about what&#8217;s actually happening in the code.</p>
+</div>
+<div class="paragraph">
 <p>When we started we only gathered the end to end time for the whole job to run against a certain number of documents.</p>
-<p>The problem with doing this is that we couldn&rsquo;t see where the constraint in the process is and therefore went and parallelised the process using Akka which gave some improvement but not as much as expected.</p>
-<p>Having realised that we didn&rsquo;t really know where the bottle neck was we added in much more logging to our code to try and identify where the most time was being taken.</p>
-<p>For each document there are effectively 3 main things that we&rsquo;re doing:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+</div>
+<div class="paragraph">
+<p>The problem with doing this is that we couldn&#8217;t see where the constraint in the process is and therefore went and parallelised the process using Akka which gave some improvement but not as much as expected.</p>
+</div>
+<div class="paragraph">
+<p>Having realised that we didn&#8217;t really know where the bottle neck was we added in much more logging to our code to try and identify where the most time was being taken.</p>
+</div>
+<div class="paragraph">
+<p>For each document there are effectively 3 main things that we&#8217;re doing:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Loading the XML file</p>
+</li>
+<li>
+<p>Applying the XPath expressions against the file</p>
+</li>
+<li>
+<p>Importing the document into the database</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2011/07/performance.jpg" alt="Performance" width="510">
+</div>
+</div>
+<div class="paragraph">
 <p>We ran our import process a few times and recorded how long was being taken on each stage.</p>
+</div>
+<div class="paragraph">
 <p>It was then much easier to see where we needed to focus our attention if we wanted to see big improvements.</p>
+</div>
+<div class="paragraph">
 <p>We gathered this data for our local environment and QA environment and noticed that there was a big difference on the loading of the XML files - it was 6 or 7 times quicker on the QA environment.</p>
-<p>By chance I ended up running the import on a laptop on the train and noticed that it aborted because it couldn&rsquo;t access an external DTD which was referenced in each XML file.</p>
+</div>
+<div class="paragraph">
+<p>By chance I ended up running the import on a laptop on the train and noticed that it aborted because it couldn&#8217;t access an external DTD which was referenced in each XML file.</p>
+</div>
+<div class="paragraph">
 <p>The QA machine is sitting inside a data centre with a high speed connection which means that the downloading of the DTD files is significantly faster than we can achieve locally.</p>
+</div>
+<div class="paragraph">
 <p>We realised that we could solve this problem by forcing the parser to load the DTDs locally and immediately saw a huge decrease in the overall time.</p>
+</div>
+<div class="paragraph">
 <p>Without collecting the data and seeing so clearly where the constraint was it would have taken us much longer to realise where we needed to make improvements.</p>
+</div>
+<div class="paragraph">
 <p>We still have many more improvements to make but measuring the performance instead of speculating seems to be the way to go.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -228,7 +297,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/07/29/performance-tuning-our-data-import-gather-precise-data/&amp;title=Performance%20tuning%20our%20data%20import%3a%20Gather%20precise%20data&amp;summary=One%20of%20the%20interesting%20problems%20that%20we%20have%20to%20solve%20on%20my%20current%20project%20is%20working%20out%20how%20to%20import%20a%20few%20million%20XML%20documents%20into%20our%20database%20in%20a%20reasonable%20amount%20of%20time.%0aThe%20stages%20of%20the%20import%20process%20are%20as%20follows%3a%0aWe%26rsquo%3bve%20been%20working%20on%20this%20quite%20a%20bit%20recently%20and%20one%20of%20the%20main%20things%20we%26rsquo%3bve%20learnt%20is%20the%20value%20of%20gathering%20detailing%20information%20about%20what%26rsquo%3bs%20actually%20happening%20in%20the%20code...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/07/29/performance-tuning-our-data-import-gather-precise-data/&amp;title=Performance%20tuning%20our%20data%20import%3a%20Gather%20precise%20data&amp;summary=One%20of%20the%20interesting%20problems%20that%20we%20have%20to%20solve%20on%20my%20current%20project%20is%20working%20out%20how%20to%20import%20a%20few%20million%20XML%20documents%20into%20our%20database%20in%20a%20reasonable%20amount%20of%20time.%0a%20The%20stages%20of%20the%20import%20process%20are%20as%20follows%3a%0a%20%20Extract%20a%20bunch%20of%20ZIP%20files%20to%20the%20disc%0a%20%20Processing%20only%20the%20XML%20documents...%0a%20%20Load%20the%20XML%20document%20and%20determine%20whether%20the%20document%20is%20valid%20to%20import..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

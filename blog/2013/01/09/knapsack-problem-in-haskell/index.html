@@ -23,7 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Knapsack Problem in Haskell" />
         
-          <meta name="twitter:description" content="ref :: a -&gt; IORef a ref x = unsafePerformIO (newIORef x) knapsackCached1 :: [[Int]] -&gt; Int -&gt; Int -&gt; IORef (Map.Map (Int, Int) Int) -&gt; Int knapsackCached1 rows knapsackWeight index cacheContainer = unsafePerformIO $ do cache &lt;- readIORef cacheContainer if index == 0 || knapsackWeight == 0 then do return 0 else let (value:weight:_) = rows !! index best = knapsackCached1 rows knapsackWeight prevIndex cacheContainer in if weight &gt; knapsackWeight &amp;&amp; lookupPreviousIn cache == Nothing then do let updatedCache = Map." />
+          <meta name="twitter:description" content="I recently described two versions of the Knapsack problem written in Ruby and Python and one common thing is that I used a global cache to store the results of previous calculations.
+ From my experience of coding in Haskell it&#8217;s not considered very idiomatic to write code like that and although I haven&#8217;t actually tried it, potentially more tricky to achieve.
+ I thought it&#8217;d be interesting to try and write the algorithm in Haskell with that constraint in mind and my first version looked like this:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/01/09/knapsack-problem-in-haskell/" />
 
@@ -34,7 +36,9 @@
         <title> Knapsack Problem in Haskell &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="ref :: a -&gt; IORef a ref x = unsafePerformIO (newIORef x) knapsackCached1 :: [[Int]] -&gt; Int -&gt; Int -&gt; IORef (Map.Map (Int, Int) Int) -&gt; Int knapsackCached1 rows knapsackWeight index cacheContainer = unsafePerformIO $ do cache &lt;- readIORef cacheContainer if index == 0 || knapsackWeight == 0 then do return 0 else let (value:weight:_) = rows !! index best = knapsackCached1 rows knapsackWeight prevIndex cacheContainer in if weight &gt; knapsackWeight &amp;&amp; lookupPreviousIn cache == Nothing then do let updatedCache = Map." />
+        <meta name="description" content="I recently described two versions of the Knapsack problem written in Ruby and Python and one common thing is that I used a global cache to store the results of previous calculations.
+ From my experience of coding in Haskell it&#8217;s not considered very idiomatic to write code like that and although I haven&#8217;t actually tried it, potentially more tricky to achieve.
+ I thought it&#8217;d be interesting to try and write the algorithm in Haskell with that constraint in mind and my first version looked like this:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -63,8 +67,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-01-09",
-        "description": "ref :: a -\x26gt; IORef a ref x = unsafePerformIO (newIORef x) knapsackCached1 :: [[Int]] -\x26gt; Int -\x26gt; Int -\x26gt; IORef (Map.Map (Int, Int) Int) -\x26gt; Int knapsackCached1 rows knapsackWeight index cacheContainer = unsafePerformIO $ do cache \x26lt;- readIORef cacheContainer if index == 0 || knapsackWeight == 0 then do return 0 else let (value:weight:_) = rows !! index best = knapsackCached1 rows knapsackWeight prevIndex cacheContainer in if weight \x26gt; knapsackWeight \x26amp;\x26amp; lookupPreviousIn cache == Nothing then do let updatedCache = Map.",
-        "wordCount":  335 
+        "description": "I recently described two versions of the Knapsack problem written in Ruby and Python and one common thing is that I used a global cache to store the results of previous calculations.\n From my experience of coding in Haskell it\x26#8217;s not considered very idiomatic to write code like that and although I haven\x26#8217;t actually tried it, potentially more tricky to achieve.\n I thought it\x26#8217;d be interesting to try and write the algorithm in Haskell with that constraint in mind and my first version looked like this:",
+        "wordCount":  731 
     }
     </script>
     
@@ -175,84 +179,129 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Knapsack Problem in Haskell</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">ref</span> <span style="color:#f92672">::</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IORef</span> a
-<span style="color:#a6e22e">ref</span> x <span style="color:#f92672">=</span> unsafePerformIO (newIORef x)   
+    <div class="paragraph">
+<p>I recently described two versions of the <a href="http://www.markhneedham.com/blog/2013/01/07/knapsack-problem-python-vs-ruby/">Knapsack problem written in Ruby and Python</a> and one common thing is that I used a global cache to store the results of previous calculations.</p>
+</div>
+<div class="paragraph">
+<p>From my experience of coding in Haskell it&#8217;s not considered very idiomatic to write code like that and although I haven&#8217;t actually tried it, potentially more tricky to achieve.</p>
+</div>
+<div class="paragraph">
+<p>I thought it&#8217;d be interesting to try and write the algorithm in Haskell with that constraint in mind and my first version looked like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">ref :: a -&gt; IORef a
+ref x = unsafePerformIO (newIORef x)
 
-<span style="color:#a6e22e">knapsackCached1</span> <span style="color:#f92672">::</span> [[<span style="color:#66d9ef">Int</span>]] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IORef</span> (<span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Map</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>
-<span style="color:#a6e22e">knapsackCached1</span> rows knapsackWeight index cacheContainer <span style="color:#f92672">=</span> unsafePerformIO <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span>
-  cache <span style="color:#f92672">&lt;-</span> readIORef cacheContainer
-  <span style="color:#66d9ef">if</span> index <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">||</span> knapsackWeight <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">do</span>
-    return <span style="color:#ae81ff">0</span>
-  <span style="color:#66d9ef">else</span>
-    <span style="color:#66d9ef">let</span> (value<span style="color:#66d9ef">:</span>weight<span style="color:#66d9ef">:</span><span style="color:#66d9ef">_</span>) <span style="color:#f92672">=</span> rows <span style="color:#f92672">!!</span> index
-         best <span style="color:#f92672">=</span> knapsackCached1 rows knapsackWeight prevIndex cacheContainer  <span style="color:#66d9ef">in</span>
-    <span style="color:#66d9ef">if</span> weight <span style="color:#f92672">&gt;</span> knapsackWeight <span style="color:#f92672">&amp;&amp;</span> lookupPreviousIn cache <span style="color:#f92672">==</span> <span style="color:#66d9ef">Nothing</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">do</span>
-      <span style="color:#66d9ef">let</span> updatedCache <span style="color:#f92672">=</span>  <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>insert (prevIndex, knapsackWeight) best cache
+knapsackCached1 :: [[Int]] -&gt; Int -&gt; Int -&gt; IORef (Map.Map (Int, Int) Int) -&gt; Int
+knapsackCached1 rows knapsackWeight index cacheContainer = unsafePerformIO $ do
+  cache &lt;- readIORef cacheContainer
+  if index == 0 || knapsackWeight == 0 then do
+    return 0
+  else
+    let (value:weight:_) = rows !! index
+         best = knapsackCached1 rows knapsackWeight prevIndex cacheContainer  in
+    if weight &gt; knapsackWeight &amp;&amp; lookupPreviousIn cache == Nothing then do
+      let updatedCache =  Map.insert (prevIndex, knapsackWeight) best cache
       writeIORef cacheContainer updatedCache
-      return <span style="color:#f92672">$</span> fromJust <span style="color:#f92672">$</span> lookupPreviousIn updatedCache
-    <span style="color:#66d9ef">else</span>
-      <span style="color:#66d9ef">if</span> lookupPreviousIn cache <span style="color:#f92672">==</span> <span style="color:#66d9ef">Nothing</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">do</span>
-        <span style="color:#66d9ef">let</span> newBest <span style="color:#f92672">=</span> maximum [best, value <span style="color:#f92672">+</span> knapsackCached1 rows (knapsackWeight<span style="color:#f92672">-</span>weight) prevIndex cacheContainer]
-            updatedCache <span style="color:#f92672">=</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>insert (prevIndex, knapsackWeight) newBest cache
+      return $ fromJust $ lookupPreviousIn updatedCache
+    else
+      if lookupPreviousIn cache == Nothing then do
+        let newBest = maximum [best, value + knapsackCached1 rows (knapsackWeight-weight) prevIndex cacheContainer]
+            updatedCache = Map.insert (prevIndex, knapsackWeight) newBest cache
         writeIORef cacheContainer updatedCache
-        return <span style="color:#f92672">$</span> fromJust <span style="color:#f92672">$</span> lookupPreviousIn updatedCache
-      <span style="color:#66d9ef">else</span>
-        return <span style="color:#f92672">$</span> fromJust <span style="color:#f92672">$</span> lookupPreviousIn cache
-  <span style="color:#66d9ef">where</span> lookupPreviousIn cache <span style="color:#f92672">=</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>lookup (prevIndex,knapsackWeight) cache
-        prevIndex <span style="color:#f92672">=</span> index<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">let</span> (knapsackWeight, numberOfItems, rows) <span style="color:#f92672">=</span> process contents
-     cache <span style="color:#f92672">=</span> ref (<span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>empty <span style="color:#f92672">::</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Map</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Int</span>)
-<span style="color:#a6e22e">knapsackCached1</span> rows knapsackWeight (numberOfItems<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) cache
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">memoize</span> <span style="color:#f92672">::</span> ((<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>                  
-<span style="color:#a6e22e">memoize</span> fn mapKey <span style="color:#f92672">=</span> unsafePerformIO <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span> 
-  <span style="color:#66d9ef">let</span> cache <span style="color:#f92672">=</span> ref (<span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>empty <span style="color:#f92672">::</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Map</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Int</span>)
-  items <span style="color:#f92672">&lt;-</span> readIORef cache
-  <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>lookup mapKey items <span style="color:#f92672">==</span> <span style="color:#66d9ef">Nothing</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">do</span>
-    <span style="color:#66d9ef">let</span> result <span style="color:#f92672">=</span> fn mapKey
-    writeIORef cache <span style="color:#f92672">$</span>  <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>insert mapKey result items
+        return $ fromJust $ lookupPreviousIn updatedCache
+      else
+        return $ fromJust $ lookupPreviousIn cache
+  where lookupPreviousIn cache = Map.lookup (prevIndex,knapsackWeight) cache
+        prevIndex = index-1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We then call it like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">let (knapsackWeight, numberOfItems, rows) = process contents
+     cache = ref (Map.empty :: Map.Map (Int, Int) Int)
+knapsackCached1 rows knapsackWeight (numberOfItems-1) cache</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As you can see, we&#8217;re passing around the cache as a parameter where the cache is a Map wrapped inside an <a href="http://www.haskell.org/ghc/docs/latest/html/libraries/base/Data-IORef.html">IORef</a> - a data type which allows us to pass around a mutable variable in the IO monad.</p>
+</div>
+<div class="paragraph">
+<p>We write our new value into the cache on lines 11 and 17 so that our updates to the map will be picked up in the other recursive steps.</p>
+</div>
+<div class="paragraph">
+<p>Apart from that the shape of the code is the same as the Ruby and Python versions except I&#8217;m now only using a map with a pair as the key instead of an array + map as in the other versions.</p>
+</div>
+<div class="paragraph">
+<p>The annoying thing about this solution is that we have to pass the cache around as a parameter when it&#8217;s just a means of optimisation and not part of the actual problem.</p>
+</div>
+<div class="paragraph">
+<p>An alternative solution could be the following where we abstract the writing/reading of the map into a <cite>memoize</cite> function which we wrap our function in:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">memoize :: ((Int, Int) -&gt; Int) -&gt; (Int, Int) -&gt; Int
+memoize fn mapKey = unsafePerformIO $ do
+  let cache = ref (Map.empty :: Map.Map (Int, Int) Int)
+  items &lt;- readIORef cache
+  if Map.lookup mapKey items == Nothing then do
+    let result = fn mapKey
+    writeIORef cache $  Map.insert mapKey result items
     return result
-  <span style="color:#66d9ef">else</span>
-    return (fromJust <span style="color:#f92672">$</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>lookup mapKey items)        
-        
-<span style="color:#a6e22e">knapsackCached</span> <span style="color:#f92672">::</span> [[<span style="color:#66d9ef">Int</span>]] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>
-<span style="color:#a6e22e">knapsackCached</span> rows weight numberOfItems <span style="color:#f92672">=</span> 
-  inner (numberOfItems<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, weight)
-  <span style="color:#66d9ef">where</span> inner <span style="color:#f92672">=</span> memoize (<span style="color:#a6e22e">\</span>(i,w) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">if</span> i <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">||</span> w <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#66d9ef">then</span> <span style="color:#ae81ff">0</span>
-                                   <span style="color:#66d9ef">else</span>
-                                     <span style="color:#66d9ef">let</span> best <span style="color:#f92672">=</span> inner (i<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>,w) 
-                                         (vi<span style="color:#66d9ef">:</span>wi<span style="color:#66d9ef">:</span><span style="color:#66d9ef">_</span>) <span style="color:#f92672">=</span> rows <span style="color:#f92672">!!</span> i <span style="color:#66d9ef">in</span> 
-                                     <span style="color:#66d9ef">if</span> wi <span style="color:#f92672">&gt;</span> w <span style="color:#66d9ef">then</span> best
-                                     <span style="color:#66d9ef">else</span> maximum [best, vi <span style="color:#f92672">+</span> inner (i<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, w<span style="color:#f92672">-</span>wi)]) 
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">let</span> (knapsackWeight, numberOfItems, rows) <span style="color:#f92672">=</span> process contents
-     cache <span style="color:#f92672">=</span> ref (<span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span>empty <span style="color:#f92672">::</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">.</span><span style="color:#66d9ef">Map</span> (<span style="color:#66d9ef">Int</span>, <span style="color:#66d9ef">Int</span>) <span style="color:#66d9ef">Int</span>)
-<span style="color:#a6e22e">knapsackCached</span> rows knapsackWeight numberOfItems
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-# First one
-$ time ./k knapsack2.txt 
+  else
+    return (fromJust $ Map.lookup mapKey items)
+
+knapsackCached :: [[Int]] -&gt; Int -&gt; Int -&gt; Int
+knapsackCached rows weight numberOfItems =
+  inner (numberOfItems-1, weight)
+  where inner = memoize (\(i,w) -&gt; if i &lt; 0 || w == 0 then 0
+                                   else
+                                     let best = inner (i-1,w)
+                                         (vi:wi:_) = rows !! i in
+                                     if wi &gt; w then best
+                                     else maximum [best, vi + inner (i-1, w-wi)])</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can call that function like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">let (knapsackWeight, numberOfItems, rows) = process contents
+     cache = ref (Map.empty :: Map.Map (Int, Int) Int)
+knapsackCached rows knapsackWeight numberOfItems</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we define an inner function inside <cite>knapsackCached</cite> which is a partial application of the memoize function. We then pass our cache key to that function on the previous line.</p>
+</div>
+<div class="paragraph">
+<p>One thing which I noticed while writing this code is that there is some strangeness around the use of 'in' after let statements. It seems like if you&#8217;re inside an if/else block you need to use 'in' unless you&#8217;re in the context of a Monad (do statement) in which case you don&#8217;t need to.</p>
+</div>
+<div class="paragraph">
+<p>I was staring a screen of compilation errors for about an hour until I realised this!</p>
+</div>
+<div class="paragraph">
+<p>These are the timings for the two versions of the algorithm:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"># First one
+$ time ./k knapsack2.txt
 real	0m14.993s user	0m14.646s sys	0m0.320s
 
 # Second one
-$ time ./k knapsack2.txt 
-real	0m12.594s user	0m12.259s sys	0m0.284s
-</code></pre></div><!-- raw HTML omitted -->
+$ time ./k knapsack2.txt
+real	0m12.594s user	0m12.259s sys	0m0.284s</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m still trying to understand exactly how to <a href="http://book.realworldhaskell.org/read/profiling-and-optimization.html">profile</a> <a href="http://www.haskell.org/haskellwiki/Performance/GHC">and</a> <a href="http://stackoverflow.com/questions/3276240/tools-for-analyzing-performance-of-a-haskell-program">then</a> <a href="http://www.haskell.org/ghc/docs/7.4.1/html/users_guide/runtime-control.html">optimise</a> the program so any tips are always welcome.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -287,7 +336,7 @@ real	0m12.594s user	0m12.259s sys	0m0.284s
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/01/09/knapsack-problem-in-haskell/&amp;title=Knapsack%20Problem%20in%20Haskell&amp;summary=ref%20%3a%3a%20a%20-%26gt%3b%20IORef%20a%20ref%20x%20%3d%20unsafePerformIO%20%28newIORef%20x%29%20knapsackCached1%20%3a%3a%20%5b%5bInt%5d%5d%20-%26gt%3b%20Int%20-%26gt%3b%20Int%20-%26gt%3b%20IORef%20%28Map.Map%20%28Int%2c%20Int%29%20Int%29%20-%26gt%3b%20Int%20knapsackCached1%20rows%20knapsackWeight%20index%20cacheContainer%20%3d%20unsafePerformIO%20%24%20do%20cache%20%26lt%3b-%20readIORef%20cacheContainer%20if%20index%20%3d%3d%200%20%7c%7c%20knapsackWeight%20%3d%3d%200%20then%20do%20return%200%20else%20let%20%28value%3aweight%3a_%29%20%3d%20rows%20%21%21%20index%20best%20%3d%20knapsackCached1%20rows%20knapsackWeight%20prevIndex%20cacheContainer%20in%20if%20weight%20%26gt%3b%20knapsackWeight%20%26amp%3b%26amp%3b%20lookupPreviousIn%20cache%20%3d%3d%20Nothing%20then%20do%20let%20updatedCache%20%3d%20Map...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/01/09/knapsack-problem-in-haskell/&amp;title=Knapsack%20Problem%20in%20Haskell&amp;summary=I%20recently%20described%20two%20versions%20of%20the%20Knapsack%20problem%20written%20in%20Ruby%20and%20Python%20and%20one%20common%20thing%20is%20that%20I%20used%20a%20global%20cache%20to%20store%20the%20results%20of%20previous%20calculations.%0a%20From%20my%20experience%20of%20coding%20in%20Haskell%20it%26%238217%3bs%20not%20considered%20very%20idiomatic%20to%20write%20code%20like%20that%20and%20although%20I%20haven%26%238217%3bt%20actually%20tried%20it%2c%20potentially%20more%20tricky%20to%20achieve.%0a%20I%20thought%20it%26%238217%3bd%20be%20interesting%20to%20try%20and%20write%20the%20algorithm%20in%20Haskell%20with%20that%20constraint%20in%20mind%20and%20my%20first%20version%20looked%20like%20this%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

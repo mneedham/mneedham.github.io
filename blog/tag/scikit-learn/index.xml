@@ -28,7 +28,9 @@
       <pubDate>Sun, 10 Dec 2017 07:55:43 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/12/10/scikit-learn-using-gridsearch-tune-hyper-parameters-votingclassifier/</guid>
-      <description>import pandas as pd from sklearn import linear_model from sklearn.ensemble import VotingClassifier from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline Y_COLUMN = &amp;#34;author&amp;#34; TEXT_COLUMN = &amp;#34;text&amp;#34; unigram_log_pipe = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer()), (&amp;#39;logreg&amp;#39;, linear_model.LogisticRegression()) ]) ngram_pipe = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer(ngram_range=(1, 2))), (&amp;#39;mnb&amp;#39;, MultinomialNB()) ]) tfidf_pipe = Pipeline([ (&amp;#39;tfidf&amp;#39;, TfidfVectorizer(min_df=3, max_features=None, strip_accents=&amp;#39;unicode&amp;#39;, analyzer=&amp;#39;word&amp;#39;, token_pattern=r&amp;#39;\w{1,}&amp;#39;, ngram_range=(1, 3), use_idf=1, smooth_idf=1, sublinear_tf=1, stop_words=&amp;#39;english&amp;#39;)), (&amp;#39;mnb&amp;#39;, MultinomialNB()) ]) classifiers = [ (&amp;#34;ngram&amp;#34;, ngram_pipe), (&amp;#34;unigram&amp;#34;, unigram_log_pipe), (&amp;#34;tfidf&amp;#34;, tfidf_pipe), ] mixed_pipe = Pipeline([ (&amp;#34;voting&amp;#34;, VotingClassifier(classifiers, voting=&amp;#34;soft&amp;#34;)) ]) from sklearn.</description>
+      <description>In my last blog post I showed how to create a multi class classification ensemble using scikit-learn&amp;#8217;s http://scikit-learn.org/stable/modules/ensemble.html#voting-classifier and finished mentioning that I didn&amp;#8217;t know which classifiers should be part of the ensemble.
+ We need to get a better score with each of the classifiers in the ensemble otherwise they can be excluded.
+ We have a TF/IDF based classifier as well as well as the classifiers I wrote about in the last post.</description>
     </item>
     
     <item>
@@ -37,7 +39,9 @@
       <pubDate>Tue, 05 Dec 2017 22:19:34 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/12/05/scikit-learn-building-multi-class-classification-ensemble/</guid>
-      <description>from sklearn import linear_model from sklearn.ensemble import VotingClassifier from sklearn.feature_extraction.text import CountVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline ngram_pipe = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer(ngram_range=(1, 2))), (&amp;#39;mnb&amp;#39;, MultinomialNB()) ]) unigram_log_pipe = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer()), (&amp;#39;logreg&amp;#39;, linear_model.LogisticRegression()) ]) classifiers = [ (&amp;#34;ngram&amp;#34;, ngram_pipe), (&amp;#34;unigram&amp;#34;, unigram_log_pipe), ] mixed_pipe = Pipeline([ (&amp;#34;voting&amp;#34;, VotingClassifier(classifiers, voting=&amp;#34;soft&amp;#34;)) ]) import pandas as pd import numpy as np from sklearn.model_selection import StratifiedKFold from sklearn import metrics Y_COLUMN = &amp;#34;author&amp;#34; TEXT_COLUMN = &amp;#34;text&amp;#34; def test_pipeline(df, nlp_pipeline): y = df[Y_COLUMN].</description>
+      <description>For the Kaggle Spooky Author Identification I wanted to combine multiple classifiers together into an ensemble and found the VotingClassifier that does exactly that.
+ We need to predict the probability that a sentence is written by one of three authors so the VotingClassifier needs to make a &#39;soft&#39; prediction. If we only needed to know the most likely author we could have it make a &#39;hard&#39; prediction instead.
+ We start with three classifiers which generate different n-gram based features.</description>
     </item>
     
     <item>
@@ -46,7 +50,10 @@
       <pubDate>Fri, 01 Dec 2017 15:26:36 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/12/01/python-learning-defaultdicts-handling-missing-keys/</guid>
-      <description>vocabulary = defaultdict() vocabulary.default_factory = vocabulary.__len__ &amp;gt;&amp;gt;&amp;gt; from collections import defaultdict &amp;gt;&amp;gt;&amp;gt; vocabulary = defaultdict() &amp;gt;&amp;gt;&amp;gt; vocabulary.default_factory = vocabulary.__len__ &amp;gt;&amp;gt;&amp;gt; vocabulary[&amp;#34;foo&amp;#34;] 0 &amp;gt;&amp;gt;&amp;gt; vocabulary.items() dict_items([(&amp;#39;foo&amp;#39;, 0)]) &amp;gt;&amp;gt;&amp;gt; vocabulary[&amp;#34;bar&amp;#34;] 1 &amp;gt;&amp;gt;&amp;gt; vocabulary.items() dict_items([(&amp;#39;foo&amp;#39;, 0), (&amp;#39;bar&amp;#39;, 1)]) &amp;gt;&amp;gt;&amp;gt; vocabulary[&amp;#34;baz&amp;#34;] = &amp;#34;Mark &amp;gt;&amp;gt;&amp;gt; vocabulary[&amp;#34;baz&amp;#34;] &amp;#39;Mark&amp;#39; &amp;gt;&amp;gt;&amp;gt; vocabulary[&amp;#34;python&amp;#34;] 3 &amp;gt;&amp;gt;&amp;gt; vocabulary.items() dict_items([(&amp;#39;foo&amp;#39;, 0), (&amp;#39;bar&amp;#39;, 1), (&amp;#39;baz&amp;#39;, &amp;#39;Mark&amp;#39;), (&amp;#39;python&amp;#39;, 3)]) &amp;#34;&amp;#34;&amp;#34; __missing__(key) # Called by __getitem__ for missing key; pseudo-code: if self.default_factory is None: raise KeyError((key,)) self[key] = value = self.</description>
+      <description>While reading the scikit-learn code I came across a bit of code that I didn&amp;#8217;t understand for a while but in retrospect is quite neat.
+ This is the code snippet that intrigued me:
+ vocabulary = defaultdict() vocabulary.default_factory = vocabulary.__len__   Let&amp;#8217;s quickly see how it works by adapting an example from scikit-learn:
+ &amp;gt;&amp;gt;&amp;gt; from collections import defaultdict &amp;gt;&amp;gt;&amp;gt; vocabulary = defaultdict() &amp;gt;&amp;gt;&amp;gt; vocabulary.default_factory = vocabulary.__len__ &amp;gt;&amp;gt;&amp;gt; vocabulary[&#34;</description>
     </item>
     
     <item>
@@ -55,7 +62,9 @@
       <pubDate>Wed, 29 Nov 2017 23:01:38 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/11/29/scikit-learn-creating-a-matrix-of-named-entity-counts/</guid>
-      <description>&amp;gt;&amp;gt;&amp;gt; from polyglot.text import Text &amp;gt;&amp;gt;&amp;gt; doc = &amp;#34;My name is David Beckham. Hello from London, England&amp;#34; &amp;gt;&amp;gt;&amp;gt; Text(doc, hint_language_code=&amp;#34;en&amp;#34;).entities [I-PER([&amp;#39;David&amp;#39;, &amp;#39;Beckham&amp;#39;]), I-LOC([&amp;#39;London&amp;#39;]), I-LOC([&amp;#39;England&amp;#39;])] &amp;gt;&amp;gt;&amp;gt; [&amp;#34;_&amp;#34;.join(entity) for entity in Text(doc, hint_language_code=&amp;#34;en&amp;#34;).entities] [&amp;#39;David_Beckham&amp;#39;, &amp;#39;London&amp;#39;, &amp;#39;England&amp;#39;] from sklearn.feature_extraction.text import CountVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline nlp_pipeline = Pipeline([ (&amp;#39;cv&amp;#39;, CountVectorizer(), (&amp;#39;mnb&amp;#39;, MultinomialNB()) ]) ... # Train and Test the model ... entities = {} def analyze(doc): if doc not in entities: entities[doc] = [&amp;#34;_&amp;#34;.</description>
+      <description>I&amp;#8217;ve been trying to improve my score on Kaggle&amp;#8217;s Spooky Author Identification competition, and my latest idea was building a model which used named entities extracted using the polyglot NLP library.
+ We&amp;#8217;ll start by learning how to extract entities form a sentence using polyglot which isn&amp;#8217;t too tricky:
+ &amp;gt;&amp;gt;&amp;gt; from polyglot.text import Text &amp;gt;&amp;gt;&amp;gt; doc = &#34;My name is David Beckham. Hello from London, England&#34; &amp;gt;&amp;gt;&amp;gt; Text(doc, hint_language_code=&#34;en&#34;).entities [I-PER([&#39;David&#39;, &#39;Beckham&#39;]), I-LOC([&#39;London&#39;]), I-LOC([&#39;England&#39;])]   This sentence contains three entities.</description>
     </item>
     
     <item>
@@ -64,7 +73,9 @@
       <pubDate>Fri, 16 Jun 2017 05:55:29 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2017/06/16/scikit-learn-random-forests-feature-importance/</guid>
-      <description>import numpy as np import pandas as pd from sklearn.ensemble import RandomForestRegressor from sklearn.model_selection import train_test_split # We&amp;#39;ll use this library to make the display pretty from tabulate import tabulate train = pd.read_csv(&amp;#39;train.csv&amp;#39;) # the model can only handle numeric values so filter out the rest data = train.select_dtypes(include=[np.number]).interpolate().dropna() y = train.SalePrice X = data.drop([&amp;#34;SalePrice&amp;#34;, &amp;#34;Id&amp;#34;], axis=1) X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=.33) clf = RandomForestRegressor(n_jobs=2, n_estimators=1000) model = clf.</description>
+      <description>As I mentioned in a blog post a couple of weeks ago, I&amp;#8217;ve been playing around with the Kaggle House Prices competition and the most recent thing I tried was training a random forest regressor.
+ Unfortunately, although it gave me better results locally it got a worse score on the unseen data, which I figured meant I&amp;#8217;d overfitted the model.
+ I wasn&amp;#8217;t really sure how to work out if that theory was true or not, but by chance I was reading Chris Albon&amp;#8217;s blog and found a post where he explains how to inspect the importance of every feature in a random forest.</description>
     </item>
     
     <item>
@@ -73,8 +84,8 @@
       <pubDate>Wed, 14 Sep 2016 05:33:38 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/09/14/scikit-learn-first-steps-with-log_loss/</guid>
-      <description>&amp;gt;&amp;gt;&amp;gt; actual_labels = [&amp;#34;bam&amp;#34;, &amp;#34;ham&amp;#34;, &amp;#34;spam&amp;#34;] &amp;gt;&amp;gt;&amp;gt; from sklearn.metrics import log_loss &amp;gt;&amp;gt;&amp;gt; log_loss(actual_labels, [[1, 0, 0], [0, 1, 0], [0, 0, 1]]) 2.1094237467877998e-15 &amp;gt;&amp;gt;&amp;gt; log_loss(actual_labels, [[0, 0, 1], [1, 0, 0], [0, 1, 0]]) 34.538776394910684 This means that the predicted probability for that given class would be less than exp(-1) or around 0.368.
-So, seeing a log loss greater than one can be expected in the cass that that your model only gives less than a 36% probability estimate for the correct class.</description>
+      <description>Over the last week I&amp;#8217;ve spent a little bit of time playing around with the data in the Kaggle TalkingData Mobile User Demographics competition, and came across a notebook written by dune_dweller showing how to run a logistic regression algorithm on the dataset.
+ The metric used to evaluate the output in this competition is multi class logarithmic loss, which is implemented by the http://scikit-learn.org/stable/modules/generated/sklearn.metrics.log_loss.html function in the scikit-learn library.</description>
     </item>
     
     <item>
@@ -83,9 +94,8 @@ So, seeing a log loss greater than one can be expected in the cass that that you
       <pubDate>Sat, 27 Aug 2016 20:32:09 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/27/scikit-learn-clustering-and-the-curse-of-dimensionality/</guid>
-      <description>But in very high-dimensional spaces, Euclidean distances tend to become inflated (this is an instance of the so-called “curse of dimensionality”).
-Running a dimensionality reduction algorithm such as PCA prior to k-means clustering can alleviate this problem and speed up the computations.
-from sklearn.metrics.pairwise import cosine_similarity import numpy as np def distances(a, b): return np.linalg.norm(a-b), cosine_similarity([a, b])[0][1] def mixed(n_zeros, n_ones): return np.concatenate((np.repeat([1], n_ones), np.repeat([0], n_zeros)), axis=0) def ones(n_ones): return np.repeat([1], n_ones) print distances(mixed(2, 2), ones(4)) print distances(mixed(3, 3), ones(6)) print distances(mixed(50, 50), ones(100)) print distances(mixed(300, 300), ones(600)) (1.</description>
+      <description>In my last post I attempted to cluster Game of Thrones episodes based on character appearances without much success. After I wrote that post I was flicking through the scikit-learn clustering documentation and noticed the following section which describes some of the weaknesses of the K-means clustering algorithm:
+  Inertia is not a normalized metric: we just know that lower values are better and zero is optimal. But in very high-dimensional spaces, Euclidean distances tend to become inflated (this is an instance of the so-called &amp;#8220;curse of dimensionality&amp;#8221;).</description>
     </item>
     
     <item>
@@ -94,7 +104,8 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Thu, 25 Aug 2016 22:07:25 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2016/08/25/scikit-learn-trying-to-find-clusters-of-game-of-thrones-episodes/</guid>
-      <description>&amp;gt;&amp;gt;&amp;gt; all.shape (60, 638) &amp;gt;&amp;gt;&amp;gt; all array([[0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], ..., [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0], [0, 0, 0, ..., 0, 0, 0]]) &amp;gt;&amp;gt;&amp;gt; from sklearn.cluster import KMeans &amp;gt;&amp;gt;&amp;gt; n_clusters = 3 &amp;gt;&amp;gt;&amp;gt; km = KMeans(n_clusters=n_clusters, init=&amp;#39;k-means++&amp;#39;, max_iter=100, n_init=1) &amp;gt;&amp;gt;&amp;gt; cluster_labels = km.fit_predict(all) &amp;gt;&amp;gt;&amp;gt; cluster_labels array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], dtype=int32) &amp;gt;&amp;gt;&amp;gt; import numpy as np &amp;gt;&amp;gt;&amp;gt; np.</description>
+      <description>In my last post I showed how to find similar Game of Thrones episodes based on the characters that appear in different episodes. This allowed us to find similar episodes on an episode by episode basis, but I was curious whether there were groups of similar episodes that we could identify.
+ scikit-learn provides several clustering algorithms that can run over our episode vectors and hopefully find clusters of similar episodes.</description>
     </item>
     
     <item>
@@ -103,7 +114,9 @@ from sklearn.metrics.pairwise import cosine_similarity import numpy as np def di
       <pubDate>Fri, 20 Feb 2015 22:42:59 +0000</pubDate>
       
       <guid>https://markhneedham.com/blog/2015/02/20/pythonscikit-learn-detecting-which-sentences-in-a-transcript-contain-a-speaker/</guid>
-      <description>&amp;lt;speaker&amp;gt;: &amp;lt;sentence&amp;gt; import json with open(&amp;#34;data/import/trained_sentences.json&amp;#34;, &amp;#34;r&amp;#34;) as json_file: json_data = json.load(json_file) &amp;gt;&amp;gt;&amp;gt; json_data[0] {u&amp;#39;words&amp;#39;: [{u&amp;#39;word&amp;#39;: u&amp;#39;You&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;ca&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#34;n&amp;#39;t&amp;#34;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;be&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;friends&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;with&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;Robin&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;.&amp;#39;, u&amp;#39;speaker&amp;#39;: False}]} &amp;gt;&amp;gt;&amp;gt; json_data[1] {u&amp;#39;words&amp;#39;: [{u&amp;#39;word&amp;#39;: u&amp;#39;Robin&amp;#39;, u&amp;#39;speaker&amp;#39;: True}, {u&amp;#39;word&amp;#39;: u&amp;#39;:&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;Well&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;...&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;it&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#34;&amp;#39;s&amp;#34;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;a&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;bit&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;early&amp;#39;, u&amp;#39;speaker&amp;#39;: False}, {u&amp;#39;word&amp;#39;: u&amp;#39;.</description>
+      <description>Over the past couple of months I&amp;#8217;ve been playing around with How I met your mother transcripts and the most recent thing I&amp;#8217;ve been working on is how to extract the speaker for a particular sentence.
+ This initially seemed like a really simple problem as most of the initial sentences I looked at weere structured like this:
+ &amp;lt;speaker&amp;gt;: &amp;lt;sentence&amp;gt;   If there were all in that format then we could write a simple regular expression and then move on but unfortunately they aren&amp;#8217;t.</description>
     </item>
     
   </channel>

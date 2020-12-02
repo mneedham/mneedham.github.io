@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Value in relationships, but value in nodes too!" />
         
-          <meta name="twitter:description" content="" />
+          <meta name="twitter:description" content="I&#8217;ve recently spent a bit of time working with people on their graph commons and a common pattern I&#8217;ve come across is that although the models have lots of relationships there are often missing nodes.
+ Emails We&#8217;ll start with a model which represents the emails that people send between each other. A first cut might look like this:
+   The problem with this approach is that we haven&#8217;t modelled the concept of an email - that&#8217;s been implicitly modelled via a relationship." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/02/13/neo4j-value-in-relationships-but-value-in-nodes-too/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j: Value in relationships, but value in nodes too! &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="" />
+        <meta name="description" content="I&#8217;ve recently spent a bit of time working with people on their graph commons and a common pattern I&#8217;ve come across is that although the models have lots of relationships there are often missing nodes.
+ Emails We&#8217;ll start with a model which represents the emails that people send between each other. A first cut might look like this:
+   The problem with this approach is that we haven&#8217;t modelled the concept of an email - that&#8217;s been implicitly modelled via a relationship." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-02-13",
-        "description": "",
-        "wordCount":  0 
+        "description": "I\x26#8217;ve recently spent a bit of time working with people on their graph commons and a common pattern I\x26#8217;ve come across is that although the models have lots of relationships there are often missing nodes.\n Emails We\x26#8217;ll start with a model which represents the emails that people send between each other. A first cut might look like this:\n   The problem with this approach is that we haven\x26#8217;t modelled the concept of an email - that\x26#8217;s been implicitly modelled via a relationship.",
+        "wordCount":  477 
     }
     </script>
     
@@ -172,35 +176,111 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Value in relationships, but value in nodes too!</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+    <div class="paragraph">
+<p>I&#8217;ve recently spent a bit of time working with people on their graph commons and a common pattern I&#8217;ve come across is that although the models have lots of relationships there are often missing nodes.</p>
+</div>
+<div class="sect1">
+<h2 id="_emails">Emails</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We&#8217;ll start with a model which represents the emails that people send between each other. A first cut might look like this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/02/2014-02-12_08-30-59.png" alt="2014 02 12 08 30 59" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>The problem with this approach is that we haven&#8217;t modelled the concept of <strong>an email</strong> - that&#8217;s been implicitly modelled via a relationship.</p>
+</div>
+<div class="paragraph">
+<p>This means that if we want to indicate who was cc&#8217;d or bcc&#8217;d on the email we can&#8217;t do it. We might also want to track the replies on a thread but again we can&#8217;t do it.</p>
+</div>
+<div class="paragraph">
+<p>A richer model that treated an email as a first class citizen would allow us to do both these things and would look like this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/02/2014-02-12_23-16-02.png" alt="2014 02 12 23 16 02" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>We could then write queries to get the chain of emails in a thread or find all the emails that a person was cc&#8217;d in - two queries that would be much more difficult to write if we don&#8217;t have the concept of an email.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_footballers_and_football_matches">Footballers and football matches</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Our <a href="http://www.markhneedham.com/blog/2013/10/22/neo4j-modelling-hyper-edges-in-a-property-graph/">second example come from my football dataset</a> and involves modelling the matches that players participated in.</p>
+</div>
+<div class="paragraph">
+<p>My first attempt looked like this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/02/2014-02-12_23-30-35.png" alt="2014 02 12 23 30 35" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>This works reasonably well but I wanted to be able to model which team a player had represented in a match which was quite difficult with this model.</p>
+</div>
+<div class="paragraph">
+<p>One approach would be to add a 'team' property to the 'PLAYED_IN' relationship but then we&#8217;d need to do some work at query time to work out which team node that property value referred to.</p>
+</div>
+<div class="paragraph">
+<p>Instead I realised that I was missing the concept of a <strong>player&#8217;s performance in a match</strong> which would make some queries much easier to write. The new model looks like this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/02/2014-02-12_23-37-28.png" alt="2014 02 12 23 37 28" width="600">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_tube">The tube</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The final example is modelling the London tube although this could apply to any transport system. Our initial model of part of the Northern Line might look like this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/02/2014-02-12_23-59-46.png" alt="2014 02 12 23 59 46" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>This model works really well and my colleague Rik has <a href="http://blog.bruggen.com/2013/11/meet-this-tubular-graph.html">written a blog post showing the queries you could write against it</a>.</p>
+</div>
+<div class="paragraph">
+<p>However, it&#8217;s missing the concept of a platform which means if we want to create a routing application which takes into account the amount of time it takes to move between different</p>
+</div>
+<div class="paragraph">
+<p>If we introduce a node to represent the different platforms in a station we can introduce that type of information:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/02/2014-02-13_00-04-06.png" alt="2014 02 13 00 04 06" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>In each of these examples we&#8217;ve effectively normalised our model by introducing an extra concept which means it looks more complicated.</p>
+</div>
+<div class="paragraph">
+<p>The benefit of this approach across all three examples is that it allows us to answer more complicated questions of our data which in my experience are the really interesting questions.</p>
+</div>
+<div class="paragraph">
+<p>As always, let me know what you think in the comments.</p>
+</div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -235,7 +315,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/02/13/neo4j-value-in-relationships-but-value-in-nodes-too/&amp;title=Neo4j%3a%20Value%20in%20relationships%2c%20but%20value%20in%20nodes%20too%21&amp;summary=..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/02/13/neo4j-value-in-relationships-but-value-in-nodes-too/&amp;title=Neo4j%3a%20Value%20in%20relationships%2c%20but%20value%20in%20nodes%20too%21&amp;summary=I%26%238217%3bve%20recently%20spent%20a%20bit%20of%20time%20working%20with%20people%20on%20their%20graph%20commons%20and%20a%20common%20pattern%20I%26%238217%3bve%20come%20across%20is%20that%20although%20the%20models%20have%20lots%20of%20relationships%20there%20are%20often%20missing%20nodes.%0a%20Emails%20We%26%238217%3bll%20start%20with%20a%20model%20which%20represents%20the%20emails%20that%20people%20send%20between%20each%20other.%20A%20first%20cut%20might%20look%20like%20this%3a%0a%20%20%20The%20problem%20with%20this%20approach%20is%20that%20we%20haven%26%238217%3bt%20modelled%20the%20concept%20of%20an%20email%20-%20that%26%238217%3bs%20been%20implicitly%20modelled%20via%20a%20relationship...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

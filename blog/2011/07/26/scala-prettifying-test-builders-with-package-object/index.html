@@ -22,9 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Scala: Prettifying test builders with package object" />
         
-          <meta name="twitter:description" content="We have several different test buildersin our code base which look roughly like this:
-case class FooBuilder(bar : String, baz : String) { def build = new Foo(bar, baz) } In our tests we originally used them like this:
-class FooPageTest extends Specs with ShouldMatchers { it(&#34;should let us load a foo&#34;) { when(databaseHas(FooBuilder(bar = &#34;Bar&#34;, baz = &#34;Bazz&#34;))) // and so on... 	} } This works well but we wanted our tests to only contain domain language and no implementation details." />
+          <meta name="twitter:description" content="We have several different test builders in our code base which look roughly like this:
+ case class FooBuilder(bar : String, baz : String) { def build = new Foo(bar, baz) }   In our tests we originally used them like this:
+ class FooPageTest extends Specs with ShouldMatchers { it(&#34;should let us load a foo&#34;) { when(databaseHas(FooBuilder(bar = &#34;Bar&#34;, baz = &#34;Bazz&#34;))) // and so on... } }   This works well but we wanted our tests to only contain domain language and no implementation details." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2011/07/26/scala-prettifying-test-builders-with-package-object/" />
 
@@ -35,9 +35,9 @@ class FooPageTest extends Specs with ShouldMatchers { it(&#34;should let us load
         <title> Scala: Prettifying test builders with package object &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="We have several different test buildersin our code base which look roughly like this:
-case class FooBuilder(bar : String, baz : String) { def build = new Foo(bar, baz) } In our tests we originally used them like this:
-class FooPageTest extends Specs with ShouldMatchers { it(&#34;should let us load a foo&#34;) { when(databaseHas(FooBuilder(bar = &#34;Bar&#34;, baz = &#34;Bazz&#34;))) // and so on... 	} } This works well but we wanted our tests to only contain domain language and no implementation details." />
+        <meta name="description" content="We have several different test builders in our code base which look roughly like this:
+ case class FooBuilder(bar : String, baz : String) { def build = new Foo(bar, baz) }   In our tests we originally used them like this:
+ class FooPageTest extends Specs with ShouldMatchers { it(&#34;should let us load a foo&#34;) { when(databaseHas(FooBuilder(bar = &#34;Bar&#34;, baz = &#34;Bazz&#34;))) // and so on... } }   This works well but we wanted our tests to only contain domain language and no implementation details." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +66,8 @@ class FooPageTest extends Specs with ShouldMatchers { it(&#34;should let us load
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2011-07-26",
-        "description": "We have several different test buildersin our code base which look roughly like this:\ncase class FooBuilder(bar : String, baz : String) { def build = new Foo(bar, baz) } In our tests we originally used them like this:\nclass FooPageTest extends Specs with ShouldMatchers { it(\x26#34;should let us load a foo\x26#34;) { when(databaseHas(FooBuilder(bar = \x26#34;Bar\x26#34;, baz = \x26#34;Bazz\x26#34;))) \/\/ and so on... \t} } This works well but we wanted our tests to only contain domain language and no implementation details.",
-        "wordCount":  268 
+        "description": "We have several different test builders in our code base which look roughly like this:\n case class FooBuilder(bar : String, baz : String) { def build = new Foo(bar, baz) }   In our tests we originally used them like this:\n class FooPageTest extends Specs with ShouldMatchers { it(\x22should let us load a foo\x22) { when(databaseHas(FooBuilder(bar = \x22Bar\x22, baz = \x22Bazz\x22))) \/\/ and so on... } }   This works well but we wanted our tests to only contain domain language and no implementation details.",
+        "wordCount":  274 
     }
     </script>
     
@@ -176,48 +176,81 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Scala: Prettifying test builders with package object</h1>
-    <p>We have several different <!-- raw HTML omitted -->test builders<!-- raw HTML omitted --> in our code base which look roughly like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FooBuilder</span><span style="color:#f92672">(</span>bar <span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">,</span> baz <span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-	<span style="color:#66d9ef">def</span> build <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Foo</span><span style="color:#f92672">(</span>bar<span style="color:#f92672">,</span> baz<span style="color:#f92672">)</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>In our tests we originally used them like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FooPageTest</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">Specs</span> <span style="color:#66d9ef">with</span> <span style="color:#a6e22e">ShouldMatchers</span> <span style="color:#f92672">{</span>
-	it<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;should let us load a foo&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-		when<span style="color:#f92672">(</span>databaseHas<span style="color:#f92672">(</span><span style="color:#a6e22e">FooBuilder</span><span style="color:#f92672">(</span>bar <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;Bar&#34;</span><span style="color:#f92672">,</span> baz <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;Bazz&#34;</span><span style="color:#f92672">)))</span>
-		<span style="color:#75715e">// and so on...
-</span><span style="color:#75715e"></span>	<span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>This works well but we wanted our tests to only contain domain language and no implementation details.</p>
+    <div class="paragraph">
+<p>We have several different <a href="http://www.natpryce.com/articles/000769.html">test builders</a> in our code base which look roughly like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">case class FooBuilder(bar : String, baz : String) {
+	def build = new Foo(bar, baz)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our tests we originally used them like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">class FooPageTest extends Specs with ShouldMatchers {
+	it("should let us load a foo") {
+		when(databaseHas(FooBuilder(bar = "Bar", baz = "Bazz")))
+		// and so on...
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This works well but we wanted our tests to only contain domain language and no implementation details.</p>
+</div>
+<div class="paragraph">
 <p>We therefore started pulling out methods like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FooPageTest</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">Specs</span> <span style="color:#66d9ef">with</span> <span style="color:#a6e22e">ShouldMatchers</span> <span style="color:#f92672">{</span>
-	it<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;should let us load a foo&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-		when<span style="color:#f92672">(</span>databaseHas<span style="color:#f92672">(</span>aFooWithBarAndBaz<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Bar&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Bazza&#34;</span><span style="color:#f92672">)))</span>
-		<span style="color:#75715e">// and so on...
-</span><span style="color:#75715e"></span>	<span style="color:#f92672">}</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">class FooPageTest extends Specs with ShouldMatchers {
+	it("should let us load a foo") {
+		when(databaseHas(aFooWithBarAndBaz("Bar", "Bazza")))
+		// and so on...
+	}
 
-	<span style="color:#66d9ef">def</span> aFooWithBarAndBaz<span style="color:#f92672">(</span>bar<span style="color:#66d9ef">:</span><span style="color:#66d9ef">String</span><span style="color:#f92672">,</span> baz<span style="color:#f92672">;</span><span style="color:#a6e22e">String</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">FooBuilder</span><span style="color:#f92672">(</span>bar <span style="color:#66d9ef">=</span> bar<span style="color:#f92672">,</span> baz <span style="color:#66d9ef">=</span> baz<span style="color:#f92672">)</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>This was fine to start with but we eventually ended up with 10-12 different variations oh how <!-- raw HTML omitted -->Foo<!-- raw HTML omitted --> could be constructed, negating the value that the builder pattern provides.</p>
-<p>Instead what we can do is use of an alias of <!-- raw HTML omitted -->FooBuilder<!-- raw HTML omitted --> to achieve something equally readable:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">package</span> object <span style="color:#a6e22e">TestSugar</span> <span style="color:#f92672">{</span>
-	<span style="color:#66d9ef">val</span> aFooWith <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">FooBuilder</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>We can then use <!-- raw HTML omitted -->aFooWith<!-- raw HTML omitted --> like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">
-<span style="color:#66d9ef">import</span> TestSugar._
+	def aFooWithBarAndBaz(bar:String, baz;String) = FooBuilder(bar = bar, baz = baz)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This was fine to start with but we eventually ended up with 10-12 different variations oh how <cite>Foo</cite> could be constructed, negating the value that the builder pattern provides.</p>
+</div>
+<div class="paragraph">
+<p>Instead what we can do is use of an alias of <cite>FooBuilder</cite> to achieve something equally readable:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">package object TestSugar {
+	val aFooWith = FooBuilder
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can then use <cite>aFooWith</cite> like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-scala" data-lang="scala">import TestSugar._
 
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FooPageTest</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">Specs</span> <span style="color:#66d9ef">with</span> <span style="color:#a6e22e">ShouldMatchers</span> <span style="color:#f92672">{</span>
-	it<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;should let us load a foo&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-		when<span style="color:#f92672">(</span>databaseHas<span style="color:#f92672">(</span>aFooWith<span style="color:#f92672">(</span>bar <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;Bar&#34;</span><span style="color:#f92672">,</span> baz <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;Bazza&#34;</span><span style="color:#f92672">)))</span>
-		<span style="color:#75715e">// and so on...
-</span><span style="color:#75715e"></span>	<span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>We could also achieve that by renaming <!-- raw HTML omitted -->FooBuilder<!-- raw HTML omitted --> to <!-- raw HTML omitted -->aFooWith<!-- raw HTML omitted --> but that makes it much less discoverable whereas this solution lets us achieve both goals.</p>
-<p>The package object approach isn&rsquo;t really needed - we could easily put those vals onto an Object or Class but they don&rsquo;t really seem to belong to any which is why we&rsquo;ve gone for this approach.</p>
+class FooPageTest extends Specs with ShouldMatchers {
+	it("should let us load a foo") {
+		when(databaseHas(aFooWith(bar = "Bar", baz = "Bazza")))
+		// and so on...
+	}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We could also achieve that by renaming <cite>FooBuilder</cite> to <cite>aFooWith</cite> but that makes it much less discoverable whereas this solution lets us achieve both goals.</p>
+</div>
+<div class="paragraph">
+<p>The package object approach isn&#8217;t really needed - we could easily put those vals onto an Object or Class but they don&#8217;t really seem to belong to any which is why we&#8217;ve gone for this approach.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -252,7 +285,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/07/26/scala-prettifying-test-builders-with-package-object/&amp;title=Scala%3a%20Prettifying%20test%20builders%20with%20package%20object&amp;summary=We%20have%20several%20different%20test%20buildersin%20our%20code%20base%20which%20look%20roughly%20like%20this%3a%0acase%20class%20FooBuilder%28bar%20%3a%20String%2c%20baz%20%3a%20String%29%20%7b%20def%20build%20%3d%20new%20Foo%28bar%2c%20baz%29%20%7d%20In%20our%20tests%20we%20originally%20used%20them%20like%20this%3a%0aclass%20FooPageTest%20extends%20Specs%20with%20ShouldMatchers%20%7b%20it%28%26%2334%3bshould%20let%20us%20load%20a%20foo%26%2334%3b%29%20%7b%20when%28databaseHas%28FooBuilder%28bar%20%3d%20%26%2334%3bBar%26%2334%3b%2c%20baz%20%3d%20%26%2334%3bBazz%26%2334%3b%29%29%29%20%2f%2f%20and%20so%20on...%20%09%7d%20%7d%20This%20works%20well%20but%20we%20wanted%20our%20tests%20to%20only%20contain%20domain%20language%20and%20no%20implementation%20details...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/07/26/scala-prettifying-test-builders-with-package-object/&amp;title=Scala%3a%20Prettifying%20test%20builders%20with%20package%20object&amp;summary=We%20have%20several%20different%20test%20builders%20in%20our%20code%20base%20which%20look%20roughly%20like%20this%3a%0a%20case%20class%20FooBuilder%28bar%20%3a%20String%2c%20baz%20%3a%20String%29%20%7b%20def%20build%20%3d%20new%20Foo%28bar%2c%20baz%29%20%7d%20%20%20In%20our%20tests%20we%20originally%20used%20them%20like%20this%3a%0a%20class%20FooPageTest%20extends%20Specs%20with%20ShouldMatchers%20%7b%20it%28%22should%20let%20us%20load%20a%20foo%22%29%20%7b%20when%28databaseHas%28FooBuilder%28bar%20%3d%20%22Bar%22%2c%20baz%20%3d%20%22Bazz%22%29%29%29%20%2f%2f%20and%20so%20on...%20%7d%20%7d%20%20%20This%20works%20well%20but%20we%20wanted%20our%20tests%20to%20only%20contain%20domain%20language%20and%20no%20implementation%20details...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Refactoring to pattern matching" />
         
-          <meta name="twitter:description" content="I was looking through some of the F# code I&rsquo;ve written recently and I realised that I was very much writing C# in F# with respect to the number of if statements I&rsquo;ve been using.
-I thought it would be interesting to see what the code would look like if I was able to refactor some of that code to make use of pattern matching instead which would be a more idiomatic way of solving the problem in F#." />
+          <meta name="twitter:description" content="I was looking through some of the F# code I&#8217;ve written recently and I realised that I was very much writing C# in F# with respect to the number of if statements I&#8217;ve been using.
+ I thought it would be interesting to see what the code would look like if I was able to refactor some of that code to make use of pattern matching instead which would be a more idiomatic way of solving the problem in F#." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/01/12/f-refactoring-to-pattern-matching/" />
 
@@ -34,8 +34,8 @@ I thought it would be interesting to see what the code would look like if I was 
         <title> F#: Refactoring to pattern matching &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I was looking through some of the F# code I&rsquo;ve written recently and I realised that I was very much writing C# in F# with respect to the number of if statements I&rsquo;ve been using.
-I thought it would be interesting to see what the code would look like if I was able to refactor some of that code to make use of pattern matching instead which would be a more idiomatic way of solving the problem in F#." />
+        <meta name="description" content="I was looking through some of the F# code I&#8217;ve written recently and I realised that I was very much writing C# in F# with respect to the number of if statements I&#8217;ve been using.
+ I thought it would be interesting to see what the code would look like if I was able to refactor some of that code to make use of pattern matching instead which would be a more idiomatic way of solving the problem in F#." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,7 +64,7 @@ I thought it would be interesting to see what the code would look like if I was 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-12",
-        "description": "I was looking through some of the F# code I\x26rsquo;ve written recently and I realised that I was very much writing C# in F# with respect to the number of if statements I\x26rsquo;ve been using.\nI thought it would be interesting to see what the code would look like if I was able to refactor some of that code to make use of pattern matching instead which would be a more idiomatic way of solving the problem in F#.",
+        "description": "I was looking through some of the F# code I\x26#8217;ve written recently and I realised that I was very much writing C# in F# with respect to the number of if statements I\x26#8217;ve been using.\n I thought it would be interesting to see what the code would look like if I was able to refactor some of that code to make use of pattern matching instead which would be a more idiomatic way of solving the problem in F#.",
         "wordCount":  526 
     }
     </script>
@@ -174,58 +174,109 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Refactoring to pattern matching</h1>
-    <p>I was looking through some of the F# code I&rsquo;ve written recently and I realised that I was very much writing C# in F# with respect to the number of if statements I&rsquo;ve been using.</p>
+    <div class="paragraph">
+<p>I was looking through some of the F# code I&#8217;ve written recently and I realised that I was very much writing C# in F# with respect to the number of if statements I&#8217;ve been using.</p>
+</div>
+<div class="paragraph">
 <p>I thought it would be interesting to see what the code would look like if I was able to refactor some of that code to make use of pattern matching instead which would be a more idiomatic way of solving the problem in F#.</p>
-<p>The first example of if statements is in <!-- raw HTML omitted -->my post about my F# solution to Roy Osherove&rsquo;s TDD Kata<!-- raw HTML omitted -->.</p>
-<p>I originally wrote a parse function which was able to parse a string and give it&rsquo;s decimal value or 0 if it couldn&rsquo;t be parsed.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> parse <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> 
-    <span style="color:#66d9ef">let</span> <span style="color:#f92672">(</span>itParsed<span style="color:#f92672">,</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> Decimal.<span style="color:#a6e22e">TryParse</span> <span style="color:#66d9ef">value</span>
-    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>itParsed<span style="color:#f92672">)</span> <span style="color:#66d9ef">then</span> <span style="color:#66d9ef">value</span> <span style="color:#66d9ef">else</span> 0<span style="color:#f92672">.</span>0m
-</code></pre></div><p>If we use a pattern match expression we&rsquo;d end up with the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> parse <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span> Decimal.<span style="color:#a6e22e">TryParse</span> <span style="color:#66d9ef">value</span> <span style="color:#66d9ef">with</span> <span style="color:#f92672">|</span> <span style="color:#f92672">(</span>true<span style="color:#f92672">,</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">value</span> <span style="color:#f92672">|</span> <span style="color:#f92672">(</span>false<span style="color:#f92672">,</span> <span style="color:#f92672">_)</span> <span style="color:#f92672">-&gt;</span> 0<span style="color:#f92672">.</span>0m
-</code></pre></div><p>The neat thing about this approach is that we don&rsquo;t need to store the result of the &lsquo;Decimal.TryParse&rsquo; function as we did in my original version.</p>
-<p>We could in theory also write it like this&hellip;</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> parse <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span> Decimal.<span style="color:#a6e22e">TryParse</span> <span style="color:#66d9ef">value</span> <span style="color:#66d9ef">with</span> <span style="color:#f92672">|</span> <span style="color:#f92672">(</span>true<span style="color:#f92672">,</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">value</span> <span style="color:#f92672">|</span> <span style="color:#f92672">(_,</span> <span style="color:#f92672">_)</span> <span style="color:#f92672">-&gt;</span> 0<span style="color:#f92672">.</span>0m
-</code></pre></div><p>&hellip;but while that is slightly less code I quite like the other version because it&rsquo;s a bit more intention revealing that 0 will be returned if we fail to parse the string. I think there&rsquo;s less thinking needed to understand the code.</p>
+</div>
+<div class="paragraph">
+<p>The first example of if statements is in <a href="http://www.markhneedham.com/blog/2010/01/10/roy-osheroves-tdd-kata-an-f-attempt/">my post about my F# solution to Roy Osherove&#8217;s TDD Kata</a>.</p>
+</div>
+<div class="paragraph">
+<p>I originally wrote a parse function which was able to parse a string and give it&#8217;s decimal value or 0 if it couldn&#8217;t be parsed.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let parse value =
+    let (itParsed, value) = Decimal.TryParse value
+    if (itParsed) then value else 0.0m</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we use a pattern match expression we&#8217;d end up with the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let parse value = match Decimal.TryParse value with | (true, value) -&gt; value | (false, _) -&gt; 0.0m</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The neat thing about this approach is that we don&#8217;t need to store the result of the 'Decimal.TryParse' function as we did in my original version.</p>
+</div>
+<div class="paragraph">
+<p>We could in theory also write it like this&#8230;&#8203;</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let parse value = match Decimal.TryParse value with | (true, value) -&gt; value | (_, _) -&gt; 0.0m</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>&#8230;&#8203;but while that is slightly less code I quite like the other version because it&#8217;s a bit more intention revealing that 0 will be returned if we fail to parse the string. I think there&#8217;s less thinking needed to understand the code.</p>
+</div>
+<div class="paragraph">
 <p>Another example is this bit of code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> add <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">)</span> <span style="color:#f92672">or</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">))</span> <span style="color:#66d9ef">then</span> 0<span style="color:#f92672">.</span>0m
-                <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">match</span> digits <span style="color:#66d9ef">value</span> <span style="color:#f92672">|&gt;</span> Array.filter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x <span style="color:#f92672">&lt;</span> 1000m<span style="color:#f92672">)</span> <span style="color:#66d9ef">with</span> 
-                     <span style="color:#f92672">|</span> <span style="color:#a6e22e">ContainsNegatives</span><span style="color:#f92672">(</span>negatives<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">raise</span> <span style="color:#f92672">(</span><span style="color:#a6e22e">ArgumentException</span> <span style="color:#f92672">(</span>buildExceptionMessage negatives<span style="color:#f92672">))</span>
-                     <span style="color:#f92672">|</span> <span style="color:#a6e22e">NoNegatives</span><span style="color:#f92672">(</span>digits<span style="color:#f92672">)</span>          <span style="color:#f92672">-&gt;</span> digits <span style="color:#f92672">|&gt;</span> Array.sum
-</code></pre></div><p>If we convert that to use pattern matching we would get this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> add <span style="color:#66d9ef">value</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span> <span style="color:#66d9ef">value</span> <span style="color:#66d9ef">with</span>
-                <span style="color:#f92672">|</span> <span style="color:#e6db74">&#34;&#34;</span> <span style="color:#f92672">-&gt;</span> 0<span style="color:#f92672">.</span>0m
-                <span style="color:#f92672">|</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">-&gt;</span> 0<span style="color:#f92672">.</span>0m
-                <span style="color:#f92672">|</span> <span style="color:#66d9ef">value</span> <span style="color:#f92672">-&gt;</span>  <span style="color:#66d9ef">match</span> digits <span style="color:#66d9ef">value</span> <span style="color:#f92672">|&gt;</span> Array.filter <span style="color:#f92672">(</span><span style="color:#66d9ef">fun</span> x <span style="color:#f92672">-&gt;</span> x <span style="color:#f92672">&lt;</span> 1000m<span style="color:#f92672">)</span> <span style="color:#66d9ef">with</span> 
-                            <span style="color:#f92672">|</span> <span style="color:#a6e22e">ContainsNegatives</span><span style="color:#f92672">(</span>negatives<span style="color:#f92672">)</span> <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">raise</span> <span style="color:#f92672">(</span><span style="color:#a6e22e">ArgumentException</span> <span style="color:#f92672">(</span>buildExceptionMessage negatives<span style="color:#f92672">))</span>
-                            <span style="color:#f92672">|</span> <span style="color:#a6e22e">NoNegatives</span><span style="color:#f92672">(</span>digits<span style="color:#f92672">)</span>          <span style="color:#f92672">-&gt;</span> digits <span style="color:#f92672">|&gt;</span> Array.sum
-</code></pre></div><p>That&rsquo;s maybe slightly easier to read mainly because of the splitting up of the two inputs which lead to a 0 result.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let add value = if ("".Equals(value) or "\n".Equals(value)) then 0.0m
+                else match digits value |&gt; Array.filter (fun x -&gt; x &lt; 1000m) with
+                     | ContainsNegatives(negatives) -&gt; raise (ArgumentException (buildExceptionMessage negatives))
+                     | NoNegatives(digits)          -&gt; digits |&gt; Array.sum</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we convert that to use pattern matching we would get this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let add value = match value with
+                | "" -&gt; 0.0m
+                | "\n" -&gt; 0.0m
+                | value -&gt;  match digits value |&gt; Array.filter (fun x -&gt; x &lt; 1000m) with
+                            | ContainsNegatives(negatives) -&gt; raise (ArgumentException (buildExceptionMessage negatives))
+                            | NoNegatives(digits)          -&gt; digits |&gt; Array.sum</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s maybe slightly easier to read mainly because of the splitting up of the two inputs which lead to a 0 result.</p>
+</div>
+<div class="paragraph">
 <p>The final example of using if statements is the following bit of code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> <span style="color:#f92672">(|</span><span style="color:#a6e22e">CustomDelimeter</span><span style="color:#f92672">|</span><span style="color:#a6e22e">NoCustomDelimeter</span><span style="color:#f92672">|)</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 
-	<span style="color:#f92672">...</span>
- 
-     <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Length</span> <span style="color:#f92672">&gt;</span> 2 <span style="color:#f92672">&amp;&amp;</span> <span style="color:#e6db74">&#34;//&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 2<span style="color:#f92672">)))</span> <span style="color:#66d9ef">then</span>
-         <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;[&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span>1<span style="color:#f92672">)))</span> <span style="color:#66d9ef">then</span> <span style="color:#a6e22e">CustomDelimeter</span><span style="color:#f92672">(</span>delimeters <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span>
-         <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">CustomDelimeter</span><span style="color:#f92672">([|</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">-</span> 2<span style="color:#f92672">)</span> <span style="color:#f92672">|])</span>
-     <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">NoCustomDelimeter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">)</span> 
-</code></pre></div><p>The only way I could see how to make this use active patterns is on the boolean statements like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> <span style="color:#f92672">(|</span><span style="color:#a6e22e">CustomDelimeter</span><span style="color:#f92672">|</span><span style="color:#a6e22e">NoCustomDelimeter</span><span style="color:#f92672">|)</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">:</span><span style="color:#66d9ef">string</span><span style="color:#f92672">)</span> <span style="color:#f92672">=</span> 
-	<span style="color:#f92672">...</span>
- 
-    <span style="color:#66d9ef">match</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Length</span> <span style="color:#f92672">&gt;</span> 2 <span style="color:#f92672">&amp;&amp;</span> <span style="color:#e6db74">&#34;//&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>0<span style="color:#f92672">,</span> 2<span style="color:#f92672">)))</span> <span style="color:#66d9ef">with</span>
-    <span style="color:#f92672">|</span> true <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">match</span> <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;[&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Equals</span><span style="color:#f92672">(</span><span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span>1<span style="color:#f92672">)))</span> <span style="color:#66d9ef">with</span> 
-              <span style="color:#f92672">|</span> true  <span style="color:#f92672">-&gt;</span>  <span style="color:#a6e22e">CustomDelimeter</span><span style="color:#f92672">(</span>delimeters <span style="color:#66d9ef">value</span><span style="color:#f92672">)</span>
-              <span style="color:#f92672">|</span> false <span style="color:#f92672">-&gt;</span>  <span style="color:#a6e22e">CustomDelimeter</span><span style="color:#f92672">([|</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Substring</span><span style="color:#f92672">(</span>2<span style="color:#f92672">,</span> <span style="color:#66d9ef">value</span><span style="color:#f92672">.</span><span style="color:#a6e22e">IndexOf</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">-</span> 2<span style="color:#f92672">)</span> <span style="color:#f92672">|])</span>
-    <span style="color:#f92672">|</span> false <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">NoCustomDelimeter</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">)</span> 
-</code></pre></div><p>I quite like that it lines up the return values of the active pattern which seems to make it a bit more readable.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let (|CustomDelimeter|NoCustomDelimeter|) (value:string) =
+	...
+
+     if (value.Length &gt; 2 &amp;&amp; "//".Equals(value.Substring(0, 2))) then
+         if ("[".Equals(value.Substring(2,1))) then CustomDelimeter(delimeters value)
+         else CustomDelimeter([| value.Substring(2, value.IndexOf("\n") - 2) |])
+     else NoCustomDelimeter(",")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only way I could see how to make this use active patterns is on the boolean statements like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let (|CustomDelimeter|NoCustomDelimeter|) (value:string) =
+	...
+
+    match (value.Length &gt; 2 &amp;&amp; "//".Equals(value.Substring(0, 2))) with
+    | true -&gt; match ("[".Equals(value.Substring(2,1))) with
+              | true  -&gt;  CustomDelimeter(delimeters value)
+              | false -&gt;  CustomDelimeter([| value.Substring(2, value.IndexOf("\n") - 2) |])
+    | false -&gt; NoCustomDelimeter(",")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I quite like that it lines up the return values of the active pattern which seems to make it a bit more readable.</p>
+</div>
+<div class="paragraph">
 <p>I think overall maybe the pattern matching versions are slightly more readable but maybe not by much. What do you think?</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -260,7 +311,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/12/f-refactoring-to-pattern-matching/&amp;title=F%23%3a%20Refactoring%20to%20pattern%20matching&amp;summary=I%20was%20looking%20through%20some%20of%20the%20F%23%20code%20I%26rsquo%3bve%20written%20recently%20and%20I%20realised%20that%20I%20was%20very%20much%20writing%20C%23%20in%20F%23%20with%20respect%20to%20the%20number%20of%20if%20statements%20I%26rsquo%3bve%20been%20using.%0aI%20thought%20it%20would%20be%20interesting%20to%20see%20what%20the%20code%20would%20look%20like%20if%20I%20was%20able%20to%20refactor%20some%20of%20that%20code%20to%20make%20use%20of%20pattern%20matching%20instead%20which%20would%20be%20a%20more%20idiomatic%20way%20of%20solving%20the%20problem%20in%20F%23...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/12/f-refactoring-to-pattern-matching/&amp;title=F%23%3a%20Refactoring%20to%20pattern%20matching&amp;summary=I%20was%20looking%20through%20some%20of%20the%20F%23%20code%20I%26%238217%3bve%20written%20recently%20and%20I%20realised%20that%20I%20was%20very%20much%20writing%20C%23%20in%20F%23%20with%20respect%20to%20the%20number%20of%20if%20statements%20I%26%238217%3bve%20been%20using.%0a%20I%20thought%20it%20would%20be%20interesting%20to%20see%20what%20the%20code%20would%20look%20like%20if%20I%20was%20able%20to%20refactor%20some%20of%20that%20code%20to%20make%20use%20of%20pattern%20matching%20instead%20which%20would%20be%20a%20more%20idiomatic%20way%20of%20solving%20the%20problem%20in%20F%23...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Northwind: Finding direct/transitive Reports in SQL and Neo4j&#39;s Cypher" />
         
-          <meta name="twitter:description" content="SELECT e.&#34;EmployeeID&#34;, e.&#34;ReportsTo&#34; FROM employees AS e WHERE e.&#34;ReportsTo&#34; is not null; EmployeeID | ReportsTo ------------&#43;-----------  1 | 2 3 | 2 4 | 2 5 | 2 6 | 5 7 | 5 8 | 2 9 | 5 (8 rows) MATCH (e:Employee)&lt;-[:REPORTS_TO]-(sub) RETURN sub.EmployeeID, e.EmployeeID &#43;-------------------------------&#43; | sub.EmployeeID | e.EmployeeID | &#43;-------------------------------&#43; | &quot;4&quot; | &quot;2&quot; | | &quot;5&quot; | &quot;2&quot; | | &quot;1&quot; | &quot;2&quot; | | &quot;3&quot; | &quot;2&quot; | | &quot;8&quot; | &quot;2&quot; | | &quot;9&quot; | &quot;5&quot; | | &quot;6&quot; | &quot;5&quot; | | &quot;7&quot; | &quot;5&quot; | &#43;-------------------------------&#43; 8 rows SELECT e." />
+          <meta name="twitter:description" content="Every few months we run a relational to graph meetup at the Neo London office where we go through how to take your data from a relational database and into the graph.
+ We use the Northwind dataset which often comes as a demo dataset on relational databases and come up with some queries which seem graph in nature.
+ My favourite query is one which finds out how employees are organised and who reports to whom." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/06/15/northwind-finding-directtransitive-reports-in-sql-and-neo4js-cypher/" />
 
@@ -33,7 +35,9 @@
         <title> Northwind: Finding direct/transitive Reports in SQL and Neo4j&#39;s Cypher &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="SELECT e.&#34;EmployeeID&#34;, e.&#34;ReportsTo&#34; FROM employees AS e WHERE e.&#34;ReportsTo&#34; is not null; EmployeeID | ReportsTo ------------&#43;-----------  1 | 2 3 | 2 4 | 2 5 | 2 6 | 5 7 | 5 8 | 2 9 | 5 (8 rows) MATCH (e:Employee)&lt;-[:REPORTS_TO]-(sub) RETURN sub.EmployeeID, e.EmployeeID &#43;-------------------------------&#43; | sub.EmployeeID | e.EmployeeID | &#43;-------------------------------&#43; | &quot;4&quot; | &quot;2&quot; | | &quot;5&quot; | &quot;2&quot; | | &quot;1&quot; | &quot;2&quot; | | &quot;3&quot; | &quot;2&quot; | | &quot;8&quot; | &quot;2&quot; | | &quot;9&quot; | &quot;5&quot; | | &quot;6&quot; | &quot;5&quot; | | &quot;7&quot; | &quot;5&quot; | &#43;-------------------------------&#43; 8 rows SELECT e." />
+        <meta name="description" content="Every few months we run a relational to graph meetup at the Neo London office where we go through how to take your data from a relational database and into the graph.
+ We use the Northwind dataset which often comes as a demo dataset on relational databases and come up with some queries which seem graph in nature.
+ My favourite query is one which finds out how employees are organised and who reports to whom." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-06-15",
-        "description": "SELECT e.\x26#34;EmployeeID\x26#34;, e.\x26#34;ReportsTo\x26#34; FROM employees AS e WHERE e.\x26#34;ReportsTo\x26#34; is not null; EmployeeID | ReportsTo ------------\x2b-----------  1 | 2 3 | 2 4 | 2 5 | 2 6 | 5 7 | 5 8 | 2 9 | 5 (8 rows) MATCH (e:Employee)\x26lt;-[:REPORTS_TO]-(sub) RETURN sub.EmployeeID, e.EmployeeID \x2b-------------------------------\x2b | sub.EmployeeID | e.EmployeeID | \x2b-------------------------------\x2b | \x26quot;4\x26quot; | \x26quot;2\x26quot; | | \x26quot;5\x26quot; | \x26quot;2\x26quot; | | \x26quot;1\x26quot; | \x26quot;2\x26quot; | | \x26quot;3\x26quot; | \x26quot;2\x26quot; | | \x26quot;8\x26quot; | \x26quot;2\x26quot; | | \x26quot;9\x26quot; | \x26quot;5\x26quot; | | \x26quot;6\x26quot; | \x26quot;5\x26quot; | | \x26quot;7\x26quot; | \x26quot;5\x26quot; | \x2b-------------------------------\x2b 8 rows SELECT e.",
-        "wordCount":  647 
+        "description": "Every few months we run a relational to graph meetup at the Neo London office where we go through how to take your data from a relational database and into the graph.\n We use the Northwind dataset which often comes as a demo dataset on relational databases and come up with some queries which seem graph in nature.\n My favourite query is one which finds out how employees are organised and who reports to whom.",
+        "wordCount":  939 
     }
     </script>
     
@@ -172,174 +176,230 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Northwind: Finding direct/transitive Reports in SQL and Neo4j&#39;s Cypher</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">SELECT</span> e.<span style="color:#e6db74">&#34;EmployeeID&#34;</span>, e.<span style="color:#e6db74">&#34;ReportsTo&#34;</span>
-<span style="color:#66d9ef">FROM</span> employees <span style="color:#66d9ef">AS</span> e
-<span style="color:#66d9ef">WHERE</span> e.<span style="color:#e6db74">&#34;ReportsTo&#34;</span> <span style="color:#66d9ef">is</span> <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span>;
+    <div class="paragraph">
+<p>Every few months we run a <a href="http://www.meetup.com/graphdb-london/events/222398828/">relational to graph meetup</a> at the Neo London office where we go through how to take your data from a relational database and into the graph.</p>
+</div>
+<div class="paragraph">
+<p>We use the <a href="https://code.google.com/p/northwindextended/downloads/detail?name=northwind.postgre.sql">Northwind dataset</a> which often comes as a demo dataset on relational databases and come up with some queries which seem graph in nature.</p>
+</div>
+<div class="paragraph">
+<p>My favourite query is one which finds out how employees are organised and who reports to whom. I thought it&#8217;d be quite interesting to see what it would look like in Postgres SQL as well, just for fun.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll start off by getting a list of employees and the person they report to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT e."EmployeeID", e."ReportsTo"
+FROM employees AS e
+WHERE e."ReportsTo" is not null;
 
- EmployeeID <span style="color:#f92672">|</span> ReportsTo
-<span style="color:#75715e">------------+-----------
-</span><span style="color:#75715e"></span>          <span style="color:#ae81ff">1</span> <span style="color:#f92672">|</span>         <span style="color:#ae81ff">2</span>
-          <span style="color:#ae81ff">3</span> <span style="color:#f92672">|</span>         <span style="color:#ae81ff">2</span>
-          <span style="color:#ae81ff">4</span> <span style="color:#f92672">|</span>         <span style="color:#ae81ff">2</span>
-          <span style="color:#ae81ff">5</span> <span style="color:#f92672">|</span>         <span style="color:#ae81ff">2</span>
-          <span style="color:#ae81ff">6</span> <span style="color:#f92672">|</span>         <span style="color:#ae81ff">5</span>
-          <span style="color:#ae81ff">7</span> <span style="color:#f92672">|</span>         <span style="color:#ae81ff">5</span>
-          <span style="color:#ae81ff">8</span> <span style="color:#f92672">|</span>         <span style="color:#ae81ff">2</span>
-          <span style="color:#ae81ff">9</span> <span style="color:#f92672">|</span>         <span style="color:#ae81ff">5</span>
-(<span style="color:#ae81ff">8</span> <span style="color:#66d9ef">rows</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (e:Employee)&lt;-[:REPORTS_TO]-(sub)
-RETURN sub.EmployeeID, e.EmployeeID 
+ EmployeeID | ReportsTo
+------------+-----------
+          1 |         2
+          3 |         2
+          4 |         2
+          5 |         2
+          6 |         5
+          7 |         5
+          8 |         2
+          9 |         5
+(8 rows)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In cypher we&#8217;d do this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (e:Employee)&lt;-[:REPORTS_TO]-(sub)
+RETURN sub.EmployeeID, e.EmployeeID
 
 +-------------------------------+
 | sub.EmployeeID | e.EmployeeID |
 +-------------------------------+
-| &quot;4&quot;            | &quot;2&quot;          |
-| &quot;5&quot;            | &quot;2&quot;          |
-| &quot;1&quot;            | &quot;2&quot;          |
-| &quot;3&quot;            | &quot;2&quot;          |
-| &quot;8&quot;            | &quot;2&quot;          |
-| &quot;9&quot;            | &quot;5&quot;          |
-| &quot;6&quot;            | &quot;5&quot;          |
-| &quot;7&quot;            | &quot;5&quot;          |
+| "4"            | "2"          |
+| "5"            | "2"          |
+| "1"            | "2"          |
+| "3"            | "2"          |
+| "8"            | "2"          |
+| "9"            | "5"          |
+| "6"            | "5"          |
+| "7"            | "5"          |
 +-------------------------------+
-8 rows
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">SELECT</span> e.<span style="color:#e6db74">&#34;EmployeeID&#34;</span> <span style="color:#66d9ef">AS</span> bigBoss
-<span style="color:#66d9ef">FROM</span> employees <span style="color:#66d9ef">AS</span> e
-<span style="color:#66d9ef">WHERE</span> e.<span style="color:#e6db74">&#34;ReportsTo&#34;</span> <span style="color:#66d9ef">is</span> <span style="color:#66d9ef">null</span>
+8 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next let&#8217;s find the big boss who doesn&#8217;t report to anyone. First in SQL:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT e."EmployeeID" AS bigBoss
+FROM employees AS e
+WHERE e."ReportsTo" is null
 
  bigboss
-<span style="color:#75715e">---------
-</span><span style="color:#75715e"></span>       <span style="color:#ae81ff">2</span>
-(<span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (e:Employee)
+---------
+       2
+(1 row)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And now cypher:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (e:Employee)
 WHERE NOT (e)-[:REPORTS_TO]-&gt;()
 RETURN e.EmployeeID AS bigBoss
 
 +---------+
 | bigBoss |
 +---------+
-| &quot;2&quot;     |
+| "2"     |
 +---------+
-1 row
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">SELECT</span> e.<span style="color:#e6db74">&#34;FirstName&#34;</span>, e.<span style="color:#e6db74">&#34;LastName&#34;</span>, e.<span style="color:#e6db74">&#34;Title&#34;</span>, manager.<span style="color:#e6db74">&#34;FirstName&#34;</span>, manager.<span style="color:#e6db74">&#34;LastName&#34;</span>, manager.<span style="color:#e6db74">&#34;Title&#34;</span>
-<span style="color:#66d9ef">FROM</span> employees <span style="color:#66d9ef">AS</span> e
-<span style="color:#66d9ef">JOIN</span> employees <span style="color:#66d9ef">AS</span> manager <span style="color:#66d9ef">ON</span> e.<span style="color:#e6db74">&#34;ReportsTo&#34;</span> <span style="color:#f92672">=</span> manager.<span style="color:#e6db74">&#34;EmployeeID&#34;</span>
-<span style="color:#66d9ef">WHERE</span> e.<span style="color:#e6db74">&#34;ReportsTo&#34;</span> <span style="color:#66d9ef">is</span> <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">null</span>
+1 row</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We still don&#8217;t need to join anything so the query isn&#8217;t that interesting yet. Let&#8217;s bring in some more properties from the manager record so we have to self join on the employees table:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT e."FirstName", e."LastName", e."Title", manager."FirstName", manager."LastName", manager."Title"
+FROM employees AS e
+JOIN employees AS manager ON e."ReportsTo" = manager."EmployeeID"
+WHERE e."ReportsTo" is not null
 
- FirstName <span style="color:#f92672">|</span> LastName  <span style="color:#f92672">|</span>          Title           <span style="color:#f92672">|</span> FirstName <span style="color:#f92672">|</span> LastName <span style="color:#f92672">|</span>         Title
-<span style="color:#75715e">-----------+-----------+--------------------------+-----------+----------+-----------------------
-</span><span style="color:#75715e"></span> Nancy     <span style="color:#f92672">|</span> Davolio   <span style="color:#f92672">|</span> Sales Representative     <span style="color:#f92672">|</span> Andrew    <span style="color:#f92672">|</span> Fuller   <span style="color:#f92672">|</span> Vice President, Sales
- Janet     <span style="color:#f92672">|</span> Leverling <span style="color:#f92672">|</span> Sales Representative     <span style="color:#f92672">|</span> Andrew    <span style="color:#f92672">|</span> Fuller   <span style="color:#f92672">|</span> Vice President, Sales
- Margaret  <span style="color:#f92672">|</span> Peacock   <span style="color:#f92672">|</span> Sales Representative     <span style="color:#f92672">|</span> Andrew    <span style="color:#f92672">|</span> Fuller   <span style="color:#f92672">|</span> Vice President, Sales
- Steven    <span style="color:#f92672">|</span> Buchanan  <span style="color:#f92672">|</span> Sales Manager            <span style="color:#f92672">|</span> Andrew    <span style="color:#f92672">|</span> Fuller   <span style="color:#f92672">|</span> Vice President, Sales
- Michael   <span style="color:#f92672">|</span> Suyama    <span style="color:#f92672">|</span> Sales Representative     <span style="color:#f92672">|</span> Steven    <span style="color:#f92672">|</span> Buchanan <span style="color:#f92672">|</span> Sales Manager
- Robert    <span style="color:#f92672">|</span> King      <span style="color:#f92672">|</span> Sales Representative     <span style="color:#f92672">|</span> Steven    <span style="color:#f92672">|</span> Buchanan <span style="color:#f92672">|</span> Sales Manager
- Laura     <span style="color:#f92672">|</span> Callahan  <span style="color:#f92672">|</span> Inside Sales Coordinator <span style="color:#f92672">|</span> Andrew    <span style="color:#f92672">|</span> Fuller   <span style="color:#f92672">|</span> Vice President, Sales
- Anne      <span style="color:#f92672">|</span> Dodsworth <span style="color:#f92672">|</span> Sales Representative     <span style="color:#f92672">|</span> Steven    <span style="color:#f92672">|</span> Buchanan <span style="color:#f92672">|</span> Sales Manager
-(<span style="color:#ae81ff">8</span> <span style="color:#66d9ef">rows</span>)
-</code></pre></div><pre><code class="language-cypher" data-lang="cypher">
-MATCH (e:Employee)&lt;-[:REPORTS_TO]-(sub)
+ FirstName | LastName  |          Title           | FirstName | LastName |         Title
+-----------+-----------+--------------------------+-----------+----------+-----------------------
+ Nancy     | Davolio   | Sales Representative     | Andrew    | Fuller   | Vice President, Sales
+ Janet     | Leverling | Sales Representative     | Andrew    | Fuller   | Vice President, Sales
+ Margaret  | Peacock   | Sales Representative     | Andrew    | Fuller   | Vice President, Sales
+ Steven    | Buchanan  | Sales Manager            | Andrew    | Fuller   | Vice President, Sales
+ Michael   | Suyama    | Sales Representative     | Steven    | Buchanan | Sales Manager
+ Robert    | King      | Sales Representative     | Steven    | Buchanan | Sales Manager
+ Laura     | Callahan  | Inside Sales Coordinator | Andrew    | Fuller   | Vice President, Sales
+ Anne      | Dodsworth | Sales Representative     | Steven    | Buchanan | Sales Manager
+(8 rows)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (e:Employee)&lt;-[:REPORTS_TO]-(sub)
 RETURN sub.FirstName, sub.LastName, sub.Title, e.FirstName, e.LastName, e.Title
 
 +----------------------------------------------------------------------------------------------------------------+
 | sub.FirstName | sub.LastName | sub.Title                  | e.FirstName | e.LastName | e.Title                 |
 +----------------------------------------------------------------------------------------------------------------+
-| &quot;Margaret&quot;    | &quot;Peacock&quot;    | &quot;Sales Representative&quot;     | &quot;Andrew&quot;    | &quot;Fuller&quot;   | &quot;Vice President, Sales&quot; |
-| &quot;Steven&quot;      | &quot;Buchanan&quot;   | &quot;Sales Manager&quot;            | &quot;Andrew&quot;    | &quot;Fuller&quot;   | &quot;Vice President, Sales&quot; |
-| &quot;Nancy&quot;       | &quot;Davolio&quot;    | &quot;Sales Representative&quot;     | &quot;Andrew&quot;    | &quot;Fuller&quot;   | &quot;Vice President, Sales&quot; |
-| &quot;Janet&quot;       | &quot;Leverling&quot;  | &quot;Sales Representative&quot;     | &quot;Andrew&quot;    | &quot;Fuller&quot;   | &quot;Vice President, Sales&quot; |
-| &quot;Laura&quot;       | &quot;Callahan&quot;   | &quot;Inside Sales Coordinator&quot; | &quot;Andrew&quot;    | &quot;Fuller&quot;   | &quot;Vice President, Sales&quot; |
-| &quot;Anne&quot;        | &quot;Dodsworth&quot;  | &quot;Sales Representative&quot;     | &quot;Steven&quot;    | &quot;Buchanan&quot; | &quot;Sales Manager&quot;         |
-| &quot;Michael&quot;     | &quot;Suyama&quot;     | &quot;Sales Representative&quot;     | &quot;Steven&quot;    | &quot;Buchanan&quot; | &quot;Sales Manager&quot;         |
-| &quot;Robert&quot;      | &quot;King&quot;       | &quot;Sales Representative&quot;     | &quot;Steven&quot;    | &quot;Buchanan&quot; | &quot;Sales Manager&quot;         |
+| "Margaret"    | "Peacock"    | "Sales Representative"     | "Andrew"    | "Fuller"   | "Vice President, Sales" |
+| "Steven"      | "Buchanan"   | "Sales Manager"            | "Andrew"    | "Fuller"   | "Vice President, Sales" |
+| "Nancy"       | "Davolio"    | "Sales Representative"     | "Andrew"    | "Fuller"   | "Vice President, Sales" |
+| "Janet"       | "Leverling"  | "Sales Representative"     | "Andrew"    | "Fuller"   | "Vice President, Sales" |
+| "Laura"       | "Callahan"   | "Inside Sales Coordinator" | "Andrew"    | "Fuller"   | "Vice President, Sales" |
+| "Anne"        | "Dodsworth"  | "Sales Representative"     | "Steven"    | "Buchanan" | "Sales Manager"         |
+| "Michael"     | "Suyama"     | "Sales Representative"     | "Steven"    | "Buchanan" | "Sales Manager"         |
+| "Robert"      | "King"       | "Sales Representative"     | "Steven"    | "Buchanan" | "Sales Manager"         |
 +----------------------------------------------------------------------------------------------------------------+
-8 rows
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">SELECT</span> manager.<span style="color:#e6db74">&#34;EmployeeID&#34;</span> <span style="color:#66d9ef">AS</span> manager, <span style="color:#66d9ef">COUNT</span>(e.<span style="color:#e6db74">&#34;EmployeeID&#34;</span>) <span style="color:#66d9ef">AS</span> reports
-<span style="color:#66d9ef">FROM</span> employees <span style="color:#66d9ef">AS</span> manager
-<span style="color:#66d9ef">LEFT</span> <span style="color:#66d9ef">JOIN</span> employees <span style="color:#66d9ef">AS</span> e <span style="color:#66d9ef">ON</span> e.<span style="color:#e6db74">&#34;ReportsTo&#34;</span> <span style="color:#f92672">=</span> manager.<span style="color:#e6db74">&#34;EmployeeID&#34;</span>
-<span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> manager
-<span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span> reports <span style="color:#66d9ef">DESC</span>;
+8 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s see how many direct reports each manager has:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT manager."EmployeeID" AS manager, COUNT(e."EmployeeID") AS reports
+FROM employees AS manager
+LEFT JOIN employees AS e ON e."ReportsTo" = manager."EmployeeID"
+GROUP BY manager
+ORDER BY reports DESC;
 
- manager <span style="color:#f92672">|</span> reports
-<span style="color:#75715e">---------+---------
-</span><span style="color:#75715e"></span>       <span style="color:#ae81ff">2</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">5</span>
-       <span style="color:#ae81ff">5</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">3</span>
-       <span style="color:#ae81ff">1</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">0</span>
-       <span style="color:#ae81ff">3</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">0</span>
-       <span style="color:#ae81ff">4</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">0</span>
-       <span style="color:#ae81ff">9</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">0</span>
-       <span style="color:#ae81ff">6</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">0</span>
-       <span style="color:#ae81ff">7</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">0</span>
-       <span style="color:#ae81ff">8</span> <span style="color:#f92672">|</span>       <span style="color:#ae81ff">0</span>
-(<span style="color:#ae81ff">9</span> <span style="color:#66d9ef">rows</span>)
-</code></pre></div><pre><code class="language-cypher" data-lang="cypher">
-MATCH (e:Employee)
+ manager | reports
+---------+---------
+       2 |       5
+       5 |       3
+       1 |       0
+       3 |       0
+       4 |       0
+       9 |       0
+       6 |       0
+       7 |       0
+       8 |       0
+(9 rows)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (e:Employee)
 OPTIONAL MATCH (e)&lt;-[rel:REPORTS_TO]-(report)
 RETURN e.EmployeeID AS employee, COUNT(rel) AS reports
 
 +--------------------+
 | employee | reports |
 +--------------------+
-| &quot;2&quot;      | 5       |
-| &quot;5&quot;      | 3       |
-| &quot;8&quot;      | 0       |
-| &quot;7&quot;      | 0       |
-| &quot;1&quot;      | 0       |
-| &quot;4&quot;      | 0       |
-| &quot;6&quot;      | 0       |
-| &quot;9&quot;      | 0       |
-| &quot;3&quot;      | 0       |
+| "2"      | 5       |
+| "5"      | 3       |
+| "8"      | 0       |
+| "7"      | 0       |
+| "1"      | 0       |
+| "4"      | 0       |
+| "6"      | 0       |
+| "9"      | 0       |
+| "3"      | 0       |
 +--------------------+
-9 rows
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">WITH</span> <span style="color:#66d9ef">RECURSIVE</span> recursive_employees(<span style="color:#e6db74">&#34;EmployeeID&#34;</span>, <span style="color:#e6db74">&#34;ReportsTo&#34;</span>) <span style="color:#66d9ef">AS</span> (
-        <span style="color:#66d9ef">SELECT</span> e.<span style="color:#e6db74">&#34;EmployeeID&#34;</span>, e.<span style="color:#e6db74">&#34;ReportsTo&#34;</span>
-        <span style="color:#66d9ef">FROM</span> employees e
-      <span style="color:#66d9ef">UNION</span> <span style="color:#66d9ef">ALL</span>
-        <span style="color:#66d9ef">SELECT</span> e.<span style="color:#e6db74">&#34;EmployeeID&#34;</span>, e.<span style="color:#e6db74">&#34;ReportsTo&#34;</span>
-        <span style="color:#66d9ef">FROM</span> employees e, recursive_employees re
-        <span style="color:#66d9ef">WHERE</span> e.<span style="color:#e6db74">&#34;EmployeeID&#34;</span> <span style="color:#f92672">=</span> re.<span style="color:#e6db74">&#34;ReportsTo&#34;</span>
+9 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Things start to get more interesting if we find the transitive reporting relationships that exist. I&#8217;m not an expert at Postgres but one way to achieve this is by writing <a href="http://www.postgresql.org/docs/current/static/queries-with.html">a recursive WITH query</a> like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">WITH RECURSIVE recursive_employees("EmployeeID", "ReportsTo") AS (
+        SELECT e."EmployeeID", e."ReportsTo"
+        FROM employees e
+      UNION ALL
+        SELECT e."EmployeeID", e."ReportsTo"
+        FROM employees e, recursive_employees re
+        WHERE e."EmployeeID" = re."ReportsTo"
 )
-<span style="color:#66d9ef">SELECT</span> re.<span style="color:#e6db74">&#34;ReportsTo&#34;</span>, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">AS</span> <span style="color:#66d9ef">count</span>
-<span style="color:#66d9ef">FROM</span> recursive_employees <span style="color:#66d9ef">AS</span> re
-<span style="color:#66d9ef">WHERE</span> re.<span style="color:#e6db74">&#34;ReportsTo&#34;</span> <span style="color:#66d9ef">IS</span> <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>
-<span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> re.<span style="color:#e6db74">&#34;ReportsTo&#34;</span>;
+SELECT re."ReportsTo", COUNT(*) AS count
+FROM recursive_employees AS re
+WHERE re."ReportsTo" IS NOT NULL
+GROUP BY re."ReportsTo";
 
- ReportsTo <span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span>
-<span style="color:#75715e">-----------+-------
-</span><span style="color:#75715e"></span>         <span style="color:#ae81ff">2</span> <span style="color:#f92672">|</span>     <span style="color:#ae81ff">8</span>
-         <span style="color:#ae81ff">5</span> <span style="color:#f92672">|</span>     <span style="color:#ae81ff">3</span>
-(<span style="color:#ae81ff">2</span> <span style="color:#66d9ef">rows</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (e:Employee)&lt;-[rel:REPORTS_TO*]-(report)
+ ReportsTo | count
+-----------+-------
+         2 |     8
+         5 |     3
+(2 rows)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If there&#8217;s a simpler way let me know in the comments.</p>
+</div>
+<div class="paragraph">
+<p>In cypher we only need to add one character, '*', after the 'REPORTS_TO' relationship to get it to recurse as far as it can. We&#8217;ll also remove the 'OPTIONAL MATCH' so that we only get back people who have people reporting to them:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (e:Employee)&lt;-[rel:REPORTS_TO*]-(report)
 RETURN e.EmployeeID AS employee, COUNT(rel) AS reports
 
 +--------------------+
 | employee | reports |
 +--------------------+
-| &quot;2&quot;      | 8       |
-| &quot;5&quot;      | 3       |
+| "2"      | 8       |
+| "5"      | 3       |
 +--------------------+
-2 rows
-</code></pre><!-- raw HTML omitted -->
+2 rows</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now I need to find some relational datasets with more complicated queries to play around with. If you have any ideas do let me know.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -374,7 +434,7 @@ RETURN e.EmployeeID AS employee, COUNT(rel) AS reports
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/06/15/northwind-finding-directtransitive-reports-in-sql-and-neo4js-cypher/&amp;title=Northwind%3a%20Finding%20direct%2ftransitive%20Reports%20in%20SQL%20and%20Neo4j%27s%20Cypher&amp;summary=SELECT%20e.%26%2334%3bEmployeeID%26%2334%3b%2c%20e.%26%2334%3bReportsTo%26%2334%3b%20FROM%20employees%20AS%20e%20WHERE%20e.%26%2334%3bReportsTo%26%2334%3b%20is%20not%20null%3b%20EmployeeID%20%7c%20ReportsTo%20------------%2b-----------%20%201%20%7c%202%203%20%7c%202%204%20%7c%202%205%20%7c%202%206%20%7c%205%207%20%7c%205%208%20%7c%202%209%20%7c%205%20%288%20rows%29%20MATCH%20%28e%3aEmployee%29%26lt%3b-%5b%3aREPORTS_TO%5d-%28sub%29%20RETURN%20sub.EmployeeID%2c%20e.EmployeeID%20%2b-------------------------------%2b%20%7c%20sub.EmployeeID%20%7c%20e.EmployeeID%20%7c%20%2b-------------------------------%2b%20%7c%20%26quot%3b4%26quot%3b%20%7c%20%26quot%3b2%26quot%3b%20%7c%20%7c%20%26quot%3b5%26quot%3b%20%7c%20%26quot%3b2%26quot%3b%20%7c%20%7c%20%26quot%3b1%26quot%3b%20%7c%20%26quot%3b2%26quot%3b%20%7c%20%7c%20%26quot%3b3%26quot%3b%20%7c%20%26quot%3b2%26quot%3b%20%7c%20%7c%20%26quot%3b8%26quot%3b%20%7c%20%26quot%3b2%26quot%3b%20%7c%20%7c%20%26quot%3b9%26quot%3b%20%7c%20%26quot%3b5%26quot%3b%20%7c%20%7c%20%26quot%3b6%26quot%3b%20%7c%20%26quot%3b5%26quot%3b%20%7c%20%7c%20%26quot%3b7%26quot%3b%20%7c%20%26quot%3b5%26quot%3b%20%7c%20%2b-------------------------------%2b%208%20rows%20SELECT%20e...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/06/15/northwind-finding-directtransitive-reports-in-sql-and-neo4js-cypher/&amp;title=Northwind%3a%20Finding%20direct%2ftransitive%20Reports%20in%20SQL%20and%20Neo4j%27s%20Cypher&amp;summary=Every%20few%20months%20we%20run%20a%20relational%20to%20graph%20meetup%20at%20the%20Neo%20London%20office%20where%20we%20go%20through%20how%20to%20take%20your%20data%20from%20a%20relational%20database%20and%20into%20the%20graph.%0a%20We%20use%20the%20Northwind%20dataset%20which%20often%20comes%20as%20a%20demo%20dataset%20on%20relational%20databases%20and%20come%20up%20with%20some%20queries%20which%20seem%20graph%20in%20nature.%0a%20My%20favourite%20query%20is%20one%20which%20finds%20out%20how%20employees%20are%20organised%20and%20who%20reports%20to%20whom...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -26,7 +26,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="scikit-learn: Building a multi class classification ensemble" />
         
-          <meta name="twitter:description" content="from sklearn import linear_model from sklearn.ensemble import VotingClassifier from sklearn.feature_extraction.text import CountVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline ngram_pipe = Pipeline([ (&#39;cv&#39;, CountVectorizer(ngram_range=(1, 2))), (&#39;mnb&#39;, MultinomialNB()) ]) unigram_log_pipe = Pipeline([ (&#39;cv&#39;, CountVectorizer()), (&#39;logreg&#39;, linear_model.LogisticRegression()) ]) classifiers = [ (&#34;ngram&#34;, ngram_pipe), (&#34;unigram&#34;, unigram_log_pipe), ] mixed_pipe = Pipeline([ (&#34;voting&#34;, VotingClassifier(classifiers, voting=&#34;soft&#34;)) ]) import pandas as pd import numpy as np from sklearn.model_selection import StratifiedKFold from sklearn import metrics Y_COLUMN = &#34;author&#34; TEXT_COLUMN = &#34;text&#34; def test_pipeline(df, nlp_pipeline): y = df[Y_COLUMN]." />
+          <meta name="twitter:description" content="For the Kaggle Spooky Author Identification I wanted to combine multiple classifiers together into an ensemble and found the VotingClassifier that does exactly that.
+ We need to predict the probability that a sentence is written by one of three authors so the VotingClassifier needs to make a &#39;soft&#39; prediction. If we only needed to know the most likely author we could have it make a &#39;hard&#39; prediction instead.
+ We start with three classifiers which generate different n-gram based features." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2017/12/05/scikit-learn-building-multi-class-classification-ensemble/" />
 
@@ -37,7 +39,9 @@
         <title> scikit-learn: Building a multi class classification ensemble &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="from sklearn import linear_model from sklearn.ensemble import VotingClassifier from sklearn.feature_extraction.text import CountVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline ngram_pipe = Pipeline([ (&#39;cv&#39;, CountVectorizer(ngram_range=(1, 2))), (&#39;mnb&#39;, MultinomialNB()) ]) unigram_log_pipe = Pipeline([ (&#39;cv&#39;, CountVectorizer()), (&#39;logreg&#39;, linear_model.LogisticRegression()) ]) classifiers = [ (&#34;ngram&#34;, ngram_pipe), (&#34;unigram&#34;, unigram_log_pipe), ] mixed_pipe = Pipeline([ (&#34;voting&#34;, VotingClassifier(classifiers, voting=&#34;soft&#34;)) ]) import pandas as pd import numpy as np from sklearn.model_selection import StratifiedKFold from sklearn import metrics Y_COLUMN = &#34;author&#34; TEXT_COLUMN = &#34;text&#34; def test_pipeline(df, nlp_pipeline): y = df[Y_COLUMN]." />
+        <meta name="description" content="For the Kaggle Spooky Author Identification I wanted to combine multiple classifiers together into an ensemble and found the VotingClassifier that does exactly that.
+ We need to predict the probability that a sentence is written by one of three authors so the VotingClassifier needs to make a &#39;soft&#39; prediction. If we only needed to know the most likely author we could have it make a &#39;hard&#39; prediction instead.
+ We start with three classifiers which generate different n-gram based features." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +70,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-12-05",
-        "description": "from sklearn import linear_model from sklearn.ensemble import VotingClassifier from sklearn.feature_extraction.text import CountVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline ngram_pipe = Pipeline([ (\x26#39;cv\x26#39;, CountVectorizer(ngram_range=(1, 2))), (\x26#39;mnb\x26#39;, MultinomialNB()) ]) unigram_log_pipe = Pipeline([ (\x26#39;cv\x26#39;, CountVectorizer()), (\x26#39;logreg\x26#39;, linear_model.LogisticRegression()) ]) classifiers = [ (\x26#34;ngram\x26#34;, ngram_pipe), (\x26#34;unigram\x26#34;, unigram_log_pipe), ] mixed_pipe = Pipeline([ (\x26#34;voting\x26#34;, VotingClassifier(classifiers, voting=\x26#34;soft\x26#34;)) ]) import pandas as pd import numpy as np from sklearn.model_selection import StratifiedKFold from sklearn import metrics Y_COLUMN = \x26#34;author\x26#34; TEXT_COLUMN = \x26#34;text\x26#34; def test_pipeline(df, nlp_pipeline): y = df[Y_COLUMN].",
-        "wordCount":  159 
+        "description": "For the Kaggle Spooky Author Identification I wanted to combine multiple classifiers together into an ensemble and found the VotingClassifier that does exactly that.\n We need to predict the probability that a sentence is written by one of three authors so the VotingClassifier needs to make a \x27soft\x27 prediction. If we only needed to know the most likely author we could have it make a \x27hard\x27 prediction instead.\n We start with three classifiers which generate different n-gram based features.",
+        "wordCount":  313 
     }
     </script>
     
@@ -184,73 +188,101 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">scikit-learn: Building a multi class classification ensemble</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> sklearn <span style="color:#f92672">import</span> linear_model
-<span style="color:#f92672">from</span> sklearn.ensemble <span style="color:#f92672">import</span> VotingClassifier
-<span style="color:#f92672">from</span> sklearn.feature_extraction.text <span style="color:#f92672">import</span> CountVectorizer
-<span style="color:#f92672">from</span> sklearn.naive_bayes <span style="color:#f92672">import</span> MultinomialNB
-<span style="color:#f92672">from</span> sklearn.pipeline <span style="color:#f92672">import</span> Pipeline
+    <div class="paragraph">
+<p>For the Kaggle <a href="https://www.kaggle.com/c/spooky-author-identification">Spooky Author Identification</a> I wanted to combine multiple classifiers together into an ensemble and found the <a href="http://scikit-learn.org/stable/modules/ensemble.html#voting-classifier"><cite>VotingClassifier</cite></a> that does exactly that.</p>
+</div>
+<div class="paragraph">
+<p>We need to predict the probability that a sentence is written by one of three authors so the VotingClassifier needs to make a 'soft' prediction. If we only needed to know the most likely author we could have it make a 'hard' prediction instead.</p>
+</div>
+<div class="paragraph">
+<p>We start with three classifiers which generate different n-gram based features. The code for those is as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from sklearn import linear_model
+from sklearn.ensemble import VotingClassifier
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 
-ngram_pipe <span style="color:#f92672">=</span> Pipeline([
-    (<span style="color:#e6db74">&#39;cv&#39;</span>, CountVectorizer(ngram_range<span style="color:#f92672">=</span>(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>))),
-    (<span style="color:#e6db74">&#39;mnb&#39;</span>, MultinomialNB())
+ngram_pipe = Pipeline([
+    ('cv', CountVectorizer(ngram_range=(1, 2))),
+    ('mnb', MultinomialNB())
 ])
 
-unigram_log_pipe <span style="color:#f92672">=</span> Pipeline([
-    (<span style="color:#e6db74">&#39;cv&#39;</span>, CountVectorizer()),
-    (<span style="color:#e6db74">&#39;logreg&#39;</span>, linear_model<span style="color:#f92672">.</span>LogisticRegression())
-])
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-classifiers <span style="color:#f92672">=</span> [
-    (<span style="color:#e6db74">&#34;ngram&#34;</span>, ngram_pipe),
-    (<span style="color:#e6db74">&#34;unigram&#34;</span>, unigram_log_pipe),
+unigram_log_pipe = Pipeline([
+    ('cv', CountVectorizer()),
+    ('logreg', linear_model.LogisticRegression())
+])</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can combine those classifiers together like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">classifiers = [
+    ("ngram", ngram_pipe),
+    ("unigram", unigram_log_pipe),
 ]
 
-mixed_pipe <span style="color:#f92672">=</span> Pipeline([
-    (<span style="color:#e6db74">&#34;voting&#34;</span>, VotingClassifier(classifiers, voting<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;soft&#34;</span>))
-])
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> pandas <span style="color:#f92672">as</span> pd
-<span style="color:#f92672">import</span> numpy <span style="color:#f92672">as</span> np
+mixed_pipe = Pipeline([
+    ("voting", VotingClassifier(classifiers, voting="soft"))
+])</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now it&#8217;s time to test our ensemble. I got the code for the test function from <a href="https://www.kaggle.com/sohier/intermediate-tutorial-python/">Sohier Dane</a>'s tutorial.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import pandas as pd
+import numpy as np
 
-<span style="color:#f92672">from</span> sklearn.model_selection <span style="color:#f92672">import</span> StratifiedKFold
-<span style="color:#f92672">from</span> sklearn <span style="color:#f92672">import</span> metrics
+from sklearn.model_selection import StratifiedKFold
+from sklearn import metrics
 
-Y_COLUMN <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;author&#34;</span>
-TEXT_COLUMN <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;text&#34;</span>
+Y_COLUMN = "author"
+TEXT_COLUMN = "text"
 
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test_pipeline</span>(df, nlp_pipeline):
-    y <span style="color:#f92672">=</span> df[Y_COLUMN]<span style="color:#f92672">.</span>copy()
-    X <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>Series(df[TEXT_COLUMN])
-    rskf <span style="color:#f92672">=</span> StratifiedKFold(n_splits<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>, random_state<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
-    losses <span style="color:#f92672">=</span> []
-    accuracies <span style="color:#f92672">=</span> []
-    <span style="color:#66d9ef">for</span> train_index, test_index <span style="color:#f92672">in</span> rskf<span style="color:#f92672">.</span>split(X, y):
-        X_train, X_test <span style="color:#f92672">=</span> X[train_index], X[test_index]
-        y_train, y_test <span style="color:#f92672">=</span> y[train_index], y[test_index]
-        nlp_pipeline<span style="color:#f92672">.</span>fit(X_train, y_train)
-        losses<span style="color:#f92672">.</span>append(metrics<span style="color:#f92672">.</span>log_loss(y_test, nlp_pipeline<span style="color:#f92672">.</span>predict_proba(X_test)))
-        accuracies<span style="color:#f92672">.</span>append(metrics<span style="color:#f92672">.</span>accuracy_score(y_test, nlp_pipeline<span style="color:#f92672">.</span>predict(X_test)))
+def test_pipeline(df, nlp_pipeline):
+    y = df[Y_COLUMN].copy()
+    X = pd.Series(df[TEXT_COLUMN])
+    rskf = StratifiedKFold(n_splits=5, random_state=1)
+    losses = []
+    accuracies = []
+    for train_index, test_index in rskf.split(X, y):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        nlp_pipeline.fit(X_train, y_train)
+        losses.append(metrics.log_loss(y_test, nlp_pipeline.predict_proba(X_test)))
+        accuracies.append(metrics.accuracy_score(y_test, nlp_pipeline.predict(X_test)))
 
-    <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;{kfolds log losses: {0}, mean log loss: {1}, mean accuracy: {2}&#34;</span><span style="color:#f92672">.</span>format(
-        str([str(round(x, <span style="color:#ae81ff">3</span>)) <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> sorted(losses)]),
-        round(np<span style="color:#f92672">.</span>mean(losses), <span style="color:#ae81ff">3</span>),
-        round(np<span style="color:#f92672">.</span>mean(accuracies), <span style="color:#ae81ff">3</span>)
+    print("{kfolds log losses: {0}, mean log loss: {1}, mean accuracy: {2}".format(
+        str([str(round(x, 3)) for x in sorted(losses)]),
+        round(np.mean(losses), 3),
+        round(np.mean(accuracies), 3)
     ))
 
-train_df <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_csv(<span style="color:#e6db74">&#34;train.csv&#34;</span>, usecols<span style="color:#f92672">=</span>[Y_COLUMN, TEXT_COLUMN])
-test_pipeline(train_df, mixed_pipe)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-kfolds log losses: [&#39;0.388&#39;, &#39;0.391&#39;, &#39;0.392&#39;, &#39;0.397&#39;, &#39;0.398&#39;], mean log loss: 0.393 mean accuracy: 0.849
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+train_df = pd.read_csv("train.csv", usecols=[Y_COLUMN, TEXT_COLUMN])
+test_pipeline(train_df, mixed_pipe)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s run <a href="https://gist.github.com/mneedham/0f640497ae3c662fc89fda199b5b7833">the script</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">kfolds log losses: ['0.388', '0.391', '0.392', '0.397', '0.398'], mean log loss: 0.393 mean accuracy: 0.849</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Looks good.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve actually got several other classifiers as well but I&#8217;m not sure which ones should be part of the ensemble. In a future post we&#8217;ll look at how to use <a href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html">GridSearch</a> to work that out.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -285,7 +317,7 @@ kfolds log losses: [&#39;0.388&#39;, &#39;0.391&#39;, &#39;0.392&#39;, &#39;0.39
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/12/05/scikit-learn-building-multi-class-classification-ensemble/&amp;title=scikit-learn%3a%20Building%20a%20multi%20class%20classification%20ensemble&amp;summary=from%20sklearn%20import%20linear_model%20from%20sklearn.ensemble%20import%20VotingClassifier%20from%20sklearn.feature_extraction.text%20import%20CountVectorizer%20from%20sklearn.naive_bayes%20import%20MultinomialNB%20from%20sklearn.pipeline%20import%20Pipeline%20ngram_pipe%20%3d%20Pipeline%28%5b%20%28%26%2339%3bcv%26%2339%3b%2c%20CountVectorizer%28ngram_range%3d%281%2c%202%29%29%29%2c%20%28%26%2339%3bmnb%26%2339%3b%2c%20MultinomialNB%28%29%29%20%5d%29%20unigram_log_pipe%20%3d%20Pipeline%28%5b%20%28%26%2339%3bcv%26%2339%3b%2c%20CountVectorizer%28%29%29%2c%20%28%26%2339%3blogreg%26%2339%3b%2c%20linear_model.LogisticRegression%28%29%29%20%5d%29%20classifiers%20%3d%20%5b%20%28%26%2334%3bngram%26%2334%3b%2c%20ngram_pipe%29%2c%20%28%26%2334%3bunigram%26%2334%3b%2c%20unigram_log_pipe%29%2c%20%5d%20mixed_pipe%20%3d%20Pipeline%28%5b%20%28%26%2334%3bvoting%26%2334%3b%2c%20VotingClassifier%28classifiers%2c%20voting%3d%26%2334%3bsoft%26%2334%3b%29%29%20%5d%29%20import%20pandas%20as%20pd%20import%20numpy%20as%20np%20from%20sklearn.model_selection%20import%20StratifiedKFold%20from%20sklearn%20import%20metrics%20Y_COLUMN%20%3d%20%26%2334%3bauthor%26%2334%3b%20TEXT_COLUMN%20%3d%20%26%2334%3btext%26%2334%3b%20def%20test_pipeline%28df%2c%20nlp_pipeline%29%3a%20y%20%3d%20df%5bY_COLUMN%5d...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/12/05/scikit-learn-building-multi-class-classification-ensemble/&amp;title=scikit-learn%3a%20Building%20a%20multi%20class%20classification%20ensemble&amp;summary=For%20the%20Kaggle%20Spooky%20Author%20Identification%20I%20wanted%20to%20combine%20multiple%20classifiers%20together%20into%20an%20ensemble%20and%20found%20the%20VotingClassifier%20that%20does%20exactly%20that.%0a%20We%20need%20to%20predict%20the%20probability%20that%20a%20sentence%20is%20written%20by%20one%20of%20three%20authors%20so%20the%20VotingClassifier%20needs%20to%20make%20a%20%27soft%27%20prediction.%20If%20we%20only%20needed%20to%20know%20the%20most%20likely%20author%20we%20could%20have%20it%20make%20a%20%27hard%27%20prediction%20instead.%0a%20We%20start%20with%20three%20classifiers%20which%20generate%20different%20n-gram%20based%20features...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

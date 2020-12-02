@@ -23,9 +23,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Incremental Refactoring: Create factory method" />
         
-          <meta name="twitter:description" content="Dermotand I spent a bit of time today refactoring some code where the logic had ended up in the wrong place.
-The code originally looked a bit like this:
-public class LookupService { public LookUp Find(UserData userData) { var param1 = GetParam1From(userData); var param2 = GetParam2From(userData); var param3 = GetParam3From(userData); var lookupKey = new LookUpKey(param1, param2, param3); return lookupRepository.Find(lookupKey); } } public class LookUpKey { private readonly string param1; private readonly string param2; private readonly string param3; public LookUpKey(string param1, string param2, string param3) { this." />
+          <meta name="twitter:description" content="Dermot and I spent a bit of time today refactoring some code where the logic had ended up in the wrong place.
+ The code originally looked a bit like this:
+ public class LookupService { public LookUp Find(UserData userData) { var param1 = GetParam1From(userData); var param2 = GetParam2From(userData); var param3 = GetParam3From(userData); var lookupKey = new LookUpKey(param1, param2, param3); return lookupRepository.Find(lookupKey); } }   public class LookUpKey { private readonly string param1; private readonly string param2; private readonly string param3; public LookUpKey(string param1, string param2, string param3) { this." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/06/17/incremental-refactoring-create-factory-method/" />
 
@@ -36,9 +36,9 @@ public class LookupService { public LookUp Find(UserData userData) { var param1 
         <title> Incremental Refactoring: Create factory method &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Dermotand I spent a bit of time today refactoring some code where the logic had ended up in the wrong place.
-The code originally looked a bit like this:
-public class LookupService { public LookUp Find(UserData userData) { var param1 = GetParam1From(userData); var param2 = GetParam2From(userData); var param3 = GetParam3From(userData); var lookupKey = new LookUpKey(param1, param2, param3); return lookupRepository.Find(lookupKey); } } public class LookUpKey { private readonly string param1; private readonly string param2; private readonly string param3; public LookUpKey(string param1, string param2, string param3) { this." />
+        <meta name="description" content="Dermot and I spent a bit of time today refactoring some code where the logic had ended up in the wrong place.
+ The code originally looked a bit like this:
+ public class LookupService { public LookUp Find(UserData userData) { var param1 = GetParam1From(userData); var param2 = GetParam2From(userData); var param3 = GetParam3From(userData); var lookupKey = new LookUpKey(param1, param2, param3); return lookupRepository.Find(lookupKey); } }   public class LookUpKey { private readonly string param1; private readonly string param2; private readonly string param3; public LookUpKey(string param1, string param2, string param3) { this." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,8 +67,8 @@ public class LookupService { public LookUp Find(UserData userData) { var param1 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-06-17",
-        "description": "Dermotand I spent a bit of time today refactoring some code where the logic had ended up in the wrong place.\nThe code originally looked a bit like this:\npublic class LookupService { public LookUp Find(UserData userData) { var param1 = GetParam1From(userData); var param2 = GetParam2From(userData); var param3 = GetParam3From(userData); var lookupKey = new LookUpKey(param1, param2, param3); return lookupRepository.Find(lookupKey); } } public class LookUpKey { private readonly string param1; private readonly string param2; private readonly string param3; public LookUpKey(string param1, string param2, string param3) { this.",
-        "wordCount":  310 
+        "description": "Dermot and I spent a bit of time today refactoring some code where the logic had ended up in the wrong place.\n The code originally looked a bit like this:\n public class LookupService { public LookUp Find(UserData userData) { var param1 = GetParam1From(userData); var param2 = GetParam2From(userData); var param3 = GetParam3From(userData); var lookupKey = new LookUpKey(param1, param2, param3); return lookupRepository.Find(lookupKey); } }   public class LookUpKey { private readonly string param1; private readonly string param2; private readonly string param3; public LookUpKey(string param1, string param2, string param3) { this.",
+        "wordCount":  312 
     }
     </script>
     
@@ -179,65 +179,95 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Incremental Refactoring: Create factory method</h1>
-    <p><!-- raw HTML omitted -->Dermot<!-- raw HTML omitted --> and I spent a bit of time today refactoring some code where the logic had ended up in the wrong place.</p>
+    <div class="paragraph">
+<p><a href="http://twitter.com/dermotkilroy">Dermot</a> and I spent a bit of time today refactoring some code where the logic had ended up in the wrong place.</p>
+</div>
+<div class="paragraph">
 <p>The code originally looked a bit like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LookupService</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class LookupService
 {
-	<span style="color:#66d9ef">public</span> LookUp Find(UserData userData)
+	public LookUp Find(UserData userData)
 	{
-		<span style="color:#66d9ef">var</span> param1 = GetParam1From(userData);
-		<span style="color:#66d9ef">var</span> param2 = GetParam2From(userData);
-		<span style="color:#66d9ef">var</span> param3 = GetParam3From(userData);
+		var param1 = GetParam1From(userData);
+		var param2 = GetParam2From(userData);
+		var param3 = GetParam3From(userData);
 
-		<span style="color:#66d9ef">var</span> lookupKey = <span style="color:#66d9ef">new</span> LookUpKey(param1, param2, param3);
-		<span style="color:#66d9ef">return</span> lookupRepository.Find(lookupKey);
+		var lookupKey = new LookUpKey(param1, param2, param3);
+		return lookupRepository.Find(lookupKey);
 	}
-}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LookUpKey</span>
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class LookUpKey
 {
-	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">string</span> param1;
-	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">string</span> param2;
-	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">string</span> param3;
+	private readonly string param1;
+	private readonly string param2;
+	private readonly string param3;
 
-	<span style="color:#66d9ef">public</span> LookUpKey(<span style="color:#66d9ef">string</span> param1, <span style="color:#66d9ef">string</span> param2, <span style="color:#66d9ef">string</span> param3)
+	public LookUpKey(string param1, string param2, string param3)
 	{
-		<span style="color:#66d9ef">this</span>.param1 = param1;
-		<span style="color:#66d9ef">this</span>.param2 = param2;
-		<span style="color:#66d9ef">this</span>.param3 = param3;
+		this.param1 = param1;
+		this.param2 = param2;
+		this.param3 = param3;
 	}
-}
-</code></pre></div><p>We wanted to push the logic used to create the params in &lsquo;LookUpKey&rsquo; into the &lsquo;LookUpKey&rsquo; since it seemed that was a more natural place for that behaviour to live.</p>
-<p>Unfortunately there were also a few other places that were use LookUpKey&rsquo;s constructor so we couldn&rsquo;t just go and change that to take in a &lsquo;UserData&rsquo; otherwise we&rsquo;d break other places in the code base.</p>
-<p>My initial thought was that we could <!-- raw HTML omitted -->overload the constructor<!-- raw HTML omitted --> and temporarily have two constructors until we got rid of the original.</p>
-<p>Dermot pointed out a better approach which was to add a static factory method to &lsquo;LookUpKey&rsquo; and initially push the logic into that method.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LookUpKey</span>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We wanted to push the logic used to create the params in 'LookUpKey' into the 'LookUpKey' since it seemed that was a more natural place for that behaviour to live.</p>
+</div>
+<div class="paragraph">
+<p>Unfortunately there were also a few other places that were use LookUpKey&#8217;s constructor so we couldn&#8217;t just go and change that to take in a 'UserData' otherwise we&#8217;d break other places in the code base.</p>
+</div>
+<div class="paragraph">
+<p>My initial thought was that we could <a href="http://www.markhneedham.com/blog/2010/04/25/small-step-refactoring-overload-constructor/">overload the constructor</a> and temporarily have two constructors until we got rid of the original.</p>
+</div>
+<div class="paragraph">
+<p>Dermot pointed out a better approach which was to add a static factory method to 'LookUpKey' and initially push the logic into that method.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class LookUpKey
 {
 	...
 
-	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> LookUpKey CreateFrom(UserData userData)
+	public static LookUpKey CreateFrom(UserData userData)
 	{
-		<span style="color:#66d9ef">var</span> param1 = GetParam1From(userData);
-		<span style="color:#66d9ef">var</span> param2 = GetParam2From(userData);
-		<span style="color:#66d9ef">var</span> param3 = GetParam3From(userData);
+		var param1 = GetParam1From(userData);
+		var param2 = GetParam2From(userData);
+		var param3 = GetParam3From(userData);
 
-		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> LookUpKey(param1, param2, param3);
+		return new LookUpKey(param1, param2, param3);
 	}
-}
-</code></pre></div><p>The service is now much simplified:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LookupService</span>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The service is now much simplified:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class LookupService
 {
-	<span style="color:#66d9ef">public</span> LookUp Find(UserData userData)
+	public LookUp Find(UserData userData)
 	{
-		<span style="color:#66d9ef">var</span> lookupKey = LookUpKey.CreateFrom(userData);
-		<span style="color:#66d9ef">return</span> lookupRepository.Find(lookupKey);
+		var lookupKey = LookUpKey.CreateFrom(userData);
+		return lookupRepository.Find(lookupKey);
 	}
-}
-</code></pre></div><p>We can also move tests that were originally indirectly testing the key creation by checking what was passed to the repository to be directly against the &lsquo;LookUpKey&rsquo;.</p>
-<p>Eventually we want to make LookUpKey&rsquo;s constructor private but for now we&rsquo;ve been able to make our change without breaking the code base elsewhere.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can also move tests that were originally indirectly testing the key creation by checking what was passed to the repository to be directly against the 'LookUpKey'.</p>
+</div>
+<div class="paragraph">
+<p>Eventually we want to make LookUpKey&#8217;s constructor private but for now we&#8217;ve been able to make our change without breaking the code base elsewhere.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -272,7 +302,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/06/17/incremental-refactoring-create-factory-method/&amp;title=Incremental%20Refactoring%3a%20Create%20factory%20method&amp;summary=Dermotand%20I%20spent%20a%20bit%20of%20time%20today%20refactoring%20some%20code%20where%20the%20logic%20had%20ended%20up%20in%20the%20wrong%20place.%0aThe%20code%20originally%20looked%20a%20bit%20like%20this%3a%0apublic%20class%20LookupService%20%7b%20public%20LookUp%20Find%28UserData%20userData%29%20%7b%20var%20param1%20%3d%20GetParam1From%28userData%29%3b%20var%20param2%20%3d%20GetParam2From%28userData%29%3b%20var%20param3%20%3d%20GetParam3From%28userData%29%3b%20var%20lookupKey%20%3d%20new%20LookUpKey%28param1%2c%20param2%2c%20param3%29%3b%20return%20lookupRepository.Find%28lookupKey%29%3b%20%7d%20%7d%20public%20class%20LookUpKey%20%7b%20private%20readonly%20string%20param1%3b%20private%20readonly%20string%20param2%3b%20private%20readonly%20string%20param3%3b%20public%20LookUpKey%28string%20param1%2c%20string%20param2%2c%20string%20param3%29%20%7b%20this...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/06/17/incremental-refactoring-create-factory-method/&amp;title=Incremental%20Refactoring%3a%20Create%20factory%20method&amp;summary=Dermot%20and%20I%20spent%20a%20bit%20of%20time%20today%20refactoring%20some%20code%20where%20the%20logic%20had%20ended%20up%20in%20the%20wrong%20place.%0a%20The%20code%20originally%20looked%20a%20bit%20like%20this%3a%0a%20public%20class%20LookupService%20%7b%20public%20LookUp%20Find%28UserData%20userData%29%20%7b%20var%20param1%20%3d%20GetParam1From%28userData%29%3b%20var%20param2%20%3d%20GetParam2From%28userData%29%3b%20var%20param3%20%3d%20GetParam3From%28userData%29%3b%20var%20lookupKey%20%3d%20new%20LookUpKey%28param1%2c%20param2%2c%20param3%29%3b%20return%20lookupRepository.Find%28lookupKey%29%3b%20%7d%20%7d%20%20%20public%20class%20LookUpKey%20%7b%20private%20readonly%20string%20param1%3b%20private%20readonly%20string%20param2%3b%20private%20readonly%20string%20param3%3b%20public%20LookUpKey%28string%20param1%2c%20string%20param2%2c%20string%20param3%29%20%7b%20this...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

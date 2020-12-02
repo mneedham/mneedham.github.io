@@ -22,10 +22,11 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Reading Code: Rhino Mocks" />
         
-          <meta name="twitter:description" content="I spent a bit of time recently reading through some of the Rhino Mocksto get a basic understanding of how some features work under the hood.
-As well as just getting some practice at reading unfamiliar code I also wanted to know the following:
-These are some of the things I learnt from my exploration:
-I decided to try out MonoDevelopto see if I could keep on reading the code outside my VM." />
+          <meta name="twitter:description" content="I spent a bit of time recently reading through some of the Rhino Mocks to get a basic understanding of how some features work under the hood.
+ As well as just getting some practice at reading unfamiliar code I also wanted to know the following:
+   How does the &#39;VerifyAllExpectations&#39; extension method work?
+  What&#8217;s the difference between the &#39;GenerateMock&#39; and &#39;GenerateStub&#39; methods on MockRepository?
+  How does the &#39;AssertWasNotCalled&#39; extension method actually work?" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/07/28/reading-code-rhino-mocks/" />
 
@@ -36,10 +37,11 @@ I decided to try out MonoDevelopto see if I could keep on reading the code outsi
         <title> Reading Code: Rhino Mocks &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I spent a bit of time recently reading through some of the Rhino Mocksto get a basic understanding of how some features work under the hood.
-As well as just getting some practice at reading unfamiliar code I also wanted to know the following:
-These are some of the things I learnt from my exploration:
-I decided to try out MonoDevelopto see if I could keep on reading the code outside my VM." />
+        <meta name="description" content="I spent a bit of time recently reading through some of the Rhino Mocks to get a basic understanding of how some features work under the hood.
+ As well as just getting some practice at reading unfamiliar code I also wanted to know the following:
+   How does the &#39;VerifyAllExpectations&#39; extension method work?
+  What&#8217;s the difference between the &#39;GenerateMock&#39; and &#39;GenerateStub&#39; methods on MockRepository?
+  How does the &#39;AssertWasNotCalled&#39; extension method actually work?" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -68,8 +70,8 @@ I decided to try out MonoDevelopto see if I could keep on reading the code outsi
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-07-28",
-        "description": "I spent a bit of time recently reading through some of the Rhino Mocksto get a basic understanding of how some features work under the hood.\nAs well as just getting some practice at reading unfamiliar code I also wanted to know the following:\nThese are some of the things I learnt from my exploration:\nI decided to try out MonoDevelopto see if I could keep on reading the code outside my VM.",
-        "wordCount":  582 
+        "description": "I spent a bit of time recently reading through some of the Rhino Mocks to get a basic understanding of how some features work under the hood.\n As well as just getting some practice at reading unfamiliar code I also wanted to know the following:\n   How does the \x27VerifyAllExpectations\x27 extension method work?\n  What\x26#8217;s the difference between the \x27GenerateMock\x27 and \x27GenerateStub\x27 methods on MockRepository?\n  How does the \x27AssertWasNotCalled\x27 extension method actually work?",
+        "wordCount":  852 
     }
     </script>
     
@@ -178,52 +180,44 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Reading Code: Rhino Mocks</h1>
-    <p>I spent a bit of time recently reading through some of the <!-- raw HTML omitted -->Rhino Mocks<!-- raw HTML omitted --> to get a basic understanding of how some features work under the hood.</p>
+    <div class="paragraph">
+<p>I spent a bit of time recently reading through some of the <a href="http://ayende.com/projects/rhino-mocks.aspx">Rhino Mocks</a> to get a basic understanding of how some features work under the hood.</p>
+</div>
+<div class="paragraph">
 <p>As well as just getting some practice at reading unfamiliar code I also wanted to know the following:</p>
-<!-- raw HTML omitted -->
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>How does the 'VerifyAllExpectations' extension method work?</p>
+</li>
+<li>
+<p>What&#8217;s the difference between the 'GenerateMock' and 'GenerateStub' methods on MockRepository?</p>
+</li>
+<li>
+<p>How does the 'AssertWasNotCalled' extension method actually work?</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
 <p>These are some of the things I learnt from my exploration:</p>
-<!-- raw HTML omitted -->
-<p>I decided to try out <!-- raw HTML omitted -->MonoDevelop<!-- raw HTML omitted --> to see if I could keep on reading the code outside my VM. Unfortunately I kept making that crash every time I tried to move between classes so back to Visual Studio it was! MonoDevelop looks like quite a nice tool but it just isn&rsquo;t for me at the moment.<!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted -->Some<!-- raw HTML omitted --> <!-- raw HTML omitted -->of<!-- raw HTML omitted --> <!-- raw HTML omitted -->the guys<!-- raw HTML omitted --> on Twitter showed me a cool web based tool at <!-- raw HTML omitted -->yuml.me<!-- raw HTML omitted --> that allows you to easily draw class diagrams and then grab the png/jpeg file and do whatever you want with it.</p>
-<p><!-- raw HTML omitted --></p>
-<p>Although these diagrams are quite simple I find them more useful than I had expected and I&rsquo;ve started drawing more diagrams at work to help understand bits of code that I&rsquo;m not very familiar with.</p>
-<p>I realised a couple of years ago when reading one of <!-- raw HTML omitted -->Scott Young&rsquo;s posts about drawing diagrams<!-- raw HTML omitted --> that I seem to understand ideas more quickly if I&rsquo;m able to draw them out so I should probably look to do it more frequently!</p>
-<!-- raw HTML omitted -->
-<p>&lsquo;GenerateMock&rsquo; eventually calls this bit of code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> T DynamicMock&lt;T&gt;(<span style="color:#66d9ef">params</span> <span style="color:#66d9ef">object</span>[] argumentsForConstructor)
-    <span style="color:#66d9ef">where</span> T : <span style="color:#66d9ef">class</span>
-{
-    <span style="color:#66d9ef">if</span> (ShouldUseRemotingProxy(<span style="color:#66d9ef">typeof</span>(T), argumentsForConstructor))
-        <span style="color:#66d9ef">return</span> (T)RemotingMock(<span style="color:#66d9ef">typeof</span>(T), CreateDynamicRecordState);
-    <span style="color:#66d9ef">return</span> (T)CreateMockObject(<span style="color:#66d9ef">typeof</span>(T), CreateDynamicRecordState, <span style="color:#66d9ef">new</span> Type[<span style="color:#ae81ff">0</span>], argumentsForConstructor);
-}
-</code></pre></div><p>&lsquo;GenerateStub&rsquo; eventually calls this bit of code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">object</span> Stub(Type type, <span style="color:#66d9ef">params</span> <span style="color:#66d9ef">object</span>[] argumentsForConstructor)
-{
-    CreateMockState createStub = mockedObject =&gt; <span style="color:#66d9ef">new</span> StubRecordMockState(mockedObject, <span style="color:#66d9ef">this</span>);
-    <span style="color:#66d9ef">if</span> (ShouldUseRemotingProxy(type, argumentsForConstructor))
-        <span style="color:#66d9ef">return</span> RemotingMock(type, createStub);
-    <span style="color:#66d9ef">return</span> CreateMockObject(type, createStub, <span style="color:#66d9ef">new</span> Type[<span style="color:#ae81ff">0</span>], argumentsForConstructor);
-}
-</code></pre></div><p>The main difference is that when the &lsquo;Verify&rsquo; method is called on stubs (which would call the &lsquo;StubReplayMockState&rsquo; class) we don&rsquo;t do anything whereas with mocks a check is done to ensure that all the expectations setup in the test are met.</p>
-<p>I found it quite interesting that the new &lsquo;Arrange-Act-Assert&rsquo; style syntax has been written to make use of the older &lsquo;Record-Replay&rsquo; syntax which I guess is quite a nice metaphor for the two states that you use the framework.</p>
-<p>I haven&rsquo;t looked at the <!-- raw HTML omitted -->Moq<!-- raw HTML omitted --> code yet but it would be interesting to see how the code for that differs as it was built from the ground up with the &lsquo;Arrange-Act-Assert&rsquo; syntax.<!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> ExpectationVerificationInformation GetExpectationsToVerify&lt;T&gt;(T mock, Action&lt;T&gt; action, Action&lt;IMethodOptions&lt;<span style="color:#66d9ef">object</span>&gt;&gt; setupConstraints)
-{
-	<span style="color:#75715e">// ...	
-</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> mockToRecordExpectation = (T)mocks.DynamicMock(FindAppropriteType(mockedObject), mockedObject.ConstructorArguments);
-	action(mockToRecordExpectation);
-	<span style="color:#75715e">// .. 
-</span><span style="color:#75715e"></span>}
-</code></pre></div><p>The code actually creates a mock in order to record the expectation that we are checking does not happen before it goes on to check which methods were called against that method. We therefore need to ensure that any calls to &lsquo;AssertWasNotCalled&rsquo; are made after the call to the system under test otherwise it will always return true which may not be accurate.<!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<p>I&rsquo;m never sure what the best way to approach a new code base is but this time I had a couple of starting points that I wanted to investigate and starting from those points seemed to work out quite well. I still find that I struggle to know when to stop digging down into how specific code works and when to just have a general understanding of that bit and move on to the next bit of code. I often find that I click all the way through to deeper methods and then I can&rsquo;t remember why I did it in the first place.<!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>I&#8217;m using a Mac so I originally started out trying to read the code in <a href="http://macromates.com/">TextMate</a> with the <a href="http://forum.unity3d.com/viewtopic.php?t=1601">C# plugin</a> before eventually realising that I couldn&#8217;t really tell the difference between a delegate being passed around the code and a method call so I wanted an editor that would help me out with this. I decided to try out <a href="http://monodevelop.com/">MonoDevelop</a> to see if I could keep on reading the code outside my VM. Unfortunately I kept making that crash every time I tried to move between classes so back to Visual Studio it was! MonoDevelop looks like quite a nice tool but it just isn&#8217;t for me at the moment.</p>
+</li>
+<li>
+<p>I&#8217;ve been playing around with an idea adapted from Michael Feathers' <a href="http://www.amazon.com/Working-Effectively-Legacy-Robert-Martin/dp/0131177052">Working Effectively With Legacy Code</a> by drawing out the different classes and how they interact with each other. Where I could see a grouping between classes I&#8217;ve been drawing that into the diagram as well. <a href="http://twitter.com/madgn0me/statuses/2869130380">Some</a> <a href="http://twitter.com/jagregory/statuses/2869105962">of</a> <a href="http://twitter.com/peter_c_william/statuses/2869092943">the guys</a> on Twitter showed me a cool web based tool at <a href="http://yuml.me/diagram/scruffy/class/draw">yuml.me</a> that allows you to easily draw class diagrams and then grab the png/jpeg file and do whatever you want with it. <span class="image"><img src="https://markhneedham.com/blog/
+/uploads/2009/07/rhino-mocks.png" alt="rhino-mocks.png"></span> Although these diagrams are quite simple I find them more useful than I had expected and I&#8217;ve started drawing more diagrams at work to help understand bits of code that I&#8217;m not very familiar with. I realised a couple of years ago when reading one of <a href="http://www.scotthyoung.com/blog/2006/12/10/using-diagrams/">Scott Young&#8217;s posts about drawing diagrams</a> that I seem to understand ideas more quickly if I&#8217;m able to draw them out so I should probably look to do it more frequently!</p>
+</li>
+<li>
+<p>The way that <a href="http://www.markhneedham.com/blog/2009/07/14/test-doubles-my-current-approach/">stubs and mocks</a> are generated is essentially the same which I&#8217;m told is also the case with <a href="http://mockito.org/">Mockito</a> although I haven&#8217;t read Mockito&#8217;s code yet. 'GenerateMock' eventually calls this bit of code: <sub>~</sub>csharp public T DynamicMock<T>(params object[] argumentsForConstructor) where T : class { if (ShouldUseRemotingProxy(typeof(T), argumentsForConstructor)) return (T)RemotingMock(typeof(T), CreateDynamicRecordState); return (T)CreateMockObject(typeof(T), CreateDynamicRecordState, new Type[0], argumentsForConstructor); } <sub>~</sub> 'GenerateStub' eventually calls this bit of code: <sub>~</sub>csharp public object Stub(Type type, params object[] argumentsForConstructor) { CreateMockState createStub = mockedObject =&gt; new StubRecordMockState(mockedObject, this); if (ShouldUseRemotingProxy(type, argumentsForConstructor)) return RemotingMock(type, createStub); return CreateMockObject(type, createStub, new Type[0], argumentsForConstructor); } <sub>~</sub> The main difference is that when the 'Verify' method is called on stubs (which would call the 'StubReplayMockState' class) we don&#8217;t do anything whereas with mocks a check is done to ensure that all the expectations setup in the test are met. I found it quite interesting that the new 'Arrange-Act-Assert' style syntax has been written to make use of the older 'Record-Replay' syntax which I guess is quite a nice metaphor for the two states that you use the framework. I haven&#8217;t looked at the <a href="http://code.google.com/p/moq/">Moq</a> code yet but it would be interesting to see how the code for that differs as it was built from the ground up with the 'Arrange-Act-Assert' syntax.&lt;/li&gt;
+The 'AssertWasNotCalled' method works fairly similarly to how I had imagined at a high level in that it goes and gets all the expectations for the mock for that method call and then checks that they aren&#8217;t called although I found the implementation of that first bit quite interesting. <sub>~</sub>csharp private static ExpectationVerificationInformation GetExpectationsToVerify<T>(T mock, Action<T>action, Action&lt;IMethodOptions<object>&gt; setupConstraints) { // ... var mockToRecordExpectation = (T)mocks.DynamicMock(FindAppropriteType(mockedObject), mockedObject.ConstructorArguments); action(mockToRecordExpectation); // .. } <sub>~</sub> The code actually creates a mock in order to record the expectation that we are checking does not happen before it goes on to check which methods were called against that method. We therefore need to ensure that any calls to 'AssertWasNotCalled' are made after the call to the system under test otherwise it will always return true which may not be accurate.&lt;/li&gt;
+I didn&#8217;t realise quite how much code there is in Rhino Mocks and I&#8217;ve only read a very small part of it. A few of the interesting parts of the code seem to be making calls to <a href="http://www.castleproject.org/dynamicproxy/index.html">Castle DynamicProxy</a> which is being used to do the intercepting of method calls. I&#8217;m never sure what the best way to approach a new code base is but this time I had a couple of starting points that I wanted to investigate and starting from those points seemed to work out quite well. I still find that I struggle to know when to stop digging down into how specific code works and when to just have a general understanding of that bit and move on to the next bit of code. I often find that I click all the way through to deeper methods and then I can&#8217;t remember why I did it in the first place. &lt;/ul&gt;</object></T></T></T></p>
+</li>
+</ul>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -258,7 +252,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/28/reading-code-rhino-mocks/&amp;title=Reading%20Code%3a%20Rhino%20Mocks&amp;summary=I%20spent%20a%20bit%20of%20time%20recently%20reading%20through%20some%20of%20the%20Rhino%20Mocksto%20get%20a%20basic%20understanding%20of%20how%20some%20features%20work%20under%20the%20hood.%0aAs%20well%20as%20just%20getting%20some%20practice%20at%20reading%20unfamiliar%20code%20I%20also%20wanted%20to%20know%20the%20following%3a%0aThese%20are%20some%20of%20the%20things%20I%20learnt%20from%20my%20exploration%3a%0aI%20decided%20to%20try%20out%20MonoDevelopto%20see%20if%20I%20could%20keep%20on%20reading%20the%20code%20outside%20my%20VM...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/28/reading-code-rhino-mocks/&amp;title=Reading%20Code%3a%20Rhino%20Mocks&amp;summary=I%20spent%20a%20bit%20of%20time%20recently%20reading%20through%20some%20of%20the%20Rhino%20Mocks%20to%20get%20a%20basic%20understanding%20of%20how%20some%20features%20work%20under%20the%20hood.%0a%20As%20well%20as%20just%20getting%20some%20practice%20at%20reading%20unfamiliar%20code%20I%20also%20wanted%20to%20know%20the%20following%3a%0a%20%20%20How%20does%20the%20%27VerifyAllExpectations%27%20extension%20method%20work%3f%0a%20%20What%26%238217%3bs%20the%20difference%20between%20the%20%27GenerateMock%27%20and%20%27GenerateStub%27%20methods%20on%20MockRepository%3f%0a%20%20How%20does%20the%20%27AssertWasNotCalled%27%20extension%20method%20actually%20work%3f..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Replacing for loops with data frames" />
         
-          <meta name="twitter:description" content="Suppose I select a die from the box at random, roll it, and get a 6. What is the probability that I rolled each die?
-likelihoods = function(names, observations) { scores = rep(1.0 / length(names), length(names)) names(scores) = names for(name in names) { for(observation in observations) { if(name &lt; observation) { scores[paste(name)] = 0 } else { scores[paste(name)] = scores[paste(name)] * (1.0 / name) } } } return(scores) } dice = c(4,6,8,12,20) l1 = likelihoods(dice, c(6)) &gt; l1 / sum(l1) 4 6 8 12 20 0." />
+          <meta name="twitter:description" content="In my last blog post I showed how to derive posterior probabilities for the Think Bayes dice problem:
+  Suppose I have a box of dice that contains a 4-sided die, a 6-sided die, an 8-sided die, a 12-sided die, and a 20-sided die. If you have ever played Dungeons &amp; Dragons, you know what I am talking about. Suppose I select a die from the box at random, roll it, and get a 6." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/04/22/r-replacing-for-loops-with-data-frames/" />
 
@@ -34,8 +34,8 @@ likelihoods = function(names, observations) { scores = rep(1.0 / length(names), 
         <title> R: Replacing for loops with data frames &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="Suppose I select a die from the box at random, roll it, and get a 6. What is the probability that I rolled each die?
-likelihoods = function(names, observations) { scores = rep(1.0 / length(names), length(names)) names(scores) = names for(name in names) { for(observation in observations) { if(name &lt; observation) { scores[paste(name)] = 0 } else { scores[paste(name)] = scores[paste(name)] * (1.0 / name) } } } return(scores) } dice = c(4,6,8,12,20) l1 = likelihoods(dice, c(6)) &gt; l1 / sum(l1) 4 6 8 12 20 0." />
+        <meta name="description" content="In my last blog post I showed how to derive posterior probabilities for the Think Bayes dice problem:
+  Suppose I have a box of dice that contains a 4-sided die, a 6-sided die, an 8-sided die, a 12-sided die, and a 20-sided die. If you have ever played Dungeons &amp; Dragons, you know what I am talking about. Suppose I select a die from the box at random, roll it, and get a 6." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ likelihoods = function(names, observations) { scores = rep(1.0 / length(names), 
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-04-22",
-        "description": "Suppose I select a die from the box at random, roll it, and get a 6.\u2028What is the probability that I rolled each die?\nlikelihoods = function(names, observations) { scores = rep(1.0 \/ length(names), length(names)) names(scores) = names for(name in names) { for(observation in observations) { if(name \x26lt; observation) { scores[paste(name)] = 0 } else { scores[paste(name)] = scores[paste(name)] * (1.0 \/ name) } } } return(scores) } dice = c(4,6,8,12,20) l1 = likelihoods(dice, c(6)) \x26gt; l1 \/ sum(l1) 4 6 8 12 20 0.",
-        "wordCount":  601 
+        "description": "In my last blog post I showed how to derive posterior probabilities for the Think Bayes dice problem:\n  Suppose I have a box of dice that contains a 4-sided die, a 6-sided die, an 8-sided die, a 12-sided die, and a 20-sided die. If you have ever played Dungeons \x26amp; Dragons, you know what I am talking about. Suppose I select a die from the box at random, roll it, and get a 6.",
+        "wordCount":  873 
     }
     </script>
     
@@ -174,181 +174,225 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Replacing for loops with data frames</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>Suppose I select a die from the box at random, roll it, and get a 6. What is the probability that I rolled each die?</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-R" data-lang="R">
-likelihoods <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(names, observations) {
-  scores <span style="color:#f92672">=</span> <span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">length</span>(names), <span style="color:#a6e22e">length</span>(names))  
-  <span style="color:#a6e22e">names</span>(scores) <span style="color:#f92672">=</span> names
- 
-  <span style="color:#a6e22e">for</span>(name in names) {
-      <span style="color:#a6e22e">for</span>(observation in observations) {
-        <span style="color:#a6e22e">if</span>(name <span style="color:#f92672">&lt;</span> observation) {
-          scores<span style="color:#a6e22e">[paste</span>(name)]  <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+    <div class="paragraph">
+<p>In my last blog post I showed how to <a href="http://www.markhneedham.com/blog/2015/04/21/r-numeric-keys-in-the-nested-listdictionary/">derive posterior probabilities for the Think Bayes dice problem</a>:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Suppose I have a box of dice that contains a 4-sided die, a 6-sided die, an 8-sided die, a 12-sided die, and a 20-sided die. If you have ever played Dungeons &amp; Dragons, you know what I am talking about. Suppose I select a die from the box at random, roll it, and get a 6. What is the probability that I rolled each die?</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>To recap, this was my final solution:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-R" data-lang="R">likelihoods = function(names, observations) {
+  scores = rep(1.0 / length(names), length(names))
+  names(scores) = names
+
+  for(name in names) {
+      for(observation in observations) {
+        if(name &lt; observation) {
+          scores[paste(name)]  = 0
         } else {
-          scores<span style="color:#a6e22e">[paste</span>(name)] <span style="color:#f92672">=</span> scores<span style="color:#a6e22e">[paste</span>(name)] <span style="color:#f92672">*</span>  (<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> name)
-        }        
+          scores[paste(name)] = scores[paste(name)] *  (1.0 / name)
+        }
       }
-    }  
-  <span style="color:#a6e22e">return</span>(scores)
+    }
+  return(scores)
 }
- 
-dice <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">12</span>,<span style="color:#ae81ff">20</span>)
-l1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">likelihoods</span>(dice, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">6</span>))
 
-<span style="color:#f92672">&gt;</span> l1 <span style="color:#f92672">/</span> <span style="color:#a6e22e">sum</span>(l1)
-        <span style="color:#ae81ff">4</span>         <span style="color:#ae81ff">6</span>         <span style="color:#ae81ff">8</span>        <span style="color:#ae81ff">12</span>        <span style="color:#ae81ff">20</span> 
-<span style="color:#ae81ff">0.0000000</span> <span style="color:#ae81ff">0.3921569</span> <span style="color:#ae81ff">0.2941176</span> <span style="color:#ae81ff">0.1960784</span> <span style="color:#ae81ff">0.1176471</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-scores <span style="color:#f92672">=</span> <span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">length</span>(names), <span style="color:#a6e22e">length</span>(names))  
-df <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>(score <span style="color:#f92672">=</span> scores, name <span style="color:#f92672">=</span> names)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">library</span>(dplyr)
-likelihoods2 <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(names, observations) {
-  scores <span style="color:#f92672">=</span> <span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">length</span>(names), <span style="color:#a6e22e">length</span>(names))  
-  df <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>(score <span style="color:#f92672">=</span> scores, name <span style="color:#f92672">=</span> names)
-  
-  <span style="color:#a6e22e">for</span>(observation in observations) {
-    df <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(score <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(name <span style="color:#f92672">&lt;</span> observation, <span style="color:#ae81ff">0</span>, score <span style="color:#f92672">*</span> (<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> name)) )
+dice = c(4,6,8,12,20)
+l1 = likelihoods(dice, c(6))
+
+&gt; l1 / sum(l1)
+        4         6         8        12        20
+0.0000000 0.3921569 0.2941176 0.1960784 0.1176471</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Although it works we have nested for loops which aren&#8217;t very idiomatic R so let&#8217;s try and get rid of them.</p>
+</div>
+<div class="paragraph">
+<p>The first thing we want to do is return a data frame rather than a vector so we tweak the first two lines to read like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">scores = rep(1.0 / length(names), length(names))
+df = data.frame(score = scores, name = names)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next we can get rid of the inner for loop and replace it with a call to ifelse wrapped inside a dplyr mutate call:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">library(dplyr)
+likelihoods2 = function(names, observations) {
+  scores = rep(1.0 / length(names), length(names))
+  df = data.frame(score = scores, name = names)
+
+  for(observation in observations) {
+    df = df %&gt;% mutate(score = ifelse(name &lt; observation, 0, score * (1.0 / name)) )
   }
-  
-  <span style="color:#a6e22e">return</span>(df)
+
+  return(df)
 }
 
-dice <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">12</span>,<span style="color:#ae81ff">20</span>)
-l1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">likelihoods2</span>(dice, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">6</span>))
+dice = c(4,6,8,12,20)
+l1 = likelihoods2(dice, c(6))
 
-<span style="color:#f92672">&gt;</span> l1
+&gt; l1
        score name
-<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">0.00000000</span>    <span style="color:#ae81ff">4</span>
-<span style="color:#ae81ff">2</span> <span style="color:#ae81ff">0.03333333</span>    <span style="color:#ae81ff">6</span>
-<span style="color:#ae81ff">3</span> <span style="color:#ae81ff">0.02500000</span>    <span style="color:#ae81ff">8</span>
-<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.01666667</span>   <span style="color:#ae81ff">12</span>
-<span style="color:#ae81ff">5</span> <span style="color:#ae81ff">0.01000000</span>   <span style="color:#ae81ff">20</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-likelihoods2 <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(names, observations) {
-  scores <span style="color:#f92672">=</span> <span style="color:#a6e22e">rep</span>(<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> <span style="color:#a6e22e">length</span>(names), <span style="color:#a6e22e">length</span>(names))  
-  df <span style="color:#f92672">=</span> <span style="color:#a6e22e">data.frame</span>(score <span style="color:#f92672">=</span> scores, name <span style="color:#f92672">=</span> names)
-  
-  <span style="color:#a6e22e">for</span>(observation in observations) {
-    df <span style="color:#f92672">=</span> df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(score <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(name <span style="color:#f92672">&lt;</span> observation, <span style="color:#ae81ff">0</span>, score <span style="color:#f92672">*</span> (<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> name)) )
+1 0.00000000    4
+2 0.03333333    6
+3 0.02500000    8
+4 0.01666667   12
+5 0.01000000   20</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally we&#8217;ll tidy up the scores so they&#8217;re relatively weighted against each other:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">likelihoods2 = function(names, observations) {
+  scores = rep(1.0 / length(names), length(names))
+  df = data.frame(score = scores, name = names)
+
+  for(observation in observations) {
+    df = df %&gt;% mutate(score = ifelse(name &lt; observation, 0, score * (1.0 / name)) )
   }
-  
-  <span style="color:#a6e22e">return</span>(df <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(weighted <span style="color:#f92672">=</span> score <span style="color:#f92672">/</span> <span style="color:#a6e22e">sum</span>(score)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(name, weighted))
+
+  return(df %&gt;% mutate(weighted = score / sum(score)) %&gt;% select(name, weighted))
 }
 
-dice <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">12</span>,<span style="color:#ae81ff">20</span>)
-l1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">likelihoods2</span>(dice, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">6</span>))
+dice = c(4,6,8,12,20)
+l1 = likelihoods2(dice, c(6))
 
-<span style="color:#f92672">&gt;</span> l1
+&gt; l1
   name  weighted
-<span style="color:#ae81ff">1</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.0000000</span>
-<span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.3921569</span>
-<span style="color:#ae81ff">3</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.2941176</span>
-<span style="color:#ae81ff">4</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.1960784</span>
-<span style="color:#ae81ff">5</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.1176471</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-likelihoods3 <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(names, observations) {
-  l <span style="color:#f92672">=</span> <span style="color:#a6e22e">list</span>(observation <span style="color:#f92672">=</span> observations, roll <span style="color:#f92672">=</span> names)
-  obsDf <span style="color:#f92672">=</span> <span style="color:#a6e22e">do.call</span>(expand.grid,l) <span style="color:#f92672">%&gt;%</span> 
-    <span style="color:#a6e22e">mutate</span>(likelihood <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> roll, 
-           score <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(roll <span style="color:#f92672">&lt;</span> observation, <span style="color:#ae81ff">0</span>, likelihood))   
+1    4 0.0000000
+2    6 0.3921569
+3    8 0.2941176
+4   12 0.1960784
+5   20 0.1176471</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re down to just the one for loop. Getting rid of that one is a bit trickier. First we&#8217;ll create a data frame which contains a row for every (observation, dice) pair, simulating the nested for loops:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">likelihoods3 = function(names, observations) {
+  l = list(observation = observations, roll = names)
+  obsDf = do.call(expand.grid,l) %&gt;%
+    mutate(likelihood = 1.0 / roll,
+           score = ifelse(roll &lt; observation, 0, likelihood))
 
-  <span style="color:#a6e22e">return</span>(obsDf)
+  return(obsDf)
 }
 
-dice <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">12</span>,<span style="color:#ae81ff">20</span>)
-l1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">likelihoods3</span>(dice, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">6</span>))
+dice = c(4,6,8,12,20)
+l1 = likelihoods3(dice, c(6))
 
-<span style="color:#f92672">&gt;</span> l1
+&gt; l1
   observation roll likelihood      score
-<span style="color:#ae81ff">1</span>           <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.25000000</span> <span style="color:#ae81ff">0.00000000</span>
-<span style="color:#ae81ff">2</span>           <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.16666667</span> <span style="color:#ae81ff">0.16666667</span>
-<span style="color:#ae81ff">3</span>           <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.12500000</span> <span style="color:#ae81ff">0.12500000</span>
-<span style="color:#ae81ff">4</span>           <span style="color:#ae81ff">6</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.08333333</span> <span style="color:#ae81ff">0.08333333</span>
-<span style="color:#ae81ff">5</span>           <span style="color:#ae81ff">6</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.05000000</span> <span style="color:#ae81ff">0.05000000</span>
+1           6    4 0.25000000 0.00000000
+2           6    6 0.16666667 0.16666667
+3           6    8 0.12500000 0.12500000
+4           6   12 0.08333333 0.08333333
+5           6   20 0.05000000 0.05000000
 
-l2 <span style="color:#f92672">=</span> <span style="color:#a6e22e">likelihoods3</span>(dice, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">2</span>))
-<span style="color:#f92672">&gt;</span> l2
+l2 = likelihoods3(dice, c(6, 4, 8, 7, 7, 2))
+&gt; l2
    observation roll likelihood      score
-<span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.25000000</span> <span style="color:#ae81ff">0.00000000</span>
-<span style="color:#ae81ff">2</span>            <span style="color:#ae81ff">4</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.25000000</span> <span style="color:#ae81ff">0.25000000</span>
-<span style="color:#ae81ff">3</span>            <span style="color:#ae81ff">8</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.25000000</span> <span style="color:#ae81ff">0.00000000</span>
-<span style="color:#ae81ff">4</span>            <span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.25000000</span> <span style="color:#ae81ff">0.00000000</span>
-<span style="color:#ae81ff">5</span>            <span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.25000000</span> <span style="color:#ae81ff">0.00000000</span>
-<span style="color:#ae81ff">6</span>            <span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.25000000</span> <span style="color:#ae81ff">0.25000000</span>
-<span style="color:#ae81ff">7</span>            <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.16666667</span> <span style="color:#ae81ff">0.16666667</span>
-<span style="color:#ae81ff">8</span>            <span style="color:#ae81ff">4</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.16666667</span> <span style="color:#ae81ff">0.16666667</span>
-<span style="color:#ae81ff">9</span>            <span style="color:#ae81ff">8</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.16666667</span> <span style="color:#ae81ff">0.00000000</span>
-<span style="color:#ae81ff">10</span>           <span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.16666667</span> <span style="color:#ae81ff">0.00000000</span>
-<span style="color:#ae81ff">11</span>           <span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.16666667</span> <span style="color:#ae81ff">0.00000000</span>
-<span style="color:#ae81ff">12</span>           <span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.16666667</span> <span style="color:#ae81ff">0.16666667</span>
-<span style="color:#ae81ff">13</span>           <span style="color:#ae81ff">6</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.12500000</span> <span style="color:#ae81ff">0.12500000</span>
-<span style="color:#ae81ff">14</span>           <span style="color:#ae81ff">4</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.12500000</span> <span style="color:#ae81ff">0.12500000</span>
-<span style="color:#ae81ff">15</span>           <span style="color:#ae81ff">8</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.12500000</span> <span style="color:#ae81ff">0.12500000</span>
-<span style="color:#ae81ff">16</span>           <span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.12500000</span> <span style="color:#ae81ff">0.12500000</span>
-<span style="color:#ae81ff">17</span>           <span style="color:#ae81ff">7</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.12500000</span> <span style="color:#ae81ff">0.12500000</span>
-<span style="color:#ae81ff">18</span>           <span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.12500000</span> <span style="color:#ae81ff">0.12500000</span>
-<span style="color:#ae81ff">19</span>           <span style="color:#ae81ff">6</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.08333333</span> <span style="color:#ae81ff">0.08333333</span>
-<span style="color:#ae81ff">20</span>           <span style="color:#ae81ff">4</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.08333333</span> <span style="color:#ae81ff">0.08333333</span>
-<span style="color:#ae81ff">21</span>           <span style="color:#ae81ff">8</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.08333333</span> <span style="color:#ae81ff">0.08333333</span>
-<span style="color:#ae81ff">22</span>           <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.08333333</span> <span style="color:#ae81ff">0.08333333</span>
-<span style="color:#ae81ff">23</span>           <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.08333333</span> <span style="color:#ae81ff">0.08333333</span>
-<span style="color:#ae81ff">24</span>           <span style="color:#ae81ff">2</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.08333333</span> <span style="color:#ae81ff">0.08333333</span>
-<span style="color:#ae81ff">25</span>           <span style="color:#ae81ff">6</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.05000000</span> <span style="color:#ae81ff">0.05000000</span>
-<span style="color:#ae81ff">26</span>           <span style="color:#ae81ff">4</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.05000000</span> <span style="color:#ae81ff">0.05000000</span>
-<span style="color:#ae81ff">27</span>           <span style="color:#ae81ff">8</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.05000000</span> <span style="color:#ae81ff">0.05000000</span>
-<span style="color:#ae81ff">28</span>           <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.05000000</span> <span style="color:#ae81ff">0.05000000</span>
-<span style="color:#ae81ff">29</span>           <span style="color:#ae81ff">7</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.05000000</span> <span style="color:#ae81ff">0.05000000</span>
-<span style="color:#ae81ff">30</span>           <span style="color:#ae81ff">2</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.05000000</span> <span style="color:#ae81ff">0.05000000</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-likelihoods3 <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(names, observations) {
-  l <span style="color:#f92672">=</span> <span style="color:#a6e22e">list</span>(observation <span style="color:#f92672">=</span> observations, roll <span style="color:#f92672">=</span> names)
-  obsDf <span style="color:#f92672">=</span> <span style="color:#a6e22e">do.call</span>(expand.grid,l) <span style="color:#f92672">%&gt;%</span> 
-    <span style="color:#a6e22e">mutate</span>(likelihood <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.0</span> <span style="color:#f92672">/</span> roll, 
-           score <span style="color:#f92672">=</span> <span style="color:#a6e22e">ifelse</span>(roll <span style="color:#f92672">&lt;</span> observation, <span style="color:#ae81ff">0</span>, likelihood))   
-  
-  <span style="color:#a6e22e">return </span>(obsDf <span style="color:#f92672">%&gt;%</span> 
-    <span style="color:#a6e22e">group_by</span>(roll) <span style="color:#f92672">%&gt;%</span> 
-    <span style="color:#a6e22e">summarise</span>(s <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1.0</span><span style="color:#f92672">/</span><span style="color:#a6e22e">length</span>(names)) <span style="color:#f92672">*</span> <span style="color:#a6e22e">prod</span>(score) ) <span style="color:#f92672">%&gt;%</span>
-    <span style="color:#a6e22e">ungroup</span>() <span style="color:#f92672">%&gt;%</span> 
-    <span style="color:#a6e22e">mutate</span>(weighted <span style="color:#f92672">=</span> s <span style="color:#f92672">/</span> <span style="color:#a6e22e">sum</span>(s)) <span style="color:#f92672">%&gt;%</span>
-    <span style="color:#a6e22e">select</span>(roll, weighted))
+1            6    4 0.25000000 0.00000000
+2            4    4 0.25000000 0.25000000
+3            8    4 0.25000000 0.00000000
+4            7    4 0.25000000 0.00000000
+5            7    4 0.25000000 0.00000000
+6            2    4 0.25000000 0.25000000
+7            6    6 0.16666667 0.16666667
+8            4    6 0.16666667 0.16666667
+9            8    6 0.16666667 0.00000000
+10           7    6 0.16666667 0.00000000
+11           7    6 0.16666667 0.00000000
+12           2    6 0.16666667 0.16666667
+13           6    8 0.12500000 0.12500000
+14           4    8 0.12500000 0.12500000
+15           8    8 0.12500000 0.12500000
+16           7    8 0.12500000 0.12500000
+17           7    8 0.12500000 0.12500000
+18           2    8 0.12500000 0.12500000
+19           6   12 0.08333333 0.08333333
+20           4   12 0.08333333 0.08333333
+21           8   12 0.08333333 0.08333333
+22           7   12 0.08333333 0.08333333
+23           7   12 0.08333333 0.08333333
+24           2   12 0.08333333 0.08333333
+25           6   20 0.05000000 0.05000000
+26           4   20 0.05000000 0.05000000
+27           8   20 0.05000000 0.05000000
+28           7   20 0.05000000 0.05000000
+29           7   20 0.05000000 0.05000000
+30           2   20 0.05000000 0.05000000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we need to iterate over the data frame, grouping by 'roll' so that we end up with one row for each one.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll add a new column which stores the posterior probability for each dice. This will be calculated by multiplying the prior probability by the product of the 'score' entries.</p>
+</div>
+<div class="paragraph">
+<p>This is what our new likelihood function looks like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">likelihoods3 = function(names, observations) {
+  l = list(observation = observations, roll = names)
+  obsDf = do.call(expand.grid,l) %&gt;%
+    mutate(likelihood = 1.0 / roll,
+           score = ifelse(roll &lt; observation, 0, likelihood))
+
+  return (obsDf %&gt;%
+    group_by(roll) %&gt;%
+    summarise(s = (1.0/length(names)) * prod(score) ) %&gt;%
+    ungroup() %&gt;%
+    mutate(weighted = s / sum(s)) %&gt;%
+    select(roll, weighted))
 }
 
-l1 <span style="color:#f92672">=</span> <span style="color:#a6e22e">likelihoods3</span>(dice, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">6</span>))
-<span style="color:#f92672">&gt;</span> l1
-Source<span style="color:#f92672">:</span> local data frame [5 x <span style="color:#ae81ff">2</span>]
+l1 = likelihoods3(dice, c(6))
+&gt; l1
+Source: local data frame [5 x 2]
 
   roll  weighted
-<span style="color:#ae81ff">1</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.0000000</span>
-<span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.3921569</span>
-<span style="color:#ae81ff">3</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.2941176</span>
-<span style="color:#ae81ff">4</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.1960784</span>
-<span style="color:#ae81ff">5</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.1176471</span>
- 
-l2 <span style="color:#f92672">=</span> <span style="color:#a6e22e">likelihoods3</span>(dice, <span style="color:#a6e22e">c</span>(<span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">2</span>))
-<span style="color:#f92672">&gt;</span> l2
-Source<span style="color:#f92672">:</span> local data frame [5 x <span style="color:#ae81ff">2</span>]
+1    4 0.0000000
+2    6 0.3921569
+3    8 0.2941176
+4   12 0.1960784
+5   20 0.1176471
+
+l2 = likelihoods3(dice, c(6, 4, 8, 7, 7, 2))
+&gt; l2
+Source: local data frame [5 x 2]
 
   roll    weighted
-<span style="color:#ae81ff">1</span>    <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">0.000000000</span>
-<span style="color:#ae81ff">2</span>    <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">0.000000000</span>
-<span style="color:#ae81ff">3</span>    <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">0.915845272</span>
-<span style="color:#ae81ff">4</span>   <span style="color:#ae81ff">12</span> <span style="color:#ae81ff">0.080403426</span>
-<span style="color:#ae81ff">5</span>   <span style="color:#ae81ff">20</span> <span style="color:#ae81ff">0.003751302</span>
-</code></pre></div><!-- raw HTML omitted -->
+1    4 0.000000000
+2    6 0.000000000
+3    8 0.915845272
+4   12 0.080403426
+5   20 0.003751302</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve now got the same result as we did with our nested for loops so I think the refactoring has been a success.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -383,7 +427,7 @@ Source<span style="color:#f92672">:</span> local data frame [5 x <span style="co
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/04/22/r-replacing-for-loops-with-data-frames/&amp;title=R%3a%20Replacing%20for%20loops%20with%20data%20frames&amp;summary=Suppose%20I%20select%20a%20die%20from%20the%20box%20at%20random%2c%20roll%20it%2c%20and%20get%20a%206.%e2%80%a8What%20is%20the%20probability%20that%20I%20rolled%20each%20die%3f%0alikelihoods%20%3d%20function%28names%2c%20observations%29%20%7b%20scores%20%3d%20rep%281.0%20%2f%20length%28names%29%2c%20length%28names%29%29%20names%28scores%29%20%3d%20names%20for%28name%20in%20names%29%20%7b%20for%28observation%20in%20observations%29%20%7b%20if%28name%20%26lt%3b%20observation%29%20%7b%20scores%5bpaste%28name%29%5d%20%3d%200%20%7d%20else%20%7b%20scores%5bpaste%28name%29%5d%20%3d%20scores%5bpaste%28name%29%5d%20%2a%20%281.0%20%2f%20name%29%20%7d%20%7d%20%7d%20return%28scores%29%20%7d%20dice%20%3d%20c%284%2c6%2c8%2c12%2c20%29%20l1%20%3d%20likelihoods%28dice%2c%20c%286%29%29%20%26gt%3b%20l1%20%2f%20sum%28l1%29%204%206%208%2012%2020%200...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/04/22/r-replacing-for-loops-with-data-frames/&amp;title=R%3a%20Replacing%20for%20loops%20with%20data%20frames&amp;summary=In%20my%20last%20blog%20post%20I%20showed%20how%20to%20derive%20posterior%20probabilities%20for%20the%20Think%20Bayes%20dice%20problem%3a%0a%20%20Suppose%20I%20have%20a%20box%20of%20dice%20that%20contains%20a%204-sided%20die%2c%20a%206-sided%20die%2c%20an%208-sided%20die%2c%20a%2012-sided%20die%2c%20and%20a%2020-sided%20die.%20If%20you%20have%20ever%20played%20Dungeons%20%26amp%3b%20Dragons%2c%20you%20know%20what%20I%20am%20talking%20about.%20Suppose%20I%20select%20a%20die%20from%20the%20box%20at%20random%2c%20roll%20it%2c%20and%20get%20a%206...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

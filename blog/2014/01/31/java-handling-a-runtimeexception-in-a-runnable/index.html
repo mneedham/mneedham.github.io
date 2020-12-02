@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Java: Handling a RuntimeException in a Runnable" />
         
-          <meta name="twitter:description" content="import java.util.ArrayList; import java.util.List; import java.util.concurrent.*; public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(); executor.scheduleAtFixedRate(new Runnable() { @Override public void run() { System.out.println(Thread.currentThread().getName() &#43; &#34; -&gt; &#34; &#43; System.currentTimeMillis()); throw new RuntimeException(&#34;game over&#34;); } }, 0, 1000, TimeUnit.MILLISECONDS).get(); System.out.println(&#34;exit&#34;); executor.shutdown(); } } Exception in thread &#34;main&#34; pool-1-thread-1 -&gt; 1391212558074 java.util.concurrent.ExecutionException: java.lang.RuntimeException: game over at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:252) at java.util.concurrent.FutureTask.get(FutureTask.java:111) at RunnableBlog.main(RunnableBlog.java:11) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun." />
+          <meta name="twitter:description" content="At the end of last year I was playing around with running scheduled tasks to monitor a Neo4j cluster and one of the problems I ran into was that the monitoring would sometimes exit.
+ I eventually realised that this was because a RuntimeException was being thrown inside the Runnable method and I wasn&#8217;t handling it. The following code demonstrates the problem:
+ import java.util.ArrayList; import java.util.List; import java.util.concurrent.*; public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/01/31/java-handling-a-runtimeexception-in-a-runnable/" />
 
@@ -33,7 +35,9 @@
         <title> Java: Handling a RuntimeException in a Runnable &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="import java.util.ArrayList; import java.util.List; import java.util.concurrent.*; public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(); executor.scheduleAtFixedRate(new Runnable() { @Override public void run() { System.out.println(Thread.currentThread().getName() &#43; &#34; -&gt; &#34; &#43; System.currentTimeMillis()); throw new RuntimeException(&#34;game over&#34;); } }, 0, 1000, TimeUnit.MILLISECONDS).get(); System.out.println(&#34;exit&#34;); executor.shutdown(); } } Exception in thread &#34;main&#34; pool-1-thread-1 -&gt; 1391212558074 java.util.concurrent.ExecutionException: java.lang.RuntimeException: game over at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:252) at java.util.concurrent.FutureTask.get(FutureTask.java:111) at RunnableBlog.main(RunnableBlog.java:11) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun." />
+        <meta name="description" content="At the end of last year I was playing around with running scheduled tasks to monitor a Neo4j cluster and one of the problems I ran into was that the monitoring would sometimes exit.
+ I eventually realised that this was because a RuntimeException was being thrown inside the Runnable method and I wasn&#8217;t handling it. The following code demonstrates the problem:
+ import java.util.ArrayList; import java.util.List; import java.util.concurrent.*; public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-01-31",
-        "description": "import java.util.ArrayList; import java.util.List; import java.util.concurrent.*; public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(); executor.scheduleAtFixedRate(new Runnable() { @Override public void run() { System.out.println(Thread.currentThread().getName() \x2b \x26#34; -\x26gt; \x26#34; \x2b System.currentTimeMillis()); throw new RuntimeException(\x26#34;game over\x26#34;); } }, 0, 1000, TimeUnit.MILLISECONDS).get(); System.out.println(\x26#34;exit\x26#34;); executor.shutdown(); } } Exception in thread \x26#34;main\x26#34; pool-1-thread-1 -\x26gt; 1391212558074 java.util.concurrent.ExecutionException: java.lang.RuntimeException: game over at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:252) at java.util.concurrent.FutureTask.get(FutureTask.java:111) at RunnableBlog.main(RunnableBlog.java:11) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.",
-        "wordCount":  327 
+        "description": "At the end of last year I was playing around with running scheduled tasks to monitor a Neo4j cluster and one of the problems I ran into was that the monitoring would sometimes exit.\n I eventually realised that this was because a RuntimeException was being thrown inside the Runnable method and I wasn\x26#8217;t handling it. The following code demonstrates the problem:\n import java.util.ArrayList; import java.util.List; import java.util.concurrent.*; public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors.",
+        "wordCount":  530 
     }
     </script>
     
@@ -172,33 +176,43 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Java: Handling a RuntimeException in a Runnable</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">import</span> java.util.ArrayList<span style="color:#f92672">;</span>
-<span style="color:#f92672">import</span> java.util.List<span style="color:#f92672">;</span>
-<span style="color:#f92672">import</span> java.util.concurrent.*<span style="color:#f92672">;</span>
+    <div class="paragraph">
+<p>At the end of last year I was playing around with <a href="http://www.markhneedham.com/blog/2013/11/17/java-schedule-a-job-to-run-on-a-time-interval/">running scheduled tasks to monitor a Neo4j cluster</a> and one of the problems I ran into was that the monitoring would sometimes exit.</p>
+</div>
+<div class="paragraph">
+<p>I eventually realised that this was because a RuntimeException was being thrown inside the Runnable method and I wasn&#8217;t handling it. The following code demonstrates the problem:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RunnableBlog</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ExecutionException<span style="color:#f92672">,</span> InterruptedException <span style="color:#f92672">{</span>
-        ScheduledExecutorService executor <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newSingleThreadScheduledExecutor</span><span style="color:#f92672">();</span>
+public class RunnableBlog {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-        executor<span style="color:#f92672">.</span><span style="color:#a6e22e">scheduleAtFixedRate</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Runnable<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-                    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; -&gt; &#34;</span> <span style="color:#f92672">+</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">currentTimeMillis</span><span style="color:#f92672">());</span>
-                    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;game over&#34;</span><span style="color:#f92672">);</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">},</span> 0<span style="color:#f92672">,</span> 1000<span style="color:#f92672">,</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">MILLISECONDS</span><span style="color:#f92672">).</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+        executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                    System.out.println(Thread.currentThread().getName() + " -&gt; " + System.currentTimeMillis());
+                    throw new RuntimeException("game over");
+            }
+        }, 0, 1000, TimeUnit.MILLISECONDS).get();
 
 
-        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;exit&#34;</span><span style="color:#f92672">);</span>
-        executor<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Exception in thread &#34;main&#34; pool-1-thread-1 -&gt; 1391212558074
+        System.out.println("exit");
+        executor.shutdown();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run that code we&#8217;ll see the RuntimeException but the executor won&#8217;t exit because the thread died without informing it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Exception in thread "main" pool-1-thread-1 -&gt; 1391212558074
 java.util.concurrent.ExecutionException: java.lang.RuntimeException: game over
 	at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:252)
 	at java.util.concurrent.FutureTask.get(FutureTask.java:111)
@@ -217,32 +231,42 @@ Caused by: java.lang.RuntimeException: game over
 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)
-	at java.lang.Thread.run(Thread.java:722)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RunnableBlog</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ExecutionException<span style="color:#f92672">,</span> InterruptedException <span style="color:#f92672">{</span>
-        ScheduledExecutorService executor <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newSingleThreadScheduledExecutor</span><span style="color:#f92672">();</span>
+	at java.lang.Thread.run(Thread.java:722)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At the time I ended up adding a try catch block and printing the exception like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class RunnableBlog {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-        executor<span style="color:#f92672">.</span><span style="color:#a6e22e">scheduleAtFixedRate</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Runnable<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-                    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; -&gt; &#34;</span> <span style="color:#f92672">+</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">currentTimeMillis</span><span style="color:#f92672">());</span>
-                    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;game over&#34;</span><span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>RuntimeException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                    e<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">},</span> 0<span style="color:#f92672">,</span> 1000<span style="color:#f92672">,</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">MILLISECONDS</span><span style="color:#f92672">).</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+        executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println(Thread.currentThread().getName() + " -&gt; " + System.currentTimeMillis());
+                    throw new RuntimeException("game over");
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, 1000, TimeUnit.MILLISECONDS).get();
 
-        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;exit&#34;</span><span style="color:#f92672">);</span>
-        executor<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-java.lang.RuntimeException: game over
+        System.out.println("exit");
+        executor.shutdown();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This allows the exception to be recognised and as far as I can tell means that the thread executing the Runnable doesn&#8217;t die.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">java.lang.RuntimeException: game over
 pool-1-thread-1 -&gt; 1391212651955
 	at RunnableBlog$1.run(RunnableBlog.java:16)
 	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
@@ -274,33 +298,18 @@ java.lang.RuntimeException: game over
 	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)
-	at java.lang.Thread.run(Thread.java:722)
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>&lt;p.The authors suggest the proper way of handling an exception is to let the thread die but inform the framework that it&rsquo;s died so another thread can be spun up in its place. We end up with the following code instead:<!-- raw HTML omitted --></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RunnableBlog</span> <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> ExecutionException<span style="color:#f92672">,</span> InterruptedException <span style="color:#f92672">{</span>
-        ScheduledExecutorService executor <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newSingleThreadScheduledExecutor</span><span style="color:#f92672">();</span>
-
-        executor<span style="color:#f92672">.</span><span style="color:#a6e22e">scheduleAtFixedRate</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> Runnable<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-            <span style="color:#a6e22e">@Override</span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
-                    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span>Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getName</span><span style="color:#f92672">()</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; -&gt; &#34;</span> <span style="color:#f92672">+</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">currentTimeMillis</span><span style="color:#f92672">());</span>
-                    <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;game over&#34;</span><span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>RuntimeException e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                    Thread t <span style="color:#f92672">=</span> Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">();</span>
-                    t<span style="color:#f92672">.</span><span style="color:#a6e22e">getUncaughtExceptionHandler</span><span style="color:#f92672">().</span><span style="color:#a6e22e">uncaughtException</span><span style="color:#f92672">(</span>t<span style="color:#f92672">,</span> e<span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">},</span> 0<span style="color:#f92672">,</span> 1000<span style="color:#f92672">,</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">MILLISECONDS</span><span style="color:#f92672">).</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
-
-        System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;exit&#34;</span><span style="color:#f92672">);</span>
-        executor<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
+	at java.lang.Thread.run(Thread.java:722)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This worked well and allowed me to keep monitoring the cluster.</p>
+</div>
+<div class="paragraph">
+<p>However, I recently started reading 'http://www.amazon.co.uk/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601[Java Concurrency in Practice]' (only 6 years after I bought it!) and realised that this might not be the proper way of handling the RuntimeException. &lt;p.The authors suggest the proper way of handling an exception is to let the thread die but inform the framework that it&#8217;s died so another thread can be spun up in its place. We end up with the following code instead: <sub>~</sub>java public class RunnableBlog { public static void main(String[] args) throws ExecutionException, InterruptedException { ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(); executor.scheduleAtFixedRate(new Runnable() { @Override public void run() { try { System.out.println(Thread.currentThread().getName() + " -&gt; " + System.currentTimeMillis()); throw new RuntimeException("game over"); } catch (RuntimeException e) { Thread t = Thread.currentThread(); t.getUncaughtExceptionHandler().uncaughtException(t, e); } } }, 0, 1000, TimeUnit.MILLISECONDS).get(); System.out.println("exit"); executor.shutdown(); } } <sub>~</sub></p>
+</div>
+<div class="paragraph">
+<p>I don&#8217;t see much difference between the two approaches so it&#8217;d be great if someone could explain to me why this approach is better than my previous one of catching the exception and printing the stack trace.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -335,7 +344,7 @@ java.lang.RuntimeException: game over
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/01/31/java-handling-a-runtimeexception-in-a-runnable/&amp;title=Java%3a%20Handling%20a%20RuntimeException%20in%20a%20Runnable&amp;summary=import%20java.util.ArrayList%3b%20import%20java.util.List%3b%20import%20java.util.concurrent.%2a%3b%20public%20class%20RunnableBlog%20%7b%20public%20static%20void%20main%28String%5b%5d%20args%29%20throws%20ExecutionException%2c%20InterruptedException%20%7b%20ScheduledExecutorService%20executor%20%3d%20Executors.newSingleThreadScheduledExecutor%28%29%3b%20executor.scheduleAtFixedRate%28new%20Runnable%28%29%20%7b%20%40Override%20public%20void%20run%28%29%20%7b%20System.out.println%28Thread.currentThread%28%29.getName%28%29%20%2b%20%26%2334%3b%20-%26gt%3b%20%26%2334%3b%20%2b%20System.currentTimeMillis%28%29%29%3b%20throw%20new%20RuntimeException%28%26%2334%3bgame%20over%26%2334%3b%29%3b%20%7d%20%7d%2c%200%2c%201000%2c%20TimeUnit.MILLISECONDS%29.get%28%29%3b%20System.out.println%28%26%2334%3bexit%26%2334%3b%29%3b%20executor.shutdown%28%29%3b%20%7d%20%7d%20Exception%20in%20thread%20%26%2334%3bmain%26%2334%3b%20pool-1-thread-1%20-%26gt%3b%201391212558074%20java.util.concurrent.ExecutionException%3a%20java.lang.RuntimeException%3a%20game%20over%20at%20java.util.concurrent.FutureTask%24Sync.innerGet%28FutureTask.java%3a252%29%20at%20java.util.concurrent.FutureTask.get%28FutureTask.java%3a111%29%20at%20RunnableBlog.main%28RunnableBlog.java%3a11%29%20at%20sun.reflect.NativeMethodAccessorImpl.invoke0%28Native%20Method%29%20at%20sun...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/01/31/java-handling-a-runtimeexception-in-a-runnable/&amp;title=Java%3a%20Handling%20a%20RuntimeException%20in%20a%20Runnable&amp;summary=At%20the%20end%20of%20last%20year%20I%20was%20playing%20around%20with%20running%20scheduled%20tasks%20to%20monitor%20a%20Neo4j%20cluster%20and%20one%20of%20the%20problems%20I%20ran%20into%20was%20that%20the%20monitoring%20would%20sometimes%20exit.%0a%20I%20eventually%20realised%20that%20this%20was%20because%20a%20RuntimeException%20was%20being%20thrown%20inside%20the%20Runnable%20method%20and%20I%20wasn%26%238217%3bt%20handling%20it.%20The%20following%20code%20demonstrates%20the%20problem%3a%0a%20import%20java.util.ArrayList%3b%20import%20java.util.List%3b%20import%20java.util.concurrent.%2a%3b%20public%20class%20RunnableBlog%20%7b%20public%20static%20void%20main%28String%5b%5d%20args%29%20throws%20ExecutionException%2c%20InterruptedException%20%7b%20ScheduledExecutorService%20executor%20%3d%20Executors...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

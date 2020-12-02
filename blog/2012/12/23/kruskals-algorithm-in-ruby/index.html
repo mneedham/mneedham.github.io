@@ -24,7 +24,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Kruskal&#39;s Algorithm in Ruby" />
         
-          <meta name="twitter:description" content="@minimum_spanning_tree = [] edges = file.drop(1). map { |x| x.gsub(/\n/, &#34;&#34;).split(&#34; &#34;).map(&amp;:to_i) }. map { |one, two, weight| { :from =&gt; one, :to =&gt; two, :weight =&gt; weight}}. sort_by { |x| x[:weight]} edges.each do |edge| @minimum_spanning_tree &lt;&lt; edge unless has_cycles edge end def has_cycles(edge) node_one, node_two = edge[:from], edge[:to] @minimum_spanning_tree.each { |x| x[:explored] = false } cycle_between(node_one, node_two, @minimum_spanning_tree.dup) end def cycle_between(one, two, edges) adjacent_edges = edges.select { |edge| edge[:to] == one || edge[:from] == one} return false if adjacent_edges." />
+          <meta name="twitter:description" content="Last week I wrote a couple of posts showing different implementations of Prim&#8217;s algorithm - an algorithm using to find a minimum spanning tree in a graph - and a similar algorithm is Kruskal&#8217;s algorithm.
+ Kruskal&#8217;s algorithm also finds a minimum spanning tree but it goes about it in a slightly different way.
+ Prim&#8217;s algorithm takes an approach whereby we select nodes and then find connecting edges until we&#8217;ve covered all the nodes." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/12/23/kruskals-algorithm-in-ruby/" />
 
@@ -35,7 +37,9 @@
         <title> Kruskal&#39;s Algorithm in Ruby &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="@minimum_spanning_tree = [] edges = file.drop(1). map { |x| x.gsub(/\n/, &#34;&#34;).split(&#34; &#34;).map(&amp;:to_i) }. map { |one, two, weight| { :from =&gt; one, :to =&gt; two, :weight =&gt; weight}}. sort_by { |x| x[:weight]} edges.each do |edge| @minimum_spanning_tree &lt;&lt; edge unless has_cycles edge end def has_cycles(edge) node_one, node_two = edge[:from], edge[:to] @minimum_spanning_tree.each { |x| x[:explored] = false } cycle_between(node_one, node_two, @minimum_spanning_tree.dup) end def cycle_between(one, two, edges) adjacent_edges = edges.select { |edge| edge[:to] == one || edge[:from] == one} return false if adjacent_edges." />
+        <meta name="description" content="Last week I wrote a couple of posts showing different implementations of Prim&#8217;s algorithm - an algorithm using to find a minimum spanning tree in a graph - and a similar algorithm is Kruskal&#8217;s algorithm.
+ Kruskal&#8217;s algorithm also finds a minimum spanning tree but it goes about it in a slightly different way.
+ Prim&#8217;s algorithm takes an approach whereby we select nodes and then find connecting edges until we&#8217;ve covered all the nodes." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +68,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-12-23",
-        "description": "@minimum_spanning_tree = [] edges = file.drop(1). map { |x| x.gsub(\/\\n\/, \x26#34;\x26#34;).split(\x26#34; \x26#34;).map(\x26amp;:to_i) }. map { |one, two, weight| { :from =\x26gt; one, :to =\x26gt; two, :weight =\x26gt; weight}}. sort_by { |x| x[:weight]} edges.each do |edge| @minimum_spanning_tree \x26lt;\x26lt; edge unless has_cycles edge end def has_cycles(edge) node_one, node_two = edge[:from], edge[:to] @minimum_spanning_tree.each { |x| x[:explored] = false } cycle_between(node_one, node_two, @minimum_spanning_tree.dup) end def cycle_between(one, two, edges) adjacent_edges = edges.select { |edge| edge[:to] == one || edge[:from] == one} return false if adjacent_edges.",
-        "wordCount":  176 
+        "description": "Last week I wrote a couple of posts showing different implementations of Prim\x26#8217;s algorithm - an algorithm using to find a minimum spanning tree in a graph - and a similar algorithm is Kruskal\x26#8217;s algorithm.\n Kruskal\x26#8217;s algorithm also finds a minimum spanning tree but it goes about it in a slightly different way.\n Prim\x26#8217;s algorithm takes an approach whereby we select nodes and then find connecting edges until we\x26#8217;ve covered all the nodes.",
+        "wordCount":  555 
     }
     </script>
     
@@ -178,50 +182,114 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Kruskal&#39;s Algorithm in Ruby</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-@minimum_spanning_tree <span style="color:#f92672">=</span> <span style="color:#f92672">[]</span>
+    <div class="paragraph">
+<p>Last week I wrote a couple of posts showing <a href="http://www.markhneedham.com/blog/2012/12/15/prims-algorithm-using-a-heappriority-queue-in-ruby/">different</a> <a href="http://www.markhneedham.com/blog/2012/12/15/prims-algorithm-in-ruby/">implementations</a> of <a href="http://en.wikipedia.org/wiki/Prim&#8217;s_algorithm">Prim&#8217;s algorithm</a> - an algorithm using to find a minimum spanning tree in a graph - and a similar algorithm is <a href="http://en.wikipedia.org/wiki/Kruskal&#8217;s_algorithm">Kruskal&#8217;s algorithm</a>.</p>
+</div>
+<div class="paragraph">
+<p>Kruskal&#8217;s algorithm also finds a minimum spanning tree but it goes about it in a slightly different way.</p>
+</div>
+<div class="paragraph">
+<p>Prim&#8217;s algorithm takes an approach whereby we select nodes and then find connecting edges until we&#8217;ve covered all the nodes. Kruskal&#8217;s algorithm, on the other hand, drives from the edges of lowest costs and <strong>makes sure that we don&#8217;t create a cycle</strong> in our spanning tree by adding an edge to it.</p>
+</div>
+<div class="paragraph">
+<p>The pseudocode for Kruskal&#8217;s algorithm reads like so:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>sort edges <cite>E</cite> in order of increasing cost</p>
+</li>
+<li>
+<p>let <cite>T</cite> = minimum spanning tree, <cite>m</cite> = number of edges</p>
+</li>
+<li>
+<p>for <cite>i</cite>=1 to <cite>m</cite>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>let <cite>e</cite> = selected edge <cite>(u,v)</cite></p>
+</li>
+<li>
+<p>if there&#8217;s no way to go between <cite>u</cite> and <cite>v</cite> using edges in <cite>T</cite>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>add <cite>e</cite> to <cite>T</cite></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>return <cite>T</cite></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/algorithms2/blob/master/kruskals.rb">full code</a>is on github and the outline of the algorithm reads like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">@minimum_spanning_tree = []
 
-edges <span style="color:#f92672">=</span> file<span style="color:#f92672">.</span>drop(<span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>
-        map { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x<span style="color:#f92672">.</span>gsub(<span style="color:#e6db74">/\n/</span>, <span style="color:#e6db74">&#34;&#34;</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34; &#34;</span>)<span style="color:#f92672">.</span>map(<span style="color:#f92672">&amp;</span><span style="color:#e6db74">:to_i</span>) }<span style="color:#f92672">.</span>
-        map { <span style="color:#f92672">|</span>one, two, weight<span style="color:#f92672">|</span> { <span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> one, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> two, <span style="color:#e6db74">:weight</span> <span style="color:#f92672">=&gt;</span> weight}}<span style="color:#f92672">.</span>
-        sort_by { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x<span style="color:#f92672">[</span><span style="color:#e6db74">:weight</span><span style="color:#f92672">]</span>}
-                     
-edges<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>edge<span style="color:#f92672">|</span>
-  @minimum_spanning_tree <span style="color:#f92672">&lt;&lt;</span> edge <span style="color:#66d9ef">unless</span> has_cycles edge
-<span style="color:#66d9ef">end</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">has_cycles</span>(edge)
-  node_one, node_two <span style="color:#f92672">=</span> edge<span style="color:#f92672">[</span><span style="color:#e6db74">:from</span><span style="color:#f92672">]</span>, edge<span style="color:#f92672">[</span><span style="color:#e6db74">:to</span><span style="color:#f92672">]</span>
-  @minimum_spanning_tree<span style="color:#f92672">.</span>each { <span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x<span style="color:#f92672">[</span><span style="color:#e6db74">:explored</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span> }
-  cycle_between(node_one, node_two, @minimum_spanning_tree<span style="color:#f92672">.</span>dup)
-<span style="color:#66d9ef">end</span>
+edges = file.drop(1).
+        map { |x| x.gsub(/\n/, "").split(" ").map(&amp;:to_i) }.
+        map { |one, two, weight| { :from =&gt; one, :to =&gt; two, :weight =&gt; weight}}.
+        sort_by { |x| x[:weight]}
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">cycle_between</span>(one, two, edges)
-  adjacent_edges <span style="color:#f92672">=</span> edges<span style="color:#f92672">.</span>select { <span style="color:#f92672">|</span>edge<span style="color:#f92672">|</span> edge<span style="color:#f92672">[</span><span style="color:#e6db74">:to</span><span style="color:#f92672">]</span> <span style="color:#f92672">==</span> one <span style="color:#f92672">||</span> edge<span style="color:#f92672">[</span><span style="color:#e6db74">:from</span><span style="color:#f92672">]</span> <span style="color:#f92672">==</span> one}
-  <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span> <span style="color:#66d9ef">if</span> adjacent_edges<span style="color:#f92672">.</span>empty?
-  adjacent_edges<span style="color:#f92672">.</span>reject {<span style="color:#f92672">|</span>edge<span style="color:#f92672">|</span> edge<span style="color:#f92672">[</span><span style="color:#e6db74">:explored</span><span style="color:#f92672">]</span> }<span style="color:#f92672">.</span>each <span style="color:#66d9ef">do</span> <span style="color:#f92672">|</span>edge<span style="color:#f92672">|</span>
-    edge<span style="color:#f92672">[</span><span style="color:#e6db74">:explored</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>
-    other_node <span style="color:#f92672">=</span> (edge<span style="color:#f92672">[</span><span style="color:#e6db74">:from</span><span style="color:#f92672">]</span> <span style="color:#f92672">==</span> one) ? edge<span style="color:#f92672">[</span><span style="color:#e6db74">:to</span><span style="color:#f92672">]</span> : edge<span style="color:#f92672">[</span><span style="color:#e6db74">:from</span><span style="color:#f92672">]</span>
-    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span> <span style="color:#66d9ef">if</span> other_node <span style="color:#f92672">==</span> two <span style="color:#f92672">||</span> cycle_between(other_node, two, edges)
-  <span style="color:#66d9ef">end</span>
-  <span style="color:#66d9ef">false</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#75715e"># excluding weights and explored status for brevity</span>
-cycle_between(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">3</span>, <span style="color:#f92672">[</span>{<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">1</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">4</span>}, {<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">4</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">5</span>}, {<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">5</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">3</span>})
-cycle_between(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">3</span>, <span style="color:#f92672">[</span>{<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">1</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">4</span>}, {<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">4</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">5</span>}, {<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span>; <span style="color:#ae81ff">5</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">3</span>})
-cycle_between(<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">3</span>, <span style="color:#f92672">[</span>{<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">1</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">4</span>}, {<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">4</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">5</span>}, {<span style="color:#e6db74">:from</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">5</span>, <span style="color:#e6db74">:to</span> <span style="color:#f92672">=&gt;</span> <span style="color:#ae81ff">3</span>})
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+edges.each do |edge|
+  @minimum_spanning_tree &lt;&lt; edge unless has_cycles edge
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The main bit of code is a variation on depth first search to check if adding an edge creates a cycle which would mean we&#8217;re adding an edge which isn&#8217;t needed as part of a minimum spanning tree.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">def has_cycles(edge)
+  node_one, node_two = edge[:from], edge[:to]
+  @minimum_spanning_tree.each { |x| x[:explored] = false }
+  cycle_between(node_one, node_two, @minimum_spanning_tree.dup)
+end
+
+def cycle_between(one, two, edges)
+  adjacent_edges = edges.select { |edge| edge[:to] == one || edge[:from] == one}
+  return false if adjacent_edges.empty?
+  adjacent_edges.reject {|edge| edge[:explored] }.each do |edge|
+    edge[:explored] = true
+    other_node = (edge[:from] == one) ? edge[:to] : edge[:from]
+    return true if other_node == two || cycle_between(other_node, two, edges)
+  end
+  false
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><cite>cycle_between</cite> is the <a href="http://en.wikipedia.org/wiki/Depth-first_search">depth first search</a> but we&#8217;re using it to tell us whether there&#8217;s already a path between two nodes in the graph and we exit as soon as we determine that.</p>
+</div>
+<div class="paragraph">
+<p>I added some code on line 3 to reset the <cite>explored</cite> status of edges each time that <cite>has_cycles</cite> is called but I&#8217;m not sure why this is necessary because I am making a copy of <cite>@minimum spanning_tree</cite> (on line 4) before mutating it.</p>
+</div>
+<div class="paragraph">
+<p>Otherwise I think this is a fairly standard solution. If we wanted to go from node 1 to node 3 and we had the following edges: 1 -&gt; 4 -&gt; 5 -&gt; 3 we&#8217;d make these method calls:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby"># excluding weights and explored status for brevity
+cycle_between(1,3, [{:from =&gt; 1, :to =&gt; 4}, {:from =&gt; 4, :to =&gt; 5}, {:from =&gt; 5, :to =&gt; 3})
+cycle_between(4,3, [{:from =&gt; 1, :to =&gt; 4}, {:from =&gt; 4, :to =&gt; 5}, {:from =&gt;; 5, :to =&gt; 3})
+cycle_between(5,3, [{:from =&gt; 1, :to =&gt; 4}, {:from =&gt; 4, :to =&gt; 5}, {:from =&gt; 5, :to =&gt; 3})</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The function would exit on that last iteration because we&#8217;d match our target node '3'.</p>
+</div>
+<div class="paragraph">
+<p>This algorithm wasn&#8217;t one of the assignments for the class but I used the same data set that was provided for Prim&#8217;s algorithm and was able to get the same output so I figure it works!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -256,7 +324,7 @@ cycle_between(<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">3
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/23/kruskals-algorithm-in-ruby/&amp;title=Kruskal%27s%20Algorithm%20in%20Ruby&amp;summary=%40minimum_spanning_tree%20%3d%20%5b%5d%20edges%20%3d%20file.drop%281%29.%20map%20%7b%20%7cx%7c%20x.gsub%28%2f%5cn%2f%2c%20%26%2334%3b%26%2334%3b%29.split%28%26%2334%3b%20%26%2334%3b%29.map%28%26amp%3b%3ato_i%29%20%7d.%20map%20%7b%20%7cone%2c%20two%2c%20weight%7c%20%7b%20%3afrom%20%3d%26gt%3b%20one%2c%20%3ato%20%3d%26gt%3b%20two%2c%20%3aweight%20%3d%26gt%3b%20weight%7d%7d.%20sort_by%20%7b%20%7cx%7c%20x%5b%3aweight%5d%7d%20edges.each%20do%20%7cedge%7c%20%40minimum_spanning_tree%20%26lt%3b%26lt%3b%20edge%20unless%20has_cycles%20edge%20end%20def%20has_cycles%28edge%29%20node_one%2c%20node_two%20%3d%20edge%5b%3afrom%5d%2c%20edge%5b%3ato%5d%20%40minimum_spanning_tree.each%20%7b%20%7cx%7c%20x%5b%3aexplored%5d%20%3d%20false%20%7d%20cycle_between%28node_one%2c%20node_two%2c%20%40minimum_spanning_tree.dup%29%20end%20def%20cycle_between%28one%2c%20two%2c%20edges%29%20adjacent_edges%20%3d%20edges.select%20%7b%20%7cedge%7c%20edge%5b%3ato%5d%20%3d%3d%20one%20%7c%7c%20edge%5b%3afrom%5d%20%3d%3d%20one%7d%20return%20false%20if%20adjacent_edges...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/23/kruskals-algorithm-in-ruby/&amp;title=Kruskal%27s%20Algorithm%20in%20Ruby&amp;summary=Last%20week%20I%20wrote%20a%20couple%20of%20posts%20showing%20different%20implementations%20of%20Prim%26%238217%3bs%20algorithm%20-%20an%20algorithm%20using%20to%20find%20a%20minimum%20spanning%20tree%20in%20a%20graph%20-%20and%20a%20similar%20algorithm%20is%20Kruskal%26%238217%3bs%20algorithm.%0a%20Kruskal%26%238217%3bs%20algorithm%20also%20finds%20a%20minimum%20spanning%20tree%20but%20it%20goes%20about%20it%20in%20a%20slightly%20different%20way.%0a%20Prim%26%238217%3bs%20algorithm%20takes%20an%20approach%20whereby%20we%20select%20nodes%20and%20then%20find%20connecting%20edges%20until%20we%26%238217%3bve%20covered%20all%20the%20nodes...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

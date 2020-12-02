@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Python: scikit-learn - Training a classifier with non numeric features" />
         
-          <meta name="twitter:description" content="import json import nltk import collections from himymutil.ml import pos_features from sklearn import tree from sklearn.cross_validation import train_test_split with open(&#34;data/import/trained_sentences.json&#34;, &#34;r&#34;) as json_file: json_data = json.load(json_file) tagged_sents = [] for sentence in json_data: tagged_sents.append([(word[&#34;word&#34;], word[&#34;speaker&#34;]) for word in sentence[&#34;words&#34;]]) featuresets = [] for tagged_sent in tagged_sents: untagged_sent = nltk.tag.untag(tagged_sent) sentence_pos = nltk.pos_tag(untagged_sent) for i, (word, tag) in enumerate(tagged_sent): featuresets.append((pos_features(untagged_sent, sentence_pos, i), tag) ) clf = tree.DecisionTreeClassifier() train_data, test_data = train_test_split(featuresets, test_size=0." />
+          <meta name="twitter:description" content="Following on from my previous posts on training a classifier to pick out the speaker in sentences of HIMYM transcripts the next thing to do was train a random forest of decision trees to see how that fared.
+ I&#8217;ve used scikit-learn for this before so I decided to use that. However, before building a random forest I wanted to check that I could build an equivalent decision tree.
+ I initially thought that scikit-learn&#8217;s DecisionTree classifier would take in data in the same format as nltk&#8217;s so I started out with the following code:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/03/02/python-scikit-learn-training-a-classifier-with-non-numeric-features/" />
 
@@ -33,7 +35,9 @@
         <title> Python: scikit-learn - Training a classifier with non numeric features &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="import json import nltk import collections from himymutil.ml import pos_features from sklearn import tree from sklearn.cross_validation import train_test_split with open(&#34;data/import/trained_sentences.json&#34;, &#34;r&#34;) as json_file: json_data = json.load(json_file) tagged_sents = [] for sentence in json_data: tagged_sents.append([(word[&#34;word&#34;], word[&#34;speaker&#34;]) for word in sentence[&#34;words&#34;]]) featuresets = [] for tagged_sent in tagged_sents: untagged_sent = nltk.tag.untag(tagged_sent) sentence_pos = nltk.pos_tag(untagged_sent) for i, (word, tag) in enumerate(tagged_sent): featuresets.append((pos_features(untagged_sent, sentence_pos, i), tag) ) clf = tree.DecisionTreeClassifier() train_data, test_data = train_test_split(featuresets, test_size=0." />
+        <meta name="description" content="Following on from my previous posts on training a classifier to pick out the speaker in sentences of HIMYM transcripts the next thing to do was train a random forest of decision trees to see how that fared.
+ I&#8217;ve used scikit-learn for this before so I decided to use that. However, before building a random forest I wanted to check that I could build an equivalent decision tree.
+ I initially thought that scikit-learn&#8217;s DecisionTree classifier would take in data in the same format as nltk&#8217;s so I started out with the following code:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-03-02",
-        "description": "import json import nltk import collections from himymutil.ml import pos_features from sklearn import tree from sklearn.cross_validation import train_test_split with open(\x26#34;data\/import\/trained_sentences.json\x26#34;, \x26#34;r\x26#34;) as json_file: json_data = json.load(json_file) tagged_sents = [] for sentence in json_data: tagged_sents.append([(word[\x26#34;word\x26#34;], word[\x26#34;speaker\x26#34;]) for word in sentence[\x26#34;words\x26#34;]]) featuresets = [] for tagged_sent in tagged_sents: untagged_sent = nltk.tag.untag(tagged_sent) sentence_pos = nltk.pos_tag(untagged_sent) for i, (word, tag) in enumerate(tagged_sent): featuresets.append((pos_features(untagged_sent, sentence_pos, i), tag) ) clf = tree.DecisionTreeClassifier() train_data, test_data = train_test_split(featuresets, test_size=0.",
-        "wordCount":  288 
+        "description": "Following on from my previous posts on training a classifier to pick out the speaker in sentences of HIMYM transcripts the next thing to do was train a random forest of decision trees to see how that fared.\n I\x26#8217;ve used scikit-learn for this before so I decided to use that. However, before building a random forest I wanted to check that I could build an equivalent decision tree.\n I initially thought that scikit-learn\x26#8217;s DecisionTree classifier would take in data in the same format as nltk\x26#8217;s so I started out with the following code:",
+        "wordCount":  571 
     }
     </script>
     
@@ -172,109 +176,163 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Python: scikit-learn - Training a classifier with non numeric features</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> json
-<span style="color:#f92672">import</span> nltk
-<span style="color:#f92672">import</span> collections
+    <div class="paragraph">
+<p>Following on from my <a href="http://www.markhneedham.com/blog/2015/02/20/pythonscikit-learn-detecting-which-sentences-in-a-transcript-contain-a-speaker/">previous</a> <a href="http://www.markhneedham.com/blog/2015/02/24/pythonnltk-naive-vs-naive-bayes-vs-decision-tree/">posts</a> on <a href="http://www.markhneedham.com/blog/2015/03/01/python-detecting-the-speaker-in-himym-using-parts-of-speech-pos-tagging/">training a classifier</a> to pick out the speaker in sentences of <a href="http://en.wikipedia.org/wiki/How_I_Met_Your_Mother">HIMYM</a> transcripts the next thing to do was train a random forest of decision trees to see how that fared.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve <a href="http://www.markhneedham.com/blog/2013/11/09/python-making-scikit-learn-and-pandas-play-nice/">used scikit-learn for this before</a> so I decided to use that. However, before building a random forest I wanted to check that I could build an equivalent <a href="http://scikit-learn.org/stable/modules/tree.html">decision tree</a>.</p>
+</div>
+<div class="paragraph">
+<p>I initially thought that scikit-learn&#8217;s DecisionTree classifier would take in data in the same format as nltk&#8217;s so I started out with the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import json
+import nltk
+import collections
 
-<span style="color:#f92672">from</span> himymutil.ml <span style="color:#f92672">import</span> pos_features
-<span style="color:#f92672">from</span> sklearn <span style="color:#f92672">import</span> tree
-<span style="color:#f92672">from</span> sklearn.cross_validation <span style="color:#f92672">import</span> train_test_split
+from himymutil.ml import pos_features
+from sklearn import tree
+from sklearn.cross_validation import train_test_split
 
-<span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#34;data/import/trained_sentences.json&#34;</span>, <span style="color:#e6db74">&#34;r&#34;</span>) <span style="color:#66d9ef">as</span> json_file:
-    json_data <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>load(json_file)
+with open("data/import/trained_sentences.json", "r") as json_file:
+    json_data = json.load(json_file)
 
-tagged_sents <span style="color:#f92672">=</span> []
-<span style="color:#66d9ef">for</span> sentence <span style="color:#f92672">in</span> json_data:
-    tagged_sents<span style="color:#f92672">.</span>append([(word[<span style="color:#e6db74">&#34;word&#34;</span>], word[<span style="color:#e6db74">&#34;speaker&#34;</span>]) <span style="color:#66d9ef">for</span> word <span style="color:#f92672">in</span> sentence[<span style="color:#e6db74">&#34;words&#34;</span>]])
+tagged_sents = []
+for sentence in json_data:
+    tagged_sents.append([(word["word"], word["speaker"]) for word in sentence["words"]])
 
-featuresets <span style="color:#f92672">=</span> []
-<span style="color:#66d9ef">for</span> tagged_sent <span style="color:#f92672">in</span> tagged_sents:
-    untagged_sent <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>tag<span style="color:#f92672">.</span>untag(tagged_sent)
-    sentence_pos <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>pos_tag(untagged_sent)
-    <span style="color:#66d9ef">for</span> i, (word, tag) <span style="color:#f92672">in</span> enumerate(tagged_sent):
-        featuresets<span style="color:#f92672">.</span>append((pos_features(untagged_sent, sentence_pos, i), tag) )
+featuresets = []
+for tagged_sent in tagged_sents:
+    untagged_sent = nltk.tag.untag(tagged_sent)
+    sentence_pos = nltk.pos_tag(untagged_sent)
+    for i, (word, tag) in enumerate(tagged_sent):
+        featuresets.append((pos_features(untagged_sent, sentence_pos, i), tag) )
 
-clf <span style="color:#f92672">=</span> tree<span style="color:#f92672">.</span>DecisionTreeClassifier()
+clf = tree.DecisionTreeClassifier()
 
-train_data, test_data <span style="color:#f92672">=</span> train_test_split(featuresets, test_size<span style="color:#f92672">=</span><span style="color:#ae81ff">0.20</span>, train_size<span style="color:#f92672">=</span><span style="color:#ae81ff">0.80</span>)
+train_data, test_data = train_test_split(featuresets, test_size=0.20, train_size=0.80)
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> train_data[<span style="color:#ae81ff">1</span>]
-({<span style="color:#e6db74">&#39;word&#39;</span>: <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;your&#39;</span>, <span style="color:#e6db74">&#39;word-pos&#39;</span>: <span style="color:#e6db74">&#39;PRP$&#39;</span>, <span style="color:#e6db74">&#39;next-word-pos&#39;</span>: <span style="color:#e6db74">&#39;NN&#39;</span>, <span style="color:#e6db74">&#39;prev-word-pos&#39;</span>: <span style="color:#e6db74">&#39;VB&#39;</span>, <span style="color:#e6db74">&#39;prev-word&#39;</span>: <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;throw&#39;</span>, <span style="color:#e6db74">&#39;next-word&#39;</span>: <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;body&#39;</span>}, False)
+&gt;&gt;&gt; train_data[1]
+({'word': u'your', 'word-pos': 'PRP$', 'next-word-pos': 'NN', 'prev-word-pos': 'VB', 'prev-word': u'throw', 'next-word': u'body'}, False)
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> clf<span style="color:#f92672">.</span>fit([item[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> train_data], [item[<span style="color:#ae81ff">1</span>] <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> train_data])
+&gt;&gt;&gt; clf.fit([item[0] for item in train_data], [item[1] for item in train_data])
 Traceback (most recent call last):
-  File <span style="color:#e6db74">&#34;&lt;stdin&gt;&#34;</span>, line <span style="color:#ae81ff">1</span>, <span style="color:#f92672">in</span> <span style="color:#f92672">&lt;</span>module<span style="color:#f92672">&gt;</span>
-  File <span style="color:#e6db74">&#34;/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/sklearn/tree/tree.py&#34;</span>, line <span style="color:#ae81ff">137</span>, <span style="color:#f92672">in</span> fit
-    X, <span style="color:#f92672">=</span> check_arrays(X, dtype<span style="color:#f92672">=</span>DTYPE, sparse_format<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;dense&#34;</span>)
-  File <span style="color:#e6db74">&#34;/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/sklearn/utils/validation.py&#34;</span>, line <span style="color:#ae81ff">281</span>, <span style="color:#f92672">in</span> check_arrays
-    array <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>asarray(array, dtype<span style="color:#f92672">=</span>dtype)
-  File <span style="color:#e6db74">&#34;/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/numpy/core/numeric.py&#34;</span>, line <span style="color:#ae81ff">460</span>, <span style="color:#f92672">in</span> asarray
-    <span style="color:#66d9ef">return</span> array(a, dtype, copy<span style="color:#f92672">=</span>False, order<span style="color:#f92672">=</span>order)
-<span style="color:#a6e22e">TypeError</span>: float() argument must be a string <span style="color:#f92672">or</span> a number
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> sklearn.feature_extraction <span style="color:#f92672">import</span> DictVectorizer
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+  File "/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/sklearn/tree/tree.py", line 137, in fit
+    X, = check_arrays(X, dtype=DTYPE, sparse_format="dense")
+  File "/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/sklearn/utils/validation.py", line 281, in check_arrays
+    array = np.asarray(array, dtype=dtype)
+  File "/Users/markneedham/projects/neo4j-himym/himym/lib/python2.7/site-packages/numpy/core/numeric.py", line 460, in asarray
+    return array(a, dtype, copy=False, order=order)
+TypeError: float() argument must be a string or a number</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In fact, the classifier can only deal with numeric features so we need to <a href="http://scikit-learn.org/dev/modules/feature_extraction.html#loading-features-from-dicts">translate our features into that format using DictVectorizer</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from sklearn.feature_extraction import DictVectorizer
 
-vec <span style="color:#f92672">=</span> DictVectorizer()
-X <span style="color:#f92672">=</span> vec<span style="color:#f92672">.</span>fit_transform([item[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> featuresets])<span style="color:#f92672">.</span>toarray()
+vec = DictVectorizer()
+X = vec.fit_transform([item[0] for item in featuresets]).toarray()
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> len(X)
-<span style="color:#ae81ff">13016</span>
+&gt;&gt;&gt; len(X)
+13016
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> len(X[<span style="color:#ae81ff">0</span>])
-<span style="color:#ae81ff">7302</span>
+&gt;&gt;&gt; len(X[0])
+7302
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> vec<span style="color:#f92672">.</span>get_feature_names()[<span style="color:#ae81ff">10</span>:<span style="color:#ae81ff">15</span>]
-[<span style="color:#e6db74">&#39;next-word-pos=EX&#39;</span>, <span style="color:#e6db74">&#39;next-word-pos=IN&#39;</span>, <span style="color:#e6db74">&#39;next-word-pos=JJ&#39;</span>, <span style="color:#e6db74">&#39;next-word-pos=JJR&#39;</span>, <span style="color:#e6db74">&#39;next-word-pos=JJS&#39;</span>]
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-vec <span style="color:#f92672">=</span> DictVectorizer()
-X <span style="color:#f92672">=</span> vec<span style="color:#f92672">.</span>fit_transform([item[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> featuresets])<span style="color:#f92672">.</span>toarray()
-Y <span style="color:#f92672">=</span> [item[<span style="color:#ae81ff">1</span>] <span style="color:#66d9ef">for</span> item <span style="color:#f92672">in</span> featuresets]
-X_train, X_test, Y_train, Y_test <span style="color:#f92672">=</span> train_test_split(X, Y, test_size<span style="color:#f92672">=</span><span style="color:#ae81ff">0.20</span>, train_size<span style="color:#f92672">=</span><span style="color:#ae81ff">0.80</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-clf <span style="color:#f92672">=</span> tree<span style="color:#f92672">.</span>DecisionTreeClassifier()
-clf <span style="color:#f92672">=</span> clf<span style="color:#f92672">.</span>fit(X_train, Y_train)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> collections
-<span style="color:#f92672">import</span> nltk
+&gt;&gt;&gt; vec.get_feature_names()[10:15]
+['next-word-pos=EX', 'next-word-pos=IN', 'next-word-pos=JJ', 'next-word-pos=JJR', 'next-word-pos=JJS']</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We end up with one feature for every key/value combination that exists in <cite>featuresets</cite>.</p>
+</div>
+<div class="paragraph">
+<p>I was initially confused about how to split up <a href="http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.train_test_split.html">training and test data sets</a> but it&#8217;s actually fairly easy - <cite>train_test_split</cite> allows us to pass in multiple lists which it splits along the same seam:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">vec = DictVectorizer()
+X = vec.fit_transform([item[0] for item in featuresets]).toarray()
+Y = [item[1] for item in featuresets]
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.20, train_size=0.80)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next we want to train the classifier which is a couple of lines of code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">clf = tree.DecisionTreeClassifier()
+clf = clf.fit(X_train, Y_train)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I wrote the following function to assess the classifier:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import collections
+import nltk
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">assess</span>(text, predictions_actual):
-    refsets <span style="color:#f92672">=</span> collections<span style="color:#f92672">.</span>defaultdict(set)
-    testsets <span style="color:#f92672">=</span> collections<span style="color:#f92672">.</span>defaultdict(set)
-    <span style="color:#66d9ef">for</span> i, (prediction, actual) <span style="color:#f92672">in</span> enumerate(predictions_actual):
-        refsets[actual]<span style="color:#f92672">.</span>add(i)
-        testsets[prediction]<span style="color:#f92672">.</span>add(i)
-    speaker_precision <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>metrics<span style="color:#f92672">.</span>precision(refsets[True], testsets[True])
-    speaker_recall <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>metrics<span style="color:#f92672">.</span>recall(refsets[True], testsets[True])
-    non_speaker_precision <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>metrics<span style="color:#f92672">.</span>precision(refsets[False], testsets[False])
-    non_speaker_recall <span style="color:#f92672">=</span> nltk<span style="color:#f92672">.</span>metrics<span style="color:#f92672">.</span>recall(refsets[False], testsets[False])
-    <span style="color:#66d9ef">return</span> [text, speaker_precision, speaker_recall, non_speaker_precision, non_speaker_recall]
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-predictions <span style="color:#f92672">=</span> clf<span style="color:#f92672">.</span>predict(X_test)
-assessment <span style="color:#f92672">=</span> assess(<span style="color:#e6db74">&#34;Decision Tree&#34;</span>, zip(predictions, Y_test))
+def assess(text, predictions_actual):
+    refsets = collections.defaultdict(set)
+    testsets = collections.defaultdict(set)
+    for i, (prediction, actual) in enumerate(predictions_actual):
+        refsets[actual].add(i)
+        testsets[prediction].add(i)
+    speaker_precision = nltk.metrics.precision(refsets[True], testsets[True])
+    speaker_recall = nltk.metrics.recall(refsets[True], testsets[True])
+    non_speaker_precision = nltk.metrics.precision(refsets[False], testsets[False])
+    non_speaker_recall = nltk.metrics.recall(refsets[False], testsets[False])
+    return [text, speaker_precision, speaker_recall, non_speaker_precision, non_speaker_recall]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can call it like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">predictions = clf.predict(X_test)
+assessment = assess("Decision Tree", zip(predictions, Y_test))
 
-<span style="color:#f92672">&gt;&gt;&gt;</span> assessment
-[<span style="color:#e6db74">&#39;Decision Tree&#39;</span>, <span style="color:#ae81ff">0.9459459459459459</span>, <span style="color:#ae81ff">0.9210526315789473</span>, <span style="color:#ae81ff">0.9970134395221503</span>, <span style="color:#ae81ff">0.9980069755854509</span>]
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#34;/tmp/decisionTree.dot&#34;</span>, <span style="color:#e6db74">&#39;w&#39;</span>) <span style="color:#66d9ef">as</span> file:
-    tree<span style="color:#f92672">.</span>export_graphviz(clf, out_file <span style="color:#f92672">=</span> file, feature_names <span style="color:#f92672">=</span> vec<span style="color:#f92672">.</span>get_feature_names())
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-dot -Tpng /tmp/decisionTree.dot -o /tmp/decisionTree.png
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
+&gt;&gt;&gt; assessment
+['Decision Tree', 0.9459459459459459, 0.9210526315789473, 0.9970134395221503, 0.9980069755854509]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Those values are in the same ball park as we&#8217;ve seen with the nltk classifier so I&#8217;m happy it&#8217;s all wired up correctly.</p>
+</div>
+<div class="paragraph">
+<p>The last thing I wanted to do was <a href="http://stackoverflow.com/questions/23557545/how-to-explain-the-decision-tree-from-scikit-learn">visualise the decision tree</a> that had been created and the easiest way to do that is <a href="http://scikit-learn.org/stable/modules/generated/sklearn.tree.export_graphviz.html">export the classifier to DOT format</a> and then use graphviz to create an image:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">with open("/tmp/decisionTree.dot", 'w') as file:
+    tree.export_graphviz(clf, out_file = file, feature_names = vec.get_feature_names())</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">dot -Tpng /tmp/decisionTree.dot -o /tmp/decisionTree.png</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The decision tree is quite a few levels deep so here&#8217;s part of it:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/03/decisionTreeSection.png" alt="DecisionTreeSection" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/neo4j-himym/blob/master/scripts/scikit_dt.py">full script is on github</a> if you want to play around with it.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -309,7 +367,7 @@ dot -Tpng /tmp/decisionTree.dot -o /tmp/decisionTree.png
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/03/02/python-scikit-learn-training-a-classifier-with-non-numeric-features/&amp;title=Python%3a%20scikit-learn%20-%20Training%20a%20classifier%20with%20non%20numeric%20features&amp;summary=import%20json%20import%20nltk%20import%20collections%20from%20himymutil.ml%20import%20pos_features%20from%20sklearn%20import%20tree%20from%20sklearn.cross_validation%20import%20train_test_split%20with%20open%28%26%2334%3bdata%2fimport%2ftrained_sentences.json%26%2334%3b%2c%20%26%2334%3br%26%2334%3b%29%20as%20json_file%3a%20json_data%20%3d%20json.load%28json_file%29%20tagged_sents%20%3d%20%5b%5d%20for%20sentence%20in%20json_data%3a%20tagged_sents.append%28%5b%28word%5b%26%2334%3bword%26%2334%3b%5d%2c%20word%5b%26%2334%3bspeaker%26%2334%3b%5d%29%20for%20word%20in%20sentence%5b%26%2334%3bwords%26%2334%3b%5d%5d%29%20featuresets%20%3d%20%5b%5d%20for%20tagged_sent%20in%20tagged_sents%3a%20untagged_sent%20%3d%20nltk.tag.untag%28tagged_sent%29%20sentence_pos%20%3d%20nltk.pos_tag%28untagged_sent%29%20for%20i%2c%20%28word%2c%20tag%29%20in%20enumerate%28tagged_sent%29%3a%20featuresets.append%28%28pos_features%28untagged_sent%2c%20sentence_pos%2c%20i%29%2c%20tag%29%20%29%20clf%20%3d%20tree.DecisionTreeClassifier%28%29%20train_data%2c%20test_data%20%3d%20train_test_split%28featuresets%2c%20test_size%3d0...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/03/02/python-scikit-learn-training-a-classifier-with-non-numeric-features/&amp;title=Python%3a%20scikit-learn%20-%20Training%20a%20classifier%20with%20non%20numeric%20features&amp;summary=Following%20on%20from%20my%20previous%20posts%20on%20training%20a%20classifier%20to%20pick%20out%20the%20speaker%20in%20sentences%20of%20HIMYM%20transcripts%20the%20next%20thing%20to%20do%20was%20train%20a%20random%20forest%20of%20decision%20trees%20to%20see%20how%20that%20fared.%0a%20I%26%238217%3bve%20used%20scikit-learn%20for%20this%20before%20so%20I%20decided%20to%20use%20that.%20However%2c%20before%20building%20a%20random%20forest%20I%20wanted%20to%20check%20that%20I%20could%20build%20an%20equivalent%20decision%20tree.%0a%20I%20initially%20thought%20that%20scikit-learn%26%238217%3bs%20DecisionTree%20classifier%20would%20take%20in%20data%20in%20the%20same%20format%20as%20nltk%26%238217%3bs%20so%20I%20started%20out%20with%20the%20following%20code%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Haskell: Writing a custom equality operator" />
         
-          <meta name="twitter:description" content="In the comments on my post about generating random numbersto test a function David Turner suggested that this was exactly the use case for which QuickCheckwas intended for so I&rsquo;ve been learning a bit more about that this week.
-I started with a simple property to check that the brute force (bf) and divide and conquer (dc) versions of the algorithm returned the same result, assuming that there were enough values in the list to have a closest pair:" />
+          <meta name="twitter:description" content="In the comments on my post about generating random numbers to test a function David Turner suggested that this was exactly the use case for which QuickCheck was intended for so I&#8217;ve been learning a bit more about that this week.
+ I started with a simple property to check that the brute force (bf) and divide and conquer (dc) versions of the algorithm returned the same result, assuming that there were enough values in the list to have a closest pair:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/05/16/haskell-writing-a-custom-equality-operator/" />
 
@@ -34,8 +34,8 @@ I started with a simple property to check that the brute force (bf) and divide a
         <title> Haskell: Writing a custom equality operator &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="In the comments on my post about generating random numbersto test a function David Turner suggested that this was exactly the use case for which QuickCheckwas intended for so I&rsquo;ve been learning a bit more about that this week.
-I started with a simple property to check that the brute force (bf) and divide and conquer (dc) versions of the algorithm returned the same result, assuming that there were enough values in the list to have a closest pair:" />
+        <meta name="description" content="In the comments on my post about generating random numbers to test a function David Turner suggested that this was exactly the use case for which QuickCheck was intended for so I&#8217;ve been learning a bit more about that this week.
+ I started with a simple property to check that the brute force (bf) and divide and conquer (dc) versions of the algorithm returned the same result, assuming that there were enough values in the list to have a closest pair:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ I started with a simple property to check that the brute force (bf) and divide a
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-05-16",
-        "description": "In the comments on my post about generating random numbersto test a function David Turner suggested that this was exactly the use case for which QuickCheckwas intended for so I\x26rsquo;ve been learning a bit more about that this week.\nI started with a simple property to check that the brute force (bf) and divide and conquer (dc) versions of the algorithm returned the same result, assuming that there were enough values in the list to have a closest pair:",
-        "wordCount":  512 
+        "description": "In the comments on my post about generating random numbers to test a function David Turner suggested that this was exactly the use case for which QuickCheck was intended for so I\x26#8217;ve been learning a bit more about that this week.\n I started with a simple property to check that the brute force (bf) and divide and conquer (dc) versions of the algorithm returned the same result, assuming that there were enough values in the list to have a closest pair:",
+        "wordCount":  514 
     }
     </script>
     
@@ -174,47 +174,99 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Haskell: Writing a custom equality operator</h1>
-    <p>In the comments on my post about <!-- raw HTML omitted -->generating random numbers<!-- raw HTML omitted --> to test a function David Turner suggested that this was exactly the use case for which <!-- raw HTML omitted -->QuickCheck<!-- raw HTML omitted --> was intended for so I&rsquo;ve been learning a bit more about that this week.</p>
+    <div class="paragraph">
+<p>In the comments on my post about <a href="http://www.markhneedham.com/blog/2012/05/08/haskell-generating-random-numbers/">generating random numbers</a> to test a function David Turner suggested that this was exactly the use case for which <a href="http://book.realworldhaskell.org/read/testing-and-quality-assurance.html">QuickCheck</a> was intended for so I&#8217;ve been learning a bit more about that this week.</p>
+</div>
+<div class="paragraph">
 <p>I started with a simple property to check that the brute force (bf) and divide and conquer (dc) versions of the algorithm returned the same result, assuming that there were enough values in the list to have a closest pair:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#a6e22e">prop_closest_pairs</span> xs <span style="color:#f92672">=</span> length xs <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==&gt;</span> dcClosest xs <span style="color:#f92672">==</span> (fromJust <span style="color:#f92672">$</span> bfClosest xs)
-</code></pre></div><p>I could then run that as follows:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">import</span> QuickCheck.Test
-<span style="color:#f92672">&gt;</span> quickCheck(prop_closest_pairs <span style="color:#f92672">::</span> [(<span style="color:#66d9ef">Double</span>, <span style="color:#66d9ef">Double</span>)] <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Property</span>)
-</code></pre></div><p>It failed pretty quickly because the bf and dc versions of the algorithm sometimes return the pairs in a different order.</p>
-<p>e.g. bf may say the closest pair is (2.0, 0.0), (2.1, 1.1) while dc says it&rsquo;s (2.1, 1.1), (2.0, 0.0) which will lead to the quick check property failing because those values aren&rsquo;t equal:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> ((<span style="color:#ae81ff">2.0</span>, <span style="color:#ae81ff">0.0</span>), (<span style="color:#ae81ff">2.1</span>, <span style="color:#ae81ff">1.1</span>))  <span style="color:#f92672">==</span> ((<span style="color:#ae81ff">2.1</span>, <span style="color:#ae81ff">1.1</span>), (<span style="color:#ae81ff">2.0</span>, <span style="color:#ae81ff">0.0</span>))
-<span style="color:#66d9ef">False</span>
-</code></pre></div><p>The best way I could think of to get around this problem was to create a type to represent a pair of points and then write a custom equality operator.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">prop_closest_pairs xs = length xs &gt;= 2 ==&gt; dcClosest xs == (fromJust $ bfClosest xs)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I could then run that as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; import QuickCheck.Test
+&gt; quickCheck(prop_closest_pairs :: [(Double, Double)] -&gt; Property)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It failed pretty quickly because the bf and dc versions of the algorithm sometimes return the pairs in a different order.</p>
+</div>
+<div class="paragraph">
+<p>e.g. bf may say the closest pair is (2.0, 0.0), (2.1, 1.1) while dc says it&#8217;s (2.1, 1.1), (2.0, 0.0) which will lead to the quick check property failing because those values aren&#8217;t equal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; ((2.0, 0.0), (2.1, 1.1))  == ((2.1, 1.1), (2.0, 0.0))
+False</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The best way I could think of to get around this problem was to create a type to represent a pair of points and then write a custom equality operator.</p>
+</div>
+<div class="paragraph">
 <p>I initially ended up with the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Point</span> a <span style="color:#f92672">=</span> (a, a)
-<span style="color:#66d9ef">data</span> <span style="color:#66d9ef">Pair</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">P</span> (<span style="color:#66d9ef">Point</span> a) (<span style="color:#66d9ef">Point</span> a) 
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">instance</span> <span style="color:#66d9ef">Eq</span> (<span style="color:#66d9ef">Pair</span> a) <span style="color:#66d9ef">where</span>
-	<span style="color:#66d9ef">P</span> a b <span style="color:#f92672">==</span> <span style="color:#66d9ef">P</span> c d <span style="color:#f92672">=</span> a <span style="color:#f92672">==</span> c <span style="color:#f92672">&amp;&amp;</span> b <span style="color:#f92672">==</span> d <span style="color:#f92672">||</span> a <span style="color:#f92672">==</span> d <span style="color:#f92672">&amp;&amp;</span> b <span style="color:#f92672">==</span> c
-</code></pre></div><p>Which didn&rsquo;t actually compile:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-qc_test.hs:41:58:
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">type Point a = (a, a)
+data Pair a = P (Point a) (Point a)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">instance Eq (Pair a) where
+	P a b == P c d = a == c &amp;&amp; b == d || a == d &amp;&amp; b == c</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Which didn&#8217;t actually compile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">qc_test.hs:41:58:
     No instance for (Eq a)
-      arising from a use of `==&#39;
-    In the second argument of `(&amp;&amp;)&#39;, namely `b == c&#39;
-    In the second argument of `(||)&#39;, namely `a == d &amp;&amp; b == c&#39;
-    In the expression: a == c &amp;&amp; b == d || a == d &amp;&amp; b == c
-</code></pre></div><p>The problem is that while we&rsquo;ve made Pair an instance of the Equality type class there&rsquo;s no guarantee that the value contained inside it is an instance of the Equality type class which means we might not be able to compare its values.</p>
-<p>We need to add a class constraint to make sure that <!-- raw HTML omitted -->the value inside P is a part of Eq<!-- raw HTML omitted -->:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">instance</span> (<span style="color:#66d9ef">Eq</span> a) <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">Eq</span> (<span style="color:#66d9ef">Pair</span> a) <span style="color:#66d9ef">where</span>
-	<span style="color:#66d9ef">P</span> a b <span style="color:#f92672">==</span> <span style="color:#66d9ef">P</span> c d <span style="color:#f92672">=</span> a <span style="color:#f92672">==</span> c <span style="color:#f92672">&amp;&amp;</span> b <span style="color:#f92672">==</span> d <span style="color:#f92672">||</span> a <span style="color:#f92672">==</span> d <span style="color:#f92672">&amp;&amp;</span> b <span style="color:#f92672">==</span> c
-</code></pre></div><p>Now we&rsquo;re saying that we want to make Pair an instance of the Equality type class but only when the value that Pair contains is already an instance of the Equality type class.</p>
-<p>In this case we&rsquo;re just storing pairs of doubles inside the Pair so it will work fine.</p>
-<p>Now if we compare the two points from above we&rsquo;ll see that they&rsquo;re equal:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">P</span> (<span style="color:#ae81ff">2.0</span>, <span style="color:#ae81ff">0.0</span>) (<span style="color:#ae81ff">2.1</span>, <span style="color:#ae81ff">1.1</span>)  <span style="color:#f92672">==</span> <span style="color:#66d9ef">P</span> (<span style="color:#ae81ff">2.1</span>, <span style="color:#ae81ff">1.1</span>) (<span style="color:#ae81ff">2.0</span>, <span style="color:#ae81ff">0.0</span>)
-<span style="color:#66d9ef">True</span>
-</code></pre></div><p>I had to go and change the existing code to make use of this new but it didn&rsquo;t take more than 5-10 minutes to do that.</p>
+      arising from a use of `=='
+    In the second argument of `(&amp;&amp;)', namely `b == c'
+    In the second argument of `(||)', namely `a == d &amp;&amp; b == c'
+    In the expression: a == c &amp;&amp; b == d || a == d &amp;&amp; b == c</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The problem is that while we&#8217;ve made Pair an instance of the Equality type class there&#8217;s no guarantee that the value contained inside it is an instance of the Equality type class which means we might not be able to compare its values.</p>
+</div>
+<div class="paragraph">
+<p>We need to add a class constraint to make sure that <a href="http://learnyouahaskell.com/making-our-own-types-and-typeclasses#typeclasses-102">the value inside P is a part of Eq</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">instance (Eq a) =&gt; Eq (Pair a) where
+	P a b == P c d = a == c &amp;&amp; b == d || a == d &amp;&amp; b == c</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we&#8217;re saying that we want to make Pair an instance of the Equality type class but only when the value that Pair contains is already an instance of the Equality type class.</p>
+</div>
+<div class="paragraph">
+<p>In this case we&#8217;re just storing pairs of doubles inside the Pair so it will work fine.</p>
+</div>
+<div class="paragraph">
+<p>Now if we compare the two points from above we&#8217;ll see that they&#8217;re equal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; P (2.0, 0.0) (2.1, 1.1)  == P (2.1, 1.1) (2.0, 0.0)
+True</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I had to go and change the existing code to make use of this new but it didn&#8217;t take more than 5-10 minutes to do that.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -249,7 +301,7 @@ qc_test.hs:41:58:
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/05/16/haskell-writing-a-custom-equality-operator/&amp;title=Haskell%3a%20Writing%20a%20custom%20equality%20operator&amp;summary=In%20the%20comments%20on%20my%20post%20about%20generating%20random%20numbersto%20test%20a%20function%20David%20Turner%20suggested%20that%20this%20was%20exactly%20the%20use%20case%20for%20which%20QuickCheckwas%20intended%20for%20so%20I%26rsquo%3bve%20been%20learning%20a%20bit%20more%20about%20that%20this%20week.%0aI%20started%20with%20a%20simple%20property%20to%20check%20that%20the%20brute%20force%20%28bf%29%20and%20divide%20and%20conquer%20%28dc%29%20versions%20of%20the%20algorithm%20returned%20the%20same%20result%2c%20assuming%20that%20there%20were%20enough%20values%20in%20the%20list%20to%20have%20a%20closest%20pair%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/05/16/haskell-writing-a-custom-equality-operator/&amp;title=Haskell%3a%20Writing%20a%20custom%20equality%20operator&amp;summary=In%20the%20comments%20on%20my%20post%20about%20generating%20random%20numbers%20to%20test%20a%20function%20David%20Turner%20suggested%20that%20this%20was%20exactly%20the%20use%20case%20for%20which%20QuickCheck%20was%20intended%20for%20so%20I%26%238217%3bve%20been%20learning%20a%20bit%20more%20about%20that%20this%20week.%0a%20I%20started%20with%20a%20simple%20property%20to%20check%20that%20the%20brute%20force%20%28bf%29%20and%20divide%20and%20conquer%20%28dc%29%20versions%20of%20the%20algorithm%20returned%20the%20same%20result%2c%20assuming%20that%20there%20were%20enough%20values%20in%20the%20list%20to%20have%20a%20closest%20pair%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Javascript: The &#39;new&#39; keyword" />
         
-          <meta name="twitter:description" content="I came across an interesting post by John Resig where he describes a &lsquo;makeClass&rsquo; functionthat he uses in his code to create functions which can instantiate objects regardless of whether the user calls that function with or without the new keyword.
-The main reason that the new keyword seems to be considered harmful is because we might make assumptions in our function that it will be called with the new keyword which changes the meaning of &lsquo;this&rsquo; inside that function." />
+          <meta name="twitter:description" content="I came across an interesting post by John Resig where he describes a &#39;makeClass&#39; function that he uses in his code to create functions which can instantiate objects regardless of whether the user calls that function with or without the new keyword.
+ The main reason that the new keyword seems to be considered harmful is because we might make assumptions in our function that it will be called with the new keyword which changes the meaning of &#39;this&#39; inside that function." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/03/06/javascript-the-new-keyword/" />
 
@@ -34,8 +34,8 @@ The main reason that the new keyword seems to be considered harmful is because w
         <title> Javascript: The &#39;new&#39; keyword &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I came across an interesting post by John Resig where he describes a &lsquo;makeClass&rsquo; functionthat he uses in his code to create functions which can instantiate objects regardless of whether the user calls that function with or without the new keyword.
-The main reason that the new keyword seems to be considered harmful is because we might make assumptions in our function that it will be called with the new keyword which changes the meaning of &lsquo;this&rsquo; inside that function." />
+        <meta name="description" content="I came across an interesting post by John Resig where he describes a &#39;makeClass&#39; function that he uses in his code to create functions which can instantiate objects regardless of whether the user calls that function with or without the new keyword.
+ The main reason that the new keyword seems to be considered harmful is because we might make assumptions in our function that it will be called with the new keyword which changes the meaning of &#39;this&#39; inside that function." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ The main reason that the new keyword seems to be considered harmful is because w
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-03-06",
-        "description": "I came across an interesting post by John Resig where he describes a \x26lsquo;makeClass\x26rsquo; functionthat he uses in his code to create functions which can instantiate objects regardless of whether the user calls that function with or without the new keyword.\nThe main reason that the new keyword seems to be considered harmful is because we might make assumptions in our function that it will be called with the new keyword which changes the meaning of \x26lsquo;this\x26rsquo; inside that function.",
-        "wordCount":  431 
+        "description": "I came across an interesting post by John Resig where he describes a \x27makeClass\x27 function that he uses in his code to create functions which can instantiate objects regardless of whether the user calls that function with or without the new keyword.\n The main reason that the new keyword seems to be considered harmful is because we might make assumptions in our function that it will be called with the new keyword which changes the meaning of \x27this\x27 inside that function.",
+        "wordCount":  436 
     }
     </script>
     
@@ -174,58 +174,94 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Javascript: The &#39;new&#39; keyword</h1>
-    <p>I came across an <!-- raw HTML omitted -->interesting post by John Resig where he describes a &lsquo;makeClass&rsquo; function<!-- raw HTML omitted --> that he uses in his code to create functions which can instantiate objects regardless of whether the user calls that function with or without the new keyword.</p>
-<p>The main reason that the new keyword seems to be considered harmful is because we might make assumptions in our function that it will be called with the new keyword which changes the meaning of &lsquo;this&rsquo; inside that function.</p>
-<p>For example in my <!-- raw HTML omitted -->Bowling Game example<!-- raw HTML omitted --> I assume that the &lsquo;BowlingGame&rsquo; function will be called with the new keyword.</p>
-<p>I wanted to see if I could refactor that code to use the <!-- raw HTML omitted -->module pattern<!-- raw HTML omitted --> instead so as a first step I changed the instantiation of the &lsquo;bowlingGame&rsquo; variable in the <!-- raw HTML omitted -->tests<!-- raw HTML omitted --> to not call the function with &lsquo;new&rsquo; to see if it would make any noticeable difference:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-<span style="color:#a6e22e">Screw</span>.<span style="color:#a6e22e">Unit</span>(<span style="color:#66d9ef">function</span>() {
-	<span style="color:#a6e22e">describe</span>(<span style="color:#e6db74">&#34;bowling game scorecard&#34;</span>, <span style="color:#66d9ef">function</span>() {
-		<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">bowlingGame</span>;
- 
-		<span style="color:#a6e22e">before</span>(<span style="color:#66d9ef">function</span>() {
-	    	     <span style="color:#a6e22e">bowlingGame</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">BowlingGame</span>();
-	  	});
-</code></pre></div><p>There is no noticeable difference in the way any of the tests work but in fact <!-- raw HTML omitted -->all of the functions I defined have been added to the global object<!-- raw HTML omitted --> (in this case window) instead of onto &lsquo;BowlingGame&rsquo;.</p>
-<p>I changed one of the tests to check that this was the case&hellip;</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-...
-			<span style="color:#a6e22e">it</span>(<span style="color:#e6db74">&#34;should score a single throw&#34;</span>, <span style="color:#66d9ef">function</span>() {
-				<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(window.<span style="color:#a6e22e">roll</span>);
-				
-				<span style="color:#a6e22e">bowlingGame</span>.<span style="color:#a6e22e">roll</span>(<span style="color:#ae81ff">5</span>);
-				(<span style="color:#ae81ff">19</span>).<span style="color:#a6e22e">times</span>(<span style="color:#66d9ef">function</span>() { <span style="color:#a6e22e">gutterBall</span>(); });
+    <div class="paragraph">
+<p>I came across an <a href="http://ejohn.org/blog/simple-class-instantiation/">interesting post by John Resig where he describes a 'makeClass' function</a> that he uses in his code to create functions which can instantiate objects regardless of whether the user calls that function with or without the new keyword.</p>
+</div>
+<div class="paragraph">
+<p>The main reason that the new keyword seems to be considered harmful is because we might make assumptions in our function that it will be called with the new keyword which changes the meaning of 'this' inside that function.</p>
+</div>
+<div class="paragraph">
+<p>For example in my <a href="http://gist.github.com/317106">Bowling Game example</a> I assume that the 'BowlingGame' function will be called with the new keyword.</p>
+</div>
+<div class="paragraph">
+<p>I wanted to see if I could refactor that code to use the <a href="http://yuiblog.com/blog/2007/06/12/module-pattern/">module pattern</a> instead so as a first step I changed the instantiation of the 'bowlingGame' variable in the <a href="http://gist.github.com/317533">tests</a> to not call the function with 'new' to see if it would make any noticeable difference:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">Screw.Unit(function() {
+	describe("bowling game scorecard", function() {
+		var bowlingGame;
 
-				<span style="color:#a6e22e">expect</span>(<span style="color:#a6e22e">bowlingGame</span>.<span style="color:#a6e22e">score</span>()).<span style="color:#a6e22e">to</span>(<span style="color:#a6e22e">equal</span>, <span style="color:#ae81ff">5</span>);
+		before(function() {
+	    	     bowlingGame = BowlingGame();
+	  	});</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There is no noticeable difference in the way any of the tests work but in fact <a href="http://stackoverflow.com/questions/383402/is-javascript-s-new-keyword-considered-harmful">all of the functions I defined have been added to the global object</a> (in this case window) instead of onto 'BowlingGame'.</p>
+</div>
+<div class="paragraph">
+<p>I changed one of the tests to check that this was the case&#8230;&#8203;</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">...
+			it("should score a single throw", function() {
+				console.log(window.roll);
+
+				bowlingGame.roll(5);
+				(19).times(function() { gutterBall(); });
+
+				expect(bowlingGame.score()).to(equal, 5);
 			});
-...	
-</code></pre></div><p>&hellip;which logs &lsquo;undefined&rsquo; to Firebug if the new keyword is used to instantiate &lsquo;bowlingGame&rsquo; and &lsquo;function()&rsquo; if it wasn&rsquo;t.</p>
-<p>The danger here is that you could change the meaning of the &lsquo;roll&rsquo; function outside of the &lsquo;BowlingGame&rsquo; if you wanted to.</p>
-<p>To give a contrived example perhaps we could change &lsquo;roll&rsquo; so that it actually called the original function twice instead of once:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-...
-			<span style="color:#a6e22e">it</span>(<span style="color:#e6db74">&#34;should score a single throw&#34;</span>, <span style="color:#66d9ef">function</span>() {
-				<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">originalRoll</span> <span style="color:#f92672">=</span> window.<span style="color:#a6e22e">roll</span>;
-				window.<span style="color:#a6e22e">roll</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
-					<span style="color:#a6e22e">originalRoll</span>.<span style="color:#a6e22e">apply</span>(<span style="color:#66d9ef">this</span>, <span style="color:#a6e22e">arguments</span>);
-					<span style="color:#a6e22e">originalRoll</span>.<span style="color:#a6e22e">apply</span>(<span style="color:#66d9ef">this</span>, <span style="color:#a6e22e">arguments</span>);
-					<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;roll isn&#39;t what you&#39;d expect anymore&#34;</span>)				
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>&#8230;&#8203;which logs 'undefined' to Firebug if the new keyword is used to instantiate 'bowlingGame' and 'function()' if it wasn&#8217;t.</p>
+</div>
+<div class="paragraph">
+<p>The danger here is that you could change the meaning of the 'roll' function outside of the 'BowlingGame' if you wanted to.</p>
+</div>
+<div class="paragraph">
+<p>To give a contrived example perhaps we could change 'roll' so that it actually called the original function twice instead of once:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">...
+			it("should score a single throw", function() {
+				var originalRoll = window.roll;
+				window.roll = function() {
+					originalRoll.apply(this, arguments);
+					originalRoll.apply(this, arguments);
+					console.log("roll isn't what you'd expect anymore")
 				};
-				
-				<span style="color:#a6e22e">bowlingGame</span>.<span style="color:#a6e22e">roll</span>(<span style="color:#ae81ff">5</span>);
-				(<span style="color:#ae81ff">19</span>).<span style="color:#a6e22e">times</span>(<span style="color:#66d9ef">function</span>() { <span style="color:#a6e22e">gutterBall</span>(); });
 
-				<span style="color:#a6e22e">expect</span>(<span style="color:#a6e22e">bowlingGame</span>.<span style="color:#a6e22e">score</span>()).<span style="color:#a6e22e">to</span>(<span style="color:#a6e22e">equal</span>, <span style="color:#ae81ff">5</span>);
-			});	
-...
-</code></pre></div><p>In this case you would probably never do that because it&rsquo;s just a small bit of code but you wouldn&rsquo;t want to add random functions to the global object in any reasonably sized javascript application.</p>
-<p><!-- raw HTML omitted -->Shog9 points to a bit of code which allows us to stop users from calling constructor functions without the new keyword<!-- raw HTML omitted -->:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-<span style="color:#a6e22e">BowlingGame</span>  <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
-	<span style="color:#66d9ef">if</span> ( <span style="color:#f92672">!</span>(<span style="color:#66d9ef">this</span> <span style="color:#66d9ef">instanceof</span> <span style="color:#a6e22e">arguments</span>.<span style="color:#a6e22e">callee</span>) ) 
-	   <span style="color:#66d9ef">throw</span> Error(<span style="color:#e6db74">&#34;Constructor called as a function&#34;</span>);
-...	
-</code></pre></div><p>When &lsquo;BowlingGame&rsquo; is called without the new keyword then &lsquo;this&rsquo; will refer to &lsquo;window&rsquo; which means that it won&rsquo;t be an instance of &lsquo;arguments.callee&rsquo; which in this case is the &lsquo;BowlingGame&rsquo; function.</p>
+				bowlingGame.roll(5);
+				(19).times(function() { gutterBall(); });
+
+				expect(bowlingGame.score()).to(equal, 5);
+			});
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case you would probably never do that because it&#8217;s just a small bit of code but you wouldn&#8217;t want to add random functions to the global object in any reasonably sized javascript application.</p>
+</div>
+<div class="paragraph">
+<p><a href="http://stackoverflow.com/questions/383402/is-javascript-s-new-keyword-considered-harmful#383503">Shog9 points to a bit of code which allows us to stop users from calling constructor functions without the new keyword</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">BowlingGame  = function() {
+	if ( !(this instanceof arguments.callee) )
+	   throw Error("Constructor called as a function");
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When 'BowlingGame' is called without the new keyword then 'this' will refer to 'window' which means that it won&#8217;t be an instance of 'arguments.callee' which in this case is the 'BowlingGame' function.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -260,7 +296,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/06/javascript-the-new-keyword/&amp;title=Javascript%3a%20The%20%27new%27%20keyword&amp;summary=I%20came%20across%20an%20interesting%20post%20by%20John%20Resig%20where%20he%20describes%20a%20%26lsquo%3bmakeClass%26rsquo%3b%20functionthat%20he%20uses%20in%20his%20code%20to%20create%20functions%20which%20can%20instantiate%20objects%20regardless%20of%20whether%20the%20user%20calls%20that%20function%20with%20or%20without%20the%20new%20keyword.%0aThe%20main%20reason%20that%20the%20new%20keyword%20seems%20to%20be%20considered%20harmful%20is%20because%20we%20might%20make%20assumptions%20in%20our%20function%20that%20it%20will%20be%20called%20with%20the%20new%20keyword%20which%20changes%20the%20meaning%20of%20%26lsquo%3bthis%26rsquo%3b%20inside%20that%20function...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/03/06/javascript-the-new-keyword/&amp;title=Javascript%3a%20The%20%27new%27%20keyword&amp;summary=I%20came%20across%20an%20interesting%20post%20by%20John%20Resig%20where%20he%20describes%20a%20%27makeClass%27%20function%20that%20he%20uses%20in%20his%20code%20to%20create%20functions%20which%20can%20instantiate%20objects%20regardless%20of%20whether%20the%20user%20calls%20that%20function%20with%20or%20without%20the%20new%20keyword.%0a%20The%20main%20reason%20that%20the%20new%20keyword%20seems%20to%20be%20considered%20harmful%20is%20because%20we%20might%20make%20assumptions%20in%20our%20function%20that%20it%20will%20be%20called%20with%20the%20new%20keyword%20which%20changes%20the%20meaning%20of%20%27this%27%20inside%20that%20function...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="F#: Values, functions and DateTime" />
         
-          <meta name="twitter:description" content="One of the things I&rsquo;ve noticed recently in my playing around with F# is that when we decide to wrap callsto the .NET DateTime methods there is a need to be quite careful that we are wrapping those calls with an F# function and not an F# value.
-If we don&rsquo;t do this then the DateTime method will only be evaluated once and then return the same value for every call which is probably not the behaviour we&rsquo;re looking for." />
+          <meta name="twitter:description" content="One of the things I&#8217;ve noticed recently in my playing around with F# is that when we decide to wrap calls to the .NET DateTime methods there is a need to be quite careful that we are wrapping those calls with an F# function and not an F# value.
+ If we don&#8217;t do this then the DateTime method will only be evaluated once and then return the same value for every call which is probably not the behaviour we&#8217;re looking for." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/07/25/f-values-functions-and-datetime/" />
 
@@ -34,8 +34,8 @@ If we don&rsquo;t do this then the DateTime method will only be evaluated once a
         <title> F#: Values, functions and DateTime &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="One of the things I&rsquo;ve noticed recently in my playing around with F# is that when we decide to wrap callsto the .NET DateTime methods there is a need to be quite careful that we are wrapping those calls with an F# function and not an F# value.
-If we don&rsquo;t do this then the DateTime method will only be evaluated once and then return the same value for every call which is probably not the behaviour we&rsquo;re looking for." />
+        <meta name="description" content="One of the things I&#8217;ve noticed recently in my playing around with F# is that when we decide to wrap calls to the .NET DateTime methods there is a need to be quite careful that we are wrapping those calls with an F# function and not an F# value.
+ If we don&#8217;t do this then the DateTime method will only be evaluated once and then return the same value for every call which is probably not the behaviour we&#8217;re looking for." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ If we don&rsquo;t do this then the DateTime method will only be evaluated once a
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-07-25",
-        "description": "One of the things I\x26rsquo;ve noticed recently in my playing around with F# is that when we decide to wrap callsto the .NET DateTime methods there is a need to be quite careful that we are wrapping those calls with an F# function and not an F# value.\nIf we don\x26rsquo;t do this then the DateTime method will only be evaluated once and then return the same value for every call which is probably not the behaviour we\x26rsquo;re looking for.",
-        "wordCount":  345 
+        "description": "One of the things I\x26#8217;ve noticed recently in my playing around with F# is that when we decide to wrap calls to the .NET DateTime methods there is a need to be quite careful that we are wrapping those calls with an F# function and not an F# value.\n If we don\x26#8217;t do this then the DateTime method will only be evaluated once and then return the same value for every call which is probably not the behaviour we\x26#8217;re looking for.",
+        "wordCount":  347 
     }
     </script>
     
@@ -174,52 +174,100 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">F#: Values, functions and DateTime</h1>
-    <p>One of the things I&rsquo;ve noticed recently in my playing around with F# is that when we decide to <!-- raw HTML omitted -->wrap calls<!-- raw HTML omitted --> to the .NET DateTime methods there is a need to be quite careful that we are wrapping those calls with an F# function and not an F# value.</p>
-<p>If we don&rsquo;t do this then the DateTime method will only be evaluated once and then return the same value for every call which is probably not the behaviour we&rsquo;re looking for.</p>
+    <div class="paragraph">
+<p>One of the things I&#8217;ve noticed recently in my playing around with F# is that when we decide to <a href="http://www.markhneedham.com/blog/2009/07/12/f-wrapping-net-library-calls/">wrap calls</a> to the .NET DateTime methods there is a need to be quite careful that we are wrapping those calls with an F# function and not an F# value.</p>
+</div>
+<div class="paragraph">
+<p>If we don&#8217;t do this then the DateTime method will only be evaluated once and then return the same value for every call which is probably not the behaviour we&#8217;re looking for.</p>
+</div>
+<div class="paragraph">
 <p>The following shows how we could wrap call to get the current time in string format inside a value:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> timeNow <span style="color:#f92672">=</span> System.DateTime.Now.<span style="color:#a6e22e">ToLongTimeString</span>()
-</code></pre></div><p>If we then execute &lsquo;timeNow&rsquo; to show the current time before and after a sleep this is what we see:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-printfn <span style="color:#e6db74">&#34;The time now is %s&#34;</span> timeNow
-System.Threading.Thread.<span style="color:#a6e22e">Sleep</span><span style="color:#f92672">(</span>2000<span style="color:#f92672">)</span>
-printfn <span style="color:#e6db74">&#34;The time now is %s&#34;</span> timeNow
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-The time now is 2:00:29 PM
-The time now is 2:00:29 PM
-</code></pre></div><p>As we can see the time has remained the same despite the fact that we put a sleep in between thew two calls.</p>
-<p>Looking at the C# version of this code via <!-- raw HTML omitted -->Reflector<!-- raw HTML omitted --> we can see that &lsquo;timeNow&rsquo; is just a string:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> timeNow;
-</code></pre></div><p>The way to get the real current time is to define a function to get the time so that it will be reevaluated each time we ask for the time:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#66d9ef">let</span> timeNowUpToDate () <span style="color:#f92672">=</span> System.DateTime.Now.<span style="color:#a6e22e">ToLongTimeString</span>()
-</code></pre></div><p>If we do the same test as we did above:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-printfn <span style="color:#e6db74">&#34;The time now is %s&#34;</span> <span style="color:#f92672">(</span>timeNowUpToDate()<span style="color:#f92672">)</span>
-System.Threading.Thread.<span style="color:#a6e22e">Sleep</span><span style="color:#f92672">(</span>2000<span style="color:#f92672">)</span>
-printfn <span style="color:#e6db74">&#34;The time now is %s&#34;</span> <span style="color:#f92672">(</span>timeNowUpToDate()<span style="color:#f92672">)</span>
-</code></pre></div><p>We get the following results:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ocaml" data-lang="ocaml">
-<span style="color:#a6e22e">The</span> time now is 2<span style="color:#f92672">:</span>05<span style="color:#f92672">:</span>13 <span style="color:#a6e22e">PM</span>
-<span style="color:#a6e22e">The</span> time now is 2<span style="color:#f92672">:</span>05<span style="color:#f92672">:</span>15 <span style="color:#a6e22e">PM</span>
-</code></pre></div><p>Which is what we were looking for in the first place!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let timeNow = System.DateTime.Now.ToLongTimeString()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we then execute 'timeNow' to show the current time before and after a sleep this is what we see:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">printfn "The time now is %s" timeNow
+System.Threading.Thread.Sleep(2000)
+printfn "The time now is %s" timeNow</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">The time now is 2:00:29 PM
+The time now is 2:00:29 PM</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As we can see the time has remained the same despite the fact that we put a sleep in between thew two calls.</p>
+</div>
+<div class="paragraph">
+<p>Looking at the C# version of this code via <a href="http://www.red-gate.com/products/reflector/">Reflector</a> we can see that 'timeNow' is just a string:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public string timeNow;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The way to get the real current time is to define a function to get the time so that it will be reevaluated each time we ask for the time:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">let timeNowUpToDate () = System.DateTime.Now.ToLongTimeString()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we do the same test as we did above:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">printfn "The time now is %s" (timeNowUpToDate())
+System.Threading.Thread.Sleep(2000)
+printfn "The time now is %s" (timeNowUpToDate())</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We get the following results:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">The time now is 2:05:13 PM
+The time now is 2:05:15 PM</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Which is what we were looking for in the first place!</p>
+</div>
+<div class="paragraph">
 <p>Via Reflector again this is what that code would look like in C#:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
-</span><span style="color:#a6e22e">[Serializable]</span>
-<span style="color:#66d9ef">internal</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">timeNowUpToDate</span><span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">127</span> : FastFunc&lt;Unit, <span style="color:#66d9ef">string</span>&gt;
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">[Serializable]
+internal class timeNowUpToDate@127 : FastFunc&lt;Unit, string&gt;
 {
-    <span style="color:#75715e">// Methods
-</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">internal</span> timeNowUpToDate<span style="color:#960050;background-color:#1e0010">@</span><span style="color:#ae81ff">127</span>()
+    // Methods
+    internal timeNowUpToDate@127()
     {
     }
 
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">string</span> Invoke(Unit unitVar0)
+    public override string Invoke(Unit unitVar0)
     {
-        <span style="color:#66d9ef">return</span> DateTime.Now.ToLongTimeString();
+        return DateTime.Now.ToLongTimeString();
     }
-}
-</code></pre></div><p>As we can see every time the function is invoked a call to the DateTime API will be made which is what we want to happen.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As we can see every time the function is invoked a call to the DateTime API will be made which is what we want to happen.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -254,7 +302,7 @@ printfn <span style="color:#e6db74">&#34;The time now is %s&#34;</span> <span st
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/25/f-values-functions-and-datetime/&amp;title=F%23%3a%20Values%2c%20functions%20and%20DateTime&amp;summary=One%20of%20the%20things%20I%26rsquo%3bve%20noticed%20recently%20in%20my%20playing%20around%20with%20F%23%20is%20that%20when%20we%20decide%20to%20wrap%20callsto%20the%20.NET%20DateTime%20methods%20there%20is%20a%20need%20to%20be%20quite%20careful%20that%20we%20are%20wrapping%20those%20calls%20with%20an%20F%23%20function%20and%20not%20an%20F%23%20value.%0aIf%20we%20don%26rsquo%3bt%20do%20this%20then%20the%20DateTime%20method%20will%20only%20be%20evaluated%20once%20and%20then%20return%20the%20same%20value%20for%20every%20call%20which%20is%20probably%20not%20the%20behaviour%20we%26rsquo%3bre%20looking%20for...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/07/25/f-values-functions-and-datetime/&amp;title=F%23%3a%20Values%2c%20functions%20and%20DateTime&amp;summary=One%20of%20the%20things%20I%26%238217%3bve%20noticed%20recently%20in%20my%20playing%20around%20with%20F%23%20is%20that%20when%20we%20decide%20to%20wrap%20calls%20to%20the%20.NET%20DateTime%20methods%20there%20is%20a%20need%20to%20be%20quite%20careful%20that%20we%20are%20wrapping%20those%20calls%20with%20an%20F%23%20function%20and%20not%20an%20F%23%20value.%0a%20If%20we%20don%26%238217%3bt%20do%20this%20then%20the%20DateTime%20method%20will%20only%20be%20evaluated%20once%20and%20then%20return%20the%20same%20value%20for%20every%20call%20which%20is%20probably%20not%20the%20behaviour%20we%26%238217%3bre%20looking%20for...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="C#: A functional solution to a modeling problem" />
         
-          <meta name="twitter:description" content="We were working on some refactoring today where we pushed some logic backfrom a service and onto a domain object and I noticed that we were able to use functions quite effectively to reduce the amount of code we had to write while still describing differences in behaviour.
-The class we want to write needs to take in two integers which represent two different situations related to Foo. Depending upon whether we have &lsquo;Situation 1&rsquo;, &lsquo;Situation 2&rsquo; or both situations we will display the results slightly differently." />
+          <meta name="twitter:description" content="We were working on some refactoring today where we pushed some logic back from a service and onto a domain object and I noticed that we were able to use functions quite effectively to reduce the amount of code we had to write while still describing differences in behaviour.
+ The class we want to write needs to take in two integers which represent two different situations related to Foo. Depending upon whether we have &#39;Situation 1&#39;, &#39;Situation 2&#39; or both situations we will display the results slightly differently." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/01/15/c-a-functional-solutional-to-a-modeling-problem/" />
 
@@ -34,8 +34,8 @@ The class we want to write needs to take in two integers which represent two dif
         <title> C#: A functional solution to a modeling problem &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="We were working on some refactoring today where we pushed some logic backfrom a service and onto a domain object and I noticed that we were able to use functions quite effectively to reduce the amount of code we had to write while still describing differences in behaviour.
-The class we want to write needs to take in two integers which represent two different situations related to Foo. Depending upon whether we have &lsquo;Situation 1&rsquo;, &lsquo;Situation 2&rsquo; or both situations we will display the results slightly differently." />
+        <meta name="description" content="We were working on some refactoring today where we pushed some logic back from a service and onto a domain object and I noticed that we were able to use functions quite effectively to reduce the amount of code we had to write while still describing differences in behaviour.
+ The class we want to write needs to take in two integers which represent two different situations related to Foo. Depending upon whether we have &#39;Situation 1&#39;, &#39;Situation 2&#39; or both situations we will display the results slightly differently." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ The class we want to write needs to take in two integers which represent two dif
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-15",
-        "description": "We were working on some refactoring today where we pushed some logic backfrom a service and onto a domain object and I noticed that we were able to use functions quite effectively to reduce the amount of code we had to write while still describing differences in behaviour.\nThe class we want to write needs to take in two integers which represent two different situations related to Foo. Depending upon whether we have \x26lsquo;Situation 1\x26rsquo;, \x26lsquo;Situation 2\x26rsquo; or both situations we will display the results slightly differently.",
-        "wordCount":  436 
+        "description": "We were working on some refactoring today where we pushed some logic back from a service and onto a domain object and I noticed that we were able to use functions quite effectively to reduce the amount of code we had to write while still describing differences in behaviour.\n The class we want to write needs to take in two integers which represent two different situations related to Foo. Depending upon whether we have \x27Situation 1\x27, \x27Situation 2\x27 or both situations we will display the results slightly differently.",
+        "wordCount":  438 
     }
     </script>
     
@@ -174,71 +174,97 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">C#: A functional solution to a modeling problem</h1>
-    <p>We were working on some refactoring today where we <!-- raw HTML omitted -->pushed some logic back<!-- raw HTML omitted --> from a service and onto a domain object and I noticed that we were able to use functions quite effectively to reduce the amount of code we had to write while still describing differences in behaviour.</p>
-<p>The class we want to write needs to take in two integers which represent two different situations related to Foo. Depending upon whether we have &lsquo;Situation 1&rsquo;, &lsquo;Situation 2&rsquo; or both situations we will display the results slightly differently.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span>
+    <div class="paragraph">
+<p>We were working on some refactoring today where we <a href="http://www.markhneedham.com/blog/2009/11/11/coding-pushing-the-logic-back/">pushed some logic back</a> from a service and onto a domain object and I noticed that we were able to use functions quite effectively to reduce the amount of code we had to write while still describing differences in behaviour.</p>
+</div>
+<div class="paragraph">
+<p>The class we want to write needs to take in two integers which represent two different situations related to Foo. Depending upon whether we have 'Situation 1', 'Situation 2' or both situations we will display the results slightly differently.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">    public class Foo
     {
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">int</span> situationOneValue;
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> <span style="color:#66d9ef">int</span> situationTwoValue;
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> Func&lt;<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">string</span>&gt; situationOneDisplayFunc;
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> Func&lt;<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">string</span>&gt; situationTwoDisplayFunc;
+        private readonly int situationOneValue;
+        private readonly int situationTwoValue;
+        private readonly Func&lt;int, string&gt; situationOneDisplayFunc;
+        private readonly Func&lt;int, string&gt; situationTwoDisplayFunc;
 
-        <span style="color:#66d9ef">private</span> Foo(<span style="color:#66d9ef">int</span> situationOneValue, <span style="color:#66d9ef">int</span> situationTwoValue, Func&lt;<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">string</span>&gt; situationOneDisplayFunc, Func&lt;<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">string</span>&gt; situationTwoDisplayFunc)
+        private Foo(int situationOneValue, int situationTwoValue, Func&lt;int, string&gt; situationOneDisplayFunc, Func&lt;int, string&gt; situationTwoDisplayFunc)
         {
-            <span style="color:#66d9ef">this</span>.situationOneValue = situationOneValue;
-            <span style="color:#66d9ef">this</span>.situationTwoValue = situationTwoValue;
-            <span style="color:#66d9ef">this</span>.situationOneDisplayFunc = situationOneDisplayFunc;
-            <span style="color:#66d9ef">this</span>.situationTwoDisplayFunc = situationTwoDisplayFunc;
+            this.situationOneValue = situationOneValue;
+            this.situationTwoValue = situationTwoValue;
+            this.situationOneDisplayFunc = situationOneDisplayFunc;
+            this.situationTwoDisplayFunc = situationTwoDisplayFunc;
         }
 
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Foo ForSituation1(<span style="color:#66d9ef">int</span> situationOneValue, <span style="color:#66d9ef">int</span> situationTwoValue)
+        public static Foo ForSituation1(int situationOneValue, int situationTwoValue)
         {
-            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Foo(situationOneValue, situationTwoValue, Format, _ =&gt; <span style="color:#e6db74">&#34;Irrelevant value&#34;</span>);
+            return new Foo(situationOneValue, situationTwoValue, Format, _ =&gt; "Irrelevant value");
         }
 
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Foo ForSituation2(<span style="color:#66d9ef">int</span> situationOneValue, <span style="color:#66d9ef">int</span> situationTwoValue)
+        public static Foo ForSituation2(int situationOneValue, int situationTwoValue)
         {
-            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Foo(situationOneValue, situationTwoValue, _ =&gt; <span style="color:#e6db74">&#34;Irrelevant value&#34;</span>, Format);
+            return new Foo(situationOneValue, situationTwoValue, _ =&gt; "Irrelevant value", Format);
         }
 
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Foo ForSituation1And2(<span style="color:#66d9ef">int</span> situationOneValue, <span style="color:#66d9ef">int</span> situationTwoValue)
+        public static Foo ForSituation1And2(int situationOneValue, int situationTwoValue)
         {
-            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Foo(situationOneValue, situationTwoValue, Format, Format);
+            return new Foo(situationOneValue, situationTwoValue, Format, Format);
         }
 
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> Situation1()
+        public string Situation1()
         {
-            <span style="color:#66d9ef">return</span> situationOneDisplayFunc(situationOneValue);
+            return situationOneDisplayFunc(situationOneValue);
         }
 
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> Situation2()
+        public string Situation2()
         {
-            <span style="color:#66d9ef">return</span> situationTwoDisplayFunc(situationTwoValue);
+            return situationTwoDisplayFunc(situationTwoValue);
         }
 
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">string</span> Format(<span style="color:#66d9ef">int</span> <span style="color:#66d9ef">value</span>)
+        private string Format(int value)
         {
-            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">string</span>.Format(<span style="color:#e6db74">&#34;Formatted Value {0}&#34;</span>);
+            return string.Format("Formatted Value {0}");
         }
-    }
-
-</code></pre></div><p>The way that it&rsquo;s used is that we get a value coming in from another system as a string which represents which situation we have to deal with.</p>
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The way that it&#8217;s used is that we get a value coming in from another system as a string which represents which situation we have to deal with.</p>
+</div>
+<div class="paragraph">
 <p>As a result in the code which processes this data we have a dictionary which maps from these strings to the corresponding static method defined above:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Dictionary&lt;<span style="color:#66d9ef">string</span>, Func&lt;<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>, Foo&gt;&gt; Foos = 
-    <span style="color:#66d9ef">new</span> Dictionary&lt;<span style="color:#66d9ef">string</span>, Func&lt;<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">int</span>, Foo&gt;&gt; 
-    { { <span style="color:#e6db74">&#34;Situation 1&#34;</span>, Foo.ForSituation1 }, 
-      { <span style="color:#e6db74">&#34;Situation 2&#34;</span>, Foo.ForSituation2 }.
-      { <span style="color:#e6db74">&#34;Situation 1 and 2&#34;</span>, Foo.ForSituation1And2 };
-</code></pre></div><p>This is a neat little idea which I learnt from some Scala code that my colleague <!-- raw HTML omitted -->John Hume<!-- raw HTML omitted --> posted on an internal mailing list a few weeks ago where he&rsquo;d done something similar.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">private static Dictionary&lt;string, Func&lt;int, int, Foo&gt;&gt; Foos =
+    new Dictionary&lt;string, Func&lt;int, int, Foo&gt;&gt;
+    { { "Situation 1", Foo.ForSituation1 },
+      { "Situation 2", Foo.ForSituation2 }.
+      { "Situation 1 and 2", Foo.ForSituation1And2 };</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a neat little idea which I learnt from some Scala code that my colleague <a href="http://elhumidor.blogspot.com/">John Hume</a> posted on an internal mailing list a few weeks ago where he&#8217;d done something similar.</p>
+</div>
+<div class="paragraph">
 <p>In our code which parses the incoming data we have something like the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> foo = Foos[incomingMessage.Situation](incomingMessage.Situation1Value, incomingMessage.Situation2Value);
-<span style="color:#75715e">// and so on
-</span></code></pre></div><p>If we wanted to solve this without using functions then for the first part I think we would probably need to use inheritance to create three different Foos, probably with a common interface, and then define the different behaviour on those classes.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var foo = Foos[incomingMessage.Situation](incomingMessage.Situation1Value, incomingMessage.Situation2Value);
+// and so on</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we wanted to solve this without using functions then for the first part I think we would probably need to use inheritance to create three different Foos, probably with a common interface, and then define the different behaviour on those classes.</p>
+</div>
+<div class="paragraph">
 <p>The second part of the solution might end up being solved with some if statements or something similar.</p>
-<p>I was a bit unsure of how easy it was to understand this code when we first came up with it but it&rsquo;s growing on me.</p>
+</div>
+<div class="paragraph">
+<p>I was a bit unsure of how easy it was to understand this code when we first came up with it but it&#8217;s growing on me.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -273,7 +299,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/15/c-a-functional-solutional-to-a-modeling-problem/&amp;title=C%23%3a%20A%20functional%20solution%20to%20a%20modeling%20problem&amp;summary=We%20were%20working%20on%20some%20refactoring%20today%20where%20we%20pushed%20some%20logic%20backfrom%20a%20service%20and%20onto%20a%20domain%20object%20and%20I%20noticed%20that%20we%20were%20able%20to%20use%20functions%20quite%20effectively%20to%20reduce%20the%20amount%20of%20code%20we%20had%20to%20write%20while%20still%20describing%20differences%20in%20behaviour.%0aThe%20class%20we%20want%20to%20write%20needs%20to%20take%20in%20two%20integers%20which%20represent%20two%20different%20situations%20related%20to%20Foo.%20Depending%20upon%20whether%20we%20have%20%26lsquo%3bSituation%201%26rsquo%3b%2c%20%26lsquo%3bSituation%202%26rsquo%3b%20or%20both%20situations%20we%20will%20display%20the%20results%20slightly%20differently...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/15/c-a-functional-solutional-to-a-modeling-problem/&amp;title=C%23%3a%20A%20functional%20solution%20to%20a%20modeling%20problem&amp;summary=We%20were%20working%20on%20some%20refactoring%20today%20where%20we%20pushed%20some%20logic%20back%20from%20a%20service%20and%20onto%20a%20domain%20object%20and%20I%20noticed%20that%20we%20were%20able%20to%20use%20functions%20quite%20effectively%20to%20reduce%20the%20amount%20of%20code%20we%20had%20to%20write%20while%20still%20describing%20differences%20in%20behaviour.%0a%20The%20class%20we%20want%20to%20write%20needs%20to%20take%20in%20two%20integers%20which%20represent%20two%20different%20situations%20related%20to%20Foo.%20Depending%20upon%20whether%20we%20have%20%27Situation%201%27%2c%20%27Situation%202%27%20or%20both%20situations%20we%20will%20display%20the%20results%20slightly%20differently...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

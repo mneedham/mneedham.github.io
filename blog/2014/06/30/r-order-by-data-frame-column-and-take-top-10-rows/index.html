@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="R: Order by data frame column and take top 10 rows" />
         
-          <meta name="twitter:description" content="library(Rneo4j) query = &#34;MATCH (:Person)-[:HAS_MEETUP_PROFILE]-&gt;()-[:HAS_MEMBERSHIP]-&gt;(membership)-[:OF_GROUP]-&gt;(g:Group {name: \&#34;Neo4j - London User Group\&#34;}) RETURN membership.joined AS joinDate&#34; timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin=&#34;1970-01-01&#34;) meetupMembers = cypher(graph, query) meetupMembers$joined &lt;- timestampToDate(meetupMembers$joinDate) groupBy = function(dates, format) { dd = aggregate(dates, by= list(format(dates, format)), function(x) length(x)) colnames(dd) = c(&#34;key&#34;, &#34;count&#34;) dd } byDayTime = groupBy(meetupMembers$joined, &#34;%A %H:00&#34;) &gt; byDayTime[12:25,] key count 12 Friday 14:00 12 13 Friday 15:00 8 14 Friday 16:00 11 15 Friday 17:00 10 16 Friday 18:00 3 17 Friday 19:00 1 18 Friday 20:00 3 19 Friday 21:00 4 20 Friday 22:00 7 21 Friday 23:00 2 22 Monday 00:00 3 23 Monday 01:00 1 24 Monday 03:00 1 25 Monday 05:00 3 &gt; byDayTime[order(byDayTime$count),][1:10,] key count 2 Friday 03:00 1 3 Friday 04:00 1 4 Friday 05:00 1 5 Friday 07:00 1 17 Friday 19:00 1 23 Monday 01:00 1 24 Monday 03:00 1 46 Saturday 03:00 1 66 Sunday 06:00 1 67 Sunday 07:00 1 &gt; order(byDayTime$count) [1] 2 3 4 5 17 23 24 46 66 67 109 128 129 1 21 44 47 48 81 86 87 88 108 130 16 18 22 25 45 53 64 71 75 107 19 26 49 51 55 56 58 59 61 [44] 65 68 77 79 85 106 110 143 50 52 54 82 84 101 127 146 27 57 60 62 63 69 70 73 99 103 126 145 6 20 76 83 89 105 122 131 144 7 13 40 43 72 80 [87] 102 39 78 100 132 147 15 94 121 123 142 14 42 74 104 137 140 12 38 92 93 111 124 8 9 11 90 96 125 139 10 32 34 36 95 97 98 28 135 136 33 35 112 [130] 113 116 134 91 141 41 115 120 133 37 119 138 31 117 118 30 114 29 key count 2 Friday 03:00 1 3 Friday 04:00 1 4 Friday 05:00 1 5 Friday 07:00 1 &gt; byDayTime[order(-byDayTime$count),][1:10,] key count 29 Monday 09:00 34 30 Monday 10:00 28 114 Tuesday 11:00 28 31 Monday 11:00 27 117 Tuesday 14:00 27 118 Tuesday 15:00 27 138 Wednesday 14:00 23 119 Tuesday 16:00 22 37 Monday 17:00 21 115 Tuesday 12:00 20 " />
+          <meta name="twitter:description" content="I&#8217;ve been doing some ad-hoc analysis of the Neo4j London meetup group using R and Neo4j and having worked out how to group by certain keys the next step was to order the rows of the data frame.
+ I wanted to drill into the days on which people join the group and see whether they join it at a specific time of day. My feeling was that most people would join on a Monday morning." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/06/30/r-order-by-data-frame-column-and-take-top-10-rows/" />
 
@@ -33,7 +34,8 @@
         <title> R: Order by data frame column and take top 10 rows &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="library(Rneo4j) query = &#34;MATCH (:Person)-[:HAS_MEETUP_PROFILE]-&gt;()-[:HAS_MEMBERSHIP]-&gt;(membership)-[:OF_GROUP]-&gt;(g:Group {name: \&#34;Neo4j - London User Group\&#34;}) RETURN membership.joined AS joinDate&#34; timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin=&#34;1970-01-01&#34;) meetupMembers = cypher(graph, query) meetupMembers$joined &lt;- timestampToDate(meetupMembers$joinDate) groupBy = function(dates, format) { dd = aggregate(dates, by= list(format(dates, format)), function(x) length(x)) colnames(dd) = c(&#34;key&#34;, &#34;count&#34;) dd } byDayTime = groupBy(meetupMembers$joined, &#34;%A %H:00&#34;) &gt; byDayTime[12:25,] key count 12 Friday 14:00 12 13 Friday 15:00 8 14 Friday 16:00 11 15 Friday 17:00 10 16 Friday 18:00 3 17 Friday 19:00 1 18 Friday 20:00 3 19 Friday 21:00 4 20 Friday 22:00 7 21 Friday 23:00 2 22 Monday 00:00 3 23 Monday 01:00 1 24 Monday 03:00 1 25 Monday 05:00 3 &gt; byDayTime[order(byDayTime$count),][1:10,] key count 2 Friday 03:00 1 3 Friday 04:00 1 4 Friday 05:00 1 5 Friday 07:00 1 17 Friday 19:00 1 23 Monday 01:00 1 24 Monday 03:00 1 46 Saturday 03:00 1 66 Sunday 06:00 1 67 Sunday 07:00 1 &gt; order(byDayTime$count) [1] 2 3 4 5 17 23 24 46 66 67 109 128 129 1 21 44 47 48 81 86 87 88 108 130 16 18 22 25 45 53 64 71 75 107 19 26 49 51 55 56 58 59 61 [44] 65 68 77 79 85 106 110 143 50 52 54 82 84 101 127 146 27 57 60 62 63 69 70 73 99 103 126 145 6 20 76 83 89 105 122 131 144 7 13 40 43 72 80 [87] 102 39 78 100 132 147 15 94 121 123 142 14 42 74 104 137 140 12 38 92 93 111 124 8 9 11 90 96 125 139 10 32 34 36 95 97 98 28 135 136 33 35 112 [130] 113 116 134 91 141 41 115 120 133 37 119 138 31 117 118 30 114 29 key count 2 Friday 03:00 1 3 Friday 04:00 1 4 Friday 05:00 1 5 Friday 07:00 1 &gt; byDayTime[order(-byDayTime$count),][1:10,] key count 29 Monday 09:00 34 30 Monday 10:00 28 114 Tuesday 11:00 28 31 Monday 11:00 27 117 Tuesday 14:00 27 118 Tuesday 15:00 27 138 Wednesday 14:00 23 119 Tuesday 16:00 22 37 Monday 17:00 21 115 Tuesday 12:00 20 " />
+        <meta name="description" content="I&#8217;ve been doing some ad-hoc analysis of the Neo4j London meetup group using R and Neo4j and having worked out how to group by certain keys the next step was to order the rows of the data frame.
+ I wanted to drill into the days on which people join the group and see whether they join it at a specific time of day. My feeling was that most people would join on a Monday morning." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-06-30",
-        "description": "library(Rneo4j) query = \x26#34;MATCH (:Person)-[:HAS_MEETUP_PROFILE]-\x26gt;()-[:HAS_MEMBERSHIP]-\x26gt;(membership)-[:OF_GROUP]-\x26gt;(g:Group {name: \\\x26#34;Neo4j - London User Group\\\x26#34;}) RETURN membership.joined AS joinDate\x26#34; timestampToDate \x26lt;- function(x) as.POSIXct(x \/ 1000, origin=\x26#34;1970-01-01\x26#34;) meetupMembers = cypher(graph, query) meetupMembers$joined \x26lt;- timestampToDate(meetupMembers$joinDate) groupBy = function(dates, format) { dd = aggregate(dates, by= list(format(dates, format)), function(x) length(x)) colnames(dd) = c(\x26#34;key\x26#34;, \x26#34;count\x26#34;) dd } byDayTime = groupBy(meetupMembers$joined, \x26#34;%A %H:00\x26#34;) \x26gt; byDayTime[12:25,] key count 12 Friday 14:00 12 13 Friday 15:00 8 14 Friday 16:00 11 15 Friday 17:00 10 16 Friday 18:00 3 17 Friday 19:00 1 18 Friday 20:00 3 19 Friday 21:00 4 20 Friday 22:00 7 21 Friday 23:00 2 22 Monday 00:00 3 23 Monday 01:00 1 24 Monday 03:00 1 25 Monday 05:00 3 \x26gt; byDayTime[order(byDayTime$count),][1:10,] key count 2 Friday 03:00 1 3 Friday 04:00 1 4 Friday 05:00 1 5 Friday 07:00 1 17 Friday 19:00 1 23 Monday 01:00 1 24 Monday 03:00 1 46 Saturday 03:00 1 66 Sunday 06:00 1 67 Sunday 07:00 1 \x26gt; order(byDayTime$count) [1] 2 3 4 5 17 23 24 46 66 67 109 128 129 1 21 44 47 48 81 86 87 88 108 130 16 18 22 25 45 53 64 71 75 107 19 26 49 51 55 56 58 59 61 [44] 65 68 77 79 85 106 110 143 50 52 54 82 84 101 127 146 27 57 60 62 63 69 70 73 99 103 126 145 6 20 76 83 89 105 122 131 144 7 13 40 43 72 80 [87] 102 39 78 100 132 147 15 94 121 123 142 14 42 74 104 137 140 12 38 92 93 111 124 8 9 11 90 96 125 139 10 32 34 36 95 97 98 28 135 136 33 35 112 [130] 113 116 134 91 141 41 115 120 133 37 119 138 31 117 118 30 114 29 key count 2 Friday 03:00 1 3 Friday 04:00 1 4 Friday 05:00 1 5 Friday 07:00 1 \x26gt; byDayTime[order(-byDayTime$count),][1:10,] key count 29 Monday 09:00 34 30 Monday 10:00 28 114 Tuesday 11:00 28 31 Monday 11:00 27 117 Tuesday 14:00 27 118 Tuesday 15:00 27 138 Wednesday 14:00 23 119 Tuesday 16:00 22 37 Monday 17:00 21 115 Tuesday 12:00 20 ",
-        "wordCount":  372 
+        "description": "I\x26#8217;ve been doing some ad-hoc analysis of the Neo4j London meetup group using R and Neo4j and having worked out how to group by certain keys the next step was to order the rows of the data frame.\n I wanted to drill into the days on which people join the group and see whether they join it at a specific time of day. My feeling was that most people would join on a Monday morning.",
+        "wordCount":  597 
     }
     </script>
     
@@ -172,88 +174,124 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">R: Order by data frame column and take top 10 rows</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#a6e22e">library</span>(Rneo4j)
+    <div class="paragraph">
+<p>I&#8217;ve been doing some <a href="http://www.markhneedham.com/blog/2014/06/30/neo4jr-grouping-meetup-members-by-join-timestamp/">ad-hoc analysis of the Neo4j London meetup group using R and Neo4j</a> and having worked out how to group by certain keys the next step was to order the rows of the data frame.</p>
+</div>
+<div class="paragraph">
+<p>I wanted to drill into the days on which people join the group and see whether they join it at a specific time of day. My feeling was that most people would join on a Monday morning.</p>
+</div>
+<div class="paragraph">
+<p>The first step was to run the query using <a href="https://github.com/nicolewhite/Rneo4j">RNeo4j</a> and then group by day and <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/as.POSIXlt.html">hour</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">library(Rneo4j)
 
-query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;MATCH (:Person)-[:HAS_MEETUP_PROFILE]-&gt;()-[:HAS_MEMBERSHIP]-&gt;(membership)-[:OF_GROUP]-&gt;(g:Group {name: \&#34;Neo4j - London User Group\&#34;})
-</span><span style="color:#e6db74">         RETURN membership.joined AS joinDate&#34;</span>
+query = "MATCH (:Person)-[:HAS_MEETUP_PROFILE]-&gt;()-[:HAS_MEMBERSHIP]-&gt;(membership)-[:OF_GROUP]-&gt;(g:Group {name: \"Neo4j - London User Group\"})
+         RETURN membership.joined AS joinDate"
 
-timestampToDate <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">function</span>(x) <span style="color:#a6e22e">as.POSIXct</span>(x <span style="color:#f92672">/</span> <span style="color:#ae81ff">1000</span>, origin<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1970-01-01&#34;</span>)
+timestampToDate &lt;- function(x) as.POSIXct(x / 1000, origin="1970-01-01")
 
-meetupMembers <span style="color:#f92672">=</span> <span style="color:#a6e22e">cypher</span>(graph, query)
-meetupMembers<span style="color:#f92672">$</span>joined <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">timestampToDate</span>(meetupMembers<span style="color:#f92672">$</span>joinDate)
+meetupMembers = cypher(graph, query)
+meetupMembers$joined &lt;- timestampToDate(meetupMembers$joinDate)
 
-groupBy <span style="color:#f92672">=</span> <span style="color:#a6e22e">function</span>(dates, format) {
-  dd <span style="color:#f92672">=</span> <span style="color:#a6e22e">aggregate</span>(dates, by<span style="color:#f92672">=</span> <span style="color:#a6e22e">list</span>(<span style="color:#a6e22e">format</span>(dates, format)), <span style="color:#a6e22e">function</span>(x) <span style="color:#a6e22e">length</span>(x))
-  <span style="color:#a6e22e">colnames</span>(dd) <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;key&#34;</span>, <span style="color:#e6db74">&#34;count&#34;</span>)
+groupBy = function(dates, format) {
+  dd = aggregate(dates, by= list(format(dates, format)), function(x) length(x))
+  colnames(dd) = c("key", "count")
   dd
 }
 
-byDayTime <span style="color:#f92672">=</span> <span style="color:#a6e22e">groupBy</span>(meetupMembers<span style="color:#f92672">$</span>joined, <span style="color:#e6db74">&#34;%A %H:00&#34;</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> byDayTime[12<span style="color:#f92672">:</span><span style="color:#ae81ff">25</span>,]
+byDayTime = groupBy(meetupMembers$joined, "%A %H:00")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This returned quite a few rows so we&#8217;ll just display a subset of them:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; byDayTime[12:25,]
             key count
-<span style="color:#ae81ff">12</span> Friday <span style="color:#ae81ff">14</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">12</span>
-<span style="color:#ae81ff">13</span> Friday <span style="color:#ae81ff">15</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">8</span>
-<span style="color:#ae81ff">14</span> Friday <span style="color:#ae81ff">16</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">11</span>
-<span style="color:#ae81ff">15</span> Friday <span style="color:#ae81ff">17</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">10</span>
-<span style="color:#ae81ff">16</span> Friday <span style="color:#ae81ff">18</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">3</span>
-<span style="color:#ae81ff">17</span> Friday <span style="color:#ae81ff">19</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">18</span> Friday <span style="color:#ae81ff">20</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">3</span>
-<span style="color:#ae81ff">19</span> Friday <span style="color:#ae81ff">21</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">4</span>
-<span style="color:#ae81ff">20</span> Friday <span style="color:#ae81ff">22</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">7</span>
-<span style="color:#ae81ff">21</span> Friday <span style="color:#ae81ff">23</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">2</span>
-<span style="color:#ae81ff">22</span> Monday <span style="color:#ae81ff">00</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">3</span>
-<span style="color:#ae81ff">23</span> Monday <span style="color:#ae81ff">01</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">24</span> Monday <span style="color:#ae81ff">03</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">25</span> Monday <span style="color:#ae81ff">05</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">3</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> byDayTime<span style="color:#a6e22e">[order</span>(byDayTime<span style="color:#f92672">$</span>count),][1<span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>,]
+12 Friday 14:00    12
+13 Friday 15:00     8
+14 Friday 16:00    11
+15 Friday 17:00    10
+16 Friday 18:00     3
+17 Friday 19:00     1
+18 Friday 20:00     3
+19 Friday 21:00     4
+20 Friday 22:00     7
+21 Friday 23:00     2
+22 Monday 00:00     3
+23 Monday 01:00     1
+24 Monday 03:00     1
+25 Monday 05:00     3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The next step was to order by the 'count' column which wasn&#8217;t too difficult:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; byDayTime[order(byDayTime$count),][1:10,]
               key count
-<span style="color:#ae81ff">2</span>    Friday <span style="color:#ae81ff">03</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">3</span>    Friday <span style="color:#ae81ff">04</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">4</span>    Friday <span style="color:#ae81ff">05</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">5</span>    Friday <span style="color:#ae81ff">07</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">17</span>   Friday <span style="color:#ae81ff">19</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">23</span>   Monday <span style="color:#ae81ff">01</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">24</span>   Monday <span style="color:#ae81ff">03</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">46</span> Saturday <span style="color:#ae81ff">03</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">66</span>   Sunday <span style="color:#ae81ff">06</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">67</span>   Sunday <span style="color:#ae81ff">07</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">order</span>(byDayTime<span style="color:#f92672">$</span>count)
-  [1]   <span style="color:#ae81ff">2</span>   <span style="color:#ae81ff">3</span>   <span style="color:#ae81ff">4</span>   <span style="color:#ae81ff">5</span>  <span style="color:#ae81ff">17</span>  <span style="color:#ae81ff">23</span>  <span style="color:#ae81ff">24</span>  <span style="color:#ae81ff">46</span>  <span style="color:#ae81ff">66</span>  <span style="color:#ae81ff">67</span> <span style="color:#ae81ff">109</span> <span style="color:#ae81ff">128</span> <span style="color:#ae81ff">129</span>   <span style="color:#ae81ff">1</span>  <span style="color:#ae81ff">21</span>  <span style="color:#ae81ff">44</span>  <span style="color:#ae81ff">47</span>  <span style="color:#ae81ff">48</span>  <span style="color:#ae81ff">81</span>  <span style="color:#ae81ff">86</span>  <span style="color:#ae81ff">87</span>  <span style="color:#ae81ff">88</span> <span style="color:#ae81ff">108</span> <span style="color:#ae81ff">130</span>  <span style="color:#ae81ff">16</span>  <span style="color:#ae81ff">18</span>  <span style="color:#ae81ff">22</span>  <span style="color:#ae81ff">25</span>  <span style="color:#ae81ff">45</span>  <span style="color:#ae81ff">53</span>  <span style="color:#ae81ff">64</span>  <span style="color:#ae81ff">71</span>  <span style="color:#ae81ff">75</span> <span style="color:#ae81ff">107</span>  <span style="color:#ae81ff">19</span>  <span style="color:#ae81ff">26</span>  <span style="color:#ae81ff">49</span>  <span style="color:#ae81ff">51</span>  <span style="color:#ae81ff">55</span>  <span style="color:#ae81ff">56</span>  <span style="color:#ae81ff">58</span>  <span style="color:#ae81ff">59</span>  <span style="color:#ae81ff">61</span>
- [44]  <span style="color:#ae81ff">65</span>  <span style="color:#ae81ff">68</span>  <span style="color:#ae81ff">77</span>  <span style="color:#ae81ff">79</span>  <span style="color:#ae81ff">85</span> <span style="color:#ae81ff">106</span> <span style="color:#ae81ff">110</span> <span style="color:#ae81ff">143</span>  <span style="color:#ae81ff">50</span>  <span style="color:#ae81ff">52</span>  <span style="color:#ae81ff">54</span>  <span style="color:#ae81ff">82</span>  <span style="color:#ae81ff">84</span> <span style="color:#ae81ff">101</span> <span style="color:#ae81ff">127</span> <span style="color:#ae81ff">146</span>  <span style="color:#ae81ff">27</span>  <span style="color:#ae81ff">57</span>  <span style="color:#ae81ff">60</span>  <span style="color:#ae81ff">62</span>  <span style="color:#ae81ff">63</span>  <span style="color:#ae81ff">69</span>  <span style="color:#ae81ff">70</span>  <span style="color:#ae81ff">73</span>  <span style="color:#ae81ff">99</span> <span style="color:#ae81ff">103</span> <span style="color:#ae81ff">126</span> <span style="color:#ae81ff">145</span>   <span style="color:#ae81ff">6</span>  <span style="color:#ae81ff">20</span>  <span style="color:#ae81ff">76</span>  <span style="color:#ae81ff">83</span>  <span style="color:#ae81ff">89</span> <span style="color:#ae81ff">105</span> <span style="color:#ae81ff">122</span> <span style="color:#ae81ff">131</span> <span style="color:#ae81ff">144</span>   <span style="color:#ae81ff">7</span>  <span style="color:#ae81ff">13</span>  <span style="color:#ae81ff">40</span>  <span style="color:#ae81ff">43</span>  <span style="color:#ae81ff">72</span>  <span style="color:#ae81ff">80</span>
- [87] <span style="color:#ae81ff">102</span>  <span style="color:#ae81ff">39</span>  <span style="color:#ae81ff">78</span> <span style="color:#ae81ff">100</span> <span style="color:#ae81ff">132</span> <span style="color:#ae81ff">147</span>  <span style="color:#ae81ff">15</span>  <span style="color:#ae81ff">94</span> <span style="color:#ae81ff">121</span> <span style="color:#ae81ff">123</span> <span style="color:#ae81ff">142</span>  <span style="color:#ae81ff">14</span>  <span style="color:#ae81ff">42</span>  <span style="color:#ae81ff">74</span> <span style="color:#ae81ff">104</span> <span style="color:#ae81ff">137</span> <span style="color:#ae81ff">140</span>  <span style="color:#ae81ff">12</span>  <span style="color:#ae81ff">38</span>  <span style="color:#ae81ff">92</span>  <span style="color:#ae81ff">93</span> <span style="color:#ae81ff">111</span> <span style="color:#ae81ff">124</span>   <span style="color:#ae81ff">8</span>   <span style="color:#ae81ff">9</span>  <span style="color:#ae81ff">11</span>  <span style="color:#ae81ff">90</span>  <span style="color:#ae81ff">96</span> <span style="color:#ae81ff">125</span> <span style="color:#ae81ff">139</span>  <span style="color:#ae81ff">10</span>  <span style="color:#ae81ff">32</span>  <span style="color:#ae81ff">34</span>  <span style="color:#ae81ff">36</span>  <span style="color:#ae81ff">95</span>  <span style="color:#ae81ff">97</span>  <span style="color:#ae81ff">98</span>  <span style="color:#ae81ff">28</span> <span style="color:#ae81ff">135</span> <span style="color:#ae81ff">136</span>  <span style="color:#ae81ff">33</span>  <span style="color:#ae81ff">35</span> <span style="color:#ae81ff">112</span>
-[130] <span style="color:#ae81ff">113</span> <span style="color:#ae81ff">116</span> <span style="color:#ae81ff">134</span>  <span style="color:#ae81ff">91</span> <span style="color:#ae81ff">141</span>  <span style="color:#ae81ff">41</span> <span style="color:#ae81ff">115</span> <span style="color:#ae81ff">120</span> <span style="color:#ae81ff">133</span>  <span style="color:#ae81ff">37</span> <span style="color:#ae81ff">119</span> <span style="color:#ae81ff">138</span>  <span style="color:#ae81ff">31</span> <span style="color:#ae81ff">117</span> <span style="color:#ae81ff">118</span>  <span style="color:#ae81ff">30</span> <span style="color:#ae81ff">114</span>  <span style="color:#ae81ff">29</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-           key count
-<span style="color:#ae81ff">2</span> Friday <span style="color:#ae81ff">03</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">3</span> Friday <span style="color:#ae81ff">04</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">4</span> Friday <span style="color:#ae81ff">05</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-<span style="color:#ae81ff">5</span> Friday <span style="color:#ae81ff">07</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>     <span style="color:#ae81ff">1</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">
-<span style="color:#f92672">&gt;</span> byDayTime<span style="color:#a6e22e">[order</span>(<span style="color:#f92672">-</span>byDayTime<span style="color:#f92672">$</span>count),][1<span style="color:#f92672">:</span><span style="color:#ae81ff">10</span>,]
+2    Friday 03:00     1
+3    Friday 04:00     1
+4    Friday 05:00     1
+5    Friday 07:00     1
+17   Friday 19:00     1
+23   Monday 01:00     1
+24   Monday 03:00     1
+46 Saturday 03:00     1
+66   Sunday 06:00     1
+67   Sunday 07:00     1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we run the order function on its own we&#8217;ll see that it returns the order in which the current rows in the data frame should appear:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; order(byDayTime$count)
+  [1]   2   3   4   5  17  23  24  46  66  67 109 128 129   1  21  44  47  48  81  86  87  88 108 130  16  18  22  25  45  53  64  71  75 107  19  26  49  51  55  56  58  59  61
+ [44]  65  68  77  79  85 106 110 143  50  52  54  82  84 101 127 146  27  57  60  62  63  69  70  73  99 103 126 145   6  20  76  83  89 105 122 131 144   7  13  40  43  72  80
+ [87] 102  39  78 100 132 147  15  94 121 123 142  14  42  74 104 137 140  12  38  92  93 111 124   8   9  11  90  96 125 139  10  32  34  36  95  97  98  28 135 136  33  35 112
+[130] 113 116 134  91 141  41 115 120 133  37 119 138  31 117 118  30 114  29</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first 4 rows in our sorted data frame will be rows 2-5 from the initial data frame, which are:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">           key count
+2 Friday 03:00     1
+3 Friday 04:00     1
+4 Friday 05:00     1
+5 Friday 07:00     1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So that makes sense! In our case we want to <a href="http://www.statmethods.net/management/sorting.html">sort in descending order</a> which we can do by prefixing the sorting variable with a minus sign:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-r" data-lang="r">&gt; byDayTime[order(-byDayTime$count),][1:10,]
                 key count
-<span style="color:#ae81ff">29</span>     Monday <span style="color:#ae81ff">09</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">34</span>
-<span style="color:#ae81ff">30</span>     Monday <span style="color:#ae81ff">10</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">28</span>
-<span style="color:#ae81ff">114</span>   Tuesday <span style="color:#ae81ff">11</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">28</span>
-<span style="color:#ae81ff">31</span>     Monday <span style="color:#ae81ff">11</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">27</span>
-<span style="color:#ae81ff">117</span>   Tuesday <span style="color:#ae81ff">14</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">27</span>
-<span style="color:#ae81ff">118</span>   Tuesday <span style="color:#ae81ff">15</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">27</span>
-<span style="color:#ae81ff">138</span> Wednesday <span style="color:#ae81ff">14</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">23</span>
-<span style="color:#ae81ff">119</span>   Tuesday <span style="color:#ae81ff">16</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">22</span>
-<span style="color:#ae81ff">37</span>     Monday <span style="color:#ae81ff">17</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">21</span>
-<span style="color:#ae81ff">115</span>   Tuesday <span style="color:#ae81ff">12</span><span style="color:#f92672">:</span><span style="color:#ae81ff">00</span>    <span style="color:#ae81ff">20</span>
-</code></pre></div><!-- raw HTML omitted -->
+29     Monday 09:00    34
+30     Monday 10:00    28
+114   Tuesday 11:00    28
+31     Monday 11:00    27
+117   Tuesday 14:00    27
+118   Tuesday 15:00    27
+138 Wednesday 14:00    23
+119   Tuesday 16:00    22
+37     Monday 17:00    21
+115   Tuesday 12:00    20</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As expected Monday morning makes a strong showing although Tuesday afternoon is also popular which is unexpected. We&#8217;ll need to do some more investigation to figure out what&#8217;s going on there.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -288,7 +326,7 @@ byDayTime <span style="color:#f92672">=</span> <span style="color:#a6e22e">group
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/06/30/r-order-by-data-frame-column-and-take-top-10-rows/&amp;title=R%3a%20Order%20by%20data%20frame%20column%20and%20take%20top%2010%20rows&amp;summary=library%28Rneo4j%29%20query%20%3d%20%26%2334%3bMATCH%20%28%3aPerson%29-%5b%3aHAS_MEETUP_PROFILE%5d-%26gt%3b%28%29-%5b%3aHAS_MEMBERSHIP%5d-%26gt%3b%28membership%29-%5b%3aOF_GROUP%5d-%26gt%3b%28g%3aGroup%20%7bname%3a%20%5c%26%2334%3bNeo4j%20-%20London%20User%20Group%5c%26%2334%3b%7d%29%20RETURN%20membership.joined%20AS%20joinDate%26%2334%3b%20timestampToDate%20%26lt%3b-%20function%28x%29%20as.POSIXct%28x%20%2f%201000%2c%20origin%3d%26%2334%3b1970-01-01%26%2334%3b%29%20meetupMembers%20%3d%20cypher%28graph%2c%20query%29%20meetupMembers%24joined%20%26lt%3b-%20timestampToDate%28meetupMembers%24joinDate%29%20groupBy%20%3d%20function%28dates%2c%20format%29%20%7b%20dd%20%3d%20aggregate%28dates%2c%20by%3d%20list%28format%28dates%2c%20format%29%29%2c%20function%28x%29%20length%28x%29%29%20colnames%28dd%29%20%3d%20c%28%26%2334%3bkey%26%2334%3b%2c%20%26%2334%3bcount%26%2334%3b%29%20dd%20%7d%20byDayTime%20%3d%20groupBy%28meetupMembers%24joined%2c%20%26%2334%3b%25A%20%25H%3a00%26%2334%3b%29%20%26gt%3b%20byDayTime%5b12%3a25%2c%5d%20key%20count%2012%20Friday%2014%3a00%2012%2013%20Friday%2015%3a00%208%2014%20Friday%2016%3a00%2011%2015%20Friday%2017%3a00%2010%2016%20Friday%2018%3a00%203%2017%20Friday%2019%3a00%201%2018%20Friday%2020%3a00%203%2019%20Friday%2021%3a00%204%2020%20Friday%2022%3a00%207%2021%20Friday%2023%3a00%202%2022%20Monday%2000%3a00%203%2023%20Monday%2001%3a00%201%2024%20Monday%2003%3a00%201%2025%20Monday%2005%3a00%203%20%26gt%3b%20byDayTime%5border%28byDayTime%24count%29%2c%5d%5b1%3a10%2c%5d%20key%20count%202%20Friday%2003%3a00%201%203%20Friday%2004%3a00%201%204%20Friday%2005%3a00%201%205%20Friday%2007%3a00%201%2017%20Friday%2019%3a00%201%2023%20Monday%2001%3a00%201%2024%20Monday%2003%3a00%201%2046%20Saturday%2003%3a00%201%2066%20Sunday%2006%3a00%201%2067%20Sunday%2007%3a00%201%20%26gt%3b%20order%28byDayTime%24count%29%20%5b1%5d%202%203%204%205%2017%2023%2024%2046%2066%2067%20109%20128%20129%201%2021%2044%2047%2048%2081%2086%2087%2088%20108%20130%2016%2018%2022%2025%2045%2053%2064%2071%2075%20107%2019%2026%2049%2051%2055%2056%2058%2059%2061%20%5b44%5d%2065%2068%2077%2079%2085%20106%20110%20143%2050%2052%2054%2082%2084%20101%20127%20146%2027%2057%2060%2062%2063%2069%2070%2073%2099%20103%20126%20145%206%2020%2076%2083%2089%20105%20122%20131%20144%207%2013%2040%2043%2072%2080%20%5b87%5d%20102%2039%2078%20100%20132%20147%2015%2094%20121%20123%20142%2014%2042%2074%20104%20137%20140%2012%2038%2092%2093%20111%20124%208%209%2011%2090%2096%20125%20139%2010%2032%2034%2036%2095%2097%2098%2028%20135%20136%2033%2035%20112%20%5b130%5d%20113%20116%20134%2091%20141%2041%20115%20120%20133%2037%20119%20138%2031%20117%20118%2030%20114%2029%20key%20count%202%20Friday%2003%3a00%201%203%20Friday%2004%3a00%201%204%20Friday%2005%3a00%201%205%20Friday%2007%3a00%201%20%26gt%3b%20byDayTime%5border%28-byDayTime%24count%29%2c%5d%5b1%3a10%2c%5d%20key%20count%2029%20Monday%2009%3a00%2034%2030%20Monday%2010%3a00%2028%20114%20Tuesday%2011%3a00%2028%2031%20Monday%2011%3a00%2027%20117%20Tuesday%2014%3a00%2027%20118%20Tuesday%2015%3a00%2027%20138%20Wednesday%2014%3a00%2023%20119%20Tuesday%2016%3a00%2022%2037%20Monday%2017%3a00%2021%20115%20Tuesday%2012%3a00%2020%20..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/06/30/r-order-by-data-frame-column-and-take-top-10-rows/&amp;title=R%3a%20Order%20by%20data%20frame%20column%20and%20take%20top%2010%20rows&amp;summary=I%26%238217%3bve%20been%20doing%20some%20ad-hoc%20analysis%20of%20the%20Neo4j%20London%20meetup%20group%20using%20R%20and%20Neo4j%20and%20having%20worked%20out%20how%20to%20group%20by%20certain%20keys%20the%20next%20step%20was%20to%20order%20the%20rows%20of%20the%20data%20frame.%0a%20I%20wanted%20to%20drill%20into%20the%20days%20on%20which%20people%20join%20the%20group%20and%20see%20whether%20they%20join%20it%20at%20a%20specific%20time%20of%20day.%20My%20feeling%20was%20that%20most%20people%20would%20join%20on%20a%20Monday%20morning...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

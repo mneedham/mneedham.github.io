@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Haskell: An impressively non performant union find" />
         
-          <meta name="twitter:description" content="To paraphrase from my previous post about how we use the union find data structure:&gt; let uf = emptyEquivalence (0,9) [(0,0),(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9)] &gt; components $ equate 0 1 uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9)] &gt; components $ equate 8 9 $ equate 0 1 $ uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,8)] &gt; components $ equate 0 8 $ equate 8 9 $ equate 0 1 $ uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,0),(9,8)] class UnionFind def initialize(n) @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders } end def connected?" />
+          <meta name="twitter:description" content="I&#8217;ve spent the best part of the last day debugging a clustering algorithm I wrote as part of the Algorithms 2 course, eventually coming to the conclusion that the union find data structure I was using wasn&#8217;t working as expected.
+ In our algorithm we&#8217;re trying to group together points which are &#39;close&#39; to each other and the data structure is particular useful for doing that.
+ To paraphrase from my previous post about how we use the union find data structure:&lt;/p&gt;" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/12/31/haskell-an-impressively-non-performant-union-find/" />
 
@@ -33,7 +35,9 @@
         <title> Haskell: An impressively non performant union find &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="To paraphrase from my previous post about how we use the union find data structure:&gt; let uf = emptyEquivalence (0,9) [(0,0),(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9)] &gt; components $ equate 0 1 uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9)] &gt; components $ equate 8 9 $ equate 0 1 $ uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,8)] &gt; components $ equate 0 8 $ equate 8 9 $ equate 0 1 $ uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,0),(9,8)] class UnionFind def initialize(n) @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders } end def connected?" />
+        <meta name="description" content="I&#8217;ve spent the best part of the last day debugging a clustering algorithm I wrote as part of the Algorithms 2 course, eventually coming to the conclusion that the union find data structure I was using wasn&#8217;t working as expected.
+ In our algorithm we&#8217;re trying to group together points which are &#39;close&#39; to each other and the data structure is particular useful for doing that.
+ To paraphrase from my previous post about how we use the union find data structure:&lt;/p&gt;" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-12-31",
-        "description": "To paraphrase from my previous post about how we use the union find data structure:\x26gt; let uf = emptyEquivalence (0,9) [(0,0),(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9)] \x26gt; components $ equate 0 1 uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9)] \x26gt; components $ equate 8 9 $ equate 0 1 $ uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,8)] \x26gt; components $ equate 0 8 $ equate 8 9 $ equate 0 1 $ uf [(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,0),(9,8)] class UnionFind def initialize(n) @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders } end def connected?",
-        "wordCount":  403 
+        "description": "I\x26#8217;ve spent the best part of the last day debugging a clustering algorithm I wrote as part of the Algorithms 2 course, eventually coming to the conclusion that the union find data structure I was using wasn\x26#8217;t working as expected.\n In our algorithm we\x26#8217;re trying to group together points which are \x27close\x27 to each other and the data structure is particular useful for doing that.\n To paraphrase from my previous post about how we use the union find data structure:\x26lt;\/p\x26gt;",
+        "wordCount":  964 
     }
     </script>
     
@@ -172,108 +176,158 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Haskell: An impressively non performant union find</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>To paraphrase from <!-- raw HTML omitted -->my previous post about how we use the union find data structure<!-- raw HTML omitted -->:<!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">let</span> uf <span style="color:#f92672">=</span> emptyEquivalence (<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">9</span>)
-[(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>),(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">1</span>),(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>),(<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>),(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">4</span>),(<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">5</span>),(<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">6</span>),(<span style="color:#ae81ff">7</span>,<span style="color:#ae81ff">7</span>),(<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">8</span>),(<span style="color:#ae81ff">9</span>,<span style="color:#ae81ff">9</span>)]
+    <div class="paragraph">
+<p>I&#8217;ve spent the best part of the last day debugging a <a href="https://github.com/mneedham/algorithms2/blob/master/clustering.hs">clustering algorithm</a> I wrote as part of the <a href="https://www.coursera.org/course/algo2">Algorithms 2</a> course, eventually coming to the conclusion that the <a href="http://en.wikipedia.org/wiki/Disjoint-set_data_structure">union find data structure</a> I was using wasn&#8217;t working as expected.</p>
+</div>
+<div class="paragraph">
+<p>In our algorithm we&#8217;re trying to group together points which are 'close' to each other and the data structure is particular useful for doing that.</p>
+</div>
+<div class="paragraph">
+<p>To paraphrase from <a href="http://www.markhneedham.com/blog/2012/12/23/kruskals-algorithm-using-union-find-in-ruby/">my previous post about how we use the union find data structure</a>:&lt;/p&gt;</p>
+</div>
+<div class="paragraph">
+<p>We start out with n connected components i.e. every point is in its own connected component.</p>
+</div>
+<div class="paragraph">
+<p>We then merge these components together as calculate the neighbours of each point until we&#8217;ve iterated through all the points and have grouped all the points into the appropriate components.</p>
+</div>
+<div class="paragraph">
+<p>I came across 3 libraries which implement this data structure - <a href="http://hackage.haskell.org/packages/archive/union-find/0.2/doc/html/Data-UnionFind-ST.html">union-find</a>, <a href="http://hackage.haskell.org/packages/archive/equivalence/0.2.3/doc/html/Data-Equivalence-Monad.html">equivalence</a> and <a href="http://hackage.haskell.org/packages/archive/persistent-equivalence/0.3/doc/html/Data-Equivalence-Persistent.html#v:emptyEquivalence">persistent-equivalence</a>.</p>
+</div>
+<div class="paragraph">
+<p>union-find seemed like it had the easiest API to understand so I plugged it into my program only to eventually realise that it wasn&#8217;t putting the points into components as I expected.</p>
+</div>
+<div class="paragraph">
+<p>I eventually narrowed the problem down to the following example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; let uf = emptyEquivalence (0,9)
+[(0,0),(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9)]
 
-<span style="color:#f92672">&gt;</span> components <span style="color:#f92672">$</span> equate <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> uf
-[(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>),(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>),(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>),(<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>),(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">4</span>),(<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">5</span>),(<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">6</span>),(<span style="color:#ae81ff">7</span>,<span style="color:#ae81ff">7</span>),(<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">8</span>),(<span style="color:#ae81ff">9</span>,<span style="color:#ae81ff">9</span>)]
+&gt; components $ equate 0 1 uf
+[(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9)]
 
-<span style="color:#f92672">&gt;</span> components <span style="color:#f92672">$</span> equate <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">9</span> <span style="color:#f92672">$</span> equate <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">$</span> uf
-[(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>),(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>),(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>),(<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>),(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">4</span>),(<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">5</span>),(<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">6</span>),(<span style="color:#ae81ff">7</span>,<span style="color:#ae81ff">7</span>),(<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">8</span>),(<span style="color:#ae81ff">9</span>,<span style="color:#ae81ff">8</span>)]
+&gt; components $ equate 8 9 $ equate 0 1 $ uf
+[(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,8)]
 
-<span style="color:#f92672">&gt;</span> components <span style="color:#f92672">$</span> equate <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">8</span> <span style="color:#f92672">$</span> equate <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">9</span> <span style="color:#f92672">$</span> equate <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">$</span> uf
-[(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>),(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>),(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>),(<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>),(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">4</span>),(<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">5</span>),(<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">6</span>),(<span style="color:#ae81ff">7</span>,<span style="color:#ae81ff">7</span>),(<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">0</span>),(<span style="color:#ae81ff">9</span>,<span style="color:#ae81ff">8</span>)]
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">UnionFind</span>
-  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">initialize</span>(n)
-    @leaders <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">.</span>upto(n)<span style="color:#f92672">.</span>inject(<span style="color:#f92672">[]</span>) { <span style="color:#f92672">|</span>leaders, i<span style="color:#f92672">|</span> leaders<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> i; leaders }
-  <span style="color:#66d9ef">end</span>
- 
-  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">connected?</span>(id1,id2)
-    @leaders<span style="color:#f92672">[</span>id1<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> @leaders<span style="color:#f92672">[</span>id2<span style="color:#f92672">]</span>
-  <span style="color:#66d9ef">end</span>
- 
-  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">union</span>(id1,id2)
-    leader_1, leader_2 <span style="color:#f92672">=</span> @leaders<span style="color:#f92672">[</span>id1<span style="color:#f92672">]</span>, @leaders<span style="color:#f92672">[</span>id2<span style="color:#f92672">]</span>
-    @leaders<span style="color:#f92672">.</span>map! {<span style="color:#f92672">|</span>i<span style="color:#f92672">|</span> (i <span style="color:#f92672">==</span> leader_1) ? leader_2 : i }
-  <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#66d9ef">module</span> Leaders (<span style="color:#66d9ef">UnionSet</span>, <span style="color:#a6e22e">create</span>, <span style="color:#a6e22e">components</span>, <span style="color:#a6e22e">numberOfComponents</span>, <span style="color:#a6e22e">indexes</span>, <span style="color:#a6e22e">inSameComponent</span>, <span style="color:#a6e22e">union</span>) <span style="color:#66d9ef">where</span>
+&gt; components $ equate 0 8 $ equate 8 9 $ equate 0 1 $ uf
+[(0,0),(1,0),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,0),(9,8)]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We start out with a union-find where every point is in its own component. The next line puts points '0' and '1' into the same component which it does by making indexes '0' and '1' of the array both have the same value, in this case 0, which is known as the component&#8217;s leader.</p>
+</div>
+<div class="paragraph">
+<p>We continue doing that for points '8' and '9' which works fine and our union find now consists of 8 components - the ones with leaders 8 &amp; 0 which have two elements and then ones with leaders 2,3,4,5,6 &amp; 7 which only contain themselves.</p>
+</div>
+<div class="paragraph">
+<p>Things go wrong on our next step where we try to join nodes '0' and '8'. As I understand it what should happen here is that all the points connected to either '0' or '8' should end up in the same component so we should have a component containing points '0', '1', '8' and '9' but '9' has been missed off in this case.</p>
+</div>
+<div class="paragraph">
+<p>The implementation is deliberately written to work like this so I thought I&#8217;d try writing my own version based on the following Ruby version:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">class UnionFind
+  def initialize(n)
+    @leaders = 1.upto(n).inject([]) { |leaders, i| leaders[i] = i; leaders }
+  end
 
-<span style="color:#66d9ef">import</span> Control.Concurrent.MVar
-<span style="color:#66d9ef">import</span> Control.Monad
-<span style="color:#66d9ef">import</span> Data.Array.Diff <span style="color:#66d9ef">as</span> ArrayDiff
-<span style="color:#66d9ef">import</span> Data.IORef
-<span style="color:#66d9ef">import</span> <span style="color:#66d9ef">qualified</span> Data.List
-<span style="color:#66d9ef">import</span> Data.Maybe
-<span style="color:#66d9ef">import</span> System.IO.Unsafe
-<span style="color:#66d9ef">import</span> <span style="color:#66d9ef">qualified</span> Data.Set <span style="color:#66d9ef">as</span> Set
+  def connected?(id1,id2)
+    @leaders[id1] == @leaders[id2]
+  end
 
-<span style="color:#a6e22e">arrayFrom</span> <span style="color:#f92672">::</span> (<span style="color:#66d9ef">IArray</span> a e, <span style="color:#66d9ef">Ix</span> i) <span style="color:#f92672">=&gt;</span> (i,i) <span style="color:#f92672">-&gt;</span> (i <span style="color:#f92672">-&gt;</span> e) <span style="color:#f92672">-&gt;</span> a i e
-<span style="color:#a6e22e">arrayFrom</span> rng f <span style="color:#f92672">=</span> array rng [ (x, f x) <span style="color:#f92672">|</span> x <span style="color:#f92672">&lt;-</span> range rng ]
+  def union(id1,id2)
+    leader_1, leader_2 = @leaders[id1], @leaders[id2]
+    @leaders.map! {|i| (i == leader_1) ? leader_2 : i }
+  end
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is <a href="https://github.com/mneedham/algorithms2/blob/master/Leaders.hs">my Haskell equivalent</a> which I adapted from the union-find one that I mentioned above:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">module Leaders (UnionSet, create, components, numberOfComponents, indexes, inSameComponent, union) where
 
-<span style="color:#a6e22e">ref</span> <span style="color:#f92672">::</span> a <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">IORef</span> a
-<span style="color:#a6e22e">ref</span> x <span style="color:#f92672">=</span> unsafePerformIO (newIORef x)
+import Control.Concurrent.MVar
+import Control.Monad
+import Data.Array.Diff as ArrayDiff
+import Data.IORef
+import qualified Data.List
+import Data.Maybe
+import System.IO.Unsafe
+import qualified Data.Set as Set
 
-<span style="color:#66d9ef">data</span> <span style="color:#66d9ef">UnionSet</span> i <span style="color:#f92672">=</span> <span style="color:#66d9ef">UnionSet</span> { leaders <span style="color:#f92672">::</span> <span style="color:#66d9ef">IORef</span> (<span style="color:#66d9ef">DiffArray</span> i i) }
+arrayFrom :: (IArray a e, Ix i) =&gt; (i,i) -&gt; (i -&gt; e) -&gt; a i e
+arrayFrom rng f = array rng [ (x, f x) | x &lt;- range rng ]
 
-<span style="color:#a6e22e">create</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Ix</span> i <span style="color:#f92672">=&gt;</span> (i, i) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">UnionSet</span> i
-<span style="color:#a6e22e">create</span> is <span style="color:#f92672">=</span> <span style="color:#66d9ef">UnionSet</span> (ref (arrayFrom is id))
+ref :: a -&gt; IORef a
+ref x = unsafePerformIO (newIORef x)
 
-<span style="color:#a6e22e">extractComponents</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Ix</span> i <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">DiffArray</span> i i <span style="color:#f92672">-&gt;</span> [(i, i)]    
-<span style="color:#a6e22e">extractComponents</span>  <span style="color:#f92672">=</span> <span style="color:#66d9ef">Set</span><span style="color:#f92672">.</span>toList <span style="color:#f92672">.</span> <span style="color:#66d9ef">Set</span><span style="color:#f92672">.</span>fromList <span style="color:#f92672">.</span> <span style="color:#66d9ef">ArrayDiff</span><span style="color:#f92672">.</span>assocs
+data UnionSet i = UnionSet { leaders :: IORef (DiffArray i i) }
 
-<span style="color:#a6e22e">components</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Ix</span> i <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">UnionSet</span> i <span style="color:#f92672">-&gt;</span> [(i,i)]
-<span style="color:#a6e22e">components</span> (<span style="color:#66d9ef">UnionSet</span> leaders) <span style="color:#f92672">=</span> unsafePerformIO <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span>
-    l <span style="color:#f92672">&lt;-</span> readIORef leaders
+create :: Ix i =&gt; (i, i) -&gt; UnionSet i
+create is = UnionSet (ref (arrayFrom is id))
+
+extractComponents :: Ix i =&gt; DiffArray i i -&gt; [(i, i)]
+extractComponents  = Set.toList . Set.fromList . ArrayDiff.assocs
+
+components :: Ix i =&gt; UnionSet i -&gt; [(i,i)]
+components (UnionSet leaders) = unsafePerformIO $ do
+    l &lt;- readIORef leaders
     return (extractComponents l)
-    
-<span style="color:#a6e22e">numberOfComponents</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Ix</span> i <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">UnionSet</span> i <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Int</span>
-<span style="color:#a6e22e">numberOfComponents</span> (<span style="color:#66d9ef">UnionSet</span> leaders) <span style="color:#f92672">=</span> unsafePerformIO <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span>
-    l <span style="color:#f92672">&lt;-</span> readIORef leaders
-    return (length <span style="color:#f92672">$</span> extractComponents l) 
 
-<span style="color:#a6e22e">indexes</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Ix</span> i <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">UnionSet</span> i <span style="color:#f92672">-&gt;</span> [(i,i)]
-<span style="color:#a6e22e">indexes</span> (<span style="color:#66d9ef">UnionSet</span> leaders) <span style="color:#f92672">=</span> unsafePerformIO <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span>
-    l <span style="color:#f92672">&lt;-</span> readIORef leaders
-    return (<span style="color:#66d9ef">ArrayDiff</span><span style="color:#f92672">.</span>assocs l)       
+numberOfComponents :: Ix i =&gt; UnionSet i -&gt; Int
+numberOfComponents (UnionSet leaders) = unsafePerformIO $ do
+    l &lt;- readIORef leaders
+    return (length $ extractComponents l)
 
-<span style="color:#a6e22e">inSameComponent</span> <span style="color:#f92672">::</span> <span style="color:#66d9ef">Ix</span> i <span style="color:#f92672">=&gt;</span> <span style="color:#66d9ef">UnionSet</span> i <span style="color:#f92672">-&gt;</span> i <span style="color:#f92672">-&gt;</span> i <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">Bool</span>
-<span style="color:#a6e22e">inSameComponent</span> (<span style="color:#66d9ef">UnionSet</span> leaders) x y <span style="color:#f92672">=</span> unsafePerformIO <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span>
-    l <span style="color:#f92672">&lt;-</span> readIORef leaders
-    return (l <span style="color:#f92672">!</span> x <span style="color:#f92672">==</span> l <span style="color:#f92672">!</span> y)
-    
-<span style="color:#a6e22e">union</span> x y (<span style="color:#66d9ef">UnionSet</span> leaders)  <span style="color:#f92672">=</span> unsafePerformIO <span style="color:#f92672">$</span> <span style="color:#66d9ef">do</span>
-    ls <span style="color:#f92672">&lt;-</span> readIORef leaders
-    <span style="color:#66d9ef">let</span> leader1 <span style="color:#f92672">=</span> ls <span style="color:#f92672">!</span> x 
-        leader2 <span style="color:#f92672">=</span> ls <span style="color:#f92672">!</span> y
-        newLeaders <span style="color:#f92672">=</span> map (<span style="color:#a6e22e">\</span>(index, value) <span style="color:#f92672">-&gt;</span> (index, leader2)) <span style="color:#f92672">.</span> filter (<span style="color:#a6e22e">\</span>(index, value) <span style="color:#f92672">-&gt;</span> value <span style="color:#f92672">==</span> leader1) <span style="color:#f92672">$</span> assocs ls        
-    modifyIORef leaders (<span style="color:#a6e22e">\</span>l <span style="color:#f92672">-&gt;</span> l <span style="color:#f92672">//</span> newLeaders)
-    return <span style="color:#f92672">$</span> <span style="color:#66d9ef">UnionSet</span> leaders
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell">
-<span style="color:#f92672">&gt;</span> indexes <span style="color:#f92672">$</span> <span style="color:#66d9ef">Leaders</span><span style="color:#f92672">.</span>union <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">8</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">Leaders</span><span style="color:#f92672">.</span>union <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">9</span> <span style="color:#f92672">$</span> <span style="color:#66d9ef">Leaders</span><span style="color:#f92672">.</span>union <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">$</span> create (<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">9</span>)
-[(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">9</span>),(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">9</span>),(<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>),(<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>),(<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">4</span>),(<span style="color:#ae81ff">5</span>,<span style="color:#ae81ff">5</span>),(<span style="color:#ae81ff">6</span>,<span style="color:#ae81ff">6</span>),(<span style="color:#ae81ff">7</span>,<span style="color:#ae81ff">7</span>),(<span style="color:#ae81ff">8</span>,<span style="color:#ae81ff">9</span>),(<span style="color:#ae81ff">9</span>,<span style="color:#ae81ff">9</span>)]
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+indexes :: Ix i =&gt; UnionSet i -&gt; [(i,i)]
+indexes (UnionSet leaders) = unsafePerformIO $ do
+    l &lt;- readIORef leaders
+    return (ArrayDiff.assocs l)
+
+inSameComponent :: Ix i =&gt; UnionSet i -&gt; i -&gt; i -&gt; Bool
+inSameComponent (UnionSet leaders) x y = unsafePerformIO $ do
+    l &lt;- readIORef leaders
+    return (l ! x == l ! y)
+
+union x y (UnionSet leaders)  = unsafePerformIO $ do
+    ls &lt;- readIORef leaders
+    let leader1 = ls ! x
+        leader2 = ls ! y
+        newLeaders = map (\(index, value) -&gt; (index, leader2)) . filter (\(index, value) -&gt; value == leader1) $ assocs ls
+    modifyIORef leaders (\l -&gt; l // newLeaders)
+    return $ UnionSet leaders</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can recreate the above example like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-haskell" data-lang="haskell">&gt; indexes $ Leaders.union 0 8 $ Leaders.union 8 9 $ Leaders.union 0 1 $ create (0,9)
+[(0,9),(1,9),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,9),(9,9)]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unfortunately it takes 44 seconds to execute which is mainly down to the call to <cite>http://zvon.org/other/haskell/Outputarray/index.html<span class="assocs"></cite></span> on line 46. <cite>assocs</cite> gives us a list of all the indexes and their corresponding values which we use to work out which indexes need to be updated with a new leader.</p>
+</div>
+<div class="paragraph">
+<p>The rest of the code is mostly boiler plate around getting the array out of the <a href="http://www.haskell.org/ghc/docs/latest/html/libraries/base/Data-IORef.html">IORef</a>. The IORef allows us to have a mutable array in this instance. There is a <a href="http://c2.com/cgi/wiki?HaskellExampleForMutabilityOnObjects">page on the c2 wiki which explains how to use IORef in more detail</a>.</p>
+</div>
+<div class="paragraph">
+<p>Although using the DiffArray allows us to provide a pure external interface around its use, it is <a href="http://www.haskell.org/haskellwiki/Modern_array_libraries#DiffArray_.28module_Data.Array.Diff.29">known to be 10-100x slower than an MArray</a>.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve been playing around with a version of the union-find data structure which <a href="https://github.com/mneedham/algorithms2/blob/master/MutableLeaders.hs">makes use of an MArray instead</a> and has decreased the execution time to 34 seconds.</p>
+</div>
+<div class="paragraph">
+<p>Unless anyone has any ideas for how I can get this to perform more quickly I&#8217;m thinking that perhaps an array isn&#8217;t a good choice of underlying data structure at least when using Haskell.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -308,7 +362,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/31/haskell-an-impressively-non-performant-union-find/&amp;title=Haskell%3a%20An%20impressively%20non%20performant%20union%20find&amp;summary=To%20paraphrase%20from%20my%20previous%20post%20about%20how%20we%20use%20the%20union%20find%20data%20structure%3a%26gt%3b%20let%20uf%20%3d%20emptyEquivalence%20%280%2c9%29%20%5b%280%2c0%29%2c%281%2c1%29%2c%282%2c2%29%2c%283%2c3%29%2c%284%2c4%29%2c%285%2c5%29%2c%286%2c6%29%2c%287%2c7%29%2c%288%2c8%29%2c%289%2c9%29%5d%20%26gt%3b%20components%20%24%20equate%200%201%20uf%20%5b%280%2c0%29%2c%281%2c0%29%2c%282%2c2%29%2c%283%2c3%29%2c%284%2c4%29%2c%285%2c5%29%2c%286%2c6%29%2c%287%2c7%29%2c%288%2c8%29%2c%289%2c9%29%5d%20%26gt%3b%20components%20%24%20equate%208%209%20%24%20equate%200%201%20%24%20uf%20%5b%280%2c0%29%2c%281%2c0%29%2c%282%2c2%29%2c%283%2c3%29%2c%284%2c4%29%2c%285%2c5%29%2c%286%2c6%29%2c%287%2c7%29%2c%288%2c8%29%2c%289%2c8%29%5d%20%26gt%3b%20components%20%24%20equate%200%208%20%24%20equate%208%209%20%24%20equate%200%201%20%24%20uf%20%5b%280%2c0%29%2c%281%2c0%29%2c%282%2c2%29%2c%283%2c3%29%2c%284%2c4%29%2c%285%2c5%29%2c%286%2c6%29%2c%287%2c7%29%2c%288%2c0%29%2c%289%2c8%29%5d%20class%20UnionFind%20def%20initialize%28n%29%20%40leaders%20%3d%201.upto%28n%29.inject%28%5b%5d%29%20%7b%20%7cleaders%2c%20i%7c%20leaders%5bi%5d%20%3d%20i%3b%20leaders%20%7d%20end%20def%20connected%3f..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/12/31/haskell-an-impressively-non-performant-union-find/&amp;title=Haskell%3a%20An%20impressively%20non%20performant%20union%20find&amp;summary=I%26%238217%3bve%20spent%20the%20best%20part%20of%20the%20last%20day%20debugging%20a%20clustering%20algorithm%20I%20wrote%20as%20part%20of%20the%20Algorithms%202%20course%2c%20eventually%20coming%20to%20the%20conclusion%20that%20the%20union%20find%20data%20structure%20I%20was%20using%20wasn%26%238217%3bt%20working%20as%20expected.%0a%20In%20our%20algorithm%20we%26%238217%3bre%20trying%20to%20group%20together%20points%20which%20are%20%27close%27%20to%20each%20other%20and%20the%20data%20structure%20is%20particular%20useful%20for%20doing%20that.%0a%20To%20paraphrase%20from%20my%20previous%20post%20about%20how%20we%20use%20the%20union%20find%20data%20structure%3a%26lt%3b%2fp%26gt%3b..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

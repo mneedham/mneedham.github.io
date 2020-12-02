@@ -22,7 +22,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: LOAD CSV - The sneaky null character" />
         
-          <meta name="twitter:description" content="$ cat foo.csv foo,bar,baz 1,2,3 load csv with headers from &quot;file:/Users/markneedham/Downloads/foo.csv&quot; AS line RETURN line.foo, line.bar, line.bar = &quot;2&quot; ==&gt; &#43;--------------------------------------&#43; ==&gt; | line.foo | line.bar | line.bar = &#34;2&#34; | ==&gt; &#43;--------------------------------------&#43; ==&gt; | &lt;null&gt; | &#34;2&#34; | false | ==&gt; &#43;--------------------------------------&#43; ==&gt; 1 row load csv with headers from &quot;file:/Users/markneedham/Downloads/foo.csv&quot; AS line RETURN line.foo, line.bar, line.bar = &quot;2&quot;, length(line.bar) ==&gt; &#43;---------------------------------------------------------&#43; ==&gt; | line.foo | line.bar | line.bar = &#34;2&#34; | length(line." />
+          <meta name="twitter:description" content="I spent some time earlier in the week trying to import a CSV file extracted from Hadoop into Neo4j using Cypher&#8217;s LOAD CSV command and initially struggled due to some rogue characters.
+ The CSV file looked like this:
+ $ cat foo.csv foo,bar,baz 1,2,3   I wrote the following LOAD CSV query to extract some of the fields and compare others:
+ load csv with headers from &#34;file:/Users/markneedham/Downloads/foo.csv&#34; AS line RETURN line." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/10/18/neo4j-load-csv-the-sneaky-null-character/" />
 
@@ -33,7 +36,10 @@
         <title> Neo4j: LOAD CSV - The sneaky null character &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="$ cat foo.csv foo,bar,baz 1,2,3 load csv with headers from &quot;file:/Users/markneedham/Downloads/foo.csv&quot; AS line RETURN line.foo, line.bar, line.bar = &quot;2&quot; ==&gt; &#43;--------------------------------------&#43; ==&gt; | line.foo | line.bar | line.bar = &#34;2&#34; | ==&gt; &#43;--------------------------------------&#43; ==&gt; | &lt;null&gt; | &#34;2&#34; | false | ==&gt; &#43;--------------------------------------&#43; ==&gt; 1 row load csv with headers from &quot;file:/Users/markneedham/Downloads/foo.csv&quot; AS line RETURN line.foo, line.bar, line.bar = &quot;2&quot;, length(line.bar) ==&gt; &#43;---------------------------------------------------------&#43; ==&gt; | line.foo | line.bar | line.bar = &#34;2&#34; | length(line." />
+        <meta name="description" content="I spent some time earlier in the week trying to import a CSV file extracted from Hadoop into Neo4j using Cypher&#8217;s LOAD CSV command and initially struggled due to some rogue characters.
+ The CSV file looked like this:
+ $ cat foo.csv foo,bar,baz 1,2,3   I wrote the following LOAD CSV query to extract some of the fields and compare others:
+ load csv with headers from &#34;file:/Users/markneedham/Downloads/foo.csv&#34; AS line RETURN line." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +68,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-10-18",
-        "description": "$ cat foo.csv foo,bar,baz 1,2,3 load csv with headers from \x26quot;file:\/Users\/markneedham\/Downloads\/foo.csv\x26quot; AS line RETURN line.foo, line.bar, line.bar = \x26quot;2\x26quot; ==\x26gt; \x2b--------------------------------------\x2b ==\x26gt; | line.foo | line.bar | line.bar = \x26#34;2\x26#34; | ==\x26gt; \x2b--------------------------------------\x2b ==\x26gt; | \x26lt;null\x26gt; | \x26#34;2\x26#34; | false | ==\x26gt; \x2b--------------------------------------\x2b ==\x26gt; 1 row load csv with headers from \x26quot;file:\/Users\/markneedham\/Downloads\/foo.csv\x26quot; AS line RETURN line.foo, line.bar, line.bar = \x26quot;2\x26quot;, length(line.bar) ==\x26gt; \x2b---------------------------------------------------------\x2b ==\x26gt; | line.foo | line.bar | line.bar = \x26#34;2\x26#34; | length(line.",
-        "wordCount":  217 
+        "description": "I spent some time earlier in the week trying to import a CSV file extracted from Hadoop into Neo4j using Cypher\x26#8217;s LOAD CSV command and initially struggled due to some rogue characters.\n The CSV file looked like this:\n $ cat foo.csv foo,bar,baz 1,2,3   I wrote the following LOAD CSV query to extract some of the fields and compare others:\n load csv with headers from \x22file:\/Users\/markneedham\/Downloads\/foo.csv\x22 AS line RETURN line.",
+        "wordCount":  447 
     }
     </script>
     
@@ -172,93 +178,149 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: LOAD CSV - The sneaky null character</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ cat foo.csv
+    <div class="paragraph">
+<p>I spent some time earlier in the week trying to import a CSV file extracted from Hadoop into Neo4j using Cypher&#8217;s <a href="http://docs.neo4j.org/chunked/stable/query-load-csv.html">LOAD CSV</a> command and initially struggled due to some rogue characters.</p>
+</div>
+<div class="paragraph">
+<p>The CSV file looked like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat foo.csv
 foo,bar,baz
-1,2,3
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:/Users/markneedham/Downloads/foo.csv&quot; AS line
-RETURN line.foo, line.bar, line.bar = &quot;2&quot;
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+1,2,3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I wrote the following LOAD CSV query to extract some of the fields and compare others:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:/Users/markneedham/Downloads/foo.csv" AS line
+RETURN line.foo, line.bar, line.bar = "2"</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">==&gt; +--------------------------------------+
+==&gt; | line.foo | line.bar | line.bar = "2" |
 ==&gt; +--------------------------------------+
-==&gt; | line.foo | line.bar | line.bar = &#34;2&#34; |
+==&gt; | &lt;null&gt;   | "2"     | false          |
 ==&gt; +--------------------------------------+
-==&gt; | &lt;null&gt;   | &#34;2&#34;     | false          |
-==&gt; +--------------------------------------+
-==&gt; 1 row
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:/Users/markneedham/Downloads/foo.csv&quot; AS line
-RETURN line.foo, line.bar, line.bar = &quot;2&quot;, length(line.bar)
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+==&gt; 1 row</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I had expect to see a "1" in the first column and a 'true' in the third column, neither of which happened.</p>
+</div>
+<div class="paragraph">
+<p>I initially didn&#8217;t have a text editor with hexcode mode available so I tried checking the length of the entry in the 'bar' field:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:/Users/markneedham/Downloads/foo.csv" AS line
+RETURN line.foo, line.bar, line.bar = "2", length(line.bar)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">==&gt; +---------------------------------------------------------+
+==&gt; | line.foo | line.bar | line.bar = "2" | length(line.bar) |
 ==&gt; +---------------------------------------------------------+
-==&gt; | line.foo | line.bar | line.bar = &#34;2&#34; | length(line.bar) |
+==&gt; | &lt;null&gt;   | "2"     | false          | 2                |
 ==&gt; +---------------------------------------------------------+
-==&gt; | &lt;null&gt;   | &#34;2&#34;     | false          | 2                |
-==&gt; +---------------------------------------------------------+
-==&gt; 1 row
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:/Users/markneedham/Downloads/foo.csv&quot; AS line
-RETURN line.foo, trim(line.bar), trim(line.bar) = &quot;2&quot;, length(line.bar)
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+==&gt; 1 row</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The length of that value is 2 when we&#8217;d expect it to be 1 given it&#8217;s a single character.</p>
+</div>
+<div class="paragraph">
+<p>I tried trimming the field to see if that made any difference...</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:/Users/markneedham/Downloads/foo.csv" AS line
+RETURN line.foo, trim(line.bar), trim(line.bar) = "2", length(line.bar)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">==&gt; +---------------------------------------------------------------------+
+==&gt; | line.foo | trim(line.bar) | trim(line.bar) = "2" | length(line.bar) |
 ==&gt; +---------------------------------------------------------------------+
-==&gt; | line.foo | trim(line.bar) | trim(line.bar) = &#34;2&#34; | length(line.bar) |
+==&gt; | &lt;null&gt;   | "2"            | true                 | 2                |
 ==&gt; +---------------------------------------------------------------------+
-==&gt; | &lt;null&gt;   | &#34;2&#34;            | true                 | 2                |
-==&gt; +---------------------------------------------------------------------+
-==&gt; 1 row
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">
-{  
-   <span style="color:#e6db74">&#34;table&#34;</span><span style="color:#f92672">:</span>{  
-      <span style="color:#e6db74">&#34;_response&#34;</span><span style="color:#f92672">:</span>{  
-         <span style="color:#e6db74">&#34;columns&#34;</span><span style="color:#f92672">:</span>[  
-            <span style="color:#e6db74">&#34;line&#34;</span>
+==&gt; 1 row</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>...and it did! I thought there was probably a trailing whitespace character after the "2" which trim had removed and that 'foo' column in the header row had the same issue.</p>
+</div>
+<div class="paragraph">
+<p>I was able to see that this was the case by extracting the JSON dump of the query via the Neo4j browser:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+   "table":{
+      "_response":{
+         "columns":[
+            "line"
          ],
-         <span style="color:#e6db74">&#34;data&#34;</span><span style="color:#f92672">:</span>[  
-            {  
-               <span style="color:#e6db74">&#34;row&#34;</span><span style="color:#f92672">:</span>[  
-                  {  
-                     <span style="color:#e6db74">&#34;foo\u0000&#34;</span><span style="color:#f92672">:</span><span style="color:#e6db74">&#34;1\u0000&#34;</span>,
-                     <span style="color:#e6db74">&#34;bar&#34;</span><span style="color:#f92672">:</span><span style="color:#e6db74">&#34;2\u0000&#34;</span>,
-                     <span style="color:#e6db74">&#34;baz&#34;</span><span style="color:#f92672">:</span><span style="color:#e6db74">&#34;3&#34;</span>
+         "data":[
+            {
+               "row":[
+                  {
+                     "foo\u0000":"1\u0000",
+                     "bar":"2\u0000",
+                     "baz":"3"
                   }
                ],
-               <span style="color:#e6db74">&#34;graph&#34;</span><span style="color:#f92672">:</span>{  
-                  <span style="color:#e6db74">&#34;nodes&#34;</span><span style="color:#f92672">:</span>[  
+               "graph":{
+                  "nodes":[
 
                   ],
-                  <span style="color:#e6db74">&#34;relationships&#34;</span><span style="color:#f92672">:</span>[  
+                  "relationships":[
 
                   ]
                }
             }
          ],
       ...
-}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-$ tr &lt; foo.csv -d <span style="color:#e6db74">&#39;\000&#39;</span> &gt; bar.csv
-</code></pre></div><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:/Users/markneedham/Downloads/bar.csv&quot; AS line
-RETURN line.foo, line.bar, line.bar = &quot;2&quot;, length(line.bar)
-</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It turns out there were null characters scattered around the file so I needed to <a href="http://stackoverflow.com/questions/2398393/identifying-and-removing-null-characters-in-unix">pre process the file to get rid of them</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ tr &lt; foo.csv -d '\000' &gt; bar.csv</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if we process bar.csv it&#8217;s a much smoother process:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:/Users/markneedham/Downloads/bar.csv" AS line
+RETURN line.foo, line.bar, line.bar = "2", length(line.bar)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">==&gt; +---------------------------------------------------------+
+==&gt; | line.foo | line.bar | line.bar = "2" | length(line.bar) |
 ==&gt; +---------------------------------------------------------+
-==&gt; | line.foo | line.bar | line.bar = &#34;2&#34; | length(line.bar) |
+==&gt; | "1"      | "2"      | true           | 1                |
 ==&gt; +---------------------------------------------------------+
-==&gt; | &#34;1&#34;      | &#34;2&#34;      | true           | 1                |
-==&gt; +---------------------------------------------------------+
-==&gt; 1 row
-
-</code></pre></div><!-- raw HTML omitted -->
+==&gt; 1 row</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note to self: <strong>don&#8217;t expect data to be clean, inspect it first!</strong></p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -293,7 +355,7 @@ RETURN line.foo, line.bar, line.bar = &quot;2&quot;, length(line.bar)
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/10/18/neo4j-load-csv-the-sneaky-null-character/&amp;title=Neo4j%3a%20LOAD%20CSV%20-%20The%20sneaky%20null%20character&amp;summary=%24%20cat%20foo.csv%20foo%2cbar%2cbaz%201%2c2%2c3%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2fUsers%2fmarkneedham%2fDownloads%2ffoo.csv%26quot%3b%20AS%20line%20RETURN%20line.foo%2c%20line.bar%2c%20line.bar%20%3d%20%26quot%3b2%26quot%3b%20%3d%3d%26gt%3b%20%2b--------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20line.foo%20%7c%20line.bar%20%7c%20line.bar%20%3d%20%26%2334%3b2%26%2334%3b%20%7c%20%3d%3d%26gt%3b%20%2b--------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20%26lt%3bnull%26gt%3b%20%7c%20%26%2334%3b2%26%2334%3b%20%7c%20false%20%7c%20%3d%3d%26gt%3b%20%2b--------------------------------------%2b%20%3d%3d%26gt%3b%201%20row%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2fUsers%2fmarkneedham%2fDownloads%2ffoo.csv%26quot%3b%20AS%20line%20RETURN%20line.foo%2c%20line.bar%2c%20line.bar%20%3d%20%26quot%3b2%26quot%3b%2c%20length%28line.bar%29%20%3d%3d%26gt%3b%20%2b---------------------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20line.foo%20%7c%20line.bar%20%7c%20line.bar%20%3d%20%26%2334%3b2%26%2334%3b%20%7c%20length%28line...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/10/18/neo4j-load-csv-the-sneaky-null-character/&amp;title=Neo4j%3a%20LOAD%20CSV%20-%20The%20sneaky%20null%20character&amp;summary=I%20spent%20some%20time%20earlier%20in%20the%20week%20trying%20to%20import%20a%20CSV%20file%20extracted%20from%20Hadoop%20into%20Neo4j%20using%20Cypher%26%238217%3bs%20LOAD%20CSV%20command%20and%20initially%20struggled%20due%20to%20some%20rogue%20characters.%0a%20The%20CSV%20file%20looked%20like%20this%3a%0a%20%24%20cat%20foo.csv%20foo%2cbar%2cbaz%201%2c2%2c3%20%20%20I%20wrote%20the%20following%20LOAD%20CSV%20query%20to%20extract%20some%20of%20the%20fields%20and%20compare%20others%3a%0a%20load%20csv%20with%20headers%20from%20%22file%3a%2fUsers%2fmarkneedham%2fDownloads%2ffoo.csv%22%20AS%20line%20RETURN%20line...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

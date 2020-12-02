@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: Cypher - Creating relationships between a collection of nodes / Invalid input &#39;[&#39;:" />
         
-          <meta name="twitter:description" content="MERGE (day1:Day {day:1 }) MERGE (day2:Day {day:2 }) MERGE (day3:Day {day:3 }) RETURN day1, day2, day3 (day1)-[:NEXT]-&gt;(day2)-[:NEXT]-&gt;(day3) MATCH (day:Day) WITH day ORDER BY day.day WITH COLLECT(day) AS days FOREACH(i in RANGE(0, length(days)-2) | CREATE UNIQUE (days[i])-[:NEXT]-&gt;(days[i&#43;1])) Invalid input &#39;[&#39;: expected an identifier character, node labels, a property map, whitespace, &#39;)&#39; or a relationship pattern (line 6, column 32) &#34; CREATE UNIQUE (days[i])-[:NEXT]-&gt;(days[i&#43;1]))&#34; ^ MATCH (day:Day) WITH day ORDER BY day.day WITH COLLECT(day) AS days FOREACH(i in RANGE(0, length(days)-2) | FOREACH(day1 in [days[i]] | FOREACH(day2 in [days[i&#43;1]] | CREATE UNIQUE (day1)-[:NEXT]-&gt;(day2)))) " />
+          <meta name="twitter:description" content="When working with graphs we&#8217;ll frequently find ourselves wanting to create relationships between collections of nodes.
+ A common example of this would be creating a linked list of days so that we can quickly traverse across a time tree. Let&#8217;s say we start with just 3 days:
+ MERGE (day1:Day {day:1 }) MERGE (day2:Day {day:2 }) MERGE (day3:Day {day:3 }) RETURN day1, day2, day3   And we want to create a &#39;NEXT&#39; relationship between adjacent days:" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/04/19/neo4j-cypher-creating-relationships-between-a-collection-of-nodes-invalid-input/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j: Cypher - Creating relationships between a collection of nodes / Invalid input &#39;[&#39;: &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="MERGE (day1:Day {day:1 }) MERGE (day2:Day {day:2 }) MERGE (day3:Day {day:3 }) RETURN day1, day2, day3 (day1)-[:NEXT]-&gt;(day2)-[:NEXT]-&gt;(day3) MATCH (day:Day) WITH day ORDER BY day.day WITH COLLECT(day) AS days FOREACH(i in RANGE(0, length(days)-2) | CREATE UNIQUE (days[i])-[:NEXT]-&gt;(days[i&#43;1])) Invalid input &#39;[&#39;: expected an identifier character, node labels, a property map, whitespace, &#39;)&#39; or a relationship pattern (line 6, column 32) &#34; CREATE UNIQUE (days[i])-[:NEXT]-&gt;(days[i&#43;1]))&#34; ^ MATCH (day:Day) WITH day ORDER BY day.day WITH COLLECT(day) AS days FOREACH(i in RANGE(0, length(days)-2) | FOREACH(day1 in [days[i]] | FOREACH(day2 in [days[i&#43;1]] | CREATE UNIQUE (day1)-[:NEXT]-&gt;(day2)))) " />
+        <meta name="description" content="When working with graphs we&#8217;ll frequently find ourselves wanting to create relationships between collections of nodes.
+ A common example of this would be creating a linked list of days so that we can quickly traverse across a time tree. Let&#8217;s say we start with just 3 days:
+ MERGE (day1:Day {day:1 }) MERGE (day2:Day {day:2 }) MERGE (day3:Day {day:3 }) RETURN day1, day2, day3   And we want to create a &#39;NEXT&#39; relationship between adjacent days:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-04-19",
-        "description": "MERGE (day1:Day {day:1 }) MERGE (day2:Day {day:2 }) MERGE (day3:Day {day:3 }) RETURN day1, day2, day3 (day1)-[:NEXT]-\x26gt;(day2)-[:NEXT]-\x26gt;(day3) MATCH (day:Day) WITH day ORDER BY day.day WITH COLLECT(day) AS days FOREACH(i in RANGE(0, length(days)-2) | CREATE UNIQUE (days[i])-[:NEXT]-\x26gt;(days[i\x2b1])) Invalid input \x26#39;[\x26#39;: expected an identifier character, node labels, a property map, whitespace, \x26#39;)\x26#39; or a relationship pattern (line 6, column 32) \x26#34; CREATE UNIQUE (days[i])-[:NEXT]-\x26gt;(days[i\x2b1]))\x26#34; ^ MATCH (day:Day) WITH day ORDER BY day.day WITH COLLECT(day) AS days FOREACH(i in RANGE(0, length(days)-2) | FOREACH(day1 in [days[i]] | FOREACH(day2 in [days[i\x2b1]] | CREATE UNIQUE (day1)-[:NEXT]-\x26gt;(day2)))) ",
-        "wordCount":  90 
+        "description": "When working with graphs we\x26#8217;ll frequently find ourselves wanting to create relationships between collections of nodes.\n A common example of this would be creating a linked list of days so that we can quickly traverse across a time tree. Let\x26#8217;s say we start with just 3 days:\n MERGE (day1:Day {day:1 }) MERGE (day2:Day {day:2 }) MERGE (day3:Day {day:3 }) RETURN day1, day2, day3   And we want to create a \x27NEXT\x27 relationship between adjacent days:",
+        "wordCount":  247 
     }
     </script>
     
@@ -172,42 +176,78 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: Cypher - Creating relationships between a collection of nodes / Invalid input &#39;[&#39;:</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MERGE (day1:Day {day:1 })
+    <div class="paragraph">
+<p>When working with graphs we&#8217;ll frequently find ourselves wanting to create relationships between collections of nodes.</p>
+</div>
+<div class="paragraph">
+<p>A common example of this would be creating a linked list of days so that we can quickly traverse across <a href="http://blog.neo4j.org/2012/02/modeling-multilevel-index-in-neoj4.html">a time tree</a>. Let&#8217;s say we start with just 3 days:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MERGE (day1:Day {day:1 })
 MERGE (day2:Day {day:2 })
 MERGE (day3:Day {day:3 })
-RETURN day1, day2, day3
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-(day1)-[:NEXT]-&gt;(day2)-[:NEXT]-&gt;(day3)
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (day:Day)
+RETURN day1, day2, day3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And we want to create a 'NEXT' relationship between adjacent days:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">(day1)-[:NEXT]-&gt;(day2)-[:NEXT]-&gt;(day3)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The most obvious way to do this would be to collect the days into an ordered collection and iterate over them using <cite>http://docs.neo4j.org/chunked/stable/query-foreach.html<span class="FOREACH"></cite></span>, creating a relationship between adjacent nodes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (day:Day)
 WITH day
 ORDER BY day.day
 WITH COLLECT(day) AS days
-FOREACH(i in RANGE(0, length(days)-2) | 
-  CREATE UNIQUE (days[i])-[:NEXT]-&gt;(days[i+1]))
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Invalid input &#39;[&#39;: expected an identifier character, node labels, a property map, whitespace, &#39;)&#39; or a relationship pattern (line 6, column 32)
-&#34;            CREATE UNIQUE (days[i])-[:NEXT]-&gt;(days[i+1]))&#34;
-                                ^
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (day:Day)
+FOREACH(i in RANGE(0, length(days)-2) |
+  CREATE UNIQUE (days[i])-[:NEXT]-&gt;(days[i+1]))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unfortunately this isn&#8217;t valid syntax:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Invalid input '[': expected an identifier character, node labels, a property map, whitespace, ')' or a relationship pattern (line 6, column 32)
+"            CREATE UNIQUE (days[i])-[:NEXT]-&gt;(days[i+1]))"
+                                ^</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It doesn&#8217;t seem to like us using array indices where we specify the node identifier.</p>
+</div>
+<div class="paragraph">
+<p>However, we can work around that by putting <cite>days<span class="i"></cite></span> and <cite>days<span class="i+1"></cite></span> into single item arrays and using nested <cite>FOREACH</cite> loops on those, something <a href="http://www.markhneedham.com/blog/2013/11/29/neo4j-modelling-series-of-events/">Michael Hunger showed me last year</a> and I forgot all about!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (day:Day)
 WITH day
 ORDER BY day.day
 WITH COLLECT(day) AS days
-FOREACH(i in RANGE(0, length(days)-2) | 
-  FOREACH(day1 in [days[i]] | 
-    FOREACH(day2 in [days[i+1]] | 
-      CREATE UNIQUE (day1)-[:NEXT]-&gt;(day2))))
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+FOREACH(i in RANGE(0, length(days)-2) |
+  FOREACH(day1 in [days[i]] |
+    FOREACH(day2 in [days[i+1]] |
+      CREATE UNIQUE (day1)-[:NEXT]-&gt;(day2))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if we do a query to get back all the days we&#8217;ll see they&#8217;re connected:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/04/2014-04-19_07-32-37.png" alt="2014 04 19 07 32 37" width="366">
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -242,7 +282,7 @@ FOREACH(i in RANGE(0, length(days)-2) |
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/04/19/neo4j-cypher-creating-relationships-between-a-collection-of-nodes-invalid-input/&amp;title=Neo4j%3a%20Cypher%20-%20Creating%20relationships%20between%20a%20collection%20of%20nodes%20%2f%20Invalid%20input%20%27%5b%27%3a&amp;summary=MERGE%20%28day1%3aDay%20%7bday%3a1%20%7d%29%20MERGE%20%28day2%3aDay%20%7bday%3a2%20%7d%29%20MERGE%20%28day3%3aDay%20%7bday%3a3%20%7d%29%20RETURN%20day1%2c%20day2%2c%20day3%20%28day1%29-%5b%3aNEXT%5d-%26gt%3b%28day2%29-%5b%3aNEXT%5d-%26gt%3b%28day3%29%20MATCH%20%28day%3aDay%29%20WITH%20day%20ORDER%20BY%20day.day%20WITH%20COLLECT%28day%29%20AS%20days%20FOREACH%28i%20in%20RANGE%280%2c%20length%28days%29-2%29%20%7c%20CREATE%20UNIQUE%20%28days%5bi%5d%29-%5b%3aNEXT%5d-%26gt%3b%28days%5bi%2b1%5d%29%29%20Invalid%20input%20%26%2339%3b%5b%26%2339%3b%3a%20expected%20an%20identifier%20character%2c%20node%20labels%2c%20a%20property%20map%2c%20whitespace%2c%20%26%2339%3b%29%26%2339%3b%20or%20a%20relationship%20pattern%20%28line%206%2c%20column%2032%29%20%26%2334%3b%20CREATE%20UNIQUE%20%28days%5bi%5d%29-%5b%3aNEXT%5d-%26gt%3b%28days%5bi%2b1%5d%29%29%26%2334%3b%20%5e%20MATCH%20%28day%3aDay%29%20WITH%20day%20ORDER%20BY%20day.day%20WITH%20COLLECT%28day%29%20AS%20days%20FOREACH%28i%20in%20RANGE%280%2c%20length%28days%29-2%29%20%7c%20FOREACH%28day1%20in%20%5bdays%5bi%5d%5d%20%7c%20FOREACH%28day2%20in%20%5bdays%5bi%2b1%5d%5d%20%7c%20CREATE%20UNIQUE%20%28day1%29-%5b%3aNEXT%5d-%26gt%3b%28day2%29%29%29%29%20..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/04/19/neo4j-cypher-creating-relationships-between-a-collection-of-nodes-invalid-input/&amp;title=Neo4j%3a%20Cypher%20-%20Creating%20relationships%20between%20a%20collection%20of%20nodes%20%2f%20Invalid%20input%20%27%5b%27%3a&amp;summary=When%20working%20with%20graphs%20we%26%238217%3bll%20frequently%20find%20ourselves%20wanting%20to%20create%20relationships%20between%20collections%20of%20nodes.%0a%20A%20common%20example%20of%20this%20would%20be%20creating%20a%20linked%20list%20of%20days%20so%20that%20we%20can%20quickly%20traverse%20across%20a%20time%20tree.%20Let%26%238217%3bs%20say%20we%20start%20with%20just%203%20days%3a%0a%20MERGE%20%28day1%3aDay%20%7bday%3a1%20%7d%29%20MERGE%20%28day2%3aDay%20%7bday%3a2%20%7d%29%20MERGE%20%28day3%3aDay%20%7bday%3a3%20%7d%29%20RETURN%20day1%2c%20day2%2c%20day3%20%20%20And%20we%20want%20to%20create%20a%20%27NEXT%27%20relationship%20between%20adjacent%20days%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

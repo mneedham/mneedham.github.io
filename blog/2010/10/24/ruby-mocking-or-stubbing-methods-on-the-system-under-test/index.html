@@ -22,9 +22,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Ruby: Mocking or stubbing methods on the system under test" />
         
-          <meta name="twitter:description" content="An approach to testing which I haven&rsquo;t seen before and am therefore assuming is more specific to Ruby is the idea of stubbing or mocking out functions on the system under test.
-I&rsquo;ve come across a couple of situations where this seems to be done:
-I think the first approach is fine because typically we&rsquo;ll have a direct test against that module&rsquo;s methods elsewhere and it doesn&rsquo;t make much sense to test the same thing again." />
+          <meta name="twitter:description" content="An approach to testing which I haven&#8217;t seen before and am therefore assuming is more specific to Ruby is the idea of stubbing or mocking out functions on the system under test.
+ I&#8217;ve come across a couple of situations where this seems to be done:
+  When stubbing out calls to methods which are being mixed into the class via a module
+  When stubbing out calls to private methods within the class" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/10/24/ruby-mocking-or-stubbing-methods-on-the-system-under-test/" />
 
@@ -35,9 +36,10 @@ I think the first approach is fine because typically we&rsquo;ll have a direct t
         <title> Ruby: Mocking or stubbing methods on the system under test &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="An approach to testing which I haven&rsquo;t seen before and am therefore assuming is more specific to Ruby is the idea of stubbing or mocking out functions on the system under test.
-I&rsquo;ve come across a couple of situations where this seems to be done:
-I think the first approach is fine because typically we&rsquo;ll have a direct test against that module&rsquo;s methods elsewhere and it doesn&rsquo;t make much sense to test the same thing again." />
+        <meta name="description" content="An approach to testing which I haven&#8217;t seen before and am therefore assuming is more specific to Ruby is the idea of stubbing or mocking out functions on the system under test.
+ I&#8217;ve come across a couple of situations where this seems to be done:
+  When stubbing out calls to methods which are being mixed into the class via a module
+  When stubbing out calls to private methods within the class" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +68,8 @@ I think the first approach is fine because typically we&rsquo;ll have a direct t
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-10-24",
-        "description": "An approach to testing which I haven\x26rsquo;t seen before and am therefore assuming is more specific to Ruby is the idea of stubbing or mocking out functions on the system under test.\nI\x26rsquo;ve come across a couple of situations where this seems to be done:\nI think the first approach is fine because typically we\x26rsquo;ll have a direct test against that module\x26rsquo;s methods elsewhere and it doesn\x26rsquo;t make much sense to test the same thing again.",
-        "wordCount":  281 
+        "description": "An approach to testing which I haven\x26#8217;t seen before and am therefore assuming is more specific to Ruby is the idea of stubbing or mocking out functions on the system under test.\n I\x26#8217;ve come across a couple of situations where this seems to be done:\n  When stubbing out calls to methods which are being mixed into the class via a module\n  When stubbing out calls to private methods within the class",
+        "wordCount":  307 
     }
     </script>
     
@@ -176,45 +178,83 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Ruby: Mocking or stubbing methods on the system under test</h1>
-    <p>An approach to testing which I haven&rsquo;t seen before and am therefore assuming is more specific to Ruby is the idea of stubbing or mocking out functions on the system under test.</p>
-<p>I&rsquo;ve come across a couple of situations where this seems to be done:</p>
-<!-- raw HTML omitted -->
-<p>I think the first approach is fine because typically we&rsquo;ll have a direct test against that module&rsquo;s methods elsewhere and it doesn&rsquo;t make much sense to test the same thing again.</p>
-<p>I initially liked the second approach as well because it simplifies the spec we&rsquo;re writing.</p>
+    <div class="paragraph">
+<p>An approach to testing which I haven&#8217;t seen before and am therefore assuming is more specific to Ruby is the idea of stubbing or mocking out functions on the system under test.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve come across a couple of situations where this seems to be done:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>When stubbing out calls to methods which are being mixed into the class via a module</p>
+</li>
+<li>
+<p>When stubbing out calls to private methods within the class</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>I think the first approach is fine because typically we&#8217;ll have a direct test against that module&#8217;s methods elsewhere and it doesn&#8217;t make much sense to test the same thing again.</p>
+</div>
+<div class="paragraph">
+<p>I initially liked the second approach as well because it simplifies the spec we&#8217;re writing.</p>
+</div>
+<div class="paragraph">
 <p>For example if we have this code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FoosController</span> : <span style="color:#66d9ef">ApplicationController</span>
-   <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">class FoosController : ApplicationController
+   def index
       populate_something
-   <span style="color:#66d9ef">end</span>
+   end
 
-   <span style="color:#66d9ef">private</span>
+   private
 
-   <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">populate_something</span>
-      @something <span style="color:#f92672">=</span> <span style="color:#66d9ef">Something</span><span style="color:#f92672">.</span>find(<span style="color:#f92672">...</span>)    
-   <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>Then by stubbing out &lsquo;populate_something&rsquo; we can write a spec like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-describe <span style="color:#66d9ef">FoosController</span> <span style="color:#66d9ef">do</span>
-   it <span style="color:#e6db74">&#34;should populate something&#34;</span> <span style="color:#66d9ef">do</span>
-      controller<span style="color:#f92672">.</span>stub(<span style="color:#e6db74">:populate_something</span>) <span style="color:#75715e"># and so on</span>
+   def populate_something
+      @something = Something.find(...)
+   end
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then by stubbing out 'populate_something' we can write a spec like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">describe FoosController do
+   it "should populate something" do
+      controller.stub(:populate_something) # and so on
 
-      get <span style="color:#e6db74">:index</span>
-   <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>Rather than:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ruby" data-lang="ruby">
-describe <span style="color:#66d9ef">FoosController</span> <span style="color:#66d9ef">do</span>
-   it <span style="color:#e6db74">&#34;should populate something&#34;</span> <span style="color:#66d9ef">do</span>
-      <span style="color:#66d9ef">Something</span><span style="color:#f92672">.</span>stub(<span style="color:#e6db74">:find</span>) <span style="color:#75715e"># and so on</span>
+      get :index
+   end
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Rather than:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">describe FoosController do
+   it "should populate something" do
+      Something.stub(:find) # and so on
 
-      get <span style="color:#e6db74">:index</span>
-   <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-</code></pre></div><p>This is a fairly contrived example of course and the temptation to stub out a method on the system under test increases as the amount of dependencies and the complexity of them increases.</p>
-<p>The problem we create for ourselves is that if we want to change the internal structure of our class, perhaps by inlining those private methods, then we&rsquo;ll end up with specs failing even if the external behaviour remains exactly the same.</p>
-<p>My current thinking is that if we get in a situation where we want to stub out something on the system under test then it&rsquo;d probably be better to listen to that pain and try and work out a cleaner way of solving the problem.</p>
+      get :index
+   end
+end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a fairly contrived example of course and the temptation to stub out a method on the system under test increases as the amount of dependencies and the complexity of them increases.</p>
+</div>
+<div class="paragraph">
+<p>The problem we create for ourselves is that if we want to change the internal structure of our class, perhaps by inlining those private methods, then we&#8217;ll end up with specs failing even if the external behaviour remains exactly the same.</p>
+</div>
+<div class="paragraph">
+<p>My current thinking is that if we get in a situation where we want to stub out something on the system under test then it&#8217;d probably be better to listen to that pain and try and work out a cleaner way of solving the problem.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -249,7 +289,7 @@ describe <span style="color:#66d9ef">FoosController</span> <span style="color:#6
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/10/24/ruby-mocking-or-stubbing-methods-on-the-system-under-test/&amp;title=Ruby%3a%20Mocking%20or%20stubbing%20methods%20on%20the%20system%20under%20test&amp;summary=An%20approach%20to%20testing%20which%20I%20haven%26rsquo%3bt%20seen%20before%20and%20am%20therefore%20assuming%20is%20more%20specific%20to%20Ruby%20is%20the%20idea%20of%20stubbing%20or%20mocking%20out%20functions%20on%20the%20system%20under%20test.%0aI%26rsquo%3bve%20come%20across%20a%20couple%20of%20situations%20where%20this%20seems%20to%20be%20done%3a%0aI%20think%20the%20first%20approach%20is%20fine%20because%20typically%20we%26rsquo%3bll%20have%20a%20direct%20test%20against%20that%20module%26rsquo%3bs%20methods%20elsewhere%20and%20it%20doesn%26rsquo%3bt%20make%20much%20sense%20to%20test%20the%20same%20thing%20again...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/10/24/ruby-mocking-or-stubbing-methods-on-the-system-under-test/&amp;title=Ruby%3a%20Mocking%20or%20stubbing%20methods%20on%20the%20system%20under%20test&amp;summary=An%20approach%20to%20testing%20which%20I%20haven%26%238217%3bt%20seen%20before%20and%20am%20therefore%20assuming%20is%20more%20specific%20to%20Ruby%20is%20the%20idea%20of%20stubbing%20or%20mocking%20out%20functions%20on%20the%20system%20under%20test.%0a%20I%26%238217%3bve%20come%20across%20a%20couple%20of%20situations%20where%20this%20seems%20to%20be%20done%3a%0a%20%20When%20stubbing%20out%20calls%20to%20methods%20which%20are%20being%20mixed%20into%20the%20class%20via%20a%20module%0a%20%20When%20stubbing%20out%20calls%20to%20private%20methods%20within%20the%20class..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

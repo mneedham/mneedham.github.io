@@ -22,8 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: The BBC Champions League graph" />
         
-          <meta name="twitter:description" content="from bs4 import BeautifulSoup from soupselect import select import bs4 soup = BeautifulSoup(open(&#34;data/results&#34;, &#34;r&#34;)) matches = select(soup, &#34;a.report&#34;) for match in matches: print &#34;http://www.bbc.co.uk/%s&#34; %(match.get(&#34;href&#34;)) I then piped the output of running this script into wget:
-find_all_matches.py | xargs wget -O data/raw match (a:Attempt)&lt;-[:HAD_ATTEMPT]-(app)&lt;-[:MADE_APPEARANCE]-(player), (app)-[:FOR_TEAM]-(team) WITH player, COUNT(*) as times, COLLECT(a) AS attempts, team WITH player, times, LENGTH([a in attempts WHERE a:Goal]) AS goals, team WHERE times &gt; 10 RETURN player." />
+          <meta name="twitter:description" content="A couple of weekends ago I started scraping the BBC live text feed of the Bayern Munich/Barcelona match, initially starting out with just the fouls and building the foul graph.
+ I&#8217;ve spent a bit more time on it since then and have managed to model several other events as well including attempts, goals, cards and free kicks.
+ I started doing this just for the Bayern Munich/Barcelona match but realised it wasn&#8217;t particularly difficult to extend this out and graph the events for every match in the Champions League 2014/2015." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2015/05/30/neo4j-the-bbc-champions-league-graph/" />
 
@@ -34,8 +35,9 @@ find_all_matches.py | xargs wget -O data/raw match (a:Attempt)&lt;-[:HAD_ATTEMPT
         <title> Neo4j: The BBC Champions League graph &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="from bs4 import BeautifulSoup from soupselect import select import bs4 soup = BeautifulSoup(open(&#34;data/results&#34;, &#34;r&#34;)) matches = select(soup, &#34;a.report&#34;) for match in matches: print &#34;http://www.bbc.co.uk/%s&#34; %(match.get(&#34;href&#34;)) I then piped the output of running this script into wget:
-find_all_matches.py | xargs wget -O data/raw match (a:Attempt)&lt;-[:HAD_ATTEMPT]-(app)&lt;-[:MADE_APPEARANCE]-(player), (app)-[:FOR_TEAM]-(team) WITH player, COUNT(*) as times, COLLECT(a) AS attempts, team WITH player, times, LENGTH([a in attempts WHERE a:Goal]) AS goals, team WHERE times &gt; 10 RETURN player." />
+        <meta name="description" content="A couple of weekends ago I started scraping the BBC live text feed of the Bayern Munich/Barcelona match, initially starting out with just the fouls and building the foul graph.
+ I&#8217;ve spent a bit more time on it since then and have managed to model several other events as well including attempts, goals, cards and free kicks.
+ I started doing this just for the Bayern Munich/Barcelona match but realised it wasn&#8217;t particularly difficult to extend this out and graph the events for every match in the Champions League 2014/2015." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +66,8 @@ find_all_matches.py | xargs wget -O data/raw match (a:Attempt)&lt;-[:HAD_ATTEMPT
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2015-05-30",
-        "description": "from bs4 import BeautifulSoup from soupselect import select import bs4 soup = BeautifulSoup(open(\x26#34;data\/results\x26#34;, \x26#34;r\x26#34;)) matches = select(soup, \x26#34;a.report\x26#34;) for match in matches: print \x26#34;http:\/\/www.bbc.co.uk\/%s\x26#34; %(match.get(\x26#34;href\x26#34;)) I then piped the output of running this script into wget:\nfind_all_matches.py | xargs wget -O data\/raw match (a:Attempt)\x26lt;-[:HAD_ATTEMPT]-(app)\x26lt;-[:MADE_APPEARANCE]-(player), (app)-[:FOR_TEAM]-(team) WITH player, COUNT(*) as times, COLLECT(a) AS attempts, team WITH player, times, LENGTH([a in attempts WHERE a:Goal]) AS goals, team WHERE times \x26gt; 10 RETURN player.",
-        "wordCount":  1188 
+        "description": "A couple of weekends ago I started scraping the BBC live text feed of the Bayern Munich\/Barcelona match, initially starting out with just the fouls and building the foul graph.\n I\x26#8217;ve spent a bit more time on it since then and have managed to model several other events as well including attempts, goals, cards and free kicks.\n I started doing this just for the Bayern Munich\/Barcelona match but realised it wasn\x26#8217;t particularly difficult to extend this out and graph the events for every match in the Champions League 2014\/2015.",
+        "wordCount":  1515 
     }
     </script>
     
@@ -174,39 +176,76 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: The BBC Champions League graph</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> bs4 <span style="color:#f92672">import</span> BeautifulSoup
-<span style="color:#f92672">from</span> soupselect <span style="color:#f92672">import</span> select
-<span style="color:#f92672">import</span> bs4
+    <div class="paragraph">
+<p>A couple of weekends ago I started scraping the BBC live text feed of the <a href="http://www.bbc.co.uk/sport/0/football/32683310">Bayern Munich/Barcelona match</a>, initially starting out with just the fouls and building the foul graph.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve spent a bit more time on it since then and have managed to model several other events as well including attempts, goals, cards and free kicks.</p>
+</div>
+<div class="paragraph">
+<p>I started doing this just for the Bayern Munich/Barcelona match but realised it wasn&#8217;t particularly difficult to extend this out and graph the events for every match in the Champions League 2014/2015.</p>
+</div>
+<div class="paragraph">
+<p>To do this we first need to download the pages for each of the matches. I downloaded <a href="http://www.bbc.co.uk/sport/football/champions-league/results">this page</a> and wrote a simple Python script to get the appropriate URIs:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from bs4 import BeautifulSoup
+from soupselect import select
+import bs4
 
-soup <span style="color:#f92672">=</span> BeautifulSoup(open(<span style="color:#e6db74">&#34;data/results&#34;</span>, <span style="color:#e6db74">&#34;r&#34;</span>))
+soup = BeautifulSoup(open("data/results", "r"))
 
-matches <span style="color:#f92672">=</span> select(soup, <span style="color:#e6db74">&#34;a.report&#34;</span>)
+matches = select(soup, "a.report")
 
-<span style="color:#66d9ef">for</span> match <span style="color:#f92672">in</span> matches:
-    <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#34;http://www.bbc.co.uk/</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span>(match<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;href&#34;</span>))
-</code></pre></div><p>I then piped the output of running this script into wget:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">
-find_all_matches.py | xargs wget -O data/raw
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-match (a:Attempt)&lt;-[:HAD_ATTEMPT]-(app)&lt;-[:MADE_APPEARANCE]-(player),
+for match in matches:
+    print "http://www.bbc.co.uk/%s" %(match.get("href"))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I then piped the output of running this script into wget:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">find_all_matches.py | xargs wget -O data/raw</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It was relatively simple to update the scraping and import code to handle multiple matches. The whole process from end to end looks like this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/05/2015-05-29_23-27-56.png" alt="2015 05 29 23 27 56" width="500">
+</div>
+</div>
+<div class="paragraph">
+<p>Most of the code is in the 'scraping magic' phase where I go through all the events and pull out the appropriate elements that we can link together in the graph.</p>
+</div>
+<div class="paragraph">
+<p>e.g. a freekick and foul event are typically adjacent so we&#8217;d look to pull out the two players involved, the type of card issues, the time of the incident and the match the event occurred in.</p>
+</div>
+<div class="paragraph">
+<p>I used Python&#8217;s <a href="http://www.crummy.com/software/BeautifulSoup/">Beautiful Soup library</a> for this task but there&#8217;s no reason you couldn&#8217;t use another set of tools.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/mneedham/neo4j-bbc">README page</a> shows how to create your own version of the graph but here&#8217;s an overview of what the graph looks like using <a href="https://twitter.com/rvanbruggen">Rik&#8217;s</a> <a href="http://neo4j.com/blog/rvb-2-2-meta-graph/">meta graph query</a>:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2015/05/graph-21.png" alt="Graph  21" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s a few of my favourite queries so far:</p>
+</div>
+<div class="sect1">
+<h2 id="_which_player_with_more_than_10_shots_has_the_best_conversion_rate">Which player with more than 10 shots has the best conversion rate?</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">match (a:Attempt)&lt;-[:HAD_ATTEMPT]-(app)&lt;-[:MADE_APPEARANCE]-(player),
       (app)-[:FOR_TEAM]-(team)
 WITH player, COUNT(*) as times, COLLECT(a) AS attempts, team
 WITH player, times, LENGTH([a in attempts WHERE a:Goal]) AS goals, team
@@ -218,83 +257,104 @@ LIMIT 10
 ==&gt; +------------------------------------------------------------------------------------+
 ==&gt; | player.name           | team.name            | goals | times | conversionRate      |
 ==&gt; +------------------------------------------------------------------------------------+
-==&gt; | &quot;Luiz Adriano&quot;        | &quot;Shakhtar Donetsk&quot;   | 9     | 14    | 0.6428571428571429  |
-==&gt; | &quot;Yacine Brahimi&quot;      | &quot;FC Porto&quot;           | 5     | 13    | 0.38461538461538464 |
-==&gt; | &quot;Mario Mandzukic&quot;     | &quot;Atlético de Madrid&quot; | 5     | 14    | 0.35714285714285715 |
-==&gt; | &quot;Sergio Agüero&quot;       | &quot;Manchester City&quot;    | 6     | 18    | 0.3333333333333333  |
-==&gt; | &quot;Karim Benzema&quot;       | &quot;Real Madrid&quot;        | 6     | 19    | 0.3157894736842105  |
-==&gt; | &quot;Klaas-Jan Huntelaar&quot; | &quot;FC Schalke 04&quot;      | 5     | 16    | 0.3125              |
-==&gt; | &quot;Neymar&quot;              | &quot;Barcelona&quot;          | 9     | 29    | 0.3103448275862069  |
-==&gt; | &quot;Thomas Müller&quot;       | &quot;FC Bayern München&quot;  | 7     | 24    | 0.2916666666666667  |
-==&gt; | &quot;Jackson Martínez&quot;    | &quot;FC Porto&quot;           | 7     | 24    | 0.2916666666666667  |
-==&gt; | &quot;Callum McGregor&quot;     | &quot;Celtic&quot;             | 3     | 11    | 0.2727272727272727  |
-==&gt; +------------------------------------------------------------------------------------+
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-match (firstFoul:Foul)-[:COMMITTED_AGAINST]-&gt;(app1)&lt;-[:MADE_APPEARANCE]-(revengeFouler),
+==&gt; | "Luiz Adriano"        | "Shakhtar Donetsk"   | 9     | 14    | 0.6428571428571429  |
+==&gt; | "Yacine Brahimi"      | "FC Porto"           | 5     | 13    | 0.38461538461538464 |
+==&gt; | "Mario Mandzukic"     | "Atlético de Madrid" | 5     | 14    | 0.35714285714285715 |
+==&gt; | "Sergio Agüero"       | "Manchester City"    | 6     | 18    | 0.3333333333333333  |
+==&gt; | "Karim Benzema"       | "Real Madrid"        | 6     | 19    | 0.3157894736842105  |
+==&gt; | "Klaas-Jan Huntelaar" | "FC Schalke 04"      | 5     | 16    | 0.3125              |
+==&gt; | "Neymar"              | "Barcelona"          | 9     | 29    | 0.3103448275862069  |
+==&gt; | "Thomas Müller"       | "FC Bayern München"  | 7     | 24    | 0.2916666666666667  |
+==&gt; | "Jackson Martínez"    | "FC Porto"           | 7     | 24    | 0.2916666666666667  |
+==&gt; | "Callum McGregor"     | "Celtic"             | 3     | 11    | 0.2727272727272727  |
+==&gt; +------------------------------------------------------------------------------------+</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_which_players_gained_immediate_revenge_for_a_foul">Which players gained immediate revenge for a foul?</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">match (firstFoul:Foul)-[:COMMITTED_AGAINST]-&gt;(app1)&lt;-[:MADE_APPEARANCE]-(revengeFouler),
       (app1)-[:IN_MATCH]-&gt;(match), (firstFoulerApp)-[:COMMITTED_FOUL]-&gt;(firstFoul),
       (app1)-[:COMMITTED_FOUL]-&gt;(revengeFoul)-[:COMMITTED_AGAINST]-&gt;(firstFoulerApp),
        (firstFouler)-[:MADE_APPEARANCE]-&gt;(firstFoulerApp)
 WHERE (firstFoul)-[:NEXT]-&gt;(revengeFoul)
-RETURN firstFouler.name AS firstFouler, revengeFouler.name AS revengeFouler, firstFoul.time, revengeFoul.time, match.home + &quot; vs &quot; + match.away
+RETURN firstFouler.name AS firstFouler, revengeFouler.name AS revengeFouler, firstFoul.time, revengeFoul.time, match.home + " vs " + match.away
 
 ==&gt; +---------------------------------------------------------------------------------------------------------------------------------+
-==&gt; | firstFouler         | revengeFouler               | firstFoul.time | revengeFoul.time | match.home + &quot; vs &quot; + match.away        |
+==&gt; | firstFouler         | revengeFouler               | firstFoul.time | revengeFoul.time | match.home + " vs " + match.away        |
 ==&gt; +---------------------------------------------------------------------------------------------------------------------------------+
-==&gt; | &quot;Derk Boerrigter&quot;   | &quot;Jean Philippe Mendy&quot;       | &quot;88:48&quot;        | &quot;89:42&quot;          | &quot;Celtic vs NK Maribor&quot;                  |
-==&gt; | &quot;Mario Suárez&quot;      | &quot;Pajtim Kasami&quot;             | &quot;27:17&quot;        | &quot;32:38&quot;          | &quot;Olympiakos vs Atlético de Madrid&quot;      |
-==&gt; | &quot;Aleksandr Volodko&quot; | &quot;Casemiro&quot;                  | &quot;39:27&quot;        | &quot;44:32&quot;          | &quot;FC Porto vs BATE Borisov&quot;              |
-==&gt; | &quot;Thomas Müller&quot;     | &quot;Mario Fernandes&quot;           | &quot;87:22&quot;        | &quot;88:31&quot;          | &quot;CSKA Moscow vs FC Bayern München&quot;      |
-==&gt; | &quot;Vinicius&quot;          | &quot;Marco Verratti&quot;            | &quot;56:36&quot;        | &quot;58:00&quot;          | &quot;APOEL Nicosia vs Paris Saint Germain&quot;  |
-==&gt; | &quot;Lasse Schöne&quot;      | &quot;Dani Alves&quot;                | &quot;84:08&quot;        | &quot;86:18&quot;          | &quot;Barcelona vs Ajax&quot;                     |
-==&gt; | &quot;Nick Viergever&quot;    | &quot;Dani Alves&quot;                | &quot;57:22&quot;        | &quot;60:37&quot;          | &quot;Barcelona vs Ajax&quot;                     |
-==&gt; | &quot;Nani&quot;              | &quot;Atsuto Uchida&quot;             | &quot;6:10&quot;         | &quot;8:40&quot;           | &quot;FC Schalke 04 vs Sporting Lisbon&quot;      |
-==&gt; | &quot;Andreas Samaris&quot;   | &quot;Yannick Ferreira-Carrasco&quot; | &quot;89:21&quot;        | &quot;90:00 +4:21&quot;    | &quot;Monaco vs Benfica&quot;                     |
-==&gt; | &quot;Simon Kroon&quot;       | &quot;Guillherme Siqueira&quot;       | &quot;84:05&quot;        | &quot;90:00 +0:29&quot;    | &quot;Atlético de Madrid vs Malmö FF&quot;        |
-==&gt; | &quot;Mario Suárez&quot;      | &quot;Isaac Thelin&quot;              | &quot;32:02&quot;        | &quot;38:47&quot;          | &quot;Atlético de Madrid vs Malmö FF&quot;        |
-==&gt; | &quot;Hakan Balta&quot;       | &quot;Henrikh Mkhitaryan&quot;        | &quot;62:09&quot;        | &quot;64:14&quot;          | &quot;Borussia Dortmund vs Galatasaray&quot;      |
-==&gt; | &quot;Marco Reus&quot;        | &quot;Selcuk Inan&quot;               | &quot;36:17&quot;        | &quot;44:03&quot;          | &quot;Borussia Dortmund vs Galatasaray&quot;      |
-==&gt; | &quot;Hakan Balta&quot;       | &quot;Sven Bender&quot;               | &quot;10:57&quot;        | &quot;12:51&quot;          | &quot;Borussia Dortmund vs Galatasaray&quot;      |
-==&gt; | &quot;Vinicius&quot;          | &quot;Edinson Cavani&quot;            | &quot;87:56&quot;        | &quot;90:00 +1:25&quot;    | &quot;Paris Saint Germain vs APOEL Nicosia&quot;  |
-==&gt; | &quot;Jackson Martínez&quot;  | &quot;Carlos Gurpegi&quot;            | &quot;64:55&quot;        | &quot;66:17&quot;          | &quot;Athletic Club vs FC Porto&quot;             |
-==&gt; | &quot;Nani&quot;              | &quot;Chinedu Obasi&quot;             | &quot;1:30&quot;         | &quot;4:47&quot;           | &quot;Sporting Lisbon vs FC Schalke 04&quot;      |
-==&gt; | &quot;Vitali Rodionov&quot;   | &quot;Bruno Martins Indi&quot;        | &quot;52:16&quot;        | &quot;60:08&quot;          | &quot;BATE Borisov vs FC Porto&quot;              |
-==&gt; | &quot;Raheem Sterling&quot;   | &quot;Behrang Safari&quot;            | &quot;29:00&quot;        | &quot;33:27&quot;          | &quot;Liverpool vs FC Basel&quot;                 |
-==&gt; | &quot;Derlis González&quot;   | &quot;Fábio Coentrão&quot;            | &quot;52:55&quot;        | &quot;57:59&quot;          | &quot;FC Basel vs Real Madrid&quot;               |
-==&gt; | &quot;Josip Drmic&quot;       | &quot;Lisandro López&quot;            | &quot;15:04&quot;        | &quot;17:35&quot;          | &quot;Benfica vs Bayer 04 Leverkusen&quot;        |
-==&gt; | &quot;Fred&quot;              | &quot;Bastian Schweinsteiger&quot;    | &quot;6:04&quot;         | &quot;9:28&quot;           | &quot;Shakhtar Donetsk vs FC Bayern München&quot; |
-==&gt; | &quot;Alex Sandro&quot;       | &quot;Derlis González&quot;           | &quot;4:07&quot;         | &quot;7:28&quot;           | &quot;FC Basel vs FC Porto&quot;                  |
-==&gt; | &quot;Luca Zuffi&quot;        | &quot;Ruben Neves&quot;               | &quot;73:49&quot;        | &quot;84:44&quot;          | &quot;FC Porto vs FC Basel&quot;                  |
-==&gt; | &quot;Marco Verratti&quot;    | &quot;Oscar&quot;                     | &quot;28:49&quot;        | &quot;34:04&quot;          | &quot;Chelsea vs Paris Saint Germain&quot;        |
-==&gt; | &quot;Cristiano Ronaldo&quot; | &quot;Jesús Gámez&quot;               | &quot;20:59&quot;        | &quot;25:37&quot;          | &quot;Real Madrid vs Atlético de Madrid&quot;     |
-==&gt; | &quot;Bernardo Silva&quot;    | &quot;Álvaro Morata&quot;             | &quot;49:20&quot;        | &quot;62:31&quot;          | &quot;Monaco vs Juventus&quot;                    |
-==&gt; | &quot;Arturo Vidal&quot;      | &quot;Fabinho&quot;                   | &quot;38:19&quot;        | &quot;45:00&quot;          | &quot;Monaco vs Juventus&quot;                    |
-==&gt; +---------------------------------------------------------------------------------------------------------------------------------+
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-match (foul1:Foul)-[:COMMITTED_AGAINST]-&gt;(app1)-[:COMMITTED_FOUL]-&gt;(foul2)-[:COMMITTED_AGAINST]-&gt;(app2)-[:COMMITTED_FOUL]-&gt;(foul1),
+==&gt; | "Derk Boerrigter"   | "Jean Philippe Mendy"       | "88:48"        | "89:42"          | "Celtic vs NK Maribor"                  |
+==&gt; | "Mario Suárez"      | "Pajtim Kasami"             | "27:17"        | "32:38"          | "Olympiakos vs Atlético de Madrid"      |
+==&gt; | "Aleksandr Volodko" | "Casemiro"                  | "39:27"        | "44:32"          | "FC Porto vs BATE Borisov"              |
+==&gt; | "Thomas Müller"     | "Mario Fernandes"           | "87:22"        | "88:31"          | "CSKA Moscow vs FC Bayern München"      |
+==&gt; | "Vinicius"          | "Marco Verratti"            | "56:36"        | "58:00"          | "APOEL Nicosia vs Paris Saint Germain"  |
+==&gt; | "Lasse Schöne"      | "Dani Alves"                | "84:08"        | "86:18"          | "Barcelona vs Ajax"                     |
+==&gt; | "Nick Viergever"    | "Dani Alves"                | "57:22"        | "60:37"          | "Barcelona vs Ajax"                     |
+==&gt; | "Nani"              | "Atsuto Uchida"             | "6:10"         | "8:40"           | "FC Schalke 04 vs Sporting Lisbon"      |
+==&gt; | "Andreas Samaris"   | "Yannick Ferreira-Carrasco" | "89:21"        | "90:00 +4:21"    | "Monaco vs Benfica"                     |
+==&gt; | "Simon Kroon"       | "Guillherme Siqueira"       | "84:05"        | "90:00 +0:29"    | "Atlético de Madrid vs Malmö FF"        |
+==&gt; | "Mario Suárez"      | "Isaac Thelin"              | "32:02"        | "38:47"          | "Atlético de Madrid vs Malmö FF"        |
+==&gt; | "Hakan Balta"       | "Henrikh Mkhitaryan"        | "62:09"        | "64:14"          | "Borussia Dortmund vs Galatasaray"      |
+==&gt; | "Marco Reus"        | "Selcuk Inan"               | "36:17"        | "44:03"          | "Borussia Dortmund vs Galatasaray"      |
+==&gt; | "Hakan Balta"       | "Sven Bender"               | "10:57"        | "12:51"          | "Borussia Dortmund vs Galatasaray"      |
+==&gt; | "Vinicius"          | "Edinson Cavani"            | "87:56"        | "90:00 +1:25"    | "Paris Saint Germain vs APOEL Nicosia"  |
+==&gt; | "Jackson Martínez"  | "Carlos Gurpegi"            | "64:55"        | "66:17"          | "Athletic Club vs FC Porto"             |
+==&gt; | "Nani"              | "Chinedu Obasi"             | "1:30"         | "4:47"           | "Sporting Lisbon vs FC Schalke 04"      |
+==&gt; | "Vitali Rodionov"   | "Bruno Martins Indi"        | "52:16"        | "60:08"          | "BATE Borisov vs FC Porto"              |
+==&gt; | "Raheem Sterling"   | "Behrang Safari"            | "29:00"        | "33:27"          | "Liverpool vs FC Basel"                 |
+==&gt; | "Derlis González"   | "Fábio Coentrão"            | "52:55"        | "57:59"          | "FC Basel vs Real Madrid"               |
+==&gt; | "Josip Drmic"       | "Lisandro López"            | "15:04"        | "17:35"          | "Benfica vs Bayer 04 Leverkusen"        |
+==&gt; | "Fred"              | "Bastian Schweinsteiger"    | "6:04"         | "9:28"           | "Shakhtar Donetsk vs FC Bayern München" |
+==&gt; | "Alex Sandro"       | "Derlis González"           | "4:07"         | "7:28"           | "FC Basel vs FC Porto"                  |
+==&gt; | "Luca Zuffi"        | "Ruben Neves"               | "73:49"        | "84:44"          | "FC Porto vs FC Basel"                  |
+==&gt; | "Marco Verratti"    | "Oscar"                     | "28:49"        | "34:04"          | "Chelsea vs Paris Saint Germain"        |
+==&gt; | "Cristiano Ronaldo" | "Jesús Gámez"               | "20:59"        | "25:37"          | "Real Madrid vs Atlético de Madrid"     |
+==&gt; | "Bernardo Silva"    | "Álvaro Morata"             | "49:20"        | "62:31"          | "Monaco vs Juventus"                    |
+==&gt; | "Arturo Vidal"      | "Fabinho"                   | "38:19"        | "45:00"          | "Monaco vs Juventus"                    |
+==&gt; +---------------------------------------------------------------------------------------------------------------------------------+</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_which_players_took_the_longest_to_gain_revenge_for_a_foul">Which players took the longest to gain revenge for a foul?</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">match (foul1:Foul)-[:COMMITTED_AGAINST]-&gt;(app1)-[:COMMITTED_FOUL]-&gt;(foul2)-[:COMMITTED_AGAINST]-&gt;(app2)-[:COMMITTED_FOUL]-&gt;(foul1),
       (player1)-[:MADE_APPEARANCE]-&gt;(app1), (player2)-[:MADE_APPEARANCE]-&gt;(app2),
       (foul1)-[:COMMITTED_IN_MATCH]-&gt;(match:Match)&lt;-[:COMMITTED_IN_MATCH]-(foul2)
 WHERE (foul1)-[:NEXT*]-&gt;(foul2)
 WITH match, foul1, player1, player2, foul2 ORDER BY foul1.sortableTime, foul2.sortableTime
 WITH match, foul1, player1, player2, COLLECT(foul2) AS revenge
 WITH match, foul1,  player1,player2,  revenge[0] AS revengeFoul
-RETURN player1.name, player2.name, foul1.time, revengeFoul.time, revengeFoul.sortableTime - foul1.sortableTime AS secondsWaited, match.home + &quot; vs &quot; + match.away AS match
+RETURN player1.name, player2.name, foul1.time, revengeFoul.time, revengeFoul.sortableTime - foul1.sortableTime AS secondsWaited, match.home + " vs " + match.away AS match
 ORDER BY secondsWaited DESC
 LIMIT 5
 
 ==&gt; +---------------------------------------------------------------------------------------------------------------------------+
 ==&gt; | player1.name      | player2.name        | foul1.time | revengeFoul.time | secondsWaited | match                           |
 ==&gt; +---------------------------------------------------------------------------------------------------------------------------+
-==&gt; | &quot;Stefan Johansen&quot; | &quot;Ondrej Duda&quot;       | &quot;1:30&quot;     | &quot;82:11&quot;          | 4841          | &quot;Legia Warsaw vs Celtic&quot;        |
-==&gt; | &quot;Neymar&quot;          | &quot;Vinicius&quot;          | &quot;2:35&quot;     | &quot;80:08&quot;          | 4653          | &quot;Barcelona vs APOEL Nicosia&quot;    |
-==&gt; | &quot;Jérémy Toulalan&quot; | &quot;Stefan Kießling&quot;   | &quot;9:19&quot;     | &quot;86:37&quot;          | 4638          | &quot;Monaco vs Bayer 04 Leverkusen&quot; |
-==&gt; | &quot;Nabil Dirar&quot;     | &quot;Domenico Criscito&quot; | &quot;6:32&quot;     | &quot;82:39&quot;          | 4567          | &quot;Zenit St Petersburg vs Monaco&quot; |
-==&gt; | &quot;Nabil Dirar&quot;     | &quot;Eliseu&quot;            | &quot;7:20&quot;     | &quot;81:30&quot;          | 4450          | &quot;Monaco vs Benfica&quot;             |
-==&gt; +---------------------------------------------------------------------------------------------------------------------------+
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-match (team)&lt;-[:FOR_TEAM]-(app)&lt;-[appRel:MADE_APPEARANCE]-(player:Player)
+==&gt; | "Stefan Johansen" | "Ondrej Duda"       | "1:30"     | "82:11"          | 4841          | "Legia Warsaw vs Celtic"        |
+==&gt; | "Neymar"          | "Vinicius"          | "2:35"     | "80:08"          | 4653          | "Barcelona vs APOEL Nicosia"    |
+==&gt; | "Jérémy Toulalan" | "Stefan Kießling"   | "9:19"     | "86:37"          | 4638          | "Monaco vs Bayer 04 Leverkusen" |
+==&gt; | "Nabil Dirar"     | "Domenico Criscito" | "6:32"     | "82:39"          | 4567          | "Zenit St Petersburg vs Monaco" |
+==&gt; | "Nabil Dirar"     | "Eliseu"            | "7:20"     | "81:30"          | 4450          | "Monaco vs Benfica"             |
+==&gt; +---------------------------------------------------------------------------------------------------------------------------+</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_whos_had_the_most_shots">Who&#8217;s had the most shots?</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">match (team)&lt;-[:FOR_TEAM]-(app)&lt;-[appRel:MADE_APPEARANCE]-(player:Player)
 optional match (a:Attempt)&lt;-[att:HAD_ATTEMPT]-(app)
 WITH player, COUNT( DISTINCT appRel) AS apps, COUNT(att) as times, COLLECT(a) AS attempts, team
 WITH player,apps, times, LENGTH([a in attempts WHERE a:Goal]) AS goals, team
@@ -306,18 +366,24 @@ LIMIT 10
 ==&gt; +-------------------------------------------------------------------------------------------+
 ==&gt; | player.name          | team.name             | apps | goals | times | conversionRate      |
 ==&gt; +-------------------------------------------------------------------------------------------+
-==&gt; | &quot;Cristiano Ronaldo&quot;  | &quot;Real Madrid&quot;         | 12   | 10    | 69    | 0.14492753623188406 |
-==&gt; | &quot;Lionel Messi&quot;       | &quot;Barcelona&quot;           | 12   | 10    | 51    | 0.19607843137254902 |
-==&gt; | &quot;Robert Lewandowski&quot; | &quot;FC Bayern München&quot;   | 12   | 6     | 43    | 0.13953488372093023 |
-==&gt; | &quot;Carlos Tévez&quot;       | &quot;Juventus&quot;            | 12   | 7     | 34    | 0.20588235294117646 |
-==&gt; | &quot;Gareth Bale&quot;        | &quot;Real Madrid&quot;         | 10   | 2     | 32    | 0.0625              |
-==&gt; | &quot;Luis Suárez&quot;        | &quot;Barcelona&quot;           | 9    | 6     | 30    | 0.2                 |
-==&gt; | &quot;Neymar&quot;             | &quot;Barcelona&quot;           | 11   | 9     | 29    | 0.3103448275862069  |
-==&gt; | &quot;Hakan Calhanoglu&quot;   | &quot;Bayer 04 Leverkusen&quot; | 8    | 2     | 29    | 0.06896551724137931 |
-==&gt; | &quot;Edinson Cavani&quot;     | &quot;Paris Saint Germain&quot; | 8    | 6     | 27    | 0.2222222222222222  |
-==&gt; | &quot;Alexis Sánchez&quot;     | &quot;Arsenal&quot;             | 9    | 4     | 25    | 0.16                |
-==&gt; +-------------------------------------------------------------------------------------------+
-</code></pre><!-- raw HTML omitted -->
+==&gt; | "Cristiano Ronaldo"  | "Real Madrid"         | 12   | 10    | 69    | 0.14492753623188406 |
+==&gt; | "Lionel Messi"       | "Barcelona"           | 12   | 10    | 51    | 0.19607843137254902 |
+==&gt; | "Robert Lewandowski" | "FC Bayern München"   | 12   | 6     | 43    | 0.13953488372093023 |
+==&gt; | "Carlos Tévez"       | "Juventus"            | 12   | 7     | 34    | 0.20588235294117646 |
+==&gt; | "Gareth Bale"        | "Real Madrid"         | 10   | 2     | 32    | 0.0625              |
+==&gt; | "Luis Suárez"        | "Barcelona"           | 9    | 6     | 30    | 0.2                 |
+==&gt; | "Neymar"             | "Barcelona"           | 11   | 9     | 29    | 0.3103448275862069  |
+==&gt; | "Hakan Calhanoglu"   | "Bayer 04 Leverkusen" | 8    | 2     | 29    | 0.06896551724137931 |
+==&gt; | "Edinson Cavani"     | "Paris Saint Germain" | 8    | 6     | 27    | 0.2222222222222222  |
+==&gt; | "Alexis Sánchez"     | "Arsenal"             | 9    | 4     | 25    | 0.16                |
+==&gt; +-------------------------------------------------------------------------------------------+</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Maybe you can think of some cooler ones? I&#8217;d love to see them. Grab the <a href="https://github.com/mneedham/neo4j-bbc">code from github</a> and give it a try.</p>
+</div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -352,7 +418,7 @@ LIMIT 10
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/05/30/neo4j-the-bbc-champions-league-graph/&amp;title=Neo4j%3a%20The%20BBC%20Champions%20League%20graph&amp;summary=from%20bs4%20import%20BeautifulSoup%20from%20soupselect%20import%20select%20import%20bs4%20soup%20%3d%20BeautifulSoup%28open%28%26%2334%3bdata%2fresults%26%2334%3b%2c%20%26%2334%3br%26%2334%3b%29%29%20matches%20%3d%20select%28soup%2c%20%26%2334%3ba.report%26%2334%3b%29%20for%20match%20in%20matches%3a%20print%20%26%2334%3bhttp%3a%2f%2fwww.bbc.co.uk%2f%25s%26%2334%3b%20%25%28match.get%28%26%2334%3bhref%26%2334%3b%29%29%20I%20then%20piped%20the%20output%20of%20running%20this%20script%20into%20wget%3a%0afind_all_matches.py%20%7c%20xargs%20wget%20-O%20data%2fraw%20match%20%28a%3aAttempt%29%26lt%3b-%5b%3aHAD_ATTEMPT%5d-%28app%29%26lt%3b-%5b%3aMADE_APPEARANCE%5d-%28player%29%2c%20%28app%29-%5b%3aFOR_TEAM%5d-%28team%29%20WITH%20player%2c%20COUNT%28%2a%29%20as%20times%2c%20COLLECT%28a%29%20AS%20attempts%2c%20team%20WITH%20player%2c%20times%2c%20LENGTH%28%5ba%20in%20attempts%20WHERE%20a%3aGoal%5d%29%20AS%20goals%2c%20team%20WHERE%20times%20%26gt%3b%2010%20RETURN%20player...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2015/05/30/neo4j-the-bbc-champions-league-graph/&amp;title=Neo4j%3a%20The%20BBC%20Champions%20League%20graph&amp;summary=A%20couple%20of%20weekends%20ago%20I%20started%20scraping%20the%20BBC%20live%20text%20feed%20of%20the%20Bayern%20Munich%2fBarcelona%20match%2c%20initially%20starting%20out%20with%20just%20the%20fouls%20and%20building%20the%20foul%20graph.%0a%20I%26%238217%3bve%20spent%20a%20bit%20more%20time%20on%20it%20since%20then%20and%20have%20managed%20to%20model%20several%20other%20events%20as%20well%20including%20attempts%2c%20goals%2c%20cards%20and%20free%20kicks.%0a%20I%20started%20doing%20this%20just%20for%20the%20Bayern%20Munich%2fBarcelona%20match%20but%20realised%20it%20wasn%26%238217%3bt%20particularly%20difficult%20to%20extend%20this%20out%20and%20graph%20the%20events%20for%20every%20match%20in%20the%20Champions%20League%202014%2f2015...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

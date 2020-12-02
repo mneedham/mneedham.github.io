@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j 2.0.0: Optimising a football query" />
         
-          <meta name="twitter:description" content="MATCH (game)&lt;-[:contains_match]-(season:Season), (team)&lt;-[:away_team]-(game), (stats)-[:in]-&gt;(game), (team)&lt;-[:for]-(stats)&lt;-[:played]-(player) WHERE season.name = &quot;2012-2013&quot; RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (game)&lt;-[:contains_match]-(season:Season) MATCH (team)&lt;-[:away_team]-(game) MATCH (stats)-[:in]-&gt;(game) MATCH (team)&lt;-[:for]-(stats)&lt;-[:played]-(player) WHERE season.name = &quot;2012-2013&quot; RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (game)&lt;-[:contains_match]-(season:Season) WHERE season.name = &quot;2012-2013&quot; MATCH (team)&lt;-[:away_team]-(game) MATCH (stats)-[:in]-&gt;(game) MATCH (team)&lt;-[:for]-(stats)&lt;-[:played]-(player) RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (team)&lt;-[:away_team]-(game) MATCH (game)&lt;-[:contains_match]-(season:Season) WHERE season." />
+          <meta name="twitter:description" content="A couple of months ago I wrote a blog post explaining how I&#8217;d applied Wes Freeman&#8217;s Cypher optimisation patterns to a query - since then Neo4j 2.0.0 has been released and I&#8217;ve extended the model so I thought I&#8217;d try again.
+ The updated model looks like this:
+   The query is similar to before - I want to calculate the top away goal scorers in the 2012-2013 season." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/01/31/neo4j-2-0-0-optimising-a-football-query/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j 2.0.0: Optimising a football query &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="MATCH (game)&lt;-[:contains_match]-(season:Season), (team)&lt;-[:away_team]-(game), (stats)-[:in]-&gt;(game), (team)&lt;-[:for]-(stats)&lt;-[:played]-(player) WHERE season.name = &quot;2012-2013&quot; RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (game)&lt;-[:contains_match]-(season:Season) MATCH (team)&lt;-[:away_team]-(game) MATCH (stats)-[:in]-&gt;(game) MATCH (team)&lt;-[:for]-(stats)&lt;-[:played]-(player) WHERE season.name = &quot;2012-2013&quot; RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (game)&lt;-[:contains_match]-(season:Season) WHERE season.name = &quot;2012-2013&quot; MATCH (team)&lt;-[:away_team]-(game) MATCH (stats)-[:in]-&gt;(game) MATCH (team)&lt;-[:for]-(stats)&lt;-[:played]-(player) RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (team)&lt;-[:away_team]-(game) MATCH (game)&lt;-[:contains_match]-(season:Season) WHERE season." />
+        <meta name="description" content="A couple of months ago I wrote a blog post explaining how I&#8217;d applied Wes Freeman&#8217;s Cypher optimisation patterns to a query - since then Neo4j 2.0.0 has been released and I&#8217;ve extended the model so I thought I&#8217;d try again.
+ The updated model looks like this:
+   The query is similar to before - I want to calculate the top away goal scorers in the 2012-2013 season." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-01-31",
-        "description": "MATCH (game)\x26lt;-[:contains_match]-(season:Season), (team)\x26lt;-[:away_team]-(game), (stats)-[:in]-\x26gt;(game), (team)\x26lt;-[:for]-(stats)\x26lt;-[:played]-(player) WHERE season.name = \x26quot;2012-2013\x26quot; RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (game)\x26lt;-[:contains_match]-(season:Season) MATCH (team)\x26lt;-[:away_team]-(game) MATCH (stats)-[:in]-\x26gt;(game) MATCH (team)\x26lt;-[:for]-(stats)\x26lt;-[:played]-(player) WHERE season.name = \x26quot;2012-2013\x26quot; RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (game)\x26lt;-[:contains_match]-(season:Season) WHERE season.name = \x26quot;2012-2013\x26quot; MATCH (team)\x26lt;-[:away_team]-(game) MATCH (stats)-[:in]-\x26gt;(game) MATCH (team)\x26lt;-[:for]-(stats)\x26lt;-[:played]-(player) RETURN player.name, COLLECT(DISTINCT team.name), SUM(stats.goals) as goals ORDER BY goals DESC LIMIT 10 MATCH (team)\x26lt;-[:away_team]-(game) MATCH (game)\x26lt;-[:contains_match]-(season:Season) WHERE season.",
-        "wordCount":  126 
+        "description": "A couple of months ago I wrote a blog post explaining how I\x26#8217;d applied Wes Freeman\x26#8217;s Cypher optimisation patterns to a query - since then Neo4j 2.0.0 has been released and I\x26#8217;ve extended the model so I thought I\x26#8217;d try again.\n The updated model looks like this:\n   The query is similar to before - I want to calculate the top away goal scorers in the 2012-2013 season.",
+        "wordCount":  524 
     }
     </script>
     
@@ -172,66 +176,102 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j 2.0.0: Optimising a football query</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (game)&lt;-[:contains_match]-(season:Season),
+    <div class="paragraph">
+<p>A couple of months ago I wrote a blog post explaining <a href="http://www.markhneedham.com/blog/2013/11/08/neo4j-2-0-0-m06-applying-wes-freemans-cypher-optimisation-tricks/">how I&#8217;d applied Wes Freeman&#8217;s Cypher optimisation patterns to a query</a> - since then Neo4j 2.0.0 has been released and I&#8217;ve extended the model so I thought I&#8217;d try again.</p>
+</div>
+<div class="paragraph">
+<p>The updated model looks like this:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2014/01/2014-01-31_22-25-20.png" alt="2014 01 31 22 25 20" width="600">
+</div>
+</div>
+<div class="paragraph">
+<p>The query is similar to before - I want to calculate the top away goal scorers in the 2012-2013 season. I started off with this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (game)&lt;-[:contains_match]-(season:Season),
       (team)&lt;-[:away_team]-(game),
       (stats)-[:in]-&gt;(game),
       (team)&lt;-[:for]-(stats)&lt;-[:played]-(player)
-WHERE season.name = &quot;2012-2013&quot;
-RETURN player.name, 
-       COLLECT(DISTINCT team.name), 
+WHERE season.name = "2012-2013"
+RETURN player.name,
+       COLLECT(DISTINCT team.name),
        SUM(stats.goals) as goals
 ORDER BY goals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (game)&lt;-[:contains_match]-(season:Season)
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When I executed this query <a href="https://github.com/mneedham/cypher-query-tuning">using my Python query tuning tool</a> and the average time was 3.31 seconds.</p>
+</div>
+<div class="paragraph">
+<p>I separated the MATCH statements into smaller individual statements just to see what would happen:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (game)&lt;-[:contains_match]-(season:Season)
 MATCH (team)&lt;-[:away_team]-(game)
 MATCH (stats)-[:in]-&gt;(game)
 MATCH (team)&lt;-[:for]-(stats)&lt;-[:played]-(player)
-WHERE season.name = &quot;2012-2013&quot;
-RETURN player.name, 
-       COLLECT(DISTINCT team.name), 
+WHERE season.name = "2012-2013"
+RETURN player.name,
+       COLLECT(DISTINCT team.name),
        SUM(stats.goals) as goals
 ORDER BY goals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (game)&lt;-[:contains_match]-(season:Season)
-WHERE season.name = &quot;2012-2013&quot;
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That reduced the time to 178 milliseconds which is quite a nice improvement for so little effort. As I understand it, this is down to the traversal matcher handling smaller patterns more effectively than it handles longer patterns.</p>
+</div>
+<div class="paragraph">
+<p>The next step was to move the WHERE clause up so that it filtered out rows right at the beginning of the query rather than letting them hang around for another 3 MATCH statements:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (game)&lt;-[:contains_match]-(season:Season)
+WHERE season.name = "2012-2013"
 MATCH (team)&lt;-[:away_team]-(game)
 MATCH (stats)-[:in]-&gt;(game)
 MATCH (team)&lt;-[:for]-(stats)&lt;-[:played]-(player)
-RETURN player.name, 
-       COLLECT(DISTINCT team.name), 
+RETURN player.name,
+       COLLECT(DISTINCT team.name),
        SUM(stats.goals) as goals
 ORDER BY goals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (team)&lt;-[:away_team]-(game)
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That took the time down to 131 milliseconds. At this stage I also tried putting the 'MATCH (team)&lt;-[:away_team]-(game)' line first to see what would happen.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (team)&lt;-[:away_team]-(game)
 MATCH (game)&lt;-[:contains_match]-(season:Season)
-WHERE season.name = &quot;2012-2013&quot;
+WHERE season.name = "2012-2013"
 MATCH (stats)-[:in]-&gt;(game)
 MATCH (team)&lt;-[:for]-(stats)&lt;-[:played]-(player)
-RETURN player.name, 
-       COLLECT(DISTINCT team.name), 
+RETURN player.name,
+       COLLECT(DISTINCT team.name),
        SUM(stats.goals) as goals
 ORDER BY goals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-MATCH (game)&lt;-[:contains_match]-(season:Season)
-WHERE season.name = &quot;2012-2013&quot;
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I expected it to be a bit slower since we were now keeping around more games than necessary again and as expected the time rose to 172 milliseconds - slightly quicker than our first attempt at tweaking.</p>
+</div>
+<div class="paragraph">
+<p>I reverted that change and realised that there would be a lot of 'stats' nodes which didn&#8217;t have any goals associated with them and would therefore have a 'goals' property value of 0. I tried filtering those nodes out before the 'SUM' part of the query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (game)&lt;-[:contains_match]-(season:Season)
+WHERE season.name = "2012-2013"
 MATCH (team)&lt;-[:away_team]-(game)
 MATCH (stats)-[:in]-&gt;(game)
 MATCH (team)&lt;-[:for]-(stats)&lt;-[:played]-(player)
@@ -240,11 +280,21 @@ RETURN player.name,
 COLLECT(DISTINCT team.name),
 SUM(stats.goals) as goals
 ORDER BY goals DESC
-LIMIT 10
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+LIMIT 10</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This proved to be a very good optimisation - the time reduced to 47 milliseconds, an improvement of almost 3x on the previous optimisation and 63x quicker than the original query.</p>
+</div>
+<div class="paragraph">
+<p>The main optimisation pattern used here was reducing the number of rows being passed through the query.</p>
+</div>
+<div class="paragraph">
+<p>Ideally you don&#8217;t want to be passing unnecessary rows through each stage of the query - rows can be filtered out either by using more specific MATCH clauses or in this case by a WHERE clause.</p>
+</div>
+<div class="paragraph">
+<p>Wes and I presented <a href="http://vimeo.com/84900121">a webinar on Cypher query optimisation</a> last week which so if you want to learn more about tuning queries that might be worth a watch.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -279,7 +329,7 @@ LIMIT 10
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/01/31/neo4j-2-0-0-optimising-a-football-query/&amp;title=Neo4j%202.0.0%3a%20Optimising%20a%20football%20query&amp;summary=MATCH%20%28game%29%26lt%3b-%5b%3acontains_match%5d-%28season%3aSeason%29%2c%20%28team%29%26lt%3b-%5b%3aaway_team%5d-%28game%29%2c%20%28stats%29-%5b%3ain%5d-%26gt%3b%28game%29%2c%20%28team%29%26lt%3b-%5b%3afor%5d-%28stats%29%26lt%3b-%5b%3aplayed%5d-%28player%29%20WHERE%20season.name%20%3d%20%26quot%3b2012-2013%26quot%3b%20RETURN%20player.name%2c%20COLLECT%28DISTINCT%20team.name%29%2c%20SUM%28stats.goals%29%20as%20goals%20ORDER%20BY%20goals%20DESC%20LIMIT%2010%20MATCH%20%28game%29%26lt%3b-%5b%3acontains_match%5d-%28season%3aSeason%29%20MATCH%20%28team%29%26lt%3b-%5b%3aaway_team%5d-%28game%29%20MATCH%20%28stats%29-%5b%3ain%5d-%26gt%3b%28game%29%20MATCH%20%28team%29%26lt%3b-%5b%3afor%5d-%28stats%29%26lt%3b-%5b%3aplayed%5d-%28player%29%20WHERE%20season.name%20%3d%20%26quot%3b2012-2013%26quot%3b%20RETURN%20player.name%2c%20COLLECT%28DISTINCT%20team.name%29%2c%20SUM%28stats.goals%29%20as%20goals%20ORDER%20BY%20goals%20DESC%20LIMIT%2010%20MATCH%20%28game%29%26lt%3b-%5b%3acontains_match%5d-%28season%3aSeason%29%20WHERE%20season.name%20%3d%20%26quot%3b2012-2013%26quot%3b%20MATCH%20%28team%29%26lt%3b-%5b%3aaway_team%5d-%28game%29%20MATCH%20%28stats%29-%5b%3ain%5d-%26gt%3b%28game%29%20MATCH%20%28team%29%26lt%3b-%5b%3afor%5d-%28stats%29%26lt%3b-%5b%3aplayed%5d-%28player%29%20RETURN%20player.name%2c%20COLLECT%28DISTINCT%20team.name%29%2c%20SUM%28stats.goals%29%20as%20goals%20ORDER%20BY%20goals%20DESC%20LIMIT%2010%20MATCH%20%28team%29%26lt%3b-%5b%3aaway_team%5d-%28game%29%20MATCH%20%28game%29%26lt%3b-%5b%3acontains_match%5d-%28season%3aSeason%29%20WHERE%20season...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/01/31/neo4j-2-0-0-optimising-a-football-query/&amp;title=Neo4j%202.0.0%3a%20Optimising%20a%20football%20query&amp;summary=A%20couple%20of%20months%20ago%20I%20wrote%20a%20blog%20post%20explaining%20how%20I%26%238217%3bd%20applied%20Wes%20Freeman%26%238217%3bs%20Cypher%20optimisation%20patterns%20to%20a%20query%20-%20since%20then%20Neo4j%202.0.0%20has%20been%20released%20and%20I%26%238217%3bve%20extended%20the%20model%20so%20I%20thought%20I%26%238217%3bd%20try%20again.%0a%20The%20updated%20model%20looks%20like%20this%3a%0a%20%20%20The%20query%20is%20similar%20to%20before%20-%20I%20want%20to%20calculate%20the%20top%20away%20goal%20scorers%20in%20the%202012-2013%20season...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

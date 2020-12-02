@@ -22,7 +22,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j: LOAD CSV - Handling empty columns" />
         
-          <meta name="twitter:description" content="$ cat /tmp/foo.csv a,b,c mark,, load csv with headers from &quot;file:/tmp/foo.csv&quot; as row MERGE (p:Person {a: row.a}) SET p.b = row.b, p.c = row.c RETURN p ==&gt; &#43;-----------------------------&#43; ==&gt; | p | ==&gt; &#43;-----------------------------&#43; ==&gt; | Node[5]{a:&quot;mark&quot;,b:&quot;&quot;,c:&quot;&quot;} | ==&gt; &#43;-----------------------------&#43; ==&gt; 1 row ==&gt; Nodes created: 1 ==&gt; Properties set: 3 ==&gt; Labels added: 1 ==&gt; 26 ms load csv with headers from &quot;file:/tmp/foo.csv&quot; as row MERGE (p:Person {a: row.a}) FOREACH(ignoreMe IN CASE WHEN trim(row." />
+          <meta name="twitter:description" content="A common problem that people encounter when trying to import CSV files into Neo4j using Cypher&#8217;s LOAD CSV command is how to handle empty or &#39;null&#39; entries in said files.
+ For example let&#8217;s try and import the following file which has 3 columns, 1 populated, 2 empty:
+ $ cat /tmp/foo.csv a,b,c mark,,   load csv with headers from &#34;file:/tmp/foo.csv&#34; as row MERGE (p:Person {a: row.a}) SET p.b = row." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/08/22/neo4j-load-csv-handling-empty-columns/" />
 
@@ -33,7 +35,9 @@
         <title> Neo4j: LOAD CSV - Handling empty columns &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="$ cat /tmp/foo.csv a,b,c mark,, load csv with headers from &quot;file:/tmp/foo.csv&quot; as row MERGE (p:Person {a: row.a}) SET p.b = row.b, p.c = row.c RETURN p ==&gt; &#43;-----------------------------&#43; ==&gt; | p | ==&gt; &#43;-----------------------------&#43; ==&gt; | Node[5]{a:&quot;mark&quot;,b:&quot;&quot;,c:&quot;&quot;} | ==&gt; &#43;-----------------------------&#43; ==&gt; 1 row ==&gt; Nodes created: 1 ==&gt; Properties set: 3 ==&gt; Labels added: 1 ==&gt; 26 ms load csv with headers from &quot;file:/tmp/foo.csv&quot; as row MERGE (p:Person {a: row.a}) FOREACH(ignoreMe IN CASE WHEN trim(row." />
+        <meta name="description" content="A common problem that people encounter when trying to import CSV files into Neo4j using Cypher&#8217;s LOAD CSV command is how to handle empty or &#39;null&#39; entries in said files.
+ For example let&#8217;s try and import the following file which has 3 columns, 1 populated, 2 empty:
+ $ cat /tmp/foo.csv a,b,c mark,,   load csv with headers from &#34;file:/tmp/foo.csv&#34; as row MERGE (p:Person {a: row.a}) SET p.b = row." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-08-22",
-        "description": "$ cat \/tmp\/foo.csv a,b,c mark,, load csv with headers from \x26quot;file:\/tmp\/foo.csv\x26quot; as row MERGE (p:Person {a: row.a}) SET p.b = row.b, p.c = row.c RETURN p ==\x26gt; \x2b-----------------------------\x2b ==\x26gt; | p | ==\x26gt; \x2b-----------------------------\x2b ==\x26gt; | Node[5]{a:\x26quot;mark\x26quot;,b:\x26quot;\x26quot;,c:\x26quot;\x26quot;} | ==\x26gt; \x2b-----------------------------\x2b ==\x26gt; 1 row ==\x26gt; Nodes created: 1 ==\x26gt; Properties set: 3 ==\x26gt; Labels added: 1 ==\x26gt; 26 ms load csv with headers from \x26quot;file:\/tmp\/foo.csv\x26quot; as row MERGE (p:Person {a: row.a}) FOREACH(ignoreMe IN CASE WHEN trim(row.",
-        "wordCount":  135 
+        "description": "A common problem that people encounter when trying to import CSV files into Neo4j using Cypher\x26#8217;s LOAD CSV command is how to handle empty or \x27null\x27 entries in said files.\n For example let\x26#8217;s try and import the following file which has 3 columns, 1 populated, 2 empty:\n $ cat \/tmp\/foo.csv a,b,c mark,,   load csv with headers from \x22file:\/tmp\/foo.csv\x22 as row MERGE (p:Person {a: row.a}) SET p.b = row.",
+        "wordCount":  308 
     }
     </script>
     
@@ -172,50 +176,79 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j: LOAD CSV - Handling empty columns</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-$ cat /tmp/foo.csv
+    <div class="paragraph">
+<p>A common problem that people encounter when trying to import CSV files into Neo4j using Cypher&#8217;s <a href="http://docs.neo4j.org/chunked/stable/cypherdoc-importing-csv-files-with-cypher.html">LOAD CSV</a> command is how to handle empty or 'null' entries in said files.</p>
+</div>
+<div class="paragraph">
+<p>For example let&#8217;s try and import the following file which has 3 columns, 1 populated, 2 empty:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ cat /tmp/foo.csv
 a,b,c
-mark,,
-</code></pre></div><pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:/tmp/foo.csv&quot; as row
+mark,,</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:/tmp/foo.csv" as row
 MERGE (p:Person {a: row.a})
 SET p.b = row.b, p.c = row.c
-RETURN p
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-==&gt; +-----------------------------+
+RETURN p</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When we execute that query we&#8217;ll see that our Person node has properties 'b' and 'c' with no value:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">==&gt; +-----------------------------+
 ==&gt; | p                           |
 ==&gt; +-----------------------------+
-==&gt; | Node[5]{a:&quot;mark&quot;,b:&quot;&quot;,c:&quot;&quot;} |
+==&gt; | Node[5]{a:"mark",b:"",c:""} |
 ==&gt; +-----------------------------+
 ==&gt; 1 row
 ==&gt; Nodes created: 1
 ==&gt; Properties set: 3
 ==&gt; Labels added: 1
-==&gt; 26 ms
-</code></pre><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-load csv with headers from &quot;file:/tmp/foo.csv&quot; as row
+==&gt; 26 ms</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That isn&#8217;t what we want - we don&#8217;t want those properties to be set unless they have a value.</p>
+</div>
+<div class="paragraph">
+<p>TO achieve this we need to introduce a conditional when setting the 'b' and 'c' properties. We&#8217;ll assume that 'a' is always present as that&#8217;s the key for our Person nodes.</p>
+</div>
+<div class="paragraph">
+<p>The following query will do what we want:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">load csv with headers from "file:/tmp/foo.csv" as row
 MERGE (p:Person {a: row.a})
-FOREACH(ignoreMe IN CASE WHEN trim(row.b) &lt;&gt; &quot;&quot; THEN [1] ELSE [] END | SET p.b = row.b)
-FOREACH(ignoreMe IN CASE WHEN trim(row.c) &lt;&gt; &quot;&quot; THEN [1] ELSE [] END | SET p.c = row.c)
-RETURN p
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-==&gt; +-------------------+
+FOREACH(ignoreMe IN CASE WHEN trim(row.b) &lt;&gt; "" THEN [1] ELSE [] END | SET p.b = row.b)
+FOREACH(ignoreMe IN CASE WHEN trim(row.c) &lt;&gt; "" THEN [1] ELSE [] END | SET p.c = row.c)
+RETURN p</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since there&#8217;s no if or else statements in cypher we create our own conditional statement by using FOREACH. If there&#8217;s a value in the CSV column then we&#8217;ll loop once and set the property and if not we won&#8217;t loop at all and therefore no property will be set.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">==&gt; +-------------------+
 ==&gt; | p                 |
 ==&gt; +-------------------+
-==&gt; | Node[4]{a:&quot;mark&quot;} |
+==&gt; | Node[4]{a:"mark"} |
 ==&gt; +-------------------+
 ==&gt; 1 row
 ==&gt; Nodes created: 1
 ==&gt; Properties set: 1
-==&gt; Labels added: 1
-</code></pre>
+==&gt; Labels added: 1</code></pre>
+</div>
+</div>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -249,7 +282,7 @@ RETURN p
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/08/22/neo4j-load-csv-handling-empty-columns/&amp;title=Neo4j%3a%20LOAD%20CSV%20-%20Handling%20empty%20columns&amp;summary=%24%20cat%20%2ftmp%2ffoo.csv%20a%2cb%2cc%20mark%2c%2c%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2ftmp%2ffoo.csv%26quot%3b%20as%20row%20MERGE%20%28p%3aPerson%20%7ba%3a%20row.a%7d%29%20SET%20p.b%20%3d%20row.b%2c%20p.c%20%3d%20row.c%20RETURN%20p%20%3d%3d%26gt%3b%20%2b-----------------------------%2b%20%3d%3d%26gt%3b%20%7c%20p%20%7c%20%3d%3d%26gt%3b%20%2b-----------------------------%2b%20%3d%3d%26gt%3b%20%7c%20Node%5b5%5d%7ba%3a%26quot%3bmark%26quot%3b%2cb%3a%26quot%3b%26quot%3b%2cc%3a%26quot%3b%26quot%3b%7d%20%7c%20%3d%3d%26gt%3b%20%2b-----------------------------%2b%20%3d%3d%26gt%3b%201%20row%20%3d%3d%26gt%3b%20Nodes%20created%3a%201%20%3d%3d%26gt%3b%20Properties%20set%3a%203%20%3d%3d%26gt%3b%20Labels%20added%3a%201%20%3d%3d%26gt%3b%2026%20ms%20load%20csv%20with%20headers%20from%20%26quot%3bfile%3a%2ftmp%2ffoo.csv%26quot%3b%20as%20row%20MERGE%20%28p%3aPerson%20%7ba%3a%20row.a%7d%29%20FOREACH%28ignoreMe%20IN%20CASE%20WHEN%20trim%28row...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/08/22/neo4j-load-csv-handling-empty-columns/&amp;title=Neo4j%3a%20LOAD%20CSV%20-%20Handling%20empty%20columns&amp;summary=A%20common%20problem%20that%20people%20encounter%20when%20trying%20to%20import%20CSV%20files%20into%20Neo4j%20using%20Cypher%26%238217%3bs%20LOAD%20CSV%20command%20is%20how%20to%20handle%20empty%20or%20%27null%27%20entries%20in%20said%20files.%0a%20For%20example%20let%26%238217%3bs%20try%20and%20import%20the%20following%20file%20which%20has%203%20columns%2c%201%20populated%2c%202%20empty%3a%0a%20%24%20cat%20%2ftmp%2ffoo.csv%20a%2cb%2cc%20mark%2c%2c%20%20%20load%20csv%20with%20headers%20from%20%22file%3a%2ftmp%2ffoo.csv%22%20as%20row%20MERGE%20%28p%3aPerson%20%7ba%3a%20row.a%7d%29%20SET%20p.b%20%3d%20row...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -24,7 +24,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Loading and analysing Strava runs using PostgreSQL JSON data type" />
         
-          <meta name="twitter:description" content="create database strava; \connect strava; CREATE TABLE runs ( id INTEGER NOT NULL, data jsonb ); ALTER TABLE runs ADD PRIMARY KEY(id); import requests import os import json import psycopg2 token = os.environ[&#34;TOKEN&#34;] headers = {&#39;Authorization&#39;: &#34;Bearer {0}&#34;.format(token)} with psycopg2.connect(&#34;dbname=strava user=markneedham&#34;) as conn: with conn.cursor() as cur: page = 1 while True: r = requests.get(&#34;https://www.strava.com/api/v3/athlete/activities?page={0}&#34;.format(page), headers = headers) response = r.json() if len(response) == 0: break else: for activity in response: r = requests." />
+          <meta name="twitter:description" content="In my last post I showed how to map Strava runs using data that I&#8217;d extracted from their https://strava.github.io/api/v3/activities/ API, but the API returns a lot of other data that I discarded because I wasn&#8217;t sure what I should keep.
+ The API returns a nested JSON structure so the easiest solution would be to save each run as an individual file but I&#8217;ve always wanted to try out PostgreSQL&#8217;s JSON data type and this seemed like a good opportunity." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2017/05/01/loading-and-analysing-strava-runs-using-postgresql-json-data-type/" />
 
@@ -35,7 +36,8 @@
         <title> Loading and analysing Strava runs using PostgreSQL JSON data type &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="create database strava; \connect strava; CREATE TABLE runs ( id INTEGER NOT NULL, data jsonb ); ALTER TABLE runs ADD PRIMARY KEY(id); import requests import os import json import psycopg2 token = os.environ[&#34;TOKEN&#34;] headers = {&#39;Authorization&#39;: &#34;Bearer {0}&#34;.format(token)} with psycopg2.connect(&#34;dbname=strava user=markneedham&#34;) as conn: with conn.cursor() as cur: page = 1 while True: r = requests.get(&#34;https://www.strava.com/api/v3/athlete/activities?page={0}&#34;.format(page), headers = headers) response = r.json() if len(response) == 0: break else: for activity in response: r = requests." />
+        <meta name="description" content="In my last post I showed how to map Strava runs using data that I&#8217;d extracted from their https://strava.github.io/api/v3/activities/ API, but the API returns a lot of other data that I discarded because I wasn&#8217;t sure what I should keep.
+ The API returns a nested JSON structure so the easiest solution would be to save each run as an individual file but I&#8217;ve always wanted to try out PostgreSQL&#8217;s JSON data type and this seemed like a good opportunity." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-05-01",
-        "description": "create database strava; \\connect strava; CREATE TABLE runs ( id INTEGER NOT NULL, data jsonb ); ALTER TABLE runs ADD PRIMARY KEY(id); import requests import os import json import psycopg2 token = os.environ[\x26#34;TOKEN\x26#34;] headers = {\x26#39;Authorization\x26#39;: \x26#34;Bearer {0}\x26#34;.format(token)} with psycopg2.connect(\x26#34;dbname=strava user=markneedham\x26#34;) as conn: with conn.cursor() as cur: page = 1 while True: r = requests.get(\x26#34;https:\/\/www.strava.com\/api\/v3\/athlete\/activities?page={0}\x26#34;.format(page), headers = headers) response = r.json() if len(response) == 0: break else: for activity in response: r = requests.",
-        "wordCount":  239 
+        "description": "In my last post I showed how to map Strava runs using data that I\x26#8217;d extracted from their https:\/\/strava.github.io\/api\/v3\/activities\/ API, but the API returns a lot of other data that I discarded because I wasn\x26#8217;t sure what I should keep.\n The API returns a nested JSON structure so the easiest solution would be to save each run as an individual file but I\x26#8217;ve always wanted to try out PostgreSQL\x26#8217;s JSON data type and this seemed like a good opportunity.",
+        "wordCount":  484 
     }
     </script>
     
@@ -178,113 +180,190 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Loading and analysing Strava runs using PostgreSQL JSON data type</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">create</span> <span style="color:#66d9ef">database</span> strava;
-<span style="color:#960050;background-color:#1e0010">\</span><span style="color:#66d9ef">connect</span> strava;
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> runs (
-  id INTEGER <span style="color:#66d9ef">NOT</span> <span style="color:#66d9ef">NULL</span>,
-  <span style="color:#66d9ef">data</span> jsonb
+    <div class="paragraph">
+<p>In my last post I showed how to <a href="http://www.markhneedham.com/blog/2017/04/29/leaflet-strava-polylines-osm/">map Strava runs</a> using data that I&#8217;d extracted from their <cite>https://strava.github.io/api/v3/activities/<span class="/activities"></cite></span> API, but the API returns a lot of other data that I discarded because I wasn&#8217;t sure what I should keep.</p>
+</div>
+<div class="paragraph">
+<p>The API returns a nested JSON structure so the easiest solution would be to save each run as an individual file but I&#8217;ve always wanted to try out <a href="https://www.postgresql.org/docs/9.5/static/datatype-json.html">PostgreSQL&#8217;s JSON data type</a> and this seemed like a good opportunity.</p>
+</div>
+<div class="sect1">
+<h2 id="_creating_a_json_ready_postgresql_table">Creating a JSON ready PostgreSQL table</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First up we need to create a database in which we&#8217;ll store our Strava data. Let&#8217;s name it appropriately:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">create database strava;
+\connect strava;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can now create a table with one field with the JSON data type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">CREATE TABLE runs (
+  id INTEGER NOT NULL,
+  data jsonb
 );
 
-<span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">TABLE</span> runs <span style="color:#66d9ef">ADD</span> <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span>(id);
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">import</span> requests
-<span style="color:#f92672">import</span> os
-<span style="color:#f92672">import</span> json
-<span style="color:#f92672">import</span> psycopg2
+ALTER TABLE runs ADD PRIMARY KEY(id);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Easy enough. Now we&#8217;re ready to populate the table.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_importing_strava_api">Importing Strava API</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We can partially reuse <a href="https://gist.github.com/mneedham/34b923beb7fd72f8fe6ee433c2b27d73#file-extract_runs-py">the script from the last post</a> except rather than saving to CSV file we&#8217;ll save to PostgreSQL using the <a href="https://pypi.python.org/pypi/psycopg2">psycopg2</a> library.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://markhneedham.com/blog/
+/uploads/2017/05/2017-05-01_13-45-58.png" alt="2017 05 01 13 45 58" width="550">
+</div>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>The script relies on a <cite>TOKEN</cite> environment variable. If you want to try this on your own Strava account you&#8217;ll need to <a href="https://www.strava.com/settings/api">create an application</a>, which will give you a key.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p><cite>extract-runs.py</cite></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import requests
+import os
+import json
+import psycopg2
 
-token <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>environ[<span style="color:#e6db74">&#34;TOKEN&#34;</span>]
-headers <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#39;Authorization&#39;</span>: <span style="color:#e6db74">&#34;Bearer {0}&#34;</span><span style="color:#f92672">.</span>format(token)}
+token = os.environ["TOKEN"]
+headers = {'Authorization': "Bearer {0}".format(token)}
 
-<span style="color:#66d9ef">with</span> psycopg2<span style="color:#f92672">.</span>connect(<span style="color:#e6db74">&#34;dbname=strava user=markneedham&#34;</span>) <span style="color:#66d9ef">as</span> conn:
-    <span style="color:#66d9ef">with</span> conn<span style="color:#f92672">.</span>cursor() <span style="color:#66d9ef">as</span> cur:
-        page <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
-        <span style="color:#66d9ef">while</span> True:
-            r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;https://www.strava.com/api/v3/athlete/activities?page={0}&#34;</span><span style="color:#f92672">.</span>format(page), headers <span style="color:#f92672">=</span> headers)
-            response <span style="color:#f92672">=</span> r<span style="color:#f92672">.</span>json()
+with psycopg2.connect("dbname=strava user=markneedham") as conn:
+    with conn.cursor() as cur:
+        page = 1
+        while True:
+            r = requests.get("https://www.strava.com/api/v3/athlete/activities?page={0}".format(page), headers = headers)
+            response = r.json()
 
-            <span style="color:#66d9ef">if</span> len(response) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
-                <span style="color:#66d9ef">break</span>
-            <span style="color:#66d9ef">else</span>:
-                <span style="color:#66d9ef">for</span> activity <span style="color:#f92672">in</span> response:
-                    r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;https://www.strava.com/api/v3/activities/{0}?include_all_efforts=true&#34;</span><span style="color:#f92672">.</span>format(activity[<span style="color:#e6db74">&#34;id&#34;</span>]), headers <span style="color:#f92672">=</span> headers)
-                    json_response <span style="color:#f92672">=</span> r<span style="color:#f92672">.</span>json()
-                    cur<span style="color:#f92672">.</span>execute(<span style="color:#e6db74">&#34;INSERT INTO runs (id, data) VALUES(</span><span style="color:#e6db74">%s</span><span style="color:#e6db74">, </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">)&#34;</span>, (activity[<span style="color:#e6db74">&#34;id&#34;</span>], json<span style="color:#f92672">.</span>dumps(json_response)))
-                    conn<span style="color:#f92672">.</span>commit()
-                page <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">SELECT</span> id, <span style="color:#66d9ef">data</span><span style="color:#f92672">-&gt;&gt;</span><span style="color:#e6db74">&#39;start_date&#39;</span> <span style="color:#66d9ef">as</span> start_date, 
-       (<span style="color:#66d9ef">data</span><span style="color:#f92672">-&gt;&gt;</span><span style="color:#e6db74">&#39;average_speed&#39;</span>)::float <span style="color:#66d9ef">as</span> speed 
-<span style="color:#66d9ef">FROM</span> runs 
-<span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span> speed <span style="color:#66d9ef">DESC</span> 
-<span style="color:#66d9ef">LIMIT</span> <span style="color:#ae81ff">5</span>
+            if len(response) == 0:
+                break
+            else:
+                for activity in response:
+                    r = requests.get("https://www.strava.com/api/v3/activities/{0}?include_all_efforts=true".format(activity["id"]), headers = headers)
+                    json_response = r.json()
+                    cur.execute("INSERT INTO runs (id, data) VALUES(%s, %s)", (activity["id"], json.dumps(json_response)))
+                    conn.commit()
+                page += 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_querying_strava">Querying Strava</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We can now write some queries against our newly imported data.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_my_quickest_runs">My quickest runs</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT id, data-&gt;&gt;'start_date' as start_date,
+       (data-&gt;&gt;'average_speed')::float as speed
+FROM runs
+ORDER BY speed DESC
+LIMIT 5
 
-    id     <span style="color:#f92672">|</span>      start_date      <span style="color:#f92672">|</span> speed 
-<span style="color:#75715e">-----------+----------------------+-------
-</span><span style="color:#75715e"></span> <span style="color:#ae81ff">649253963</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2016</span><span style="color:#f92672">-</span><span style="color:#ae81ff">07</span><span style="color:#f92672">-</span><span style="color:#ae81ff">22</span>T05:<span style="color:#ae81ff">18</span>:<span style="color:#ae81ff">37</span>Z <span style="color:#f92672">|</span> <span style="color:#ae81ff">3</span>.<span style="color:#ae81ff">736</span>
- <span style="color:#ae81ff">914796614</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2017</span><span style="color:#f92672">-</span><span style="color:#ae81ff">03</span><span style="color:#f92672">-</span><span style="color:#ae81ff">26</span>T08:<span style="color:#ae81ff">37</span>:<span style="color:#ae81ff">56</span>Z <span style="color:#f92672">|</span> <span style="color:#ae81ff">3</span>.<span style="color:#ae81ff">614</span>
- <span style="color:#ae81ff">653703601</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2016</span><span style="color:#f92672">-</span><span style="color:#ae81ff">07</span><span style="color:#f92672">-</span><span style="color:#ae81ff">26</span>T05:<span style="color:#ae81ff">25</span>:<span style="color:#ae81ff">07</span>Z <span style="color:#f92672">|</span> <span style="color:#ae81ff">3</span>.<span style="color:#ae81ff">606</span>
- <span style="color:#ae81ff">548540883</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2016</span><span style="color:#f92672">-</span><span style="color:#ae81ff">04</span><span style="color:#f92672">-</span><span style="color:#ae81ff">17</span>T18:<span style="color:#ae81ff">18</span>:<span style="color:#ae81ff">05</span>Z <span style="color:#f92672">|</span> <span style="color:#ae81ff">3</span>.<span style="color:#ae81ff">604</span>
- <span style="color:#ae81ff">665006485</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2016</span><span style="color:#f92672">-</span><span style="color:#ae81ff">08</span><span style="color:#f92672">-</span><span style="color:#ae81ff">05</span>T04:<span style="color:#ae81ff">11</span>:<span style="color:#ae81ff">21</span>Z <span style="color:#f92672">|</span> <span style="color:#ae81ff">3</span>.<span style="color:#ae81ff">604</span>
-(<span style="color:#ae81ff">5</span> <span style="color:#66d9ef">rows</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">SELECT</span> id, <span style="color:#66d9ef">data</span><span style="color:#f92672">-&gt;&gt;</span><span style="color:#e6db74">&#39;start_date&#39;</span> <span style="color:#66d9ef">as</span> start_date, 
-       (<span style="color:#66d9ef">data</span><span style="color:#f92672">-&gt;&gt;</span><span style="color:#e6db74">&#39;distance&#39;</span>)::float <span style="color:#66d9ef">as</span> distance
-<span style="color:#66d9ef">FROM</span> runs
-<span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span> distance <span style="color:#66d9ef">DESC</span>
-<span style="color:#66d9ef">LIMIT</span> <span style="color:#ae81ff">5</span>
+    id     |      start_date      | speed
+-----------+----------------------+-------
+ 649253963 | 2016-07-22T05:18:37Z | 3.736
+ 914796614 | 2017-03-26T08:37:56Z | 3.614
+ 653703601 | 2016-07-26T05:25:07Z | 3.606
+ 548540883 | 2016-04-17T18:18:05Z | 3.604
+ 665006485 | 2016-08-05T04:11:21Z | 3.604
+(5 rows)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_my_longest_runs">My longest runs</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT id, data-&gt;&gt;'start_date' as start_date,
+       (data-&gt;&gt;'distance')::float as distance
+FROM runs
+ORDER BY distance DESC
+LIMIT 5
 
-    id     <span style="color:#f92672">|</span>      start_date      <span style="color:#f92672">|</span> distance 
-<span style="color:#75715e">-----------+----------------------+----------
-</span><span style="color:#75715e"></span> <span style="color:#ae81ff">840246999</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2017</span><span style="color:#f92672">-</span><span style="color:#ae81ff">01</span><span style="color:#f92672">-</span><span style="color:#ae81ff">22</span>T10:<span style="color:#ae81ff">20</span>:<span style="color:#ae81ff">33</span>Z <span style="color:#f92672">|</span>  <span style="color:#ae81ff">10764</span>.<span style="color:#ae81ff">1</span>
- <span style="color:#ae81ff">461124609</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2016</span><span style="color:#f92672">-</span><span style="color:#ae81ff">01</span><span style="color:#f92672">-</span><span style="color:#ae81ff">02</span>T08:<span style="color:#ae81ff">42</span>:<span style="color:#ae81ff">47</span>Z <span style="color:#f92672">|</span>  <span style="color:#ae81ff">10457</span>.<span style="color:#ae81ff">9</span>
- <span style="color:#ae81ff">467634177</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2016</span><span style="color:#f92672">-</span><span style="color:#ae81ff">01</span><span style="color:#f92672">-</span><span style="color:#ae81ff">10</span>T18:<span style="color:#ae81ff">48</span>:<span style="color:#ae81ff">47</span>Z <span style="color:#f92672">|</span>  <span style="color:#ae81ff">10434</span>.<span style="color:#ae81ff">5</span>
- <span style="color:#ae81ff">471467618</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2016</span><span style="color:#f92672">-</span><span style="color:#ae81ff">01</span><span style="color:#f92672">-</span><span style="color:#ae81ff">16</span>T12:<span style="color:#ae81ff">33</span>:<span style="color:#ae81ff">28</span>Z <span style="color:#f92672">|</span>  <span style="color:#ae81ff">10359</span>.<span style="color:#ae81ff">3</span>
- <span style="color:#ae81ff">540811705</span> <span style="color:#f92672">|</span> <span style="color:#ae81ff">2016</span><span style="color:#f92672">-</span><span style="color:#ae81ff">04</span><span style="color:#f92672">-</span><span style="color:#ae81ff">10</span>T07:<span style="color:#ae81ff">26</span>:<span style="color:#ae81ff">55</span>Z <span style="color:#f92672">|</span>   <span style="color:#ae81ff">9651</span>.<span style="color:#ae81ff">6</span>
-(<span style="color:#ae81ff">5</span> <span style="color:#66d9ef">rows</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>)
-<span style="color:#66d9ef">FROM</span> runs
-<span style="color:#66d9ef">WHERE</span> <span style="color:#66d9ef">data</span><span style="color:#f92672">-&gt;&gt;</span><span style="color:#e6db74">&#39;start_date&#39;</span> <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;2017-01-01 00:00:00&#39;</span>
+    id     |      start_date      | distance
+-----------+----------------------+----------
+ 840246999 | 2017-01-22T10:20:33Z |  10764.1
+ 461124609 | 2016-01-02T08:42:47Z |  10457.9
+ 467634177 | 2016-01-10T18:48:47Z |  10434.5
+ 471467618 | 2016-01-16T12:33:28Z |  10359.3
+ 540811705 | 2016-04-10T07:26:55Z |   9651.6
+(5 rows)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_runs_this_year">Runs this year</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT COUNT(*)
+FROM runs
+WHERE data-&gt;&gt;'start_date' &gt;= '2017-01-01 00:00:00'
 
- <span style="color:#66d9ef">count</span> 
-<span style="color:#75715e">-------
-</span><span style="color:#75715e"></span>    <span style="color:#ae81ff">62</span>
-(<span style="color:#ae81ff">1</span> <span style="color:#66d9ef">row</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">
-<span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">EXTRACT</span>(<span style="color:#66d9ef">year</span> <span style="color:#66d9ef">from</span> to_date(<span style="color:#66d9ef">data</span><span style="color:#f92672">-&gt;&gt;</span><span style="color:#e6db74">&#39;start_date&#39;</span>, <span style="color:#e6db74">&#39;YYYY-mm-dd&#39;</span>)) <span style="color:#66d9ef">AS</span> <span style="color:#66d9ef">year</span>, 
-       <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) 
-<span style="color:#66d9ef">FROM</span> runs 
-<span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> <span style="color:#66d9ef">year</span> 
-<span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span> <span style="color:#66d9ef">year</span>
+ count
+-------
+    62
+(1 row)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_runs_per_year">Runs per year</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SELECT EXTRACT(year from to_date(data-&gt;&gt;'start_date', 'YYYY-mm-dd')) AS year,
+       count(*)
+FROM runs
+GROUP BY year
+ORDER BY year
 
- <span style="color:#66d9ef">year</span> <span style="color:#f92672">|</span> <span style="color:#66d9ef">count</span> 
-<span style="color:#75715e">------+-------
-</span><span style="color:#75715e"></span> <span style="color:#ae81ff">2014</span> <span style="color:#f92672">|</span>    <span style="color:#ae81ff">18</span>
- <span style="color:#ae81ff">2015</span> <span style="color:#f92672">|</span>   <span style="color:#ae81ff">139</span>
- <span style="color:#ae81ff">2016</span> <span style="color:#f92672">|</span>   <span style="color:#ae81ff">166</span>
- <span style="color:#ae81ff">2017</span> <span style="color:#f92672">|</span>    <span style="color:#ae81ff">62</span>
-(<span style="color:#ae81ff">4</span> <span style="color:#66d9ef">rows</span>)
-</code></pre></div><!-- raw HTML omitted -->
+ year | count
+------+-------
+ 2014 |    18
+ 2015 |   139
+ 2016 |   166
+ 2017 |    62
+(4 rows)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s all for now. Next I&#8217;m going to learn how to query segments, which are stored inside a nested array inside the JSON document. Stay tuned for that in a future post.</p>
+</div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -319,7 +398,7 @@ headers <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#39;A
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/05/01/loading-and-analysing-strava-runs-using-postgresql-json-data-type/&amp;title=Loading%20and%20analysing%20Strava%20runs%20using%20PostgreSQL%20JSON%20data%20type&amp;summary=create%20database%20strava%3b%20%5cconnect%20strava%3b%20CREATE%20TABLE%20runs%20%28%20id%20INTEGER%20NOT%20NULL%2c%20data%20jsonb%20%29%3b%20ALTER%20TABLE%20runs%20ADD%20PRIMARY%20KEY%28id%29%3b%20import%20requests%20import%20os%20import%20json%20import%20psycopg2%20token%20%3d%20os.environ%5b%26%2334%3bTOKEN%26%2334%3b%5d%20headers%20%3d%20%7b%26%2339%3bAuthorization%26%2339%3b%3a%20%26%2334%3bBearer%20%7b0%7d%26%2334%3b.format%28token%29%7d%20with%20psycopg2.connect%28%26%2334%3bdbname%3dstrava%20user%3dmarkneedham%26%2334%3b%29%20as%20conn%3a%20with%20conn.cursor%28%29%20as%20cur%3a%20page%20%3d%201%20while%20True%3a%20r%20%3d%20requests.get%28%26%2334%3bhttps%3a%2f%2fwww.strava.com%2fapi%2fv3%2fathlete%2factivities%3fpage%3d%7b0%7d%26%2334%3b.format%28page%29%2c%20headers%20%3d%20headers%29%20response%20%3d%20r.json%28%29%20if%20len%28response%29%20%3d%3d%200%3a%20break%20else%3a%20for%20activity%20in%20response%3a%20r%20%3d%20requests...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/05/01/loading-and-analysing-strava-runs-using-postgresql-json-data-type/&amp;title=Loading%20and%20analysing%20Strava%20runs%20using%20PostgreSQL%20JSON%20data%20type&amp;summary=In%20my%20last%20post%20I%20showed%20how%20to%20map%20Strava%20runs%20using%20data%20that%20I%26%238217%3bd%20extracted%20from%20their%20https%3a%2f%2fstrava.github.io%2fapi%2fv3%2factivities%2f%20API%2c%20but%20the%20API%20returns%20a%20lot%20of%20other%20data%20that%20I%20discarded%20because%20I%20wasn%26%238217%3bt%20sure%20what%20I%20should%20keep.%0a%20The%20API%20returns%20a%20nested%20JSON%20structure%20so%20the%20easiest%20solution%20would%20be%20to%20save%20each%20run%20as%20an%20individual%20file%20but%20I%26%238217%3bve%20always%20wanted%20to%20try%20out%20PostgreSQL%26%238217%3bs%20JSON%20data%20type%20and%20this%20seemed%20like%20a%20good%20opportunity...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

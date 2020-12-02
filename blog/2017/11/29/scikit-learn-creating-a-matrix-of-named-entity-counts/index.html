@@ -66,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-11-29",
-        "description": "\x26gt;\x26gt;\x26gt; from polyglot.text import Text \x26gt;\x26gt;\x26gt; doc = \x26#34;My name is David Beckham. Hello from London, England\x26#34; \x26gt;\x26gt;\x26gt; Text(doc, hint_language_code=\x26#34;en\x26#34;).entities [I-PER([\x26#39;David\x26#39;, \x26#39;Beckham\x26#39;]), I-LOC([\x26#39;London\x26#39;]), I-LOC([\x26#39;England\x26#39;])] \x26gt;\x26gt;\x26gt; [\x26#34;_\x26#34;.join(entity) for entity in Text(doc, hint_language_code=\x26#34;en\x26#34;).entities] [\x26#39;David_Beckham\x26#39;, \x26#39;London\x26#39;, \x26#39;England\x26#39;] from sklearn.feature_extraction.text import CountVectorizer from sklearn.naive_bayes import MultinomialNB from sklearn.pipeline import Pipeline nlp_pipeline = Pipeline([ (\x26#39;cv\x26#39;, CountVectorizer(), (\x26#39;mnb\x26#39;, MultinomialNB()) ]) ... # Train and Test the model ... entities = {} def analyze(doc): if doc not in entities: entities[doc] = [\x26#34;_\x26#34;.",
-        "wordCount":  92 
+        "description": "I\x26#8217;ve been trying to improve my score on Kaggle\x26#8217;s Spooky Author Identification competition, and my latest idea was building a model which used named entities extracted using the polyglot NLP library.\n We\x26#8217;ll start by learning how to extract entities form a sentence using polyglot which isn\x26#8217;t too tricky:\n \x26gt;\x26gt;\x26gt; from polyglot.text import Text \x26gt;\x26gt;\x26gt; doc = \x22My name is David Beckham. Hello from London, England\x22 \x26gt;\x26gt;\x26gt; Text(doc, hint_language_code=\x22en\x22).entities [I-PER([\x27David\x27, \x27Beckham\x27]), I-LOC([\x27London\x27]), I-LOC([\x27England\x27])]   This sentence contains three entities.",
+        "wordCount":  328 
     }
     </script>
     
@@ -184,48 +184,76 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">scikit-learn: Creating a matrix of named entity counts</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">from</span> polyglot.text <span style="color:#f92672">import</span> Text
-<span style="color:#f92672">&gt;&gt;&gt;</span> doc <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;My name is David Beckham. Hello from London, England&#34;</span>
-<span style="color:#f92672">&gt;&gt;&gt;</span> Text(doc, hint_language_code<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;en&#34;</span>)<span style="color:#f92672">.</span>entities
-[I<span style="color:#f92672">-</span>PER([<span style="color:#e6db74">&#39;David&#39;</span>, <span style="color:#e6db74">&#39;Beckham&#39;</span>]), I<span style="color:#f92672">-</span>LOC([<span style="color:#e6db74">&#39;London&#39;</span>]), I<span style="color:#f92672">-</span>LOC([<span style="color:#e6db74">&#39;England&#39;</span>])]
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">&gt;&gt;&gt;</span> [<span style="color:#e6db74">&#34;_&#34;</span><span style="color:#f92672">.</span>join(entity) <span style="color:#66d9ef">for</span> entity <span style="color:#f92672">in</span> Text(doc, hint_language_code<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;en&#34;</span>)<span style="color:#f92672">.</span>entities]
-[<span style="color:#e6db74">&#39;David_Beckham&#39;</span>, <span style="color:#e6db74">&#39;London&#39;</span>, <span style="color:#e6db74">&#39;England&#39;</span>]
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#f92672">from</span> sklearn.feature_extraction.text <span style="color:#f92672">import</span> CountVectorizer
-<span style="color:#f92672">from</span> sklearn.naive_bayes <span style="color:#f92672">import</span> MultinomialNB
-<span style="color:#f92672">from</span> sklearn.pipeline <span style="color:#f92672">import</span> Pipeline
+    <div class="paragraph">
+<p>I&#8217;ve been trying to improve my score on Kaggle&#8217;s <a href="https://www.kaggle.com/c/spooky-author-identification">Spooky Author Identification</a> competition, and my latest idea was building a model which used named entities extracted using the <a href="https://github.com/aboSamoor/polyglot">polyglot NLP library</a>.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll start by learning how to extract entities form a sentence using polyglot which isn&#8217;t too tricky:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">&gt;&gt;&gt; from polyglot.text import Text
+&gt;&gt;&gt; doc = "My name is David Beckham. Hello from London, England"
+&gt;&gt;&gt; Text(doc, hint_language_code="en").entities
+[I-PER(['David', 'Beckham']), I-LOC(['London']), I-LOC(['England'])]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This sentence contains three entities. We&#8217;d like each entity to be a string rather than an array of values so let&#8217;s refactor the code to do that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">&gt;&gt;&gt; ["_".join(entity) for entity in Text(doc, hint_language_code="en").entities]
+['David_Beckham', 'London', 'England']</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s it for the polyglot part of the solution. Now let&#8217;s work out how to integrate that with scikit-learn.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ve been using scikit-learn&#8217;s <cite>http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html<span class="Pipeline"></cite></span> abstraction for the other models I&#8217;ve created so I&#8217;d like to take the same approach here. This is an example of a model that creates a matrix of unigram counts and creates a Naive Bayes model on top of that:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 
-nlp_pipeline <span style="color:#f92672">=</span> Pipeline([
-    (<span style="color:#e6db74">&#39;cv&#39;</span>, CountVectorizer(),
-    (<span style="color:#e6db74">&#39;mnb&#39;</span>, MultinomialNB())
+nlp_pipeline = Pipeline([
+    ('cv', CountVectorizer(),
+    ('mnb', MultinomialNB())
 ])
 
-<span style="color:#f92672">...</span>
-<span style="color:#75715e"># Train and Test the model</span>
-<span style="color:#f92672">...</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-entities <span style="color:#f92672">=</span> {}
+...
+# Train and Test the model
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I was going to write a class similar to <cite>http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html<span class="CountVectorizer"></cite></span> but after reading its code for a couple of hours I realised that I could just pass in a custom analyzer instead. This is what I ended up with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">entities = {}
 
 
-<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">analyze</span>(doc):
-    <span style="color:#66d9ef">if</span> doc <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> entities:
-        entities[doc] <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;_&#34;</span><span style="color:#f92672">.</span>join(entity) <span style="color:#66d9ef">for</span> entity <span style="color:#f92672">in</span> Text(doc, hint_language_code<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;en&#34;</span>)<span style="color:#f92672">.</span>entities]
-    <span style="color:#66d9ef">return</span> entities[doc]
+def analyze(doc):
+    if doc not in entities:
+        entities[doc] = ["_".join(entity) for entity in Text(doc, hint_language_code="en").entities]
+    return entities[doc]
 
-nlp_pipeline <span style="color:#f92672">=</span> Pipeline([
-    (<span style="color:#e6db74">&#39;cv&#39;</span>, CountVectorizer(analyzer<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span> doc: analyze(doc))),
-    (<span style="color:#e6db74">&#39;mnb&#39;</span>, MultinomialNB())
-])
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+nlp_pipeline = Pipeline([
+    ('cv', CountVectorizer(analyzer=lambda doc: analyze(doc))),
+    ('mnb', MultinomialNB())
+])</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m caching the results in a dictionary because the entity extraction is quite time consuming and there&#8217;s no point recalculating it each time the function is called.</p>
+</div>
+<div class="paragraph">
+<p>Unfortunately this model didn&#8217;t help me improve my best score. It scores a log loss of around 0.5, a bit worse than the 0.45 I&#8217;ve achieved using the unigram model :(</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -260,7 +288,7 @@ nlp_pipeline <span style="color:#f92672">=</span> Pipeline([
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/11/29/scikit-learn-creating-a-matrix-of-named-entity-counts/&amp;title=scikit-learn%3a%20Creating%20a%20matrix%20of%20named%20entity%20counts&amp;summary=%26gt%3b%26gt%3b%26gt%3b%20from%20polyglot.text%20import%20Text%20%26gt%3b%26gt%3b%26gt%3b%20doc%20%3d%20%26%2334%3bMy%20name%20is%20David%20Beckham.%20Hello%20from%20London%2c%20England%26%2334%3b%20%26gt%3b%26gt%3b%26gt%3b%20Text%28doc%2c%20hint_language_code%3d%26%2334%3ben%26%2334%3b%29.entities%20%5bI-PER%28%5b%26%2339%3bDavid%26%2339%3b%2c%20%26%2339%3bBeckham%26%2339%3b%5d%29%2c%20I-LOC%28%5b%26%2339%3bLondon%26%2339%3b%5d%29%2c%20I-LOC%28%5b%26%2339%3bEngland%26%2339%3b%5d%29%5d%20%26gt%3b%26gt%3b%26gt%3b%20%5b%26%2334%3b_%26%2334%3b.join%28entity%29%20for%20entity%20in%20Text%28doc%2c%20hint_language_code%3d%26%2334%3ben%26%2334%3b%29.entities%5d%20%5b%26%2339%3bDavid_Beckham%26%2339%3b%2c%20%26%2339%3bLondon%26%2339%3b%2c%20%26%2339%3bEngland%26%2339%3b%5d%20from%20sklearn.feature_extraction.text%20import%20CountVectorizer%20from%20sklearn.naive_bayes%20import%20MultinomialNB%20from%20sklearn.pipeline%20import%20Pipeline%20nlp_pipeline%20%3d%20Pipeline%28%5b%20%28%26%2339%3bcv%26%2339%3b%2c%20CountVectorizer%28%29%2c%20%28%26%2339%3bmnb%26%2339%3b%2c%20MultinomialNB%28%29%29%20%5d%29%20...%20%23%c2%a0Train%20and%20Test%20the%20model%20...%20entities%20%3d%20%7b%7d%20def%20analyze%28doc%29%3a%20if%20doc%20not%20in%20entities%3a%20entities%5bdoc%5d%20%3d%20%5b%26%2334%3b_%26%2334%3b...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2017/11/29/scikit-learn-creating-a-matrix-of-named-entity-counts/&amp;title=scikit-learn%3a%20Creating%20a%20matrix%20of%20named%20entity%20counts&amp;summary=I%26%238217%3bve%20been%20trying%20to%20improve%20my%20score%20on%20Kaggle%26%238217%3bs%20Spooky%20Author%20Identification%20competition%2c%20and%20my%20latest%20idea%20was%20building%20a%20model%20which%20used%20named%20entities%20extracted%20using%20the%20polyglot%20NLP%20library.%0a%20We%26%238217%3bll%20start%20by%20learning%20how%20to%20extract%20entities%20form%20a%20sentence%20using%20polyglot%20which%20isn%26%238217%3bt%20too%20tricky%3a%0a%20%26gt%3b%26gt%3b%26gt%3b%20from%20polyglot.text%20import%20Text%20%26gt%3b%26gt%3b%26gt%3b%20doc%20%3d%20%22My%20name%20is%20David%20Beckham.%20Hello%20from%20London%2c%20England%22%20%26gt%3b%26gt%3b%26gt%3b%20Text%28doc%2c%20hint_language_code%3d%22en%22%29.entities%20%5bI-PER%28%5b%27David%27%2c%20%27Beckham%27%5d%29%2c%20I-LOC%28%5b%27London%27%5d%29%2c%20I-LOC%28%5b%27England%27%5d%29%5d%20%20%20This%20sentence%20contains%20three%20entities...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -23,9 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="TDD: Thoughts on using a clock in tests" />
         
-          <meta name="twitter:description" content="A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his testswherever possible and only resorted to using a Mockito created stub as a last resort.
-I wrote previously about my thoughts of where to use each of the two approachesand one example of where hand written stubs seems to make sense is the clock.
-I wonder if this ties in with J." />
+          <meta name="twitter:description" content="A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests wherever possible and only resorted to using a Mockito created stub as a last resort.
+ I wrote previously about my thoughts of where to use each of the two approaches and one example of where hand written stubs seems to make sense is the clock." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2010/01/15/tdd-thoughts-on-using-a-clock-in-tests/" />
 
@@ -36,9 +35,8 @@ I wonder if this ties in with J." />
         <title> TDD: Thoughts on using a clock in tests &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his testswherever possible and only resorted to using a Mockito created stub as a last resort.
-I wrote previously about my thoughts of where to use each of the two approachesand one example of where hand written stubs seems to make sense is the clock.
-I wonder if this ties in with J." />
+        <meta name="description" content="A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests wherever possible and only resorted to using a Mockito created stub as a last resort.
+ I wrote previously about my thoughts of where to use each of the two approaches and one example of where hand written stubs seems to make sense is the clock." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -67,8 +65,8 @@ I wonder if this ties in with J." />
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2010-01-15",
-        "description": "A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his testswherever possible and only resorted to using a Mockito created stub as a last resort.\nI wrote previously about my thoughts of where to use each of the two approachesand one example of where hand written stubs seems to make sense is the clock.\nI wonder if this ties in with J.",
-        "wordCount":  409 
+        "description": "A few months ago Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests wherever possible and only resorted to using a Mockito created stub as a last resort.\n I wrote previously about my thoughts of where to use each of the two approaches and one example of where hand written stubs seems to make sense is the clock.",
+        "wordCount":  413 
     }
     </script>
     
@@ -179,67 +177,107 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">TDD: Thoughts on using a clock in tests</h1>
-    <p>A few months ago <!-- raw HTML omitted -->Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests<!-- raw HTML omitted --> wherever possible and only resorted to using a Mockito created stub as a last resort.</p>
-<p>I <!-- raw HTML omitted -->wrote previously about my thoughts of where to use each of the two approaches<!-- raw HTML omitted --> and one example of where hand written stubs seems to make sense is the clock.</p>
-<p>I wonder if this ties in with <!-- raw HTML omitted -->J.B. Rainsberger&rsquo;s theory of irrelevant details<!-- raw HTML omitted --> in the tests which make use of it.</p>
+    <div class="paragraph">
+<p>A few months ago <a href="http://blog.objectmentor.com/articles/2009/10/28/manual-mocking-resisting-the-invasion-of-dots-and-parentheses">Uncle Bob wrote a post about TDD where he suggested that he preferred to use hand created stubs in his tests</a> wherever possible and only resorted to using a Mockito created stub as a last resort.</p>
+</div>
+<div class="paragraph">
+<p>I <a href="http://www.markhneedham.com/blog/2010/01/15/tdd-hand-written-stubs-vs-framework-generated-stubs/">wrote previously about my thoughts of where to use each of the two approaches</a> and one example of where hand written stubs seems to make sense is the clock.</p>
+</div>
+<div class="paragraph">
+<p>I wonder if this ties in with <a href="http://blog.thecodewhisperer.com/post/333781027/what-your-tests-dont-need-to-know-will-hurt-you">J.B. Rainsberger&#8217;s theory of irrelevant details</a> in the tests which make use of it.</p>
+</div>
+<div class="paragraph">
 <p>We would typically define an interface and stub version of the clock like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> IClock
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public interface IClock
 {
 	DateTime Now();
-}
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ControlledClock</span> : IClock
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class ControlledClock : IClock
 {
-	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> DateTime dateTime;
+	private readonly DateTime dateTime;
 
-	<span style="color:#66d9ef">public</span> ControlledClock(DateTime dateTime)
+	public ControlledClock(DateTime dateTime)
 	{
-		<span style="color:#66d9ef">this</span>.dateTime = dateTime;
+		this.dateTime = dateTime;
 	}
 
-	<span style="color:#66d9ef">public</span> DateTime Now() 
-	{ 
-		<span style="color:#66d9ef">return</span> dateTime; 
+	public DateTime Now()
+	{
+		return dateTime;
 	}
-}
-</code></pre></div><p>I forgot about it to start with and was stubbing it out using Rhino Mocks but I realised that every single test needed something similar to the following code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">var</span> theCurrentTime = <span style="color:#66d9ef">new</span> DateTime(<span style="color:#ae81ff">2010</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">16</span>);
-<span style="color:#66d9ef">var</span> clock = MockRepository.GenerateStub&lt;IClock&gt;();
-clock.Stub(c =&gt; c.Now()).Return(theCurrentTime);
-</code></pre></div><p>We can extract out the creation of the first two lines into fields but the third line remains and typically that might end up being pushed into a setup method which is run before each test.</p>
-<p>With a clock it&rsquo;s maybe not such a big deal but with other dependencies from my experience it can become very difficult to follow where exactly the various return values are being setup.</p>
-<p>When we use a hand written stub we only have to write the following code and then the date is controlled everywhere that calls &lsquo;Now()':</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> IClock clock = <span style="color:#66d9ef">new</span> ControlledClock(<span style="color:#66d9ef">new</span> DateTime(<span style="color:#ae81ff">2010</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">16</span>));
-</code></pre></div><p>Following on from that my colleague <!-- raw HTML omitted -->Mike Wagg<!-- raw HTML omitted --> suggested the idea of creating extension methods on integers to allow us to fluently define values relative to the clock.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e">
-</span><span style="color:#a6e22e">[Test]</span>
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldShowFoosOlderThanToday()
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I forgot about it to start with and was stubbing it out using Rhino Mocks but I realised that every single test needed something similar to the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">var theCurrentTime = new DateTime(2010, 1, 16);
+var clock = MockRepository.GenerateStub&lt;IClock&gt;();
+clock.Stub(c =&gt; c.Now()).Return(theCurrentTime);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can extract out the creation of the first two lines into fields but the third line remains and typically that might end up being pushed into a setup method which is run before each test.</p>
+</div>
+<div class="paragraph">
+<p>With a clock it&#8217;s maybe not such a big deal but with other dependencies from my experience it can become very difficult to follow where exactly the various return values are being setup.</p>
+</div>
+<div class="paragraph">
+<p>When we use a hand written stub we only have to write the following code and then the date is controlled everywhere that calls 'Now()':</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">private readonly IClock clock = new ControlledClock(new DateTime(2010,1,16));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Following on from that my colleague <a href="http://twitter.com/mikewagg">Mike Wagg</a> suggested the idea of creating extension methods on integers to allow us to fluently define values relative to the clock.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">[Test]
+public void ShouldShowFoosOlderThanToday()
 {
-	<span style="color:#66d9ef">var</span> clock = <span style="color:#66d9ef">new</span> ControlledClock(<span style="color:#66d9ef">new</span> DateTime(<span style="color:#ae81ff">2010</span>,<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">16</span>));
-	<span style="color:#66d9ef">var</span> fooService = MockRepository.GenerateStub&lt;IFooService&gt;();
+	var clock = new ControlledClock(new DateTime(2010,1,16));
+	var fooService = MockRepository.GenerateStub&lt;IFooService&gt;();
 
-	<span style="color:#66d9ef">var</span> fooFromYesterday = <span style="color:#66d9ef">new</span> Foo { Date = <span style="color:#ae81ff">1.D</span>ayBefore(clock) });
-	<span style="color:#66d9ef">var</span> aCollectionOfFoos = <span style="color:#66d9ef">new</span> List&lt;Foo&gt; { fooFromYesterday };
+	var fooFromYesterday = new Foo { Date = 1.DayBefore(clock) });
+	var aCollectionOfFoos = new List&lt;Foo&gt; { fooFromYesterday };
 	fooService.Stub(f =&gt; f.GetFoos()).Return(aCollectionOfFoos);
 
-	<span style="color:#66d9ef">var</span> oldFoos = <span style="color:#66d9ef">new</span> FooFinder(clock, fooService).GetFoosFromEarlierThanToday();
+	var oldFoos = new FooFinder(clock, fooService).GetFoosFromEarlierThanToday();
 
-	Assert.That(oldFoos.Count, Is.EqualTo(<span style="color:#ae81ff">1</span>));
-	<span style="color:#75715e">// and so on
-</span><span style="color:#75715e"></span>}
-</code></pre></div><p>The extension method on integer would be like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IntegerExtensions</span>
+	Assert.That(oldFoos.Count, Is.EqualTo(1));
+	// and so on
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The extension method on integer would be like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public static class IntegerExtensions
 {
-	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> DateTime DayBefore(<span style="color:#66d9ef">this</span> <span style="color:#66d9ef">int</span> <span style="color:#66d9ef">value</span>, IClock clock)
+	public static DateTime DayBefore(this int value, IClock clock)
 	{
-		<span style="color:#66d9ef">return</span> clock.Now.Subtract(TimeSpan.FromDays(<span style="color:#66d9ef">value</span>));
+		return clock.Now.Subtract(TimeSpan.FromDays(value));
 	}
-}
-</code></pre></div><p>It reads pretty well and seems more intention revealing than any other approaches I&rsquo;ve tried out so I think I&rsquo;ll be continuing to use this approach.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It reads pretty well and seems more intention revealing than any other approaches I&#8217;ve tried out so I think I&#8217;ll be continuing to use this approach.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -274,7 +312,7 @@ clock.Stub(c =&gt; c.Now()).Return(theCurrentTime);
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/15/tdd-thoughts-on-using-a-clock-in-tests/&amp;title=TDD%3a%20Thoughts%20on%20using%20a%20clock%20in%20tests&amp;summary=A%20few%20months%20ago%20Uncle%20Bob%20wrote%20a%20post%20about%20TDD%20where%20he%20suggested%20that%20he%20preferred%20to%20use%20hand%20created%20stubs%20in%20his%20testswherever%20possible%20and%20only%20resorted%20to%20using%20a%20Mockito%20created%20stub%20as%20a%20last%20resort.%0aI%20wrote%20previously%20about%20my%20thoughts%20of%20where%20to%20use%20each%20of%20the%20two%20approachesand%20one%20example%20of%20where%20hand%20written%20stubs%20seems%20to%20make%20sense%20is%20the%20clock.%0aI%20wonder%20if%20this%20ties%20in%20with%20J...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2010/01/15/tdd-thoughts-on-using-a-clock-in-tests/&amp;title=TDD%3a%20Thoughts%20on%20using%20a%20clock%20in%20tests&amp;summary=A%20few%20months%20ago%20Uncle%20Bob%20wrote%20a%20post%20about%20TDD%20where%20he%20suggested%20that%20he%20preferred%20to%20use%20hand%20created%20stubs%20in%20his%20tests%20wherever%20possible%20and%20only%20resorted%20to%20using%20a%20Mockito%20created%20stub%20as%20a%20last%20resort.%0a%20I%20wrote%20previously%20about%20my%20thoughts%20of%20where%20to%20use%20each%20of%20the%20two%20approaches%20and%20one%20example%20of%20where%20hand%20written%20stubs%20seems%20to%20make%20sense%20is%20the%20clock...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

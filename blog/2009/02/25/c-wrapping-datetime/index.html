@@ -23,8 +23,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="C#: Wrapping DateTime" />
         
-          <meta name="twitter:description" content="I think it was Darren Hobbswho first introduced me to the idea of wrapping dates in our system to describe what that date actually means in our context, and after suffering the pain of passing some unwrapped dates around our code I think I can safely say that wrapping them is the way to go.
-The culprit was a date of birth which was sometimes being created from user input and sometimes being retrieved from another system." />
+          <meta name="twitter:description" content="I think it was Darren Hobbs who first introduced me to the idea of wrapping dates in our system to describe what that date actually means in our context, and after suffering the pain of passing some unwrapped dates around our code I think I can safely say that wrapping them is the way to go.
+ The culprit was a date of birth which was sometimes being created from user input and sometimes being retrieved from another system." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/02/25/c-wrapping-datetime/" />
 
@@ -35,8 +35,8 @@ The culprit was a date of birth which was sometimes being created from user inpu
         <title> C#: Wrapping DateTime &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I think it was Darren Hobbswho first introduced me to the idea of wrapping dates in our system to describe what that date actually means in our context, and after suffering the pain of passing some unwrapped dates around our code I think I can safely say that wrapping them is the way to go.
-The culprit was a date of birth which was sometimes being created from user input and sometimes being retrieved from another system." />
+        <meta name="description" content="I think it was Darren Hobbs who first introduced me to the idea of wrapping dates in our system to describe what that date actually means in our context, and after suffering the pain of passing some unwrapped dates around our code I think I can safely say that wrapping them is the way to go.
+ The culprit was a date of birth which was sometimes being created from user input and sometimes being retrieved from another system." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -65,8 +65,8 @@ The culprit was a date of birth which was sometimes being created from user inpu
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-02-25",
-        "description": "I think it was Darren Hobbswho first introduced me to the idea of wrapping dates in our system to describe what that date actually means in our context, and after suffering the pain of passing some unwrapped dates around our code I think I can safely say that wrapping them is the way to go.\nThe culprit was a date of birth which was sometimes being created from user input and sometimes being retrieved from another system.",
-        "wordCount":  367 
+        "description": "I think it was Darren Hobbs who first introduced me to the idea of wrapping dates in our system to describe what that date actually means in our context, and after suffering the pain of passing some unwrapped dates around our code I think I can safely say that wrapping them is the way to go.\n The culprit was a date of birth which was sometimes being created from user input and sometimes being retrieved from another system.",
+        "wordCount":  368 
     }
     </script>
     
@@ -177,30 +177,51 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">C#: Wrapping DateTime</h1>
-    <p>I think it was <!-- raw HTML omitted -->Darren Hobbs<!-- raw HTML omitted --> who first introduced me to the idea of wrapping dates in our system to describe what that date actually means in our context, and after suffering the pain of passing some unwrapped dates around our code I think I can safely say that wrapping them is the way to go.</p>
+    <div class="paragraph">
+<p>I think it was <a href="http://darrenhobbs.com/">Darren Hobbs</a> who first introduced me to the idea of wrapping dates in our system to describe what that date actually means in our context, and after suffering the pain of passing some unwrapped dates around our code I think I can safely say that wrapping them is the way to go.</p>
+</div>
+<div class="paragraph">
 <p>The culprit was a date of birth which was sometimes being created from user input and sometimes being retrieved from another system.</p>
+</div>
+<div class="paragraph">
 <p>The initial (incorrect) assumption was that we would be passing around the date in the same string format and there was no point wrapping the value as we were never doing anything with the data.</p>
+</div>
+<div class="paragraph">
 <p>It proved to be a bit of a nightmare trying to work out which state the data of birth was in various parts of the application and we ended up doing conversions to the wrong format and then undoing those and losing the formatting in other places!</p>
+</div>
+<div class="paragraph">
 <p>Step 1 here was clearly not to pass around the date as a string but instead to convert it to a DateTime as soon as possible.</p>
+</div>
+<div class="paragraph">
 <p>This is much more expressive but we can take this one step further by wrapping that date time in a DateOfBirth class.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DateOfBirth</span> 
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public class DateOfBirth
 {
-	<span style="color:#66d9ef">private</span> DateTime? dateOfBirth
+	private DateTime? dateOfBirth
 
-	<span style="color:#66d9ef">public</span> DateOfBirth(DateTime? dateOfBirth) 
+	public DateOfBirth(DateTime? dateOfBirth)
 	{
-		<span style="color:#66d9ef">this</span>.dateOfBirth = dateofBirth;
+		this.dateOfBirth = dateofBirth;
 	}
 
-	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">string</span> ToDisplayFormat()
+	public string ToDisplayFormat()
 	{
-		<span style="color:#66d9ef">return</span> dateOfBirth == <span style="color:#66d9ef">null</span> ? <span style="color:#e6db74">&#34;&#34;</span> : dateOfBirth.Value.ToString(<span style="color:#e6db74">&#34;dd MMM yyyy&#34;</span>);
+		return dateOfBirth == null ? "" : dateOfBirth.Value.ToString("dd MMM yyyy");
 	}
-}
-</code></pre></div><p>When we want to display this object on the page we just have to call the ToDisplayFormat() and if that date format needs to change then we have only one place to make that change. Creating this class removed at least 3 or 4 &lsquo;DateTime.Parse(&hellip;)&rsquo; and &lsquo;DateTime.ToString(&hellip;)&rsquo; calls throughout the code.</p>
-<p>Now we could achieve the same functionality using an extension method on DateTime? but it&rsquo;s not as expressive as this in my opinion. It is also really obvious when looking at the code to know what type we are dealing with and it is really obvious when reading this class which method we will use to get the format to display to the user.</p>
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When we want to display this object on the page we just have to call the ToDisplayFormat() and if that date format needs to change then we have only one place to make that change. Creating this class removed at least 3 or 4 'DateTime.Parse(&#8230;&#8203;)' and 'DateTime.ToString(&#8230;&#8203;)' calls throughout the code.</p>
+</div>
+<div class="paragraph">
+<p>Now we could achieve the same functionality using an extension method on DateTime? but it&#8217;s not as expressive as this in my opinion. It is also really obvious when looking at the code to know what type we are dealing with and it is really obvious when reading this class which method we will use to get the format to display to the user.</p>
+</div>
+<div class="paragraph">
 <p>I will certainly be looking to wrap any DateTimes I come across in future.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -235,7 +256,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/02/25/c-wrapping-datetime/&amp;title=C%23%3a%20Wrapping%20DateTime&amp;summary=I%20think%20it%20was%20Darren%20Hobbswho%20first%20introduced%20me%20to%20the%20idea%20of%20wrapping%20dates%20in%20our%20system%20to%20describe%20what%20that%20date%20actually%20means%20in%20our%20context%2c%20and%20after%20suffering%20the%20pain%20of%20passing%20some%20unwrapped%20dates%20around%20our%20code%20I%20think%20I%20can%20safely%20say%20that%20wrapping%20them%20is%20the%20way%20to%20go.%0aThe%20culprit%20was%20a%20date%20of%20birth%20which%20was%20sometimes%20being%20created%20from%20user%20input%20and%20sometimes%20being%20retrieved%20from%20another%20system...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/02/25/c-wrapping-datetime/&amp;title=C%23%3a%20Wrapping%20DateTime&amp;summary=I%20think%20it%20was%20Darren%20Hobbs%20who%20first%20introduced%20me%20to%20the%20idea%20of%20wrapping%20dates%20in%20our%20system%20to%20describe%20what%20that%20date%20actually%20means%20in%20our%20context%2c%20and%20after%20suffering%20the%20pain%20of%20passing%20some%20unwrapped%20dates%20around%20our%20code%20I%20think%20I%20can%20safely%20say%20that%20wrapping%20them%20is%20the%20way%20to%20go.%0a%20The%20culprit%20was%20a%20date%20of%20birth%20which%20was%20sometimes%20being%20created%20from%20user%20input%20and%20sometimes%20being%20retrieved%20from%20another%20system...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

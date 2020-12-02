@@ -22,9 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Java: Faking System.in" />
         
-          <meta name="twitter:description" content="We ran a refactoring dojoa couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around the coding problemthat we were going to use during the session.
-It&rsquo;s a command line application which is called through the main method of &lsquo;Program&rsquo; and since there&rsquo;s no dependency injection we need to be able to set System.in and System.out in order to do any testing.
-My initial thinking was that it should be possible to fake System." />
+          <meta name="twitter:description" content="We ran a refactoring dojo a couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around the coding problem that we were going to use during the session.
+ It&#8217;s a command line application which is called through the main method of &#39;Program&#39; and since there&#8217;s no dependency injection we need to be able to set System.in and System.out in order to do any testing." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2011/03/24/java-faking-system-in/" />
 
@@ -35,9 +34,8 @@ My initial thinking was that it should be possible to fake System." />
         <title> Java: Faking System.in &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="We ran a refactoring dojoa couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around the coding problemthat we were going to use during the session.
-It&rsquo;s a command line application which is called through the main method of &lsquo;Program&rsquo; and since there&rsquo;s no dependency injection we need to be able to set System.in and System.out in order to do any testing.
-My initial thinking was that it should be possible to fake System." />
+        <meta name="description" content="We ran a refactoring dojo a couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around the coding problem that we were going to use during the session.
+ It&#8217;s a command line application which is called through the main method of &#39;Program&#39; and since there&#8217;s no dependency injection we need to be able to set System.in and System.out in order to do any testing." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -66,8 +64,8 @@ My initial thinking was that it should be possible to fake System." />
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2011-03-24",
-        "description": "We ran a refactoring dojoa couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around the coding problemthat we were going to use during the session.\nIt\x26rsquo;s a command line application which is called through the main method of \x26lsquo;Program\x26rsquo; and since there\x26rsquo;s no dependency injection we need to be able to set System.in and System.out in order to do any testing.\nMy initial thinking was that it should be possible to fake System.",
-        "wordCount":  318 
+        "description": "We ran a refactoring dojo a couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around the coding problem that we were going to use during the session.\n It\x26#8217;s a command line application which is called through the main method of \x27Program\x27 and since there\x26#8217;s no dependency injection we need to be able to set System.in and System.out in order to do any testing.",
+        "wordCount":  322 
     }
     </script>
     
@@ -176,56 +174,86 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Java: Faking System.in</h1>
-    <p>We ran a <!-- raw HTML omitted -->refactoring dojo<!-- raw HTML omitted --> a couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around <!-- raw HTML omitted -->the coding problem<!-- raw HTML omitted --> that we were going to use during the session.</p>
-<p>It&rsquo;s a command line application which is called through the main method of &lsquo;Program&rsquo; and since there&rsquo;s no dependency injection we need to be able to set System.in and System.out in order to do any testing.</p>
+    <div class="paragraph">
+<p>We ran a <a href="http://www.markhneedham.com/blog/2011/03/22/thoughtworks-university-a-refactoring-dojo/">refactoring dojo</a> a couple of days ago at ThoughtWorks University and in preparation I wrote some system level tests around <a href="https://github.com/mneedham/biblioteca/blob/master/src/main/Program.java">the coding problem</a> that we were going to use during the session.</p>
+</div>
+<div class="paragraph">
+<p>It&#8217;s a command line application which is called through the main method of 'Program' and since there&#8217;s no dependency injection we need to be able to set System.in and System.out in order to do any testing.</p>
+</div>
+<div class="paragraph">
 <p>My initial thinking was that it should be possible to fake System.in with the following code:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-String input <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;1\n9\n&#34;</span><span style="color:#f92672">;</span>
-System<span style="color:#f92672">.</span><span style="color:#a6e22e">setIn</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> ByteArrayInputStream<span style="color:#f92672">(</span>input<span style="color:#f92672">.</span><span style="color:#a6e22e">getBytes</span><span style="color:#f92672">()));</span>
-</code></pre></div><p>This works fine when I just want to simulate one value being passed to System.in but it doesn&rsquo;t work so well if I want to simulate passing more than one value because we had a BufferedReader being created each time we loop.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#f92672">...</span>
-<span style="color:#66d9ef">while</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-	<span style="color:#f92672">...</span>
-	InputStreamReader inputStream <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InputStreamReader<span style="color:#f92672">(</span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">in</span><span style="color:#f92672">);</span>
-	BufferedReader reader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> BufferedReader<span style="color:#f92672">(</span>inputStream<span style="color:#f92672">);</span>
-	<span style="color:#f92672">...</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>This means that the second time System.in gets read it is empty.</p>
-<p><!-- raw HTML omitted -->Jim<!-- raw HTML omitted --> and I paired on the problem for a bit and came to the conclusion that we&rsquo;d need to &lsquo;stub&rsquo; the &lsquo;read&rsquo; method of &lsquo;InputStream&rsquo; if we wanted to be able to control exactly what was being returned by System.in.</p>
-<p>We eventually ended up with the following <!-- raw HTML omitted -->StubbedInputStream<!-- raw HTML omitted -->:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">StubbedInputStream</span> <span style="color:#66d9ef">extends</span> InputStream <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">private</span> Queue<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> input<span style="color:#f92672">;</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">String input = "1\n9\n";
+System.setIn(new ByteArrayInputStream(input.getBytes()));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This works fine when I just want to simulate one value being passed to System.in but it doesn&#8217;t work so well if I want to simulate passing more than one value because we had a BufferedReader being created each time we loop.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">...
+while(true) {
+	...
+	InputStreamReader inputStream = new InputStreamReader(System.in);
+	BufferedReader reader = new BufferedReader(inputStream);
+	...
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This means that the second time System.in gets read it is empty.</p>
+</div>
+<div class="paragraph">
+<p><a href="http://jimbarritt.com/non-random/">Jim</a> and I paired on the problem for a bit and came to the conclusion that we&#8217;d need to 'stub' the 'read' method of 'InputStream' if we wanted to be able to control exactly what was being returned by System.in.</p>
+</div>
+<div class="paragraph">
+<p>We eventually ended up with the following <a href="https://github.com/mneedham/biblioteca/blob/master/src/test/StubbedInputStream.java">StubbedInputStream</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">class StubbedInputStream extends InputStream {
+    private Queue&lt;String&gt; input;
 
-    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">StubbedInputStream</span><span style="color:#f92672">(</span>Queue<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> input<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">input</span> <span style="color:#f92672">=</span> input<span style="color:#f92672">;</span>
-    <span style="color:#f92672">}</span>
+    public StubbedInputStream(Queue&lt;String&gt; input) {
+        this.input = input;
+    }
 
-    <span style="color:#a6e22e">@Override</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">read</span><span style="color:#f92672">(</span><span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> bytes<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> i<span style="color:#f92672">,</span> <span style="color:#66d9ef">int</span> i1<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">if</span><span style="color:#f92672">(</span>input<span style="color:#f92672">.</span><span style="color:#a6e22e">isEmpty</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-            <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
-        <span style="color:#f92672">}</span>
+    @Override
+    public int read(byte[] bytes, int i, int i1) throws IOException {
+        if(input.isEmpty()) {
+            return -1;
+        }
 
-        <span style="color:#66d9ef">int</span> byteLocation <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
-        <span style="color:#66d9ef">for</span><span style="color:#f92672">(</span><span style="color:#66d9ef">byte</span> b <span style="color:#f92672">:</span> input<span style="color:#f92672">.</span><span style="color:#a6e22e">remove</span><span style="color:#f92672">().</span><span style="color:#a6e22e">getBytes</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-            bytes<span style="color:#f92672">[</span>byteLocation<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> b<span style="color:#f92672">;</span>
-            byteLocation<span style="color:#f92672">++;</span>
-        <span style="color:#f92672">}</span>
-        bytes<span style="color:#f92672">[</span>byteLocation<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;\n&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">getBytes</span><span style="color:#f92672">()[</span>0<span style="color:#f92672">];</span>
-        <span style="color:#66d9ef">return</span> byteLocation <span style="color:#f92672">+</span> 1<span style="color:#f92672">;</span>
-    <span style="color:#f92672">}</span>
+        int byteLocation = 0;
+        for(byte b : input.remove().getBytes()) {
+            bytes[byteLocation] = b;
+            byteLocation++;
+        }
+        bytes[byteLocation] = "\n".getBytes()[0];
+        return byteLocation + 1;
+    }
 
-	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> InputStreamBuilder <span style="color:#a6e22e">stubInputStream</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> InputStreamBuilder<span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
-	<span style="color:#f92672">...</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>Which can be constructed using the <!-- raw HTML omitted -->following DSL<!-- raw HTML omitted -->:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-System<span style="color:#f92672">.</span><span style="color:#a6e22e">setIn</span><span style="color:#f92672">(</span>stubInputStream<span style="color:#f92672">().</span><span style="color:#a6e22e">toReturn</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;1&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">then</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;9&#34;</span><span style="color:#f92672">).</span><span style="color:#a6e22e">atSomePoint</span><span style="color:#f92672">());</span>
-</code></pre></div><p>The code we wrote is on <!-- raw HTML omitted -->github<!-- raw HTML omitted --> - I&rsquo;m not sure that it covers every possible scenario that you might come up with but it does pass the tests that I&rsquo;ve managed to come up with!</p>
+	public static InputStreamBuilder stubInputStream() {
+        return new InputStreamBuilder();
+    }
+	...
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Which can be constructed using the <a href="https://github.com/mneedham/biblioteca/blob/master/src/test/InputStreamBuilder.java">following DSL</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">System.setIn(stubInputStream().toReturn("1").then("9").atSomePoint());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The code we wrote is on <a href="https://github.com/mneedham/biblioteca/tree/master/src">github</a> - I&#8217;m not sure that it covers every possible scenario that you might come up with but it does pass the tests that I&#8217;ve managed to come up with!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -260,7 +288,7 @@ System<span style="color:#f92672">.</span><span style="color:#a6e22e">setIn</spa
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/03/24/java-faking-system-in/&amp;title=Java%3a%20Faking%20System.in&amp;summary=We%20ran%20a%20refactoring%20dojoa%20couple%20of%20days%20ago%20at%20ThoughtWorks%20University%20and%20in%20preparation%20I%20wrote%20some%20system%20level%20tests%20around%20the%20coding%20problemthat%20we%20were%20going%20to%20use%20during%20the%20session.%0aIt%26rsquo%3bs%20a%20command%20line%20application%20which%20is%20called%20through%20the%20main%20method%20of%20%26lsquo%3bProgram%26rsquo%3b%20and%20since%20there%26rsquo%3bs%20no%20dependency%20injection%20we%20need%20to%20be%20able%20to%20set%20System.in%20and%20System.out%20in%20order%20to%20do%20any%20testing.%0aMy%20initial%20thinking%20was%20that%20it%20should%20be%20possible%20to%20fake%20System...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2011/03/24/java-faking-system-in/&amp;title=Java%3a%20Faking%20System.in&amp;summary=We%20ran%20a%20refactoring%20dojo%20a%20couple%20of%20days%20ago%20at%20ThoughtWorks%20University%20and%20in%20preparation%20I%20wrote%20some%20system%20level%20tests%20around%20the%20coding%20problem%20that%20we%20were%20going%20to%20use%20during%20the%20session.%0a%20It%26%238217%3bs%20a%20command%20line%20application%20which%20is%20called%20through%20the%20main%20method%20of%20%27Program%27%20and%20since%20there%26%238217%3bs%20no%20dependency%20injection%20we%20need%20to%20be%20able%20to%20set%20System.in%20and%20System.out%20in%20order%20to%20do%20any%20testing...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -22,7 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Java: Schedule a job to run on a time interval" />
         
-          <meta name="twitter:description" content="public class MyUpgradeTest { @Test public void shouldUpgradeFromOneVersionToAnother() throws InterruptedException { ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(); scheduledExecutorService.scheduleAtFixedRate( new LogAllTheThings(), 0, 1, TimeUnit.SECONDS ); Thread.sleep(10000); // do upgrade of cluster  scheduledExecutorService.shutdown(); } static class LogAllTheThings implements Runnable { @Override public void run() { Date time = new Date( System.currentTimeMillis() ); try { Map&lt;String, Object&gt; masterProperties = selectedProperties( client(), URI.create( &#34;http://localhost:7474/&#34; ) ); System.out.println( String.format( &#34;%s: %s&#34;, time, masterProperties ) ); } catch ( Exception ignored ) { ignored." />
+          <meta name="twitter:description" content="Recently I&#8217;ve spent some time building a set of tests around rolling upgrades between Neo4j versions and as part of that I wanted to log the state of the cluster as the upgrade was happening.
+ The main thread of the test blocks waiting until the upgrade is done so I wanted to log on another thread every few seconds. Alistair pointed me at the http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html which worked quite nicely." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2013/11/17/java-schedule-a-job-to-run-on-a-time-interval/" />
 
@@ -33,7 +34,8 @@
         <title> Java: Schedule a job to run on a time interval &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="public class MyUpgradeTest { @Test public void shouldUpgradeFromOneVersionToAnother() throws InterruptedException { ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(); scheduledExecutorService.scheduleAtFixedRate( new LogAllTheThings(), 0, 1, TimeUnit.SECONDS ); Thread.sleep(10000); // do upgrade of cluster  scheduledExecutorService.shutdown(); } static class LogAllTheThings implements Runnable { @Override public void run() { Date time = new Date( System.currentTimeMillis() ); try { Map&lt;String, Object&gt; masterProperties = selectedProperties( client(), URI.create( &#34;http://localhost:7474/&#34; ) ); System.out.println( String.format( &#34;%s: %s&#34;, time, masterProperties ) ); } catch ( Exception ignored ) { ignored." />
+        <meta name="description" content="Recently I&#8217;ve spent some time building a set of tests around rolling upgrades between Neo4j versions and as part of that I wanted to log the state of the cluster as the upgrade was happening.
+ The main thread of the test blocks waiting until the upgrade is done so I wanted to log on another thread every few seconds. Alistair pointed me at the http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html which worked quite nicely." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -62,8 +64,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-11-17",
-        "description": "public class MyUpgradeTest { @Test public void shouldUpgradeFromOneVersionToAnother() throws InterruptedException { ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(); scheduledExecutorService.scheduleAtFixedRate( new LogAllTheThings(), 0, 1, TimeUnit.SECONDS ); Thread.sleep(10000); \/\/ do upgrade of cluster  scheduledExecutorService.shutdown(); } static class LogAllTheThings implements Runnable { @Override public void run() { Date time = new Date( System.currentTimeMillis() ); try { Map\x26lt;String, Object\x26gt; masterProperties = selectedProperties( client(), URI.create( \x26#34;http:\/\/localhost:7474\/\x26#34; ) ); System.out.println( String.format( \x26#34;%s: %s\x26#34;, time, masterProperties ) ); } catch ( Exception ignored ) { ignored.",
-        "wordCount":  604 
+        "description": "Recently I\x26#8217;ve spent some time building a set of tests around rolling upgrades between Neo4j versions and as part of that I wanted to log the state of the cluster as the upgrade was happening.\n The main thread of the test blocks waiting until the upgrade is done so I wanted to log on another thread every few seconds. Alistair pointed me at the http:\/\/docs.oracle.com\/javase\/7\/docs\/api\/java\/util\/concurrent\/ScheduledExecutorService.html which worked quite nicely.",
+        "wordCount":  821 
     }
     </script>
     
@@ -172,161 +174,185 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Java: Schedule a job to run on a time interval</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyUpgradeTest</span> <span style="color:#f92672">{</span>
-    <span style="color:#a6e22e">@Test</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">shouldUpgradeFromOneVersionToAnother</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> InterruptedException
-    <span style="color:#f92672">{</span>
-        ScheduledExecutorService scheduledExecutorService <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newSingleThreadScheduledExecutor</span><span style="color:#f92672">();</span>
-        scheduledExecutorService<span style="color:#f92672">.</span><span style="color:#a6e22e">scheduleAtFixedRate</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> LogAllTheThings<span style="color:#f92672">(),</span> 0<span style="color:#f92672">,</span> 1<span style="color:#f92672">,</span> TimeUnit<span style="color:#f92672">.</span><span style="color:#a6e22e">SECONDS</span> <span style="color:#f92672">);</span>
+    <div class="paragraph">
+<p>Recently I&#8217;ve spent some time building a set of tests around rolling upgrades between <a href="http://www.neo4j.org/">Neo4j</a> versions and as part of that I wanted to log the state of the cluster as the upgrade was happening.</p>
+</div>
+<div class="paragraph">
+<p>The main thread of the test blocks waiting until the upgrade is done so I wanted to log on another thread every few seconds. Alistair pointed me at the <cite>http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html<span class="ScheduledExecutorService"></cite></span> which worked quite nicely.</p>
+</div>
+<div class="paragraph">
+<p>I ended up with a test which looked roughly like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class MyUpgradeTest {
+    @Test
+    public void shouldUpgradeFromOneVersionToAnother() throws InterruptedException
+    {
+        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutorService.scheduleAtFixedRate( new LogAllTheThings(), 0, 1, TimeUnit.SECONDS );
 
-        Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">sleep</span><span style="color:#f92672">(</span>10000<span style="color:#f92672">);</span>
-        <span style="color:#75715e">// do upgrade of cluster
-</span><span style="color:#75715e"></span>        scheduledExecutorService<span style="color:#f92672">.</span><span style="color:#a6e22e">shutdown</span><span style="color:#f92672">();</span>
-    <span style="color:#f92672">}</span>
+        Thread.sleep(10000);
+        // do upgrade of cluster
+        scheduledExecutorService.shutdown();
+    }
 
-    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LogAllTheThings</span> <span style="color:#66d9ef">implements</span> Runnable
-    <span style="color:#f92672">{</span>
-        <span style="color:#a6e22e">@Override</span>
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span>
-        <span style="color:#f92672">{</span>
-            Date time <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Date<span style="color:#f92672">(</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">currentTimeMillis</span><span style="color:#f92672">()</span> <span style="color:#f92672">);</span>
+    static class LogAllTheThings implements Runnable
+    {
+        @Override
+        public void run()
+        {
+            Date time = new Date( System.currentTimeMillis() );
 
-            <span style="color:#66d9ef">try</span>
-            <span style="color:#f92672">{</span>
-                Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> masterProperties <span style="color:#f92672">=</span> selectedProperties<span style="color:#f92672">(</span> client<span style="color:#f92672">(),</span> URI<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;http://localhost:7474/&#34;</span> <span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
-                System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span> String<span style="color:#f92672">.</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;%s: %s&#34;</span><span style="color:#f92672">,</span> time<span style="color:#f92672">,</span> masterProperties <span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
-            <span style="color:#f92672">}</span>
-            <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span> Exception ignored <span style="color:#f92672">)</span>
-            <span style="color:#f92672">{</span>
-                ignored<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
+            try
+            {
+                Map&lt;String, Object&gt; masterProperties = selectedProperties( client(), URI.create( "http://localhost:7474/" ) );
+                System.out.println( String.format( "%s: %s", time, masterProperties ) );
+            }
+            catch ( Exception ignored )
+            {
+                ignored.printStackTrace();
+            }
+        }
 
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Client <span style="color:#a6e22e">client</span><span style="color:#f92672">()</span>
-        <span style="color:#f92672">{</span>
-            DefaultClientConfig defaultClientConfig <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> DefaultClientConfig<span style="color:#f92672">();</span>
-            defaultClientConfig<span style="color:#f92672">.</span><span style="color:#a6e22e">getClasses</span><span style="color:#f92672">().</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span> JacksonJsonProvider<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span> <span style="color:#f92672">);</span>
-            <span style="color:#66d9ef">return</span> Client<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span> defaultClientConfig <span style="color:#f92672">);</span>
-        <span style="color:#f92672">}</span>
+        private static Client client()
+        {
+            DefaultClientConfig defaultClientConfig = new DefaultClientConfig();
+            defaultClientConfig.getClasses().add( JacksonJsonProvider.class );
+            return Client.create( defaultClientConfig );
+        }
 
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">selectedProperties</span><span style="color:#f92672">(</span> Client client<span style="color:#f92672">,</span> URI uri <span style="color:#f92672">)</span>
-        <span style="color:#f92672">{</span>
-            Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> jmxProperties <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;();</span>
+        public static Map&lt;String, Object&gt; selectedProperties( Client client, URI uri )
+        {
+            Map&lt;String, Object&gt; jmxProperties = new HashMap&lt;String, Object&gt;();
 
-            ArrayNode transactionsProperties <span style="color:#f92672">=</span> jmxBean<span style="color:#f92672">(</span> client<span style="color:#f92672">,</span> uri<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;org.neo4j/instance%3Dkernel%230%2Cname%3DTransactions&#34;</span> <span style="color:#f92672">);</span>
-            addProperty<span style="color:#f92672">(</span> jmxProperties<span style="color:#f92672">,</span> transactionsProperties<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;LastCommittedTxId&#34;</span> <span style="color:#f92672">);</span>
+            ArrayNode transactionsProperties = jmxBean( client, uri, "org.neo4j/instance%3Dkernel%230%2Cname%3DTransactions" );
+            addProperty( jmxProperties, transactionsProperties, "LastCommittedTxId" );
 
-            ArrayNode kernelProperties <span style="color:#f92672">=</span> jmxBean<span style="color:#f92672">(</span> client<span style="color:#f92672">,</span> uri<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;org.neo4j/instance%3Dkernel%230%2Cname%3DKernel&#34;</span> <span style="color:#f92672">);</span>
-            addProperty<span style="color:#f92672">(</span> jmxProperties<span style="color:#f92672">,</span> kernelProperties<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;KernelVersion&#34;</span> <span style="color:#f92672">);</span>
+            ArrayNode kernelProperties = jmxBean( client, uri, "org.neo4j/instance%3Dkernel%230%2Cname%3DKernel" );
+            addProperty( jmxProperties, kernelProperties, "KernelVersion" );
 
-            ArrayNode haProperties <span style="color:#f92672">=</span> jmxBean<span style="color:#f92672">(</span> client<span style="color:#f92672">,</span> uri<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;org.neo4j/instance%3Dkernel%230%2Cname%3DHigh+Availability&#34;</span> <span style="color:#f92672">);</span>
-            addProperty<span style="color:#f92672">(</span> jmxProperties<span style="color:#f92672">,</span> haProperties<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;Role&#34;</span> <span style="color:#f92672">);</span>
-            addProperty<span style="color:#f92672">(</span> jmxProperties<span style="color:#f92672">,</span> haProperties<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;InstanceId&#34;</span> <span style="color:#f92672">);</span>
+            ArrayNode haProperties = jmxBean( client, uri, "org.neo4j/instance%3Dkernel%230%2Cname%3DHigh+Availability" );
+            addProperty( jmxProperties, haProperties, "Role" );
+            addProperty( jmxProperties, haProperties, "InstanceId" );
 
-            <span style="color:#66d9ef">return</span> jmxProperties<span style="color:#f92672">;</span>
-        <span style="color:#f92672">}</span>
+            return jmxProperties;
+        }
 
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addProperty</span><span style="color:#f92672">(</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> jmxProperties<span style="color:#f92672">,</span> ArrayNode properties<span style="color:#f92672">,</span> String propertyName <span style="color:#f92672">)</span>
-        <span style="color:#f92672">{</span>
-            jmxProperties<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span> propertyName<span style="color:#f92672">,</span> getProperty<span style="color:#f92672">(</span> properties<span style="color:#f92672">,</span> propertyName <span style="color:#f92672">)</span> <span style="color:#f92672">);</span>
-        <span style="color:#f92672">}</span>
+        private static void addProperty( Map&lt;String, Object&gt; jmxProperties, ArrayNode properties, String propertyName )
+        {
+            jmxProperties.put( propertyName, getProperty( properties, propertyName ) );
+        }
 
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> String <span style="color:#a6e22e">getProperty</span><span style="color:#f92672">(</span> ArrayNode properties<span style="color:#f92672">,</span> String propertyName <span style="color:#f92672">)</span>
-        <span style="color:#f92672">{</span>
-            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> JsonNode property <span style="color:#f92672">:</span> properties <span style="color:#f92672">)</span>
-            <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span> property<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;name&#34;</span> <span style="color:#f92672">).</span><span style="color:#a6e22e">asText</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span> propertyName <span style="color:#f92672">)</span> <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
-                    <span style="color:#66d9ef">return</span> property<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;value&#34;</span> <span style="color:#f92672">).</span><span style="color:#a6e22e">asText</span><span style="color:#f92672">();</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span>
+        private static String getProperty( ArrayNode properties, String propertyName )
+        {
+            for ( JsonNode property : properties )
+            {
+                if ( property.get( "name" ).asText().equals( propertyName ) )
+                {
+                    return property.get( "value" ).asText();
+                }
+            }
 
-            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> RuntimeException<span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;Could not find requested property: &#34;</span> <span style="color:#f92672">+</span> propertyName <span style="color:#f92672">);</span>
-        <span style="color:#f92672">}</span>
+            throw new RuntimeException( "Could not find requested property: " + propertyName );
+        }
 
-        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> ArrayNode <span style="color:#a6e22e">jmxBean</span><span style="color:#f92672">(</span> Client client<span style="color:#f92672">,</span> URI uri<span style="color:#f92672">,</span> String beanExtension <span style="color:#f92672">)</span>
-        <span style="color:#f92672">{</span>
-            ClientResponse clientResponse <span style="color:#f92672">=</span> client
-                    <span style="color:#f92672">.</span><span style="color:#a6e22e">resource</span><span style="color:#f92672">(</span> uri <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;db/manage/server/jmx/domain/&#34;</span> <span style="color:#f92672">+</span> beanExtension <span style="color:#f92672">)</span>
-                    <span style="color:#f92672">.</span><span style="color:#a6e22e">accept</span><span style="color:#f92672">(</span> MediaType<span style="color:#f92672">.</span><span style="color:#a6e22e">APPLICATION_JSON</span> <span style="color:#f92672">)</span>
-                    <span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span> ClientResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span> <span style="color:#f92672">);</span>
+        private static ArrayNode jmxBean( Client client, URI uri, String beanExtension )
+        {
+            ClientResponse clientResponse = client
+                    .resource( uri + "db/manage/server/jmx/domain/" + beanExtension )
+                    .accept( MediaType.APPLICATION_JSON )
+                    .get( ClientResponse.class );
 
-            JsonNode transactionsBean <span style="color:#f92672">=</span> clientResponse<span style="color:#f92672">.</span><span style="color:#a6e22e">getEntity</span><span style="color:#f92672">(</span> JsonNode<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span> <span style="color:#f92672">);</span>
-            <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>ArrayNode<span style="color:#f92672">)</span> transactionsBean<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span> 0 <span style="color:#f92672">).</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;attributes&#34;</span> <span style="color:#f92672">);</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Sun Nov 17 22:31:55 GMT 2013: {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=1, LastCommittedTxId=18, Role=master}
+            JsonNode transactionsBean = clientResponse.getEntity( JsonNode.class );
+            return (ArrayNode) transactionsBean.get( 0 ).get( "attributes" );
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><cite>LogAllTheThings</cite> gets called once every second and it logs the KernelVersion, InstanceId, LastCommittedTxId and Role which Neo4j server exposes as JMX properties.</p>
+</div>
+<div class="paragraph">
+<p>If we run that against a local Neo4j cluster we&#8217;d see something like the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Sun Nov 17 22:31:55 GMT 2013: {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=1, LastCommittedTxId=18, Role=master}
 Sun Nov 17 22:31:56 GMT 2013: {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=1, LastCommittedTxId=18, Role=master}
 Sun Nov 17 22:31:57 GMT 2013: {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=1, LastCommittedTxId=18, Role=master}
 Sun Nov 17 22:31:58 GMT 2013: {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=1, LastCommittedTxId=18, Role=master}
 Sun Nov 17 22:31:59 GMT 2013: {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=1, LastCommittedTxId=18, Role=master}
 ...
-removed for brevity
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LogAllTheThings</span> <span style="color:#66d9ef">implements</span> Runnable
-    <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">private</span> ExecutorService executorService <span style="color:#f92672">=</span> Executors<span style="color:#f92672">.</span><span style="color:#a6e22e">newFixedThreadPool</span><span style="color:#f92672">(</span> 3 <span style="color:#f92672">);</span>
+removed for brevity</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The next step was to get the properties of all the members of the cluster at the same time and to do that we can introduce another <cite>ExecutorService</cite> which has a thread pool of 3 so that it will evaluate each machine (at least close to) simultaneously:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">    static class LogAllTheThings implements Runnable
+    {
+        private ExecutorService executorService = Executors.newFixedThreadPool( 3 );
 
-        <span style="color:#a6e22e">@Override</span>
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span><span style="color:#f92672">()</span>
-        <span style="color:#f92672">{</span>
-            List<span style="color:#f92672">&lt;</span>URI<span style="color:#f92672">&gt;</span> machines <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;(</span>  <span style="color:#f92672">);</span>
-            machines<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>URI<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;http://localhost:7474/&#34;</span> <span style="color:#f92672">));</span>
-            machines<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>URI<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;http://localhost:7484/&#34;</span> <span style="color:#f92672">));</span>
-            machines<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>URI<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;http://localhost:7494/&#34;</span> <span style="color:#f92672">));</span>
+        @Override
+        public void run()
+        {
+            List&lt;URI&gt; machines = new ArrayList&lt;&gt;(  );
+            machines.add(URI.create( "http://localhost:7474/" ));
+            machines.add(URI.create( "http://localhost:7484/" ));
+            machines.add(URI.create( "http://localhost:7494/" ));
 
-            Map<span style="color:#f92672">&lt;</span>URI<span style="color:#f92672">,</span> Future<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;&gt;&gt;</span> futureJmxProperties <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;(</span>  <span style="color:#f92672">);</span>
-            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> <span style="color:#66d9ef">final</span> URI machine <span style="color:#f92672">:</span> machines <span style="color:#f92672">)</span>
-            <span style="color:#f92672">{</span>
-                Future<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;&gt;</span> futureProperties <span style="color:#f92672">=</span> executorService<span style="color:#f92672">.</span><span style="color:#a6e22e">submit</span><span style="color:#f92672">(</span> <span style="color:#66d9ef">new</span> Callable<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;&gt;()</span>
-                <span style="color:#f92672">{</span>
-                    <span style="color:#a6e22e">@Override</span>
-                    <span style="color:#66d9ef">public</span> Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">call</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> Exception
-                    <span style="color:#f92672">{</span>
-                        <span style="color:#66d9ef">try</span>
-                        <span style="color:#f92672">{</span>
-                            <span style="color:#66d9ef">return</span> selectedProperties<span style="color:#f92672">(</span> client<span style="color:#f92672">(),</span> machine <span style="color:#f92672">);</span>
-                        <span style="color:#f92672">}</span>
-                        <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span> Exception ignored <span style="color:#f92672">)</span>
-                        <span style="color:#f92672">{</span>
-                            ignored<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">();</span>
-                            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;();</span>
-                        <span style="color:#f92672">}</span>
-                    <span style="color:#f92672">}</span>
-                <span style="color:#f92672">}</span> <span style="color:#f92672">);</span>
+            Map&lt;URI, Future&lt;Map&lt;String, Object&gt;&gt;&gt; futureJmxProperties = new HashMap&lt;&gt;(  );
+            for ( final URI machine : machines )
+            {
+                Future&lt;Map&lt;String, Object&gt;&gt; futureProperties = executorService.submit( new Callable&lt;Map&lt;String, Object&gt;&gt;()
+                {
+                    @Override
+                    public Map&lt;String, Object&gt; call() throws Exception
+                    {
+                        try
+                        {
+                            return selectedProperties( client(), machine );
+                        }
+                        catch ( Exception ignored )
+                        {
+                            ignored.printStackTrace();
+                            return new HashMap&lt;&gt;();
+                        }
+                    }
+                } );
 
-                futureJmxProperties<span style="color:#f92672">.</span><span style="color:#a6e22e">put</span><span style="color:#f92672">(</span> machine<span style="color:#f92672">,</span> futureProperties <span style="color:#f92672">);</span>
-            <span style="color:#f92672">}</span>
+                futureJmxProperties.put( machine, futureProperties );
+            }
 
-            Date time <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Date<span style="color:#f92672">(</span> System<span style="color:#f92672">.</span><span style="color:#a6e22e">currentTimeMillis</span><span style="color:#f92672">()</span> <span style="color:#f92672">);</span>
-            System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span> time <span style="color:#f92672">);</span>
-            <span style="color:#66d9ef">for</span> <span style="color:#f92672">(</span> Map<span style="color:#f92672">.</span><span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>URI<span style="color:#f92672">,</span> Future<span style="color:#f92672">&lt;</span>Map<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">,</span> Object<span style="color:#f92672">&gt;&gt;&gt;</span> uriFutureEntry <span style="color:#f92672">:</span> futureJmxProperties<span style="color:#f92672">.</span><span style="color:#a6e22e">entrySet</span><span style="color:#f92672">()</span> <span style="color:#f92672">)</span>
-            <span style="color:#f92672">{</span>
-                <span style="color:#66d9ef">try</span>
-                <span style="color:#f92672">{</span>
-                    System<span style="color:#f92672">.</span><span style="color:#a6e22e">out</span><span style="color:#f92672">.</span><span style="color:#a6e22e">println</span><span style="color:#f92672">(</span> <span style="color:#e6db74">&#34;==&gt; &#34;</span> <span style="color:#f92672">+</span> uriFutureEntry<span style="color:#f92672">.</span><span style="color:#a6e22e">getValue</span><span style="color:#f92672">().</span><span style="color:#a6e22e">get</span><span style="color:#f92672">()</span> <span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
-                <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span> Exception ignored <span style="color:#f92672">)</span>
-                <span style="color:#f92672">{</span>
+            Date time = new Date( System.currentTimeMillis() );
+            System.out.println( time );
+            for ( Map.Entry&lt;URI, Future&lt;Map&lt;String, Object&gt;&gt;&gt; uriFutureEntry : futureJmxProperties.entrySet() )
+            {
+                try
+                {
+                    System.out.println( "==&gt; " + uriFutureEntry.getValue().get() );
+                }
+                catch ( Exception ignored )
+                {
 
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
+                }
+            }
+        }
 
-        <span style="color:#75715e">// other methods the same as above
-</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">
-Sun Nov 17 22:49:58 GMT 2013
+        // other methods the same as above
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We submit each job to the <cite>ExecutorService</cite> and receive back a <cite>Future</cite> which we store in a map before retrieving its result later on. If we run that we&#8217;ll see the following output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Sun Nov 17 22:49:58 GMT 2013
 ==&gt; {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=1, LastCommittedTxId=18, Role=master}
 ==&gt; {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=2, LastCommittedTxId=18, Role=slave}
 ==&gt; {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=3, LastCommittedTxId=18, Role=slave}
@@ -340,8 +366,12 @@ Sun Nov 17 22:50:00 GMT 2013
 ==&gt; {KernelVersion=Neo4j - Graph Database Kernel 2.0.0-M06, InstanceId=3, LastCommittedTxId=18, Role=slave}
 
 ...
-removed for brevity
-</code></pre></div><!-- raw HTML omitted -->
+removed for brevity</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Overall the approach works quite well although I&#8217;m always open to learning of a better way if there is one!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -376,7 +406,7 @@ removed for brevity
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/11/17/java-schedule-a-job-to-run-on-a-time-interval/&amp;title=Java%3a%20Schedule%20a%20job%20to%20run%20on%20a%20time%20interval&amp;summary=public%20class%20MyUpgradeTest%20%7b%20%40Test%20public%20void%20shouldUpgradeFromOneVersionToAnother%28%29%20throws%20InterruptedException%20%7b%20ScheduledExecutorService%20scheduledExecutorService%20%3d%20Executors.newSingleThreadScheduledExecutor%28%29%3b%20scheduledExecutorService.scheduleAtFixedRate%28%20new%20LogAllTheThings%28%29%2c%200%2c%201%2c%20TimeUnit.SECONDS%20%29%3b%20Thread.sleep%2810000%29%3b%20%2f%2f%20do%20upgrade%20of%20cluster%20%20scheduledExecutorService.shutdown%28%29%3b%20%7d%20static%20class%20LogAllTheThings%20implements%20Runnable%20%7b%20%40Override%20public%20void%20run%28%29%20%7b%20Date%20time%20%3d%20new%20Date%28%20System.currentTimeMillis%28%29%20%29%3b%20try%20%7b%20Map%26lt%3bString%2c%20Object%26gt%3b%20masterProperties%20%3d%20selectedProperties%28%20client%28%29%2c%20URI.create%28%20%26%2334%3bhttp%3a%2f%2flocalhost%3a7474%2f%26%2334%3b%20%29%20%29%3b%20System.out.println%28%20String.format%28%20%26%2334%3b%25s%3a%20%25s%26%2334%3b%2c%20time%2c%20masterProperties%20%29%20%29%3b%20%7d%20catch%20%28%20Exception%20ignored%20%29%20%7b%20ignored...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2013/11/17/java-schedule-a-job-to-run-on-a-time-interval/&amp;title=Java%3a%20Schedule%20a%20job%20to%20run%20on%20a%20time%20interval&amp;summary=Recently%20I%26%238217%3bve%20spent%20some%20time%20building%20a%20set%20of%20tests%20around%20rolling%20upgrades%20between%20Neo4j%20versions%20and%20as%20part%20of%20that%20I%20wanted%20to%20log%20the%20state%20of%20the%20cluster%20as%20the%20upgrade%20was%20happening.%0a%20The%20main%20thread%20of%20the%20test%20blocks%20waiting%20until%20the%20upgrade%20is%20done%20so%20I%20wanted%20to%20log%20on%20another%20thread%20every%20few%20seconds.%20Alistair%20pointed%20me%20at%20the%20http%3a%2f%2fdocs.oracle.com%2fjavase%2f7%2fdocs%2fapi%2fjava%2futil%2fconcurrent%2fScheduledExecutorService.html%20which%20worked%20quite%20nicely...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

@@ -25,9 +25,9 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Functional Collection Parameters: Handling the null collection" />
         
-          <meta name="twitter:description" content="One of the interesting cases where I&rsquo;ve noticed we tend to avoid functionalcollection parametersin our code base is when there&rsquo;s the possibility of the collection being null.
-The code is on the boundary of our application&rsquo;s interaction with another service so it is actually a valid scenario that we could receive a null collection.
-When using extension methods, although we wouldn&rsquo;t get a null pointer exception by calling one on a null collection, we would get a &lsquo;source is null&rsquo; exception when the expression is evaluated so we need to protect ourself against this." />
+          <meta name="twitter:description" content="One of the interesting cases where I&#8217;ve noticed we tend to avoid functional collection parameters in our code base is when there&#8217;s the possibility of the collection being null.
+ The code is on the boundary of our application&#8217;s interaction with another service so it is actually a valid scenario that we could receive a null collection.
+ When using extension methods, although we wouldn&#8217;t get a null pointer exception by calling one on a null collection, we would get a &#39;source is null&#39; exception when the expression is evaluated so we need to protect ourself against this." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2009/06/16/functional-collection-parameters-handling-the-null-collection/" />
 
@@ -38,9 +38,9 @@ When using extension methods, although we wouldn&rsquo;t get a null pointer exce
         <title> Functional Collection Parameters: Handling the null collection &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="One of the interesting cases where I&rsquo;ve noticed we tend to avoid functionalcollection parametersin our code base is when there&rsquo;s the possibility of the collection being null.
-The code is on the boundary of our application&rsquo;s interaction with another service so it is actually a valid scenario that we could receive a null collection.
-When using extension methods, although we wouldn&rsquo;t get a null pointer exception by calling one on a null collection, we would get a &lsquo;source is null&rsquo; exception when the expression is evaluated so we need to protect ourself against this." />
+        <meta name="description" content="One of the interesting cases where I&#8217;ve noticed we tend to avoid functional collection parameters in our code base is when there&#8217;s the possibility of the collection being null.
+ The code is on the boundary of our application&#8217;s interaction with another service so it is actually a valid scenario that we could receive a null collection.
+ When using extension methods, although we wouldn&#8217;t get a null pointer exception by calling one on a null collection, we would get a &#39;source is null&#39; exception when the expression is evaluated so we need to protect ourself against this." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -69,8 +69,8 @@ When using extension methods, although we wouldn&rsquo;t get a null pointer exce
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2009-06-16",
-        "description": "One of the interesting cases where I\x26rsquo;ve noticed we tend to avoid functionalcollection parametersin our code base is when there\x26rsquo;s the possibility of the collection being null.\nThe code is on the boundary of our application\x26rsquo;s interaction with another service so it is actually a valid scenario that we could receive a null collection.\nWhen using extension methods, although we wouldn\x26rsquo;t get a null pointer exception by calling one on a null collection, we would get a \x26lsquo;source is null\x26rsquo; exception when the expression is evaluated so we need to protect ourself against this.",
-        "wordCount":  317 
+        "description": "One of the interesting cases where I\x26#8217;ve noticed we tend to avoid functional collection parameters in our code base is when there\x26#8217;s the possibility of the collection being null.\n The code is on the boundary of our application\x26#8217;s interaction with another service so it is actually a valid scenario that we could receive a null collection.\n When using extension methods, although we wouldn\x26#8217;t get a null pointer exception by calling one on a null collection, we would get a \x27source is null\x27 exception when the expression is evaluated so we need to protect ourself against this.",
+        "wordCount":  319 
     }
     </script>
     
@@ -185,47 +185,77 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Functional Collection Parameters: Handling the null collection</h1>
-    <p>One of the interesting cases where I&rsquo;ve noticed we tend to avoid <!-- raw HTML omitted -->functional<!-- raw HTML omitted --> <!-- raw HTML omitted -->collection parameters<!-- raw HTML omitted --> in our code base is when there&rsquo;s the possibility of the collection being null.</p>
-<p>The code is on the boundary of our application&rsquo;s interaction with another service so it is actually a valid scenario that we could receive a null collection.</p>
-<p>When using extension methods, although we wouldn&rsquo;t get a null pointer exception by calling one on a null collection, we would get a &lsquo;source is null&rsquo; exception when the expression is evaluated so we need to protect ourself against this.</p>
+    <div class="paragraph">
+<p>One of the interesting cases where I&#8217;ve noticed we tend to avoid <a href="http://www.markhneedham.com/blog/2008/12/17/functional-collection-parameters-in-c/">functional</a> <a href="http://www.markhneedham.com/blog/2009/01/19/f-vs-c-vs-java-functional-collection-parameters/">collection parameters</a> in our code base is when there&#8217;s the possibility of the collection being null.</p>
+</div>
+<div class="paragraph">
+<p>The code is on the boundary of our application&#8217;s interaction with another service so it is actually a valid scenario that we could receive a null collection.</p>
+</div>
+<div class="paragraph">
+<p>When using extension methods, although we wouldn&#8217;t get a null pointer exception by calling one on a null collection, we would get a 'source is null' exception when the expression is evaluated so we need to protect ourself against this.</p>
+</div>
+<div class="paragraph">
 <p>As a result of defending against this scenario we have quite a lot of code that looks like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> IEnumerable&lt;Foo&gt; MapFooMessages(IEnumerable&lt;FooMessage&gt; fooMessages)
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public IEnumerable&lt;Foo&gt; MapFooMessages(IEnumerable&lt;FooMessage&gt; fooMessages)
 {
-	<span style="color:#66d9ef">var</span> result = <span style="color:#66d9ef">new</span> List&lt;Foo&gt;();
-	<span style="color:#66d9ef">if</span>(fooMessagaes != <span style="color:#66d9ef">null</span>)
+	var result = new List&lt;Foo&gt;();
+	if(fooMessagaes != null)
 	{
-		<span style="color:#66d9ef">foreach</span>(<span style="color:#66d9ef">var</span> fooMessage <span style="color:#66d9ef">in</span> fooMessages)
+		foreach(var fooMessage in fooMessages)
 		{
-			result.Add(<span style="color:#66d9ef">new</span> Foo(fooMessage));
+			result.Add(new Foo(fooMessage));
 		}
 	}
-	<span style="color:#66d9ef">return</span> result;
-}
-</code></pre></div><p>The method that we want to apply here is &lsquo;Select&rsquo; and even though we can&rsquo;t just apply that directly to the collection we can still make use of it.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">private</span> IEnumerable&lt;Foo&gt; MapFooMessages(IEnumerable&lt;FooMessage&gt; fooMessages)
+	return result;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The method that we want to apply here is 'Select' and even though we can&#8217;t just apply that directly to the collection we can still make use of it.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">private IEnumerable&lt;Foo&gt; MapFooMessages(IEnumerable&lt;FooMessage&gt; fooMessages)
 {
-	<span style="color:#66d9ef">if</span>(fooMessages == <span style="color:#66d9ef">null</span>) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> List&lt;Foo&gt;();
-	<span style="color:#66d9ef">return</span> fooMessages.Select(eachFooMessage =&gt; <span style="color:#66d9ef">new</span> Foo(eachFooMessage));
-}
-</code></pre></div><p>There&rsquo;s still duplication doing it this way though so I pulled it up into a &lsquo;SafeSelect&rsquo; extension method:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ICollectionExtensions</span>
+	if(fooMessages == null) return new List&lt;Foo&gt;();
+	return fooMessages.Select(eachFooMessage =&gt; new Foo(eachFooMessage));
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There&#8217;s still duplication doing it this way though so I pulled it up into a 'SafeSelect' extension method:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">public static class ICollectionExtensions
 {
-       <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> IEnumerable&lt;TResult&gt; SafeSelect&lt;TSource, TResult&gt;(<span style="color:#66d9ef">this</span> IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector)
+       public static IEnumerable&lt;TResult&gt; SafeSelect&lt;TSource, TResult&gt;(this IEnumerable&lt;TSource&gt; source, Func&lt;TSource, TResult&gt; selector)
        {
-               <span style="color:#66d9ef">return</span> source == <span style="color:#66d9ef">null</span> ? <span style="color:#66d9ef">new</span> List&lt;TResult&gt;() : source.Select(selector) ;
+               return source == null ? new List&lt;TResult&gt;() : source.Select(selector) ;
        }
-}
-</code></pre></div><p>We can then make use of this extension method like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">
-<span style="color:#66d9ef">private</span> IEnumerable&lt;Foo&gt; MapFooMessages(IEnumerable&lt;FooMessage&gt; fooMessages)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can then make use of this extension method like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-csharp" data-lang="csharp">private IEnumerable&lt;Foo&gt; MapFooMessages(IEnumerable&lt;FooMessage&gt; fooMessages)
 {
-	<span style="color:#66d9ef">return</span> fooMessages.SafeSelect(eachFooMessage =&gt; <span style="color:#66d9ef">new</span> Foo(fooMessage));
-}
-</code></pre></div><p>The extension method is a bit different to the original way that we did this as I&rsquo;m not explicitly converting the result into a list at the end which means that it will only be evaluated when the data is actually needed.</p>
-<p>In this particular case I don&rsquo;t think that decision will have a big impact but it&rsquo;s something interesting to keep in mind.</p>
+	return fooMessages.SafeSelect(eachFooMessage =&gt; new Foo(fooMessage));
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The extension method is a bit different to the original way that we did this as I&#8217;m not explicitly converting the result into a list at the end which means that it will only be evaluated when the data is actually needed.</p>
+</div>
+<div class="paragraph">
+<p>In this particular case I don&#8217;t think that decision will have a big impact but it&#8217;s something interesting to keep in mind.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -260,7 +290,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/06/16/functional-collection-parameters-handling-the-null-collection/&amp;title=Functional%20Collection%20Parameters%3a%20Handling%20the%20null%20collection&amp;summary=One%20of%20the%20interesting%20cases%20where%20I%26rsquo%3bve%20noticed%20we%20tend%20to%20avoid%20functionalcollection%20parametersin%20our%20code%20base%20is%20when%20there%26rsquo%3bs%20the%20possibility%20of%20the%20collection%20being%20null.%0aThe%20code%20is%20on%20the%20boundary%20of%20our%20application%26rsquo%3bs%20interaction%20with%20another%20service%20so%20it%20is%20actually%20a%20valid%20scenario%20that%20we%20could%20receive%20a%20null%20collection.%0aWhen%20using%20extension%20methods%2c%20although%20we%20wouldn%26rsquo%3bt%20get%20a%20null%20pointer%20exception%20by%20calling%20one%20on%20a%20null%20collection%2c%20we%20would%20get%20a%20%26lsquo%3bsource%20is%20null%26rsquo%3b%20exception%20when%20the%20expression%20is%20evaluated%20so%20we%20need%20to%20protect%20ourself%20against%20this...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2009/06/16/functional-collection-parameters-handling-the-null-collection/&amp;title=Functional%20Collection%20Parameters%3a%20Handling%20the%20null%20collection&amp;summary=One%20of%20the%20interesting%20cases%20where%20I%26%238217%3bve%20noticed%20we%20tend%20to%20avoid%20functional%20collection%20parameters%20in%20our%20code%20base%20is%20when%20there%26%238217%3bs%20the%20possibility%20of%20the%20collection%20being%20null.%0a%20The%20code%20is%20on%20the%20boundary%20of%20our%20application%26%238217%3bs%20interaction%20with%20another%20service%20so%20it%20is%20actually%20a%20valid%20scenario%20that%20we%20could%20receive%20a%20null%20collection.%0a%20When%20using%20extension%20methods%2c%20although%20we%20wouldn%26%238217%3bt%20get%20a%20null%20pointer%20exception%20by%20calling%20one%20on%20a%20null%20collection%2c%20we%20would%20get%20a%20%27source%20is%20null%27%20exception%20when%20the%20expression%20is%20evaluated%20so%20we%20need%20to%20protect%20ourself%20against%20this...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

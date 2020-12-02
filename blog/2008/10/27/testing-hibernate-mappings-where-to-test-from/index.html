@@ -24,9 +24,10 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Testing Hibernate mappings: Where to test from?" />
         
-          <meta name="twitter:description" content="I&rsquo;ve had the opportunity to work with Hibernateand it&rsquo;s .NET twin NHibernateon several of my projects and one of the more interesting decisions around its use is working out the best way to test the hibernate mappings that hook together our domain model and the database.
-There are three decisions to make around how best to do this:
-This post will focus on the ways I have seen with regards to choosing where to test the mappings from." />
+          <meta name="twitter:description" content="I&#8217;ve had the opportunity to work with Hibernate and it&#8217;s .NET twin NHibernate on several of my projects and one of the more interesting decisions around its use is working out the best way to test the hibernate mappings that hook together our domain model and the database.
+ There are three decisions to make around how best to do this:
+  Where to test the mappings from?
+  How to test for equality?" />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2008/10/27/testing-hibernate-mappings-where-to-test-from/" />
 
@@ -37,9 +38,10 @@ This post will focus on the ways I have seen with regards to choosing where to t
         <title> Testing Hibernate mappings: Where to test from? &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="I&rsquo;ve had the opportunity to work with Hibernateand it&rsquo;s .NET twin NHibernateon several of my projects and one of the more interesting decisions around its use is working out the best way to test the hibernate mappings that hook together our domain model and the database.
-There are three decisions to make around how best to do this:
-This post will focus on the ways I have seen with regards to choosing where to test the mappings from." />
+        <meta name="description" content="I&#8217;ve had the opportunity to work with Hibernate and it&#8217;s .NET twin NHibernate on several of my projects and one of the more interesting decisions around its use is working out the best way to test the hibernate mappings that hook together our domain model and the database.
+ There are three decisions to make around how best to do this:
+  Where to test the mappings from?
+  How to test for equality?" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -68,8 +70,8 @@ This post will focus on the ways I have seen with regards to choosing where to t
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2008-10-27",
-        "description": "I\x26rsquo;ve had the opportunity to work with Hibernateand it\x26rsquo;s .NET twin NHibernateon several of my projects and one of the more interesting decisions around its use is working out the best way to test the hibernate mappings that hook together our domain model and the database.\nThere are three decisions to make around how best to do this:\nThis post will focus on the ways I have seen with regards to choosing where to test the mappings from.",
-        "wordCount":  441 
+        "description": "I\x26#8217;ve had the opportunity to work with Hibernate and it\x26#8217;s .NET twin NHibernate on several of my projects and one of the more interesting decisions around its use is working out the best way to test the hibernate mappings that hook together our domain model and the database.\n There are three decisions to make around how best to do this:\n  Where to test the mappings from?\n  How to test for equality?",
+        "wordCount":  469 
     }
     </script>
     
@@ -182,27 +184,83 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Testing Hibernate mappings: Where to test from?</h1>
-    <p>I&rsquo;ve had the opportunity to work with <!-- raw HTML omitted -->Hibernate<!-- raw HTML omitted --> and it&rsquo;s .NET twin <!-- raw HTML omitted -->NHibernate<!-- raw HTML omitted --> on several of my projects and one of the more interesting decisions around its use is working out the best way to test the hibernate mappings that hook together our domain model and the database.</p>
+    <div class="paragraph">
+<p>I&#8217;ve had the opportunity to work with <a href="http://www.hibernate.org/">Hibernate</a> and it&#8217;s .NET twin <a href="http://sourceforge.net/projects/nhibernate">NHibernate</a> on several of my projects and one of the more interesting decisions around its use is working out the best way to test the hibernate mappings that hook together our domain model and the database.</p>
+</div>
+<div class="paragraph">
 <p>There are three decisions to make around how best to do this:</p>
-<!-- raw HTML omitted -->
-<p>This post will focus on the ways I have seen with regards to choosing <!-- raw HTML omitted -->where to test the mappings from<!-- raw HTML omitted -->.</p>
-<!-- raw HTML omitted -->
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Where to test the mappings from?</p>
+</li>
+<li>
+<p>How to test for equality?</p>
+</li>
+<li>
+<p>How to setup the test data?</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This post will focus on the ways I have seen with regards to choosing <strong>where to test the mappings from</strong>.</p>
+</div>
+<div class="sect1">
+<h2 id="_functional_tests">Functional Tests</h2>
+<div class="sectionbody">
+<div class="paragraph">
 <p>This approach advocates only testing whether we have setup the mappings correctly when we run our acceptance or functional tests - we do not write tests specifically for testing hibernate mappings.</p>
+</div>
+<div class="paragraph">
 <p>The benefit of this approach is that we are more likely to have acceptance tests in place, so this is just another thing that they can be used to catch.</p>
+</div>
+<div class="paragraph">
 <p>While this approach is better than not testing at all, from my experiences the test feedback cycle is too slow - it takes too long to change one of the hibernate mappings and then run the test to check if it worked or not.</p>
-<!-- raw HTML omitted -->
-<p>With this approach we test whether our hibernate mappings are working as part of our <!-- raw HTML omitted -->repository<!-- raw HTML omitted --> tests.</p>
-<p>The tricky thing with testing our hibernate mappings this way is that typically we only want to set up one object in the database and then test that Hibernate hydrates it correctly, but our repository doesn&rsquo;t necessarily need a method for finding a single object.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_repository_tests">Repository Tests</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>With this approach we test whether our hibernate mappings are working as part of our <a href="http://domaindrivendesign.org/discussion/messageboardarchive/Repositories.html">repository</a> tests.</p>
+</div>
+<div class="paragraph">
+<p>The tricky thing with testing our hibernate mappings this way is that typically we only want to set up one object in the database and then test that Hibernate hydrates it correctly, but our repository doesn&#8217;t necessarily need a method for finding a single object.</p>
+</div>
+<div class="paragraph">
 <p>We either end up adding on a method just for testing or we have to try and find our object from a list of other objects and then test it.</p>
+</div>
+<div class="paragraph">
 <p>On the other hand, this approach does seem to work quite well when we have quite chatty repositories which provide a degree of flexibility around how we can retrieve our objects.</p>
-<!-- raw HTML omitted -->
-<p>This approach is my current favourite and involves loading the object directly from the <!-- raw HTML omitted -->Hibernate session<!-- raw HTML omitted --> and then testing it.</p>
-<p>I was introduced to this idea by a <!-- raw HTML omitted -->colleague<!-- raw HTML omitted --> of mine and it seems to fit the idea of testing just one thing more closely than the other two approaches.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_direct_tests">Direct Tests</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This approach is my current favourite and involves loading the object directly from the <a href="http://www.hibernate.org/hib_docs/v3/api/org/hibernate/Session.html">Hibernate session</a> and then testing it.</p>
+</div>
+<div class="paragraph">
+<p>I was introduced to this idea by a <a href="http://www.flickr.com/photos/adsphoto/">colleague</a> of mine and it seems to fit the idea of testing just one thing more closely than the other two approaches.</p>
+</div>
+<div class="paragraph">
 <p>The strange thing about this approach is that we are testing directly with an API that is hidden from our system beyond the Repository.</p>
+</div>
+<div class="paragraph">
 <p>In terms of simplicity with regards to testing hibernate mappings, however, this is the best approach I have seen.</p>
+</div>
 <hr>
+<div class="paragraph">
 <p>I did a quick survey of some people last week and the most popular way of testing the mappings expressed was using Repository tests.</p>
+</div>
+<div class="paragraph">
 <p>This post covers the other ways I have seen - are there any others people have come across or are using?</p>
+</div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -237,7 +295,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/10/27/testing-hibernate-mappings-where-to-test-from/&amp;title=Testing%20Hibernate%20mappings%3a%20Where%20to%20test%20from%3f&amp;summary=I%26rsquo%3bve%20had%20the%20opportunity%20to%20work%20with%20Hibernateand%20it%26rsquo%3bs%20.NET%20twin%20NHibernateon%20several%20of%20my%20projects%20and%20one%20of%20the%20more%20interesting%20decisions%20around%20its%20use%20is%20working%20out%20the%20best%20way%20to%20test%20the%20hibernate%20mappings%20that%20hook%20together%20our%20domain%20model%20and%20the%20database.%0aThere%20are%20three%20decisions%20to%20make%20around%20how%20best%20to%20do%20this%3a%0aThis%20post%20will%20focus%20on%20the%20ways%20I%20have%20seen%20with%20regards%20to%20choosing%20where%20to%20test%20the%20mappings%20from...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2008/10/27/testing-hibernate-mappings-where-to-test-from/&amp;title=Testing%20Hibernate%20mappings%3a%20Where%20to%20test%20from%3f&amp;summary=I%26%238217%3bve%20had%20the%20opportunity%20to%20work%20with%20Hibernate%20and%20it%26%238217%3bs%20.NET%20twin%20NHibernate%20on%20several%20of%20my%20projects%20and%20one%20of%20the%20more%20interesting%20decisions%20around%20its%20use%20is%20working%20out%20the%20best%20way%20to%20test%20the%20hibernate%20mappings%20that%20hook%20together%20our%20domain%20model%20and%20the%20database.%0a%20There%20are%20three%20decisions%20to%20make%20around%20how%20best%20to%20do%20this%3a%0a%20%20Where%20to%20test%20the%20mappings%20from%3f%0a%20%20How%20to%20test%20for%20equality%3f..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

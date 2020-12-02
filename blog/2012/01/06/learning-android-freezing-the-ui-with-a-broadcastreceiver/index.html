@@ -22,8 +22,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Learning Android: Freezing the UI with a BroadcastReceiver" />
         
-          <meta name="twitter:description" content="As I mentioned in a previous postI recently wrote some code in my Android app to inform a BroadcastReceiverwhenever a service processed a tweet with a link in it but in implementing this I managed to freeze the UI every time that happened.
-I made the stupid (in hindsight) mistake of not realising that I shouldn&rsquo;t be doing a lot of logic in BroadcastReceiver.onReceivesince that bit of code gets executed on the UI thread." />
+          <meta name="twitter:description" content="As I mentioned in a previous post I recently wrote some code in my Android app to inform a BroadcastReceiver whenever a service processed a tweet with a link in it but in implementing this I managed to freeze the UI every time that happened.
+ I made the stupid (in hindsight) mistake of not realising that I shouldn&#8217;t be doing a lot of logic in BroadcastReceiver.onReceive since that bit of code gets executed on the UI thread." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2012/01/06/learning-android-freezing-the-ui-with-a-broadcastreceiver/" />
 
@@ -34,8 +34,8 @@ I made the stupid (in hindsight) mistake of not realising that I shouldn&rsquo;t
         <title> Learning Android: Freezing the UI with a BroadcastReceiver &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="As I mentioned in a previous postI recently wrote some code in my Android app to inform a BroadcastReceiverwhenever a service processed a tweet with a link in it but in implementing this I managed to freeze the UI every time that happened.
-I made the stupid (in hindsight) mistake of not realising that I shouldn&rsquo;t be doing a lot of logic in BroadcastReceiver.onReceivesince that bit of code gets executed on the UI thread." />
+        <meta name="description" content="As I mentioned in a previous post I recently wrote some code in my Android app to inform a BroadcastReceiver whenever a service processed a tweet with a link in it but in implementing this I managed to freeze the UI every time that happened.
+ I made the stupid (in hindsight) mistake of not realising that I shouldn&#8217;t be doing a lot of logic in BroadcastReceiver.onReceive since that bit of code gets executed on the UI thread." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +64,8 @@ I made the stupid (in hindsight) mistake of not realising that I shouldn&rsquo;t
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2012-01-06",
-        "description": "As I mentioned in a previous postI recently wrote some code in my Android app to inform a BroadcastReceiverwhenever a service processed a tweet with a link in it but in implementing this I managed to freeze the UI every time that happened.\nI made the stupid (in hindsight) mistake of not realising that I shouldn\x26rsquo;t be doing a lot of logic in BroadcastReceiver.onReceivesince that bit of code gets executed on the UI thread.",
-        "wordCount":  472 
+        "description": "As I mentioned in a previous post I recently wrote some code in my Android app to inform a BroadcastReceiver whenever a service processed a tweet with a link in it but in implementing this I managed to freeze the UI every time that happened.\n I made the stupid (in hindsight) mistake of not realising that I shouldn\x26#8217;t be doing a lot of logic in BroadcastReceiver.onReceive since that bit of code gets executed on the UI thread.",
+        "wordCount":  475 
     }
     </script>
     
@@ -174,120 +174,148 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Learning Android: Freezing the UI with a BroadcastReceiver</h1>
-    <p>As I <!-- raw HTML omitted -->mentioned in a previous post<!-- raw HTML omitted --> I recently wrote some code in my Android app to inform a <!-- raw HTML omitted -->BroadcastReceiver<!-- raw HTML omitted --> whenever a service processed a tweet with a link in it but in implementing this I managed to freeze the UI every time that happened.</p>
-<p>I made the stupid (in hindsight) mistake of not realising that I shouldn&rsquo;t be doing a lot of logic in <!-- raw HTML omitted -->BroadcastReceiver.onReceive<!-- raw HTML omitted --> since that bit of code gets executed on the UI thread.</p>
+    <div class="paragraph">
+<p>As I <a href="http://www.markhneedham.com/blog/2012/01/05/learning-android-getting-a-service-to-communicate-with-an-activity/">mentioned in a previous post</a> I recently wrote some code in my Android app to inform a <a href="http://developer.android.com/reference/android/content/BroadcastReceiver.html">BroadcastReceiver</a> whenever a service processed a tweet with a link in it but in implementing this I managed to freeze the UI every time that happened.</p>
+</div>
+<div class="paragraph">
+<p>I made the stupid (in hindsight) mistake of not realising that I shouldn&#8217;t be doing a lot of logic in <cite>BroadcastReceiver.onReceive</cite> since that bit of code gets executed on the UI thread.</p>
+</div>
+<div class="paragraph">
 <p>The service code which raises the broadcast message is the same as in the previous post:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TweetService</span> <span style="color:#66d9ef">extends</span> IntentService <span style="color:#f92672">{</span>
-    <span style="color:#f92672">...</span>
-    <span style="color:#a6e22e">@Override</span>
-    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onHandleIntent</span><span style="color:#f92672">(</span>Intent intent<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        StatusListener listener <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> UserStreamListener<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-           <span style="color:#75715e">// override a whole load of methods - removed for brevity
-</span><span style="color:#75715e"></span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onStatus</span><span style="color:#f92672">(</span>Status status<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                String theTweet <span style="color:#f92672">=</span> status<span style="color:#f92672">.</span><span style="color:#a6e22e">getText</span><span style="color:#f92672">();</span>
-                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>status<span style="color:#f92672">.</span><span style="color:#a6e22e">getText</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contains</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;http://&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-                    Intent tweetMessage <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Intent<span style="color:#f92672">(</span>TweetTask<span style="color:#f92672">.</span><span style="color:#a6e22e">NEW_TWEET</span><span style="color:#f92672">);</span>
-                    tweetMessage<span style="color:#f92672">.</span><span style="color:#a6e22e">putExtra</span><span style="color:#f92672">(</span>android<span style="color:#f92672">.</span><span style="color:#a6e22e">content</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Intent</span><span style="color:#f92672">.</span><span style="color:#a6e22e">EXTRA_TEXT</span><span style="color:#f92672">,</span> status<span style="color:#f92672">.</span><span style="color:#a6e22e">getText</span><span style="color:#f92672">());</span>
-                    sendBroadcast<span style="color:#f92672">(</span>tweetMessage<span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class TweetService extends IntentService {
+    ...
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        StatusListener listener = new UserStreamListener() {
+           // override a whole load of methods - removed for brevity
 
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">};</span>
+            public void onStatus(Status status) {
+                String theTweet = status.getText();
+                if (status.getText().contains("http://")) {
+                    Intent tweetMessage = new Intent(TweetTask.NEW_TWEET);
+                    tweetMessage.putExtra(android.content.Intent.EXTRA_TEXT, status.getText());
+                    sendBroadcast(tweetMessage);
+                }
 
-        <span style="color:#75715e">// code to connect to the twitter streaming API
-</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>That is then handled like this by the BroadcastReceiver:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyActivity</span> <span style="color:#66d9ef">extends</span> Activity <span style="color:#f92672">{</span>
-    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onPause</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">onPause</span><span style="color:#f92672">();</span>
-        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>dataUpdateReceiver <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> unregisterReceiver<span style="color:#f92672">(</span>dataUpdateReceiver<span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+            }
+        };
 
-    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onResume</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-        <span style="color:#66d9ef">super</span><span style="color:#f92672">.</span><span style="color:#a6e22e">onResume</span><span style="color:#f92672">();</span>
-        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>dataUpdateReceiver <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> dataUpdateReceiver <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> DataUpdateReceiver<span style="color:#f92672">();</span>
-        IntentFilter intentFilter <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> IntentFilter<span style="color:#f92672">(</span>TweetTask<span style="color:#f92672">.</span><span style="color:#a6e22e">NEW_TWEET</span><span style="color:#f92672">);</span>
-        registerReceiver<span style="color:#f92672">(</span>dataUpdateReceiver<span style="color:#f92672">,</span> intentFilter<span style="color:#f92672">);</span>
-    <span style="color:#f92672">}</span>
+        // code to connect to the twitter streaming API
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That is then handled like this by the BroadcastReceiver:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class MyActivity extends Activity {
+    protected void onPause() {
+        super.onPause();
+        if (dataUpdateReceiver != null) unregisterReceiver(dataUpdateReceiver);
+    }
 
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DataUpdateReceiver</span> <span style="color:#66d9ef">extends</span> BroadcastReceiver <span style="color:#f92672">{</span>
-        <span style="color:#a6e22e">@Override</span>
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onReceive</span><span style="color:#f92672">(</span>Context context<span style="color:#f92672">,</span> Intent intent<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>intent<span style="color:#f92672">.</span><span style="color:#a6e22e">getAction</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>TweetTask<span style="color:#f92672">.</span><span style="color:#a6e22e">NEW_TWEET</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-                Pattern p <span style="color:#f92672">=</span> Pattern<span style="color:#f92672">.</span><span style="color:#a6e22e">compile</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;(http://[^\\s]+)&#34;</span><span style="color:#f92672">);</span>
-                String theTweet <span style="color:#f92672">=</span> intent<span style="color:#f92672">.</span><span style="color:#a6e22e">getStringExtra</span><span style="color:#f92672">(</span>TweetTask<span style="color:#f92672">.</span><span style="color:#a6e22e">NEW_TWEET</span><span style="color:#f92672">);</span>
-                Matcher matcher <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span><span style="color:#a6e22e">matcher</span><span style="color:#f92672">(</span>theTweet<span style="color:#f92672">);</span>
+    protected void onResume() {
+        super.onResume();
+        if (dataUpdateReceiver == null) dataUpdateReceiver = new DataUpdateReceiver();
+        IntentFilter intentFilter = new IntentFilter(TweetTask.NEW_TWEET);
+        registerReceiver(dataUpdateReceiver, intentFilter);
+    }
 
-                <span style="color:#66d9ef">int</span> startIndex <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
-                <span style="color:#66d9ef">int</span> endIndex <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
-                <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>matcher<span style="color:#f92672">.</span><span style="color:#a6e22e">find</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-                    startIndex <span style="color:#f92672">=</span> matcher<span style="color:#f92672">.</span><span style="color:#a6e22e">start</span><span style="color:#f92672">();</span>
-                    endIndex <span style="color:#f92672">=</span> matcher<span style="color:#f92672">.</span><span style="color:#a6e22e">end</span><span style="color:#f92672">();</span>
-                <span style="color:#f92672">}</span>
+    private class DataUpdateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(TweetTask.NEW_TWEET)) {
+                Pattern p = Pattern.compile("(http://[^\\s]+)");
+                String theTweet = intent.getStringExtra(TweetTask.NEW_TWEET);
+                Matcher matcher = p.matcher(theTweet);
 
-                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>startIndex <span style="color:#f92672">!=</span> <span style="color:#f92672">-</span>1 <span style="color:#f92672">&amp;&amp;</span> endIndex <span style="color:#f92672">!=</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                    String resolvedUrl <span style="color:#f92672">=</span> resolveUrl<span style="color:#f92672">(</span>theTweet<span style="color:#f92672">.</span><span style="color:#a6e22e">substring</span><span style="color:#f92672">(</span>startIndex<span style="color:#f92672">,</span> endIndex<span style="color:#f92672">));</span>
-                    saveToDatabase<span style="color:#f92672">(</span>resolvedUrl<span style="color:#f92672">);</span>
-                    updateUI<span style="color:#f92672">(</span>resolvedUrl<span style="color:#f92672">);</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>In particular the &lsquo;resolveUrl&rsquo; line was probably the one one causing the problem since it makes a network call to<!-- raw HTML omitted --> resolve URLs from link shorteners<!-- raw HTML omitted -->.</p>
+                int startIndex = -1;
+                int endIndex = -1;
+                while (matcher.find()) {
+                    startIndex = matcher.start();
+                    endIndex = matcher.end();
+                }
+
+                if (startIndex != -1 &amp;&amp; endIndex != -1) {
+                    String resolvedUrl = resolveUrl(theTweet.substring(startIndex, endIndex));
+                    saveToDatabase(resolvedUrl);
+                    updateUI(resolvedUrl);
+                }
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In particular the 'resolveUrl' line was probably the one one causing the problem since it makes a network call tohttp://www.markhneedham.com/blog/2011/12/31/clojure-casting-to-a-java-class-or-not/[resolve URLs from link shorteners].</p>
+</div>
+<div class="paragraph">
 <p>To stop the screen freezing up I just needed to move most of the code from BroadcastReceiver into the TweetService:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TweetService</span> <span style="color:#66d9ef">extends</span> IntentService <span style="color:#f92672">{</span>
-    <span style="color:#f92672">...</span>
-    <span style="color:#a6e22e">@Override</span>
-    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onHandleIntent</span><span style="color:#f92672">(</span>Intent intent<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-        StatusListener listener <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> UserStreamListener<span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
-           <span style="color:#75715e">// override a whole load of methods - removed for brevity
-</span><span style="color:#75715e"></span>
-            <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onStatus</span><span style="color:#f92672">(</span>Status status<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                String theTweet <span style="color:#f92672">=</span> status<span style="color:#f92672">.</span><span style="color:#a6e22e">getText</span><span style="color:#f92672">();</span>
-                <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>status<span style="color:#f92672">.</span><span style="color:#a6e22e">getText</span><span style="color:#f92672">().</span><span style="color:#a6e22e">contains</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;http://&#34;</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-                    Pattern p <span style="color:#f92672">=</span> Pattern<span style="color:#f92672">.</span><span style="color:#a6e22e">compile</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;(http://[^\\s]+)&#34;</span><span style="color:#f92672">);</span>
-                    Matcher matcher <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span><span style="color:#a6e22e">matcher</span><span style="color:#f92672">(</span>theTweet<span style="color:#f92672">);</span>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class TweetService extends IntentService {
+    ...
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        StatusListener listener = new UserStreamListener() {
+           // override a whole load of methods - removed for brevity
 
-                    <span style="color:#66d9ef">int</span> startIndex <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
-                    <span style="color:#66d9ef">int</span> endIndex <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
-                    <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span>matcher<span style="color:#f92672">.</span><span style="color:#a6e22e">find</span><span style="color:#f92672">())</span> <span style="color:#f92672">{</span>
-                        startIndex <span style="color:#f92672">=</span> matcher<span style="color:#f92672">.</span><span style="color:#a6e22e">start</span><span style="color:#f92672">();</span>
-                        endIndex <span style="color:#f92672">=</span> matcher<span style="color:#f92672">.</span><span style="color:#a6e22e">end</span><span style="color:#f92672">();</span>
-                    <span style="color:#f92672">}</span>
+            public void onStatus(Status status) {
+                String theTweet = status.getText();
+                if (status.getText().contains("http://")) {
+                    Pattern p = Pattern.compile("(http://[^\\s]+)");
+                    Matcher matcher = p.matcher(theTweet);
 
-                    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>startIndex <span style="color:#f92672">!=</span> <span style="color:#f92672">-</span>1 <span style="color:#f92672">&amp;&amp;</span> endIndex <span style="color:#f92672">!=</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-                        String resolvedUrl <span style="color:#f92672">=</span> resolveUrl<span style="color:#f92672">(</span>theTweet<span style="color:#f92672">.</span><span style="color:#a6e22e">substring</span><span style="color:#f92672">(</span>startIndex<span style="color:#f92672">,</span> endIndex<span style="color:#f92672">));</span>
-                        saveToDatabase<span style="color:#f92672">(</span>resolvedUrl<span style="color:#f92672">);</span>
+                    int startIndex = -1;
+                    int endIndex = -1;
+                    while (matcher.find()) {
+                        startIndex = matcher.start();
+                        endIndex = matcher.end();
+                    }
 
-                        Intent tweetMessage <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Intent<span style="color:#f92672">(</span>TweetTask<span style="color:#f92672">.</span><span style="color:#a6e22e">NEW_TWEET</span><span style="color:#f92672">);</span>
-                        tweetMessage<span style="color:#f92672">.</span><span style="color:#a6e22e">putExtra</span><span style="color:#f92672">(</span>android<span style="color:#f92672">.</span><span style="color:#a6e22e">content</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Intent</span><span style="color:#f92672">.</span><span style="color:#a6e22e">EXTRA_TEXT</span><span style="color:#f92672">,</span> resolvedUrl<span style="color:#f92672">);</span>
-                        sendBroadcast<span style="color:#f92672">(</span>tweetMessage<span style="color:#f92672">);</span>
-                    <span style="color:#f92672">}</span>
-                <span style="color:#f92672">}</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">};</span>
+                    if (startIndex != -1 &amp;&amp; endIndex != -1) {
+                        String resolvedUrl = resolveUrl(theTweet.substring(startIndex, endIndex));
+                        saveToDatabase(resolvedUrl);
 
-        <span style="color:#75715e">// code to connect to the twitter streaming API
-</span><span style="color:#75715e"></span>    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>And then the code for BroadcastReceiver becomes much simpler which means we&rsquo;re doing less work on the UI thread:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DataUpdateReceiver</span> <span style="color:#66d9ef">extends</span> BroadcastReceiver <span style="color:#f92672">{</span>
-        <span style="color:#a6e22e">@Override</span>
-        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">onReceive</span><span style="color:#f92672">(</span>Context context<span style="color:#f92672">,</span> Intent intent<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>intent<span style="color:#f92672">.</span><span style="color:#a6e22e">getAction</span><span style="color:#f92672">().</span><span style="color:#a6e22e">equals</span><span style="color:#f92672">(</span>TweetTask<span style="color:#f92672">.</span><span style="color:#a6e22e">NEW_TWEET</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
-                String url <span style="color:#f92672">=</span> intent<span style="color:#f92672">.</span><span style="color:#a6e22e">getStringExtra</span><span style="color:#f92672">(</span>TweetTask<span style="color:#f92672">.</span><span style="color:#a6e22e">NEW_TWEET</span><span style="color:#f92672">);</span>
-                updateUI<span style="color:#f92672">(</span>url<span style="color:#f92672">);</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">}</span>
-</code></pre></div><p>And the freezing up of the UI is gone!</p>
+                        Intent tweetMessage = new Intent(TweetTask.NEW_TWEET);
+                        tweetMessage.putExtra(android.content.Intent.EXTRA_TEXT, resolvedUrl);
+                        sendBroadcast(tweetMessage);
+                    }
+                }
+            }
+        };
+
+        // code to connect to the twitter streaming API
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And then the code for BroadcastReceiver becomes much simpler which means we&#8217;re doing less work on the UI thread:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">    private class DataUpdateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(TweetTask.NEW_TWEET)) {
+                String url = intent.getStringExtra(TweetTask.NEW_TWEET);
+                updateUI(url);
+            }
+        }
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And the freezing up of the UI is gone!</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -322,7 +350,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/01/06/learning-android-freezing-the-ui-with-a-broadcastreceiver/&amp;title=Learning%20Android%3a%20Freezing%20the%20UI%20with%20a%20BroadcastReceiver&amp;summary=As%20I%20mentioned%20in%20a%20previous%20postI%20recently%20wrote%20some%20code%20in%20my%20Android%20app%20to%20inform%20a%20BroadcastReceiverwhenever%20a%20service%20processed%20a%20tweet%20with%20a%20link%20in%20it%20but%20in%20implementing%20this%20I%20managed%20to%20freeze%20the%20UI%20every%20time%20that%20happened.%0aI%20made%20the%20stupid%20%28in%20hindsight%29%20mistake%20of%20not%20realising%20that%20I%20shouldn%26rsquo%3bt%20be%20doing%20a%20lot%20of%20logic%20in%20BroadcastReceiver.onReceivesince%20that%20bit%20of%20code%20gets%20executed%20on%20the%20UI%20thread...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2012/01/06/learning-android-freezing-the-ui-with-a-broadcastreceiver/&amp;title=Learning%20Android%3a%20Freezing%20the%20UI%20with%20a%20BroadcastReceiver&amp;summary=As%20I%20mentioned%20in%20a%20previous%20post%20I%20recently%20wrote%20some%20code%20in%20my%20Android%20app%20to%20inform%20a%20BroadcastReceiver%20whenever%20a%20service%20processed%20a%20tweet%20with%20a%20link%20in%20it%20but%20in%20implementing%20this%20I%20managed%20to%20freeze%20the%20UI%20every%20time%20that%20happened.%0a%20I%20made%20the%20stupid%20%28in%20hindsight%29%20mistake%20of%20not%20realising%20that%20I%20shouldn%26%238217%3bt%20be%20doing%20a%20lot%20of%20logic%20in%20BroadcastReceiver.onReceive%20since%20that%20bit%20of%20code%20gets%20executed%20on%20the%20UI%20thread...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

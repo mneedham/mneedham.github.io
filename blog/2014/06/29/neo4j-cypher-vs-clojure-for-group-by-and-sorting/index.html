@@ -24,7 +24,8 @@
         <meta name="twitter:creator" content="@markhneedham" />
         <meta name="twitter:title" content="Neo4j&#39;s Cypher vs Clojure - Group by and Sorting" />
         
-          <meta name="twitter:description" content="CREATE (event1:Event {name: &quot;Future Event 1&quot;, timestamp: 1414002772427 }) CREATE (event2:Event {name: &quot;Future Event 2&quot;, timestamp: 1424002772427 }) CREATE (event3:Event {name: &quot;Future Event 3&quot;, timestamp: 1416002772427 }) CREATE (event4:Event {name: &quot;Past Event 1&quot;, timestamp: 1403002772427 }) CREATE (event5:Event {name: &quot;Past Event 2&quot;, timestamp: 1402002772427 }) $ MATCH (e:Event) RETURN e; ==&gt; &#43;------------------------------------------------------------&#43; ==&gt; | e | ==&gt; &#43;------------------------------------------------------------&#43; ==&gt; | Node[15414]{name:&quot;Future Event 1&quot;,timestamp:1414002772427} | ==&gt; | Node[15415]{name:&quot;Future Event 2&quot;,timestamp:1424002772427} | ==&gt; | Node[15416]{name:&quot;Future Event 3&quot;,timestamp:1416002772427} | ==&gt; | Node[15417]{name:&quot;Past Event 1&quot;,timestamp:1403002772427} | ==&gt; | Node[15418]{name:&quot;Past Event 2&quot;,timestamp:1402002772427} | ==&gt; &#43;------------------------------------------------------------&#43; ==&gt; 5 rows ==&gt; 13 ms (def sorted-query &#34;MATCH (e:Event) WITH COLLECT(e) AS events WITH [e IN events WHERE e." />
+          <meta name="twitter:description" content="One of the points that I emphasised during my talk on building Neo4j backed applications using Clojure last week is understanding when to use Cypher to solve a problem and when to use the programming language.
+ A good example of this is in the meetup application I&#8217;ve been working on. I have a collection of events and want to display past events in descending order and future events in ascending order." />
         
         <meta name="twitter:url" content="https://markhneedham.com/blog/2014/06/29/neo4j-cypher-vs-clojure-for-group-by-and-sorting/" />
 
@@ -35,7 +36,8 @@
         <title> Neo4j&#39;s Cypher vs Clojure - Group by and Sorting &middot;  Mark Needham</title>
 
     
-        <meta name="description" content="CREATE (event1:Event {name: &quot;Future Event 1&quot;, timestamp: 1414002772427 }) CREATE (event2:Event {name: &quot;Future Event 2&quot;, timestamp: 1424002772427 }) CREATE (event3:Event {name: &quot;Future Event 3&quot;, timestamp: 1416002772427 }) CREATE (event4:Event {name: &quot;Past Event 1&quot;, timestamp: 1403002772427 }) CREATE (event5:Event {name: &quot;Past Event 2&quot;, timestamp: 1402002772427 }) $ MATCH (e:Event) RETURN e; ==&gt; &#43;------------------------------------------------------------&#43; ==&gt; | e | ==&gt; &#43;------------------------------------------------------------&#43; ==&gt; | Node[15414]{name:&quot;Future Event 1&quot;,timestamp:1414002772427} | ==&gt; | Node[15415]{name:&quot;Future Event 2&quot;,timestamp:1424002772427} | ==&gt; | Node[15416]{name:&quot;Future Event 3&quot;,timestamp:1416002772427} | ==&gt; | Node[15417]{name:&quot;Past Event 1&quot;,timestamp:1403002772427} | ==&gt; | Node[15418]{name:&quot;Past Event 2&quot;,timestamp:1402002772427} | ==&gt; &#43;------------------------------------------------------------&#43; ==&gt; 5 rows ==&gt; 13 ms (def sorted-query &#34;MATCH (e:Event) WITH COLLECT(e) AS events WITH [e IN events WHERE e." />
+        <meta name="description" content="One of the points that I emphasised during my talk on building Neo4j backed applications using Clojure last week is understanding when to use Cypher to solve a problem and when to use the programming language.
+ A good example of this is in the meetup application I&#8217;ve been working on. I have a collection of events and want to display past events in descending order and future events in ascending order." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -64,8 +66,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2014-06-29",
-        "description": "CREATE (event1:Event {name: \x26quot;Future Event 1\x26quot;, timestamp: 1414002772427 }) CREATE (event2:Event {name: \x26quot;Future Event 2\x26quot;, timestamp: 1424002772427 }) CREATE (event3:Event {name: \x26quot;Future Event 3\x26quot;, timestamp: 1416002772427 }) CREATE (event4:Event {name: \x26quot;Past Event 1\x26quot;, timestamp: 1403002772427 }) CREATE (event5:Event {name: \x26quot;Past Event 2\x26quot;, timestamp: 1402002772427 }) $ MATCH (e:Event) RETURN e; ==\x26gt; \x2b------------------------------------------------------------\x2b ==\x26gt; | e | ==\x26gt; \x2b------------------------------------------------------------\x2b ==\x26gt; | Node[15414]{name:\x26quot;Future Event 1\x26quot;,timestamp:1414002772427} | ==\x26gt; | Node[15415]{name:\x26quot;Future Event 2\x26quot;,timestamp:1424002772427} | ==\x26gt; | Node[15416]{name:\x26quot;Future Event 3\x26quot;,timestamp:1416002772427} | ==\x26gt; | Node[15417]{name:\x26quot;Past Event 1\x26quot;,timestamp:1403002772427} | ==\x26gt; | Node[15418]{name:\x26quot;Past Event 2\x26quot;,timestamp:1402002772427} | ==\x26gt; \x2b------------------------------------------------------------\x2b ==\x26gt; 5 rows ==\x26gt; 13 ms (def sorted-query \x26#34;MATCH (e:Event) WITH COLLECT(e) AS events WITH [e IN events WHERE e.",
-        "wordCount":  354 
+        "description": "One of the points that I emphasised during my talk on building Neo4j backed applications using Clojure last week is understanding when to use Cypher to solve a problem and when to use the programming language.\n A good example of this is in the meetup application I\x26#8217;ve been working on. I have a collection of events and want to display past events in descending order and future events in ascending order.",
+        "wordCount":  648 
     }
     </script>
     
@@ -178,96 +180,156 @@ tbody tr pre {margin-bottom: 27px}
         </span>
     </div>
     <h1 class="post-title">Neo4j&#39;s Cypher vs Clojure - Group by and Sorting</h1>
-    <!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-CREATE (event1:Event {name: &quot;Future Event 1&quot;, timestamp: 1414002772427 })
-CREATE (event2:Event {name: &quot;Future Event 2&quot;, timestamp: 1424002772427 })
-CREATE (event3:Event {name: &quot;Future Event 3&quot;, timestamp: 1416002772427 })
+    <div class="paragraph">
+<p>One of the points that I emphasised during my talk on <a href="https://skillsmatter.com/skillscasts/5385-analysing-london-s-nosql-meetups-using-clojure-neocons-luminus">building Neo4j backed applications using Clojure</a> last week is understanding when to use Cypher to solve a problem and when to use the programming language.</p>
+</div>
+<div class="paragraph">
+<p>A good example of this is in the meetup application I&#8217;ve been working on. I have a collection of events and want to display past events in descending order and future events in ascending order.</p>
+</div>
+<div class="paragraph">
+<p>First let&#8217;s create some future and some past events based on the current timestamp of 1404006050535:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CREATE (event1:Event {name: "Future Event 1", timestamp: 1414002772427 })
+CREATE (event2:Event {name: "Future Event 2", timestamp: 1424002772427 })
+CREATE (event3:Event {name: "Future Event 3", timestamp: 1416002772427 })
 
-CREATE (event4:Event {name: &quot;Past Event 1&quot;, timestamp: 1403002772427 })
-CREATE (event5:Event {name: &quot;Past Event 2&quot;, timestamp: 1402002772427 })
-</code></pre><!-- raw HTML omitted -->
-<pre><code class="language-cypher" data-lang="cypher">
-$ MATCH (e:Event) RETURN e;
+CREATE (event4:Event {name: "Past Event 1", timestamp: 1403002772427 })
+CREATE (event5:Event {name: "Past Event 2", timestamp: 1402002772427 })</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we return all the events we see the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ MATCH (e:Event) RETURN e;
 ==&gt; +------------------------------------------------------------+
 ==&gt; | e                                                          |
 ==&gt; +------------------------------------------------------------+
-==&gt; | Node[15414]{name:&quot;Future Event 1&quot;,timestamp:1414002772427} |
-==&gt; | Node[15415]{name:&quot;Future Event 2&quot;,timestamp:1424002772427} |
-==&gt; | Node[15416]{name:&quot;Future Event 3&quot;,timestamp:1416002772427} |
-==&gt; | Node[15417]{name:&quot;Past Event 1&quot;,timestamp:1403002772427}   |
-==&gt; | Node[15418]{name:&quot;Past Event 2&quot;,timestamp:1402002772427}   |
+==&gt; | Node[15414]{name:"Future Event 1",timestamp:1414002772427} |
+==&gt; | Node[15415]{name:"Future Event 2",timestamp:1424002772427} |
+==&gt; | Node[15416]{name:"Future Event 3",timestamp:1416002772427} |
+==&gt; | Node[15417]{name:"Past Event 1",timestamp:1403002772427}   |
+==&gt; | Node[15418]{name:"Past Event 2",timestamp:1402002772427}   |
 ==&gt; +------------------------------------------------------------+
 ==&gt; 5 rows
-==&gt; 13 ms
-</code></pre><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(def sorted-query <span style="color:#e6db74">&#34;MATCH (e:Event)
-</span><span style="color:#e6db74">WITH COLLECT(e) AS events
-</span><span style="color:#e6db74">WITH [e IN events WHERE e.timestamp &lt;= timestamp()] AS pastEvents,
-</span><span style="color:#e6db74">     [e IN events WHERE e.timestamp &gt; timestamp()] AS futureEvents
-</span><span style="color:#e6db74">UNWIND pastEvents AS pastEvent
-</span><span style="color:#e6db74">WITH pastEvent, futureEvents ORDER BY pastEvent.timestamp DESC
-</span><span style="color:#e6db74">WITH COLLECT(pastEvent) as orderedPastEvents, futureEvents
-</span><span style="color:#e6db74">UNWIND futureEvents AS futureEvent
-</span><span style="color:#e6db74">WITH futureEvent, orderedPastEvents ORDER BY futureEvent.timestamp
-</span><span style="color:#e6db74">RETURN COLLECT(futureEvent) AS orderedFutureEvents, orderedPastEvents&#34;</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(ns neo4j-meetup.db
-  (<span style="color:#e6db74">:require</span> [clojure.walk <span style="color:#e6db74">:as</span> walk])
-  (<span style="color:#e6db74">:require</span> [clojurewerkz.neocons.rest.cypher <span style="color:#e6db74">:as</span> cy])
-  (<span style="color:#e6db74">:require</span> [clojurewerkz.neocons.rest <span style="color:#e6db74">:as</span> nr]))
+==&gt; 13 ms</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can achieve the desired grouping and sorting with the following cypher query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(def sorted-query "MATCH (e:Event)
+WITH COLLECT(e) AS events
+WITH [e IN events WHERE e.timestamp &lt;= timestamp()] AS pastEvents,
+     [e IN events WHERE e.timestamp &gt; timestamp()] AS futureEvents
+UNWIND pastEvents AS pastEvent
+WITH pastEvent, futureEvents ORDER BY pastEvent.timestamp DESC
+WITH COLLECT(pastEvent) as orderedPastEvents, futureEvents
+UNWIND futureEvents AS futureEvent
+WITH futureEvent, orderedPastEvents ORDER BY futureEvent.timestamp
+RETURN COLLECT(futureEvent) AS orderedFutureEvents, orderedPastEvents")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We then use the following function to call through to the Neo4j server using the excellent <a href="https://github.com/michaelklishin/neocons">neocons</a> library:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(ns neo4j-meetup.db
+  (:require [clojure.walk :as walk])
+  (:require [clojurewerkz.neocons.rest.cypher :as cy])
+  (:require [clojurewerkz.neocons.rest :as nr]))
 
-(def NEO4J_HOST <span style="color:#e6db74">&#34;http://localhost:7521/db/data/&#34;</span>)
+(def NEO4J_HOST "http://localhost:7521/db/data/")
 
 (defn cypher
   ([query] (cypher query {}))
   ([query params]
-     (<span style="color:#66d9ef">let</span> [conn (nr/connect! NEO4J_HOST)]
+     (let [conn (nr/connect! NEO4J_HOST)]
        (-&gt;&gt; (cy/tquery query params)
-            walk/keywordize-keys))))
+            walk/keywordize-keys))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We call that function and grab the first row since we know there won&#8217;t be any other rows in the result:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(def query-result (-&gt;&gt; ( db/cypher sorted-query) first))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we need to extract the past and future collections so that we can display them on the page which we can do like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">&gt; (map #(% :data) (query-result :orderedPastEvents))
+({:timestamp 1403002772427, :name "Past Event 1"} {:timestamp 1402002772427, :name "Past Event 2"})
 
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(def query-result (-&gt;&gt; ( db/cypher sorted-query) <span style="color:#a6e22e">first</span>))
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">map</span> <span style="color:#f92672">#(</span>% <span style="color:#e6db74">:data</span>) (query-result <span style="color:#e6db74">:orderedPastEvents</span>))
-({:timestamp <span style="color:#ae81ff">1403002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Past Event 1&#34;</span>} {:timestamp <span style="color:#ae81ff">1402002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Past Event 2&#34;</span>})
-
-<span style="color:#a6e22e">&gt;</span> (<span style="color:#a6e22e">map</span> <span style="color:#f92672">#(</span>% <span style="color:#e6db74">:data</span>) (query-result <span style="color:#e6db74">:orderedFutureEvents</span>))
-({:timestamp <span style="color:#ae81ff">1414002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 1&#34;</span>} {:timestamp <span style="color:#ae81ff">1416002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 3&#34;</span>} {:timestamp <span style="color:#ae81ff">1424002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 2&#34;</span>})
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(def unsorted-query <span style="color:#e6db74">&#34;MATCH (e:Event) RETURN e&#34;</span>)
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(def now (clj-time.coerce/to-long (clj-time.core/now)))
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (def grouped-by-events 
+&gt; (map #(% :data) (query-result :orderedFutureEvents))
+({:timestamp 1414002772427, :name "Future Event 1"} {:timestamp 1416002772427, :name "Future Event 3"} {:timestamp 1424002772427, :name "Future Event 2"})</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An alternative approach is to return the events from cypher and then handle the grouping and sorting in clojure. In that case our query is much simpler:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(def unsorted-query "MATCH (e:Event) RETURN e")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll use the <a href="https://github.com/clj-time/clj-time">clj-time</a> library to determine the current time:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(def now (clj-time.coerce/to-long (clj-time.core/now)))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>First let&#8217;s split the events into past and future:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">&gt; (def grouped-by-events
      (-&gt;&gt; (db/cypher unsorted-query)
-          (<span style="color:#a6e22e">map</span> <span style="color:#f92672">#(</span>-&gt;&gt; % <span style="color:#e6db74">:e</span> <span style="color:#e6db74">:data</span>))
-          (group-by <span style="color:#f92672">#(</span><span style="color:#a6e22e">&gt;</span> (-&gt;&gt; % <span style="color:#e6db74">:timestamp</span>) now))))
+          (map #(-&gt;&gt; % :e :data))
+          (group-by #(&gt; (-&gt;&gt; % :timestamp) now))))
 
-<span style="color:#a6e22e">&gt;</span> grouped-by-events
-{true [{:timestamp <span style="color:#ae81ff">1414002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 1&#34;</span>} {:timestamp <span style="color:#ae81ff">1424002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 2&#34;</span>} {:timestamp <span style="color:#ae81ff">1416002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 3&#34;</span>}], 
- false [{:timestamp <span style="color:#ae81ff">1403002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Past Event 1&#34;</span>} {:timestamp <span style="color:#ae81ff">1402002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Past Event 2&#34;</span>}]}
-</code></pre></div><!-- raw HTML omitted -->
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-(defn time-descending [row] (<span style="color:#a6e22e">*</span> <span style="color:#ae81ff">-1</span> (-&gt;&gt; row <span style="color:#e6db74">:timestamp</span>)))
-(defn time-ascending [row] (-&gt;&gt; row <span style="color:#e6db74">:timestamp</span>))
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lisp" data-lang="lisp">
-<span style="color:#a6e22e">&gt;</span> (sort-by time-descending (<span style="color:#a6e22e">get</span> grouped-by-events false))
-({:timestamp <span style="color:#ae81ff">1403002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Past Event 1&#34;</span>} {:timestamp <span style="color:#ae81ff">1402002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Past Event 2&#34;</span>})
+&gt; grouped-by-events
+{true [{:timestamp 1414002772427, :name "Future Event 1"} {:timestamp 1424002772427, :name "Future Event 2"} {:timestamp 1416002772427, :name "Future Event 3"}],
+ false [{:timestamp 1403002772427, :name "Past Event 1"} {:timestamp 1402002772427, :name "Past Event 2"}]}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And finally we sort appropriately using these functions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(defn time-descending [row] (* -1 (-&gt;&gt; row :timestamp)))
+(defn time-ascending [row] (-&gt;&gt; row :timestamp))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">&gt; (sort-by time-descending (get grouped-by-events false))
+({:timestamp 1403002772427, :name "Past Event 1"} {:timestamp 1402002772427, :name "Past Event 2"})
 
-<span style="color:#a6e22e">&gt;</span> (sort-by time-ascending (<span style="color:#a6e22e">get</span> grouped-by-events true))
-({:timestamp <span style="color:#ae81ff">1414002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 1&#34;</span>} {:timestamp <span style="color:#ae81ff">1416002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 3&#34;</span>} {:timestamp <span style="color:#ae81ff">1424002772427</span><span style="color:#f92672">,</span> <span style="color:#e6db74">:name</span> <span style="color:#e6db74">&#34;Future Event 2&#34;</span>})
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+&gt; (sort-by time-ascending (get grouped-by-events true))
+({:timestamp 1414002772427, :name "Future Event 1"} {:timestamp 1416002772427, :name "Future Event 3"} {:timestamp 1424002772427, :name "Future Event 2"})</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I used Clojure to do the sorting and grouping in my project because the query to get the events was a bit more complicated and became very difficult to read with the sorting and grouping mixed in.</p>
+</div>
+<div class="paragraph">
+<p>Unfortunately cypher doesn&#8217;t provide an easy way to sort within a collection so we need our sorting in the row context and then collect the elements back again afterwards.</p>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -302,7 +364,7 @@ $ MATCH (e:Event) RETURN e;
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/06/29/neo4j-cypher-vs-clojure-for-group-by-and-sorting/&amp;title=Neo4j%27s%20Cypher%20vs%20Clojure%20-%20Group%20by%20and%20Sorting&amp;summary=CREATE%20%28event1%3aEvent%20%7bname%3a%20%26quot%3bFuture%20Event%201%26quot%3b%2c%20timestamp%3a%201414002772427%20%7d%29%20CREATE%20%28event2%3aEvent%20%7bname%3a%20%26quot%3bFuture%20Event%202%26quot%3b%2c%20timestamp%3a%201424002772427%20%7d%29%20CREATE%20%28event3%3aEvent%20%7bname%3a%20%26quot%3bFuture%20Event%203%26quot%3b%2c%20timestamp%3a%201416002772427%20%7d%29%20CREATE%20%28event4%3aEvent%20%7bname%3a%20%26quot%3bPast%20Event%201%26quot%3b%2c%20timestamp%3a%201403002772427%20%7d%29%20CREATE%20%28event5%3aEvent%20%7bname%3a%20%26quot%3bPast%20Event%202%26quot%3b%2c%20timestamp%3a%201402002772427%20%7d%29%20%24%20MATCH%20%28e%3aEvent%29%20RETURN%20e%3b%20%3d%3d%26gt%3b%20%2b------------------------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20e%20%7c%20%3d%3d%26gt%3b%20%2b------------------------------------------------------------%2b%20%3d%3d%26gt%3b%20%7c%20Node%5b15414%5d%7bname%3a%26quot%3bFuture%20Event%201%26quot%3b%2ctimestamp%3a1414002772427%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b15415%5d%7bname%3a%26quot%3bFuture%20Event%202%26quot%3b%2ctimestamp%3a1424002772427%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b15416%5d%7bname%3a%26quot%3bFuture%20Event%203%26quot%3b%2ctimestamp%3a1416002772427%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b15417%5d%7bname%3a%26quot%3bPast%20Event%201%26quot%3b%2ctimestamp%3a1403002772427%7d%20%7c%20%3d%3d%26gt%3b%20%7c%20Node%5b15418%5d%7bname%3a%26quot%3bPast%20Event%202%26quot%3b%2ctimestamp%3a1402002772427%7d%20%7c%20%3d%3d%26gt%3b%20%2b------------------------------------------------------------%2b%20%3d%3d%26gt%3b%205%20rows%20%3d%3d%26gt%3b%2013%20ms%20%28def%20sorted-query%20%26%2334%3bMATCH%20%28e%3aEvent%29%20WITH%20COLLECT%28e%29%20AS%20events%20WITH%20%5be%20IN%20events%20WHERE%20e...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://markhneedham.com/blog/2014/06/29/neo4j-cypher-vs-clojure-for-group-by-and-sorting/&amp;title=Neo4j%27s%20Cypher%20vs%20Clojure%20-%20Group%20by%20and%20Sorting&amp;summary=One%20of%20the%20points%20that%20I%20emphasised%20during%20my%20talk%20on%20building%20Neo4j%20backed%20applications%20using%20Clojure%20last%20week%20is%20understanding%20when%20to%20use%20Cypher%20to%20solve%20a%20problem%20and%20when%20to%20use%20the%20programming%20language.%0a%20A%20good%20example%20of%20this%20is%20in%20the%20meetup%20application%20I%26%238217%3bve%20been%20working%20on.%20I%20have%20a%20collection%20of%20events%20and%20want%20to%20display%20past%20events%20in%20descending%20order%20and%20future%20events%20in%20ascending%20order...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
