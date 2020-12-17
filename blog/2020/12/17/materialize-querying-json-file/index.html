@@ -68,7 +68,7 @@
         },
         "datePublished": "2020-12-17",
         "description": "I recently learnt about Materialize, a SQL streaming database, via their Series B fundraising announcement, and thought I\x26#8217;d take it for a spin.\n My go-to dataset for new databases is Strava, an app that I use to record my runs. It has an API that returns a JSON representation of each run, containing information like the distance covered, elapsed time, heart rate metrics, and more. I\x26#8217;ve extracted my latest 30 activities in the JSON lines format into the activities-clean.",
-        "wordCount":  1243 
+        "wordCount":  1263 
     }
     </script>
     
@@ -203,11 +203,32 @@ I&#8217;ve extracted my latest 30 activities in the JSON lines format into the <
 <h2 id="_connecting_to_materialize">Connecting to Materialize</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to query that data using Materialize, but before we do that let&#8217;s spin up an instance of Materialize using Docker:</p>
+<p>We&#8217;re going to query that data using Materialize, which we&#8217;ll set up using the following Docker Compose configuration:</p>
+</div>
+<div class="listingblock">
+<div class="title">docker-compose.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">  version: '3'
+  services:
+    materialize:
+      image: materialize/materialized:v0.5.3
+      container_name: "materialize-sandbox-docker-compose"
+      volumes:
+        - ./data:/data
+      ports:
+        - "6875:6875"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>data</code> directory containing the <code>activities-clean.json</code> file is in the <a href="https://github.com/mneedham/materialize-sandbox/tree/main/strava" target="_blank" rel="noopener">mneedham/materialize-sandbox/strava</a> GitHub repository.
+The repository also contains setup instructions.</p>
+</div>
+<div class="paragraph">
+<p>Once we&#8217;ve cloned that repository, we can launch Materialize by running the following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">docker run --name materialize-sandbox -p 6875:6875 materialize/materialized:v0.5.3 --workers 1</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker-compose up</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -233,14 +254,6 @@ to improve both our software and your queries! Please reach out at:
     Twitter: @MaterializeInc
 =======================================================================
 materialized v0.5.3 (f56c5a8a3) listening on 0.0.0.0:6875...</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Now let&#8217;s copy the JSON file containing all the runs into the container:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">docker cp activities-clean.json materialize-sandbox:/</code></pre>
 </div>
 </div>
 <div class="paragraph">
