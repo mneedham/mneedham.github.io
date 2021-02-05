@@ -70,7 +70,7 @@
         },
         "datePublished": "2021-02-03",
         "description": "The Neo4j Graph Data Science Library provides efficiently implemented, parallel versions of common graph algorithms for Neo4j, exposed as Cypher procedures. It recently published the preview release of version 1.5, which has lots of goodies to play with.\n   In this blog post we\x26#8217;re going to explore the newly added HITS algorithm with the help of a citations dataset.\n Launching Neo4j We\x26#8217;re going to run Neo4j with the Graph Data Science Library using the following Docker Compose configuration:",
-        "wordCount":  4465 
+        "wordCount":  4387 
     }
     </script>
     
@@ -376,24 +376,17 @@ CREATE CONSTRAINT ON (v:Venue) ASSERT v.name IS UNIQUE;</code></pre>
    FOREACH(citation in citations |
      MERGE (cited:Article {index:citation})
      MERGE (a)-[:CITED]-&gt;(cited))',
-   {batchSize: 1000, iterateList: true});</code></pre>
+   {batchSize: 1000, iterateList: true})
+YIELD batches, total, timeTaken, committedOperations;</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. Results</caption>
 <colgroup>
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3333%;">
-<col style="width: 8.3337%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
@@ -401,14 +394,6 @@ CREATE CONSTRAINT ON (v:Venue) ASSERT v.name IS UNIQUE;</code></pre>
 <th class="tableblock halign-left valign-top">total</th>
 <th class="tableblock halign-left valign-top">timeTaken</th>
 <th class="tableblock halign-left valign-top">committedOperations</th>
-<th class="tableblock halign-left valign-top">failedOperations</th>
-<th class="tableblock halign-left valign-top">failedBatches</th>
-<th class="tableblock halign-left valign-top">retries</th>
-<th class="tableblock halign-left valign-top">errorMessages</th>
-<th class="tableblock halign-left valign-top">batch</th>
-<th class="tableblock halign-left valign-top">operations</th>
-<th class="tableblock halign-left valign-top">wasTerminated</th>
-<th class="tableblock halign-left valign-top">failedParams</th>
 </tr>
 </thead>
 <tbody>
@@ -417,14 +402,6 @@ CREATE CONSTRAINT ON (v:Venue) ASSERT v.name IS UNIQUE;</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">51956</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">21</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">51956</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{total: 52, committed: 52, failed: 0, errors: {}}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{total: 51956, committed: 51956, failed: 0, errors: {}}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">FALSE</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{}</p></td>
 </tr>
 </tbody>
 </table>
@@ -583,43 +560,38 @@ RETURN name, description;</code></pre>
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL gds.alpha.hits.write("citation_graph", {
   hitsIterations: 20
-});</code></pre>
+})
+YIELD writeMillis, nodePropertiesWritten, ranIterations, postProcessingMillis, createMillis, computeMillis;</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 4. Results</caption>
 <colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.667%;">
 </colgroup>
 <thead>
 <tr>
+<th class="tableblock halign-left valign-top">writeMillis</th>
 <th class="tableblock halign-left valign-top">nodePropertiesWritten</th>
 <th class="tableblock halign-left valign-top">ranIterations</th>
-<th class="tableblock halign-left valign-top">didConverge</th>
-<th class="tableblock halign-left valign-top">writeMillis</th>
 <th class="tableblock halign-left valign-top">postProcessingMillis</th>
 <th class="tableblock halign-left valign-top">createMillis</th>
 <th class="tableblock halign-left valign-top">computeMillis</th>
-<th class="tableblock halign-left valign-top">configuration</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">174</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">103912</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">81</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">FALSE</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">562</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">29</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">430</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{writeConcurrency: 0, writeProperty: "pregel_", relationshipWeightProperty: NULL, hitsIterations: 20, nodeLabels: ["<strong>"], sudo: FALSE, relationshipTypes: ["</strong>"], mutateProperty: "pregel_", concurrency: 4}</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">390</p></td>
 </tr>
 </tbody>
 </table>
@@ -998,46 +970,38 @@ i.e. do the nodes with the highest HITS authority score also have a high PageRan
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL gds.pageRank.write("citation_graph", {
   maxIterations: 20,
   writeProperty: "pagerank"
-});</code></pre>
+})
+YIELD writeMillis, nodePropertiesWritten, ranIterations, postProcessingMillis, createMillis, computeMillis;</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 8. Results</caption>
 <colgroup>
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1112%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.667%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">writeMillis</th>
 <th class="tableblock halign-left valign-top">nodePropertiesWritten</th>
 <th class="tableblock halign-left valign-top">ranIterations</th>
-<th class="tableblock halign-left valign-top">didConverge</th>
-<th class="tableblock halign-left valign-top">centralityDistribution</th>
 <th class="tableblock halign-left valign-top">postProcessingMillis</th>
 <th class="tableblock halign-left valign-top">createMillis</th>
 <th class="tableblock halign-left valign-top">computeMillis</th>
-<th class="tableblock halign-left valign-top">configuration</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">229</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">29</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">51956</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">FALSE</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{p99: 1.3121633529663086, min: 0.14999961853027344, max: 93.94335842132568, mean: 0.2222810306067426, p90: 0.2774991989135742, p50: 0.14999961853027344, p999: 5.657378196716309, p95: 0.43799686431884766, p75: 0.14999961853027344}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">67</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">152</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{maxIterations: 20, writeConcurrency: 4, relationshipWeightProperty: NULL, cacheWeights: FALSE, concurrency: 4, sourceNodes: [], writeProperty: "pagerank", nodeLabels: ["<strong>"], sudo: FALSE, dampingFactor: 0.85, relationshipTypes: ["</strong>"], tolerance: 1.0E-7}</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">112</p></td>
 </tr>
 </tbody>
 </table>
