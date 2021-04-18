@@ -71,7 +71,7 @@
         },
         "datePublished": "2021-04-17",
         "description": "Over the last 13 months I\x26#8217;ve spent countless hours looking at dashboards that showed Coronavirus infection rates, death rates, and numbers of people vaccinated. The UK government host a dashboard at coronavirus.data.gov.uk, which contains charts and tables showing all of the above.\n One thing I haven\x26#8217;t been able to find, however, is a drill down of vaccinations by local area and age group. So I\x26#8217;m going to try to build my own!",
-        "wordCount":  1792 
+        "wordCount":  2249 
     }
     </script>
     
@@ -1328,10 +1328,425 @@ average_rates.insert(0, "Region", list(average_rates.index))</code></pre>
 </table>
 <div class="paragraph">
 <p>Most of the country is doing really well, but it&#8217;s interesting to see that London has much lower vaccination rates across every category.
-I assume this is due to a combination of vaccine hesitancy or difficulty getting to the vaccination centres.</p>
+I assume this is due to a combination of vaccine hesitancy, difficulty getting to the vaccination centres, or perhaps there&#8217;s an error with the data.</p>
 </div>
 <div class="paragraph">
-<p>We could do some further analysis to figure out the specific areas that have lower uptake, but I think that can wait for another post!</p>
+<p>This isn&#8217;t a perfect calculation though because we&#8217;re assigning equal weight to each local area, which will vary in size.
+That means that we might be giving too much weight to smaller places with especially high or low vaccine uptake.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s instead sum together the vaccinations given and populations per region and compute the percentages again.
+First we&#8217;ll create DataFrames for each region:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">population.loc[:, "Region Name (administrative)"] = vaccinations["Region Name (administrative)"]
+
+population_by_region = population.groupby(["Region Name (administrative)"]).sum()
+population_by_region.insert(0, "Region", list(population_by_region.index))
+
+vaccinations_by_region = vaccinations.groupby(["Region Name (administrative)"]).sum()
+vaccinations_by_region.insert(0, "Region", list(vaccinations_by_region.index))</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 9. population_by_region DataFrame</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Region</th>
+<th class="tableblock halign-left valign-top">Under 50</th>
+<th class="tableblock halign-left valign-top">50-54</th>
+<th class="tableblock halign-left valign-top">55-59</th>
+<th class="tableblock halign-left valign-top">60-64</th>
+<th class="tableblock halign-left valign-top">65-69</th>
+<th class="tableblock halign-left valign-top">70-74</th>
+<th class="tableblock halign-left valign-top">75-79</th>
+<th class="tableblock halign-left valign-top">80+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">East Midlands</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3170332</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">364235</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">356411</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">304211</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">261878</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">265843</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">193933</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">249586</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">East of England</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4165578</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">470144</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">456846</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">387478</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">331616</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">344449</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">252007</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">346692</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">London</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">7592384</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">664924</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">587034</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">458373</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">342329</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">293428</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">204762</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">297433</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">North East</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1687882</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">193270</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">200330</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">180677</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">154636</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">150338</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">102373</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">140390</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">North West</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4953735</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">549622</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">544180</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">465484</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">389203</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">388096</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">274374</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">364876</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">South East</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6112065</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">695721</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">676804</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">570183</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">480072</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">493718</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">365478</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">510052</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">South West</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3496476</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">415359</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">424070</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">374972</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">333106</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">349326</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">260864</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">355024</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">West Midlands</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4019092</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">439809</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">418626</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">356127</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">304688</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">300890</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">230075</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">308908</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yorkshire and The Humber</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3670427</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">404075</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">392613</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">341298</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">289223</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">289865</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">204261</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">277539</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 10. vaccinations_by_region DataFrame</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Region</th>
+<th class="tableblock halign-left valign-top">Under 50</th>
+<th class="tableblock halign-left valign-top">50-54</th>
+<th class="tableblock halign-left valign-top">55-59</th>
+<th class="tableblock halign-left valign-top">60-64</th>
+<th class="tableblock halign-left valign-top">65-69</th>
+<th class="tableblock halign-left valign-top">70-74</th>
+<th class="tableblock halign-left valign-top">75-79</th>
+<th class="tableblock halign-left valign-top">80+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">East Midlands</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">658569</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">310156</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">312653</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">274052</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">243321</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">253103</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">186500</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">239377</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">East of England</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">755452</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">399663</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">400596</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">347169</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">305122</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">325649</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">241126</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">332207</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">London</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1097594</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">459513</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">428659</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">352909</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">276040</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">248388</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">176083</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">255922</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">North East</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">313030</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">164486</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">178221</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">165482</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">145496</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">144315</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">99336</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">135749</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">North West</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">937404</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">451446</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">466463</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">412713</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">356303</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">365507</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">261756</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">347927</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">South East</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1078781</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">594115</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">594208</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">511143</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">442087</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">466018</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">348965</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">487877</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">South West</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">668237</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">361313</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">377659</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">339592</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">309999</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">332055</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">250762</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">342276</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">West Midlands</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">763887</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">361823</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">357134</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">315110</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">278568</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">283073</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">218910</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">291583</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yorkshire and The Humber</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">694645</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">339544</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">344640</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">307351</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">268164</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">275646</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">196338</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">266059</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>And now we can compute the vaccination rate per region:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">vaccination_rates_by_region = ((vaccinations_by_region.select_dtypes(exclude='object').div(population_by_region.select_dtypes(exclude='object')) * 100).combine_first(vaccinations_by_region)[vaccinations_by_region.columns])
+vaccination_rates_by_region = vaccination_rates_by_region.convert_dtypes()</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 11. vaccinations_by_region DataFrame</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+<col style="width: 10%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Region</th>
+<th class="tableblock halign-left valign-top">Under 50</th>
+<th class="tableblock halign-left valign-top">50-54</th>
+<th class="tableblock halign-left valign-top">55-59</th>
+<th class="tableblock halign-left valign-top">60-64</th>
+<th class="tableblock halign-left valign-top">65-69</th>
+<th class="tableblock halign-left valign-top">70-74</th>
+<th class="tableblock halign-left valign-top">75-79</th>
+<th class="tableblock halign-left valign-top">80+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">East Midlands</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20.7729</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">85.1527</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">87.7226</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">90.0862</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">92.9139</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.2077</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">96.1672</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.9096</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">East of England</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18.1356</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">85.0086</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">87.6873</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">89.5971</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">92.0106</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">94.542</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.6823</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.8219</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">London</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14.4565</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">69.1076</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">73.0212</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">76.9917</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80.6359</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">84.6504</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">85.994</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">86.0436</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">North East</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18.5457</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">85.1068</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">88.9637</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">91.59</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">94.0893</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.9937</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">97.0334</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">96.6942</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">North West</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18.9232</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">82.1375</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">85.7185</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">88.6632</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">91.5468</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">94.1795</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.4012</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.3549</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">South East</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17.65</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">85.3956</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">87.7962</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">89.6454</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">92.0876</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">94.3895</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.4818</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.6524</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">South West</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19.1117</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">86.9881</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">89.0558</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">90.5646</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">93.0632</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.0559</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">96.1275</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">96.4093</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">West Midlands</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19.0065</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">82.2682</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">85.311</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">88.4825</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">91.4273</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">94.0786</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.1472</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">94.3915</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yorkshire and The Humber</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18.9255</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">84.0299</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">87.7811</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">90.0536</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">92.7188</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.0946</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">96.1211</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95.8636</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>London is doing slightly better on some of the age groups measured like this, but still seems to be behind the other regions.</p>
+</div>
+<div class="paragraph">
+<p>We could do some further analysis to figure out if there are specific areas in London that have lower uptake, but I think that can wait for another post.</p>
 </div>
 </div>
 </div>
