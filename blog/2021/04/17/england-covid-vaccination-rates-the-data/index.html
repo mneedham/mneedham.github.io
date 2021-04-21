@@ -71,7 +71,7 @@
         },
         "datePublished": "2021-04-17",
         "description": "Over the last 13 months I\x26#8217;ve spent countless hours looking at dashboards that showed Coronavirus infection rates, death rates, and numbers of people vaccinated. The UK government host a dashboard at coronavirus.data.gov.uk, which contains charts and tables showing all of the above.\n One thing I haven\x26#8217;t been able to find, however, is a drill down of vaccinations by local area and age group. So I\x26#8217;m going to try to build my own!",
-        "wordCount":  2249 
+        "wordCount":  2264 
     }
     </script>
     
@@ -515,7 +515,8 @@ Let&#8217;s extract those and set them on our DataFrame:</p>
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">spreadsheet = "data/COVID-19-weekly-announced-vaccinations-15-April-2021.xlsx"
 vaccinations = pd.read_excel(spreadsheet, "LTLA", usecols="B:M")
-columns = np.concatenate((vaccinations.loc[10,:][:4].values, vaccinations.loc[11,:][4:].values), axis=None)
+columns = np.concatenate(
+    (vaccinations.loc[10,:][:4].values, vaccinations.loc[11,:][4:].values), axis=None)
 vaccinations = vaccinations.loc[14:327,]
 vaccinations.columns = columns</code></pre>
 </div>
@@ -688,11 +689,18 @@ Let&#8217;s now wrap all of that code into a function:</p>
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">def vaccinations_dataframe(spreadsheet):
     vaccinations = pd.read_excel(spreadsheet, "LTLA", usecols="B:M")
-    columns = np.concatenate((vaccinations.loc[10,:][:4].values, vaccinations.loc[11,:][4:].values), axis=None)
+    columns = np.concatenate(
+        (vaccinations.loc[10,:][:4].values, vaccinations.loc[11,:][4:].values), axis=None)
     vaccinations = vaccinations.loc[14:327,]
     vaccinations.columns = columns
     vaccinations = vaccinations.convert_dtypes()
     return vaccinations</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">spreadsheet = "data/COVID-19-weekly-announced-vaccinations-15-April-2021.xlsx"
+vaccinations = vaccinations_dataframe(spreadsheet)</code></pre>
 </div>
 </div>
 </div>
@@ -717,7 +725,8 @@ Let&#8217;s now wrap all of that code into a function:</p>
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">def population_dataframe(spreadsheet):
     population = pd.read_excel(spreadsheet, "Population estimates (NIMS)", usecols="B:L")
-    population_columns = np.concatenate((population.loc[10,:][:2], population.loc[11, :][2:]), axis=None)
+    population_columns = np.concatenate(
+        (population.loc[10,:][:2], population.loc[11, :][2:]), axis=None)
     population = population.loc[14:327,]
     population.columns = population_columns
     population.insert(loc=2, column="Under 50", value=population["Under 16"] + population["16-49"])
@@ -930,7 +939,10 @@ We can see how to do this in the following code:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">vaccination_rates = ((vaccinations.select_dtypes(exclude='string').div(population.select_dtypes(exclude='string')) * 100).combine_first(vaccinations)[vaccinations.columns])
+<pre class="highlight"><code class="language-python" data-lang="python">vaccination_rates = (
+    (vaccinations.select_dtypes(exclude='string')
+                 .div(population.select_dtypes(exclude='string')) * 100)
+                 .combine_first(vaccinations)[vaccinations.columns])
 vaccination_rates = vaccination_rates.convert_dtypes()</code></pre>
 </div>
 </div>
@@ -1610,7 +1622,10 @@ vaccinations_by_region.insert(0, "Region", list(vaccinations_by_region.index))</
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">vaccination_rates_by_region = ((vaccinations_by_region.select_dtypes(exclude='object').div(population_by_region.select_dtypes(exclude='object')) * 100).combine_first(vaccinations_by_region)[vaccinations_by_region.columns])
+<pre class="highlight"><code class="language-python" data-lang="python">vaccination_rates_by_region = ((vaccinations_by_region
+    .select_dtypes(exclude='object')
+    .div(population_by_region.select_dtypes(exclude='object')) * 100)
+    .combine_first(vaccinations_by_region)[vaccinations_by_region.columns])
 vaccination_rates_by_region = vaccination_rates_by_region.convert_dtypes()</code></pre>
 </div>
 </div>
