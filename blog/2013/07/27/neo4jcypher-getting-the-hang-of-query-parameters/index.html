@@ -68,7 +68,7 @@
         },
         "datePublished": "2013-07-27",
         "description": "For as long as I\x26#8217;ve been using neo4j\x27s cypher query language Michael has been telling me to use parameters in my queries but the performance of the queries was always acceptable so I didn\x26#8217;t feel the need.\n However, recently I was playing around with a data set and I created ~500 nodes using code similar to this:\n require \x27open-uri\x27 open(\x22data\/people.cyp\x22, \x27w\x27) { |f| (1..500).each do |value| f.puts(\x22CREATE (p:Person{name: \\\x22",
-        "wordCount":  722 
+        "wordCount":  716 
     }
     </script>
     
@@ -305,17 +305,38 @@ Neography::Rest.new.execute_query("CREATE (:Person {name: {name} })", params)</c
 <div class="paragraph">
 <p>I tweaked the code to pass in <a href="http://docs.neo4j.org/chunked/snapshot/query-create.html#create-create-multiple-nodes-from-map">an array of maps</a> instead of strings like so:</p>
 </div>
-<div class="paragraph">
-<p><sub>~</sub>ruby require 'neography' params = { :people =&gt; [] } (1..500).each do |value| params[:people] &lt;&lt; { :name =&gt; "person#{value}"} end Neography::Rest.new.execute_query("CREATE (:Person {people})", params) <sub>~</sub></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ruby" data-lang="ruby">require 'neography'
+params = { :people \=&gt; [] } (1..500).each do |value|
+  params[:people] &lt;&lt; { :name \=&gt; "person#\{value}"}
+end
+Neography::Rest.new.execute_query("CREATE (:Person \{people})", params)</code></pre>
+</div>
 </div>
 <div class="paragraph">
-<p>I ran my script to populate the database before querying it again: <sub>~</sub>text neo4j-sh (0)$ MATCH p:Person RETURN p; ==&gt; ----------------------------- ==&gt; | p | ==&gt; ----------------------------- ==&gt; | Node[1]{name:"person1"} | ==&gt; | Node[2]{name:"person2"} | ==&gt; | Node[3]{name:"person3"} | ==&gt; | Node[4]{name:"person4"} | ==&gt; | Node[5]{name:"person5"} | ==&gt; | Node[6]{name:"person6"} | ==&gt; | Node[7]{name:"person7"} | ==&gt; | Node[8]{name:"person8"} | ==&gt; | Node[9]{name:"person9"} | ==&gt; | Node[10]{name:"person10"} | ==&gt; | Node[11]{name:"person11"} | ... ==&gt; ----------------------------- ==&gt; 500 rows ==&gt; 1081 ms <sub>~</sub></p>
+<p>I ran my script to populate the database before querying it again:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text"> neo4j-sh (0)$ MATCH p:Person RETURN p;
+ =\=&gt; +-----------------------------+ =\=&gt; | p | =\=&gt; +-----------------------------+ =\=&gt; | Node[1]{name:"person1"} | =\=&gt; | Node[2]{name:"person2"} | =\=&gt; | Node[3]{name:"person3"} | =\=&gt; | Node[4]{name:"person4"} | =\=&gt; | Node[5]{name:"person5"} | =\=&gt; | Node[6]{name:"person6"} | =\=&gt; | Node[7]{name:"person7"} | =\=&gt; | Node[8]{name:"person8"} | =\=&gt; | Node[9]{name:"person9"} | =\=&gt; | Node[10]{name:"person10"} | =\=&gt; | Node[11]{name:"person11"} | \... =\=&gt; +-----------------------------+ =\=&gt; 500 rows =\=&gt; 1081 ms</code></pre>
+</div>
 </div>
 <div class="paragraph">
-<p>This time I got the expected result so the only thing to do was to quickly check how long it had taken to get the parameterised data into the database: <sub>~</sub>bash $ time bundle exec ruby people.rb real 0m0.993s user 0m0.733s sys 0m0.097s <sub>~</sub></p>
+<p>This time I got the expected result so the only thing to do was to quickly check how long it had taken to get the parameterised data into the database:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"> $ time bundle exec ruby people.rb
+
+ real 0m0.993s
+ user 0m0.733s
+ sys 0m0.097s</code></pre>
+</div>
 </div>
 <div class="paragraph">
-<p>And the winner is...Michael, by about 26 seconds per run.</p>
+<p>And the winner is&#8230;&#8203;Michael, by about 26 seconds per run.</p>
 </div>
 <div class="paragraph">
 <p>In this version cypher creates a query plan the first time it encounters the CREATE statement but after that it can use the query plan for the subsequent calls which leads to a massive performance improvement.</p>
