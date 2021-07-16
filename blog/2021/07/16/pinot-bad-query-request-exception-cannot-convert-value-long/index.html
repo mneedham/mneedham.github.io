@@ -63,7 +63,7 @@
         },
         "datePublished": "2021-07-16",
         "description": "In my continued exploration of Apache Pinot I\x26#8217;ve been trying out the GitHub events recipe , which imports data from the GitHub events stream into Pinot. In this blog post I want to show how I worked around an exception I was getting when trying to filter the data by one of the timestamp\x26#8217;s column.\n Setup We\x26#8217;re going to spin up a local instance of Pinot using the following Docker compose config:",
-        "wordCount":  294 
+        "wordCount":  337 
     }
     </script>
     
@@ -204,6 +204,9 @@ services:
 </div>
 </div>
 <div class="paragraph">
+<p>I then created a personal access token and made it available via the <code>GITHUB_TOKEN</code> environment variable.</p>
+</div>
+<div class="paragraph">
 <p>We can launch the container by running the following command:</p>
 </div>
 <div class="listingblock">
@@ -217,7 +220,7 @@ services:
 <h2 id="_querying_pinot">Querying Pinot</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If we now navigate to <a href="http://localhost:9000/#/query" class="bare">http://localhost:9000/#/query</a>, we&#8217;ll see the following screen:</p>
+<p>Once that&#8217;s ready, we&#8217;ll navigate to <a href="http://localhost:9000/#/query" class="bare">http://localhost:9000/#/query</a>, where we&#8217;ll see the following screen:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -251,7 +254,8 @@ limit 10</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><a href="https://medium.com/@xiangfu0" target="_blank" rel="noopener">Xiang Fu </a> suggested that <code>(now() - 1000*60*60)</code> was resulting in a double value, which we can work around by casting it to a long, as shown below:</p>
+<p>If the WHERE clause read <code>where createdTimeMillis &lt; now()</code> it was working fine, so the issue was with my attempts to subtract from that timestamp.
+<a href="https://medium.com/@xiangfu0" target="_blank" rel="noopener">Xiang Fu </a> suggested that <code>(now() - 1000*60*60)</code> was resulting in a double value, which we can work around by casting it to a long, as shown below:</p>
 </div>
 <div class="listingblock">
 <div class="content">
