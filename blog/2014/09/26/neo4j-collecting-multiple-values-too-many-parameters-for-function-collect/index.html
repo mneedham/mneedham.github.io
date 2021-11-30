@@ -69,7 +69,7 @@
         },
         "datePublished": "2014-09-26",
         "description": "One of my favourite functions in Neo4j\x26#8217;s cypher query language is COLLECT which allows us to group items into an array for later consumption.\n However, I\x26#8217;ve noticed that people sometimes have trouble working out how to collect multiple items with COLLECT and struggle to find a way to do so.\n Consider the following data set:\n create (p:Person {name: \x22Mark\x22}) create (e1:Event {name: \x22Event1\x22, timestamp: 1234}) create (e2:Event {name: \x22",
-        "wordCount":  368 
+        "wordCount":  364 
     }
     </script>
     
@@ -245,10 +245,32 @@ RETURN p, COLLECT(e.name, e.timestamp)</code></pre>
 <p>As the error message suggests, the COLLECT function only takes one argument so we need to find another way to solve our problem.</p>
 </div>
 <div class="paragraph">
-<p>One way is to put the two values into a literal array which will result in an array of arrays as our return result: <sub>~</sub>cypher $ MATCH (p:Person)-[:EVENT]-&gt;(e) &gt; RETURN p, COLLECT([e.name, e.timestamp]); ---------------------------------------------------------- | p | COLLECT([e.name, e.timestamp]) | ---------------------------------------------------------- | Node[0]{name:"Mark"} | [["Event1",1234],["Event2",4567]] | ---------------------------------------------------------- 1 row <sub>~</sub></p>
+<p>One way is to put the two values into a literal array which will result in an array of arrays as our return result:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ MATCH (p:Person)-[:EVENT]\-&gt;(e) &gt; RETURN p, COLLECT([e.name, e.timestamp]);
++----------------------------------------------------------+
+| p | COLLECT([e.name, e.timestamp]) |
++----------------------------------------------------------+
+| Node[0]{name:"Mark"} | [["Event1",1234],["Event2",4567]] |
++----------------------------------------------------------+
+1 row</code></pre>
+</div>
 </div>
 <div class="paragraph">
-<p>The annoying thing about this approach is that as you add more items you&#8217;ll forget in which position you&#8217;ve put each bit of data so I think a preferable approach is to collect a map of items instead: <sub>~</sub>cypher $ MATCH (p:Person)-[:EVENT]-&gt;(e) &gt; RETURN p, COLLECT({eventName: e.name, eventTimestamp: e.timestamp}); -------------------------------------------------------------------------------------------------------------------------- | p | COLLECT({eventName: e.name, eventTimestamp: e.timestamp}) | -------------------------------------------------------------------------------------------------------------------------- | Node[0]{name:"Mark"} | [{eventName -&gt; "Event1", eventTimestamp -&gt; 1234},{eventName -&gt; "Event2", eventTimestamp -&gt; 4567}] | -------------------------------------------------------------------------------------------------------------------------- 1 row <sub>~</sub></p>
+<p>The annoying thing about this approach is that as you add more items you&#8217;ll forget in which position you&#8217;ve put each bit of data so I think a preferable approach is to collect a map of items instead:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ MATCH (p:Person)-[:EVENT]\-&gt;(e) &gt; RETURN p, COLLECT({eventName: e.name, eventTimestamp: e.timestamp});
++--------------------------------------------------------------------------------------------------------------------------+
+| p | COLLECT({eventName: e.name, eventTimestamp: e.timestamp}) |
++--------------------------------------------------------------------------------------------------------------------------+
+| Node[0]{name:"Mark"} | [{eventName \-&gt; "Event1", eventTimestamp \-&gt; 1234},{eventName \-&gt; "Event2", eventTimestamp \-&gt; 4567}]
+| +--------------------------------------------------------------------------------------------------------------------------+
+1 row</code></pre>
+</div>
 </div>
 <div class="paragraph">
 <p>During the <a href="http://www.meetup.com/graphdb-london/events/194308602/">Clojure Neo4j Hackathon</a> that we ran earlier this week this proved to be a particularly pleasing approach as we could easily destructure the collection of maps in our Clojure code.</p>
