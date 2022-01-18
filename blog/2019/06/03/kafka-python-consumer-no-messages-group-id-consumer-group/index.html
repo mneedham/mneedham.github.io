@@ -64,7 +64,7 @@
         },
         "datePublished": "2019-06-03",
         "description": "When I\x26#8217;m learning a new technology, I often come across things that are incredibly confusing when I first come across them, but make complete sense afterwards. In this post I\x26#8217;ll explain my experience writing a Kafka consumer that wasn\x26#8217;t finding any messages when using consumer groups .\n Setting up Kafka infrastructure We\x26#8217;ll set up the Kafka infrastructure locally using the Docker Compose Template that I describe in my Kafka: A Basic Tutorial blog post.",
-        "wordCount":  633 
+        "wordCount":  653 
     }
     </script>
     
@@ -225,8 +225,18 @@ We can install this library using the following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ docker exec broker-tutorial kafka-topics --zookeeper zookeeper:2181 --create --topic foobar --partitions 2 --replication-factor 1
-Created topic "foobar".</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker exec broker-tutorial kafka-topics \
+  --zookeeper zookeeper:2181 \
+  --create \
+  --topic foobar \
+  --partitions 2 \
+  --replication-factor 1</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Created topic "foobar".</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -282,8 +292,13 @@ The output of running the consumer is below:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ python dummy_consumer.py
-{'id': '939cd4fe-79e9-4050-a9bc-3f94b31f62e3'}
+<pre class="highlight"><code class="language-bash" data-lang="bash">python dummy_consumer.py</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{'id': '939cd4fe-79e9-4050-a9bc-3f94b31f62e3'}
 {'id': 'a90c71b3-4516-4df9-871d-047264f1d6b6'}
 {'id': '06d45529-6888-4d2d-a4df-fec15b4b1d87'}
 {'id': '25642eee-b51c-432a-89d1-d7a17c7ef30a'}
@@ -323,9 +338,16 @@ We can run the following command to see this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ docker exec broker-tutorial kafka-consumer-groups --bootstrap-server broker:9093 --group blog_group --describe
-
-TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                             HOST            CLIENT-ID
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ docker exec broker-tutorial kafka-consumer-groups \
+  --bootstrap-server broker:9093 \
+  --group blog_group \
+  --describe</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                             HOST            CLIENT-ID
 foobar         0          8               8               0               kafka-python-1.4.6-74f3f185-b563-40c8-958a-ad6c0c4815c0 /172.26.0.1     kafka-python-1.4.6
 foobar         1          2               2               0               kafka-python-1.4.6-74f3f185-b563-40c8-958a-ad6c0c4815c0 /172.26.0.1     kafka-python-1.4.6</code></pre>
 </div>
@@ -357,9 +379,19 @@ The following code shows what a dry run of this command will do:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>$ docker exec broker-tutorial kafka-consumer-groups --bootstrap-server broker:9093 --group blog_group --topic foobar --reset-offsets --to-earliest --dry-run
-
-TOPIC                          PARTITION  NEW-OFFSET
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker exec broker-tutorial kafka-consumer-groups \
+  --bootstrap-server broker:9093 \
+  --group blog_group \
+  --topic foobar \
+  --reset-offsets \
+  --to-earliest \
+  --dry-run</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">TOPIC                          PARTITION  NEW-OFFSET
 foobar                        0          0
 foobar                        1          0</code></pre>
 </div>
@@ -369,9 +401,18 @@ foobar                        1          0</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>$ docker exec broker-tutorial kafka-consumer-groups --bootstrap-server broker:9093 --group blog_group --topic foobar --reset-offsets --to-earliest --execute
-
-TOPIC                          PARTITION  NEW-OFFSET
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker exec broker-tutorial kafka-consumer-groups \
+  --bootstrap-server broker:9093 \
+  --group blog_group \
+  --topic foobar \
+  --reset-offsets \
+  --to-earliest --execute</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">TOPIC                          PARTITION  NEW-OFFSET
 foobar                        0          0
 foobar                        1          0</code></pre>
 </div>
