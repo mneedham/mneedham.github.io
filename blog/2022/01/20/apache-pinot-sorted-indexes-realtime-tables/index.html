@@ -68,7 +68,7 @@
         },
         "datePublished": "2022-01-20",
         "description": "I\x26#8217;ve recently been learning all about Apache Pinot\x26#8217;s sorted forward indexes, and in my first blog post I explained how they work for offline tables. In this blog post we\x26#8217;ll learn how sorted indexes work with real-time tables.\n  Figure 1. Apache Pinot: Sorted indexes on real-time tables  Launch Components We\x26#8217;re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:",
-        "wordCount":  2027 
+        "wordCount":  2029 
     }
     </script>
     
@@ -472,7 +472,6 @@ from confluent_kafka import Producer</code></pre>
 <pre class="highlight"><code class="language-python" data-lang="python">def acked(err, msg):
     if err is not None:
         print("Failed to deliver message: {0}: {1}".format(msg.value(), err.str()))
-
 
 producer = Producer({'bootstrap.servers': 'localhost:9092'})</code></pre>
 </div>
@@ -913,8 +912,10 @@ The only sorted column is <code>id</code> and that&#8217;s because we only have 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">for segment in `curl -X GET "http://localhost:9000/segments/activities_realtime_sorted" -H "accept: application/json" 2&gt;/dev/null |
-                jq -r '.[] | .REALTIME[]'`; do
+<pre class="highlight"><code class="language-bash" data-lang="bash">segments=`curl -X GET "http://localhost:9000/segments/activities_realtime_sorted" \
+               -H "accept: application/json" 2&gt;/dev/null |
+          jq -r '.[] | .REALTIME[]'`
+for segment in ${segments}; do
   curl -X GET "http://localhost:9000/segments/activities_realtime_sorted/${segment}/metadata" \
     -H "accept: application/json" 2&gt;/dev/null | jq '.'
 done</code></pre>
