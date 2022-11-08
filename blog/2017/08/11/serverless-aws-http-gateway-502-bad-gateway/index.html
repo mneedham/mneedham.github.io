@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Serverless: AWS HTTP Gateway - 502 Bad Gateway &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Serverless: AWS HTTP Gateway - 502 Bad Gateway | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2017/08/11/serverless-aws-http-gateway-502-bad-gateway/" />
 
@@ -32,7 +33,8 @@
 
     
 
-        <title> Serverless: AWS HTTP Gateway - 502 Bad Gateway &middot;  Mark Needham</title>
+        
+        <title>Serverless: AWS HTTP Gateway - 502 Bad Gateway | Mark Needham</title>
 
     
         <meta name="description" content="Learn how to get up and running with a simple Python Serverless function that works with an AWS HTTP gateway." />
@@ -46,11 +48,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2017/08/11/serverless-aws-http-gateway-502-bad-gateway/" />
 
     
@@ -64,7 +67,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-08-11",
-        "description": "In my continued work with Serverless and AWS Lambda I ran into a problem when trying to call a HTTP gateway.\n My project looked like this:\n serverless.yaml\n service: http-gateway frameworkVersion: \"\u0026gt;=1.2.0 \u0026lt;2.0.0\" provider: name: aws runtime: python3.6 timeout: 180 functions: no-op: name: NoOp handler: handler.noop events: - http: POST noOp   handler.py\n def noop(event, context): return \"hello\"   Let\u0026#8217;s deploy to AWS:\n $ serverless deploy Serverless: Packaging service.",
+        "description": "In my continued work with Serverless and AWS Lambda I ran into a problem when trying to call a HTTP gateway.\nMy project looked like this:\nserverless.yaml\nservice: http-gateway frameworkVersion: \u0026#34;\u0026gt;=1.2.0 \u0026lt;2.0.0\u0026#34; provider: name: aws runtime: python3.6 timeout: 180 functions: no-op: name: NoOp handler: handler.noop events: - http: POST noOp handler.py\ndef noop(event, context): return \u0026#34;hello\u0026#34; Let’s deploy to AWS:\n$ serverless deploy Serverless: Packaging service... Serverless: Excluding development dependencies.",
         "wordCount":  261 
     }
     </script>
@@ -191,7 +194,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -229,7 +231,7 @@ tbody tr pre {margin-bottom: 27px}
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">service: http-gateway
 
-frameworkVersion: "&gt;=1.2.0 &lt;2.0.0"
+frameworkVersion: &#34;&gt;=1.2.0 &lt;2.0.0&#34;
 
 provider:
   name: aws
@@ -250,11 +252,11 @@ functions:
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">def noop(event, context):
-    return "hello"</code></pre>
+    return &#34;hello&#34;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s deploy to AWS:</p>
+<p>Let’s deploy to AWS:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -282,16 +284,16 @@ functions:
 </div>
 </div>
 <div class="paragraph">
-<p>And now we&#8217;ll try and call it using cURL:</p>
+<p>And now we’ll try and call it using cURL:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ curl -X POST https://29nb5rmmd0.execute-api.us-east-1.amazonaws.com/dev/noOp
-{"message": "Internal server error"}</code></pre>
+{&#34;message&#34;: &#34;Internal server error&#34;}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>That didn&#8217;t work so well, what do the logs have to say?</p>
+<p>That didn’t work so well, what do the logs have to say?</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -302,30 +304,30 @@ REPORT RequestId: 64ab69b0-7d8f-11e7-9db5-13b228cd4cb6	Duration: 0.27 ms	Billed 
 </div>
 </div>
 <div class="paragraph">
-<p>So the function is completely fine. It turns out I&#8217;m not very good at reading the manual and should have been returning <a href="https://medium.com/@jconning/tutorial-aws-lambda-with-api-gateway-36a8513ec8e3">a map instead of a string</a>:</p>
+<p>So the function is completely fine. It turns out I’m not very good at reading the manual and should have been returning <a href="https://medium.com/@jconning/tutorial-aws-lambda-with-api-gateway-36a8513ec8e3">a map instead of a string</a>:</p>
 </div>
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
-<p>API Gateway expects to see a json map with keys &#8220;body&#8221;, &#8220;headers&#8221;, and &#8220;statusCode&#8221;.</p>
+<p>API Gateway expects to see a json map with keys “body”, “headers”, and “statusCode”.</p>
 </div>
 </blockquote>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s update our handler function and re-deploy.</p>
+<p>Let’s update our handler function and re-deploy.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">def noop(event, context):
     return {
-        "body": "hello",
-        "headers": {},
-        "statusCode": 200
+        &#34;body&#34;: &#34;hello&#34;,
+        &#34;headers&#34;: {},
+        &#34;statusCode&#34;: 200
         }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now we&#8217;re ready to try the endpoint again:</p>
+<p>Now we’re ready to try the endpoint again:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -370,7 +372,7 @@ hello</code></pre>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/08/11/serverless-aws-http-gateway-502-bad-gateway/&amp;title=Serverless%3a%20AWS%20HTTP%20Gateway%20-%20502%20Bad%20Gateway&amp;summary=In%20my%20continued%20work%20with%20Serverless%20and%20AWS%20Lambda%20I%20ran%20into%20a%20problem%20when%20trying%20to%20call%20a%20HTTP%20gateway.%0a%20My%20project%20looked%20like%20this%3a%0a%20serverless.yaml%0a%20service%3a%20http-gateway%20frameworkVersion%3a%20%22%26gt%3b%3d1.2.0%20%26lt%3b2.0.0%22%20provider%3a%20name%3a%20aws%20runtime%3a%20python3.6%20timeout%3a%20180%20functions%3a%20no-op%3a%20name%3a%20NoOp%20handler%3a%20handler.noop%20events%3a%20-%20http%3a%20POST%20noOp%20%20%20handler.py%0a%20def%20noop%28event%2c%20context%29%3a%20return%20%22hello%22%20%20%20Let%26%238217%3bs%20deploy%20to%20AWS%3a%0a%20%24%20serverless%20deploy%20Serverless%3a%20Packaging%20service...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/08/11/serverless-aws-http-gateway-502-bad-gateway/&amp;title=Serverless%3a%20AWS%20HTTP%20Gateway%20-%20502%20Bad%20Gateway&amp;summary=In%20my%20continued%20work%20with%20Serverless%20and%20AWS%20Lambda%20I%20ran%20into%20a%20problem%20when%20trying%20to%20call%20a%20HTTP%20gateway.%0aMy%20project%20looked%20like%20this%3a%0aserverless.yaml%0aservice%3a%20http-gateway%20frameworkVersion%3a%20%26%2334%3b%26gt%3b%3d1.2.0%20%26lt%3b2.0.0%26%2334%3b%20provider%3a%20name%3a%20aws%20runtime%3a%20python3.6%20timeout%3a%20180%20functions%3a%20no-op%3a%20name%3a%20NoOp%20handler%3a%20handler.noop%20events%3a%20-%20http%3a%20POST%20noOp%20handler.py%0adef%20noop%28event%2c%20context%29%3a%20return%20%26%2334%3bhello%26%2334%3b%20Let%e2%80%99s%20deploy%20to%20AWS%3a%0a%24%20serverless%20deploy%20Serverless%3a%20Packaging%20service...%20Serverless%3a%20Excluding%20development%20dependencies...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -513,13 +515,13 @@ hello</code></pre>
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Apache Pinot: Resetting a segment after an invalid JSON Transformation &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Apache Pinot: Resetting a segment after an invalid JSON Transformation | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2022/01/31/pinot-resetting-segment-invalid-json-transformation/" />
 
@@ -35,7 +36,8 @@
 
     
 
-        <title> Apache Pinot: Resetting a segment after an invalid JSON Transformation &middot;  Mark Needham</title>
+        
+        <title>Apache Pinot: Resetting a segment after an invalid JSON Transformation | Mark Needham</title>
 
     
         <meta name="description" content="In this post we&#39;ll learn how to consume messages from a Kafka topic after fixing a faulty JSON transformation." />
@@ -49,11 +51,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2022/01/31/pinot-resetting-segment-invalid-json-transformation/" />
 
     
@@ -67,7 +70,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2022-01-31",
-        "description": "I recently had a typo in a Pinot ingestion transformation function and wanted to have Pinot re-process the Kafka stream without having to restart all the things. In this blog post we\u0026#8217;ll learn how to do that.\n  Figure 1. Apache Pinot: Resetting a segment after an invalid JSON Transformation  Setup We\u0026#8217;re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:",
+        "description": "I recently had a typo in a Pinot ingestion transformation function and wanted to have Pinot re-process the Kafka stream without having to restart all the things. In this blog post we’ll learn how to do that.\nFigure 1. Apache Pinot: Resetting a segment after an invalid JSON Transformation Setup We’re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:\ndocker-compose.yml version: \u0026#39;3.",
         "wordCount":  920 
     }
     </script>
@@ -194,7 +197,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -217,12 +219,12 @@ tbody tr pre {margin-bottom: 27px}
     <h1 class="post-title">Apache Pinot: Resetting a segment after an invalid JSON Transformation</h1>
     <div class="paragraph">
 <p>I recently had a typo in a <a href="https://docs.pinot.apache.org/developers/advanced/ingestion-level-transformations" target="_blank" rel="noopener">Pinot ingestion transformation function</a> and wanted to have Pinot re-process the Kafka stream without having to restart all the things.
-In this blog post we&#8217;ll learn how to do that.</p>
+In this blog post we’ll learn how to do that.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/reset-banner.png" alt="reset banner">
+/uploads/2022/01/reset-banner.png" alt="reset banner"/>
 </div>
 <div class="title">Figure 1. Apache Pinot: Resetting a segment after an invalid JSON Transformation</div>
 </div>
@@ -230,30 +232,30 @@ In this blog post we&#8217;ll learn how to do that.</p>
 <h2 id="_setup">Setup</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:</p>
+<p>We’re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:</p>
 </div>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">version: '3.7'
+<pre class="highlight"><code class="language-json" data-lang="json">version: &#39;3.7&#39;
 services:
   zookeeper:
     image: zookeeper:3.5.6
     hostname: zookeeper
     container_name: zookeeper-json
     ports:
-      - "2181:2181"
+      - &#34;2181:2181&#34;
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
   kafka:
     image: wurstmeister/kafka:latest
     restart: unless-stopped
-    container_name: "kafka-json"
+    container_name: &#34;kafka-json&#34;
     ports:
-      - "9092:9092"
+      - &#34;9092:9092&#34;
     expose:
-      - "9093"
+      - &#34;9093&#34;
     depends_on:
       - zookeeper
     environment:
@@ -265,29 +267,29 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
   pinot-controller:
     image: apachepinot/pinot:0.9.3
-    command: "StartController -zkAddress zookeeper-json:2181"
-    container_name: "pinot-controller-json"
+    command: &#34;StartController -zkAddress zookeeper-json:2181&#34;
+    container_name: &#34;pinot-controller-json&#34;
     volumes:
       - ./config:/config
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - &#34;9000:9000&#34;
     depends_on:
       - zookeeper
   pinot-broker:
     image: apachepinot/pinot:0.9.3
-    command: "StartBroker -zkAddress zookeeper-json:2181"
+    command: &#34;StartBroker -zkAddress zookeeper-json:2181&#34;
     restart: unless-stopped
-    container_name: "pinot-broker-json"
+    container_name: &#34;pinot-broker-json&#34;
     ports:
-      - "8099:8099"
+      - &#34;8099:8099&#34;
     depends_on:
       - pinot-controller
   pinot-server:
     image: apachepinot/pinot:0.9.3
-    command: "StartServer -zkAddress zookeeper-json:2181"
+    command: &#34;StartServer -zkAddress zookeeper-json:2181&#34;
     restart: unless-stopped
-    container_name: "pinot-server-json"
+    container_name: &#34;pinot-server-json&#34;
     depends_on:
       - pinot-broker</code></pre>
 </div>
@@ -306,30 +308,30 @@ services:
 <h2 id="_create_schema">Create Schema</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to use the following schema:</p>
+<p>We’re going to use the following schema:</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/schema.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "schemaName": "events",
-    "dimensionFieldSpecs": [
+    &#34;schemaName&#34;: &#34;events&#34;,
+    &#34;dimensionFieldSpecs&#34;: [
       {
-        "name": "age",
-        "dataType": "LONG"
+        &#34;name&#34;: &#34;age&#34;,
+        &#34;dataType&#34;: &#34;LONG&#34;
       }
     ],
-    "dateTimeFieldSpecs": [{
-      "name": "timestamp",
-      "dataType": "TIMESTAMP",
-      "format" : "1:MILLISECONDS:EPOCH",
-      "granularity": "1:MILLISECONDS"
+    &#34;dateTimeFieldSpecs&#34;: [{
+      &#34;name&#34;: &#34;timestamp&#34;,
+      &#34;dataType&#34;: &#34;TIMESTAMP&#34;,
+      &#34;format&#34; : &#34;1:MILLISECONDS:EPOCH&#34;,
+      &#34;granularity&#34;: &#34;1:MILLISECONDS&#34;
     }]
   }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>It&#8217;s only small, but it will be enough for our purposes.
+<p>It’s only small, but it will be enough for our purposes.
 We can create the schema by running the following command:</p>
 </div>
 <div class="listingblock">
@@ -344,57 +346,57 @@ We can create the schema by running the following command:</p>
 <h2 id="_create_table">Create Table</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now let&#8217;s create a real-time table based on that schema:</p>
+<p>Now let’s create a real-time table based on that schema:</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/table.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "tableName": "events",
-  "tableType": "REALTIME",
-  "segmentsConfig": {
-    "timeColumnName": "timestamp",
-    "schemaName": "events",
-    "replication": "1",
-    "replicasPerPartition": "1"
+  &#34;tableName&#34;: &#34;events&#34;,
+  &#34;tableType&#34;: &#34;REALTIME&#34;,
+  &#34;segmentsConfig&#34;: {
+    &#34;timeColumnName&#34;: &#34;timestamp&#34;,
+    &#34;schemaName&#34;: &#34;events&#34;,
+    &#34;replication&#34;: &#34;1&#34;,
+    &#34;replicasPerPartition&#34;: &#34;1&#34;
   },
-  "ingestionConfig": {
-    "batchIngestionConfig": {
-      "segmentIngestionType": "APPEND",
-      "segmentIngestionFrequency": "DAILY"
+  &#34;ingestionConfig&#34;: {
+    &#34;batchIngestionConfig&#34;: {
+      &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+      &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
     },
-    "transformConfigs": [
-      {"columnName": "age", "transformFunction": "JSONPATHLONG(payload, '$.ages')" } <i class="conum" data-value="1"></i><b>(1)</b>
+    &#34;transformConfigs&#34;: [
+      {&#34;columnName&#34;: &#34;age&#34;, &#34;transformFunction&#34;: &#34;JSONPATHLONG(payload, &#39;$.ages&#39;)&#34; } <i class="conum" data-value="1"></i><b>(1)</b>
     ]
   },
-  "tableIndexConfig": {
-      "loadMode": "MMAP",
-      "streamConfigs": {
-        "streamType": "kafka",
-        "stream.kafka.topic.name": "events",
-        "stream.kafka.broker.list": "kafka-json:9093",
-        "stream.kafka.consumer.type": "lowlevel",
-        "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
-        "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
-        "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+  &#34;tableIndexConfig&#34;: {
+      &#34;loadMode&#34;: &#34;MMAP&#34;,
+      &#34;streamConfigs&#34;: {
+        &#34;streamType&#34;: &#34;kafka&#34;,
+        &#34;stream.kafka.topic.name&#34;: &#34;events&#34;,
+        &#34;stream.kafka.broker.list&#34;: &#34;kafka-json:9093&#34;,
+        &#34;stream.kafka.consumer.type&#34;: &#34;lowlevel&#34;,
+        &#34;stream.kafka.consumer.prop.auto.offset.reset&#34;: &#34;smallest&#34;,
+        &#34;stream.kafka.consumer.factory.class.name&#34;: &#34;org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory&#34;,
+        &#34;stream.kafka.decoder.class.name&#34;: &#34;org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder&#34;,
       }
   },
-  "tenants": {},
-  "metadata": {}
+  &#34;tenants&#34;: {},
+  &#34;metadata&#34;: {}
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
-<tr>
+<tbody><tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Typo in the JSON path (<code>'$.ages'</code>) means that an exception will be thrown when the function is executed.</td>
+<td>Typo in the JSON path (<code>&#39;$.ages&#39;</code>) means that an exception will be thrown when the function is executed.</td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="admonitionblock note">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <i class="fa icon-note" title="Note"></i>
 </td>
@@ -404,7 +406,7 @@ For documentation on the JSONPATHLONG function, see the <a href="https://docs.pi
 ==
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>We can create the table by running the following command:</p>
@@ -422,13 +424,13 @@ For documentation on the JSONPATHLONG function, see the <a href="https://docs.pi
 <h2 id="_ingest_data_into_kafka">Ingest Data into Kafka</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now let&#8217;s ingest a few messages into the Kafka <code>events</code> topic:</p>
+<p>Now let’s ingest a few messages into the Kafka <code>events</code> topic:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">printf '{"timestamp": "2019-10-09 22:25:25", "payload": {"age": 18}}
-{"timestamp": "2019-10-09 23:25:25", "payload": {"age": 14}}
-{"timestamp": "2019-10-09 23:40:25", "payload": {"age": 16}}\n' |
+<pre class="highlight"><code class="language-bash" data-lang="bash">printf &#39;{&#34;timestamp&#34;: &#34;2019-10-09 22:25:25&#34;, &#34;payload&#34;: {&#34;age&#34;: 18}}
+{&#34;timestamp&#34;: &#34;2019-10-09 23:25:25&#34;, &#34;payload&#34;: {&#34;age&#34;: 14}}
+{&#34;timestamp&#34;: &#34;2019-10-09 23:40:25&#34;, &#34;payload&#34;: {&#34;age&#34;: 16}}\n&#39; |
 docker exec -i kafka-json /opt/kafka/bin/kafka-console-producer.sh \
   --bootstrap-server localhost:9092 \
   --topic events</code></pre>
@@ -449,20 +451,20 @@ docker exec -i kafka-json /opt/kafka/bin/kafka-console-producer.sh \
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">{"timestamp": "2019-10-09 22:25:25", "payload": {"age": 18}}
-{"timestamp": "2019-10-09 23:25:25", "payload": {"age": 14}}
-{"timestamp": "2019-10-09 23:40:25", "payload": {"age": 16}}
+<pre class="highlight"><code class="language-text" data-lang="text">{&#34;timestamp&#34;: &#34;2019-10-09 22:25:25&#34;, &#34;payload&#34;: {&#34;age&#34;: 18}}
+{&#34;timestamp&#34;: &#34;2019-10-09 23:25:25&#34;, &#34;payload&#34;: {&#34;age&#34;: 14}}
+{&#34;timestamp&#34;: &#34;2019-10-09 23:40:25&#34;, &#34;payload&#34;: {&#34;age&#34;: 16}}
 Processed a total of 3 messages</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>All good so far.
-Let&#8217;s navigate to <a href="http://localhost:9000/#/query" class="bare">http://localhost:9000/#/query</a> and query the <code>events</code> table:</p>
+Let’s navigate to <a href="http://localhost:9000/#/query" class="bare">http://localhost:9000/#/query</a> and query the <code>events</code> table:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/events-empty.png" alt="events empty">
+/uploads/2022/01/events-empty.png" alt="events empty"/>
 </div>
 <div class="title">Figure 2. No documents</div>
 </div>
@@ -475,11 +477,11 @@ Let&#8217;s navigate to <a href="http://localhost:9000/#/query" class="bare">htt
 <h2 id="_the_debug_api">The Debug API</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We can find out what&#8217;s going on by querying the debug API for this table:</p>
+<p>We can find out what’s going on by querying the debug API for this table:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/debug/tables/events?verbosity=0" -H "accept: application/json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/debug/tables/events?verbosity=0&#34; -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -487,52 +489,52 @@ Let&#8217;s navigate to <a href="http://localhost:9000/#/query" class="bare">htt
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">[
   {
-    "tableName": "events_REALTIME",
-    "numSegments": 1,
-    "numServers": 1,
-    "numBrokers": 1,
-    "segmentDebugInfos": [
+    &#34;tableName&#34;: &#34;events_REALTIME&#34;,
+    &#34;numSegments&#34;: 1,
+    &#34;numServers&#34;: 1,
+    &#34;numBrokers&#34;: 1,
+    &#34;segmentDebugInfos&#34;: [
       {
-        "segmentName": "events__0__0__20220131T1057Z",
-        "serverState": {
-          "Server_172.24.0.6_8098": {
-            "idealState": "CONSUMING",
-            "externalView": "CONSUMING",
-            "segmentSize": "0 bytes",
-            "consumerInfo": {
-              "segmentName": "events__0__0__20220131T1057Z",
-              "consumerState": "CONSUMING",
-              "lastConsumedTimestamp": 1643626843673,
-              "partitionToOffsetMap": {
-                "0": "3"
+        &#34;segmentName&#34;: &#34;events__0__0__20220131T1057Z&#34;,
+        &#34;serverState&#34;: {
+          &#34;Server_172.24.0.6_8098&#34;: {
+            &#34;idealState&#34;: &#34;CONSUMING&#34;,
+            &#34;externalView&#34;: &#34;CONSUMING&#34;,
+            &#34;segmentSize&#34;: &#34;0 bytes&#34;,
+            &#34;consumerInfo&#34;: {
+              &#34;segmentName&#34;: &#34;events__0__0__20220131T1057Z&#34;,
+              &#34;consumerState&#34;: &#34;CONSUMING&#34;,
+              &#34;lastConsumedTimestamp&#34;: 1643626843673,
+              &#34;partitionToOffsetMap&#34;: {
+                &#34;0&#34;: &#34;3&#34;
               }
             },
-            "errorInfo": {
-              "timestamp": "2022-01-31 10:57:50 UTC",
-              "errorMessage": "Caught exception while transforming the record: {\n  \"nullValueFields\" : [ ],\n  \"fieldToValueMap\" : {\n    \"payload\" : {\n      \"age\" : 16\n    },\n    \"age\" : null,\n    \"timestamp\" : \"2019-10-09 23:40:25\"\n  }\n}",
-              "stackTrace": "java.lang.RuntimeException: Caught exception while executing function: jsonPathLong(payload,'$.ages')\n\tat org.apache.pinot.segment.local.function.InbuiltFunctionEvaluator$FunctionExecutionNode.execute(InbuiltFunctionEvaluator.java:124)\n\tat org.apache.pinot.segment.local.function.InbuiltFunctionEvaluator.evaluate(InbuiltFunctionEvaluator.java:88)\n\tat org.apache.pinot.segment.local.recordtransformer.ExpressionTransformer.transform(ExpressionTransformer.java:96)\n\tat org.apache.pinot.segment.local.recordtransformer.CompositeTransformer.transform(CompositeTransformer.java:83)\n\tat org.apache.pinot.core.data.manager.realtime.LLRealtimeSegmentDataManager.processStreamEvents(LLRealtimeSegmentDataManager.java:518)\n\tat org.apache.pinot.core.data.manager.realtime.LLRealtimeSegmentDataManager.consumeLoop(LLRealtimeSegmentDataManager.java:420)\n\tat org.apache.pinot.core.data.manager.realtime.LLRealtimeSegmentDataManager$PartitionConsumer.run(LLRealtimeSegmentDataManager.java:568)\n\tat java.base/java.lang.Thread.run(Thread.java:829)\nCaused by: java.lang.IllegalStateException: Caught exception while invoking method: public static long org.apache.pinot.common.function.scalar.JsonFunctions.jsonPathLong(java.lang.Object,java.lang.String) with arguments: [{age=16}, $.ages]\n\tat org.apache.pinot.common.function.FunctionInvoker.invoke(FunctionInvoker.java:131)\n\tat org.apache.pinot.segment.local.function.InbuiltFunctionEvaluator$FunctionExecutionNode.execute(InbuiltFunctionEvaluator.java:122)\n\t... 7 more\nCaused by: java.lang.reflect.InvocationTargetException\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:566)\n\tat org.apache.pinot.common.function.FunctionInvoker.invoke(FunctionInvoker.java:128)\n\t... 8 more\nCaused by: com.jayway.jsonpath.PathNotFoundException: No results for path: $['ages']\n\tat com.jayway.jsonpath.internal.path.EvaluationContextImpl.getValue(EvaluationContextImpl.java:133)\n\tat com.jayway.jsonpath.JsonPath.read(JsonPath.java:187)\n\tat com.jayway.jsonpath.internal.JsonContext.read(JsonContext.java:102)\n\tat com.jayway.jsonpath.internal.JsonContext.read(JsonContext.java:85)\n\tat org.apache.pinot.common.function.scalar.JsonFunctions.jsonPath(JsonFunctions.java:89)\n\tat org.apache.pinot.common.function.scalar.JsonFunctions.jsonPathLong(JsonFunctions.java:152)\n\t... 13 more\n"
+            &#34;errorInfo&#34;: {
+              &#34;timestamp&#34;: &#34;2022-01-31 10:57:50 UTC&#34;,
+              &#34;errorMessage&#34;: &#34;Caught exception while transforming the record: {\n  \&#34;nullValueFields\&#34; : [ ],\n  \&#34;fieldToValueMap\&#34; : {\n    \&#34;payload\&#34; : {\n      \&#34;age\&#34; : 16\n    },\n    \&#34;age\&#34; : null,\n    \&#34;timestamp\&#34; : \&#34;2019-10-09 23:40:25\&#34;\n  }\n}&#34;,
+              &#34;stackTrace&#34;: &#34;java.lang.RuntimeException: Caught exception while executing function: jsonPathLong(payload,&#39;$.ages&#39;)\n\tat org.apache.pinot.segment.local.function.InbuiltFunctionEvaluator$FunctionExecutionNode.execute(InbuiltFunctionEvaluator.java:124)\n\tat org.apache.pinot.segment.local.function.InbuiltFunctionEvaluator.evaluate(InbuiltFunctionEvaluator.java:88)\n\tat org.apache.pinot.segment.local.recordtransformer.ExpressionTransformer.transform(ExpressionTransformer.java:96)\n\tat org.apache.pinot.segment.local.recordtransformer.CompositeTransformer.transform(CompositeTransformer.java:83)\n\tat org.apache.pinot.core.data.manager.realtime.LLRealtimeSegmentDataManager.processStreamEvents(LLRealtimeSegmentDataManager.java:518)\n\tat org.apache.pinot.core.data.manager.realtime.LLRealtimeSegmentDataManager.consumeLoop(LLRealtimeSegmentDataManager.java:420)\n\tat org.apache.pinot.core.data.manager.realtime.LLRealtimeSegmentDataManager$PartitionConsumer.run(LLRealtimeSegmentDataManager.java:568)\n\tat java.base/java.lang.Thread.run(Thread.java:829)\nCaused by: java.lang.IllegalStateException: Caught exception while invoking method: public static long org.apache.pinot.common.function.scalar.JsonFunctions.jsonPathLong(java.lang.Object,java.lang.String) with arguments: [{age=16}, $.ages]\n\tat org.apache.pinot.common.function.FunctionInvoker.invoke(FunctionInvoker.java:131)\n\tat org.apache.pinot.segment.local.function.InbuiltFunctionEvaluator$FunctionExecutionNode.execute(InbuiltFunctionEvaluator.java:122)\n\t... 7 more\nCaused by: java.lang.reflect.InvocationTargetException\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:566)\n\tat org.apache.pinot.common.function.FunctionInvoker.invoke(FunctionInvoker.java:128)\n\t... 8 more\nCaused by: com.jayway.jsonpath.PathNotFoundException: No results for path: $[&#39;ages&#39;]\n\tat com.jayway.jsonpath.internal.path.EvaluationContextImpl.getValue(EvaluationContextImpl.java:133)\n\tat com.jayway.jsonpath.JsonPath.read(JsonPath.java:187)\n\tat com.jayway.jsonpath.internal.JsonContext.read(JsonContext.java:102)\n\tat com.jayway.jsonpath.internal.JsonContext.read(JsonContext.java:85)\n\tat org.apache.pinot.common.function.scalar.JsonFunctions.jsonPath(JsonFunctions.java:89)\n\tat org.apache.pinot.common.function.scalar.JsonFunctions.jsonPathLong(JsonFunctions.java:152)\n\t... 13 more\n&#34;
             }
           }
         }
       }
     ],
-    "serverDebugInfos": [],
-    "brokerDebugInfos": [],
-    "tableSize": {
-      "reportedSize": "0 bytes",
-      "estimatedSize": "0 bytes"
+    &#34;serverDebugInfos&#34;: [],
+    &#34;brokerDebugInfos&#34;: [],
+    &#34;tableSize&#34;: {
+      &#34;reportedSize&#34;: &#34;0 bytes&#34;,
+      &#34;estimatedSize&#34;: &#34;0 bytes&#34;
     },
-    "ingestionStatus": {
-      "ingestionState": "HEALTHY",
-      "errorMessage": ""
+    &#34;ingestionStatus&#34;: {
+      &#34;ingestionState&#34;: &#34;HEALTHY&#34;,
+      &#34;errorMessage&#34;: &#34;&#34;
     }
   }
 ]</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>As expected, Pinot failed to find the <code>ages</code> property because it doesn&#8217;t exist in those messages.
-Let&#8217;s fix the transformation by applying the following table config:</p>
+<p>As expected, Pinot failed to find the <code>ages</code> property because it doesn’t exist in those messages.
+Let’s fix the transformation by applying the following table config:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -545,69 +547,69 @@ Let&#8217;s fix the transformation by applying the following table config:</p>
 <div class="title">/config/table-fixed.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "tableName": "events",
-  "tableType": "REALTIME",
-  "segmentsConfig": {
-    "timeColumnName": "timestamp",
-    "schemaName": "events",
-    "replication": "1",
-    "replicasPerPartition": "1"
+  &#34;tableName&#34;: &#34;events&#34;,
+  &#34;tableType&#34;: &#34;REALTIME&#34;,
+  &#34;segmentsConfig&#34;: {
+    &#34;timeColumnName&#34;: &#34;timestamp&#34;,
+    &#34;schemaName&#34;: &#34;events&#34;,
+    &#34;replication&#34;: &#34;1&#34;,
+    &#34;replicasPerPartition&#34;: &#34;1&#34;
   },
-  "ingestionConfig": {
-    "batchIngestionConfig": {
-      "segmentIngestionType": "APPEND",
-      "segmentIngestionFrequency": "DAILY"
+  &#34;ingestionConfig&#34;: {
+    &#34;batchIngestionConfig&#34;: {
+      &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+      &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
     },
-    "transformConfigs": [
-      {"columnName": "age", "transformFunction": "JSONPATHLONG(payload, '$.age')" } <i class="conum" data-value="1"></i><b>(1)</b>
+    &#34;transformConfigs&#34;: [
+      {&#34;columnName&#34;: &#34;age&#34;, &#34;transformFunction&#34;: &#34;JSONPATHLONG(payload, &#39;$.age&#39;)&#34; } <i class="conum" data-value="1"></i><b>(1)</b>
     ]
   },
-  "tableIndexConfig": {
-      "loadMode": "MMAP",
-      "streamConfigs": {
-        "streamType": "kafka",
-        "stream.kafka.topic.name": "events",
-        "stream.kafka.broker.list": "kafka-json:9093",
-        "stream.kafka.consumer.type": "lowlevel",
-        "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
-        "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
-        "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder"
+  &#34;tableIndexConfig&#34;: {
+      &#34;loadMode&#34;: &#34;MMAP&#34;,
+      &#34;streamConfigs&#34;: {
+        &#34;streamType&#34;: &#34;kafka&#34;,
+        &#34;stream.kafka.topic.name&#34;: &#34;events&#34;,
+        &#34;stream.kafka.broker.list&#34;: &#34;kafka-json:9093&#34;,
+        &#34;stream.kafka.consumer.type&#34;: &#34;lowlevel&#34;,
+        &#34;stream.kafka.consumer.prop.auto.offset.reset&#34;: &#34;smallest&#34;,
+        &#34;stream.kafka.consumer.factory.class.name&#34;: &#34;org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory&#34;,
+        &#34;stream.kafka.decoder.class.name&#34;: &#34;org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder&#34;
       }
   },
-  "tenants": {},
-  "metadata": {}
+  &#34;tenants&#34;: {},
+  &#34;metadata&#34;: {}
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
-<tr>
+<tbody><tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
 <td>Typo has now been fixed</td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
-<p>This fixes the table config, but doesn&#8217;t retrospectively ingest the messages where the exception was thrown.
+<p>This fixes the table config, but doesn’t retrospectively ingest the messages where the exception was thrown.
 We can return the Kafka offset of the consuming segment by running the following:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/tables/events/consumingSegmentsInfo" -H "accept: application/json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/tables/events/consumingSegmentsInfo&#34; -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "_segmentToConsumingInfoMap": {
-    "events__0__0__20220131T1057Z": [
+  &#34;_segmentToConsumingInfoMap&#34;: {
+    &#34;events__0__0__20220131T1057Z&#34;: [
       {
-        "serverName": "Server_172.24.0.6_8098",
-        "consumerState": "CONSUMING",
-        "lastConsumedTimestamp": 1643627394569,
-        "partitionToOffsetMap": {
-          "0": "3"
+        &#34;serverName&#34;: &#34;Server_172.24.0.6_8098&#34;,
+        &#34;consumerState&#34;: &#34;CONSUMING&#34;,
+        &#34;lastConsumedTimestamp&#34;: 1643627394569,
+        &#34;partitionToOffsetMap&#34;: {
+          &#34;0&#34;: &#34;3&#34;
         }
       }
     ]
@@ -624,26 +626,26 @@ We can return the Kafka offset of the consuming segment by running the following
 <h2 id="_resetting_the_consuming_segment">Resetting the consuming segment</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To do that we&#8217;ll need to reset the consuming segment, by running the following command:</p>
+<p>To do that we’ll need to reset the consuming segment, by running the following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X POST "http://localhost:9000/segments/events_REALTIME/events__0__0__20220131T1057Z/reset" -H "accept: application/json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X POST &#34;http://localhost:9000/segments/events_REALTIME/events__0__0__20220131T1057Z/reset&#34; -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{"status":"Successfully reset segment: events__0__0__20220131T1057Z of table: events_REALTIME"}</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">{&#34;status&#34;:&#34;Successfully reset segment: events__0__0__20220131T1057Z of table: events_REALTIME&#34;}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we now go back to the query editor we&#8217;ll see that those documents have now been ingested:</p>
+<p>If we now go back to the query editor we’ll see that those documents have now been ingested:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/events-full.png" alt="events full">
+/uploads/2022/01/events-full.png" alt="events full"/>
 </div>
 <div class="title">Figure 3. Documents!</div>
 </div>
@@ -683,7 +685,7 @@ We can return the Kafka offset of the consuming segment by running the following
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/31/pinot-resetting-segment-invalid-json-transformation/&amp;title=Apache%20Pinot%3a%20Resetting%20a%20segment%20after%20an%20invalid%20JSON%20Transformation&amp;summary=I%20recently%20had%20a%20typo%20in%20a%20Pinot%20ingestion%20transformation%20function%20and%20wanted%20to%20have%20Pinot%20re-process%20the%20Kafka%20stream%20without%20having%20to%20restart%20all%20the%20things.%20In%20this%20blog%20post%20we%26%238217%3bll%20learn%20how%20to%20do%20that.%0a%20%20Figure%201.%20Apache%20Pinot%3a%20Resetting%20a%20segment%20after%20an%20invalid%20JSON%20Transformation%20%20Setup%20We%26%238217%3bre%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20and%20Kafka%20using%20the%20following%20Docker%20compose%20config%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/31/pinot-resetting-segment-invalid-json-transformation/&amp;title=Apache%20Pinot%3a%20Resetting%20a%20segment%20after%20an%20invalid%20JSON%20Transformation&amp;summary=I%20recently%20had%20a%20typo%20in%20a%20Pinot%20ingestion%20transformation%20function%20and%20wanted%20to%20have%20Pinot%20re-process%20the%20Kafka%20stream%20without%20having%20to%20restart%20all%20the%20things.%20In%20this%20blog%20post%20we%e2%80%99ll%20learn%20how%20to%20do%20that.%0aFigure%201.%20Apache%20Pinot%3a%20Resetting%20a%20segment%20after%20an%20invalid%20JSON%20Transformation%20Setup%20We%e2%80%99re%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20and%20Kafka%20using%20the%20following%20Docker%20compose%20config%3a%0adocker-compose.yml%20version%3a%20%26%2339%3b3...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -826,13 +828,13 @@ We can return the Kafka offset of the consuming segment by running the following
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

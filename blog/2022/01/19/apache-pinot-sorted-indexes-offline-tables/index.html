@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Apache Pinot: Sorted indexes on offline tables &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Apache Pinot: Sorted indexes on offline tables | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2022/01/19/apache-pinot-sorted-indexes-offline-tables/" />
 
@@ -35,7 +36,8 @@
 
     
 
-        <title> Apache Pinot: Sorted indexes on offline tables &middot;  Mark Needham</title>
+        
+        <title>Apache Pinot: Sorted indexes on offline tables | Mark Needham</title>
 
     
         <meta name="description" content="In this post we&#39;ll learn all about sorted indexes on offline tables in Apache Pinot." />
@@ -49,11 +51,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2022/01/19/apache-pinot-sorted-indexes-offline-tables/" />
 
     
@@ -67,7 +70,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2022-01-19",
-        "description": "I\u0026#8217;ve recently been learning all about Apache Pinot\u0026#8217;s sorted forward indexes. I was initially going to explain how they work for offline and real-time tables, but the post got a bit long, so instead we\u0026#8217;ll have two blog posts. In this one we\u0026#8217;ll learn how sorted indexes are applied for offline tables.\n  Figure 1. Apache Pinot: Sorted indexes on offline tables  Launch Components We\u0026#8217;re going to spin up a local instance of Pinot using the following Docker compose config:",
+        "description": "I’ve recently been learning all about Apache Pinot’s sorted forward indexes. I was initially going to explain how they work for offline and real-time tables, but the post got a bit long, so instead we’ll have two blog posts. In this one we’ll learn how sorted indexes are applied for offline tables.\nFigure 1. Apache Pinot: Sorted indexes on offline tables Launch Components We’re going to spin up a local instance of Pinot using the following Docker compose config:",
         "wordCount":  1175 
     }
     </script>
@@ -194,7 +197,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -216,14 +218,14 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Apache Pinot: Sorted indexes on offline tables</h1>
     <div class="paragraph">
-<p>I&#8217;ve recently been learning all about Apache Pinot&#8217;s sorted forward indexes.
-I was initially going to explain how they work for offline and real-time tables, but the post got a bit long, so instead we&#8217;ll have two blog posts.
-In this one we&#8217;ll learn how sorted indexes are applied for offline tables.</p>
+<p>I’ve recently been learning all about Apache Pinot’s sorted forward indexes.
+I was initially going to explain how they work for offline and real-time tables, but the post got a bit long, so instead we’ll have two blog posts.
+In this one we’ll learn how sorted indexes are applied for offline tables.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/sorted-indexes-offline-banner.png" alt="sorted indexes offline banner">
+/uploads/2022/01/sorted-indexes-offline-banner.png" alt="sorted indexes offline banner"/>
 </div>
 <div class="title">Figure 1. Apache Pinot: Sorted indexes on offline tables</div>
 </div>
@@ -231,49 +233,49 @@ In this one we&#8217;ll learn how sorted indexes are applied for offline tables.
 <h2 id="_launch_components">Launch Components</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to spin up a local instance of Pinot using the following Docker compose config:</p>
+<p>We’re going to spin up a local instance of Pinot using the following Docker compose config:</p>
 </div>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: '3.7'
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: &#39;3.7&#39;
 services:
   zookeeper:
     image: zookeeper:3.5.6
     hostname: zookeeper
     container_name: zookeeper-strava
     ports:
-      - "2181:2181"
+      - &#34;2181:2181&#34;
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
   pinot-controller:
     image: apachepinot/pinot:0.9.3
-    command: "StartController -zkAddress zookeeper-strava:2181 -dataDir /data"
-    container_name: "pinot-controller-strava"
+    command: &#34;StartController -zkAddress zookeeper-strava:2181 -dataDir /data&#34;
+    container_name: &#34;pinot-controller-strava&#34;
     volumes:
       - ./config:/config
       - ./data:/data
       - ./input:/input
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - &#34;9000:9000&#34;
     depends_on:
       - zookeeper
   pinot-broker:
     image: apachepinot/pinot:0.9.3
-    command: "StartBroker -zkAddress zookeeper-strava:2181"
+    command: &#34;StartBroker -zkAddress zookeeper-strava:2181&#34;
     restart: unless-stopped
-    container_name: "pinot-broker-strava"
+    container_name: &#34;pinot-broker-strava&#34;
     ports:
-      - "8099:8099"
+      - &#34;8099:8099&#34;
     depends_on:
       - pinot-controller
   pinot-server:
     image: apachepinot/pinot:0.9.3
-    command: "StartServer -zkAddress zookeeper-strava:2181"
+    command: &#34;StartServer -zkAddress zookeeper-strava:2181&#34;
     restart: unless-stopped
-    container_name: "pinot-server-strava"
+    container_name: &#34;pinot-server-strava&#34;
     depends_on:
       - pinot-broker</code></pre>
 </div>
@@ -292,57 +294,57 @@ services:
 <h2 id="_create_schema">Create Schema</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to explore sorted indexes using a dataset of my Strava activities.
-We&#8217;ll be using the following schema:</p>
+<p>We’re going to explore sorted indexes using a dataset of my Strava activities.
+We’ll be using the following schema:</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/schema.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "schemaName": "activities",
-    "dimensionFieldSpecs": [
+    &#34;schemaName&#34;: &#34;activities&#34;,
+    &#34;dimensionFieldSpecs&#34;: [
       {
-        "name": "id",
-        "dataType": "LONG"
+        &#34;name&#34;: &#34;id&#34;,
+        &#34;dataType&#34;: &#34;LONG&#34;
       },
       {
-        "name": "altitude",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;altitude&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "hr",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;hr&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "cadence",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;cadence&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "rawTime",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;rawTime&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "distance",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;distance&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "lat",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;lat&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "lon",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;lon&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "location",
-        "dataType": "BYTES"
+        &#34;name&#34;: &#34;location&#34;,
+        &#34;dataType&#34;: &#34;BYTES&#34;
       }
     ],
-    "dateTimeFieldSpecs": [{
-      "name": "timestamp",
-      "dataType": "TIMESTAMP",
-      "format" : "1:MILLISECONDS:EPOCH",
-      "granularity": "1:MILLISECONDS"
+    &#34;dateTimeFieldSpecs&#34;: [{
+      &#34;name&#34;: &#34;timestamp&#34;,
+      &#34;dataType&#34;: &#34;TIMESTAMP&#34;,
+      &#34;format&#34; : &#34;1:MILLISECONDS:EPOCH&#34;,
+      &#34;granularity&#34;: &#34;1:MILLISECONDS&#34;
     }]
   }</code></pre>
 </div>
@@ -362,37 +364,37 @@ We&#8217;ll be using the following schema:</p>
 <h2 id="_create_table">Create Table</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now let&#8217;s create an offline table based on that schema.</p>
+<p>Now let’s create an offline table based on that schema.</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/table-offline.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "tableName": "activities_offline",
-    "tableType": "OFFLINE",
-    "segmentsConfig": {
-      "timeColumnName": "timestamp",
-      "replication": 1,
-      "schemaName": "activities"
+    &#34;tableName&#34;: &#34;activities_offline&#34;,
+    &#34;tableType&#34;: &#34;OFFLINE&#34;,
+    &#34;segmentsConfig&#34;: {
+      &#34;timeColumnName&#34;: &#34;timestamp&#34;,
+      &#34;replication&#34;: 1,
+      &#34;schemaName&#34;: &#34;activities&#34;
     },
-    "tenants": {
-      "broker":"DefaultTenant",
-      "server":"DefaultTenant"
+    &#34;tenants&#34;: {
+      &#34;broker&#34;:&#34;DefaultTenant&#34;,
+      &#34;server&#34;:&#34;DefaultTenant&#34;
     },
-    "tableIndexConfig": {
-      "loadMode": "MMAP"
+    &#34;tableIndexConfig&#34;: {
+      &#34;loadMode&#34;: &#34;MMAP&#34;
     },
-    "ingestionConfig": {
-      "batchIngestionConfig": {
-        "segmentIngestionType": "APPEND",
-        "segmentIngestionFrequency": "DAILY"
+    &#34;ingestionConfig&#34;: {
+      &#34;batchIngestionConfig&#34;: {
+        &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+        &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
       },
-      "transformConfigs": [
-        {"columnName": "location", "transformFunction": "toSphericalGeography(stPoint(lon, lat))" },
-        {"columnName": "timestamp", "transformFunction": "FromDateTime(\"time\", 'yyyy-MM-dd HH:mm:ssZ')" }
+      &#34;transformConfigs&#34;: [
+        {&#34;columnName&#34;: &#34;location&#34;, &#34;transformFunction&#34;: &#34;toSphericalGeography(stPoint(lon, lat))&#34; },
+        {&#34;columnName&#34;: &#34;timestamp&#34;, &#34;transformFunction&#34;: &#34;FromDateTime(\&#34;time\&#34;, &#39;yyyy-MM-dd HH:mm:ssZ&#39;)&#34; }
       ]
     },
-    "metadata": {}
+    &#34;metadata&#34;: {}
   }</code></pre>
 </div>
 </div>
@@ -412,7 +414,7 @@ We&#8217;ll be using the following schema:</p>
 <h2 id="_what_is_a_sorted_index">What is a sorted index?</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Before we ingest any data, let&#8217;s remind ourselves about the definition of a sorted index.</p>
+<p>Before we ingest any data, let’s remind ourselves about the definition of a sorted index.</p>
 </div>
 <div class="quoteblock">
 <blockquote>
@@ -422,7 +424,7 @@ Instead of saving dictionary ids for each document id, Pinot will store a pair o
 </div>
 </blockquote>
 <div class="attribution">
-&#8212; Sorted forward index with run-length encoding<br>
+— Sorted forward index with run-length encoding<br/>
 <cite><a href="https://docs.pinot.apache.org/basics/indexing/forward-index#sorted-forward-index-with-run-length-encoding">docs.pinot.apache.org/basics/indexing/forward-index#sorted-forward-index-with-run-length-encoding</a></cite>
 </div>
 </div>
@@ -432,12 +434,12 @@ Instead of saving dictionary ids for each document id, Pinot will store a pair o
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/sorted-forward.png" alt="sorted forward" width="500px">
+/uploads/2022/01/sorted-forward.png" alt="sorted forward" width="500px"/>
 </div>
 <div class="title">Figure 2. Sorted Forward Index</div>
 </div>
 <div class="paragraph">
-<p>The advantage of having a sorted index is that queries that filter by that column will be more performant since the query engine doesn&#8217;t need to scan through every document to check if they match the filtering criteria.</p>
+<p>The advantage of having a sorted index is that queries that filter by that column will be more performant since the query engine doesn’t need to scan through every document to check if they match the filtering criteria.</p>
 </div>
 <div class="paragraph">
 <p>When creating a segment Pinot does a single pass over every column to check whether the data is sorted.
@@ -445,7 +447,7 @@ Columns that contain sorted data will use a sorted forward index.</p>
 </div>
 <div class="admonitionblock note">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <div class="title">Note</div>
 </td>
@@ -456,7 +458,7 @@ This means that a column could be sorted in one segment, but not in another one.
 </div>
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 </div>
 </div>
@@ -464,8 +466,8 @@ This means that a column could be sorted in one segment, but not in another one.
 <h2 id="_ingesting_data">Ingesting Data</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now let&#8217;s import some data into our table.
-We&#8217;ll be importing data from CSV files that contain some of the lat/longs from a few of my Strava runs.</p>
+<p>Now let’s import some data into our table.
+We’ll be importing data from CSV files that contain some of the lat/longs from a few of my Strava runs.</p>
 </div>
 <div class="paragraph">
 <p><code>activity1.csv</code> contains the first 5 recorded points from one run:</p>
@@ -473,15 +475,15 @@ We&#8217;ll be importing data from CSV files that contain some of the lat/longs 
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. activity1.csv</caption>
 <colgroup>
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 20%;">
-<col style="width: 10%;">
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 20%;"/>
+<col style="width: 10%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -560,15 +562,15 @@ We&#8217;ll be importing data from CSV files that contain some of the lat/longs 
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. activity2.csv</caption>
 <colgroup>
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 20%;">
-<col style="width: 10%;">
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 20%;"/>
+<col style="width: 10%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -704,24 +706,24 @@ We&#8217;ll be importing data from CSV files that contain some of the lat/longs 
 </div>
 </div>
 <div class="paragraph">
-<p>Once the job has run we&#8217;ll have two segments in our table, which we can see by navigating to <a href="http://localhost:9000/#/tenants/table/activities_offline_OFFLINE" class="bare">http://localhost:9000/#/tenants/table/activities_offline_OFFLINE</a>.
+<p>Once the job has run we’ll have two segments in our table, which we can see by navigating to <a href="http://localhost:9000/#/tenants/table/activities_offline_OFFLINE" class="bare">http://localhost:9000/#/tenants/table/activities_offline_OFFLINE</a>.
 You should see something like the following:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/segments-table.png" alt="segments table">
+/uploads/2022/01/segments-table.png" alt="segments table"/>
 </div>
 <div class="title">Figure 3. Segments</div>
 </div>
 <div class="paragraph">
-<p>If the segments are showing up we can be reasonably sure that the import has worked, but let&#8217;s also navigate to <a href="http://localhost:9000/#/query" class="bare">http://localhost:9000/#/query</a> to make sure.
+<p>If the segments are showing up we can be reasonably sure that the import has worked, but let’s also navigate to <a href="http://localhost:9000/#/query" class="bare">http://localhost:9000/#/query</a> to make sure.
 If we run a query against the table, we should see something like the following:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/sorted-query.png" alt="sorted query">
+/uploads/2022/01/sorted-query.png" alt="sorted query"/>
 </div>
 <div class="title">Figure 4. Querying the activities_offline table</div>
 </div>
@@ -731,74 +733,74 @@ If we run a query against the table, we should see something like the following:
 <h2 id="_checking_sorted_status">Checking sorted status</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Next, we&#8217;re going to check on the sorted status of the columns in each segment.</p>
+<p>Next, we’re going to check on the sorted status of the columns in each segment.</p>
 </div>
 <div class="paragraph">
-<p>First let&#8217;s collect all the columns in the <code>activities</code> schema:</p>
+<p>First let’s collect all the columns in the <code>activities</code> schema:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">export queryString=`curl -X GET "http://localhost:9000/schemas/activities" -H "accept: application/json" 2&gt;/dev/null |
-  jq -r '[.dimensionFieldSpecs,.dateTimeFieldSpecs | .[] | .name ] | join("&amp;columns=")'`</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">export queryString=`curl -X GET &#34;http://localhost:9000/schemas/activities&#34; -H &#34;accept: application/json&#34; 2&gt;/dev/null |
+  jq -r &#39;[.dimensionFieldSpecs,.dateTimeFieldSpecs | .[] | .name ] | join(&#34;&amp;columns=&#34;)&#39;`</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>And now let&#8217;s call the <em>getServerMetaData</em> endpoint and filter the response to get the segment name, input file, and column names with sorted status:</p>
+<p>And now let’s call the <em>getServerMetaData</em> endpoint and filter the response to get the segment name, input file, and column names with sorted status:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/segments/activities_offline/metadata?columns=${queryString}" \
-  -H "accept: application/json"  2&gt;/dev/null |
-  jq -c '.[] | select(.columns != null) | {
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/segments/activities_offline/metadata?columns=${queryString}&#34; \
+  -H &#34;accept: application/json&#34;  2&gt;/dev/null |
+  jq -c &#39;.[] | select(.columns != null) | {
     segment: .segmentName,
-    importedFrom: .custom ["input.data.file.uri"],
+    importedFrom: .custom [&#34;input.data.file.uri&#34;],
     columns: .columns | map({(.columnName): .sorted})
-  }'</code></pre>
+  }&#39;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run this command, we&#8217;ll see the following output:</p>
+<p>If we run this command, we’ll see the following output:</p>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "segment": "activities_offline_OFFLINE_1581488399000_1582343333000_1",
-    "importedFrom": "file:/input-blog/activity2.csv",
-    "columns": [
-        {"altitude": false},
-        {"distance": false},
-        {"hr": false},
-        {"lon": false},
-        {"cadence": false},
-        {"rawTime": false},
-        {"location": false},
-        {"id": false},
-        {"lat": true},
-        {"timestamp": false}
+    &#34;segment&#34;: &#34;activities_offline_OFFLINE_1581488399000_1582343333000_1&#34;,
+    &#34;importedFrom&#34;: &#34;file:/input-blog/activity2.csv&#34;,
+    &#34;columns&#34;: [
+        {&#34;altitude&#34;: false},
+        {&#34;distance&#34;: false},
+        {&#34;hr&#34;: false},
+        {&#34;lon&#34;: false},
+        {&#34;cadence&#34;: false},
+        {&#34;rawTime&#34;: false},
+        {&#34;location&#34;: false},
+        {&#34;id&#34;: false},
+        {&#34;lat&#34;: true},
+        {&#34;timestamp&#34;: false}
     ]
 }
 {
-    "segment": "activities_offline_OFFLINE_1570656325000_1570656332000_0",
-    "importedFrom": "file:/input-blog/activity1.csv",
-    "columns": [
-        {"altitude": true},
-        {"distance": true},
-        {"hr": true},
-        {"lon": false},
-        {"cadence": true},
-        {"rawTime": true},
-        {"location": false},
-        {"id": true},
-        {"lat": false},
-        {"timestamp": true}
+    &#34;segment&#34;: &#34;activities_offline_OFFLINE_1570656325000_1570656332000_0&#34;,
+    &#34;importedFrom&#34;: &#34;file:/input-blog/activity1.csv&#34;,
+    &#34;columns&#34;: [
+        {&#34;altitude&#34;: true},
+        {&#34;distance&#34;: true},
+        {&#34;hr&#34;: true},
+        {&#34;lon&#34;: false},
+        {&#34;cadence&#34;: true},
+        {&#34;rawTime&#34;: true},
+        {&#34;location&#34;: false},
+        {&#34;id&#34;: true},
+        {&#34;lat&#34;: false},
+        {&#34;timestamp&#34;: true}
     ]
 }</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <div class="title">Note</div>
 </td>
@@ -808,7 +810,7 @@ If we run a query against the table, we should see something like the following:
 </div>
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>From this output we can see that the segment created from <code>activity1.csv</code> has many more sorted columns than the one created from <code>activity2.csv.</code>
@@ -824,11 +826,11 @@ None of the other columns are sorted.</p>
 <h2 id="_summary">Summary</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>So that&#8217;s the end of this first post explaining how sorted indexes work in Apache Pinot.
+<p>So that’s the end of this first post explaining how sorted indexes work in Apache Pinot.
 Hopefully it all made sense, but if not feel free to ask any questions on the <a href="https://communityinviter.com/apps/apache-pinot/apache-pinot" target="_blank" rel="noopener">Pinot Community Slack</a>.</p>
 </div>
 <div class="paragraph">
-<p>In our next post we&#8217;ll learn <a href="https://www.markhneedham.com/blog/2022/01/20/apache-pinot-sorted-indexes-realtime-tables/">how sorted indexes work on real-time tables</a>.</p>
+<p>In our next post we’ll learn <a href="https://www.markhneedham.com/blog/2022/01/20/apache-pinot-sorted-indexes-realtime-tables/">how sorted indexes work on real-time tables</a>.</p>
 </div>
 </div>
 </div>
@@ -866,7 +868,7 @@ Hopefully it all made sense, but if not feel free to ask any questions on the <a
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/19/apache-pinot-sorted-indexes-offline-tables/&amp;title=Apache%20Pinot%3a%20Sorted%20indexes%20on%20offline%20tables&amp;summary=I%26%238217%3bve%20recently%20been%20learning%20all%20about%20Apache%20Pinot%26%238217%3bs%20sorted%20forward%20indexes.%20I%20was%20initially%20going%20to%20explain%20how%20they%20work%20for%20offline%20and%20real-time%20tables%2c%20but%20the%20post%20got%20a%20bit%20long%2c%20so%20instead%20we%26%238217%3bll%20have%20two%20blog%20posts.%20In%20this%20one%20we%26%238217%3bll%20learn%20how%20sorted%20indexes%20are%20applied%20for%20offline%20tables.%0a%20%20Figure%201.%20Apache%20Pinot%3a%20Sorted%20indexes%20on%20offline%20tables%20%20Launch%20Components%20We%26%238217%3bre%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20using%20the%20following%20Docker%20compose%20config%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/19/apache-pinot-sorted-indexes-offline-tables/&amp;title=Apache%20Pinot%3a%20Sorted%20indexes%20on%20offline%20tables&amp;summary=I%e2%80%99ve%20recently%20been%20learning%20all%20about%20Apache%20Pinot%e2%80%99s%20sorted%20forward%20indexes.%20I%20was%20initially%20going%20to%20explain%20how%20they%20work%20for%20offline%20and%20real-time%20tables%2c%20but%20the%20post%20got%20a%20bit%20long%2c%20so%20instead%20we%e2%80%99ll%20have%20two%20blog%20posts.%20In%20this%20one%20we%e2%80%99ll%20learn%20how%20sorted%20indexes%20are%20applied%20for%20offline%20tables.%0aFigure%201.%20Apache%20Pinot%3a%20Sorted%20indexes%20on%20offline%20tables%20Launch%20Components%20We%e2%80%99re%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20using%20the%20following%20Docker%20compose%20config%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -1009,13 +1011,13 @@ Hopefully it all made sense, but if not feel free to ask any questions on the <a
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Materialize: Creating multiple views on one source &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Materialize: Creating multiple views on one source | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2021/01/28/materialize-multiple-views-one-source/" />
 
@@ -35,7 +36,8 @@
 
     
 
-        <title> Materialize: Creating multiple views on one source &middot;  Mark Needham</title>
+        
+        <title>Materialize: Creating multiple views on one source | Mark Needham</title>
 
     
         <meta name="description" content="In this post we&#39;ll learn how to create multiple views on top of one source using the Materialize SQL streaming database." />
@@ -49,11 +51,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2021/01/28/materialize-multiple-views-one-source/" />
 
     
@@ -67,7 +70,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2021-01-28",
-        "description": "This is another post describing my exploration of Materialize, a SQL streaming database. In this post we\u0026#8217;re going to learn how to create multiple views on top of the same underlying source.\n   We\u0026#8217;re still going to be using data extracted from Strava, an app that I use to record my runs, but this time we have more detailed information about each run. As in the previous blog posts, each run is represented as JSON document and store in the activities-detailed-all.",
+        "description": "This is another post describing my exploration of Materialize, a SQL streaming database. In this post we’re going to learn how to create multiple views on top of the same underlying source.\nWe’re still going to be using data extracted from Strava, an app that I use to record my runs, but this time we have more detailed information about each run. As in the previous blog posts, each run is represented as JSON document and store in the activities-detailed-all.",
         "wordCount":  990 
     }
     </script>
@@ -194,7 +197,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -217,52 +219,52 @@ tbody tr pre {margin-bottom: 27px}
     <h1 class="post-title">Materialize: Creating multiple views on one source</h1>
     <div class="paragraph">
 <p>This is another post describing <a href="https://markhneedham.com/blog/tag/materialize/" target="_blank" rel="noopener">my exploration</a> of <a href="https://materialize.com/" target="_blank" rel="noopener">Materialize</a>, a SQL streaming database.
-In this post we&#8217;re going to learn how to create multiple views on top of the same underlying source.</p>
+In this post we’re going to learn how to create multiple views on top of the same underlying source.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2021/01/materialize-multi-views-banner.png" alt="materialize multi views banner">
+/uploads/2021/01/materialize-multi-views-banner.png" alt="materialize multi views banner"/>
 </div>
 </div>
 <div class="paragraph">
-<p>We&#8217;re still going to be using data extracted from Strava, an app that I use to record my runs, but this time we have more detailed information about each run.
+<p>We’re still going to be using data extracted from Strava, an app that I use to record my runs, but this time we have more detailed information about each run.
 As in the previous blog posts, each run is represented as  JSON document and store in the <a href="https://github.com/mneedham/materialize-sandbox/blob/main/strava/data/activities-detailed-all.json" target="_blank" rel="noopener"><code>activities-detailed-all.json</code></a> file in JSON lines format.
 Below is an example of one line in this file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">head -n1 data/activities-detailed-all.json |
-jq -c '{id, distance, moving_time, elapsed_time,
+jq -c &#39;{id, distance, moving_time, elapsed_time,
         total_elevation_gain, elv_high, elev_low, average_speed,
         max_speed, average_heartrate, max_heartrate, start_date,
-        best_efforts, splits_metric, splits_standard, segments_efforts}'</code></pre>
+        best_efforts, splits_metric, splits_standard, segments_efforts}&#39;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Results</div>
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{"id":259558400,"distance":3116.1,"moving_time":"0:17:48","elapsed_time":"0:17:55","total_elevation_gain":0,"elv_high":null,"elev_low":6,"average_speed":2.918,"max_speed":7.2,"average_heartrate":null,"max_heartrate":null,"start_date":"2015-02-25T06:18:39+00:00","best_efforts":[{"effort_name":"400m","moving_time":131,"elapsed_time":130,"effort_distance":400,"average_heartrate":null,"max_heartrate":null},{"effort_name":"1/2 mile","moving_time":266,"elapsed_time":265,"effort_distance":805,"average_heartrate":null,"max_heartrate":null},{"effort_name":"1k","moving_time":336,"elapsed_time":336,"effort_distance":1000,"average_heartrate":null,"max_heartrate":null},{"effort_name":"1 mile","moving_time":548,"elapsed_time":547,"effort_distance":1609,"average_heartrate":null,"max_heartrate":null}],"splits_metric":[{"distance":1002.9,"elapsed_time":"0:05:48","elevation_difference":3.2,"moving_time":"0:05:41","average_heartrate":null,"split":1,"pace_zone":0,"average_speed":2.94},{"distance":999.4,"elapsed_time":"0:05:48","elevation_difference":-1.9,"moving_time":"0:05:48","average_heartrate":null,"split":2,"pace_zone":0,"average_speed":2.87},{"distance":1001.7,"elapsed_time":"0:05:39","elevation_difference":-2.1,"moving_time":"0:05:39","average_heartrate":null,"split":3,"pace_zone":0,"average_speed":2.95},{"distance":112.1,"elapsed_time":"0:00:40","elevation_difference":0.7,"moving_time":"0:00:40","average_heartrate":null,"split":4,"pace_zone":0,"average_speed":2.8}],"splits_standard":[{"distance":1612.2,"elapsed_time":"0:09:21","elevation_difference":4.7,"moving_time":"0:09:14","average_heartrate":null,"split":1,"pace_zone":0,"average_speed":2.91},{"distance":1503.9,"elapsed_time":"0:08:34","elevation_difference":-4.8,"moving_time":"0:08:34","average_heartrate":null,"split":2,"pace_zone":0,"average_speed":2.93}],"segments_efforts":null}</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">{&#34;id&#34;:259558400,&#34;distance&#34;:3116.1,&#34;moving_time&#34;:&#34;0:17:48&#34;,&#34;elapsed_time&#34;:&#34;0:17:55&#34;,&#34;total_elevation_gain&#34;:0,&#34;elv_high&#34;:null,&#34;elev_low&#34;:6,&#34;average_speed&#34;:2.918,&#34;max_speed&#34;:7.2,&#34;average_heartrate&#34;:null,&#34;max_heartrate&#34;:null,&#34;start_date&#34;:&#34;2015-02-25T06:18:39+00:00&#34;,&#34;best_efforts&#34;:[{&#34;effort_name&#34;:&#34;400m&#34;,&#34;moving_time&#34;:131,&#34;elapsed_time&#34;:130,&#34;effort_distance&#34;:400,&#34;average_heartrate&#34;:null,&#34;max_heartrate&#34;:null},{&#34;effort_name&#34;:&#34;1/2 mile&#34;,&#34;moving_time&#34;:266,&#34;elapsed_time&#34;:265,&#34;effort_distance&#34;:805,&#34;average_heartrate&#34;:null,&#34;max_heartrate&#34;:null},{&#34;effort_name&#34;:&#34;1k&#34;,&#34;moving_time&#34;:336,&#34;elapsed_time&#34;:336,&#34;effort_distance&#34;:1000,&#34;average_heartrate&#34;:null,&#34;max_heartrate&#34;:null},{&#34;effort_name&#34;:&#34;1 mile&#34;,&#34;moving_time&#34;:548,&#34;elapsed_time&#34;:547,&#34;effort_distance&#34;:1609,&#34;average_heartrate&#34;:null,&#34;max_heartrate&#34;:null}],&#34;splits_metric&#34;:[{&#34;distance&#34;:1002.9,&#34;elapsed_time&#34;:&#34;0:05:48&#34;,&#34;elevation_difference&#34;:3.2,&#34;moving_time&#34;:&#34;0:05:41&#34;,&#34;average_heartrate&#34;:null,&#34;split&#34;:1,&#34;pace_zone&#34;:0,&#34;average_speed&#34;:2.94},{&#34;distance&#34;:999.4,&#34;elapsed_time&#34;:&#34;0:05:48&#34;,&#34;elevation_difference&#34;:-1.9,&#34;moving_time&#34;:&#34;0:05:48&#34;,&#34;average_heartrate&#34;:null,&#34;split&#34;:2,&#34;pace_zone&#34;:0,&#34;average_speed&#34;:2.87},{&#34;distance&#34;:1001.7,&#34;elapsed_time&#34;:&#34;0:05:39&#34;,&#34;elevation_difference&#34;:-2.1,&#34;moving_time&#34;:&#34;0:05:39&#34;,&#34;average_heartrate&#34;:null,&#34;split&#34;:3,&#34;pace_zone&#34;:0,&#34;average_speed&#34;:2.95},{&#34;distance&#34;:112.1,&#34;elapsed_time&#34;:&#34;0:00:40&#34;,&#34;elevation_difference&#34;:0.7,&#34;moving_time&#34;:&#34;0:00:40&#34;,&#34;average_heartrate&#34;:null,&#34;split&#34;:4,&#34;pace_zone&#34;:0,&#34;average_speed&#34;:2.8}],&#34;splits_standard&#34;:[{&#34;distance&#34;:1612.2,&#34;elapsed_time&#34;:&#34;0:09:21&#34;,&#34;elevation_difference&#34;:4.7,&#34;moving_time&#34;:&#34;0:09:14&#34;,&#34;average_heartrate&#34;:null,&#34;split&#34;:1,&#34;pace_zone&#34;:0,&#34;average_speed&#34;:2.91},{&#34;distance&#34;:1503.9,&#34;elapsed_time&#34;:&#34;0:08:34&#34;,&#34;elevation_difference&#34;:-4.8,&#34;moving_time&#34;:&#34;0:08:34&#34;,&#34;average_heartrate&#34;:null,&#34;split&#34;:2,&#34;pace_zone&#34;:0,&#34;average_speed&#34;:2.93}],&#34;segments_efforts&#34;:null}</code></pre>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_connecting_to_materialize">Connecting to Materialize</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to query that data using Materialize, which we&#8217;ll set up using the following Docker Compose configuration:</p>
+<p>We’re going to query that data using Materialize, which we’ll set up using the following Docker Compose configuration:</p>
 </div>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">  version: '3'
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">  version: &#39;3&#39;
   services:
     materialize:
       image: materialize/materialized:v0.5.3
-      container_name: "materialize-sandbox-docker-compose"
+      container_name: &#34;materialize-sandbox-docker-compose&#34;
       volumes:
         - ./data:/data
       ports:
-        - "6875:6875"</code></pre>
+        - &#34;6875:6875&#34;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -270,7 +272,7 @@ jq -c '{id, distance, moving_time, elapsed_time,
 The repository also contains setup instructions.</p>
 </div>
 <div class="paragraph">
-<p>Once we&#8217;ve cloned that repository, we can launch Materialize by running the following command:</p>
+<p>Once we’ve cloned that repository, we can launch Materialize by running the following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -278,7 +280,7 @@ The repository also contains setup instructions.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>We&#8217;re now ready to connect to Materialize, which we can do using the <a href="https://www.postgresql.org/docs/9.3/app-psql.html" target="_blank" rel="noopener"><code>psql</code> CLI tool</a>:</p>
+<p>We’re now ready to connect to Materialize, which we can do using the <a href="https://www.postgresql.org/docs/9.3/app-psql.html" target="_blank" rel="noopener"><code>psql</code> CLI tool</a>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -289,7 +291,7 @@ The repository also contains setup instructions.</p>
 <div class="title">Results</div>
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">psql (12.5 (Ubuntu 12.5-0ubuntu0.20.04.1), server 9.5.0)
-Type "help" for help.
+Type &#34;help&#34; for help.
 
 materialize=&gt;</code></pre>
 </div>
@@ -300,37 +302,37 @@ materialize=&gt;</code></pre>
 <h2 id="_creating_a_materialized_view">Creating a materialized view</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to start by creating a source around the file:</p>
+<p>We’re going to start by creating a source around the file:</p>
 </div>
 <div class="listingblock">
 <div class="title">CREATE SOURCE</div>
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">CREATE SOURCE activities_detailed_source
-FROM FILE '/data/activities-detailed-all.json'
+FROM FILE &#39;/data/activities-detailed-all.json&#39;
 WITH(tail=true)
 FORMAT TEXT;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Not it&#8217;s time to create some views on top of the source.
-We&#8217;ll start with the <code>activites_detailed</code> view, which returns the raw values from the JSON file:</p>
+<p>Not it’s time to create some views on top of the source.
+We’ll start with the <code>activites_detailed</code> view, which returns the raw values from the JSON file:</p>
 </div>
 <div class="listingblock">
 <div class="title">CREATE VIEW</div>
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">CREATE VIEW activities_detailed AS
-SELECT  (val-&gt;&gt;'id')::float::bigint AS id,
-        (val-&gt;&gt;'start_date')::timestamp AS start_date,
-        (val-&gt;'best_efforts') AS best_efforts,
-        (val-&gt;'splits_metric') AS splits_metric,
-        (val-&gt;'splits_standard') AS splits_standard,
-        (val-&gt;'segment_efforts') AS segment_efforts
+SELECT  (val-&gt;&gt;&#39;id&#39;)::float::bigint AS id,
+        (val-&gt;&gt;&#39;start_date&#39;)::timestamp AS start_date,
+        (val-&gt;&#39;best_efforts&#39;) AS best_efforts,
+        (val-&gt;&#39;splits_metric&#39;) AS splits_metric,
+        (val-&gt;&#39;splits_standard&#39;) AS splits_standard,
+        (val-&gt;&#39;segment_efforts&#39;) AS segment_efforts
 FROM (SELECT text::json AS val FROM activities_detailed_source);</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>We&#8217;re not going to do any direct querying against this view, so we create a <code>VIEW</code> rather than a <code>MATERIALIZED VIEW</code>.
-If we want to query that view, we&#8217;ll need to make sure we append the <code>AS OF</code> clause to the end of our query, as shown in the following example:</p>
+<p>We’re not going to do any direct querying against this view, so we create a <code>VIEW</code> rather than a <code>MATERIALIZED VIEW</code>.
+If we want to query that view, we’ll need to make sure we append the <code>AS OF</code> clause to the end of our query, as shown in the following example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -343,12 +345,12 @@ AS OF 1;</code></pre>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. Results</caption>
 <colgroup>
-<col style="width: 16.6666%;">
-<col style="width: 16.6666%;">
-<col style="width: 16.6666%;">
-<col style="width: 16.6666%;">
-<col style="width: 16.6666%;">
-<col style="width: 16.667%;">
+<col style="width: 16.6666%;"/>
+<col style="width: 16.6666%;"/>
+<col style="width: 16.6666%;"/>
+<col style="width: 16.6666%;"/>
+<col style="width: 16.6666%;"/>
+<col style="width: 16.667%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -367,12 +369,12 @@ AS OF 1;</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock">[]</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">[{"average_heartrate":136.11428571428573,"average_speed":3.09,"distance":108.1,"elapsed_time":"0:00:41","elevation_difference":-0.3,"moving_time":"0:00:35","pace_zone":2.0,"split":1.0}]</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">[{&#34;average_heartrate&#34;:136.11428571428573,&#34;average_speed&#34;:3.09,&#34;distance&#34;:108.1,&#34;elapsed_time&#34;:&#34;0:00:41&#34;,&#34;elevation_difference&#34;:-0.3,&#34;moving_time&#34;:&#34;0:00:35&#34;,&#34;pace_zone&#34;:2.0,&#34;split&#34;:1.0}]</code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">[{"average_heartrate":136.11428571428573,"average_speed":3.09,"distance":108.1,"elapsed_time":"0:00:41","elevation_difference":-0.3,"moving_time":"0:00:35","pace_zone":2.0,"split":1.0}]</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">[{&#34;average_heartrate&#34;:136.11428571428573,&#34;average_speed&#34;:3.09,&#34;distance&#34;:108.1,&#34;elapsed_time&#34;:&#34;0:00:41&#34;,&#34;elevation_difference&#34;:-0.3,&#34;moving_time&#34;:&#34;0:00:35&#34;,&#34;pace_zone&#34;:2.0,&#34;split&#34;:1.0}]</code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">[]</p></td>
@@ -381,19 +383,19 @@ AS OF 1;</code></pre>
 </table>
 <div class="paragraph">
 <p>This view returns JSON arrays for <code>splits_metric</code>, <code>splits_standard</code>, <code>best_efforts</code>, and <code>segment_efforts</code>.
-It&#8217;d be good if we could explode those array elements into individual rows so that we could query them, which we can do with the <code>jsonb_array_elements</code> function that I wrote about in <a href="https://markhneedham.com/blog/2020/12/29/materialize-json-arrays/" target="_blank" rel="noopener">Materialize: Querying JSON arrays</a>.</p>
+It’d be good if we could explode those array elements into individual rows so that we could query them, which we can do with the <code>jsonb_array_elements</code> function that I wrote about in <a href="https://markhneedham.com/blog/2020/12/29/materialize-json-arrays/" target="_blank" rel="noopener">Materialize: Querying JSON arrays</a>.</p>
 </div>
 <div class="paragraph">
-<p>We&#8217;d generally be querying each of these things separately, so we&#8217;ll create one materialized view for each one, as shown in the following diagram:</p>
+<p>We’d generally be querying each of these things separately, so we’ll create one materialized view for each one, as shown in the following diagram:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2021/01/materialize-views.png" alt="materialize views">
+/uploads/2021/01/materialize-views.png" alt="materialize views"/>
 </div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s see how to create a couple of those materialized views.
+<p>Let’s see how to create a couple of those materialized views.
 We can do this by running the following queries:</p>
 </div>
 <div class="listingblock">
@@ -401,12 +403,12 @@ We can do this by running the following queries:</p>
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">CREATE MATERIALIZED VIEW best_efforts AS
 SELECT id, start_date,
-       (effort-&gt;&gt;'effort_name') AS effort_name,
-       (effort-&gt;&gt;'effort_distance')::float AS distance,
-       (effort-&gt;&gt;'elapsed_time')::float AS elapsed_time,
-       (effort-&gt;&gt;'moving_time')::float AS moving_time,
-       (effort-&gt;&gt;'average_heartrate')::float AS average_heartrate,
-       (effort-&gt;&gt;'max_heartrate')::float AS max_heartrate
+       (effort-&gt;&gt;&#39;effort_name&#39;) AS effort_name,
+       (effort-&gt;&gt;&#39;effort_distance&#39;)::float AS distance,
+       (effort-&gt;&gt;&#39;elapsed_time&#39;)::float AS elapsed_time,
+       (effort-&gt;&gt;&#39;moving_time&#39;)::float AS moving_time,
+       (effort-&gt;&gt;&#39;average_heartrate&#39;)::float AS average_heartrate,
+       (effort-&gt;&gt;&#39;max_heartrate&#39;)::float AS max_heartrate
 FROM  (
   SELECT id, start_date, best_efforts
   FROM activities_detailed
@@ -418,11 +420,11 @@ FROM  (
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">CREATE MATERIALIZED VIEW segment_efforts AS
 SELECT id, start_date,
-       (effort-&gt;&gt;'segment_id') AS segment_id,
-       (effort-&gt;&gt;'segment_name') AS segment_name,
-       (effort-&gt;&gt;'distance')::float AS distance,
-       (effort-&gt;&gt;'elapsed_time')::float AS elapsed_time,
-       (effort-&gt;&gt;'moving_time')::float AS moving_time
+       (effort-&gt;&gt;&#39;segment_id&#39;) AS segment_id,
+       (effort-&gt;&gt;&#39;segment_name&#39;) AS segment_name,
+       (effort-&gt;&gt;&#39;distance&#39;)::float AS distance,
+       (effort-&gt;&gt;&#39;elapsed_time&#39;)::float AS elapsed_time,
+       (effort-&gt;&gt;&#39;moving_time&#39;)::float AS moving_time
 FROM  (
   SELECT id, start_date, segment_efforts
   FROM activities_detailed
@@ -435,16 +437,16 @@ FROM  (
 <h2 id="_querying_the_materialized_views">Querying the materialized views</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now that we&#8217;ve created those views, it&#8217;s time to query them.</p>
+<p>Now that we’ve created those views, it’s time to query them.</p>
 </div>
 <div class="paragraph">
-<p>We&#8217;ll start by finding the fastest 10km runs that I&#8217;ve done</p>
+<p>We’ll start by finding the fastest 10km runs that I’ve done</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sql" data-lang="sql">select start_date, to_char(to_timestamp(moving_time), 'HH24:MI:SS') AS time
+<pre class="highlight"><code class="language-sql" data-lang="sql">select start_date, to_char(to_timestamp(moving_time), &#39;HH24:MI:SS&#39;) AS time
 from best_efforts
-WHERE effort_name = '10k'
+WHERE effort_name = &#39;10k&#39;
 ORDER BY moving_time
 LIMIT 10;</code></pre>
 </div>
@@ -452,8 +454,8 @@ LIMIT 10;</code></pre>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. Results</caption>
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 50%;"/>
+<col style="width: 50%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -506,7 +508,7 @@ LIMIT 10;</code></pre>
 </table>
 <div class="paragraph">
 <p>All my fastest times were in 2018 or 2019!
-I haven&#8217;t been anywhere near that sort of pace for a long while.</p>
+I haven’t been anywhere near that sort of pace for a long while.</p>
 </div>
 <div class="paragraph">
 <p>If we have the id for a specific run we can write a query to find all the best efforts for that run, as shown below:</p>
@@ -515,7 +517,7 @@ I haven&#8217;t been anywhere near that sort of pace for a long while.</p>
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">select start_date,
        effort_name,
-       to_char(to_timestamp(moving_time), 'MI:SS') AS time
+       to_char(to_timestamp(moving_time), &#39;MI:SS&#39;) AS time
 from best_efforts
 WHERE id=2448908609
 ORDER BY moving_time
@@ -525,9 +527,9 @@ LIMIT 10;</code></pre>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 3. Results</caption>
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3334%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -575,7 +577,7 @@ LIMIT 10;</code></pre>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Now let&#8217;s move onto segment efforts.
+<p>Now let’s move onto segment efforts.
 We can find the most popular segments by running the following query:</p>
 </div>
 <div class="listingblock">
@@ -590,9 +592,9 @@ LIMIT 5;</code></pre>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 4. Results</caption>
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3334%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -630,18 +632,18 @@ LIMIT 5;</code></pre>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Lap of the track is a running track that I&#8217;ve clearly done a lot of laps on.
-Let&#8217;s explore those laps in more detail:</p>
+<p>Lap of the track is a running track that I’ve clearly done a lot of laps on.
+Let’s explore those laps in more detail:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">SELECT start_date,
-       to_char(to_timestamp(min(moving_time)), 'MI:SS') AS fastestTime,
-       to_char(to_timestamp(max(moving_time)), 'MI:SS') AS slowestTime,
-       to_char(to_timestamp(avg(moving_time)), 'MI:SS') AS averageTime,
+       to_char(to_timestamp(min(moving_time)), &#39;MI:SS&#39;) AS fastestTime,
+       to_char(to_timestamp(max(moving_time)), &#39;MI:SS&#39;) AS slowestTime,
+       to_char(to_timestamp(avg(moving_time)), &#39;MI:SS&#39;) AS averageTime,
        count(*) AS lapsDone
 FROM segment_efforts
-WHERE segment_id = '17236468'
+WHERE segment_id = &#39;17236468&#39;
 GROUP BY start_date
 ORDER BY min(moving_time)
 LIMIT 5;</code></pre>
@@ -650,11 +652,11 @@ LIMIT 5;</code></pre>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 5. Results</caption>
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 16.6666%;">
-<col style="width: 16.6666%;">
-<col style="width: 16.6666%;">
-<col style="width: 16.6669%;">
+<col style="width: 33.3333%;"/>
+<col style="width: 16.6666%;"/>
+<col style="width: 16.6666%;"/>
+<col style="width: 16.6666%;"/>
+<col style="width: 16.6669%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -714,7 +716,7 @@ I clearly need to work on my speed.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>One of the things that I really like about Materialize is that you can defer data transformation.
-I&#8217;m used to having to decide up front how I want to shape the data and then having the queries I can write be limited by that initial transformation.
+I’m used to having to decide up front how I want to shape the data and then having the queries I can write be limited by that initial transformation.
 With Materialize you can instead create a single source and then later on create as many views as you want to analyse the data in all different ways.</p>
 </div>
 </div>
@@ -753,7 +755,7 @@ With Materialize you can instead create a single source and then later on create
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2021/01/28/materialize-multiple-views-one-source/&amp;title=Materialize%3a%20Creating%20multiple%20views%20on%20one%20source&amp;summary=This%20is%20another%20post%20describing%20my%20exploration%20of%20Materialize%2c%20a%20SQL%20streaming%20database.%20In%20this%20post%20we%26%238217%3bre%20going%20to%20learn%20how%20to%20create%20multiple%20views%20on%20top%20of%20the%20same%20underlying%20source.%0a%20%20%20We%26%238217%3bre%20still%20going%20to%20be%20using%20data%20extracted%20from%20Strava%2c%20an%20app%20that%20I%20use%20to%20record%20my%20runs%2c%20but%20this%20time%20we%20have%20more%20detailed%20information%20about%20each%20run.%20As%20in%20the%20previous%20blog%20posts%2c%20each%20run%20is%20represented%20as%20JSON%20document%20and%20store%20in%20the%20activities-detailed-all...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2021/01/28/materialize-multiple-views-one-source/&amp;title=Materialize%3a%20Creating%20multiple%20views%20on%20one%20source&amp;summary=This%20is%20another%20post%20describing%20my%20exploration%20of%20Materialize%2c%20a%20SQL%20streaming%20database.%20In%20this%20post%20we%e2%80%99re%20going%20to%20learn%20how%20to%20create%20multiple%20views%20on%20top%20of%20the%20same%20underlying%20source.%0aWe%e2%80%99re%20still%20going%20to%20be%20using%20data%20extracted%20from%20Strava%2c%20an%20app%20that%20I%20use%20to%20record%20my%20runs%2c%20but%20this%20time%20we%20have%20more%20detailed%20information%20about%20each%20run.%20As%20in%20the%20previous%20blog%20posts%2c%20each%20run%20is%20represented%20as%20JSON%20document%20and%20store%20in%20the%20activities-detailed-all...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -896,13 +898,13 @@ With Materialize you can instead create a single source and then later on create
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

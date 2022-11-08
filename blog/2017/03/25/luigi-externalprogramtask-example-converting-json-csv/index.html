@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Luigi: An ExternalProgramTask example - Converting JSON to CSV &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Luigi: An ExternalProgramTask example - Converting JSON to CSV | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2017/03/25/luigi-externalprogramtask-example-converting-json-csv/" />
 
@@ -33,7 +34,8 @@
 
     
 
-        <title> Luigi: An ExternalProgramTask example - Converting JSON to CSV &middot;  Mark Needham</title>
+        
+        <title>Luigi: An ExternalProgramTask example - Converting JSON to CSV | Mark Needham</title>
 
     
         <meta name="description" content="A worked example showing how to call an external program with Luigi - a Python tool for building complex data pipelines." />
@@ -47,11 +49,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2017/03/25/luigi-externalprogramtask-example-converting-json-csv/" />
 
     
@@ -65,7 +68,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-03-25",
-        "description": "I\u0026#8217;ve been playing around with the Python library Luigi which is used to build pipelines of batch jobs and I struggled to find an example of an ExternalProgramTask so this is my attempt at filling that void.\n   I\u0026#8217;m building a little data pipeline to get data from the meetup.com API and put it into CSV files that can be loaded into Neo4j using the LOAD CSV command.",
+        "description": "I’ve been playing around with the Python library Luigi which is used to build pipelines of batch jobs and I struggled to find an example of an ExternalProgramTask so this is my attempt at filling that void.\nI’m building a little data pipeline to get data from the meetup.com API and put it into CSV files that can be loaded into Neo4j using the LOAD CSV command.\nThe first task I created calls the \/groups endpoint and saves the result into a JSON file:",
         "wordCount":  975 
     }
     </script>
@@ -192,7 +195,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -220,16 +222,16 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Luigi: An ExternalProgramTask example - Converting JSON to CSV</h1>
     <div class="paragraph">
-<p>I&#8217;ve been playing around with the Python library <a href="https://github.com/spotify/luigi">Luigi</a> which is used to build pipelines of batch jobs and I struggled to find an example of an <a href="http://luigi.readthedocs.io/en/stable/_modules/luigi/contrib/external_program.html#ExternalProgramTask">ExternalProgramTask</a> so this is my attempt at filling that void.</p>
+<p>I’ve been playing around with the Python library <a href="https://github.com/spotify/luigi">Luigi</a> which is used to build pipelines of batch jobs and I struggled to find an example of an <a href="http://luigi.readthedocs.io/en/stable/_modules/luigi/contrib/external_program.html#ExternalProgramTask">ExternalProgramTask</a> so this is my attempt at filling that void.</p>
 </div>
 <div class="imageblock alignnone size-full wp-image-7069">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2017/03/luigi.png" alt="Luigi - the Python data library for building data science pipelines" width="322">
+/uploads/2017/03/luigi.png" alt="Luigi - the Python data library for building data science pipelines" width="322"/>
 </div>
 </div>
 <div class="paragraph">
-<p>I&#8217;m building a little data pipeline to get data from the <a href="https://www.meetup.com/meetup_api/">meetup.com API</a> and put it into CSV files that can be loaded into <a href="https://neo4j.com/developer/">Neo4j</a> using the <a href="https://neo4j.com/developer/guide-import-csv/">LOAD CSV</a> command.</p>
+<p>I’m building a little data pipeline to get data from the <a href="https://www.meetup.com/meetup_api/">meetup.com API</a> and put it into CSV files that can be loaded into <a href="https://neo4j.com/developer/">Neo4j</a> using the <a href="https://neo4j.com/developer/guide-import-csv/">LOAD CSV</a> command.</p>
 </div>
 <div class="paragraph">
 <p>The first task I created calls the <cite>/groups</cite> endpoint and saves the result into a JSON file:</p>
@@ -247,47 +249,47 @@ class GroupsToJSON(luigi.Task):
     lon = luigi.Parameter()
 
     def run(self):
-        seed_topic = "nosql"
-        uri = "https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}".format(seed_topic, self.lat, self.lon, self.key)
+        seed_topic = &#34;nosql&#34;
+        uri = &#34;https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}&#34;.format(seed_topic, self.lat, self.lon, self.key)
 
         r = requests.get(uri)
-        all_topics = [topic["urlkey"]  for result in r.json()["results"] for topic in result["topics"]]
+        all_topics = [topic[&#34;urlkey&#34;]  for result in r.json()[&#34;results&#34;] for topic in result[&#34;topics&#34;]]
         c = Counter(all_topics)
 
         topics = [entry[0] for entry in c.most_common(10)]
 
         groups = {}
         for topic in topics:
-            uri = "https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}".format(topic, self.lat, self.lon, self.key)
+            uri = &#34;https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}&#34;.format(topic, self.lat, self.lon, self.key)
             r = requests.get(uri)
-            for group in r.json()["results"]:
-                groups[group["id"]] = group
+            for group in r.json()[&#34;results&#34;]:
+                groups[group[&#34;id&#34;]] = group
 
-        with self.output().open('w') as groups_file:
+        with self.output().open(&#39;w&#39;) as groups_file:
             json.dump(list(groups.values()), groups_file, indent=4, sort_keys=True)
 
     def output(self):
-        return luigi.LocalTarget("/tmp/groups.json")</code></pre>
+        return luigi.LocalTarget(&#34;/tmp/groups.json&#34;)</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>We define a few parameters at the top of the class which will be passed in when this task is executed. The most interesting lines of the <cite>run</cite> function are the last couple where we write the JSON to a file. <cite>self.output()</cite> refers to the target defined in the <cite>output</cite> function which in this case is <cite>/tmp/groups.json</cite>.</p>
 </div>
 <div class="paragraph">
-<p>Now we need to create a task to convert that JSON file into CSV format. The <a href="https://stedolan.github.io/jq/">jq</a> command line tool does this job well so we&#8217;ll use that. The following task does the job:</p>
+<p>Now we need to create a task to convert that JSON file into CSV format. The <a href="https://stedolan.github.io/jq/">jq</a> command line tool does this job well so we’ll use that. The following task does the job:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">from luigi.contrib.external_program import ExternalProgramTask
 
 class GroupsToCSV(luigi.contrib.external_program.ExternalProgramTask):
-    file_path = "/tmp/groups.csv"
+    file_path = &#34;/tmp/groups.csv&#34;
     key = luigi.Parameter()
     lat = luigi.Parameter()
     lon = luigi.Parameter()
 
     def program_args(self):
-        return ["./groups.sh", self.input()[0].path, self.output().path]
+        return [&#34;./groups.sh&#34;, self.input()[0].path, self.output().path]
 
     def output(self):
         return luigi.LocalTarget(self.file_path)
@@ -306,12 +308,12 @@ class GroupsToCSV(luigi.contrib.external_program.ExternalProgramTask):
 in=${1}
 out=${2}
 
-echo "id,name,urlname,link,rating,created,description,organiserName,organiserMemberId" &gt; ${out}
-jq -r '.[] | [.id, .name, .urlname, .link, .rating, .created, .description, .organizer.name, .organizer.member_id] | @csv' ${in} &gt;&gt; ${out}</code></pre>
+echo &#34;id,name,urlname,link,rating,created,description,organiserName,organiserMemberId&#34; &gt; ${out}
+jq -r &#39;.[] | [.id, .name, .urlname, .link, .rating, .created, .description, .organizer.name, .organizer.member_id] | @csv&#39; ${in} &gt;&gt; ${out}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>I wanted to call <cite>jq</cite> directly from the Python code but I couldn&#8217;t figure out how to do it so putting that code in a shell script is my workaround.</p>
+<p>I wanted to call <cite>jq</cite> directly from the Python code but I couldn’t figure out how to do it so putting that code in a shell script is my workaround.</p>
 </div>
 <div class="paragraph">
 <p>The last piece of the puzzle is a wrapper task that launches the others:</p>
@@ -322,22 +324,22 @@ jq -r '.[] | [.id, .name, .urlname, .link, .rating, .created, .description, .org
 
 class Meetup(luigi.WrapperTask):
     def run(self):
-        print("Running Meetup")
+        print(&#34;Running Meetup&#34;)
 
     def requires(self):
-        key = os.environ['MEETUP_API_KEY']
-        lat = os.getenv('LAT', "51.5072")
-        lon = os.getenv('LON', "0.1275")
+        key = os.environ[&#39;MEETUP_API_KEY&#39;]
+        lat = os.getenv(&#39;LAT&#39;, &#34;51.5072&#34;)
+        lon = os.getenv(&#39;LON&#39;, &#34;0.1275&#34;)
 
         yield GroupsToCSV(key, lat, lon)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now we&#8217;re ready to run the tasks:</p>
+<p>Now we’re ready to run the tasks:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ PYTHONPATH="." luigi --module blog --local-scheduler Meetup
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ PYTHONPATH=&#34;.&#34; luigi --module blog --local-scheduler Meetup
 DEBUG: Checking if Meetup() is complete
 DEBUG: Checking if GroupsToCSV(key=xxx, lat=51.5072, lon=0.1275) is complete
 INFO: Informed scheduler that task   Meetup__99914b932b   has status   PENDING
@@ -385,23 +387,23 @@ This progress looks :) because there were no failed tasks or missing external de
 </div>
 </div>
 <div class="paragraph">
-<p>Looks good! Let&#8217;s quickly look at our CSV file:</p>
+<p>Looks good! Let’s quickly look at our CSV file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ head -n10 /tmp/groups.csv
 id,name,urlname,link,rating,created,description,organiserName,organiserMemberId
-1114381,"London NoSQL, MySQL, Open Source Community","london-nosql-mysql","https://www.meetup.com/london-nosql-mysql/",4.28,1208505614000,"&lt;p&gt;Meet others in London interested in NoSQL, MySQL, and Open Source Databases.&lt;/p&gt;
-","Sinead Lawless",185675230
-1561841,"Enterprise Search London Meetup","es-london","https://www.meetup.com/es-london/",4.66,1259157419000,"&lt;p&gt;Enterprise Search London is a meetup for anyone interested in building search and discovery experiences — from intranet search and site search, to advanced discovery applications and beyond.&lt;/p&gt;
+1114381,&#34;London NoSQL, MySQL, Open Source Community&#34;,&#34;london-nosql-mysql&#34;,&#34;https://www.meetup.com/london-nosql-mysql/&#34;,4.28,1208505614000,&#34;&lt;p&gt;Meet others in London interested in NoSQL, MySQL, and Open Source Databases.&lt;/p&gt;
+&#34;,&#34;Sinead Lawless&#34;,185675230
+1561841,&#34;Enterprise Search London Meetup&#34;,&#34;es-london&#34;,&#34;https://www.meetup.com/es-london/&#34;,4.66,1259157419000,&#34;&lt;p&gt;Enterprise Search London is a meetup for anyone interested in building search and discovery experiences — from intranet search and site search, to advanced discovery applications and beyond.&lt;/p&gt;
 
 &lt;p&gt;Disclaimer: This meetup is NOT about SEO or search engine marketing.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;What people are saying:&lt;/strong&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;span&gt;""Join this meetup if you have a passion for enterprise search and user experience that you would like to share with other able-minded practitioners."" — Vegard Sandvold&lt;/span&gt;&lt;/li&gt;
-&lt;li&gt;&lt;span&gt;""Full marks for vision and execution. Looking forward to the next Meetup."" — Martin White&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span&gt;&#34;&#34;Join this meetup if you have a passion for enterprise search and user experience that you would like to share with other able-minded practitioners.&#34;&#34; — Vegard Sandvold&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span&gt;&#34;&#34;Full marks for vision and execution. Looking forward to the next Meetup.&#34;&#34; — Martin White&lt;/span&gt;&lt;/li&gt;
 &lt;li&gt;&lt;span&gt;“Consistently excellent” — Helen Lippell&lt;/span&gt;&lt;/li&gt;
 &lt;/ul&gt;</code></pre>
 </div>
@@ -411,7 +413,7 @@ id,name,urlname,link,rating,created,description,organiserName,organiserMemberId
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ PYTHONPATH="." luigi --module blog --local-scheduler Meetup
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ PYTHONPATH=&#34;.&#34; luigi --module blog --local-scheduler Meetup
 DEBUG: Checking if Meetup() is complete
 INFO: Informed scheduler that task   Meetup__99914b932b   has status   DONE
 INFO: Done scheduling tasks
@@ -470,7 +472,7 @@ This progress looks :) because there were no failed tasks or missing external de
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/03/25/luigi-externalprogramtask-example-converting-json-csv/&amp;title=Luigi%3a%20An%20ExternalProgramTask%20example%20-%20Converting%20JSON%20to%20CSV&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20the%20Python%20library%20Luigi%20which%20is%20used%20to%20build%20pipelines%20of%20batch%20jobs%20and%20I%20struggled%20to%20find%20an%20example%20of%20an%20ExternalProgramTask%20so%20this%20is%20my%20attempt%20at%20filling%20that%20void.%0a%20%20%20I%26%238217%3bm%20building%20a%20little%20data%20pipeline%20to%20get%20data%20from%20the%20meetup.com%20API%20and%20put%20it%20into%20CSV%20files%20that%20can%20be%20loaded%20into%20Neo4j%20using%20the%20LOAD%20CSV%20command...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/03/25/luigi-externalprogramtask-example-converting-json-csv/&amp;title=Luigi%3a%20An%20ExternalProgramTask%20example%20-%20Converting%20JSON%20to%20CSV&amp;summary=I%e2%80%99ve%20been%20playing%20around%20with%20the%20Python%20library%20Luigi%20which%20is%20used%20to%20build%20pipelines%20of%20batch%20jobs%20and%20I%20struggled%20to%20find%20an%20example%20of%20an%20ExternalProgramTask%20so%20this%20is%20my%20attempt%20at%20filling%20that%20void.%0aI%e2%80%99m%20building%20a%20little%20data%20pipeline%20to%20get%20data%20from%20the%20meetup.com%20API%20and%20put%20it%20into%20CSV%20files%20that%20can%20be%20loaded%20into%20Neo4j%20using%20the%20LOAD%20CSV%20command.%0aThe%20first%20task%20I%20created%20calls%20the%20%2fgroups%20endpoint%20and%20saves%20the%20result%20into%20a%20JSON%20file%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -613,13 +615,13 @@ This progress looks :) because there were no failed tasks or missing external de
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Neo4j: Building a graph of Strava activities &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Neo4j: Building a graph of Strava activities | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2018/06/12/neo4j-building-strava-graph/" />
 
@@ -33,7 +34,8 @@
 
     
 
-        <title> Neo4j: Building a graph of Strava activities &middot;  Mark Needham</title>
+        
+        <title>Neo4j: Building a graph of Strava activities | Mark Needham</title>
 
     
         <meta name="description" content="Learn how to paginate through JSON APIs and load the data into Neo4j using only APOC&#39;s Load JSON procedure." />
@@ -47,11 +49,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2018/06/12/neo4j-building-strava-graph/" />
 
     
@@ -65,7 +68,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2018-06-12",
-        "description": "In my last post I showed how to import activities from Strava\u0026#8217;s API into Neo4j using only the APOC library, but that was only part of the graph so I thought I\u0026#8217;d share the rest of what I\u0026#8217;ve done.\n The Graph Model In the previous post I showed how to import nodes with Run label, but there are some other pieces of data that I wanted to import as well.",
+        "description": "In my last post I showed how to import activities from Strava’s API into Neo4j using only the APOC library, but that was only part of the graph so I thought I’d share the rest of what I’ve done.\nThe Graph Model In the previous post I showed how to import nodes with Run label, but there are some other pieces of data that I wanted to import as well.",
         "wordCount":  1292 
     }
     </script>
@@ -192,7 +195,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -220,7 +222,7 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Neo4j: Building a graph of Strava activities</h1>
     <div class="paragraph">
-<p>In my <a href="https://markhneedham.com/blog/2018/06/05/neo4j-apoc-loading-data-strava-paginated-json-api/" target="_blank" rel="noopener">last post</a> I showed how to import activities from Strava&#8217;s API into Neo4j using only the APOC library, but that was only part of the graph so I thought I&#8217;d share the rest of what I&#8217;ve done.</p>
+<p>In my <a href="https://markhneedham.com/blog/2018/06/05/neo4j-apoc-loading-data-strava-paginated-json-api/" target="_blank" rel="noopener">last post</a> I showed how to import activities from Strava’s API into Neo4j using only the APOC library, but that was only part of the graph so I thought I’d share the rest of what I’ve done.</p>
 </div>
 <div class="sect1">
 <h2 id="_the_graph_model">The Graph Model</h2>
@@ -231,17 +233,17 @@ tbody tr pre {margin-bottom: 27px}
 A run can have <code>SegmentEfforts</code> on <code>Segments</code> where a segment effort will indicate how long it took to complete that segment.</p>
 </div>
 <div class="paragraph">
-<p>Each run also has 'best efforts' where Strava indicates a predicted time for different distances (e.g. 1km, 1 mile, 2 miles, 5km etc)
-In the graph model we&#8217;ll create <code>DistanceEffort</code> nodes for each run and a <code>Distance</code> node to represent each distance.</p>
+<p>Each run also has &#39;best efforts&#39; where Strava indicates a predicted time for different distances (e.g. 1km, 1 mile, 2 miles, 5km etc)
+In the graph model we’ll create <code>DistanceEffort</code> nodes for each run and a <code>Distance</code> node to represent each distance.</p>
 </div>
 <div class="paragraph">
 <p>This is what our graph should look like.
-This diagram was created using <a href="http://www.apcjones.com/arrows/#" target="_blank" rel="noopener">Alistair Jones' Arrows tool</a> in case you want to create your own.</p>
+This diagram was created using <a href="http://www.apcjones.com/arrows/#" target="_blank" rel="noopener">Alistair Jones&#39; Arrows tool</a> in case you want to create your own.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2018/06/strava-graph.svg" alt="strava graph">
+/uploads/2018/06/strava-graph.svg" alt="strava graph"/>
 </div>
 </div>
 </div>
@@ -250,8 +252,8 @@ This diagram was created using <a href="http://www.apcjones.com/arrows/#" target
 <h2 id="_create_constraints">Create constraints</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Before we import any data we&#8217;ll set up some constraints so we don&#8217;t end up with duplicate nodes.
-When we create a constraint on a <code>(label, property)</code> pair an index is also created so it&#8217;ll help speed up the import process as well.</p>
+<p>Before we import any data we’ll set up some constraints so we don’t end up with duplicate nodes.
+When we create a constraint on a <code>(label, property)</code> pair an index is also created so it’ll help speed up the import process as well.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -277,19 +279,19 @@ ASSERT s.id is UNIQUE;</code></pre>
 <h2 id="_importing_data">Importing data</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>First we&#8217;ll create a parameter that contains our Strava token for interacting with their API.
-You can generate a token via the <a href="https://www.strava.com/settings/api" target="_blank" rel="noopener">'Create and Manage Your App'</a> page.</p>
+<p>First we’ll create a parameter that contains our Strava token for interacting with their API.
+You can generate a token via the <a href="https://www.strava.com/settings/api" target="_blank" rel="noopener">&#39;Create and Manage Your App&#39;</a> page.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">:param stravaToken =&gt; "Bearer &lt;strava-token&gt;";</code></pre>
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">:param stravaToken =&gt; &#34;Bearer &lt;strava-token&gt;&#34;;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now we&#8217;re ready to import some data!</p>
+<p>Now we’re ready to import some data!</p>
 </div>
 <div class="paragraph">
-<p>The data we want to import comes from several different API endpoints, but we&#8217;ll start with the <code>Run</code> nodes.
+<p>The data we want to import comes from several different API endpoints, but we’ll start with the <code>Run</code> nodes.
 We can get these from the <a href="http://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteActivities" target="_blank" rel="noopener">List Athlete Activities</a> part of the API.</p>
 </div>
 <div class="paragraph">
@@ -299,36 +301,36 @@ We can get these from the <a href="http://developers.strava.com/docs/reference/#
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">[
   {
-      "name": "Morning Run",
-      "distance": 3465.8,
-      "moving_time": 1375,
-      "elapsed_time": 1420,
-      "total_elevation_gain": 0,
-      "type": "Run",
-      "id": 214959724,
-      "start_date": "2014-11-03T06:15:07Z",
-      "start_date_local": "2014-11-03T06:15:07Z",
-      "timezone": "(GMT+00:00) Europe/London",
-      "utc_offset": 0,
-      "average_speed": 2.521,
-      "max_speed": 6.9,
-      "has_heartrate": false,
-      "elev_high": 10,
-      "elev_low": 6,
+      &#34;name&#34;: &#34;Morning Run&#34;,
+      &#34;distance&#34;: 3465.8,
+      &#34;moving_time&#34;: 1375,
+      &#34;elapsed_time&#34;: 1420,
+      &#34;total_elevation_gain&#34;: 0,
+      &#34;type&#34;: &#34;Run&#34;,
+      &#34;id&#34;: 214959724,
+      &#34;start_date&#34;: &#34;2014-11-03T06:15:07Z&#34;,
+      &#34;start_date_local&#34;: &#34;2014-11-03T06:15:07Z&#34;,
+      &#34;timezone&#34;: &#34;(GMT+00:00) Europe/London&#34;,
+      &#34;utc_offset&#34;: 0,
+      &#34;average_speed&#34;: 2.521,
+      &#34;max_speed&#34;: 6.9,
+      &#34;has_heartrate&#34;: false,
+      &#34;elev_high&#34;: 10,
+      &#34;elev_low&#34;: 6,
     },
 ]</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>We will use the <code>apoc.load.jsonParams</code> procedure from the <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/" target="_blank" rel="noopener">APOC</a> library to help us import this data.
-My colleague Jennifer Reif has <a href="https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e" target="_blank" rel="noopener">written a blog post</a> explaining how to install APOC and other plugins so check that out if you haven&#8217;t used APOC yet.</p>
+My colleague Jennifer Reif has <a href="https://medium.com/neo4j/explore-new-worlds-adding-plugins-to-neo4j-26e6a8e5d37e" target="_blank" rel="noopener">written a blog post</a> explaining how to install APOC and other plugins so check that out if you haven’t used APOC yet.</p>
 </div>
 <div class="paragraph">
 <p>If we want to load the first 30 activities we could write the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH 'https://www.strava.com/api/v3/athlete/activities' AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#39;https://www.strava.com/api/v3/athlete/activities&#39; AS uri
 CALL apoc.load.jsonParams(uri, {Authorization: $stravaToken}, null)
 YIELD value
 
@@ -349,9 +351,9 @@ SET run.distance = toFloat(value.distance),
 <p>We store the date using the new DateTime data type introduced in Neo4j 3.4 and the moving and elapsed times using the Duration data type.</p>
 </div>
 <div class="paragraph">
-<p>We could increase the number of activities from 30 to a maximum of 200 by setting the <code>per_page</code> parameter, but I have more activities than that so we&#8217;re going to need to do some pagination.
+<p>We could increase the number of activities from 30 to a maximum of 200 by setting the <code>per_page</code> parameter, but I have more activities than that so we’re going to need to do some pagination.
 Luckily this API endpoint lets us pass in an <code>after</code> parameter which defines <code>An epoch timestamp to use for filtering activities that have taken place after a certain time</code>.
-We&#8217;ll use this to help us paginate through the API and get all our activities since there are more of those than will be returned by one API call.</p>
+We’ll use this to help us paginate through the API and get all our activities since there are more of those than will be returned by one API call.</p>
 </div>
 <div class="paragraph">
 <p>As I explained in <a href="https://markhneedham.com/blog/2018/06/05/neo4j-apoc-loading-data-strava-paginated-json-api/" target="_blank" rel="noopener">my previous post</a>, it took me a while to figure out how to handle the pagination using only APOC, but I eventually realised that the <code>apoc.periodic.commit</code> procedure would do the trick.
@@ -359,11 +361,11 @@ The following query will import all our runs:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.periodic.commit("
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.periodic.commit(&#34;
   OPTIONAL MATCH (run:Run)
   WITH run ORDER BY run.startDate DESC LIMIT 1
   WITH coalesce(run.startDate.epochSeconds, 0) AS after
-  WITH 'https://www.strava.com/api/v3/athlete/activities?after=' + after AS uri
+  WITH &#39;https://www.strava.com/api/v3/athlete/activities?after=&#39; + after AS uri
   CALL apoc.load.jsonParams(uri, {Authorization: $stravaToken}, null)
   YIELD value
 
@@ -380,7 +382,7 @@ The following query will import all our runs:</p>
       run.maximumSpeed = toFloat(value.max_speed)
 
   RETURN CASE WHEN count(*) &lt; 30 THEN 0 ELSE count(*) END AS count
-", {stravaToken: $stravaToken});</code></pre>
+&#34;, {stravaToken: $stravaToken});</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -393,70 +395,70 @@ This data is available via the <a href="http://developers.strava.com/docs/refere
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "name": "Morning Run",
-  "distance": 10884.9,
-  "moving_time": 2918,
-  "elapsed_time": 2918,
-  "total_elevation_gain": 107,
-  "type": "Run",
-  "workout_type": 0,
-  "id": 1620188065,
-  "start_date": "2018-06-06T04:18:47Z",
-  "start_date_local": "2018-06-06T05:18:47Z",
-  "timezone": "(GMT+00:00) Europe/London",
-  "utc_offset": 3600,
-  "calories": 862.6,
-  "segment_efforts": [
+  &#34;name&#34;: &#34;Morning Run&#34;,
+  &#34;distance&#34;: 10884.9,
+  &#34;moving_time&#34;: 2918,
+  &#34;elapsed_time&#34;: 2918,
+  &#34;total_elevation_gain&#34;: 107,
+  &#34;type&#34;: &#34;Run&#34;,
+  &#34;workout_type&#34;: 0,
+  &#34;id&#34;: 1620188065,
+  &#34;start_date&#34;: &#34;2018-06-06T04:18:47Z&#34;,
+  &#34;start_date_local&#34;: &#34;2018-06-06T05:18:47Z&#34;,
+  &#34;timezone&#34;: &#34;(GMT+00:00) Europe/London&#34;,
+  &#34;utc_offset&#34;: 3600,
+  &#34;calories&#34;: 862.6,
+  &#34;segment_efforts&#34;: [
     {
-      "id": 40571736882,
-      "resource_state": 2,
-      "name": "Stanley to Bridge",
-      "elapsed_time": 82,
-      "moving_time": 82,
-      "start_date": "2018-06-06T04:19:04Z",
-      "start_date_local": "2018-06-06T05:19:04Z",
-      "distance": 322,
-      "segment": {
-        "id": 17875143,
-        "resource_state": 2,
-        "name": "Stanley to Bridge",
-        "activity_type": "Run",
-        "distance": 322,
-        "average_grade": 0,
-        "maximum_grade": 2.9,
-        "elevation_high": 71,
-        "elevation_low": 69,
-        "climb_category": 0,
+      &#34;id&#34;: 40571736882,
+      &#34;resource_state&#34;: 2,
+      &#34;name&#34;: &#34;Stanley to Bridge&#34;,
+      &#34;elapsed_time&#34;: 82,
+      &#34;moving_time&#34;: 82,
+      &#34;start_date&#34;: &#34;2018-06-06T04:19:04Z&#34;,
+      &#34;start_date_local&#34;: &#34;2018-06-06T05:19:04Z&#34;,
+      &#34;distance&#34;: 322,
+      &#34;segment&#34;: {
+        &#34;id&#34;: 17875143,
+        &#34;resource_state&#34;: 2,
+        &#34;name&#34;: &#34;Stanley to Bridge&#34;,
+        &#34;activity_type&#34;: &#34;Run&#34;,
+        &#34;distance&#34;: 322,
+        &#34;average_grade&#34;: 0,
+        &#34;maximum_grade&#34;: 2.9,
+        &#34;elevation_high&#34;: 71,
+        &#34;elevation_low&#34;: 69,
+        &#34;climb_category&#34;: 0,
       },
     },
   ],
-  "best_efforts": [
+  &#34;best_efforts&#34;: [
     {
-      "id": 3497998232,
-      "resource_state": 2,
-      "name": "400m",
-      "elapsed_time": 92,
-      "moving_time": 93,
-      "start_date": "2018-06-06T05:02:29Z",
-      "start_date_local": "2018-06-06T06:02:29Z",
-      "distance": 400,
-      "start_index": 2494,
-      "end_index": 2586,
-      "pr_rank": null,
-      "achievements": []
+      &#34;id&#34;: 3497998232,
+      &#34;resource_state&#34;: 2,
+      &#34;name&#34;: &#34;400m&#34;,
+      &#34;elapsed_time&#34;: 92,
+      &#34;moving_time&#34;: 93,
+      &#34;start_date&#34;: &#34;2018-06-06T05:02:29Z&#34;,
+      &#34;start_date_local&#34;: &#34;2018-06-06T06:02:29Z&#34;,
+      &#34;distance&#34;: 400,
+      &#34;start_index&#34;: 2494,
+      &#34;end_index&#34;: 2586,
+      &#34;pr_rank&#34;: null,
+      &#34;achievements&#34;: []
     },
     {
-      "id": 3497998233,
-      "resource_state": 2,
-      "name": "1/2 mile",
-      "elapsed_time": 190,
-      "moving_time": 191,
-      "start_date": "2018-06-06T05:01:23Z",
-      "start_date_local": "2018-06-06T06:01:23Z",
-      "distance": 805,
-      "start_index": 2431,
-      "end_index": 2618,
-      "pr_rank": 1,
+      &#34;id&#34;: 3497998233,
+      &#34;resource_state&#34;: 2,
+      &#34;name&#34;: &#34;1/2 mile&#34;,
+      &#34;elapsed_time&#34;: 190,
+      &#34;moving_time&#34;: 191,
+      &#34;start_date&#34;: &#34;2018-06-06T05:01:23Z&#34;,
+      &#34;start_date_local&#34;: &#34;2018-06-06T06:01:23Z&#34;,
+      &#34;distance&#34;: 805,
+      &#34;start_index&#34;: 2431,
+      &#34;end_index&#34;: 2618,
+      &#34;pr_rank&#34;: 1,
     },
 
   ],
@@ -470,10 +472,10 @@ This data is available via the <a href="http://developers.strava.com/docs/refere
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.periodic.iterate(
-  "MATCH (run:Run)
-   RETURN run",
-  "WITH run, 'https://www.strava.com/api/v3/activities/' + run.id +
-              '?include_all_efforts=true' AS uri
+  &#34;MATCH (run:Run)
+   RETURN run&#34;,
+  &#34;WITH run, &#39;https://www.strava.com/api/v3/activities/&#39; + run.id +
+              &#39;?include_all_efforts=true&#39; AS uri
    CALL apoc.load.jsonParams(uri,{Authorization:$stravaToken},null)
    YIELD value
 
@@ -497,7 +499,7 @@ This data is available via the <a href="http://developers.strava.com/docs/refere
    ON CREATE SET effort.elapsedTime = duration({seconds: segmentEffort.elapsed_time}),
                  effort.movingTime = duration({seconds: segmentEffort.moving_time})
    MERGE (effort)-[:SEGMENT]-&gt;(segment)
-   MERGE (run)-[:SEGMENT_EFFORT]-&gt;(effort)",
+   MERGE (run)-[:SEGMENT_EFFORT]-&gt;(effort)&#34;,
   {batchSize: 10, parallel:false, params: {stravaToken: $stravaToken}});</code></pre>
 </div>
 </div>
@@ -506,13 +508,13 @@ This data is available via the <a href="http://developers.strava.com/docs/refere
 We then use the <code>UNWIND</code> clause to process the arrays contained in the JSON response for <code>best_efforts</code> and <code>segment_efforts</code> and connect those to the <code>Run</code> node.</p>
 </div>
 <div class="paragraph">
-<p>That&#8217;s the main structure of the graph, but I also wanted to import some more detail about the segments which was available from the <a href="http://developers.strava.com/docs/reference/#api-Segments-getSegmentById" target="_blank" rel="noopener">Get Segment</a> endpoint.</p>
+<p>That’s the main structure of the graph, but I also wanted to import some more detail about the segments which was available from the <a href="http://developers.strava.com/docs/reference/#api-Segments-getSegmentById" target="_blank" rel="noopener">Get Segment</a> endpoint.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.periodic.iterate(
-  "MATCH (segment:Segment) RETURN segment",
-  "WITH segment, 'https://www.strava.com/api/v3/segments/' + segment.id AS uri
+  &#34;MATCH (segment:Segment) RETURN segment&#34;,
+  &#34;WITH segment, &#39;https://www.strava.com/api/v3/segments/&#39; + segment.id AS uri
    CALL apoc.load.jsonParams(uri,{Authorization:$stravaToken},null)
    YIELD value
    WITH segment, value
@@ -521,7 +523,7 @@ We then use the <code>UNWIND</code> clause to process the arrays contained in th
        segment.totalElevationGain = toFloat(value.total_elevation_gain),
        segment.elevationHigh = toFloat(value.elevation_high),
        segment.elevationLow = toFloat(value.elevation_low)
-   ",
+   &#34;,
   {batchSize: 10, parallel:false, params: {stravaToken: $stravaToken}});</code></pre>
 </div>
 </div>
@@ -531,7 +533,7 @@ We then use the <code>UNWIND</code> clause to process the arrays contained in th
 <h2 id="_what_have_we_imported">What have we imported?</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now that we&#8217;ve got the data imported let&#8217;s write a few queries to check how much data we&#8217;ve imported.</p>
+<p>Now that we’ve got the data imported let’s write a few queries to check how much data we’ve imported.</p>
 </div>
 </div>
 </div>
@@ -547,7 +549,7 @@ RETURN count(*)</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">╒══════════╕
-│"count(*)"│
+│&#34;count(*)&#34;│
 ╞══════════╡
 │604       │
 └──────────┘</code></pre>
@@ -567,7 +569,7 @@ RETURN count(*)</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">╒══════════╕
-│"count(*)"│
+│&#34;count(*)&#34;│
 ╞══════════╡
 │382       │
 └──────────┘</code></pre>
@@ -587,7 +589,7 @@ RETURN count(*)</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">╒══════════╕
-│"count(*)"│
+│&#34;count(*)&#34;│
 ╞══════════╡
 │2913      │
 └──────────┘</code></pre>
@@ -609,23 +611,23 @@ LIMIT 5</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">╒══════════════════════╤═════════╕
-│"segment"             │"efforts"│
+│&#34;segment&#34;             │&#34;efforts&#34;│
 ╞══════════════════════╪═════════╡
-│"Lap of the track"    │348      │
+│&#34;Lap of the track&#34;    │348      │
 ├──────────────────────┼─────────┤
-│"York to Vet"         │201      │
+│&#34;York to Vet&#34;         │201      │
 ├──────────────────────┼─────────┤
-│"Stanley to Bridge"   │158      │
+│&#34;Stanley to Bridge&#34;   │158      │
 ├──────────────────────┼─────────┤
-│"Bridge Road (down)"  │83       │
+│&#34;Bridge Road (down)&#34;  │83       │
 ├──────────────────────┼─────────┤
-│"Overton to Beresford"│67       │
+│&#34;Overton to Beresford&#34;│67       │
 └──────────────────────┴─────────┘</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>These are just a few exploratory queries we can do on this dataset.
-In my next post I&#8217;ll show how to query some more complex patterns.</p>
+In my next post I’ll show how to query some more complex patterns.</p>
 </div>
 </div>
 </div>
@@ -663,7 +665,7 @@ In my next post I&#8217;ll show how to query some more complex patterns.</p>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2018/06/12/neo4j-building-strava-graph/&amp;title=Neo4j%3a%20Building%20a%20graph%20of%20Strava%20activities&amp;summary=In%20my%20last%20post%20I%20showed%20how%20to%20import%20activities%20from%20Strava%26%238217%3bs%20API%20into%20Neo4j%20using%20only%20the%20APOC%20library%2c%20but%20that%20was%20only%20part%20of%20the%20graph%20so%20I%20thought%20I%26%238217%3bd%20share%20the%20rest%20of%20what%20I%26%238217%3bve%20done.%0a%20The%20Graph%20Model%20In%20the%20previous%20post%20I%20showed%20how%20to%20import%20nodes%20with%20Run%20label%2c%20but%20there%20are%20some%20other%20pieces%20of%20data%20that%20I%20wanted%20to%20import%20as%20well...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2018/06/12/neo4j-building-strava-graph/&amp;title=Neo4j%3a%20Building%20a%20graph%20of%20Strava%20activities&amp;summary=In%20my%20last%20post%20I%20showed%20how%20to%20import%20activities%20from%20Strava%e2%80%99s%20API%20into%20Neo4j%20using%20only%20the%20APOC%20library%2c%20but%20that%20was%20only%20part%20of%20the%20graph%20so%20I%20thought%20I%e2%80%99d%20share%20the%20rest%20of%20what%20I%e2%80%99ve%20done.%0aThe%20Graph%20Model%20In%20the%20previous%20post%20I%20showed%20how%20to%20import%20nodes%20with%20Run%20label%2c%20but%20there%20are%20some%20other%20pieces%20of%20data%20that%20I%20wanted%20to%20import%20as%20well...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -806,13 +808,13 @@ In my next post I&#8217;ll show how to query some more complex patterns.</p>
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

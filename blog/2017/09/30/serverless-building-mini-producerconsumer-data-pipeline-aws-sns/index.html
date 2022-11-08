@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Serverless: Building a mini producer/consumer data pipeline with AWS SNS &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Serverless: Building a mini producer/consumer data pipeline with AWS SNS | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2017/09/30/serverless-building-mini-producerconsumer-data-pipeline-aws-sns/" />
 
@@ -27,8 +28,8 @@
         <meta name="twitter:title" content="Serverless: Building a mini producer/consumer data pipeline with AWS SNS" />
         
           <meta name="twitter:description" content="I wanted to create a little data pipeline with Serverless whose main use would be to run once a day, call an API, and load that data into a database.
- It&#8217;s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.
- I created the following pair of lambdas that communicate with each other via an SNS topic." />
+It’s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.
+I created the following pair of lambdas that communicate with each other via an SNS topic." />
         
         <meta name="twitter:url" content="https://www.markhneedham.com/blog/2017/09/30/serverless-building-mini-producerconsumer-data-pipeline-aws-sns/" />
 
@@ -36,12 +37,13 @@
 
     
 
-        <title> Serverless: Building a mini producer/consumer data pipeline with AWS SNS &middot;  Mark Needham</title>
+        
+        <title>Serverless: Building a mini producer/consumer data pipeline with AWS SNS | Mark Needham</title>
 
     
         <meta name="description" content="I wanted to create a little data pipeline with Serverless whose main use would be to run once a day, call an API, and load that data into a database.
- It&#8217;s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.
- I created the following pair of lambdas that communicate with each other via an SNS topic." />
+It’s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.
+I created the following pair of lambdas that communicate with each other via an SNS topic." />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -52,11 +54,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2017/09/30/serverless-building-mini-producerconsumer-data-pipeline-aws-sns/" />
 
     
@@ -70,7 +73,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-09-30",
-        "description": "I wanted to create a little data pipeline with Serverless whose main use would be to run once a day, call an API, and load that data into a database.\n It\u0026#8217;s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.\n I created the following pair of lambdas that communicate with each other via an SNS topic.",
+        "description": "I wanted to create a little data pipeline with Serverless whose main use would be to run once a day, call an API, and load that data into a database.\nIt’s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.\nI created the following pair of lambdas that communicate with each other via an SNS topic.",
         "wordCount":  444 
     }
     </script>
@@ -197,7 +200,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -230,7 +232,7 @@ tbody tr pre {margin-bottom: 27px}
 <p>I wanted to create a little data pipeline with <a href="https://serverless.com/">Serverless</a> whose main use would be to run once a day, call an API, and load that data into a database.</p>
 </div>
 <div class="paragraph">
-<p>It&#8217;s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.</p>
+<p>It’s mostly used to pull in recent data from that API, but I also wanted to be able to invoke it manually and specify a date range.</p>
 </div>
 <div class="paragraph">
 <p>I created the following pair of lambdas that <a href="https://forum.serverless.com/t/solved-publishing-to-created-sns-topic/1426">communicate with each other via an SNS topic</a>.</p>
@@ -245,23 +247,23 @@ tbody tr pre {margin-bottom: 27px}
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">service: marks-blog
 
-frameworkVersion: "&gt;=1.2.0 &lt;2.0.0"
+frameworkVersion: &#34;&gt;=1.2.0 &lt;2.0.0&#34;
 
 provider:
   name: aws
   runtime: python3.6
   timeout: 180
   iamRoleStatements:
-    - Effect: 'Allow'
+    - Effect: &#39;Allow&#39;
       Action:
-        - "sns:Publish"
+        - &#34;sns:Publish&#34;
       Resource:
         - ${self:custom.BlogTopic}
 
 custom:
   BlogTopic:
     Fn::Join:
-      - ":"
+      - &#34;:&#34;
       - - arn
         - aws
         - sns
@@ -295,33 +297,33 @@ import datetime
 from datetime import timezone
 
 def producer(event, context):
-    sns = boto3.client('sns')
+    sns = boto3.client(&#39;sns&#39;)
 
-    context_parts = context.invoked_function_arn.split(':')
-    topic_name = "marks-blog-topic"
-    topic_arn = "arn:aws:sns:{region}:{account_id}:{topic}".format(
+    context_parts = context.invoked_function_arn.split(&#39;:&#39;)
+    topic_name = &#34;marks-blog-topic&#34;
+    topic_arn = &#34;arn:aws:sns:{region}:{account_id}:{topic}&#34;.format(
         region=context_parts[3], account_id=context_parts[4], topic=topic_name)
 
     now = datetime.datetime.now(timezone.utc)
-    start_date = (now - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-    end_date = now.strftime("%Y-%m-%d")
+    start_date = (now - datetime.timedelta(days=1)).strftime(&#34;%Y-%m-%d&#34;)
+    end_date = now.strftime(&#34;%Y-%m-%d&#34;)
 
-    params = {"startDate": start_date, "endDate": end_date, "tags": ["neo4j"]}
+    params = {&#34;startDate&#34;: start_date, &#34;endDate&#34;: end_date, &#34;tags&#34;: [&#34;neo4j&#34;]}
 
     sns.publish(TopicArn= topic_arn, Message= json.dumps(params))
 
 
 def consumer(event, context):
-    for record in event["Records"]:
-        message = json.loads(record["Sns"]["Message"])
+    for record in event[&#34;Records&#34;]:
+        message = json.loads(record[&#34;Sns&#34;][&#34;Message&#34;])
 
-        start_date = message["startDate"]
-        end_date = message["endDate"]
-        tags = message["tags"]
+        start_date = message[&#34;startDate&#34;]
+        end_date = message[&#34;endDate&#34;]
+        tags = message[&#34;tags&#34;]
 
-        print("start_date: " + start_date)
-        print("end_date: " + end_date)
-        print("tags: " + str(tags))</code></pre>
+        print(&#34;start_date: &#34; + start_date)
+        print(&#34;end_date: &#34; + end_date)
+        print(&#34;tags: &#34; + str(tags))</code></pre>
 </div>
 </div>
 </div>
@@ -336,11 +338,11 @@ def consumer(event, context):
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ serverless invoke local \
     --function message-consumer \
-    --data '{"Records":[{"Sns": {"Message":"{\"tags\": [\"neo4j\"], \"startDate\": \"2017-09-25\", \"endDate\": \"2017-09-29\"  }"}}]}'
+    --data &#39;{&#34;Records&#34;:[{&#34;Sns&#34;: {&#34;Message&#34;:&#34;{\&#34;tags\&#34;: [\&#34;neo4j\&#34;], \&#34;startDate\&#34;: \&#34;2017-09-25\&#34;, \&#34;endDate\&#34;: \&#34;2017-09-29\&#34;  }&#34;}}]}&#39;
 
 start_date: 2017-09-25
 end_date: 2017-09-29
-tags: ['neo4j']
+tags: [&#39;neo4j&#39;]
 null</code></pre>
 </div>
 </div>
@@ -364,7 +366,7 @@ null</code></pre>
 START RequestId: 0ef5be87-a5b1-11e7-a905-f1387e68c65f Version: $LATEST
 start_date: 2017-09-29
 end_date: 2017-09-30
-tags: ['neo4j']
+tags: [&#39;neo4j&#39;]
 END RequestId: 0ef5be87-a5b1-11e7-a905-f1387e68c65f
 REPORT RequestId: 0ef5be87-a5b1-11e7-a905-f1387e68c65f	Duration: 0.46 ms	Billed Duration: 100 ms 	Memory Size: 1024 MB	Max Memory Used: 32 MB</code></pre>
 </div>
@@ -376,13 +378,13 @@ REPORT RequestId: 0ef5be87-a5b1-11e7-a905-f1387e68c65f	Duration: 0.46 ms	Billed 
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ serverless invoke \
     --function message-consumer \
-    --data '{"Records":[{"Sns": {"Message":"{\"tags\": [\"neo4j\"], \"startDate\": \"2017-09-25\", \"endDate\": \"2017-09-26\"  }"}}]}'
+    --data &#39;{&#34;Records&#34;:[{&#34;Sns&#34;: {&#34;Message&#34;:&#34;{\&#34;tags\&#34;: [\&#34;neo4j\&#34;], \&#34;startDate\&#34;: \&#34;2017-09-25\&#34;, \&#34;endDate\&#34;: \&#34;2017-09-26\&#34;  }&#34;}}]}&#39;
 
 null</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>And now if we check the consumer&#8217;s logs we&#8217;ll see both messages:</p>
+<p>And now if we check the consumer’s logs we’ll see both messages:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -391,14 +393,14 @@ null</code></pre>
 START RequestId: 0ef5be87-a5b1-11e7-a905-f1387e68c65f Version: $LATEST
 start_date: 2017-09-29
 end_date: 2017-09-30
-tags: ['neo4j']
+tags: [&#39;neo4j&#39;]
 END RequestId: 0ef5be87-a5b1-11e7-a905-f1387e68c65f
 REPORT RequestId: 0ef5be87-a5b1-11e7-a905-f1387e68c65f	Duration: 0.46 ms	Billed Duration: 100 ms 	Memory Size: 1024 MB	Max Memory Used: 32 MB
 
 START RequestId: 4cb42bc9-a5b1-11e7-affb-99fa6b4dc3ed Version: $LATEST
 start_date: 2017-09-25
 end_date: 2017-09-26
-tags: ['neo4j']
+tags: [&#39;neo4j&#39;]
 END RequestId: 4cb42bc9-a5b1-11e7-affb-99fa6b4dc3ed
 REPORT RequestId: 4cb42bc9-a5b1-11e7-affb-99fa6b4dc3ed	Duration: 16.46 ms	Billed Duration: 100 ms 	Memory Size: 1024 MB	Max Memory Used: 32 MB</code></pre>
 </div>
@@ -442,7 +444,7 @@ REPORT RequestId: 4cb42bc9-a5b1-11e7-affb-99fa6b4dc3ed	Duration: 16.46 ms	Billed
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/09/30/serverless-building-mini-producerconsumer-data-pipeline-aws-sns/&amp;title=Serverless%3a%20Building%20a%20mini%20producer%2fconsumer%20data%20pipeline%20with%20AWS%20SNS&amp;summary=I%20wanted%20to%20create%20a%20little%20data%20pipeline%20with%20Serverless%20whose%20main%20use%20would%20be%20to%20run%20once%20a%20day%2c%20call%20an%20API%2c%20and%20load%20that%20data%20into%20a%20database.%0a%20It%26%238217%3bs%20mostly%20used%20to%20pull%20in%20recent%20data%20from%20that%20API%2c%20but%20I%20also%20wanted%20to%20be%20able%20to%20invoke%20it%20manually%20and%20specify%20a%20date%20range.%0a%20I%20created%20the%20following%20pair%20of%20lambdas%20that%20communicate%20with%20each%20other%20via%20an%20SNS%20topic...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/09/30/serverless-building-mini-producerconsumer-data-pipeline-aws-sns/&amp;title=Serverless%3a%20Building%20a%20mini%20producer%2fconsumer%20data%20pipeline%20with%20AWS%20SNS&amp;summary=I%20wanted%20to%20create%20a%20little%20data%20pipeline%20with%20Serverless%20whose%20main%20use%20would%20be%20to%20run%20once%20a%20day%2c%20call%20an%20API%2c%20and%20load%20that%20data%20into%20a%20database.%0aIt%e2%80%99s%20mostly%20used%20to%20pull%20in%20recent%20data%20from%20that%20API%2c%20but%20I%20also%20wanted%20to%20be%20able%20to%20invoke%20it%20manually%20and%20specify%20a%20date%20range.%0aI%20created%20the%20following%20pair%20of%20lambdas%20that%20communicate%20with%20each%20other%20via%20an%20SNS%20topic...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -585,13 +587,13 @@ REPORT RequestId: 4cb42bc9-a5b1-11e7-affb-99fa6b4dc3ed	Duration: 16.46 ms	Billed
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

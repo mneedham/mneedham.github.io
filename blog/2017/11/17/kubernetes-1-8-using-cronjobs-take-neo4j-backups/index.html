@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Kubernetes 1.8: Using Cronjobs to take Neo4j backups &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Kubernetes 1.8: Using Cronjobs to take Neo4j backups | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2017/11/17/kubernetes-1-8-using-cronjobs-take-neo4j-backups/" />
 
@@ -33,7 +34,8 @@
 
     
 
-        <title> Kubernetes 1.8: Using Cronjobs to take Neo4j backups &middot;  Mark Needham</title>
+        
+        <title>Kubernetes 1.8: Using Cronjobs to take Neo4j backups | Mark Needham</title>
 
     
         <meta name="description" content="Learn how to take backups of Neo4j clusters deployed on Kubernetes using the Cronjob feature released in Kubernetes 1.8." />
@@ -47,11 +49,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2017/11/17/kubernetes-1-8-using-cronjobs-take-neo4j-backups/" />
 
     
@@ -65,7 +68,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-11-17",
-        "description": "With the release of Kubernetes 1.8 Cronjobs have graduated to beta, which means we can now more easily run Neo4j backup jobs against Kubernetes clusters.\n Before we learn how to write a Cronjob let\u0026#8217;s first create a local Kubernetes cluster and deploy Neo4j.\n Spinup Kubernetes \u0026amp; Helm minikube start --memory 8192 helm init \u0026amp;\u0026amp; kubectl rollout status -w deployment/tiller-deploy --namespace=kube-system     Deploy a Neo4j cluster helm repo add incubator https://kubernetes-charts-incubator.",
+        "description": "With the release of Kubernetes 1.8 Cronjobs have graduated to beta, which means we can now more easily run Neo4j backup jobs against Kubernetes clusters.\nBefore we learn how to write a Cronjob let’s first create a local Kubernetes cluster and deploy Neo4j.\nSpinup Kubernetes \u0026amp; Helm minikube start --memory 8192 helm init \u0026amp;\u0026amp; kubectl rollout status -w deployment\/tiller-deploy --namespace=kube-system Deploy a Neo4j cluster helm repo add incubator https:\/\/kubernetes-charts-incubator.storage.googleapis.com\/ helm install incubator\/neo4j --name neo-helm --wait --set authEnabled=false,core.",
         "wordCount":  665 
     }
     </script>
@@ -192,7 +195,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -223,7 +225,7 @@ tbody tr pre {margin-bottom: 27px}
 <p>With the <a href="http://blog.kubernetes.io/2017/09/kubernetes-18-security-workloads-and.html">release of Kubernetes 1.8</a> Cronjobs have graduated to beta, which means we can now more easily run Neo4j backup jobs against Kubernetes clusters.</p>
 </div>
 <div class="paragraph">
-<p>Before we learn how to write a Cronjob let&#8217;s first create a local Kubernetes cluster and deploy Neo4j.</p>
+<p>Before we learn how to write a Cronjob let’s first create a local Kubernetes cluster and deploy Neo4j.</p>
 </div>
 <div class="sect1">
 <h2 id="_spinup_kubernetes_helm">Spinup Kubernetes &amp; Helm</h2>
@@ -257,25 +259,25 @@ helm install incubator/neo4j --name neo-helm --wait --set authEnabled=false,core
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">kubectl exec neo-helm-neo4j-core-0 \
   -- bin/cypher-shell --format verbose \
-  "CALL dbms.cluster.overview() YIELD id, role RETURN id, role"
+  &#34;CALL dbms.cluster.overview() YIELD id, role RETURN id, role&#34;
 
 +-----------------------------------------------------+
 | id                                     | role       |
 +-----------------------------------------------------+
-| "0b3bfe6c-6a68-4af5-9dd2-e96b564df6e5" | "LEADER"   |
-| "09e9bee8-bdc5-4e95-926c-16ea8213e6e7" | "FOLLOWER" |
-| "859b9b56-9bfc-42ae-90c3-02cedacfe720" | "FOLLOWER" |
+| &#34;0b3bfe6c-6a68-4af5-9dd2-e96b564df6e5&#34; | &#34;LEADER&#34;   |
+| &#34;09e9bee8-bdc5-4e95-926c-16ea8213e6e7&#34; | &#34;FOLLOWER&#34; |
+| &#34;859b9b56-9bfc-42ae-90c3-02cedacfe720&#34; | &#34;FOLLOWER&#34; |
 +-----------------------------------------------------+</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s create some data:</p>
+<p>Now let’s create some data:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">kubectl exec neo-helm-neo4j-core-0 \
   -- bin/cypher-shell --format verbose \
-  "UNWIND range(0,1000) AS id CREATE (:Person {id: id})"
+  &#34;UNWIND range(0,1000) AS id CREATE (:Person {id: id})&#34;
 
 0 rows available after 653 ms, consumed after another 0 ms
 Added 1001 nodes, Set 1001 properties, Added 1001 labels</code></pre>
@@ -336,7 +338,7 @@ kind: CronJob
 metadata:
   name: neo4j-backup
 spec:
-  schedule: "*/1 * * * *"
+  schedule: &#34;*/1 * * * *&#34;
   jobTemplate:
     spec:
       template:
@@ -350,18 +352,18 @@ spec:
               image: neo4j:3.3.0-enterprise
               env:
                 - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
-                  value: "yes"
+                  value: &#34;yes&#34;
               volumeMounts:
               - name: backupdir-neo4j
                 mountPath: /tmp
-              command: ["bin/neo4j-admin",  "backup", "--backup-dir", "/tmp", "--name", "backup", "--from", "neo-helm-neo4j-core-2.neo-helm-neo4j.default.svc.cluster.local:6362"]
+              command: [&#34;bin/neo4j-admin&#34;,  &#34;backup&#34;, &#34;--backup-dir&#34;, &#34;/tmp&#34;, &#34;--name&#34;, &#34;backup&#34;, &#34;--from&#34;, &#34;neo-helm-neo4j-core-2.neo-helm-neo4j.default.svc.cluster.local:6362&#34;]
           restartPolicy: OnFailure</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ kubectl apply -f cronjob.yaml
-cronjob "neo4j-backup" created</code></pre>
+cronjob &#34;neo4j-backup&#34; created</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -372,7 +374,7 @@ neo4j-backup-1510940940   1         1            34s</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s view the logs from the job:</p>
+<p>Now let’s view the logs from the job:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -396,13 +398,13 @@ Backup complete.</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>All good so far. Now let&#8217;s create more data:</p>
+<p>All good so far. Now let’s create more data:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">kubectl exec neo-helm-neo4j-core-0 \
   -- bin/cypher-shell --format verbose \
-  "UNWIND range(0,1000) AS id CREATE (:Person {id: id})"
+  &#34;UNWIND range(0,1000) AS id CREATE (:Person {id: id})&#34;
 
 
 0 rows available after 114 ms, consumed after another 0 ms
@@ -437,7 +439,7 @@ Backup complete.</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we were to extend this job further we could have it copy each backup it takes to an S3 bucket but I&#8217;ll leave that for another day.</p>
+<p>If we were to extend this job further we could have it copy each backup it takes to an S3 bucket but I’ll leave that for another day.</p>
 </div>
 </div>
 </div>
@@ -475,7 +477,7 @@ Backup complete.</code></pre>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/11/17/kubernetes-1-8-using-cronjobs-take-neo4j-backups/&amp;title=Kubernetes%201.8%3a%20Using%20Cronjobs%20to%20take%20Neo4j%20backups&amp;summary=With%20the%20release%20of%20Kubernetes%201.8%20Cronjobs%20have%20graduated%20to%20beta%2c%20which%20means%20we%20can%20now%20more%20easily%20run%20Neo4j%20backup%20jobs%20against%20Kubernetes%20clusters.%0a%20Before%20we%20learn%20how%20to%20write%20a%20Cronjob%20let%26%238217%3bs%20first%20create%20a%20local%20Kubernetes%20cluster%20and%20deploy%20Neo4j.%0a%20Spinup%20Kubernetes%20%26amp%3b%20Helm%20minikube%20start%20--memory%208192%20helm%20init%20%26amp%3b%26amp%3b%20kubectl%20rollout%20status%20-w%20deployment%2ftiller-deploy%20--namespace%3dkube-system%20%20%20%20%20Deploy%20a%20Neo4j%20cluster%20helm%20repo%20add%20incubator%20https%3a%2f%2fkubernetes-charts-incubator...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/11/17/kubernetes-1-8-using-cronjobs-take-neo4j-backups/&amp;title=Kubernetes%201.8%3a%20Using%20Cronjobs%20to%20take%20Neo4j%20backups&amp;summary=With%20the%20release%20of%20Kubernetes%201.8%20Cronjobs%20have%20graduated%20to%20beta%2c%20which%20means%20we%20can%20now%20more%20easily%20run%20Neo4j%20backup%20jobs%20against%20Kubernetes%20clusters.%0aBefore%20we%20learn%20how%20to%20write%20a%20Cronjob%20let%e2%80%99s%20first%20create%20a%20local%20Kubernetes%20cluster%20and%20deploy%20Neo4j.%0aSpinup%20Kubernetes%20%26amp%3b%20Helm%20minikube%20start%20--memory%208192%20helm%20init%20%26amp%3b%26amp%3b%20kubectl%20rollout%20status%20-w%20deployment%2ftiller-deploy%20--namespace%3dkube-system%20Deploy%20a%20Neo4j%20cluster%20helm%20repo%20add%20incubator%20https%3a%2f%2fkubernetes-charts-incubator.storage.googleapis.com%2f%20helm%20install%20incubator%2fneo4j%20--name%20neo-helm%20--wait%20--set%20authEnabled%3dfalse%2ccore...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -618,13 +620,13 @@ Backup complete.</code></pre>
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

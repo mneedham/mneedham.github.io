@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Luigi: Defining dynamic requirements (on output files) &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Luigi: Defining dynamic requirements (on output files) | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2017/03/28/luigi-defining-dynamic-requirements-on-output-files/" />
 
@@ -31,7 +32,8 @@
 
     
 
-        <title> Luigi: Defining dynamic requirements (on output files) &middot;  Mark Needham</title>
+        
+        <title>Luigi: Defining dynamic requirements (on output files) | Mark Needham</title>
 
     
         <meta name="description" content="In this post we show how to create requirements between Luigi tasks where those requirements aren&#39;t known at design time i.e. we have dynamic requirements." />
@@ -45,11 +47,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2017/03/28/luigi-defining-dynamic-requirements-on-output-files/" />
 
     
@@ -63,7 +66,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-03-28",
-        "description": "In my last blog post I showed how to convert a JSON document containing meetup groups into a CSV file using Luigi, the Python library for building data pipelines. As well as creating that CSV file I wanted to go back to the meetup.com API and download all the members of those groups.\n This was a rough flow of what i wanted to do:\n   Take JSON document containing all groups",
+        "description": "In my last blog post I showed how to convert a JSON document containing meetup groups into a CSV file using Luigi, the Python library for building data pipelines. As well as creating that CSV file I wanted to go back to the meetup.com API and download all the members of those groups.\nThis was a rough flow of what i wanted to do:\nTake JSON document containing all groups",
         "wordCount":  675 
     }
     </script>
@@ -190,7 +193,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -266,7 +268,7 @@ tbody tr pre {margin-bottom: 27px}
 <p>One of the patterns that Luigi imposes on us is that each task should only create one file so actually we have a requirement on a collection of tasks rather than just one. It took me a little while to get my head around that!</p>
 </div>
 <div class="paragraph">
-<p>We don&#8217;t know the parameters of those tasks at compile time - we can only calculate them by parsing the JSON file produced by <cite>GroupsToJSON</cite>.</p>
+<p>We don’t know the parameters of those tasks at compile time - we can only calculate them by parsing the JSON file produced by <cite>GroupsToJSON</cite>.</p>
 </div>
 <div class="paragraph">
 <p>In Luigi terminology what we want to create is a <a href="http://luigi.readthedocs.io/en/stable/tasks.html#dynamic-dependencies">dynamic requirement</a>. A dynamic requirement is defined inside the run method of a task and can rely on the output of any tasks specified in the requires method, which is exactly what we need.</p>
@@ -285,9 +287,9 @@ tbody tr pre {margin-bottom: 27px}
     def run(self):
         outputs = []
         for input in self.input():
-            with input.open('r') as group_file:
+            with input.open(&#39;r&#39;) as group_file:
                 groups_json = json.load(group_file)
-                groups = [str(group['id']) for group in groups_json]
+                groups = [str(group[&#39;id&#39;]) for group in groups_json]
 
 
                 for group_id in groups:
@@ -301,7 +303,7 @@ tbody tr pre {margin-bottom: 27px}
 </div>
 </div>
 <div class="paragraph">
-<p>Inside our run method we iterate over the output of GroupsToJSON (which is our input) and we yield to another task as well as collecting its outputs in the array outputs that we&#8217;ll use later. <cite>MembersToJSON</cite> looks like this:</p>
+<p>Inside our run method we iterate over the output of GroupsToJSON (which is our input) and we yield to another task as well as collecting its outputs in the array outputs that we’ll use later. <cite>MembersToJSON</cite> looks like this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -312,22 +314,22 @@ tbody tr pre {margin-bottom: 27px}
 
     def run(self):
         results = []
-        uri = "https://api.meetup.com/2/members?&amp;group_id={0}&amp;key={1}".format(self.group_id, self.key)
+        uri = &#34;https://api.meetup.com/2/members?&amp;group_id={0}&amp;key={1}&#34;.format(self.group_id, self.key)
         while True:
             if uri is None:
                 break
             r = requests.get(uri)
             response = r.json()
-            for result in response["results"]:
+            for result in response[&#34;results&#34;]:
                 results.append(result)
-            uri = response["meta"]["next"] if response["meta"]["next"] else None
+            uri = response[&#34;meta&#34;][&#34;next&#34;] if response[&#34;meta&#34;][&#34;next&#34;] else None
 
 
-        with self.output().open("w") as output:
+        with self.output().open(&#34;w&#34;) as output:
             json.dump(results, output)
 
     def output(self):
-        return luigi.LocalTarget("/tmp/members/{0}.json".format(self.group_id))</code></pre>
+        return luigi.LocalTarget(&#34;/tmp/members/{0}.json&#34;.format(self.group_id))</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -339,7 +341,7 @@ tbody tr pre {margin-bottom: 27px}
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">class MembersToCSV(luigi.Task):
-    out_path = "/tmp/members.csv"
+    out_path = &#34;/tmp/members.csv&#34;
     key = luigi.Parameter()
     lat = luigi.Parameter()
     lon = luigi.Parameter()
@@ -348,9 +350,9 @@ tbody tr pre {margin-bottom: 27px}
     def run(self):
         outputs = []
         for input in self.input():
-            with input.open('r') as group_file:
+            with input.open(&#39;r&#39;) as group_file:
                 groups_json = json.load(group_file)
-                groups = [str(group['id']) for group in groups_json]
+                groups = [str(group[&#39;id&#39;]) for group in groups_json]
 
 
                 for group_id in groups:
@@ -358,18 +360,18 @@ tbody tr pre {margin-bottom: 27px}
                     outputs.append(members.output().path)
                     yield members
 
-        with self.output().open("w") as output:
-            writer = csv.writer(output, delimiter=",")
-            writer.writerow(["id", "name", "joined", "topics", "groupId"])
+        with self.output().open(&#34;w&#34;) as output:
+            writer = csv.writer(output, delimiter=&#34;,&#34;)
+            writer.writerow([&#34;id&#34;, &#34;name&#34;, &#34;joined&#34;, &#34;topics&#34;, &#34;groupId&#34;])
 
             for path in outputs:
-                group_id = path.split("/")[-1].replace(".json", "")
+                group_id = path.split(&#34;/&#34;)[-1].replace(&#34;.json&#34;, &#34;&#34;)
                 with open(path) as json_data:
                     d = json.load(json_data)
                     for member in d:
-                        topic_ids = ";".join([str(topic["id"]) for topic in member["topics"]])
-                        if "name" in member:
-                            writer.writerow([member["id"], member["name"], member["joined"], topic_ids, group_id])
+                        topic_ids = &#34;;&#34;.join([str(topic[&#34;id&#34;]) for topic in member[&#34;topics&#34;]])
+                        if &#34;name&#34; in member:
+                            writer.writerow([member[&#34;id&#34;], member[&#34;name&#34;], member[&#34;joined&#34;], topic_ids, group_id])
 
     def output(self):
         return luigi.LocalTarget(self.out_path)
@@ -382,21 +384,21 @@ tbody tr pre {margin-bottom: 27px}
 <p>We then just need to add our new task as a requirement of the wrapper task:</p>
 </div>
 <div class="paragraph">
-<p>And we&#8217;re ready to roll:</p>
+<p>And we’re ready to roll:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ PYTHONPATH="." luigi --module blog --local-scheduler Meetup --workers 3</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ PYTHONPATH=&#34;.&#34; luigi --module blog --local-scheduler Meetup --workers 3</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>We&#8217;ve defined the number of workers here as we can execute those calls to the /members endpoint in parallel and there are ~ 600 calls to make.</p>
+<p>We’ve defined the number of workers here as we can execute those calls to the /members endpoint in parallel and there are ~ 600 calls to make.</p>
 </div>
 <div class="paragraph">
 <p>All the <a href="https://gist.github.com/mneedham/de3c67dd198e53303923cf40739fb74c">code from both blog posts is available as a gist</a> if you want to play around with it.</p>
 </div>
 <div class="paragraph">
-<p>Any questions/advice let me know in the comments or I&#8217;m <a href="https://twitter.com/markhneedham">@markhneedham</a> on twitter.</p>
+<p>Any questions/advice let me know in the comments or I’m <a href="https://twitter.com/markhneedham">@markhneedham</a> on twitter.</p>
 </div>
 
     <div id="social-bar">
@@ -432,7 +434,7 @@ tbody tr pre {margin-bottom: 27px}
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/03/28/luigi-defining-dynamic-requirements-on-output-files/&amp;title=Luigi%3a%20Defining%20dynamic%20requirements%20%28on%20output%20files%29&amp;summary=In%20my%20last%20blog%20post%20I%20showed%20how%20to%20convert%20a%20JSON%20document%20containing%20meetup%20groups%20into%20a%20CSV%20file%20using%20Luigi%2c%20the%20Python%20library%20for%20building%20data%20pipelines.%20As%20well%20as%20creating%20that%20CSV%20file%20I%20wanted%20to%20go%20back%20to%20the%20meetup.com%20API%20and%20download%20all%20the%20members%20of%20those%20groups.%0a%20This%20was%20a%20rough%20flow%20of%20what%20i%20wanted%20to%20do%3a%0a%20%20%20Take%20JSON%20document%20containing%20all%20groups..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/03/28/luigi-defining-dynamic-requirements-on-output-files/&amp;title=Luigi%3a%20Defining%20dynamic%20requirements%20%28on%20output%20files%29&amp;summary=In%20my%20last%20blog%20post%20I%20showed%20how%20to%20convert%20a%20JSON%20document%20containing%20meetup%20groups%20into%20a%20CSV%20file%20using%20Luigi%2c%20the%20Python%20library%20for%20building%20data%20pipelines.%20As%20well%20as%20creating%20that%20CSV%20file%20I%20wanted%20to%20go%20back%20to%20the%20meetup.com%20API%20and%20download%20all%20the%20members%20of%20those%20groups.%0aThis%20was%20a%20rough%20flow%20of%20what%20i%20wanted%20to%20do%3a%0aTake%20JSON%20document%20containing%20all%20groups..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -575,13 +577,13 @@ tbody tr pre {margin-bottom: 27px}
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

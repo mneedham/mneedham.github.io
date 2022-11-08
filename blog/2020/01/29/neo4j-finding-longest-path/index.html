@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Neo4j: Finding the longest path &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Neo4j: Finding the longest path | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2020/01/29/neo4j-finding-longest-path/" />
 
@@ -36,7 +37,8 @@
 
     
 
-        <title> Neo4j: Finding the longest path &middot;  Mark Needham</title>
+        
+        <title>Neo4j: Finding the longest path | Mark Needham</title>
 
     
         <meta name="description" content="Learn how to write a Cypher query to find the longest path in a graph." />
@@ -50,11 +52,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2020/01/29/neo4j-finding-longest-path/" />
 
     
@@ -68,7 +71,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2020-01-29",
-        "description": "One on my favourite things about storing data in a graph database is executing path based queries against that data. I\u0026#8217;ve been trying to find a way to write such queries against the Australian Open QuickGraph, and in this blog post we\u0026#8217;re going to write what I think of as longest path queries against this graph.\n  Figure 1. Finding longest paths in Neo4j  Setting up Neo4j We\u0026#8217;re going to use the following Docker Compose configuration in this blog post:",
+        "description": "One on my favourite things about storing data in a graph database is executing path based queries against that data. I’ve been trying to find a way to write such queries against the Australian Open QuickGraph, and in this blog post we’re going to write what I think of as longest path queries against this graph.\nFigure 1. Finding longest paths in Neo4j Setting up Neo4j We’re going to use the following Docker Compose configuration in this blog post:",
         "wordCount":  1458 
     }
     </script>
@@ -195,7 +198,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -220,12 +222,12 @@ tbody tr pre {margin-bottom: 27px}
     <h1 class="post-title">Neo4j: Finding the longest path</h1>
     <div class="paragraph">
 <p>One on my favourite things about storing data in a graph database is executing path based queries against that data.
-I&#8217;ve been trying to find a way to write such queries against the <a href="https://markhneedham.com/blog/2020/01/23/quick-graph-australian-open/" target="_blank" rel="noopener">Australian Open QuickGraph</a>, and in this blog post we&#8217;re going to write what I think of as longest path queries against this graph.</p>
+I’ve been trying to find a way to write such queries against the <a href="https://markhneedham.com/blog/2020/01/23/quick-graph-australian-open/" target="_blank" rel="noopener">Australian Open QuickGraph</a>, and in this blog post we’re going to write what I think of as longest path queries against this graph.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2020/01/longest-path.png" alt="longest path">
+/uploads/2020/01/longest-path.png" alt="longest path"/>
 </div>
 <div class="title">Figure 1. Finding longest paths in Neo4j</div>
 </div>
@@ -233,35 +235,35 @@ I&#8217;ve been trying to find a way to write such queries against the <a href="
 <h2 id="_setting_up_neo4j">Setting up Neo4j</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to use the following Docker Compose configuration in this blog post:</p>
+<p>We’re going to use the following Docker Compose configuration in this blog post:</p>
 </div>
 <div class="listingblock">
 <div class="title">Dockerfile</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: '3.7'
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: &#39;3.7&#39;
 
 services:
   neo4j:
     image: neo4j:4.0.0-enterprise
-    container_name: "quickgraph-aus-open"
+    container_name: &#34;quickgraph-aus-open&#34;
     volumes:
       - ./plugins:/plugins
       - ./data:/data
       - ./import:/var/lib/neo4j/import
     ports:
-      - "7474:7474"
-      - "7687:7687"
+      - &#34;7474:7474&#34;
+      - &#34;7687:7687&#34;
     environment:
-      - "NEO4J_ACCEPT_LICENSE_AGREEMENT=yes"
-      - "NEO4J_AUTH=neo4j/neo"
+      - &#34;NEO4J_ACCEPT_LICENSE_AGREEMENT=yes&#34;
+      - &#34;NEO4J_AUTH=neo4j/neo&#34;
       - NEO4J_apoc_import_file_use__neo4j__config=true
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_apoc_export_file_enabled=true
-      - NEO4JLABS_PLUGINS=["apoc"]</code></pre>
+      - NEO4JLABS_PLUGINS=[&#34;apoc&#34;]</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Once we&#8217;ve created that file we need to open a terminal session where that file lives and then run <code>docker-compose up</code> to launch Neo4j.</p>
+<p>Once we’ve created that file we need to open a terminal session where that file lives and then run <code>docker-compose up</code> to launch Neo4j.</p>
 </div>
 </div>
 </div>
@@ -269,7 +271,7 @@ services:
 <h2 id="_importing_our_dataset">Importing our dataset</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to learn how to write longest path queries using a dataset that contains the finalists of the Australian Open tennis tournament.</p>
+<p>We’re going to learn how to write longest path queries using a dataset that contains the finalists of the Australian Open tennis tournament.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -281,7 +283,7 @@ CREATE DATABASE blog;
 <div class="listingblock">
 <div class="title">The following query creates tournaments and relationships between them</div>
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.load.json("https://github.com/mneedham/australian-open-neo4j/raw/master/blog_data/tournaments.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.load.json(&#34;https://github.com/mneedham/australian-open-neo4j/raw/master/blog_data/tournaments.json&#34;)
 YIELD value
 CALL apoc.merge.node(value.t1.labels, value.t1.properties) YIELD node AS t1
 CALL apoc.merge.node(value.t2.labels, value.t2.properties) YIELD node AS t2
@@ -292,7 +294,7 @@ RETURN count(*);</code></pre>
 <div class="listingblock">
 <div class="title">The following query creates matches and players and associated relationships</div>
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.load.json("https://github.com/mneedham/australian-open-neo4j/raw/master/blog_data/finalists.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.load.json(&#34;https://github.com/mneedham/australian-open-neo4j/raw/master/blog_data/finalists.json&#34;)
 YIELD value
 CALL apoc.merge.node(value.winner.labels, value.winner.properties) YIELD node AS winner
 CALL apoc.merge.node(value.loser.labels, value.loser.properties) YIELD node AS loser
@@ -310,7 +312,7 @@ return count(*);</code></pre>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2020/01/aus-open-finalists.png" alt="aus open finalists">
+/uploads/2020/01/aus-open-finalists.png" alt="aus open finalists"/>
 </div>
 <div class="title">Figure 2. Australian Open Womens Finalists</div>
 </div>
@@ -320,7 +322,7 @@ return count(*);</code></pre>
 <h2 id="_finding_longest_paths">Finding longest paths</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Let&#8217;s start with a <a href="https://neo4j.com/docs/cypher-manual/current/syntax/patterns/#cypher-pattern-varlength" target="_blank" rel="noopener">variable length path query</a> that starts with the <code>Tournament</code> in the year 2000 and follows the <code>NEXT_TOURNAMENT</code> relationship as many times as possible by using the <code>*</code> syntax after the relationship type:</p>
+<p>Let’s start with a <a href="https://neo4j.com/docs/cypher-manual/current/syntax/patterns/#cypher-pattern-varlength" target="_blank" rel="noopener">variable length path query</a> that starts with the <code>Tournament</code> in the year 2000 and follows the <code>NEXT_TOURNAMENT</code> relationship as many times as possible by using the <code>*</code> syntax after the relationship type:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -329,12 +331,12 @@ RETURN [t in nodes(path) | t.year] AS allTournaments</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run this query, we&#8217;ll see the following output:</p>
+<p>If we run this query, we’ll see the following output:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. Results</caption>
 <colgroup>
-<col style="width: 100%;">
+<col style="width: 100%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -402,7 +404,7 @@ RETURN [t in nodes(path) | t.year] AS allTournaments</code></pre>
 </tbody>
 </table>
 <div class="paragraph">
-<p>As we can see from the results, we&#8217;ve returned all the intermediate paths between the tournament in the year 2000 and the one in the year 2019.</p>
+<p>As we can see from the results, we’ve returned all the intermediate paths between the tournament in the year 2000 and the one in the year 2019.</p>
 </div>
 <div class="paragraph">
 <p>But what if we only want to return the longest path?
@@ -425,7 +427,7 @@ RETURN [t in nodes(path) | t.year] AS allTournaments</code></pre>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. Results</caption>
 <colgroup>
-<col style="width: 100%;">
+<col style="width: 100%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -439,11 +441,11 @@ RETURN [t in nodes(path) | t.year] AS allTournaments</code></pre>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Now let&#8217;s see how we can use this technique for a more complex query.</p>
+<p>Now let’s see how we can use this technique for a more complex query.</p>
 </div>
 <div class="paragraph">
 <p>We want to find which players have lost multiple finals in a row.
-So we need to find all the <code>Match</code> nodes that have <code>round "F"</code> where the <code>Player</code> has a <code>LOSER</code> relationship to that match.
+So we need to find all the <code>Match</code> nodes that have <code>round &#34;F&#34;</code> where the <code>Player</code> has a <code>LOSER</code> relationship to that match.
 And we then want to see if that same player had a <code>LOSER</code> relationship to the final match in tournaments in the following years.
 The following query is our first attempt to do this:</p>
 </div>
@@ -452,25 +454,25 @@ The following query is our first attempt to do this:</p>
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">// Find losing finalists in a tournament and a path of all the tournaments
 // after that tournament
 MATCH path = (t:Tournament)-[:NEXT_TOURNAMENT*]-&gt;(t2:Tournament),
-             (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;-[:LOSER]-(player)
+             (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;-[:LOSER]-(player)
 
 // Check that the player lost the final in every subsequent tournament
 WITH nodes(path) AS tournaments, player
 WHERE all(t in tournaments[1..]
-          WHERE (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;-[:LOSER]-(player)
+          WHERE (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;-[:LOSER]-(player)
 )
 
 RETURN player.name, [t IN tournaments | t.year] AS years</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run this query, we&#8217;ll see the following results:</p>
+<p>If we run this query, we’ll see the following results:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 3. Results</caption>
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 50%;"/>
+<col style="width: 50%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -480,33 +482,33 @@ RETURN player.name, [t IN tournaments | t.year] AS years</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Martina Hingis"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Martina Hingis&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">[2000, 2001]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Martina Hingis"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Martina Hingis&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">[2000, 2001, 2002]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Martina Hingis"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Martina Hingis&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">[2001, 2002]</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
 <p>Poor Martina Hingis!
-But despite telling us all the finals that Martina lost, we&#8217;re still returning some rows that we want to exclude.
+But despite telling us all the finals that Martina lost, we’re still returning some rows that we want to exclude.
 Ideally we only want to return the longest path, which contains <code>[2000,2001,2002]</code>.</p>
 </div>
 <div class="paragraph">
-<p>We need to update our query to filter out any paths where the losing finalist didn&#8217;t lose the final the year before</p>
+<p>We need to update our query to filter out any paths where the losing finalist didn’t lose the final the year before</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">// Find losing finalists in a tournament and a path of all the tournaments
 // after that tournament
 MATCH path = (t:Tournament)-[:NEXT_TOURNAMENT*]-&gt;(t2:Tournament),
-             (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;-[:LOSER]-(player)
+             (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;-[:LOSER]-(player)
 
 // Get the first and last tournaments in the list
 WITH nodes(path) AS tournaments, player
@@ -522,22 +524,22 @@ WITH tournaments, player,
 // that the player lost the final in the tournament immediately before and
 // that the player lost the final in the tournament immediately after
 WHERE all(t in tournaments[1..]
-          WHERE (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;-[:LOSER]-(player)
-          AND not((next)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;-[:LOSER]-(player))
-          AND not((previous)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;-[:LOSER]-(player))
+          WHERE (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;-[:LOSER]-(player)
+          AND not((next)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;-[:LOSER]-(player))
+          AND not((previous)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;-[:LOSER]-(player))
 )
 
 RETURN player.name, [t IN tournaments | t.year] AS years;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run this query, we&#8217;ll see the following results:</p>
+<p>If we run this query, we’ll see the following results:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 4. Results</caption>
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 50%;"/>
+<col style="width: 50%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -547,13 +549,13 @@ RETURN player.name, [t IN tournaments | t.year] AS years;</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Martina Hingis"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Martina Hingis&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">[2000, 2001, 2002]</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Perfect, that&#8217;s exactly what we want the results to look like!
+<p>Perfect, that’s exactly what we want the results to look like!
 We can now extend this query to find the players who reached consecutive finals:</p>
 </div>
 <div class="listingblock">
@@ -561,7 +563,7 @@ We can now extend this query to find the players who reached consecutive finals:
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">// Find finalists in a tournament and a path of all the tournaments
 // after that tournament
 MATCH path = (t:Tournament)-[:NEXT_TOURNAMENT*]-&gt;(t2:Tournament),
-             (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;--(player)
+             (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;--(player)
 
 // Get the first and last tournaments in the list
 WITH nodes(path) AS tournaments, player
@@ -577,29 +579,29 @@ WITH tournaments, player,
 // that the player reached the final in the tournament immediately before and
 // that the player reached the final in the tournament immediately after
 WHERE all(t in tournaments[1..]
-          WHERE (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;--(player)
-          AND not((next)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;--(player))
-          AND not((previous)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;--(player))
+          WHERE (t)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;--(player)
+          AND not((next)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;--(player))
+          AND not((previous)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;--(player))
 )
 
 RETURN player.name,
        // Create a list containing the year of the final and the relationship type from the
        // player to the final match in that tournament
        apoc.coll.flatten(
-         [t IN tournaments | [(t)&lt;-[:IN_TOURNAMENT]-(:Match {round: "F"})&lt;-[type]-(player) |
+         [t IN tournaments | [(t)&lt;-[:IN_TOURNAMENT]-(:Match {round: &#34;F&#34;})&lt;-[type]-(player) |
            [t.year, type(type)]][0]]
        ) AS years
 ORDER BY years[0]</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run that query, we&#8217;ll see the following results:</p>
+<p>If we run that query, we’ll see the following results:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 5. Results</caption>
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 50%;"/>
+<col style="width: 50%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -609,32 +611,32 @@ ORDER BY years[0]</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Martina Hingis"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">[2000, "LOSER", 2001, "LOSER", 2002, "LOSER"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Martina Hingis&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[2000, &#34;LOSER&#34;, 2001, &#34;LOSER&#34;, 2002, &#34;LOSER&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Jennifer Capriati"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">[2001, "WINNER", 2002, "WINNER"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Jennifer Capriati&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[2001, &#34;WINNER&#34;, 2002, &#34;WINNER&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Maria Sharapova"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">[2007, "LOSER", 2008, "WINNER"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Maria Sharapova&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[2007, &#34;LOSER&#34;, 2008, &#34;WINNER&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Serena Williams"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">[2009, "WINNER", 2010, "WINNER"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Serena Williams&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[2009, &#34;WINNER&#34;, 2010, &#34;WINNER&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Victoria Azarenka"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">[2012, "WINNER", 2013, "WINNER"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Victoria Azarenka&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[2012, &#34;WINNER&#34;, 2013, &#34;WINNER&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Na Li"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">[2013, "LOSER", 2014, "WINNER"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Na Li&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[2013, &#34;LOSER&#34;, 2014, &#34;WINNER&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Serena Williams"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">[2015, "WINNER", 2016, "LOSER", 2017, "WINNER"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Serena Williams&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[2015, &#34;WINNER&#34;, 2016, &#34;LOSER&#34;, 2017, &#34;WINNER&#34;]</p></td>
 </tr>
 </tbody>
 </table>
@@ -682,7 +684,7 @@ Perhaps that can be the topic of another blog post.</p>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2020/01/29/neo4j-finding-longest-path/&amp;title=Neo4j%3a%20Finding%20the%20longest%20path&amp;summary=One%20on%20my%20favourite%20things%20about%20storing%20data%20in%20a%20graph%20database%20is%20executing%20path%20based%20queries%20against%20that%20data.%20I%26%238217%3bve%20been%20trying%20to%20find%20a%20way%20to%20write%20such%20queries%20against%20the%20Australian%20Open%20QuickGraph%2c%20and%20in%20this%20blog%20post%20we%26%238217%3bre%20going%20to%20write%20what%20I%20think%20of%20as%20longest%20path%20queries%20against%20this%20graph.%0a%20%20Figure%201.%20Finding%20longest%20paths%20in%20Neo4j%20%20Setting%20up%20Neo4j%20We%26%238217%3bre%20going%20to%20use%20the%20following%20Docker%20Compose%20configuration%20in%20this%20blog%20post%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2020/01/29/neo4j-finding-longest-path/&amp;title=Neo4j%3a%20Finding%20the%20longest%20path&amp;summary=One%20on%20my%20favourite%20things%20about%20storing%20data%20in%20a%20graph%20database%20is%20executing%20path%20based%20queries%20against%20that%20data.%20I%e2%80%99ve%20been%20trying%20to%20find%20a%20way%20to%20write%20such%20queries%20against%20the%20Australian%20Open%20QuickGraph%2c%20and%20in%20this%20blog%20post%20we%e2%80%99re%20going%20to%20write%20what%20I%20think%20of%20as%20longest%20path%20queries%20against%20this%20graph.%0aFigure%201.%20Finding%20longest%20paths%20in%20Neo4j%20Setting%20up%20Neo4j%20We%e2%80%99re%20going%20to%20use%20the%20following%20Docker%20Compose%20configuration%20in%20this%20blog%20post%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -825,13 +827,13 @@ Perhaps that can be the topic of another blog post.</p>
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

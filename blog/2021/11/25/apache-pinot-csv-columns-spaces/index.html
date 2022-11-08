@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Apache Pinot: Importing CSV files with columns containing spaces &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Apache Pinot: Importing CSV files with columns containing spaces | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2021/11/25/apache-pinot-csv-columns-spaces/" />
 
@@ -30,7 +31,8 @@
 
     
 
-        <title> Apache Pinot: Importing CSV files with columns containing spaces &middot;  Mark Needham</title>
+        
+        <title>Apache Pinot: Importing CSV files with columns containing spaces | Mark Needham</title>
 
     
         <meta name="description" content="In this post we&#39;ll learn how to import CSV files with columns that contain spaces into Apache Pinot." />
@@ -44,11 +46,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2021/11/25/apache-pinot-csv-columns-spaces/" />
 
     
@@ -62,7 +65,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2021-11-25",
-        "description": "I\u0026#8217;ve been playing around with one of my favourite datasets from the Chicago Data Portal and spent a while figuring out how to import columns that contain spaces into Apache Pinot. In this blog post we\u0026#8217;ll learn how to do that using a subset of the data.\n Setup We\u0026#8217;re going to spin up a local instance of Pinot using the following Docker compose config:\n docker-compose.yml version: '3.7' services: zookeeper: image: zookeeper:3.",
+        "description": "I’ve been playing around with one of my favourite datasets from the Chicago Data Portal and spent a while figuring out how to import columns that contain spaces into Apache Pinot. In this blog post we’ll learn how to do that using a subset of the data.\nSetup We’re going to spin up a local instance of Pinot using the following Docker compose config:\ndocker-compose.yml version: \u0026#39;3.7\u0026#39; services: zookeeper: image: zookeeper:3.",
         "wordCount":  855 
     }
     </script>
@@ -189,7 +192,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -211,58 +213,58 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Apache Pinot: Importing CSV files with columns containing spaces</h1>
     <div class="paragraph">
-<p>I&#8217;ve been playing around with one of my favourite datasets from the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2" target="_blank" rel="noopener">Chicago Data Portal</a> and spent a while figuring out how to import columns that contain spaces into Apache Pinot.
-In this blog post we&#8217;ll learn how to do that using a subset of the data.</p>
+<p>I’ve been playing around with one of my favourite datasets from the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2" target="_blank" rel="noopener">Chicago Data Portal</a> and spent a while figuring out how to import columns that contain spaces into Apache Pinot.
+In this blog post we’ll learn how to do that using a subset of the data.</p>
 </div>
 <div class="sect1">
 <h2 id="_setup">Setup</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to spin up a local instance of Pinot using the following Docker compose config:</p>
+<p>We’re going to spin up a local instance of Pinot using the following Docker compose config:</p>
 </div>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: '3.7'
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: &#39;3.7&#39;
 services:
   zookeeper:
     image: zookeeper:3.5.6
     hostname: zookeeper
     container_name: manual-zookeeper
     ports:
-      - "2181:2181"
+      - &#34;2181:2181&#34;
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
   pinot-controller:
     image: apachepinot/pinot:0.9.0
-    command: "StartController -zkAddress manual-zookeeper:2181"
-    container_name: "manual-pinot-controller"
+    command: &#34;StartController -zkAddress manual-zookeeper:2181&#34;
+    container_name: &#34;manual-pinot-controller&#34;
     volumes:
       - ./config:/config
       - ./data:/data
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - &#34;9000:9000&#34;
     depends_on:
       - zookeeper
   pinot-broker:
     image: apachepinot/pinot:0.9.0
-    command: "StartBroker -zkAddress manual-zookeeper:2181"
+    command: &#34;StartBroker -zkAddress manual-zookeeper:2181&#34;
     restart: unless-stopped
-    container_name: "manual-pinot-broker"
+    container_name: &#34;manual-pinot-broker&#34;
     volumes:
       - ./config:/config
       - ./data:/data
     ports:
-      - "8099:8099"
+      - &#34;8099:8099&#34;
     depends_on:
       - pinot-controller
   pinot-server:
     image: apachepinot/pinot:0.9.0
-    command: "StartServer -zkAddress manual-zookeeper:2181"
+    command: &#34;StartServer -zkAddress manual-zookeeper:2181&#34;
     restart: unless-stopped
-    container_name: "manual-pinot-server"
+    container_name: &#34;manual-pinot-server&#34;
     volumes:
       - ./config:/config
       - ./data:/data
@@ -284,13 +286,13 @@ services:
 <h2 id="_data">Data</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Let&#8217;s say we have the following CSV file that contains two columns, one that contains spaces and one that doesn&#8217;t:</p>
+<p>Let’s say we have the following CSV file that contains two columns, one that contains spaces and one that doesn’t:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. data/import.csv</caption>
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 50%;"/>
+<col style="width: 50%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -326,21 +328,21 @@ services:
 <h2 id="_create_table">Create Table</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to create a <code>crimes</code> Pinot table and associated schema based on this CSV file:</p>
+<p>We’re going to create a <code>crimes</code> Pinot table and associated schema based on this CSV file:</p>
 </div>
 <div class="listingblock">
 <div class="title">config/schema.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "schemaName": "crimes",
-    "dimensionFieldSpecs": [
+    &#34;schemaName&#34;: &#34;crimes&#34;,
+    &#34;dimensionFieldSpecs&#34;: [
       {
-        "name": "ID",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;ID&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "Case Number",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;Case Number&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       }
     ]
 }</code></pre>
@@ -350,30 +352,30 @@ services:
 <div class="title">config/table.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "tableName": "crimes",
-    "tableType": "OFFLINE",
-    "segmentsConfig": {
-      "replication": 1
+    &#34;tableName&#34;: &#34;crimes&#34;,
+    &#34;tableType&#34;: &#34;OFFLINE&#34;,
+    &#34;segmentsConfig&#34;: {
+      &#34;replication&#34;: 1
     },
-    "tenants": {
-      "broker":"DefaultTenant",
-      "server":"DefaultTenant"
+    &#34;tenants&#34;: {
+      &#34;broker&#34;:&#34;DefaultTenant&#34;,
+      &#34;server&#34;:&#34;DefaultTenant&#34;
     },
-    "tableIndexConfig": {
-      "loadMode": "MMAP"
+    &#34;tableIndexConfig&#34;: {
+      &#34;loadMode&#34;: &#34;MMAP&#34;
     },
-    "ingestionConfig": {
-      "batchIngestionConfig": {
-        "segmentIngestionType": "APPEND",
-        "segmentIngestionFrequency": "DAILY"
+    &#34;ingestionConfig&#34;: {
+      &#34;batchIngestionConfig&#34;: {
+        &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+        &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
       }
     },
-    "metadata": {}
+    &#34;metadata&#34;: {}
   }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s try to create a table based on this config:</p>
+<p>Let’s try to create a table based on this config:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -383,7 +385,7 @@ services:
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">2021/11/25 11:57:27.088 ERROR [AddTableCommand] [main] Got Exception to upload Pinot Schema: crimes
-org.apache.pinot.common.exception.HttpErrorStatusException: Got error status code: 400 (Bad Request) with reason: "Cannot add invalid schema: crimes. Reason: The column name "Case Number" should not contain blank space." while sending request: http://192.168.144.3:9000/schemas to controller: d15b07933b22, version: Unknown
+org.apache.pinot.common.exception.HttpErrorStatusException: Got error status code: 400 (Bad Request) with reason: &#34;Cannot add invalid schema: crimes. Reason: The column name &#34;Case Number&#34; should not contain blank space.&#34; while sending request: http://192.168.144.3:9000/schemas to controller: d15b07933b22, version: Unknown
 	at org.apache.pinot.common.utils.FileUploadDownloadClient.sendRequest(FileUploadDownloadClient.java:510) ~[pinot-all-0.9.0-jar-with-dependencies.jar:0.9.0-cf8b84e8b0d6ab62374048de586ce7da21132906]
 	at org.apache.pinot.common.utils.FileUploadDownloadClient.addSchema(FileUploadDownloadClient.java:616) ~[pinot-all-0.9.0-jar-with-dependencies.jar:0.9.0-cf8b84e8b0d6ab62374048de586ce7da21132906]
 	at org.apache.pinot.tools.admin.command.AddTableCommand.uploadSchema(AddTableCommand.java:166) [pinot-all-0.9.0-jar-with-dependencies.jar:0.9.0-cf8b84e8b0d6ab62374048de586ce7da21132906]
@@ -402,34 +404,34 @@ org.apache.pinot.common.exception.HttpErrorStatusException: Got error status cod
 </div>
 </div>
 <div class="paragraph">
-<p>Pinot schemas don&#8217;t allow column names that contain spaces, so we&#8217;ll have to get rid of the space in <code>Case Number</code>.
+<p>Pinot schemas don’t allow column names that contain spaces, so we’ll have to get rid of the space in <code>Case Number</code>.
 We can update the schema to look like this:</p>
 </div>
 <div class="listingblock">
 <div class="title">config/schema.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "schemaName": "crimes",
-    "dimensionFieldSpecs": [
+    &#34;schemaName&#34;: &#34;crimes&#34;,
+    &#34;dimensionFieldSpecs&#34;: [
       {
-        "name": "ID",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;ID&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "CaseNumber",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;CaseNumber&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       }
     ]
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we re-rerun the <code>AddTable</code> command, we&#8217;ll see the following output:</p>
+<p>If we re-rerun the <code>AddTable</code> command, we’ll see the following output:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">2021/11/25 12:02:04.606 INFO [AddTableCommand] [main] Executing command: AddTable -tableConfigFile /config/table.json -schemaFile /config/schema.json -controllerProtocol http -controllerHost 192.168.144.3 -controllerPort 9000 -user null -password [hidden] -exec
-2021/11/25 12:02:05.084 INFO [AddTableCommand] [main] {"status":"Table crimes_OFFLINE succesfully added"}</code></pre>
+2021/11/25 12:02:05.084 INFO [AddTableCommand] [main] {&#34;status&#34;:&#34;Table crimes_OFFLINE succesfully added&#34;}</code></pre>
 </div>
 </div>
 </div>
@@ -438,33 +440,33 @@ We can update the schema to look like this:</p>
 <h2 id="_ingest_csv_file">Ingest CSV file</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now we&#8217;re going to imort the CSV file that we saw at the beginning of the post.
-To do this, we&#8217;ll create the following data ingestion job spec:</p>
+<p>Now we’re going to imort the CSV file that we saw at the beginning of the post.
+To do this, we’ll create the following data ingestion job spec:</p>
 </div>
 <div class="listingblock">
 <div class="title">config/job-spec.yml</div>
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">executionFrameworkSpec:
-  name: 'standalone'
-  segmentGenerationJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentGenerationJobRunner'
-  segmentTarPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner'
-  segmentUriPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentUriPushJobRunner'
+  name: &#39;standalone&#39;
+  segmentGenerationJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentGenerationJobRunner&#39;
+  segmentTarPushJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner&#39;
+  segmentUriPushJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentUriPushJobRunner&#39;
 jobType: SegmentCreationAndTarPush
-inputDirURI: '/data'
-includeFileNamePattern: 'glob:**/import.csv'
-outputDirURI: '/opt/pinot/data/crimes/segments/'
+inputDirURI: &#39;/data&#39;
+includeFileNamePattern: &#39;glob:**/import.csv&#39;
+outputDirURI: &#39;/opt/pinot/data/crimes/segments/&#39;
 overwriteOutput: true
 pinotFSSpecs:
   - scheme: file
     className: org.apache.pinot.spi.filesystem.LocalPinotFS
 recordReaderSpec:
-  dataFormat: 'csv'
-  className: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReader'
-  configClassName: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig'
+  dataFormat: &#39;csv&#39;
+  className: &#39;org.apache.pinot.plugin.inputformat.csv.CSVRecordReader&#39;
+  configClassName: &#39;org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig&#39;
 tableSpec:
-  tableName: 'crimes'
+  tableName: &#39;crimes&#39;
 pinotClusterSpecs:
-  - controllerURI: 'http://localhost:9000'</code></pre>
+  - controllerURI: &#39;http://localhost:9000&#39;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -478,7 +480,7 @@ pinotClusterSpecs:
 </div>
 </div>
 <div class="paragraph">
-<p>Once we&#8217;ve run this we can navigate to the Query Console at <a href="http://localhost:9000/#/query" class="bare">http://localhost:9000/#/query</a> and run the following query:</p>
+<p>Once we’ve run this we can navigate to the Query Console at <a href="http://localhost:9000/#/query" class="bare">http://localhost:9000/#/query</a> and run the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -488,8 +490,8 @@ pinotClusterSpecs:
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. Result</caption>
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 50%;"/>
+<col style="width: 50%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -517,8 +519,8 @@ pinotClusterSpecs:
 </tbody>
 </table>
 <div class="paragraph">
-<p>Hmmm, the <code>CaseNumber</code> is always null, which isn&#8217;t what we want.
-To deal with this problem we&#8217;ll need to add an <a href="https://docs.pinot.apache.org/developers/advanced/ingestion-level-transformations#extract-value-from-a-column-containing-space" target="_blank" rel="noopener">ingestion transformation config</a> to our table config.</p>
+<p>Hmmm, the <code>CaseNumber</code> is always null, which isn’t what we want.
+To deal with this problem we’ll need to add an <a href="https://docs.pinot.apache.org/developers/advanced/ingestion-level-transformations#extract-value-from-a-column-containing-space" target="_blank" rel="noopener">ingestion transformation config</a> to our table config.</p>
 </div>
 </div>
 </div>
@@ -526,48 +528,48 @@ To deal with this problem we&#8217;ll need to add an <a href="https://docs.pinot
 <h2 id="_update_table_config_and_reingest">Update table config and reingest</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Let&#8217;s update our table config to add the transform config:</p>
+<p>Let’s update our table config to add the transform config:</p>
 </div>
 <div class="listingblock">
 <div class="title">config/table.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "tableName": "crimes",
-    "tableType": "OFFLINE",
-    "segmentsConfig": {
-      "replication": 1
+    &#34;tableName&#34;: &#34;crimes&#34;,
+    &#34;tableType&#34;: &#34;OFFLINE&#34;,
+    &#34;segmentsConfig&#34;: {
+      &#34;replication&#34;: 1
     },
-    "tenants": {
-      "broker":"DefaultTenant",
-      "server":"DefaultTenant"
+    &#34;tenants&#34;: {
+      &#34;broker&#34;:&#34;DefaultTenant&#34;,
+      &#34;server&#34;:&#34;DefaultTenant&#34;
     },
-    "tableIndexConfig": {
-      "loadMode": "MMAP"
+    &#34;tableIndexConfig&#34;: {
+      &#34;loadMode&#34;: &#34;MMAP&#34;
     },
-    "ingestionConfig": {
-      "batchIngestionConfig": {
-        "segmentIngestionType": "APPEND",
-        "segmentIngestionFrequency": "DAILY"
+    &#34;ingestionConfig&#34;: {
+      &#34;batchIngestionConfig&#34;: {
+        &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+        &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
       },
-      "transformConfigs": [
-        {"columnName": "CaseNumber", "transformFunction": "\"Case Number\"" }
+      &#34;transformConfigs&#34;: [
+        {&#34;columnName&#34;: &#34;CaseNumber&#34;, &#34;transformFunction&#34;: &#34;\&#34;Case Number\&#34;&#34; }
       ]
     },
-    "metadata": {}
+    &#34;metadata&#34;: {}
   }</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>The <code>columnName</code> refers to the column name in the schema and the <code>tranformFunction</code> describes a function for processing a value from the source data.
-In this case we&#8217;re specifying the name of the property/column name from our CSV file and it will extract the values from that column.</p>
+In this case we’re specifying the name of the property/column name from our CSV file and it will extract the values from that column.</p>
 </div>
 <div class="paragraph">
-<p>Before we update the table config, let&#8217;s first delete the segment that we ingested in the previous section:</p>
+<p>Before we update the table config, let’s first delete the segment that we ingested in the previous section:</p>
 </div>
 <div class="listingblock">
 <div class="title">Drop crimes table segments</div>
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X DELETE "http://localhost:9000/segments/crimes?type=OFFLINE" -H "accept: application/json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X DELETE &#34;http://localhost:9000/segments/crimes?type=OFFLINE&#34; -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -576,10 +578,10 @@ In this case we&#8217;re specifying the name of the property/column name from ou
 <div class="listingblock">
 <div class="title">Update table config</div>
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl 'http://localhost:9000/tables/crimes_OFFLINE' \
- -X 'PUT' \
- -H 'Content-Type: application/json' \
- --data-binary "@config/table.json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl &#39;http://localhost:9000/tables/crimes_OFFLINE&#39; \
+ -X &#39;PUT&#39; \
+ -H &#39;Content-Type: application/json&#39; \
+ --data-binary &#34;@config/table.json&#34;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -593,7 +595,7 @@ In this case we&#8217;re specifying the name of the property/column name from ou
 </div>
 </div>
 <div class="paragraph">
-<p>Now if we run a query against this table we&#8217;ll see populated values for the <code>CaseNumber</code>:</p>
+<p>Now if we run a query against this table we’ll see populated values for the <code>CaseNumber</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -603,8 +605,8 @@ In this case we&#8217;re specifying the name of the property/column name from ou
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 3. Result</caption>
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 50%;"/>
+<col style="width: 50%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -667,7 +669,7 @@ In this case we&#8217;re specifying the name of the property/column name from ou
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2021/11/25/apache-pinot-csv-columns-spaces/&amp;title=Apache%20Pinot%3a%20Importing%20CSV%20files%20with%20columns%20containing%20spaces&amp;summary=I%26%238217%3bve%20been%20playing%20around%20with%20one%20of%20my%20favourite%20datasets%20from%20the%20Chicago%20Data%20Portal%20and%20spent%20a%20while%20figuring%20out%20how%20to%20import%20columns%20that%20contain%20spaces%20into%20Apache%20Pinot.%20In%20this%20blog%20post%20we%26%238217%3bll%20learn%20how%20to%20do%20that%20using%20a%20subset%20of%20the%20data.%0a%20Setup%20We%26%238217%3bre%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20using%20the%20following%20Docker%20compose%20config%3a%0a%20docker-compose.yml%20version%3a%20%273.7%27%20services%3a%20zookeeper%3a%20image%3a%20zookeeper%3a3...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2021/11/25/apache-pinot-csv-columns-spaces/&amp;title=Apache%20Pinot%3a%20Importing%20CSV%20files%20with%20columns%20containing%20spaces&amp;summary=I%e2%80%99ve%20been%20playing%20around%20with%20one%20of%20my%20favourite%20datasets%20from%20the%20Chicago%20Data%20Portal%20and%20spent%20a%20while%20figuring%20out%20how%20to%20import%20columns%20that%20contain%20spaces%20into%20Apache%20Pinot.%20In%20this%20blog%20post%20we%e2%80%99ll%20learn%20how%20to%20do%20that%20using%20a%20subset%20of%20the%20data.%0aSetup%20We%e2%80%99re%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20using%20the%20following%20Docker%20compose%20config%3a%0adocker-compose.yml%20version%3a%20%26%2339%3b3.7%26%2339%3b%20services%3a%20zookeeper%3a%20image%3a%20zookeeper%3a3...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -810,13 +812,13 @@ In this case we&#8217;re specifying the name of the property/column name from ou
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

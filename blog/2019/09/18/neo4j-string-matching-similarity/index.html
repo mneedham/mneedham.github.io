@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Neo4j: Approximate string matching/similarity &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Neo4j: Approximate string matching/similarity | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2019/09/18/neo4j-string-matching-similarity/" />
 
@@ -32,7 +33,8 @@
 
     
 
-        <title> Neo4j: Approximate string matching/similarity &middot;  Mark Needham</title>
+        
+        <title>Neo4j: Approximate string matching/similarity | Mark Needham</title>
 
     
         <meta name="description" content="Learn how to use the text matching algorithms in the APOC Library." />
@@ -46,11 +48,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2019/09/18/neo4j-string-matching-similarity/" />
 
     
@@ -64,7 +67,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2019-09-18",
-        "description": "I\u0026#8217;ve been playing with the Brexit Graph over the last few days, and wanted to map the MPs that I got from CommonsVotes with data from the TheyWorkForYou API.\n I already had voting records loaded into Neo4j, but to recap, this is how I did that:\n UNWIND [655,656,657,658,659,660,661,662,711, 669, 668, 667, 666, 664] AS division LOAD CSV FROM \"https://github.com/mneedham/graphing-brexit/raw/master/data/commonsvotes/Division\" + division + \".csv\" AS row // Create motion nodes WITH division, collect(row) AS rows MERGE (motion:Motion {division: trim(split(rows[0][0], \"",
+        "description": "I’ve been playing with the Brexit Graph over the last few days, and wanted to map the MPs that I got from CommonsVotes with data from the TheyWorkForYou API.\nI already had voting records loaded into Neo4j, but to recap, this is how I did that:\nUNWIND [655,656,657,658,659,660,661,662,711, 669, 668, 667, 666, 664] AS division LOAD CSV FROM \u0026#34;https:\/\/github.com\/mneedham\/graphing-brexit\/raw\/master\/data\/commonsvotes\/Division\u0026#34; \u002b division \u002b \u0026#34;.csv\u0026#34; AS row \/\/ Create motion nodes WITH division, collect(row) AS rows MERGE (motion:Motion {division: trim(split(rows[0][0], \u0026#34;:\u0026#34;)[1]) }) SET motion.",
         "wordCount":  1174 
     }
     </script>
@@ -191,7 +194,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -217,7 +219,7 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Neo4j: Approximate string matching/similarity</h1>
     <div class="paragraph">
-<p>I&#8217;ve been playing with the <a href="https://towardsdatascience.com/graphing-brexit-clustering-edition-3b966694e723" target="_blank" rel="noopener">Brexit Graph</a> over the last few days, and wanted to map the MPs that I got from <a href="https://commonsvotes.digiminster.com/?page=1" target="_blank" rel="noopener">CommonsVotes</a> with data from the <a href="https://www.theyworkforyou.com/api" target="_blank" rel="noopener">TheyWorkForYou API</a>.</p>
+<p>I’ve been playing with the <a href="https://towardsdatascience.com/graphing-brexit-clustering-edition-3b966694e723" target="_blank" rel="noopener">Brexit Graph</a> over the last few days, and wanted to map the MPs that I got from <a href="https://commonsvotes.digiminster.com/?page=1" target="_blank" rel="noopener">CommonsVotes</a> with data from the <a href="https://www.theyworkforyou.com/api" target="_blank" rel="noopener">TheyWorkForYou API</a>.</p>
 </div>
 <div class="paragraph">
 <p>I already had voting records loaded into Neo4j, but to recap, this is how I did that:</p>
@@ -225,16 +227,16 @@ tbody tr pre {margin-bottom: 27px}
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">UNWIND [655,656,657,658,659,660,661,662,711, 669, 668, 667, 666, 664] AS division
-LOAD CSV FROM "https://github.com/mneedham/graphing-brexit/raw/master/data/commonsvotes/Division" + division + ".csv" AS row
+LOAD CSV FROM &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/commonsvotes/Division&#34; + division + &#34;.csv&#34; AS row
 
 // Create motion nodes
 WITH division, collect(row) AS rows
-MERGE (motion:Motion {division: trim(split(rows[0][0], ":")[1]) })
+MERGE (motion:Motion {division: trim(split(rows[0][0], &#34;:&#34;)[1]) })
 SET motion.name = rows[2][0],
     motion.date = date(datetime({epochmillis:
-      apoc.date.parse(trim(split(rows[1][0], ":")[1]), "ms", "dd/MM/yyyy")}))
+      apoc.date.parse(trim(split(rows[1][0], &#34;:&#34;)[1]), &#34;ms&#34;, &#34;dd/MM/yyyy&#34;)}))
 
-// Skip the first 6 rows as they have metadata we don't need
+// Skip the first 6 rows as they have metadata we don&#39;t need
 WITH motion, rows
 UNWIND rows[7..] AS row
 
@@ -243,9 +245,9 @@ MERGE (person:Person {name: row[0]})
 MERGE (constituency:Constituency {name: row[2]})
 MERGE (person)-[:REPRESENTS]-&gt;(constituency)
 WITH person, motion,
-     CASE WHEN row[3] = "Aye" THEN "FOR"
-          WHEN row[3] = "No" THEN "AGAINST"
-          ELSE "DID_NOT_VOTE" END AS vote
+     CASE WHEN row[3] = &#34;Aye&#34; THEN &#34;FOR&#34;
+          WHEN row[3] = &#34;No&#34; THEN &#34;AGAINST&#34;
+          ELSE &#34;DID_NOT_VOTE&#34; END AS vote
 CALL apoc.merge.relationship(person, vote, {}, {}, motion)
 YIELD rel
 RETURN count(*);</code></pre>
@@ -258,12 +260,12 @@ RETURN count(*);</code></pre>
 <h2 id="_exact_match">Exact Match</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;ll start by finding exact matches between MPs in both datasets.
+<p>We’ll start by finding exact matches between MPs in both datasets.
 The following query does this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34; AS uri
 CALL apoc.load.json(uri)
 YIELD value
 MATCH (other:Person) WHERE other.name = value.name
@@ -272,7 +274,7 @@ SET other.id = value.person_id;</code></pre>
 </div>
 <div class="paragraph">
 <p>This sorts out the mapping for 612 MPs, which is the vast majority of them.
-We only have 40 MPs where we&#8217;ll need to be a bit clever.</p>
+We only have 40 MPs where we’ll need to be a bit clever.</p>
 </div>
 </div>
 </div>
@@ -280,32 +282,32 @@ We only have 40 MPs where we&#8217;ll need to be a bit clever.</p>
 <h2 id="_string_similarity">String Similarity</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Given that there&#8217;s not an exact string match, another approach is to compare the string similarity of names.
-But before we do that we&#8217;ll reduce the number of string similarity computations we have to do by building a list of potential matches for each person based on having the same last name.
+<p>Given that there’s not an exact string match, another approach is to compare the string similarity of names.
+But before we do that we’ll reduce the number of string similarity computations we have to do by building a list of potential matches for each person based on having the same last name.
 The following query does this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34; AS uri
 CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
 MATCH (other:Person) WHERE not(exists(other.id))
 WITH other,
      [value in values
-      WHERE other.name ENDS WITH split(value.name, " ")[-1] | value.name] AS potentialValues
+      WHERE other.name ENDS WITH split(value.name, &#34; &#34;)[-1] | value.name] AS potentialValues
 RETURN other.name, potentialValues
 LIMIT 10</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we execute this query, we&#8217;ll get the following results:</p>
+<p>If we execute this query, we’ll get the following results:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. Results</caption>
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 66.6667%;">
+<col style="width: 33.3333%;"/>
+<col style="width: 66.6667%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -315,65 +317,65 @@ LIMIT 10</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"David Amess"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Sir David Amess"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;David Amess&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Sir David Amess&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Graham P Jones"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Marcus Jones", "Andrew Jones", "Susan Elan Jones", "Kevan Jones", "Graham Jones", "Darren Jones", "David Jones", "Gerald Jones", "Helen Jones", "Sarah Jones"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Graham P Jones&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Marcus Jones&#34;, &#34;Andrew Jones&#34;, &#34;Susan Elan Jones&#34;, &#34;Kevan Jones&#34;, &#34;Graham Jones&#34;, &#34;Darren Jones&#34;, &#34;David Jones&#34;, &#34;Gerald Jones&#34;, &#34;Helen Jones&#34;, &#34;Sarah Jones&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Steve Baker"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Steven Baker"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Steve Baker&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Steven Baker&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Joseph Johnson"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Diana R. Johnson", "Boris Johnson", "Gareth Johnson", "Jo Johnson", "Dr Caroline Johnson"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Joseph Johnson&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Diana R. Johnson&#34;, &#34;Boris Johnson&#34;, &#34;Gareth Johnson&#34;, &#34;Jo Johnson&#34;, &#34;Dr Caroline Johnson&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Nick Boles"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Nicholas Boles"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Nick Boles&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Nicholas Boles&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Nicholas Brown"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Nick Brown", "Alan Brown", "Lyn Brown"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Nicholas Brown&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Nick Brown&#34;, &#34;Alan Brown&#34;, &#34;Lyn Brown&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Vince Cable"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Vincent Cable"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Vince Cable&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Vincent Cable&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"William Cash"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Bill Cash"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;William Cash&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Bill Cash&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Th?r?se Coffey"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Therese Coffey", "Ann Coffey"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Th?r?se Coffey&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Therese Coffey&#34;, &#34;Ann Coffey&#34;]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Nic Dakin"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">["Nicholas Dakin"]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Nic Dakin&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">[&#34;Nicholas Dakin&#34;]</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>For some MPs there&#8217;s only one potential match, which makes our life easy, but for others we have a few to choose from.
+<p>For some MPs there’s only one potential match, which makes our life easy, but for others we have a few to choose from.
 Now we can apply string similarity algorithms to work out which of these names is the best match.
 The APOC library supports several <a href="https://neo4j.com/docs/labs/apoc/3.5/misc/text-functions/#text-functions-text-similarity" target="_blank" rel="noopener">text similarity functions</a>, including Sorensen Dice Similarity and Jaro Winkler Distance.
 I decided to use both of them, and pick the candidate that had the highest average score, because each of them excelled on different names.</p>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s give it a try for one of our MPs to see how it fares.
+<p>Let’s give it a try for one of our MPs to see how it fares.
 The following query finds the most similar people to Joseph Johnson:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34; AS uri
 CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
-match (other:Person {name: "Joseph Johnson"}) WHERE not(exists(other.id))
-with other, [value in values WHERE other.name ends with split(value.name, " ")[-1] | value.name] AS potentialValues
+match (other:Person {name: &#34;Joseph Johnson&#34;}) WHERE not(exists(other.id))
+with other, [value in values WHERE other.name ends with split(value.name, &#34; &#34;)[-1] | value.name] AS potentialValues
 WHERE size(potentialValues) &gt; 1
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
@@ -382,20 +384,20 @@ WITH other,
         jaro: apoc.text.jaroWinklerDistance(other.name, value),
         average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value),
                                 apoc.text.jaroWinklerDistance(other.name, value)])
-        }], "average") AS similarities
+        }], &#34;average&#34;) AS similarities
 UNWIND similarities AS similarity
 RETURN similarity.value, similarity.sorensen, similarity.jaro</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we execute this query, we&#8217;ll get the following results:</p>
+<p>If we execute this query, we’ll get the following results:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. Results</caption>
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3334%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -406,27 +408,27 @@ RETURN similarity.value, similarity.sorensen, similarity.jaro</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Jo Johnson"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Jo Johnson&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.7777777777777778</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.8326530612244899</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Gareth Johnson"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Gareth Johnson&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.5454545454545454</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.8095238095238096</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Boris Johnson"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Boris Johnson&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.5714285714285714</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.7278388278388279</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Diana R. Johnson"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Diana R. Johnson&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.5454545454545454</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.6071428571428571</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Dr Caroline Johnson"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Dr Caroline Johnson&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.48</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.5802005012531328</p></td>
 </tr>
@@ -434,16 +436,16 @@ RETURN similarity.value, similarity.sorensen, similarity.jaro</code></pre>
 </table>
 <div class="paragraph">
 <p>Pretty good, it found the right person for this one.
-What about if we match Stewart McDonald, where there&#8217;s actually another person with a different spelling of the same first name?</p>
+What about if we match Stewart McDonald, where there’s actually another person with a different spelling of the same first name?</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34; AS uri
 CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
-match (other:Person {name: "Stewart Malcolm McDonald"}) WHERE not(exists(other.id))
-with other, [value in values WHERE other.name ends with split(value.name, " ")[-1] | value.name] AS potentialValues
+match (other:Person {name: &#34;Stewart Malcolm McDonald&#34;}) WHERE not(exists(other.id))
+with other, [value in values WHERE other.name ends with split(value.name, &#34; &#34;)[-1] | value.name] AS potentialValues
 WHERE size(potentialValues) &gt; 1
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
@@ -452,20 +454,20 @@ WITH other,
         jaro: apoc.text.jaroWinklerDistance(other.name, value),
         average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value),
                  apoc.text.jaroWinklerDistance(other.name, value)])
-        }], "average") AS similarities
+        }], &#34;average&#34;) AS similarities
 UNWIND similarities AS similarity
 RETURN similarity.value, similarity.sorensen, similarity.jaro</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we execute this query, we&#8217;ll get the following results:</p>
+<p>If we execute this query, we’ll get the following results:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 3. Results</caption>
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3334%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -476,35 +478,35 @@ RETURN similarity.value, similarity.sorensen, similarity.jaro</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Stewart McDonald"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Stewart McDonald&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.8125</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.8914930555555556</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Stuart McDonald"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Stuart McDonald&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.6451612903225806</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.7868386243386243</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Andy McDonald"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Andy McDonald&#34;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.4827586206896552</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.540954415954416</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>I tried this across all the MPs that didn&#8217;t have an exact name match and it found the correct person every time, based on manual inspection.
+<p>I tried this across all the MPs that didn’t have an exact name match and it found the correct person every time, based on manual inspection.
 So for this data set it seems to be a decent approach.
-We&#8217;ll finish the mapping by storing the <code>person_id</code> of the best matching person:</p>
+We’ll finish the mapping by storing the <code>person_id</code> of the best matching person:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34; AS uri
 CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS values
 match (other:Person) WHERE not(exists(other.id))
-with other, [value in values WHERE other.name ends with split(value.name, " ")[-1] | value] AS potentialValues
+with other, [value in values WHERE other.name ends with split(value.name, &#34; &#34;)[-1] | value] AS potentialValues
 WITH other,
        apoc.coll.sortMaps([value in potentialValues | {
 	value: value,
@@ -512,12 +514,12 @@ WITH other,
         jaro: apoc.text.jaroWinklerDistance(other.name, value.name),
         average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value),
                                 apoc.text.jaroWinklerDistance(other.name, value)])
-        }], "average") AS similarities
+        }], &#34;average&#34;) AS similarities
 SET other.id = similarities[0].value.person_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s check if we have any MPs that haven&#8217;t been mapped yet.
+<p>Let’s check if we have any MPs that haven’t been mapped yet.
 We can do this by executing the following query:</p>
 </div>
 <div class="listingblock">
@@ -530,7 +532,7 @@ RETURN p.name</code></pre>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 4. Results</caption>
 <colgroup>
-<col style="width: 100%;">
+<col style="width: 100%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -539,28 +541,28 @@ RETURN p.name</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Ian Paisley"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Ian Paisley&#34;</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Liz Saville Roberts"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Liz Saville Roberts&#34;</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Let&#8217;s filter the KnowYourMP data to figure out what&#8217;s going on:</p>
+<p>Let’s filter the KnowYourMP data to figure out what’s going on:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">call apoc.load.json("https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json")
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">call apoc.load.json(&#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34;)
 YIELD value
-WHERE value.name contains "Saville" OR value.name contains "Paisley"
+WHERE value.name contains &#34;Saville&#34; OR value.name contains &#34;Paisley&#34;
 RETURN value.name</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 5. Results</caption>
 <colgroup>
-<col style="width: 100%;">
+<col style="width: 100%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -569,10 +571,10 @@ RETURN value.name</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Liz Saville-Roberts"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Liz Saville-Roberts&#34;</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Ian Paisley Jnr"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Ian Paisley Jnr&#34;</p></td>
 </tr>
 </tbody>
 </table>
@@ -581,7 +583,7 @@ RETURN value.name</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34; AS uri
 CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS potentialValues
@@ -593,16 +595,16 @@ WITH other,
         jaro: apoc.text.jaroWinklerDistance(other.name, value.name),
         average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value.name),
                                 apoc.text.jaroWinklerDistance(other.name, value.name)])
-        }], "average") AS similarities
+        }], &#34;average&#34;) AS similarities
 SET other.id = similarities[0].value.person_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we remove that filtering criteria we&#8217;ll be able to match these people:</p>
+<p>If we remove that filtering criteria we’ll be able to match these people:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34; AS uri
 CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS potentialValues
@@ -614,16 +616,16 @@ WITH other,
         jaro: apoc.text.jaroWinklerDistance(other.name, value.name),
         average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value.name),
                                 apoc.text.jaroWinklerDistance(other.name, value.name)])
-        }], "average") AS similarities
+        }], &#34;average&#34;) AS similarities
 RETURN other.name, similarities[0].value.name AS name, similarities[0].value.person_id AS personId</code></pre>
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 6. Results</caption>
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3334%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -634,14 +636,14 @@ RETURN other.name, similarities[0].value.name AS name, similarities[0].value.per
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Ian Paisley"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Ian Paisley Jnr"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"13852"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Ian Paisley&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Ian Paisley Jnr&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;13852&#34;</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Liz Saville Roberts"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"Liz Saville-Roberts"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"25302"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Liz Saville Roberts&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;Liz Saville-Roberts&#34;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#34;25302&#34;</p></td>
 </tr>
 </tbody>
 </table>
@@ -650,7 +652,7 @@ RETURN other.name, similarities[0].value.name AS name, similarities[0].value.per
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH "https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json" AS uri
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">WITH &#34;https://github.com/mneedham/graphing-brexit/raw/master/data/mps_formatted.json&#34; AS uri
 CALL apoc.load.json(uri)
 YIELD value
 WITH collect(value) AS potentialValues
@@ -662,7 +664,7 @@ WITH other,
         jaro: apoc.text.jaroWinklerDistance(other.name, value.name),
         average: apoc.coll.avg([apoc.text.sorensenDiceSimilarity(other.name, value.name),
                                 apoc.text.jaroWinklerDistance(other.name, value.name)])
-        }], "average") AS similarities
+        }], &#34;average&#34;) AS similarities
 SET other.id = similarities[0].value.person_id</code></pre>
 </div>
 </div>
@@ -705,7 +707,7 @@ SET other.id = similarities[0].value.person_id</code></pre>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2019/09/18/neo4j-string-matching-similarity/&amp;title=Neo4j%3a%20Approximate%20string%20matching%2fsimilarity&amp;summary=I%26%238217%3bve%20been%20playing%20with%20the%20Brexit%20Graph%20over%20the%20last%20few%20days%2c%20and%20wanted%20to%20map%20the%20MPs%20that%20I%20got%20from%20CommonsVotes%20with%20data%20from%20the%20TheyWorkForYou%20API.%0a%20I%20already%20had%20voting%20records%20loaded%20into%20Neo4j%2c%20but%20to%20recap%2c%20this%20is%20how%20I%20did%20that%3a%0a%20UNWIND%20%5b655%2c656%2c657%2c658%2c659%2c660%2c661%2c662%2c711%2c%20669%2c%20668%2c%20667%2c%20666%2c%20664%5d%20AS%20division%20LOAD%20CSV%20FROM%20%22https%3a%2f%2fgithub.com%2fmneedham%2fgraphing-brexit%2fraw%2fmaster%2fdata%2fcommonsvotes%2fDivision%22%20%2b%20division%20%2b%20%22.csv%22%20AS%20row%20%2f%2f%20Create%20motion%20nodes%20WITH%20division%2c%20collect%28row%29%20AS%20rows%20MERGE%20%28motion%3aMotion%20%7bdivision%3a%20trim%28split%28rows%5b0%5d%5b0%5d%2c%20%22..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2019/09/18/neo4j-string-matching-similarity/&amp;title=Neo4j%3a%20Approximate%20string%20matching%2fsimilarity&amp;summary=I%e2%80%99ve%20been%20playing%20with%20the%20Brexit%20Graph%20over%20the%20last%20few%20days%2c%20and%20wanted%20to%20map%20the%20MPs%20that%20I%20got%20from%20CommonsVotes%20with%20data%20from%20the%20TheyWorkForYou%20API.%0aI%20already%20had%20voting%20records%20loaded%20into%20Neo4j%2c%20but%20to%20recap%2c%20this%20is%20how%20I%20did%20that%3a%0aUNWIND%20%5b655%2c656%2c657%2c658%2c659%2c660%2c661%2c662%2c711%2c%20669%2c%20668%2c%20667%2c%20666%2c%20664%5d%20AS%20division%20LOAD%20CSV%20FROM%20%26%2334%3bhttps%3a%2f%2fgithub.com%2fmneedham%2fgraphing-brexit%2fraw%2fmaster%2fdata%2fcommonsvotes%2fDivision%26%2334%3b%20%2b%20division%20%2b%20%26%2334%3b.csv%26%2334%3b%20AS%20row%20%2f%2f%20Create%20motion%20nodes%20WITH%20division%2c%20collect%28row%29%20AS%20rows%20MERGE%20%28motion%3aMotion%20%7bdivision%3a%20trim%28split%28rows%5b0%5d%5b0%5d%2c%20%26%2334%3b%3a%26%2334%3b%29%5b1%5d%29%20%7d%29%20SET%20motion...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -848,13 +850,13 @@ SET other.id = similarities[0].value.person_id</code></pre>
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

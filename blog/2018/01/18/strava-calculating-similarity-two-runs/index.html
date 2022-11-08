@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Strava: Calculating the similarity of two runs &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Strava: Calculating the similarity of two runs | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2018/01/18/strava-calculating-similarity-two-runs/" />
 
@@ -36,7 +37,8 @@
 
     
 
-        <title> Strava: Calculating the similarity of two runs &middot;  Mark Needham</title>
+        
+        <title>Strava: Calculating the similarity of two runs | Mark Needham</title>
 
     
         <meta name="description" content="Learn how to compare runs from the Strava API using the Dynamic Time Warping algorithm." />
@@ -50,11 +52,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2018/01/18/strava-calculating-similarity-two-runs/" />
 
     
@@ -68,7 +71,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2018-01-18",
-        "description": "I go running several times a week and wanted to compare my runs against each other to see how similar they are.\n I record my runs with the Strava app and it has an API that returns lat/long coordinates for each run in the Google encoded polyline algorithm format.\n We can use the polyline library to decode these values into a list of lat/long tuples. For example:\n import polyline polyline.",
+        "description": "I go running several times a week and wanted to compare my runs against each other to see how similar they are.\nI record my runs with the Strava app and it has an API that returns lat\/long coordinates for each run in the Google encoded polyline algorithm format.\nWe can use the polyline library to decode these values into a list of lat\/long tuples. For example:\nimport polyline polyline.",
         "wordCount":  343 
     }
     </script>
@@ -195,7 +198,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -240,17 +242,17 @@ tbody tr pre {margin-bottom: 27px}
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">import polyline
-polyline.decode('u{~vFvyys@fS]')
+polyline.decode(&#39;u{~vFvyys@fS]&#39;)
 [(40.63179, -8.65708), (40.62855, -8.65693)]</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Once we&#8217;ve got the route defined as a set of coordinates we need to compare them. My Googling led me to an algorithm called <a href="https://en.wikipedia.org/wiki/Dynamic_time_warping">Dynamic Time Warping</a></p>
+<p>Once we’ve got the route defined as a set of coordinates we need to compare them. My Googling led me to an algorithm called <a href="https://en.wikipedia.org/wiki/Dynamic_time_warping">Dynamic Time Warping</a></p>
 </div>
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
-<p>DTW is a method that calculates an optimal match between two given sequences (e.g. time series) with certain restrictions. The sequences are "warped" non-linearly in the time dimension to determine a measure of their similarity independent of certain non-linear variations in the time dimension.</p>
+<p>DTW is a method that calculates an optimal match between two given sequences (e.g. time series) with certain restrictions. The sequences are &#34;warped&#34; non-linearly in the time dimension to determine a measure of their similarity independent of certain non-linear variations in the time dimension.</p>
 </div>
 </blockquote>
 </div>
@@ -267,18 +269,18 @@ import polyline
 import requests
 from fastdtw import fastdtw
 
-token = os.environ["TOKEN"]
-headers = {'Authorization': "Bearer {0}".format(token)}
+token = os.environ[&#34;TOKEN&#34;]
+headers = {&#39;Authorization&#39;: &#34;Bearer {0}&#34;.format(token)}
 
 def find_points(activity_id):
-    r = requests.get("https://www.strava.com/api/v3/activities/{0}".format(activity_id), headers=headers)
+    r = requests.get(&#34;https://www.strava.com/api/v3/activities/{0}&#34;.format(activity_id), headers=headers)
     response = r.json()
-    line = response["map"]["polyline"]
+    line = response[&#34;map&#34;][&#34;polyline&#34;]
     return polyline.decode(line)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s try it out on two runs, <a href="https://www.strava.com/activities/1361109741">1361109741</a> and <a href="https://www.strava.com/activities/1346460542">1346460542</a>:</p>
+<p>Now let’s try it out on two runs, <a href="https://www.strava.com/activities/1361109741">1361109741</a> and <a href="https://www.strava.com/activities/1346460542">1346460542</a>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -294,7 +296,7 @@ distance, path = fastdtw(find_points(activity1_id), find_points(activity2_id), d
 </div>
 </div>
 <div class="paragraph">
-<p>These two runs are both near my house so the value is small. Let&#8217;s change the second route to be <a href="https://www.strava.com/activities/1246017379">from my trip to New York</a>:</p>
+<p>These two runs are both near my house so the value is small. Let’s change the second route to be <a href="https://www.strava.com/activities/1246017379">from my trip to New York</a>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -311,7 +313,7 @@ distance, path = fastdtw(find_points(activity1_id), find_points(activity2_id), d
 <p>Much bigger!</p>
 </div>
 <div class="paragraph">
-<p>I&#8217;m not really interested in the actual value returned but I am interested in the relative values. I&#8217;m building a little application to generate routes that I should run and I want it to come up with a routes that are different to recent ones that I&#8217;ve run. This score can now form part of the criteria.</p>
+<p>I’m not really interested in the actual value returned but I am interested in the relative values. I’m building a little application to generate routes that I should run and I want it to come up with a routes that are different to recent ones that I’ve run. This score can now form part of the criteria.</p>
 </div>
 
     <div id="social-bar">
@@ -347,7 +349,7 @@ distance, path = fastdtw(find_points(activity1_id), find_points(activity2_id), d
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2018/01/18/strava-calculating-similarity-two-runs/&amp;title=Strava%3a%20Calculating%20the%20similarity%20of%20two%20runs&amp;summary=I%20go%20running%20several%20times%20a%20week%20and%20wanted%20to%20compare%20my%20runs%20against%20each%20other%20to%20see%20how%20similar%20they%20are.%0a%20I%20record%20my%20runs%20with%20the%20Strava%20app%20and%20it%20has%20an%20API%20that%20returns%20lat%2flong%20coordinates%20for%20each%20run%20in%20the%20Google%20encoded%20polyline%20algorithm%20format.%0a%20We%20can%20use%20the%20polyline%20library%20to%20decode%20these%20values%20into%20a%20list%20of%20lat%2flong%20tuples.%20For%20example%3a%0a%20import%20polyline%20polyline...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2018/01/18/strava-calculating-similarity-two-runs/&amp;title=Strava%3a%20Calculating%20the%20similarity%20of%20two%20runs&amp;summary=I%20go%20running%20several%20times%20a%20week%20and%20wanted%20to%20compare%20my%20runs%20against%20each%20other%20to%20see%20how%20similar%20they%20are.%0aI%20record%20my%20runs%20with%20the%20Strava%20app%20and%20it%20has%20an%20API%20that%20returns%20lat%2flong%20coordinates%20for%20each%20run%20in%20the%20Google%20encoded%20polyline%20algorithm%20format.%0aWe%20can%20use%20the%20polyline%20library%20to%20decode%20these%20values%20into%20a%20list%20of%20lat%2flong%20tuples.%20For%20example%3a%0aimport%20polyline%20polyline...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -490,13 +492,13 @@ distance, path = fastdtw(find_points(activity1_id), find_points(activity2_id), d
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

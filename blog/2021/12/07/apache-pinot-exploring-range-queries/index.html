@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Apache Pinot: Exploring range queries &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Apache Pinot: Exploring range queries | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2021/12/07/apache-pinot-exploring-range-queries/" />
 
@@ -35,7 +36,8 @@
 
     
 
-        <title> Apache Pinot: Exploring range queries &middot;  Mark Needham</title>
+        
+        <title>Apache Pinot: Exploring range queries | Mark Needham</title>
 
     
         <meta name="description" content="In this post we&#39;ll learn how to write range queries against Apache Pinot using a Chicago Crimes dataset." />
@@ -49,11 +51,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2021/12/07/apache-pinot-exploring-range-queries/" />
 
     
@@ -67,7 +70,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2021-12-07",
-        "description": "In our last post about the Chicago Crimes dataset and Apache Pinot, we learnt how to use various indexes to filter columns by exact values. In this post we\u0026#8217;re going to learn how to write range queries against the dataset.\n  Figure 1. Apache Pinot - Range Queries  Recap To recap, the Chicago Crimes dataset contains more than 7 million crimes committed in Chicago from 2001 until today. For each crime we have various identifiers, a timestamp, location, and codes reprsenting the type of crime that\u0026#8217;s been committed.",
+        "description": "In our last post about the Chicago Crimes dataset and Apache Pinot, we learnt how to use various indexes to filter columns by exact values. In this post we’re going to learn how to write range queries against the dataset.\nFigure 1. Apache Pinot - Range Queries Recap To recap, the Chicago Crimes dataset contains more than 7 million crimes committed in Chicago from 2001 until today. For each crime we have various identifiers, a timestamp, location, and codes reprsenting the type of crime that’s been committed.",
         "wordCount":  1379 
     }
     </script>
@@ -194,7 +197,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -217,12 +219,12 @@ tbody tr pre {margin-bottom: 27px}
     <h1 class="post-title">Apache Pinot: Exploring range queries</h1>
     <div class="paragraph">
 <p>In <a href="https://www.markhneedham.com/blog/2021/11/30/apache-pinot-exploring-index-chicago-crimes/" target="_blank" rel="noopener">our last post about the Chicago Crimes dataset and Apache Pinot</a>, we learnt how to use various indexes to filter columns by exact values.
-In this post we&#8217;re going to learn how to write range queries against the dataset.</p>
+In this post we’re going to learn how to write range queries against the dataset.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2021/12/range-queries.png" alt="range queries">
+/uploads/2021/12/range-queries.png" alt="range queries"/>
 </div>
 <div class="title">Figure 1. Apache Pinot - Range Queries</div>
 </div>
@@ -231,7 +233,7 @@ In this post we&#8217;re going to learn how to write range queries against the d
 <div class="sectionbody">
 <div class="paragraph">
 <p>To recap, the Chicago Crimes dataset contains more than 7 million crimes committed in Chicago from 2001 until today.
-For each crime we have various identifiers, a timestamp, location, and codes reprsenting the type of crime that&#8217;s been committed.</p>
+For each crime we have various identifiers, a timestamp, location, and codes reprsenting the type of crime that’s been committed.</p>
 </div>
 <div class="paragraph">
 <p>A subset of the data is shown below:</p>
@@ -239,12 +241,12 @@ For each crime we have various identifiers, a timestamp, location, and codes rep
 <div class="imageblock medium-zoom-image">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2021/11/chicago-crimes.png" alt="Chicago Crimes Dataset">
+/uploads/2021/11/chicago-crimes.png" alt="Chicago Crimes Dataset"/>
 </div>
 <div class="title">Figure 2. Chicago Crimes Dataset</div>
 </div>
 <div class="paragraph">
-<p>We loaded this data into Apache and Pinot and then analysed the <code>numEntriesScannedInFilter</code> and <code>timeUsedMs</code> values returned in the query metadata to see how well we&#8217;d optimised our queries.</p>
+<p>We loaded this data into Apache and Pinot and then analysed the <code>numEntriesScannedInFilter</code> and <code>timeUsedMs</code> values returned in the query metadata to see how well we’d optimised our queries.</p>
 </div>
 </div>
 </div>
@@ -252,51 +254,51 @@ For each crime we have various identifiers, a timestamp, location, and codes rep
 <h2 id="_setup">Setup</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to use the same Docker Compose script as before, which spins up the various components for Apache Pinot 0.9.0:</p>
+<p>We’re going to use the same Docker Compose script as before, which spins up the various components for Apache Pinot 0.9.0:</p>
 </div>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: '3.7'
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: &#39;3.7&#39;
 services:
   zookeeper:
     image: zookeeper:3.5.6
     hostname: zookeeper
     container_name: manual-zookeeper
     ports:
-      - "2181:2181"
+      - &#34;2181:2181&#34;
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
   pinot-controller:
     image: apachepinot/pinot:0.9.0
-    command: "StartController -zkAddress manual-zookeeper:2181"
-    container_name: "manual-pinot-controller"
+    command: &#34;StartController -zkAddress manual-zookeeper:2181&#34;
+    container_name: &#34;manual-pinot-controller&#34;
     volumes:
       - ./config:/config
       - ./data:/data
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - &#34;9000:9000&#34;
     depends_on:
       - zookeeper
   pinot-broker:
     image: apachepinot/pinot:0.9.0
-    command: "StartBroker -zkAddress manual-zookeeper:2181"
+    command: &#34;StartBroker -zkAddress manual-zookeeper:2181&#34;
     restart: unless-stopped
-    container_name: "manual-pinot-broker"
+    container_name: &#34;manual-pinot-broker&#34;
     volumes:
       - ./config:/config
       - ./data:/data
     ports:
-      - "8099:8099"
+      - &#34;8099:8099&#34;
     depends_on:
       - pinot-controller
   pinot-server:
     image: apachepinot/pinot:0.9.0
-    command: "StartServer -zkAddress manual-zookeeper:2181"
+    command: &#34;StartServer -zkAddress manual-zookeeper:2181&#34;
     restart: unless-stopped
-    container_name: "manual-pinot-server"
+    container_name: &#34;manual-pinot-server&#34;
     volumes:
       - ./config:/config
       - ./data:/data
@@ -310,9 +312,9 @@ services:
 <h2 id="_schema">Schema</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;ve made a small change to our schema since the last blog post.
-Instead of storing the timestamp as a <code>STRING</code>, we&#8217;re going to store it as a <code>TIMESTAMP</code> so that we can perform date time operations.
-We&#8217;ll also change the column name from <code>Timestamp</code> to <code>DateEpoch</code>.</p>
+<p>We’ve made a small change to our schema since the last blog post.
+Instead of storing the timestamp as a <code>STRING</code>, we’re going to store it as a <code>TIMESTAMP</code> so that we can perform date time operations.
+We’ll also change the column name from <code>Timestamp</code> to <code>DateEpoch</code>.</p>
 </div>
 <div class="paragraph">
 <p>The updated schema is shown below:</p>
@@ -321,79 +323,79 @@ We&#8217;ll also change the column name from <code>Timestamp</code> to <code>Dat
 <div class="title">/config/schema.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "schemaName": "crimes",
-    "dimensionFieldSpecs": [
+    &#34;schemaName&#34;: &#34;crimes&#34;,
+    &#34;dimensionFieldSpecs&#34;: [
       {
-        "name": "ID",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;ID&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "CaseNumber",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;CaseNumber&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "Block",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;Block&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "IUCR",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;IUCR&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "PrimaryType",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;PrimaryType&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "Arrest",
-        "dataType": "BOOLEAN"
+        &#34;name&#34;: &#34;Arrest&#34;,
+        &#34;dataType&#34;: &#34;BOOLEAN&#34;
       },
       {
-        "name": "Domestic",
-        "dataType": "BOOLEAN"
+        &#34;name&#34;: &#34;Domestic&#34;,
+        &#34;dataType&#34;: &#34;BOOLEAN&#34;
       },
       {
-        "name": "Beat",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;Beat&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "District",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;District&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "Ward",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;Ward&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "CommunityArea",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;CommunityArea&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "FBICode",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;FBICode&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "Latitude",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;Latitude&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "Longitude",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;Longitude&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       }
     ],
-    "dateTimeFieldSpecs": [
+    &#34;dateTimeFieldSpecs&#34;: [
       {
-        "name": "DateEpoch",
-        "dataType": "TIMESTAMP",
-        "format" : "1:MILLISECONDS:EPOCH",
-        "granularity": "1:MILLISECONDS"
+        &#34;name&#34;: &#34;DateEpoch&#34;,
+        &#34;dataType&#34;: &#34;TIMESTAMP&#34;,
+        &#34;format&#34; : &#34;1:MILLISECONDS:EPOCH&#34;,
+        &#34;granularity&#34;: &#34;1:MILLISECONDS&#34;
       }
     ]
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If you read the first post about this dataset you&#8217;ll remember that the timestamp was a DateTime string in the <code>MM/dd/yyyy HH:mm:ss a</code> format, rather than the number of milliseconds since the epoch.
-We&#8217;re going to take care of that with a <a href="https://docs.pinot.apache.org/users/user-guide-query/supported-transformations" target="_blank" rel="noopener">transformation function</a> in our table config.</p>
+<p>If you read the first post about this dataset you’ll remember that the timestamp was a DateTime string in the <code>MM/dd/yyyy HH:mm:ss a</code> format, rather than the number of milliseconds since the epoch.
+We’re going to take care of that with a <a href="https://docs.pinot.apache.org/users/user-guide-query/supported-transformations" target="_blank" rel="noopener">transformation function</a> in our table config.</p>
 </div>
 </div>
 </div>
@@ -407,43 +409,43 @@ We&#8217;re going to take care of that with a <a href="https://docs.pinot.apache
 <div class="title">/config/table.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "tableName": "crimes",
-    "tableType": "OFFLINE",
-    "segmentsConfig": {
-      "replication": 1
+    &#34;tableName&#34;: &#34;crimes&#34;,
+    &#34;tableType&#34;: &#34;OFFLINE&#34;,
+    &#34;segmentsConfig&#34;: {
+      &#34;replication&#34;: 1
     },
-    "tenants": {
-      "broker":"DefaultTenant",
-      "server":"DefaultTenant"
+    &#34;tenants&#34;: {
+      &#34;broker&#34;:&#34;DefaultTenant&#34;,
+      &#34;server&#34;:&#34;DefaultTenant&#34;
     },
-    "tableIndexConfig": {
-      "loadMode": "MMAP",
-      "sortedColumn": ["Beat"]
+    &#34;tableIndexConfig&#34;: {
+      &#34;loadMode&#34;: &#34;MMAP&#34;,
+      &#34;sortedColumn&#34;: [&#34;Beat&#34;]
     },
-    "nullHandlingEnabled": true,
-    "ingestionConfig": {
-      "batchIngestionConfig": {
-        "segmentIngestionType": "APPEND",
-        "segmentIngestionFrequency": "DAILY"
+    &#34;nullHandlingEnabled&#34;: true,
+    &#34;ingestionConfig&#34;: {
+      &#34;batchIngestionConfig&#34;: {
+        &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+        &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
       },
-      "transformConfigs": [
-        {"columnName": "CaseNumber", "transformFunction": "\"Case Number\"" },
-        {"columnName": "PrimaryType", "transformFunction": "\"Primary Type\"" },
-        {"columnName": "CommunityArea", "transformFunction": "\"Community Area\"" },
-        {"columnName": "FBICode", "transformFunction": "\"FBI Code\"" },
-        {"columnName": "DateEpoch", "transformFunction": "FromDateTime(\"Date\", 'MM/dd/yyyy HH:mm:ss a')" }
+      &#34;transformConfigs&#34;: [
+        {&#34;columnName&#34;: &#34;CaseNumber&#34;, &#34;transformFunction&#34;: &#34;\&#34;Case Number\&#34;&#34; },
+        {&#34;columnName&#34;: &#34;PrimaryType&#34;, &#34;transformFunction&#34;: &#34;\&#34;Primary Type\&#34;&#34; },
+        {&#34;columnName&#34;: &#34;CommunityArea&#34;, &#34;transformFunction&#34;: &#34;\&#34;Community Area\&#34;&#34; },
+        {&#34;columnName&#34;: &#34;FBICode&#34;, &#34;transformFunction&#34;: &#34;\&#34;FBI Code\&#34;&#34; },
+        {&#34;columnName&#34;: &#34;DateEpoch&#34;, &#34;transformFunction&#34;: &#34;FromDateTime(\&#34;Date\&#34;, &#39;MM/dd/yyyy HH:mm:ss a&#39;)&#34; }
       ]
     },
-    "metadata": {}
+    &#34;metadata&#34;: {}
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>As mentioned in the previous section, we&#8217;re using the <code>FromDateTime</code> transformation function to convert the DateTime strings in the <code>Date</code> column into timestamps.</p>
+<p>As mentioned in the previous section, we’re using the <code>FromDateTime</code> transformation function to convert the DateTime strings in the <code>Date</code> column into timestamps.</p>
 </div>
 <div class="admonitionblock note">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <i class="fa icon-note" title="Note"></i>
 </td>
@@ -453,10 +455,10 @@ We&#8217;re going to take care of that with a <a href="https://docs.pinot.apache
 </div>
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s create the table and schema:</p>
+<p>Now let’s create the table and schema:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -471,30 +473,30 @@ We&#8217;re going to take care of that with a <a href="https://docs.pinot.apache
 <h2 id="_import_csv">Import CSV</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now we&#8217;re going to import the crimes into Pinot, using the following ingestion spec:</p>
+<p>Now we’re going to import the crimes into Pinot, using the following ingestion spec:</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/job-spec-sorted.yml</div>
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">executionFrameworkSpec:
-  name: 'standalone'
-  segmentGenerationJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentGenerationJobRunner'
-  segmentTarPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner'
+  name: &#39;standalone&#39;
+  segmentGenerationJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentGenerationJobRunner&#39;
+  segmentTarPushJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner&#39;
 jobType: SegmentCreationAndTarPush
-inputDirURI: '/data'
-includeFileNamePattern: 'glob:**/Crimes_beat_sorted.csv'
-outputDirURI: ' '
+inputDirURI: &#39;/data&#39;
+includeFileNamePattern: &#39;glob:**/Crimes_beat_sorted.csv&#39;
+outputDirURI: &#39; &#39;
 pinotFSSpecs:
   - scheme: file
     className: org.apache.pinot.spi.filesystem.LocalPinotFS
 recordReaderSpec:
-  dataFormat: 'csv'
-  className: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReader'
-  configClassName: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig'
+  dataFormat: &#39;csv&#39;
+  className: &#39;org.apache.pinot.plugin.inputformat.csv.CSVRecordReader&#39;
+  configClassName: &#39;org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig&#39;
 tableSpec:
-  tableName: 'crimes'
+  tableName: &#39;crimes&#39;
 pinotClusterSpecs:
-  - controllerURI: 'http://localhost:9000'</code></pre>
+  - controllerURI: &#39;http://localhost:9000&#39;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -510,29 +512,29 @@ pinotClusterSpecs:
 <h2 id="_range_querying">Range Querying</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now it&#8217;s time to do some range querying.
-Let&#8217;s start by counting the crimes committed on 1st January 2019, which we can do by running the following query:</p>
+<p>Now it’s time to do some range querying.
+Let’s start by counting the crimes committed on 1st January 2019, which we can do by running the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">SELECT count(*)
 FROM crimes
 WHERE DateEpoch BETWEEN
-  FromDateTime('2019-01-01', 'yyyy-MM-dd') AND
-  FromDateTime('2019-01-02', 'yyyy-MM-dd')</code></pre>
+  FromDateTime(&#39;2019-01-01&#39;, &#39;yyyy-MM-dd&#39;) AND
+  FromDateTime(&#39;2019-01-02&#39;, &#39;yyyy-MM-dd&#39;)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>As in the last post, we&#8217;ll be looking at the output in JSON format to see what&#8217;s going on under the covers:</p>
+<p>As in the last post, we’ll be looking at the output in JSON format to see what’s going on under the covers:</p>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "numDocsScanned": 1065,
-  "numEntriesScannedInFilter": 7434990,
-  "numEntriesScannedPostFilter": 0,
-  "timeUsedMs": 80
+  &#34;numDocsScanned&#34;: 1065,
+  &#34;numEntriesScannedInFilter&#34;: 7434990,
+  &#34;numEntriesScannedPostFilter&#34;: 0,
+  &#34;timeUsedMs&#34;: 80
 }</code></pre>
 </div>
 </div>
@@ -541,57 +543,57 @@ WHERE DateEpoch BETWEEN
 1,065 crimes were committed on this day and the query took 80 ms.</p>
 </div>
 <div class="paragraph">
-<p>Now we&#8217;re going to create another table called <code>crimes_index</code> that has a <a href="https://docs.pinot.apache.org/basics/indexing/range-index" target="_blank" rel="noopener">range index</a> applied to the <code>DateEpoch</code> column:</p>
+<p>Now we’re going to create another table called <code>crimes_index</code> that has a <a href="https://docs.pinot.apache.org/basics/indexing/range-index" target="_blank" rel="noopener">range index</a> applied to the <code>DateEpoch</code> column:</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/table-range-index.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "tableName": "crimes_range_index",
-  "tableType": "OFFLINE",
-  "segmentsConfig": {
-    "replication": 1,
-    "schemaName": "crimes", <i class="conum" data-value="1"></i><b>(1)</b>
+  &#34;tableName&#34;: &#34;crimes_range_index&#34;,
+  &#34;tableType&#34;: &#34;OFFLINE&#34;,
+  &#34;segmentsConfig&#34;: {
+    &#34;replication&#34;: 1,
+    &#34;schemaName&#34;: &#34;crimes&#34;, <i class="conum" data-value="1"></i><b>(1)</b>
   },
-  "tenants": {
-    "broker":"DefaultTenant",
-    "server":"DefaultTenant"
+  &#34;tenants&#34;: {
+    &#34;broker&#34;:&#34;DefaultTenant&#34;,
+    &#34;server&#34;:&#34;DefaultTenant&#34;
   },
-  "tableIndexConfig": {
-    "loadMode": "MMAP",
-    "sortedColumn": ["Beat"],
-    "rangeIndexVersion": 2,
-    "rangeIndexColumns": ["DateEpoch"] <i class="conum" data-value="2"></i><b>(2)</b>
+  &#34;tableIndexConfig&#34;: {
+    &#34;loadMode&#34;: &#34;MMAP&#34;,
+    &#34;sortedColumn&#34;: [&#34;Beat&#34;],
+    &#34;rangeIndexVersion&#34;: 2,
+    &#34;rangeIndexColumns&#34;: [&#34;DateEpoch&#34;] <i class="conum" data-value="2"></i><b>(2)</b>
   },
-  "nullHandlingEnabled": true,
-  "ingestionConfig": {
-    "batchIngestionConfig": {
-      "segmentIngestionType": "APPEND",
-      "segmentIngestionFrequency": "DAILY"
+  &#34;nullHandlingEnabled&#34;: true,
+  &#34;ingestionConfig&#34;: {
+    &#34;batchIngestionConfig&#34;: {
+      &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+      &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
     },
-    "transformConfigs": [
-      {"columnName": "CaseNumber", "transformFunction": "\"Case Number\"" },
-      {"columnName": "PrimaryType", "transformFunction": "\"Primary Type\"" },
-      {"columnName": "CommunityArea", "transformFunction": "\"Community Area\"" },
-      {"columnName": "FBICode", "transformFunction": "\"FBI Code\"" },
-      {"columnName": "DateEpoch", "transformFunction": "FromDateTime(\"Date\", 'MM/dd/yyyy HH:mm:ss a')" }
+    &#34;transformConfigs&#34;: [
+      {&#34;columnName&#34;: &#34;CaseNumber&#34;, &#34;transformFunction&#34;: &#34;\&#34;Case Number\&#34;&#34; },
+      {&#34;columnName&#34;: &#34;PrimaryType&#34;, &#34;transformFunction&#34;: &#34;\&#34;Primary Type\&#34;&#34; },
+      {&#34;columnName&#34;: &#34;CommunityArea&#34;, &#34;transformFunction&#34;: &#34;\&#34;Community Area\&#34;&#34; },
+      {&#34;columnName&#34;: &#34;FBICode&#34;, &#34;transformFunction&#34;: &#34;\&#34;FBI Code\&#34;&#34; },
+      {&#34;columnName&#34;: &#34;DateEpoch&#34;, &#34;transformFunction&#34;: &#34;FromDateTime(\&#34;Date\&#34;, &#39;MM/dd/yyyy HH:mm:ss a&#39;)&#34; }
     ]
   },
-  "metadata": {}
+  &#34;metadata&#34;: {}
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
-<tr>
+<tbody><tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We need to explicitly specify the schema name since it doesn&#8217;t match the table name.</td>
+<td>We need to explicitly specify the schema name since it doesn’t match the table name.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
 <td>Add a range index on the <code>DateEpoch</code> column.</td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>Run the following command to create the table:</p>
@@ -604,24 +606,24 @@ WHERE DateEpoch BETWEEN
 </div>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s copy the segment from the <code>crimes</code> table to the <code>crimes_range_index</code> table.
+<p>Now let’s copy the segment from the <code>crimes</code> table to the <code>crimes_range_index</code> table.
 We can do this with the following ingestion spec:</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/job-spec-download-only.yml</div>
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">executionFrameworkSpec:
-  name: 'standalone'
-  segmentTarPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner'
+  name: &#39;standalone&#39;
+  segmentTarPushJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner&#39;
 jobType: SegmentTarPush
-outputDirURI: '/opt/pinot/data/crimes'
+outputDirURI: &#39;/opt/pinot/data/crimes&#39;
 pinotFSSpecs:
   - scheme: file
     className: org.apache.pinot.spi.filesystem.LocalPinotFS
 tableSpec:
-  tableName: 'crimes_range_index'
+  tableName: &#39;crimes_range_index&#39;
 pinotClusterSpecs:
-  - controllerURI: 'http://localhost:9000'</code></pre>
+  - controllerURI: &#39;http://localhost:9000&#39;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -636,7 +638,7 @@ pinotClusterSpecs:
 </div>
 <div class="admonitionblock note">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <i class="fa icon-note" title="Note"></i>
 </td>
@@ -646,28 +648,28 @@ pinotClusterSpecs:
 </div>
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s re-run the query against the new table:</p>
+<p>Now let’s re-run the query against the new table:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">SELECT count(*)
 FROM crimes_range_index
 WHERE DateEpoch BETWEEN
-  FromDateTime('2019-01-01', 'yyyy-MM-dd') AND
-  FromDateTime('2019-01-02', 'yyyy-MM-dd')</code></pre>
+  FromDateTime(&#39;2019-01-01&#39;, &#39;yyyy-MM-dd&#39;) AND
+  FromDateTime(&#39;2019-01-02&#39;, &#39;yyyy-MM-dd&#39;)</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "numDocsScanned": 1065,
-  "numEntriesScannedInFilter": 0,
-  "numEntriesScannedPostFilter": 0,
-  "timeUsedMs": 14
+  &#34;numDocsScanned&#34;: 1065,
+  &#34;numEntriesScannedInFilter&#34;: 0,
+  &#34;numEntriesScannedPostFilter&#34;: 0,
+  &#34;timeUsedMs&#34;: 14
 }</code></pre>
 </div>
 </div>
@@ -675,27 +677,27 @@ WHERE DateEpoch BETWEEN
 <p><code>numEntriesScannedInFilter</code> is now down to 0 and the query is more than 5 times faster than it was before.</p>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s see what happens if we filter on multiple columns.
-We have a sorted index on the <code>Beat</code> column, so let&#8217;s find the crimes committed on a specific beat on 1st January 2019:</p>
+<p>Now let’s see what happens if we filter on multiple columns.
+We have a sorted index on the <code>Beat</code> column, so let’s find the crimes committed on a specific beat on 1st January 2019:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-sql" data-lang="sql">SELECT count(*)
 FROM crimes
 WHERE DateEpoch BETWEEN
-  FromDateTime('2019-01-01', 'yyyy-MM-dd') AND
-  FromDateTime('2019-01-02', 'yyyy-MM-dd')
-AND Beat = '0421'</code></pre>
+  FromDateTime(&#39;2019-01-01&#39;, &#39;yyyy-MM-dd&#39;) AND
+  FromDateTime(&#39;2019-01-02&#39;, &#39;yyyy-MM-dd&#39;)
+AND Beat = &#39;0421&#39;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "numDocsScanned": 13,
-  "numEntriesScannedInFilter": 57573,
-  "numEntriesScannedPostFilter": 0,
-  "timeUsedMs": 3
+  &#34;numDocsScanned&#34;: 13,
+  &#34;numEntriesScannedInFilter&#34;: 57573,
+  &#34;numEntriesScannedPostFilter&#34;: 0,
+  &#34;timeUsedMs&#34;: 3
 }</code></pre>
 </div>
 </div>
@@ -704,19 +706,19 @@ AND Beat = '0421'</code></pre>
 <pre class="highlight"><code class="language-sql" data-lang="sql">SELECT count(*)
 FROM crimes_range_index
 WHERE DateEpoch BETWEEN
-  FromDateTime('2019-01-01', 'yyyy-MM-dd') AND
-  FromDateTime('2019-01-02', 'yyyy-MM-dd')
-AND Beat = '0421'</code></pre>
+  FromDateTime(&#39;2019-01-01&#39;, &#39;yyyy-MM-dd&#39;) AND
+  FromDateTime(&#39;2019-01-02&#39;, &#39;yyyy-MM-dd&#39;)
+AND Beat = &#39;0421&#39;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "numDocsScanned": 13,
-  "numEntriesScannedInFilter": 0,
-  "numEntriesScannedPostFilter": 0,
-  "timeUsedMs": 12
+  &#34;numDocsScanned&#34;: 13,
+  &#34;numEntriesScannedInFilter&#34;: 0,
+  &#34;numEntriesScannedPostFilter&#34;: 0,
+  &#34;timeUsedMs&#34;: 12
 }</code></pre>
 </div>
 </div>
@@ -725,7 +727,7 @@ AND Beat = '0421'</code></pre>
 </div>
 <div class="paragraph">
 <p>Admittedly this is far from the normal usage of Pinot.
-I&#8217;m only running one query at a time, whereas there would normally be thousands (if not more) concurrent queries, which would tip things in favour of using the indexes on both fields.
+I’m only running one query at a time, whereas there would normally be thousands (if not more) concurrent queries, which would tip things in favour of using the indexes on both fields.
 Having said that, there is <a href="https://github.com/apache/pinot/issues/7600" target="_blank" rel="noopener">a GitHub issue</a> to have the query engine be smarter when deciding whether to scan or use an index.</p>
 </div>
 <div class="paragraph">
@@ -736,19 +738,19 @@ Having said that, there is <a href="https://github.com/apache/pinot/issues/7600"
 <pre class="highlight"><code class="language-sql" data-lang="sql">SELECT count(*)
 FROM crimes
 WHERE DateEpoch BETWEEN
-  FromDateTime('2019-01-01', 'yyyy-MM-dd') AND
-  FromDateTime('2019-01-02', 'yyyy-MM-dd')
-AND Beat IN ('0421', '0423', '0624', '1834', '0511', '1112', '1533', '0823', '0414', '1522')</code></pre>
+  FromDateTime(&#39;2019-01-01&#39;, &#39;yyyy-MM-dd&#39;) AND
+  FromDateTime(&#39;2019-01-02&#39;, &#39;yyyy-MM-dd&#39;)
+AND Beat IN (&#39;0421&#39;, &#39;0423&#39;, &#39;0624&#39;, &#39;1834&#39;, &#39;0511&#39;, &#39;1112&#39;, &#39;1533&#39;, &#39;0823&#39;, &#39;0414&#39;, &#39;1522&#39;)</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "numDocsScanned": 90,
-  "numEntriesScannedInFilter": 513052,
-  "numEntriesScannedPostFilter": 0,
-  "timeUsedMs": 12
+  &#34;numDocsScanned&#34;: 90,
+  &#34;numEntriesScannedInFilter&#34;: 513052,
+  &#34;numEntriesScannedPostFilter&#34;: 0,
+  &#34;timeUsedMs&#34;: 12
 }</code></pre>
 </div>
 </div>
@@ -757,19 +759,19 @@ AND Beat IN ('0421', '0423', '0624', '1834', '0511', '1112', '1533', '0823', '04
 <pre class="highlight"><code class="language-sql" data-lang="sql">SELECT count(*)
 FROM crimes_range_index
 WHERE DateEpoch BETWEEN
-  FromDateTime('2019-01-01', 'yyyy-MM-dd') AND
-  FromDateTime('2019-01-02', 'yyyy-MM-dd')
-AND Beat IN ('0421', '0423', '0624', '1834', '0511', '1112', '1533', '0823', '0414', '1522')</code></pre>
+  FromDateTime(&#39;2019-01-01&#39;, &#39;yyyy-MM-dd&#39;) AND
+  FromDateTime(&#39;2019-01-02&#39;, &#39;yyyy-MM-dd&#39;)
+AND Beat IN (&#39;0421&#39;, &#39;0423&#39;, &#39;0624&#39;, &#39;1834&#39;, &#39;0511&#39;, &#39;1112&#39;, &#39;1533&#39;, &#39;0823&#39;, &#39;0414&#39;, &#39;1522&#39;)</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "numDocsScanned": 90,
-  "numEntriesScannedInFilter": 0,
-  "numEntriesScannedPostFilter": 0,
-  "timeUsedMs": 11
+  &#34;numDocsScanned&#34;: 90,
+  &#34;numEntriesScannedInFilter&#34;: 0,
+  &#34;numEntriesScannedPostFilter&#34;: 0,
+  &#34;timeUsedMs&#34;: 11
 }</code></pre>
 </div>
 </div>
@@ -779,11 +781,11 @@ AND Beat IN ('0421', '0423', '0624', '1834', '0511', '1112', '1533', '0823', '04
 <h2 id="_conclusion">Conclusion</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In this post we learnt how to use Apache Pinot&#8217;s range index so that we could find crimes that happened on a given day.
+<p>In this post we learnt how to use Apache Pinot’s range index so that we could find crimes that happened on a given day.
 We then combined filter predicates and saw that sometimes it can be faster to do a column scan rather than merging together the results of querying two indexes.</p>
 </div>
 <div class="paragraph">
-<p>We haven&#8217;t yet explored how to query the spatial data that this dataset contains, so perhaps that&#8217;s what we&#8217;ll look at in our next post!</p>
+<p>We haven’t yet explored how to query the spatial data that this dataset contains, so perhaps that’s what we’ll look at in our next post!</p>
 </div>
 </div>
 </div>
@@ -821,7 +823,7 @@ We then combined filter predicates and saw that sometimes it can be faster to do
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2021/12/07/apache-pinot-exploring-range-queries/&amp;title=Apache%20Pinot%3a%20Exploring%20range%20queries&amp;summary=In%20our%20last%20post%20about%20the%20Chicago%20Crimes%20dataset%20and%20Apache%20Pinot%2c%20we%20learnt%20how%20to%20use%20various%20indexes%20to%20filter%20columns%20by%20exact%20values.%20In%20this%20post%20we%26%238217%3bre%20going%20to%20learn%20how%20to%20write%20range%20queries%20against%20the%20dataset.%0a%20%20Figure%201.%20Apache%20Pinot%20-%20Range%20Queries%20%20Recap%20To%20recap%2c%20the%20Chicago%20Crimes%20dataset%20contains%20more%20than%207%20million%20crimes%20committed%20in%20Chicago%20from%202001%20until%20today.%20For%20each%20crime%20we%20have%20various%20identifiers%2c%20a%20timestamp%2c%20location%2c%20and%20codes%20reprsenting%20the%20type%20of%20crime%20that%26%238217%3bs%20been%20committed...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2021/12/07/apache-pinot-exploring-range-queries/&amp;title=Apache%20Pinot%3a%20Exploring%20range%20queries&amp;summary=In%20our%20last%20post%20about%20the%20Chicago%20Crimes%20dataset%20and%20Apache%20Pinot%2c%20we%20learnt%20how%20to%20use%20various%20indexes%20to%20filter%20columns%20by%20exact%20values.%20In%20this%20post%20we%e2%80%99re%20going%20to%20learn%20how%20to%20write%20range%20queries%20against%20the%20dataset.%0aFigure%201.%20Apache%20Pinot%20-%20Range%20Queries%20Recap%20To%20recap%2c%20the%20Chicago%20Crimes%20dataset%20contains%20more%20than%207%20million%20crimes%20committed%20in%20Chicago%20from%202001%20until%20today.%20For%20each%20crime%20we%20have%20various%20identifiers%2c%20a%20timestamp%2c%20location%2c%20and%20codes%20reprsenting%20the%20type%20of%20crime%20that%e2%80%99s%20been%20committed...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -964,13 +966,13 @@ We then combined filter predicates and saw that sometimes it can be faster to do
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

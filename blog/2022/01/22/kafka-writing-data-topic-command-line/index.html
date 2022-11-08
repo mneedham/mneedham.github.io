@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Kafka: Writing data to a topic from the command line &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Kafka: Writing data to a topic from the command line | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2022/01/22/kafka-writing-data-topic-command-line/" />
 
@@ -35,7 +36,8 @@
 
     
 
-        <title> Kafka: Writing data to a topic from the command line &middot;  Mark Needham</title>
+        
+        <title>Kafka: Writing data to a topic from the command line | Mark Needham</title>
 
     
         <meta name="description" content="In this post we&#39;ll learn how to write data to a Kafka topic from the command line." />
@@ -49,11 +51,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2022/01/22/kafka-writing-data-topic-command-line/" />
 
     
@@ -67,7 +70,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2022-01-22",
-        "description": "I\u0026#8217;ve been doing more Apache Pinot documentation - this time covering the JSON functions - and I needed to quickly write some data into Kafka to test things out. I\u0026#8217;d normally do that using the Python Kafka client, but this time I wanted to do it using only command line tools. So that\u0026#8217;s what we\u0026#8217;ll be doing in this blog post and it\u0026#8217;s more for future me than anyone else!",
+        "description": "I’ve been doing more Apache Pinot documentation - this time covering the JSON functions - and I needed to quickly write some data into Kafka to test things out. I’d normally do that using the Python Kafka client, but this time I wanted to do it using only command line tools. So that’s what we’ll be doing in this blog post and it’s more for future me than anyone else!",
         "wordCount":  427 
     }
     </script>
@@ -194,7 +197,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -216,14 +218,14 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Kafka: Writing data to a topic from the command line</h1>
     <div class="paragraph">
-<p>I&#8217;ve been doing more Apache Pinot documentation - this time covering the <a href="https://docs.pinot.apache.org/users/user-guide-query/supported-transformations#json-functions" target="_blank" rel="noopener">JSON functions</a> - and I needed to quickly write some data into Kafka to test things out.
-I&#8217;d normally do that using the <a href="https://www.markhneedham.com/blog/2022/01/20/apache-pinot-sorted-indexes-realtime-tables/" target="_blank" rel="noopener">Python Kafka client</a>, but this time I wanted to do it using only command line tools.
-So that&#8217;s what we&#8217;ll be doing in this blog post and it&#8217;s more for future me than anyone else!</p>
+<p>I’ve been doing more Apache Pinot documentation - this time covering the <a href="https://docs.pinot.apache.org/users/user-guide-query/supported-transformations#json-functions" target="_blank" rel="noopener">JSON functions</a> - and I needed to quickly write some data into Kafka to test things out.
+I’d normally do that using the <a href="https://www.markhneedham.com/blog/2022/01/20/apache-pinot-sorted-indexes-realtime-tables/" target="_blank" rel="noopener">Python Kafka client</a>, but this time I wanted to do it using only command line tools.
+So that’s what we’ll be doing in this blog post and it’s more for future me than anyone else!</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/kafka-banner.png" alt="kafka banner">
+/uploads/2022/01/kafka-banner.png" alt="kafka banner"/>
 </div>
 <div class="title">Figure 1. Kafka: Writing data to a topic from the command line</div>
 </div>
@@ -231,30 +233,30 @@ So that&#8217;s what we&#8217;ll be doing in this blog post and it&#8217;s more 
 <h2 id="_setup">Setup</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Let&#8217;s start by spinning up Kafka using Docker compose:</p>
+<p>Let’s start by spinning up Kafka using Docker compose:</p>
 </div>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: '3.7'
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: &#39;3.7&#39;
 services:
   zookeeper:
     image: zookeeper:3.5.6
     hostname: zookeeper
     container_name: zookeeper-blog
     ports:
-      - "2181:2181"
+      - &#34;2181:2181&#34;
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
   kafka:
     image: wurstmeister/kafka:latest
     restart: unless-stopped
-    container_name: "kafka-blog"
+    container_name: &#34;kafka-blog&#34;
     ports:
-      - "9092:9092"
+      - &#34;9092:9092&#34;
     expose:
-      - "9093"
+      - &#34;9093&#34;
     depends_on:
       - zookeeper
     environment:
@@ -280,14 +282,14 @@ services:
 <h2 id="_write_messages">Write messages</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now it&#8217;s time to import some data using the <code>kafka-console-producer.sh</code> script.</p>
+<p>Now it’s time to import some data using the <code>kafka-console-producer.sh</code> script.</p>
 </div>
 <div class="paragraph">
 <p>If we want to ingest a single message to the <code>docs</code> topic, we can run the following:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">echo '{"timestamp": "2019-10-09 21:25:25", "meta": {"age": 12}}' |
+<pre class="highlight"><code class="language-bash" data-lang="bash">echo &#39;{&#34;timestamp&#34;: &#34;2019-10-09 21:25:25&#34;, &#34;meta&#34;: {&#34;age&#34;: 12}}&#39; |
 docker exec -i kafka-blog /opt/kafka/bin/kafka-console-producer.sh \
   --bootstrap-server localhost:9092 \
   --topic docs</code></pre>
@@ -299,9 +301,9 @@ docker exec -i kafka-blog /opt/kafka/bin/kafka-console-producer.sh \
 <div class="listingblock">
 <div class="title">documents.json</div>
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{"timestamp": "2019-10-09 22:25:25", "meta": {"age": 18}}
-{"timestamp": "2019-10-09 23:25:25", "meta": {"age": 14}}
-{"timestamp": "2019-10-09 23:40:25", "meta": {"age": 16}}</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">{&#34;timestamp&#34;: &#34;2019-10-09 22:25:25&#34;, &#34;meta&#34;: {&#34;age&#34;: 18}}
+{&#34;timestamp&#34;: &#34;2019-10-09 23:25:25&#34;, &#34;meta&#34;: {&#34;age&#34;: 14}}
+{&#34;timestamp&#34;: &#34;2019-10-09 23:40:25&#34;, &#34;meta&#34;: {&#34;age&#34;: 16}}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -322,7 +324,7 @@ docker exec -i kafka-blog /opt/kafka/bin/kafka-console-producer.sh \
 <div class="sectionbody">
 <div class="paragraph">
 <p>So far, so good.
-We haven&#8217;t go any errors, but let&#8217;s double check that our messages have made it into Kafka.</p>
+We haven’t go any errors, but let’s double check that our messages have made it into Kafka.</p>
 </div>
 <div class="paragraph">
 <p>We can check the offsets (which in this case indicates the number of documents ingested) for the <code>docs</code> topic by running the following command:</p>
@@ -342,7 +344,7 @@ We haven&#8217;t go any errors, but let&#8217;s double check that our messages h
 </div>
 <div class="paragraph">
 <p>The output indicates that partition <code>0</code> of the <code>docs</code> topic has an offset of 4, which means this partition of the topic contains 4 documents.
-We imported one message on its own and three from <code>documents.json</code>, so that&#8217;s what we&#8217;d expect.</p>
+We imported one message on its own and three from <code>documents.json</code>, so that’s what we’d expect.</p>
 </div>
 <div class="paragraph">
 <p>We can return a maximum of 4 messages (i.e. all of them) from the <code>docs</code> topic, like so:</p>
@@ -359,10 +361,10 @@ We imported one message on its own and three from <code>documents.json</code>, s
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">{"timestamp": "2019-10-09 21:25:25", "meta": {"age": 12}}
-{"timestamp": "2019-10-09 22:25:25", "meta": {"age": 18}}
-{"timestamp": "2019-10-09 23:25:25", "meta": {"age": 14}}
-{"timestamp": "2019-10-09 23:40:25", "meta": {"age": 16}}
+<pre class="highlight"><code class="language-text" data-lang="text">{&#34;timestamp&#34;: &#34;2019-10-09 21:25:25&#34;, &#34;meta&#34;: {&#34;age&#34;: 12}}
+{&#34;timestamp&#34;: &#34;2019-10-09 22:25:25&#34;, &#34;meta&#34;: {&#34;age&#34;: 18}}
+{&#34;timestamp&#34;: &#34;2019-10-09 23:25:25&#34;, &#34;meta&#34;: {&#34;age&#34;: 14}}
+{&#34;timestamp&#34;: &#34;2019-10-09 23:40:25&#34;, &#34;meta&#34;: {&#34;age&#34;: 16}}
 Processed a total of 4 messages</code></pre>
 </div>
 </div>
@@ -402,7 +404,7 @@ Processed a total of 4 messages</code></pre>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/22/kafka-writing-data-topic-command-line/&amp;title=Kafka%3a%20Writing%20data%20to%20a%20topic%20from%20the%20command%20line&amp;summary=I%26%238217%3bve%20been%20doing%20more%20Apache%20Pinot%20documentation%20-%20this%20time%20covering%20the%20JSON%20functions%20-%20and%20I%20needed%20to%20quickly%20write%20some%20data%20into%20Kafka%20to%20test%20things%20out.%20I%26%238217%3bd%20normally%20do%20that%20using%20the%20Python%20Kafka%20client%2c%20but%20this%20time%20I%20wanted%20to%20do%20it%20using%20only%20command%20line%20tools.%20So%20that%26%238217%3bs%20what%20we%26%238217%3bll%20be%20doing%20in%20this%20blog%20post%20and%20it%26%238217%3bs%20more%20for%20future%20me%20than%20anyone%20else%21..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/22/kafka-writing-data-topic-command-line/&amp;title=Kafka%3a%20Writing%20data%20to%20a%20topic%20from%20the%20command%20line&amp;summary=I%e2%80%99ve%20been%20doing%20more%20Apache%20Pinot%20documentation%20-%20this%20time%20covering%20the%20JSON%20functions%20-%20and%20I%20needed%20to%20quickly%20write%20some%20data%20into%20Kafka%20to%20test%20things%20out.%20I%e2%80%99d%20normally%20do%20that%20using%20the%20Python%20Kafka%20client%2c%20but%20this%20time%20I%20wanted%20to%20do%20it%20using%20only%20command%20line%20tools.%20So%20that%e2%80%99s%20what%20we%e2%80%99ll%20be%20doing%20in%20this%20blog%20post%20and%20it%e2%80%99s%20more%20for%20future%20me%20than%20anyone%20else%21..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -545,13 +547,13 @@ Processed a total of 4 messages</code></pre>
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

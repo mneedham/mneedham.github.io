@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Neo4j Graph Algorithms: Calculating the cosine similarity of Game of Thrones episodes &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Neo4j Graph Algorithms: Calculating the cosine similarity of Game of Thrones episodes | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2018/09/28/neo4j-graph-algorithms-cosine-game-of-thrones/" />
 
@@ -31,7 +32,8 @@
 
     
 
-        <title> Neo4j Graph Algorithms: Calculating the cosine similarity of Game of Thrones episodes &middot;  Mark Needham</title>
+        
+        <title>Neo4j Graph Algorithms: Calculating the cosine similarity of Game of Thrones episodes | Mark Needham</title>
 
     
         <meta name="description" content="Learn how to calculate the Cosine Similarity of Game of Thrones episodes using Neo4j Graph Algorithms" />
@@ -45,11 +47,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2018/09/28/neo4j-graph-algorithms-cosine-game-of-thrones/" />
 
     
@@ -63,7 +66,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2018-09-28",
-        "description": "A couple of years ago I wrote a blog post showing how to calculate cosine similarity on Game of Thrones episodes using scikit-learn, and with the release of Similarity Algorithms in the Neo4j Graph Algorithms library I thought it was a good time to revisit that post.\n The dataset contains characters and episodes, and we want to calculate episode similarity based on the characters that appear in each episode. Before we run any algorithms we need to get the data into Neo4j.",
+        "description": "A couple of years ago I wrote a blog post showing how to calculate cosine similarity on Game of Thrones episodes using scikit-learn, and with the release of Similarity Algorithms in the Neo4j Graph Algorithms library I thought it was a good time to revisit that post.\nThe dataset contains characters and episodes, and we want to calculate episode similarity based on the characters that appear in each episode. Before we run any algorithms we need to get the data into Neo4j.",
         "wordCount":  1227 
     }
     </script>
@@ -190,7 +193,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -225,22 +227,22 @@ Before we run any algorithms we need to get the data into Neo4j.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>There are three CSV files that contain everything we need.
-First we&#8217;ll create one node per character:</p>
+First we’ll create one node per character:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mneedham/neo4j-got/master/data/import/characters.csv"
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">LOAD CSV WITH HEADERS FROM &#34;https://raw.githubusercontent.com/mneedham/neo4j-got/master/data/import/characters.csv&#34;
 AS row
 MERGE (c:Character {id: row.link})
 ON CREATE SET c.name = row.character</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Next let&#8217;s create one node per episode:</p>
+<p>Next let’s create one node per episode:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mneedham/neo4j-got/master/data/import/overview.csv"
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">LOAD CSV WITH HEADERS FROM &#34;https://raw.githubusercontent.com/mneedham/neo4j-got/master/data/import/overview.csv&#34;
 AS row
 MERGE (episode:Episode {id: toInteger(row.episodeId)})
 ON CREATE SET
@@ -250,11 +252,11 @@ ON CREATE SET
 </div>
 </div>
 <div class="paragraph">
-<p>And finally let&#8217;s create a relationship for each episode in which a character appeared:</p>
+<p>And finally let’s create a relationship for each episode in which a character appeared:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">LOAD CSV WITH HEADERS FROM "https://raw.githubusercontent.com/mneedham/neo4j-got/master/data/import/characters_episodes.csv"
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">LOAD CSV WITH HEADERS FROM &#34;https://raw.githubusercontent.com/mneedham/neo4j-got/master/data/import/characters_episodes.csv&#34;
 AS row
 
 MATCH (episode:Episode {id: TOINT(row.episodeId)})
@@ -268,7 +270,7 @@ MERGE (character)-[:APPEARED_IN]-&gt;(episode)</code></pre>
 <h2 id="_calculating_cosine_similarity">Calculating Cosine Similarity</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now that the data&#8217;s loaded we&#8217;re ready to calculate Cosine Similarity.</p>
+<p>Now that the data’s loaded we’re ready to calculate Cosine Similarity.</p>
 </div>
 <div class="paragraph">
 <p>To do this we first need to create a vector indicating whether a character appeared in an episode or not.
@@ -294,7 +296,7 @@ RETURN item1, item2, similarity</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run that query we&#8217;ll get this output:</p>
+<p>If we run that query we’ll get this output:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -307,7 +309,7 @@ RETURN item1, item2, similarity</code></pre>
 </div>
 <div class="paragraph">
 <p>The output tells us that these episodes are 50% similar to each other.
-In this example we&#8217;ve used the Cosine Similarity procedure, but we could also use the function since we&#8217;re only calculating the similarity of a small number of items:</p>
+In this example we’ve used the Cosine Similarity procedure, but we could also use the function since we’re only calculating the similarity of a small number of items:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -315,7 +317,7 @@ In this example we&#8217;ve used the Cosine Similarity procedure, but we could a
 </div>
 </div>
 <div class="paragraph">
-<p>Now that we&#8217;ve covered the fundamentals of Cosine Similarity in Neo4j, let&#8217;s see how to run it on our dataset.</p>
+<p>Now that we’ve covered the fundamentals of Cosine Similarity in Neo4j, let’s see how to run it on our dataset.</p>
 </div>
 </div>
 </div>
@@ -327,7 +329,7 @@ In this example we&#8217;ve used the Cosine Similarity procedure, but we could a
 We also added the <a href="https://neo4j.com/docs/graph-algorithms/current/algorithms/one-hot-encoding/" target="_blank" rel="noopener">One Hot Encoding</a> function makes it easy for us to now do this directly from Cypher.</p>
 </div>
 <div class="paragraph">
-<p>If you want to read up on One Hot Encodings Rakshith Vasudev has <a href="https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f" target="_blank" rel="noopener">a great blog post</a> explaining it in more detail, but let&#8217;s quickly see how it works in Neo4j.</p>
+<p>If you want to read up on One Hot Encodings Rakshith Vasudev has <a href="https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f" target="_blank" rel="noopener">a great blog post</a> explaining it in more detail, but let’s quickly see how it works in Neo4j.</p>
 </div>
 <div class="paragraph">
 <p>Imagine that we have 3 characters: Mark, Praveena, and Arya.
@@ -336,7 +338,7 @@ We can do this by running the following function:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">RETURN algo.ml.oneHotEncoding(["Mark", "Praveena", "Arya"], ["Praveena"]) AS embedding</code></pre>
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">RETURN algo.ml.oneHotEncoding([&#34;Mark&#34;, &#34;Praveena&#34;, &#34;Arya&#34;], [&#34;Praveena&#34;]) AS embedding</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -344,7 +346,7 @@ We can do this by running the following function:</p>
 The second parameter contains a list of the ones that should be selected.</p>
 </div>
 <div class="paragraph">
-<p>If we run the query we&#8217;ll see the following output:</p>
+<p>If we run the query we’ll see the following output:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -356,8 +358,8 @@ The second parameter contains a list of the ones that should be selected.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Remember that a 1 indicates that the character appears and a 0 indicates that they don&#8217;t.
-So in this case Mark and Arya didn&#8217;t appear, but Praveena did.
+<p>Remember that a 1 indicates that the character appears and a 0 indicates that they don’t.
+So in this case Mark and Arya didn’t appear, but Praveena did.
 Great!</p>
 </div>
 <div class="paragraph">
@@ -375,12 +377,12 @@ LIMIT 1</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run that query we&#8217;ll see the following output:</p>
+<p>If we run that query we’ll see the following output:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2018/09/got.png" alt="got">
+/uploads/2018/09/got.png" alt="got"/>
 </div>
 </div>
 </div>
@@ -389,7 +391,7 @@ LIMIT 1</code></pre>
 <h2 id="_calculating_cosine_similarity_on_game_of_thrones">Calculating Cosine Similarity on Game of Thrones</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now we&#8217;re ready to run the Cosine Similarity algorithm.
+<p>Now we’re ready to run the Cosine Similarity algorithm.
 We extend the code above to do this:</p>
 </div>
 <div class="listingblock">
@@ -404,8 +406,8 @@ WITH collect(userData) as data
 CALL algo.similarity.cosine.stream(data)
 YIELD item1, item2, count1, count2, similarity
 WITH algo.getNodeById(item1) AS episode1, algo.getNodeById(item2) AS episode2, similarity
-RETURN "S" + episode1.season + "E" + episode1.number AS ep1,
-       "S" + episode2.season + "E" + episode2.number AS ep2,
+RETURN &#34;S&#34; + episode1.season + &#34;E&#34; + episode1.number AS ep1,
+       &#34;S&#34; + episode2.season + &#34;E&#34; + episode2.number AS ep2,
        similarity
 ORDER BY similarity DESC
 LIMIT 10</code></pre>
@@ -413,23 +415,23 @@ LIMIT 10</code></pre>
 </div>
 <div class="paragraph">
 <p>The above code shows us the 10 most similar episodes.
-If we run that we&#8217;ll see this output:</p>
+If we run that we’ll see this output:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-text" data-lang="text">+---------------------------------------+
 | ep1    | ep2     | similarity         |
 +---------------------------------------+
-| "S1E1" | "S1E2"  | 0.6963730592072542 |
-| "S1E3" | "S1E4"  | 0.6914173051223087 |
-| "S1E8" | "S1E9"  | 0.6869464497590778 |
-| "S2E8" | "S2E10" | 0.6869037302955033 |
-| "S3E6" | "S3E7"  | 0.6819943394704735 |
-| "S2E6" | "S2E7"  | 0.6813598225089799 |
-| "S1E9" | "S1E10" | 0.6796436827080402 |
-| "S1E4" | "S1E5"  | 0.6698105143372366 |
-| "S1E8" | "S1E10" | 0.6624062584864754 |
-| "S4E4" | "S4E5"  | 0.6518358737330703 |
+| &#34;S1E1&#34; | &#34;S1E2&#34;  | 0.6963730592072542 |
+| &#34;S1E3&#34; | &#34;S1E4&#34;  | 0.6914173051223087 |
+| &#34;S1E8&#34; | &#34;S1E9&#34;  | 0.6869464497590778 |
+| &#34;S2E8&#34; | &#34;S2E10&#34; | 0.6869037302955033 |
+| &#34;S3E6&#34; | &#34;S3E7&#34;  | 0.6819943394704735 |
+| &#34;S2E6&#34; | &#34;S2E7&#34;  | 0.6813598225089799 |
+| &#34;S1E9&#34; | &#34;S1E10&#34; | 0.6796436827080402 |
+| &#34;S1E4&#34; | &#34;S1E5&#34;  | 0.6698105143372366 |
+| &#34;S1E8&#34; | &#34;S1E10&#34; | 0.6624062584864754 |
+| &#34;S4E4&#34; | &#34;S4E5&#34;  | 0.6518358737330703 |
 +---------------------------------------+</code></pre>
 </div>
 </div>
@@ -452,7 +454,7 @@ RETURN nodes, p50, p75, p90, p99, p999, p100</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>And we&#8217;ll see these results:</p>
+<p>And we’ll see these results:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -468,13 +470,13 @@ RETURN nodes, p50, p75, p90, p99, p999, p100</code></pre>
 So 50% of the similarity scores are 0.2863 or higher, and 99% of them are 0.607 or higher.</p>
 </div>
 <div class="paragraph">
-<p>We probably aren&#8217;t that interested in the lower similarity scores so we can filter those out by passing in the <code>similarityCutoff</code> parameter.
+<p>We probably aren’t that interested in the lower similarity scores so we can filter those out by passing in the <code>similarityCutoff</code> parameter.
 We can also choose to create relationships between similar episodes by passing in the <code>write: true</code> parameter.
-The <code>write</code> parameter must be used in combination with a <code>similarityCutoff</code> value greater than 0 as we don&#8217;t want to create relationships between nodes that are not similar at all.</p>
+The <code>write</code> parameter must be used in combination with a <code>similarityCutoff</code> value greater than 0 as we don’t want to create relationships between nodes that are not similar at all.</p>
 </div>
 <div class="paragraph">
 <p>We can also pass in the <code>topK</code> parameter to limit the number of similar relationships we create per node.
-Let&#8217;s say that we want to find the 3 most similar episodes.
+Let’s say that we want to find the 3 most similar episodes.
 The following query does this:</p>
 </div>
 <div class="listingblock">
@@ -497,7 +499,7 @@ RETURN nodes, p50, p75, p90, p99, p999, p100</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (e:Episode {season: 1, number: 1})-[similar:SIMILAR]-&gt;(other)
-RETURN "S" + other.season + "E" + other.number AS episode, similar.score AS score</code></pre>
+RETURN &#34;S&#34; + other.season + &#34;E&#34; + other.number AS episode, similar.score AS score</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -508,15 +510,15 @@ RETURN "S" + other.season + "E" + other.number AS episode, similar.score AS scor
 <pre class="highlight"><code class="language-text" data-lang="text">+-------------------------------+
 | episode | score               |
 +-------------------------------+
-| "S1E2"  | 0.6963730592072542  |
-| "S1E4"  | 0.5467175210508692  |
-| "S1E3"  | 0.48196269271187986 |
+| &#34;S1E2&#34;  | 0.6963730592072542  |
+| &#34;S1E4&#34;  | 0.5467175210508692  |
+| &#34;S1E3&#34;  | 0.48196269271187986 |
 +-------------------------------+</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>Hopefully that gives you some ideas of what you can do with the similarity algorithms.
-If you have any suggestions for other things you&#8217;d like to see let me know in the comments and I&#8217;ll see what I can do.</p>
+If you have any suggestions for other things you’d like to see let me know in the comments and I’ll see what I can do.</p>
 </div>
 </div>
 </div>
@@ -554,7 +556,7 @@ If you have any suggestions for other things you&#8217;d like to see let me know
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2018/09/28/neo4j-graph-algorithms-cosine-game-of-thrones/&amp;title=Neo4j%20Graph%20Algorithms%3a%20Calculating%20the%20cosine%20similarity%20of%20Game%20of%20Thrones%20episodes&amp;summary=A%20couple%20of%20years%20ago%20I%20wrote%20a%20blog%20post%20showing%20how%20to%20calculate%20cosine%20similarity%20on%20Game%20of%20Thrones%20episodes%20using%20scikit-learn%2c%20and%20with%20the%20release%20of%20Similarity%20Algorithms%20in%20the%20Neo4j%20Graph%20Algorithms%20library%20I%20thought%20it%20was%20a%20good%20time%20to%20revisit%20that%20post.%0a%20The%20dataset%20contains%20characters%20and%20episodes%2c%20and%20we%20want%20to%20calculate%20episode%20similarity%20based%20on%20the%20characters%20that%20appear%20in%20each%20episode.%20Before%20we%20run%20any%20algorithms%20we%20need%20to%20get%20the%20data%20into%20Neo4j...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2018/09/28/neo4j-graph-algorithms-cosine-game-of-thrones/&amp;title=Neo4j%20Graph%20Algorithms%3a%20Calculating%20the%20cosine%20similarity%20of%20Game%20of%20Thrones%20episodes&amp;summary=A%20couple%20of%20years%20ago%20I%20wrote%20a%20blog%20post%20showing%20how%20to%20calculate%20cosine%20similarity%20on%20Game%20of%20Thrones%20episodes%20using%20scikit-learn%2c%20and%20with%20the%20release%20of%20Similarity%20Algorithms%20in%20the%20Neo4j%20Graph%20Algorithms%20library%20I%20thought%20it%20was%20a%20good%20time%20to%20revisit%20that%20post.%0aThe%20dataset%20contains%20characters%20and%20episodes%2c%20and%20we%20want%20to%20calculate%20episode%20similarity%20based%20on%20the%20characters%20that%20appear%20in%20each%20episode.%20Before%20we%20run%20any%20algorithms%20we%20need%20to%20get%20the%20data%20into%20Neo4j...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -697,13 +699,13 @@ If you have any suggestions for other things you&#8217;d like to see let me know
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

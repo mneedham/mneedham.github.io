@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Neo4j 2.0: Labels, indexes and the like &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Neo4j 2.0: Labels, indexes and the like | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2013/10/22/neo4j-2-0-labels-indexes-and-the-like/" />
 
@@ -23,8 +24,8 @@
         <meta name="twitter:title" content="Neo4j 2.0: Labels, indexes and the like" />
         
           <meta name="twitter:description" content="Last week I did a couple of talks about modelling with Neo4j meet ups in Amsterdam and Antwerp and there were a few questions about how indexing works with labels that are being introduced in Neo4j 2.0
- As well as defining properties on nodes we can also assign them a label which can be used to categorise different groups of nodes.
- For example in the football graph we might choose to tag player nodes with the label &#39;Player&#39;:" />
+As well as defining properties on nodes we can also assign them a label which can be used to categorise different groups of nodes.
+For example in the football graph we might choose to tag player nodes with the label &#39;Player&#39;:" />
         
         <meta name="twitter:url" content="https://www.markhneedham.com/blog/2013/10/22/neo4j-2-0-labels-indexes-and-the-like/" />
 
@@ -32,12 +33,13 @@
 
     
 
-        <title> Neo4j 2.0: Labels, indexes and the like &middot;  Mark Needham</title>
+        
+        <title>Neo4j 2.0: Labels, indexes and the like | Mark Needham</title>
 
     
         <meta name="description" content="Last week I did a couple of talks about modelling with Neo4j meet ups in Amsterdam and Antwerp and there were a few questions about how indexing works with labels that are being introduced in Neo4j 2.0
- As well as defining properties on nodes we can also assign them a label which can be used to categorise different groups of nodes.
- For example in the football graph we might choose to tag player nodes with the label &#39;Player&#39;:" />
+As well as defining properties on nodes we can also assign them a label which can be used to categorise different groups of nodes.
+For example in the football graph we might choose to tag player nodes with the label &#39;Player&#39;:" />
     
 
         <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
@@ -48,11 +50,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2013/10/22/neo4j-2-0-labels-indexes-and-the-like/" />
 
     
@@ -66,7 +69,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2013-10-22",
-        "description": "Last week I did a couple of talks about modelling with Neo4j meet ups in Amsterdam and Antwerp and there were a few questions about how indexing works with labels that are being introduced in Neo4j 2.0\n As well as defining properties on nodes we can also assign them a label which can be used to categorise different groups of nodes.\n For example in the football graph we might choose to tag player nodes with the label 'Player':",
+        "description": "Last week I did a couple of talks about modelling with Neo4j meet ups in Amsterdam and Antwerp and there were a few questions about how indexing works with labels that are being introduced in Neo4j 2.0\nAs well as defining properties on nodes we can also assign them a label which can be used to categorise different groups of nodes.\nFor example in the football graph we might choose to tag player nodes with the label \u0026#39;Player\u0026#39;:",
         "wordCount":  464 
     }
     </script>
@@ -193,7 +196,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -221,11 +223,11 @@ tbody tr pre {margin-bottom: 27px}
 <p>As well as defining properties on nodes we can also assign them a label which can be used to categorise different groups of nodes.</p>
 </div>
 <div class="paragraph">
-<p>For example in the football graph we might choose to tag player nodes with the label 'Player':</p>
+<p>For example in the football graph we might choose to tag player nodes with the label &#39;Player&#39;:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">CREATE (randomPlayer:Player {name: "Random Player"})</code></pre>
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CREATE (randomPlayer:Player {name: &#34;Random Player&#34;})</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -234,49 +236,49 @@ tbody tr pre {margin-bottom: 27px}
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Player)
-WHERE p.name = "Random Player"
+WHERE p.name = &#34;Random Player&#34;
 RETURN p</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>A common assumption amongst the attendees was that labelled nodes are automatically indexed but this isn&#8217;t actually the case which we can see by profiling the above query:</p>
+<p>A common assumption amongst the attendees was that labelled nodes are automatically indexed but this isn’t actually the case which we can see by profiling the above query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ PROFILE MATCH (p:Player) WHERE p.name = "Random Player" RETURN p;
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ PROFILE MATCH (p:Player) WHERE p.name = &#34;Random Player&#34; RETURN p;
 ==&gt; +-----------------------------------+
 ==&gt; | p                                 |
 ==&gt; +-----------------------------------+
-==&gt; | Node[31382]{name:"Random Player"} |
+==&gt; | Node[31382]{name:&#34;Random Player&#34;} |
 ==&gt; +-----------------------------------+
 ==&gt; 1 row
 ==&gt;
-==&gt; Filter(pred="(Product(p,name(0),true) == Literal(Random Player) AND hasLabel(p:Player(8)))", _rows=1, _db_hits=524)
-==&gt; NodeByLabel(label="Player", identifier="p", _rows=524, _db_hits=0)</code></pre>
+==&gt; Filter(pred=&#34;(Product(p,name(0),true) == Literal(Random Player) AND hasLabel(p:Player(8)))&#34;, _rows=1, _db_hits=524)
+==&gt; NodeByLabel(label=&#34;Player&#34;, identifier=&#34;p&#34;, _rows=524, _db_hits=0)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Instead what we have is a 'label scan' whereby we search across the nodes labelled as 'Player' check whether they have a property 'name' which matches 'Random Player' and then return them if they do.</p>
+<p>Instead what we have is a &#39;label scan&#39; whereby we search across the nodes labelled as &#39;Player&#39; check whether they have a property &#39;name&#39; which matches &#39;Random Player&#39; and then return them if they do.</p>
 </div>
 <div class="paragraph">
-<p>This is different than doing a 'full node scan', checking for the appropriate label and then property. e.g.</p>
+<p>This is different than doing a &#39;full node scan&#39;, checking for the appropriate label and then property. e.g.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ PROFILE MATCH p WHERE "Player" IN LABELS(p) AND p.name = "Random Player" RETURN p;
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ PROFILE MATCH p WHERE &#34;Player&#34; IN LABELS(p) AND p.name = &#34;Random Player&#34; RETURN p;
 ==&gt; +-----------------------------------+
 ==&gt; | p                                 |
 ==&gt; +-----------------------------------+
-==&gt; | Node[31382]{name:"Random Player"} |
+==&gt; | Node[31382]{name:&#34;Random Player&#34;} |
 ==&gt; +-----------------------------------+
 ==&gt; 1 row
 ==&gt;
-==&gt; Filter(pred="(any(-_-INNER-_- in LabelsFunction(p) where Literal(Player) == -_-INNER-_-) AND Product(p,name(0),true) == Literal(Random Player))", _rows=1, _db_hits=524)
-==&gt; AllNodes(identifier="p", _rows=11443, _db_hits=11443)</code></pre>
+==&gt; Filter(pred=&#34;(any(-_-INNER-_- in LabelsFunction(p) where Literal(Player) == -_-INNER-_-) AND Product(p,name(0),true) == Literal(Random Player))&#34;, _rows=1, _db_hits=524)
+==&gt; AllNodes(identifier=&#34;p&#34;, _rows=11443, _db_hits=11443)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we want to index a specific property of 'Player' nodes then need to <a href="http://docs.neo4j.org/chunked/milestone/query-schema-index.html">explicitly index that property for that label</a>:</p>
+<p>If we want to index a specific property of &#39;Player&#39; nodes then need to <a href="http://docs.neo4j.org/chunked/milestone/query-schema-index.html">explicitly index that property for that label</a>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -306,27 +308,27 @@ RETURN p</code></pre>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2013/10/2013-10-22_21-14-32.png" alt="2013 10 22 21 14 32" width="600">
+/uploads/2013/10/2013-10-22_21-14-32.png" alt="2013 10 22 21 14 32" width="600"/>
 </div>
 </div>
 <div class="paragraph">
-<p>Now if we repeat our initial query we can see that it&#8217;s a straight schema/index lookup:</p>
+<p>Now if we repeat our initial query we can see that it’s a straight schema/index lookup:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ PROFILE MATCH (p:Player) WHERE p.name = "Random Player" RETURN p;
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">$ PROFILE MATCH (p:Player) WHERE p.name = &#34;Random Player&#34; RETURN p;
 ==&gt; +-----------------------------------+
 ==&gt; | p                                 |
 ==&gt; +-----------------------------------+
-==&gt; | Node[31382]{name:"Random Player"} |
+==&gt; | Node[31382]{name:&#34;Random Player&#34;} |
 ==&gt; +-----------------------------------+
 ==&gt; 1 row
 ==&gt;
-==&gt; SchemaIndex(identifier="p", _db_hits=0, _rows=1, label="Player", query="Literal(Random Player)", property="name")</code></pre>
+==&gt; SchemaIndex(identifier=&#34;p&#34;, _db_hits=0, _rows=1, label=&#34;Player&#34;, query=&#34;Literal(Random Player)&#34;, property=&#34;name&#34;)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Based on a few runs of the query with and without the index defined it takes 1ms and 10ms respectively. The 'full node scan' approach takes ~ 40ms and that&#8217;s with a very small database of 30,000 nodes. I wouldn&#8217;t recommend it with a production load.</p>
+<p>Based on a few runs of the query with and without the index defined it takes 1ms and 10ms respectively. The &#39;full node scan&#39; approach takes ~ 40ms and that’s with a very small database of 30,000 nodes. I wouldn’t recommend it with a production load.</p>
 </div>
 
     <div id="social-bar">
@@ -362,7 +364,7 @@ RETURN p</code></pre>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2013/10/22/neo4j-2-0-labels-indexes-and-the-like/&amp;title=Neo4j%202.0%3a%20Labels%2c%20indexes%20and%20the%20like&amp;summary=Last%20week%20I%20did%20a%20couple%20of%20talks%20about%20modelling%20with%20Neo4j%20meet%20ups%20in%20Amsterdam%20and%20Antwerp%20and%20there%20were%20a%20few%20questions%20about%20how%20indexing%20works%20with%20labels%20that%20are%20being%20introduced%20in%20Neo4j%202.0%0a%20As%20well%20as%20defining%20properties%20on%20nodes%20we%20can%20also%20assign%20them%20a%20label%20which%20can%20be%20used%20to%20categorise%20different%20groups%20of%20nodes.%0a%20For%20example%20in%20the%20football%20graph%20we%20might%20choose%20to%20tag%20player%20nodes%20with%20the%20label%20%27Player%27%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2013/10/22/neo4j-2-0-labels-indexes-and-the-like/&amp;title=Neo4j%202.0%3a%20Labels%2c%20indexes%20and%20the%20like&amp;summary=Last%20week%20I%20did%20a%20couple%20of%20talks%20about%20modelling%20with%20Neo4j%20meet%20ups%20in%20Amsterdam%20and%20Antwerp%20and%20there%20were%20a%20few%20questions%20about%20how%20indexing%20works%20with%20labels%20that%20are%20being%20introduced%20in%20Neo4j%202.0%0aAs%20well%20as%20defining%20properties%20on%20nodes%20we%20can%20also%20assign%20them%20a%20label%20which%20can%20be%20used%20to%20categorise%20different%20groups%20of%20nodes.%0aFor%20example%20in%20the%20football%20graph%20we%20might%20choose%20to%20tag%20player%20nodes%20with%20the%20label%20%26%2339%3bPlayer%26%2339%3b%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -505,13 +507,13 @@ RETURN p</code></pre>
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

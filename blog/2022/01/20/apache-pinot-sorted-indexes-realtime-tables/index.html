@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Apache Pinot: Sorted indexes on real-time tables &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Apache Pinot: Sorted indexes on real-time tables | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2022/01/20/apache-pinot-sorted-indexes-realtime-tables/" />
 
@@ -35,7 +36,8 @@
 
     
 
-        <title> Apache Pinot: Sorted indexes on real-time tables &middot;  Mark Needham</title>
+        
+        <title>Apache Pinot: Sorted indexes on real-time tables | Mark Needham</title>
 
     
         <meta name="description" content="In this post we&#39;ll learn all about sorted indexes on offline tables in Apache Pinot." />
@@ -49,11 +51,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2022/01/20/apache-pinot-sorted-indexes-realtime-tables/" />
 
     
@@ -67,7 +70,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2022-01-20",
-        "description": "I\u0026#8217;ve recently been learning all about Apache Pinot\u0026#8217;s sorted forward indexes, and in my first blog post I explained how they work for offline tables. In this blog post we\u0026#8217;ll learn how sorted indexes work with real-time tables.\n  Figure 1. Apache Pinot: Sorted indexes on real-time tables  Launch Components We\u0026#8217;re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:",
+        "description": "I’ve recently been learning all about Apache Pinot’s sorted forward indexes, and in my first blog post I explained how they work for offline tables. In this blog post we’ll learn how sorted indexes work with real-time tables.\nFigure 1. Apache Pinot: Sorted indexes on real-time tables Launch Components We’re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:\ndocker-compose.yml version: \u0026#39;3.",
         "wordCount":  2029 
     }
     </script>
@@ -194,7 +197,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -216,13 +218,13 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Apache Pinot: Sorted indexes on real-time tables</h1>
     <div class="paragraph">
-<p>I&#8217;ve recently been learning all about Apache Pinot&#8217;s sorted forward indexes, and in my first blog post I explained <a href="https://www.markhneedham.com/blog/2022/01/19/apache-pinot-sorted-indexes-offline-tables/">how they work for offline tables</a>.
-In this blog post we&#8217;ll learn how sorted indexes work with real-time tables.</p>
+<p>I’ve recently been learning all about Apache Pinot’s sorted forward indexes, and in my first blog post I explained <a href="https://www.markhneedham.com/blog/2022/01/19/apache-pinot-sorted-indexes-offline-tables/">how they work for offline tables</a>.
+In this blog post we’ll learn how sorted indexes work with real-time tables.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/sorted-indexes-realtime-banner.png" alt="sorted indexes realtime banner">
+/uploads/2022/01/sorted-indexes-realtime-banner.png" alt="sorted indexes realtime banner"/>
 </div>
 <div class="title">Figure 1. Apache Pinot: Sorted indexes on real-time tables</div>
 </div>
@@ -230,30 +232,30 @@ In this blog post we&#8217;ll learn how sorted indexes work with real-time table
 <h2 id="_launch_components">Launch Components</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:</p>
+<p>We’re going to spin up a local instance of Pinot and Kafka using the following Docker compose config:</p>
 </div>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: '3.7'
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: &#39;3.7&#39;
 services:
   zookeeper:
     image: zookeeper:3.5.6
     hostname: zookeeper
     container_name: zookeeper-strava-realtime
     ports:
-      - "2181:2181"
+      - &#34;2181:2181&#34;
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
   kafka:
     image: wurstmeister/kafka:latest
     restart: unless-stopped
-    container_name: "kafka-strava"
+    container_name: &#34;kafka-strava&#34;
     ports:
-      - "9092:9092"
+      - &#34;9092:9092&#34;
     expose:
-      - "9093"
+      - &#34;9093&#34;
     depends_on:
       - zookeeper
     environment:
@@ -265,30 +267,30 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
   pinot-controller:
     image: apachepinot/pinot:0.9.3
-    command: "StartController -zkAddress zookeeper-strava-realtime:2181 -dataDir /data"
-    container_name: "pinot-controller-strava-realtime"
+    command: &#34;StartController -zkAddress zookeeper-strava-realtime:2181 -dataDir /data&#34;
+    container_name: &#34;pinot-controller-strava-realtime&#34;
     volumes:
       - ./config:/config
       - ./data-realtime:/data
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - &#34;9000:9000&#34;
     depends_on:
       - zookeeper
   pinot-broker:
     image: apachepinot/pinot:0.9.3
-    command: "StartBroker -zkAddress zookeeper-strava-realtime:2181"
+    command: &#34;StartBroker -zkAddress zookeeper-strava-realtime:2181&#34;
     restart: unless-stopped
-    container_name: "pinot-broker-strava-realtime"
+    container_name: &#34;pinot-broker-strava-realtime&#34;
     ports:
-      - "8099:8099"
+      - &#34;8099:8099&#34;
     depends_on:
       - pinot-controller
   pinot-server:
     image: apachepinot/pinot:0.9.3
-    command: "StartServer -zkAddress zookeeper-strava-realtime:2181"
+    command: &#34;StartServer -zkAddress zookeeper-strava-realtime:2181&#34;
     restart: unless-stopped
-    container_name: "pinot-server-strava-realtime"
+    container_name: &#34;pinot-server-strava-realtime&#34;
     depends_on:
       - pinot-broker</code></pre>
 </div>
@@ -304,57 +306,57 @@ services:
 <div class="sect2">
 <h3 id="_create_schema">Create Schema</h3>
 <div class="paragraph">
-<p>We&#8217;re going to explore sorted indexes using a dataset of my Strava activities, the same one that we used in the first blog post.
+<p>We’re going to explore sorted indexes using a dataset of my Strava activities, the same one that we used in the first blog post.
 The schema is described below:</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/schema.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "schemaName": "activities",
-    "dimensionFieldSpecs": [
+    &#34;schemaName&#34;: &#34;activities&#34;,
+    &#34;dimensionFieldSpecs&#34;: [
       {
-        "name": "id",
-        "dataType": "LONG"
+        &#34;name&#34;: &#34;id&#34;,
+        &#34;dataType&#34;: &#34;LONG&#34;
       },
       {
-        "name": "altitude",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;altitude&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "hr",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;hr&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "cadence",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;cadence&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "rawTime",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;rawTime&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "distance",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;distance&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "lat",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;lat&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "lon",
-        "dataType": "DOUBLE"
+        &#34;name&#34;: &#34;lon&#34;,
+        &#34;dataType&#34;: &#34;DOUBLE&#34;
       },
       {
-        "name": "location",
-        "dataType": "BYTES"
+        &#34;name&#34;: &#34;location&#34;,
+        &#34;dataType&#34;: &#34;BYTES&#34;
       }
     ],
-    "dateTimeFieldSpecs": [{
-      "name": "timestamp",
-      "dataType": "TIMESTAMP",
-      "format" : "1:MILLISECONDS:EPOCH",
-      "granularity": "1:MILLISECONDS"
+    &#34;dateTimeFieldSpecs&#34;: [{
+      &#34;name&#34;: &#34;timestamp&#34;,
+      &#34;dataType&#34;: &#34;TIMESTAMP&#34;,
+      &#34;format&#34; : &#34;1:MILLISECONDS:EPOCH&#34;,
+      &#34;granularity&#34;: &#34;1:MILLISECONDS&#34;
     }]
   }</code></pre>
 </div>
@@ -375,7 +377,7 @@ The schema is described below:</p>
 <h2 id="_what_is_a_sorted_index">What is a sorted index?</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Before we ingest any data, let&#8217;s remind ourselves about the definition of a sorted index.</p>
+<p>Before we ingest any data, let’s remind ourselves about the definition of a sorted index.</p>
 </div>
 <div class="quoteblock">
 <blockquote>
@@ -385,7 +387,7 @@ Instead of saving dictionary ids for each document id, Pinot will store a pair o
 </div>
 </blockquote>
 <div class="attribution">
-&#8212; Sorted forward index with run-length encoding<br>
+— Sorted forward index with run-length encoding<br/>
 <cite><a href="https://docs.pinot.apache.org/basics/indexing/forward-index#sorted-forward-index-with-run-length-encoding">docs.pinot.apache.org/basics/indexing/forward-index#sorted-forward-index-with-run-length-encoding</a></cite>
 </div>
 </div>
@@ -395,12 +397,12 @@ Instead of saving dictionary ids for each document id, Pinot will store a pair o
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/sorted-forward.png" alt="sorted forward" width="500px">
+/uploads/2022/01/sorted-forward.png" alt="sorted forward" width="500px"/>
 </div>
 <div class="title">Figure 2. Sorted Forward Index</div>
 </div>
 <div class="paragraph">
-<p>The advantage of having a sorted index is that queries that filter by that column will be more performant since the query engine doesn&#8217;t need to scan through every document to check if they match the filtering criteria.</p>
+<p>The advantage of having a sorted index is that queries that filter by that column will be more performant since the query engine doesn’t need to scan through every document to check if they match the filtering criteria.</p>
 </div>
 <div class="paragraph">
 <p>For real-time tables we can specify a sorted index in the <code>tableIndexConfig</code>:</p>
@@ -408,9 +410,9 @@ Instead of saving dictionary ids for each document id, Pinot will store a pair o
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "tableIndexConfig": {
-        "sortedColumn": [
-            "column_name"
+    &#34;tableIndexConfig&#34;: {
+        &#34;sortedColumn&#34;: [
+            &#34;column_name&#34;
         ],
     }
 }</code></pre>
@@ -420,11 +422,11 @@ Instead of saving dictionary ids for each document id, Pinot will store a pair o
 <p>When Pinot commits the segment it will ensure that the data is sorted based on this sorted column.
 It will then do a single pass over every other column to check whether the data in those columns is sorted.
 Columns that contain sorted data will also use a sorted forward index.
-This means that it&#8217;s possible that multiple columns will use a sorted index even though one column is guaranteed to use a sorted index.</p>
+This means that it’s possible that multiple columns will use a sorted index even though one column is guaranteed to use a sorted index.</p>
 </div>
 <div class="admonitionblock note">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <div class="title">Note</div>
 </td>
@@ -435,7 +437,7 @@ This means that a column could be sorted in one segment, but not in another one.
 </div>
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 </div>
 </div>
@@ -443,10 +445,10 @@ This means that a column could be sorted in one segment, but not in another one.
 <h2 id="_data_ingestion_into_kafka">Data Ingestion into Kafka</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now let&#8217;s ingest some data into a Kafka topic.</p>
+<p>Now let’s ingest some data into a Kafka topic.</p>
 </div>
 <div class="paragraph">
-<p>First let&#8217;s install the Confluent Kafka client:</p>
+<p>First let’s install the Confluent Kafka client:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -454,7 +456,7 @@ This means that a column could be sorted in one segment, but not in another one.
 </div>
 </div>
 <div class="paragraph">
-<p>And now we&#8217;ll import some documents into the <code>activities-realtime</code> topic.</p>
+<p>And now we’ll import some documents into the <code>activities-realtime</code> topic.</p>
 </div>
 <div class="paragraph">
 <p>Import the following libraries:</p>
@@ -472,9 +474,9 @@ from confluent_kafka import Producer</code></pre>
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">def acked(err, msg):
     if err is not None:
-        print("Failed to deliver message: {0}: {1}".format(msg.value(), err.str()))
+        print(&#34;Failed to deliver message: {0}: {1}&#34;.format(msg.value(), err.str()))
 
-producer = Producer({'bootstrap.servers': 'localhost:9092'})</code></pre>
+producer = Producer({&#39;bootstrap.servers&#39;: &#39;localhost:9092&#39;})</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -483,21 +485,21 @@ producer = Producer({'bootstrap.servers': 'localhost:9092'})</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">points = [
-    {'lat': '56.265595', 'lon': '12.859432', 'id': '2776420839', 'distance': '1.5', 'altitude': '11.2', 'hr': '88',
-     'cadence': '0', 'time': '2019-10-09 21:25:25+00:00', 'rawTime': '0'},
-    {'lat': '56.265566', 'lon': '12.859438', 'id': '2776420839', 'distance': '4.6', 'altitude': '11.3', 'hr': '89',
-     'cadence': '79', 'time': '2019-10-09 21:25:27+00:00', 'rawTime': '2'},
-    {'lat': '56.265503', 'lon': '12.859488', 'id': '2776420839', 'distance': '12.2', 'altitude': '11.4', 'hr': '92',
-     'cadence': '79', 'time': '2019-10-09 21:25:30+00:00', 'rawTime': '5'},
-    {'lat': '56.265451', 'lon': '12.85952', 'id': '2776420839', 'distance': '18.4', 'altitude': '11.4', 'hr': '97',
-     'cadence': '83', 'time': '2019-10-09 21:25:32+00:00', 'rawTime': '7'},
-    {'lat': '56.26558', 'lon': '12.85943', 'id': '2776420839', 'distance': '3.1', 'altitude': '11.2', 'hr': '89',
-     'cadence': '79', 'time': '2019-10-09 21:25:26+00:00', 'rawTime': '1'}
+    {&#39;lat&#39;: &#39;56.265595&#39;, &#39;lon&#39;: &#39;12.859432&#39;, &#39;id&#39;: &#39;2776420839&#39;, &#39;distance&#39;: &#39;1.5&#39;, &#39;altitude&#39;: &#39;11.2&#39;, &#39;hr&#39;: &#39;88&#39;,
+     &#39;cadence&#39;: &#39;0&#39;, &#39;time&#39;: &#39;2019-10-09 21:25:25+00:00&#39;, &#39;rawTime&#39;: &#39;0&#39;},
+    {&#39;lat&#39;: &#39;56.265566&#39;, &#39;lon&#39;: &#39;12.859438&#39;, &#39;id&#39;: &#39;2776420839&#39;, &#39;distance&#39;: &#39;4.6&#39;, &#39;altitude&#39;: &#39;11.3&#39;, &#39;hr&#39;: &#39;89&#39;,
+     &#39;cadence&#39;: &#39;79&#39;, &#39;time&#39;: &#39;2019-10-09 21:25:27+00:00&#39;, &#39;rawTime&#39;: &#39;2&#39;},
+    {&#39;lat&#39;: &#39;56.265503&#39;, &#39;lon&#39;: &#39;12.859488&#39;, &#39;id&#39;: &#39;2776420839&#39;, &#39;distance&#39;: &#39;12.2&#39;, &#39;altitude&#39;: &#39;11.4&#39;, &#39;hr&#39;: &#39;92&#39;,
+     &#39;cadence&#39;: &#39;79&#39;, &#39;time&#39;: &#39;2019-10-09 21:25:30+00:00&#39;, &#39;rawTime&#39;: &#39;5&#39;},
+    {&#39;lat&#39;: &#39;56.265451&#39;, &#39;lon&#39;: &#39;12.85952&#39;, &#39;id&#39;: &#39;2776420839&#39;, &#39;distance&#39;: &#39;18.4&#39;, &#39;altitude&#39;: &#39;11.4&#39;, &#39;hr&#39;: &#39;97&#39;,
+     &#39;cadence&#39;: &#39;83&#39;, &#39;time&#39;: &#39;2019-10-09 21:25:32+00:00&#39;, &#39;rawTime&#39;: &#39;7&#39;},
+    {&#39;lat&#39;: &#39;56.26558&#39;, &#39;lon&#39;: &#39;12.85943&#39;, &#39;id&#39;: &#39;2776420839&#39;, &#39;distance&#39;: &#39;3.1&#39;, &#39;altitude&#39;: &#39;11.2&#39;, &#39;hr&#39;: &#39;89&#39;,
+     &#39;cadence&#39;: &#39;79&#39;, &#39;time&#39;: &#39;2019-10-09 21:25:26+00:00&#39;, &#39;rawTime&#39;: &#39;1&#39;}
 ]
 
 for point in points:
-    payload = json.dumps(point, ensure_ascii=False).encode('utf-8')
-    producer.produce(topic='activities-realtime', key=str(point['id']), value=payload, callback=acked)
+    payload = json.dumps(point, ensure_ascii=False).encode(&#39;utf-8&#39;)
+    producer.produce(topic=&#39;activities-realtime&#39;, key=str(point[&#39;id&#39;]), value=payload, callback=acked)
 
 producer.flush()</code></pre>
 </div>
@@ -516,17 +518,17 @@ producer.flush()</code></pre>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">{"lat": "56.265595", "lon": "12.859432", "id": "2776420839", "distance": "1.5", "altitude": "11.2", "hr": "88", "cadence": "0", "time": "2019-10-09 21:25:25+00:00", "rawTime": "0"}
-{"lat": "56.265566", "lon": "12.859438", "id": "2776420839", "distance": "4.6", "altitude": "11.3", "hr": "89", "cadence": "79", "time": "2019-10-09 21:25:27+00:00", "rawTime": "2"}
-{"lat": "56.265503", "lon": "12.859488", "id": "2776420839", "distance": "12.2", "altitude": "11.4", "hr": "92", "cadence": "79", "time": "2019-10-09 21:25:30+00:00", "rawTime": "5"}
-{"lat": "56.265451", "lon": "12.85952", "id": "2776420839", "distance": "18.4", "altitude": "11.4", "hr": "97", "cadence": "83", "time": "2019-10-09 21:25:32+00:00", "rawTime": "7"}
-{"lat": "56.26558", "lon": "12.85943", "id": "2776420839", "distance": "3.1", "altitude": "11.2", "hr": "89", "cadence": "79", "time": "2019-10-09 21:25:26+00:00", "rawTime": "1"}
+<pre class="highlight"><code class="language-text" data-lang="text">{&#34;lat&#34;: &#34;56.265595&#34;, &#34;lon&#34;: &#34;12.859432&#34;, &#34;id&#34;: &#34;2776420839&#34;, &#34;distance&#34;: &#34;1.5&#34;, &#34;altitude&#34;: &#34;11.2&#34;, &#34;hr&#34;: &#34;88&#34;, &#34;cadence&#34;: &#34;0&#34;, &#34;time&#34;: &#34;2019-10-09 21:25:25+00:00&#34;, &#34;rawTime&#34;: &#34;0&#34;}
+{&#34;lat&#34;: &#34;56.265566&#34;, &#34;lon&#34;: &#34;12.859438&#34;, &#34;id&#34;: &#34;2776420839&#34;, &#34;distance&#34;: &#34;4.6&#34;, &#34;altitude&#34;: &#34;11.3&#34;, &#34;hr&#34;: &#34;89&#34;, &#34;cadence&#34;: &#34;79&#34;, &#34;time&#34;: &#34;2019-10-09 21:25:27+00:00&#34;, &#34;rawTime&#34;: &#34;2&#34;}
+{&#34;lat&#34;: &#34;56.265503&#34;, &#34;lon&#34;: &#34;12.859488&#34;, &#34;id&#34;: &#34;2776420839&#34;, &#34;distance&#34;: &#34;12.2&#34;, &#34;altitude&#34;: &#34;11.4&#34;, &#34;hr&#34;: &#34;92&#34;, &#34;cadence&#34;: &#34;79&#34;, &#34;time&#34;: &#34;2019-10-09 21:25:30+00:00&#34;, &#34;rawTime&#34;: &#34;5&#34;}
+{&#34;lat&#34;: &#34;56.265451&#34;, &#34;lon&#34;: &#34;12.85952&#34;, &#34;id&#34;: &#34;2776420839&#34;, &#34;distance&#34;: &#34;18.4&#34;, &#34;altitude&#34;: &#34;11.4&#34;, &#34;hr&#34;: &#34;97&#34;, &#34;cadence&#34;: &#34;83&#34;, &#34;time&#34;: &#34;2019-10-09 21:25:32+00:00&#34;, &#34;rawTime&#34;: &#34;7&#34;}
+{&#34;lat&#34;: &#34;56.26558&#34;, &#34;lon&#34;: &#34;12.85943&#34;, &#34;id&#34;: &#34;2776420839&#34;, &#34;distance&#34;: &#34;3.1&#34;, &#34;altitude&#34;: &#34;11.2&#34;, &#34;hr&#34;: &#34;89&#34;, &#34;cadence&#34;: &#34;79&#34;, &#34;time&#34;: &#34;2019-10-09 21:25:26+00:00&#34;, &#34;rawTime&#34;: &#34;1&#34;}
 
 Processed a total of 5 messages</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>It&#8217;s looking good so far.</p>
+<p>It’s looking good so far.</p>
 </div>
 </div>
 </div>
@@ -534,70 +536,70 @@ Processed a total of 5 messages</code></pre>
 <h2 id="_unsorted_table">Unsorted Table</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now let&#8217;s create a real-time table called <code>activities_realtime</code> to ingest the data from that Kafka topic into Pinot.
-This table doesn&#8217;t specify a sorted column.</p>
+<p>Now let’s create a real-time table called <code>activities_realtime</code> to ingest the data from that Kafka topic into Pinot.
+This table doesn’t specify a sorted column.</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/table-realtime.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "tableName": "activities_realtime",
-    "tableType": "REALTIME",
-    "segmentsConfig": {
-      "timeColumnName": "timestamp",
-      "schemaName": "activities",
-      "replication": "1",
-      "replicasPerPartition": "1"
+    &#34;tableName&#34;: &#34;activities_realtime&#34;,
+    &#34;tableType&#34;: &#34;REALTIME&#34;,
+    &#34;segmentsConfig&#34;: {
+      &#34;timeColumnName&#34;: &#34;timestamp&#34;,
+      &#34;schemaName&#34;: &#34;activities&#34;,
+      &#34;replication&#34;: &#34;1&#34;,
+      &#34;replicasPerPartition&#34;: &#34;1&#34;
     },
-    "tenants": {
-      "broker":"DefaultTenant",
-      "server":"DefaultTenant"
+    &#34;tenants&#34;: {
+      &#34;broker&#34;:&#34;DefaultTenant&#34;,
+      &#34;server&#34;:&#34;DefaultTenant&#34;
     },
-    "tableIndexConfig": {
-        "invertedIndexColumns": [],
-        "rangeIndexColumns": [],
-        "autoGeneratedInvertedIndex": false,
-        "createInvertedIndexDuringSegmentGeneration": false,
-        "sortedColumn": [],
-        "bloomFilterColumns": [],
-        "loadMode": "MMAP",
-        "streamConfigs": {
-          "streamType": "kafka",
-          "stream.kafka.topic.name": "activities",
-          "stream.kafka.broker.list": "kafka-strava:9093",
-          "stream.kafka.consumer.type": "lowlevel",
-          "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
-          "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
-          "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
-          "realtime.segment.flush.threshold.rows": "5",
-          "realtime.segment.flush.threshold.time": "24h",
-          "realtime.segment.flush.segment.size": "100M"
+    &#34;tableIndexConfig&#34;: {
+        &#34;invertedIndexColumns&#34;: [],
+        &#34;rangeIndexColumns&#34;: [],
+        &#34;autoGeneratedInvertedIndex&#34;: false,
+        &#34;createInvertedIndexDuringSegmentGeneration&#34;: false,
+        &#34;sortedColumn&#34;: [],
+        &#34;bloomFilterColumns&#34;: [],
+        &#34;loadMode&#34;: &#34;MMAP&#34;,
+        &#34;streamConfigs&#34;: {
+          &#34;streamType&#34;: &#34;kafka&#34;,
+          &#34;stream.kafka.topic.name&#34;: &#34;activities&#34;,
+          &#34;stream.kafka.broker.list&#34;: &#34;kafka-strava:9093&#34;,
+          &#34;stream.kafka.consumer.type&#34;: &#34;lowlevel&#34;,
+          &#34;stream.kafka.consumer.prop.auto.offset.reset&#34;: &#34;smallest&#34;,
+          &#34;stream.kafka.consumer.factory.class.name&#34;: &#34;org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory&#34;,
+          &#34;stream.kafka.decoder.class.name&#34;: &#34;org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder&#34;,
+          &#34;realtime.segment.flush.threshold.rows&#34;: &#34;5&#34;,
+          &#34;realtime.segment.flush.threshold.time&#34;: &#34;24h&#34;,
+          &#34;realtime.segment.flush.segment.size&#34;: &#34;100M&#34;
         },
-        "noDictionaryColumns": [],
-        "onHeapDictionaryColumns": [],
-        "varLengthDictionaryColumns": [],
-        "enableDefaultStarTree": false,
-        "enableDynamicStarTreeCreation": false,
-        "aggregateMetrics": false,
-        "nullHandlingEnabled": false
+        &#34;noDictionaryColumns&#34;: [],
+        &#34;onHeapDictionaryColumns&#34;: [],
+        &#34;varLengthDictionaryColumns&#34;: [],
+        &#34;enableDefaultStarTree&#34;: false,
+        &#34;enableDynamicStarTreeCreation&#34;: false,
+        &#34;aggregateMetrics&#34;: false,
+        &#34;nullHandlingEnabled&#34;: false
     },
-    "ingestionConfig": {
-      "batchIngestionConfig": {
-        "segmentIngestionType": "APPEND",
-        "segmentIngestionFrequency": "DAILY"
+    &#34;ingestionConfig&#34;: {
+      &#34;batchIngestionConfig&#34;: {
+        &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+        &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
       },
-      "transformConfigs": [
-        {"columnName": "location", "transformFunction": "toSphericalGeography(stPoint(lon, lat))" },
-        {"columnName": "timestamp", "transformFunction": "FromDateTime(\"time\", 'yyyy-MM-dd HH:mm:ssZ')" }
+      &#34;transformConfigs&#34;: [
+        {&#34;columnName&#34;: &#34;location&#34;, &#34;transformFunction&#34;: &#34;toSphericalGeography(stPoint(lon, lat))&#34; },
+        {&#34;columnName&#34;: &#34;timestamp&#34;, &#34;transformFunction&#34;: &#34;FromDateTime(\&#34;time\&#34;, &#39;yyyy-MM-dd HH:mm:ssZ&#39;)&#34; }
       ]
     },
-    "metadata": {}
+    &#34;metadata&#34;: {}
   }</code></pre>
 </div>
 </div>
 <div class="admonitionblock warning">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <div class="title">Warning</div>
 </td>
@@ -608,7 +610,7 @@ In a production system this value should be set much higher, as described in the
 </div>
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>We can create a table by running the following command:</p>
@@ -628,17 +630,17 @@ You should see something like the following:</p>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/realtime-segments.png" alt="realtime segments">
+/uploads/2022/01/realtime-segments.png" alt="realtime segments"/>
 </div>
 <div class="title">Figure 3. Segments</div>
 </div>
 <div class="paragraph">
-<p>If we click on the first segment, we&#8217;ll see the following:</p>
+<p>If we click on the first segment, we’ll see the following:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/segment0.png" alt="segment0">
+/uploads/2022/01/segment0.png" alt="segment0"/>
 </div>
 <div class="title">Figure 4. Segment 0</div>
 </div>
@@ -647,13 +649,13 @@ You should see something like the following:</p>
 The <code>segment.total.docs</code> property tells us that this segment contains 5 documents.</p>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s go back and then click the other segment.
-If we do that we&#8217;ll see the following:</p>
+<p>Now let’s go back and then click the other segment.
+If we do that we’ll see the following:</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/segment1.png" alt="segment1">
+/uploads/2022/01/segment1.png" alt="segment1"/>
 </div>
 <div class="title">Figure 5. Segment 1</div>
 </div>
@@ -661,33 +663,33 @@ If we do that we&#8217;ll see the following:</p>
 <p>This one is <code>IN_PROGRESS</code> and if add some more messages to the Kafka topic they will go into this segment.</p>
 </div>
 <div class="paragraph">
-<p>Now we&#8217;re going to check on the sorted status of the columns for all committed segments i.e segment <code>activities_realtime<em>0</em>1__20220119T1541Z</code> in this case.</p>
+<p>Now we’re going to check on the sorted status of the columns for all committed segments i.e segment <code>activities_realtime<em>0</em>1__20220119T1541Z</code> in this case.</p>
 </div>
 <div class="paragraph">
-<p>First let&#8217;s collect all the columns in the <code>activities</code> schema:</p>
+<p>First let’s collect all the columns in the <code>activities</code> schema:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">export queryString=`curl -X GET "http://localhost:9000/schemas/activities" -H "accept: application/json" 2&gt;/dev/null |
-  jq -r '[.dimensionFieldSpecs,.dateTimeFieldSpecs | .[] | .name ] | join("&amp;columns=")'`</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">export queryString=`curl -X GET &#34;http://localhost:9000/schemas/activities&#34; -H &#34;accept: application/json&#34; 2&gt;/dev/null |
+  jq -r &#39;[.dimensionFieldSpecs,.dateTimeFieldSpecs | .[] | .name ] | join(&#34;&amp;columns=&#34;)&#39;`</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>And now let&#8217;s call the <em>getServerMetaData</em> endpoint to return the segments for the <code>activities_realtime</code> table and filter the response to get the segment name, input file, and column names with sorted status:</p>
+<p>And now let’s call the <em>getServerMetaData</em> endpoint to return the segments for the <code>activities_realtime</code> table and filter the response to get the segment name, input file, and column names with sorted status:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/segments/activities_realtime/metadata?columns=${queryString}" \
-  -H "accept: application/json"  2&gt;/dev/null |
-  jq -c '.[] | select(.columns != null) | {
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/segments/activities_realtime/metadata?columns=${queryString}&#34; \
+  -H &#34;accept: application/json&#34;  2&gt;/dev/null |
+  jq -c &#39;.[] | select(.columns != null) | {
     segment: .segmentName,
     columns: .columns | map({(.columnName): .sorted})
-  }'</code></pre>
+  }&#39;</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <div class="title">Note</div>
 </td>
@@ -698,15 +700,15 @@ If we do that we&#8217;ll see the following:</p>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. activities_realtime</caption>
 <colgroup>
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 8%;">
-<col style="width: 22%;">
-<col style="width: 10%;">
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 8%;"/>
+<col style="width: 22%;"/>
+<col style="width: 10%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -781,35 +783,35 @@ If we do that we&#8217;ll see the following:</p>
 </table>
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
-<p>If we run this command, we&#8217;ll see the following output:</p>
+<p>If we run this command, we’ll see the following output:</p>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "segment": "activities_realtime__0__0__20220119T1541Z",
-    "importedFrom": null,
-    "columns": [
-        {"altitude": false},
-        {"distance": false},
-        {"hr": false},
-        {"lon": false},
-        {"cadence": false},
-        {"rawTime": false},
-        {"location": false},
-        {"id": true},
-        {"lat": false},
-        {"timestamp": false}
+    &#34;segment&#34;: &#34;activities_realtime__0__0__20220119T1541Z&#34;,
+    &#34;importedFrom&#34;: null,
+    &#34;columns&#34;: [
+        {&#34;altitude&#34;: false},
+        {&#34;distance&#34;: false},
+        {&#34;hr&#34;: false},
+        {&#34;lon&#34;: false},
+        {&#34;cadence&#34;: false},
+        {&#34;rawTime&#34;: false},
+        {&#34;location&#34;: false},
+        {&#34;id&#34;: true},
+        {&#34;lat&#34;: false},
+        {&#34;timestamp&#34;: false}
     ]
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>From the output we can see that almost all of the columns aren&#8217;t sorted.
-The only sorted column is <code>id</code> and that&#8217;s because we only have one unique value in that column.</p>
+<p>From the output we can see that almost all of the columns aren’t sorted.
+The only sorted column is <code>id</code> and that’s because we only have one unique value in that column.</p>
 </div>
 </div>
 </div>
@@ -817,63 +819,63 @@ The only sorted column is <code>id</code> and that&#8217;s because we only have 
 <h2 id="_sorted_table">Sorted Table</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now let&#8217;s create a real-time table called <code>activities_realtime_sorted</code> that specifies <code>timestamp</code> as a sorted column.</p>
+<p>Now let’s create a real-time table called <code>activities_realtime_sorted</code> that specifies <code>timestamp</code> as a sorted column.</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/table-realtime.json</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "tableName": "activities_realtime_sorted",
-    "tableType": "REALTIME",
-    "segmentsConfig": {
-      "timeColumnName": "timestamp",
-      "schemaName": "activities",
-      "replication": "1",
-      "replicasPerPartition": "1"
+    &#34;tableName&#34;: &#34;activities_realtime_sorted&#34;,
+    &#34;tableType&#34;: &#34;REALTIME&#34;,
+    &#34;segmentsConfig&#34;: {
+      &#34;timeColumnName&#34;: &#34;timestamp&#34;,
+      &#34;schemaName&#34;: &#34;activities&#34;,
+      &#34;replication&#34;: &#34;1&#34;,
+      &#34;replicasPerPartition&#34;: &#34;1&#34;
     },
-    "tenants": {
-      "broker":"DefaultTenant",
-      "server":"DefaultTenant"
+    &#34;tenants&#34;: {
+      &#34;broker&#34;:&#34;DefaultTenant&#34;,
+      &#34;server&#34;:&#34;DefaultTenant&#34;
     },
-    "tableIndexConfig": {
-        "invertedIndexColumns": [],
-        "rangeIndexColumns": [],
-        "autoGeneratedInvertedIndex": false,
-        "createInvertedIndexDuringSegmentGeneration": false,
-        "sortedColumn": ["timestamp"],
-        "bloomFilterColumns": [],
-        "loadMode": "MMAP",
-        "streamConfigs": {
-          "streamType": "kafka",
-          "stream.kafka.topic.name": "activities",
-          "stream.kafka.broker.list": "kafka-strava:9093",
-          "stream.kafka.consumer.type": "lowlevel",
-          "stream.kafka.consumer.prop.auto.offset.reset": "smallest",
-          "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
-          "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
-          "realtime.segment.flush.threshold.rows": "5",
-          "realtime.segment.flush.threshold.time": "24h",
-          "realtime.segment.flush.segment.size": "100M"
+    &#34;tableIndexConfig&#34;: {
+        &#34;invertedIndexColumns&#34;: [],
+        &#34;rangeIndexColumns&#34;: [],
+        &#34;autoGeneratedInvertedIndex&#34;: false,
+        &#34;createInvertedIndexDuringSegmentGeneration&#34;: false,
+        &#34;sortedColumn&#34;: [&#34;timestamp&#34;],
+        &#34;bloomFilterColumns&#34;: [],
+        &#34;loadMode&#34;: &#34;MMAP&#34;,
+        &#34;streamConfigs&#34;: {
+          &#34;streamType&#34;: &#34;kafka&#34;,
+          &#34;stream.kafka.topic.name&#34;: &#34;activities&#34;,
+          &#34;stream.kafka.broker.list&#34;: &#34;kafka-strava:9093&#34;,
+          &#34;stream.kafka.consumer.type&#34;: &#34;lowlevel&#34;,
+          &#34;stream.kafka.consumer.prop.auto.offset.reset&#34;: &#34;smallest&#34;,
+          &#34;stream.kafka.consumer.factory.class.name&#34;: &#34;org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory&#34;,
+          &#34;stream.kafka.decoder.class.name&#34;: &#34;org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder&#34;,
+          &#34;realtime.segment.flush.threshold.rows&#34;: &#34;5&#34;,
+          &#34;realtime.segment.flush.threshold.time&#34;: &#34;24h&#34;,
+          &#34;realtime.segment.flush.segment.size&#34;: &#34;100M&#34;
         },
-        "noDictionaryColumns": [],
-        "onHeapDictionaryColumns": [],
-        "varLengthDictionaryColumns": [],
-        "enableDefaultStarTree": false,
-        "enableDynamicStarTreeCreation": false,
-        "aggregateMetrics": false,
-        "nullHandlingEnabled": false
+        &#34;noDictionaryColumns&#34;: [],
+        &#34;onHeapDictionaryColumns&#34;: [],
+        &#34;varLengthDictionaryColumns&#34;: [],
+        &#34;enableDefaultStarTree&#34;: false,
+        &#34;enableDynamicStarTreeCreation&#34;: false,
+        &#34;aggregateMetrics&#34;: false,
+        &#34;nullHandlingEnabled&#34;: false
     },
-    "ingestionConfig": {
-      "batchIngestionConfig": {
-        "segmentIngestionType": "APPEND",
-        "segmentIngestionFrequency": "DAILY"
+    &#34;ingestionConfig&#34;: {
+      &#34;batchIngestionConfig&#34;: {
+        &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+        &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
       },
-      "transformConfigs": [
-        {"columnName": "location", "transformFunction": "toSphericalGeography(stPoint(lon, lat))" },
-        {"columnName": "timestamp", "transformFunction": "FromDateTime(\"time\", 'yyyy-MM-dd HH:mm:ssZ')" }
+      &#34;transformConfigs&#34;: [
+        {&#34;columnName&#34;: &#34;location&#34;, &#34;transformFunction&#34;: &#34;toSphericalGeography(stPoint(lon, lat))&#34; },
+        {&#34;columnName&#34;: &#34;timestamp&#34;, &#34;transformFunction&#34;: &#34;FromDateTime(\&#34;time\&#34;, &#39;yyyy-MM-dd HH:mm:ssZ&#39;)&#34; }
       ]
     },
-    "metadata": {}
+    &#34;metadata&#34;: {}
   }</code></pre>
 </div>
 </div>
@@ -892,7 +894,7 @@ The only sorted column is <code>id</code> and that&#8217;s because we only have 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/segments/activities_realtime_sorted" -H "accept: application/json" 2&gt;/dev/null</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/segments/activities_realtime_sorted&#34; -H &#34;accept: application/json&#34; 2&gt;/dev/null</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -900,9 +902,9 @@ The only sorted column is <code>id</code> and that&#8217;s because we only have 
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">[
   {
-    "REALTIME": [
-      "activities_realtime_sorted__0__0__20220120T0952Z",
-      "activities_realtime_sorted__0__1__20220120T0952Z"
+    &#34;REALTIME&#34;: [
+      &#34;activities_realtime_sorted__0__0__20220120T0952Z&#34;,
+      &#34;activities_realtime_sorted__0__1__20220120T0952Z&#34;
     ]
   }
 ]</code></pre>
@@ -913,12 +915,12 @@ The only sorted column is <code>id</code> and that&#8217;s because we only have 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">segments=`curl -X GET "http://localhost:9000/segments/activities_realtime_sorted" \
-               -H "accept: application/json" 2&gt;/dev/null |
-          jq -r '.[] | .REALTIME[]'`
+<pre class="highlight"><code class="language-bash" data-lang="bash">segments=`curl -X GET &#34;http://localhost:9000/segments/activities_realtime_sorted&#34; \
+               -H &#34;accept: application/json&#34; 2&gt;/dev/null |
+          jq -r &#39;.[] | .REALTIME[]&#39;`
 for segment in ${segments}; do
-  curl -X GET "http://localhost:9000/segments/activities_realtime_sorted/${segment}/metadata" \
-    -H "accept: application/json" 2&gt;/dev/null | jq '.'
+  curl -X GET &#34;http://localhost:9000/segments/activities_realtime_sorted/${segment}/metadata&#34; \
+    -H &#34;accept: application/json&#34; 2&gt;/dev/null | jq &#39;.&#39;
 done</code></pre>
 </div>
 </div>
@@ -926,55 +928,55 @@ done</code></pre>
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "segment.crc": "3864673434",
-  "segment.creation.time": "1642672360783",
-  "segment.end.time": "1570656332000",
-  "segment.flush.threshold.size": "5",
-  "segment.index.version": "v3",
-  "segment.name": "activities_realtime_sorted__0__0__20220120T0952Z",
-  "segment.realtime.download.url": "http://172.21.0.3:9000/segments/activities_realtime_sorted/activities_realtime_sorted__0__0__20220120T0952Z",
-  "segment.realtime.endOffset": "5",
-  "segment.realtime.numReplicas": "1",
-  "segment.realtime.startOffset": "0",
-  "segment.realtime.status": "DONE",
-  "segment.start.time": "1570656325000",
-  "segment.table.name": "activities_realtime_sorted",
-  "segment.time.unit": "MILLISECONDS",
-  "segment.total.docs": "5",
-  "segment.type": "REALTIME"
+  &#34;segment.crc&#34;: &#34;3864673434&#34;,
+  &#34;segment.creation.time&#34;: &#34;1642672360783&#34;,
+  &#34;segment.end.time&#34;: &#34;1570656332000&#34;,
+  &#34;segment.flush.threshold.size&#34;: &#34;5&#34;,
+  &#34;segment.index.version&#34;: &#34;v3&#34;,
+  &#34;segment.name&#34;: &#34;activities_realtime_sorted__0__0__20220120T0952Z&#34;,
+  &#34;segment.realtime.download.url&#34;: &#34;http://172.21.0.3:9000/segments/activities_realtime_sorted/activities_realtime_sorted__0__0__20220120T0952Z&#34;,
+  &#34;segment.realtime.endOffset&#34;: &#34;5&#34;,
+  &#34;segment.realtime.numReplicas&#34;: &#34;1&#34;,
+  &#34;segment.realtime.startOffset&#34;: &#34;0&#34;,
+  &#34;segment.realtime.status&#34;: &#34;DONE&#34;,
+  &#34;segment.start.time&#34;: &#34;1570656325000&#34;,
+  &#34;segment.table.name&#34;: &#34;activities_realtime_sorted&#34;,
+  &#34;segment.time.unit&#34;: &#34;MILLISECONDS&#34;,
+  &#34;segment.total.docs&#34;: &#34;5&#34;,
+  &#34;segment.type&#34;: &#34;REALTIME&#34;
 }
 {
-  "segment.creation.time": "1642672361525",
-  "segment.flush.threshold.size": "5",
-  "segment.name": "activities_realtime_sorted__0__1__20220120T0952Z",
-  "segment.realtime.numReplicas": "1",
-  "segment.realtime.startOffset": "5",
-  "segment.realtime.status": "IN_PROGRESS",
-  "segment.table.name": "activities_realtime_sorted",
-  "segment.type": "REALTIME"
+  &#34;segment.creation.time&#34;: &#34;1642672361525&#34;,
+  &#34;segment.flush.threshold.size&#34;: &#34;5&#34;,
+  &#34;segment.name&#34;: &#34;activities_realtime_sorted__0__1__20220120T0952Z&#34;,
+  &#34;segment.realtime.numReplicas&#34;: &#34;1&#34;,
+  &#34;segment.realtime.startOffset&#34;: &#34;5&#34;,
+  &#34;segment.realtime.status&#34;: &#34;IN_PROGRESS&#34;,
+  &#34;segment.table.name&#34;: &#34;activities_realtime_sorted&#34;,
+  &#34;segment.type&#34;: &#34;REALTIME&#34;
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>From this output we learn that segment <code>activities_realtime_sorted<em>0</em>0<em>20220120T0952Z</code> has already been committed and segment <code>activities_realtime_sorted</em>0<em>1</em>20220120T0952Z</code> is still in progress.
+<p>From this output we learn that segment <code>activities_realtime_sorted<em>0</em>0<em>20220120T0952Z</em></code><em> has already been committed and segment <code>activities_realtime_sorted</code></em><code>0<em>1</em>20220120T0952Z</code> is still in progress.
 Any new records will be added to segment <code>activities_realtime_sorted<em>0</em>1__20220120T0952Z</code>.</p>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s check on the sorted status of columns in these segments using the  <em>getServerMetaData</em> endpoint:</p>
+<p>Now let’s check on the sorted status of columns in these segments using the  <em>getServerMetaData</em> endpoint:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/segments/activities_realtime_sorted/metadata?columns=${queryString}" \
-  -H "accept: application/json"  2&gt;/dev/null |
-  jq -c '.[] | select(.columns != null) | {
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/segments/activities_realtime_sorted/metadata?columns=${queryString}&#34; \
+  -H &#34;accept: application/json&#34;  2&gt;/dev/null |
+  jq -c &#39;.[] | select(.columns != null) | {
     segment: .segmentName,
     columns: .columns | map({(.columnName): .sorted})
-  }'</code></pre>
+  }&#39;</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
 <table>
-<tr>
+<tbody><tr>
 <td class="icon">
 <div class="title">Note</div>
 </td>
@@ -985,15 +987,15 @@ Any new records will be added to segment <code>activities_realtime_sorted<em>0</
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. activities_realtime_sorted</caption>
 <colgroup>
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 10%;">
-<col style="width: 8%;">
-<col style="width: 22%;">
-<col style="width: 10%;">
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 10%;"/>
+<col style="width: 8%;"/>
+<col style="width: 22%;"/>
+<col style="width: 10%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -1068,27 +1070,27 @@ Any new records will be added to segment <code>activities_realtime_sorted<em>0</
 </table>
 </td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
-<p>If we run this command, we&#8217;ll see the following output:</p>
+<p>If we run this command, we’ll see the following output:</p>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-    "segment": "activities_realtime_sorted__0__0__20220120T0952Z",
-    "columns": [
-        {"altitude": true},
-        {"distance": true},
-        {"hr": true},
-        {"lon": false},
-        {"cadence": true},
-        {"rawTime": true},
-        {"location": false},
-        {"id": true},
-        {"lat": false},
-        {"timestamp": true}
+    &#34;segment&#34;: &#34;activities_realtime_sorted__0__0__20220120T0952Z&#34;,
+    &#34;columns&#34;: [
+        {&#34;altitude&#34;: true},
+        {&#34;distance&#34;: true},
+        {&#34;hr&#34;: true},
+        {&#34;lon&#34;: false},
+        {&#34;cadence&#34;: true},
+        {&#34;rawTime&#34;: true},
+        {&#34;location&#34;: false},
+        {&#34;id&#34;: true},
+        {&#34;lat&#34;: false},
+        {&#34;timestamp&#34;: true}
     ]
 }</code></pre>
 </div>
@@ -1097,7 +1099,7 @@ Any new records will be added to segment <code>activities_realtime_sorted<em>0</
 <p>Now the <em>timestamp</em> field is sorted, which is what we would expect, along with a bunch of other fields as well.</p>
 </div>
 <div class="paragraph">
-<p>It&#8217;s unlikely that any of the other fields would remain sorted if we we imported any records.
+<p>It’s unlikely that any of the other fields would remain sorted if we we imported any records.
 <em>distance</em> and <em>rawTime</em> are correlated with <em>timestamp</em> within a single activity, but if a segment contained multiple contained multiple activities that correlation would be lost.</p>
 </div>
 </div>
@@ -1106,7 +1108,7 @@ Any new records will be added to segment <code>activities_realtime_sorted<em>0</
 <h2 id="_conclusion">Conclusion</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>That&#8217;s the end of this mini blog series about Pinot&#8217;s sorted indexes.
+<p>That’s the end of this mini blog series about Pinot’s sorted indexes.
 Hopefully it all made sense, but if not feel free to ask any questions on the <a href="https://communityinviter.com/apps/apache-pinot/apache-pinot" target="_blank" rel="noopener">Pinot Community Slack</a>.</p>
 </div>
 </div>
@@ -1145,7 +1147,7 @@ Hopefully it all made sense, but if not feel free to ask any questions on the <a
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/20/apache-pinot-sorted-indexes-realtime-tables/&amp;title=Apache%20Pinot%3a%20Sorted%20indexes%20on%20real-time%20tables&amp;summary=I%26%238217%3bve%20recently%20been%20learning%20all%20about%20Apache%20Pinot%26%238217%3bs%20sorted%20forward%20indexes%2c%20and%20in%20my%20first%20blog%20post%20I%20explained%20how%20they%20work%20for%20offline%20tables.%20In%20this%20blog%20post%20we%26%238217%3bll%20learn%20how%20sorted%20indexes%20work%20with%20real-time%20tables.%0a%20%20Figure%201.%20Apache%20Pinot%3a%20Sorted%20indexes%20on%20real-time%20tables%20%20Launch%20Components%20We%26%238217%3bre%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20and%20Kafka%20using%20the%20following%20Docker%20compose%20config%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/20/apache-pinot-sorted-indexes-realtime-tables/&amp;title=Apache%20Pinot%3a%20Sorted%20indexes%20on%20real-time%20tables&amp;summary=I%e2%80%99ve%20recently%20been%20learning%20all%20about%20Apache%20Pinot%e2%80%99s%20sorted%20forward%20indexes%2c%20and%20in%20my%20first%20blog%20post%20I%20explained%20how%20they%20work%20for%20offline%20tables.%20In%20this%20blog%20post%20we%e2%80%99ll%20learn%20how%20sorted%20indexes%20work%20with%20real-time%20tables.%0aFigure%201.%20Apache%20Pinot%3a%20Sorted%20indexes%20on%20real-time%20tables%20Launch%20Components%20We%e2%80%99re%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20and%20Kafka%20using%20the%20following%20Docker%20compose%20config%3a%0adocker-compose.yml%20version%3a%20%26%2339%3b3...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -1288,13 +1290,13 @@ Hopefully it all made sense, but if not feel free to ask any questions on the <a
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

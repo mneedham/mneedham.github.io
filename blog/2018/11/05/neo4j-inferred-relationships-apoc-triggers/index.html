@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Neo4j: Storing inferred relationships with APOC triggers &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Neo4j: Storing inferred relationships with APOC triggers | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2018/11/05/neo4j-inferred-relationships-apoc-triggers/" />
 
@@ -32,7 +33,8 @@
 
     
 
-        <title> Neo4j: Storing inferred relationships with APOC triggers &middot;  Mark Needham</title>
+        
+        <title>Neo4j: Storing inferred relationships with APOC triggers | Mark Needham</title>
 
     
         <meta name="description" content="Learn how to store inferred relationships with APOC triggers." />
@@ -46,11 +48,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2018/11/05/neo4j-inferred-relationships-apoc-triggers/" />
 
     
@@ -64,7 +67,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2018-11-05",
-        "description": "One of my favourite things about modelling data in graphs is how easy it makes it to infer relationships between pieces of data based on other relationships. In this post we\u0026#8217;re going to learn how to compute and store those inferred relationships using the triggers feature from the APOC library.\n Meetup Graph Before we get to that, let\u0026#8217;s first understand what we mean when we say inferred relationship. We\u0026#8217;ll create a small graph containing Person, Meetup, and Topic nodes with the following query:",
+        "description": "One of my favourite things about modelling data in graphs is how easy it makes it to infer relationships between pieces of data based on other relationships. In this post we’re going to learn how to compute and store those inferred relationships using the triggers feature from the APOC library.\nMeetup Graph Before we get to that, let’s first understand what we mean when we say inferred relationship. We’ll create a small graph containing Person, Meetup, and Topic nodes with the following query:",
         "wordCount":  633 
     }
     </script>
@@ -191,7 +194,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -218,25 +220,25 @@ tbody tr pre {margin-bottom: 27px}
     <h1 class="post-title">Neo4j: Storing inferred relationships with APOC triggers</h1>
     <div class="paragraph">
 <p>One of my favourite things about modelling data in graphs is how easy it makes it to infer relationships between pieces of data based on other relationships.
-In this post we&#8217;re going to learn how to compute and store those inferred relationships using the <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_triggers" target="_blank" rel="noopener">triggers</a> feature from the APOC library.</p>
+In this post we’re going to learn how to compute and store those inferred relationships using the <a href="https://neo4j-contrib.github.io/neo4j-apoc-procedures/#_triggers" target="_blank" rel="noopener">triggers</a> feature from the APOC library.</p>
 </div>
 <div class="sect1">
 <h2 id="_meetup_graph">Meetup Graph</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Before we get to that, let&#8217;s first understand what we mean when we say inferred relationship.
-We&#8217;ll create a small graph containing <code>Person</code>, <code>Meetup</code>, and <code>Topic</code> nodes with the following query:</p>
+<p>Before we get to that, let’s first understand what we mean when we say inferred relationship.
+We’ll create a small graph containing <code>Person</code>, <code>Meetup</code>, and <code>Topic</code> nodes with the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">MERGE (mark:Person {name: "Mark"})
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MERGE (mark:Person {name: &#34;Mark&#34;})
 
-MERGE (neo4jMeetup:Meetup {name: "Neo4j London Meetup"})
-MERGE (bigDataMeetup:Meetup {name: "Big Data Meetup"})
-MERGE (dataScienceMeetup:Meetup {name: "Data Science Meetup"})
+MERGE (neo4jMeetup:Meetup {name: &#34;Neo4j London Meetup&#34;})
+MERGE (bigDataMeetup:Meetup {name: &#34;Big Data Meetup&#34;})
+MERGE (dataScienceMeetup:Meetup {name: &#34;Data Science Meetup&#34;})
 
-MERGE (dataScience:Topic {name: "Data Science"})
-MERGE (databases:Topic {name: "Databases"})
+MERGE (dataScience:Topic {name: &#34;Data Science&#34;})
+MERGE (databases:Topic {name: &#34;Databases&#34;})
 
 MERGE (neo4jMeetup)-[:HAS_TOPIC]-&gt;(dataScience)
 MERGE (neo4jMeetup)-[:HAS_TOPIC]-&gt;(databases)
@@ -255,7 +257,7 @@ MERGE (mark)-[:MEMBER_OF]-&gt;(bigDataMeetup)</code></pre>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2018/11/meetup-explicit.svg" alt="meetup explicit">
+/uploads/2018/11/meetup-explicit.svg" alt="meetup explicit"/>
 </div>
 </div>
 </div>
@@ -264,23 +266,23 @@ MERGE (mark)-[:MEMBER_OF]-&gt;(bigDataMeetup)</code></pre>
 <h2 id="_finding_implicit_interests">Finding implicit interests</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>At the moment there are no relationships between <code>Person</code> and <code>Topic</code> nodes, so we don&#8217;t know which topics a person is interested in.
+<p>At the moment there are no relationships between <code>Person</code> and <code>Topic</code> nodes, so we don’t know which topics a person is interested in.
 There is, however, an indirect relationship between these nodes via <code>Group</code> nodes.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2018/11/inferred-rels.png" alt="inferred rels" width="300px">
+/uploads/2018/11/inferred-rels.png" alt="inferred rels" width="300px"/>
 </div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s say that a person is interested in a topic if they&#8217;re a member of at least 3 groups tagged with that topic.
+<p>Let’s say that a person is interested in a topic if they’re a member of at least 3 groups tagged with that topic.
 In other words, we want to create an <code>INTERESTED_IN</code> relationship between a <code>Person</code> and <code>Topic</code> if a person is a member of at least 3 groups tagged with that topic.
 We could do this with the following Cypher query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (start:Person {name: "Mark"})-[:MEMBER_OF]-&gt;()-[:HAS_TOPIC]-&gt;(topic)
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (start:Person {name: &#34;Mark&#34;})-[:MEMBER_OF]-&gt;()-[:HAS_TOPIC]-&gt;(topic)
 WHERE not((start)-[:INTERESTED_IN]-&gt;(topic))
 WITH start, topic, count(*) AS count
 WHERE count &gt;= 3
@@ -289,18 +291,18 @@ SET interestedIn.tentative = true</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run this query at the moment it won&#8217;t create any <code>INTERESTED_IN</code> relationships, because none of the topics that Mark has an implicit interest in have a count of 3.
+<p>If we run this query at the moment it won’t create any <code>INTERESTED_IN</code> relationships, because none of the topics that Mark has an implicit interest in have a count of 3.
 We can fix that by creating a relationship from Mark to the Data Science meetup with the following query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person {name: "Mark"})
-MATCH (meetup:Meetup {name: "Data Science Meetup"})
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">MATCH (p:Person {name: &#34;Mark&#34;})
+MATCH (meetup:Meetup {name: &#34;Data Science Meetup&#34;})
 MERGE (p)-[:MEMBER_OF]-&gt;(meetup)</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If we run this query and then repeat the previous one we&#8217;ll get this output:</p>
+<p>If we run this query and then repeat the previous one we’ll get this output:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -314,12 +316,12 @@ We now know that Mark has an interest in <code>Data Science</code> and <code>Dat
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2018/11/interestedin.svg" alt="interestedin">
+/uploads/2018/11/interestedin.svg" alt="interestedin"/>
 </div>
 </div>
 <div class="paragraph">
 <p>We put a <code>tentative</code> property with a value <code>true</code> to indicate that this is an inferred relationship.
-We could then ask the user to confirm that this is a topic they&#8217;re interested in, or indeed deny any interest at all!</p>
+We could then ask the user to confirm that this is a topic they’re interested in, or indeed deny any interest at all!</p>
 </div>
 </div>
 </div>
@@ -327,7 +329,7 @@ We could then ask the user to confirm that this is a topic they&#8217;re interes
 <h2 id="_triggers">Triggers</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This works well, but it&#8217;s a painful workflow at the moment.
+<p>This works well, but it’s a painful workflow at the moment.
 Each time we add a new membership we need to run the inferred relationship query as well.
 Can we automate that?</p>
 </div>
@@ -347,8 +349,8 @@ We can do this with the following code:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.trigger.add("interests",
-  "UNWIND [rel in $createdRelationships WHERE type(rel) = 'MEMBER_OF'] AS rel
+<pre class="highlight"><code class="language-cypher" data-lang="cypher">CALL apoc.trigger.add(&#34;interests&#34;,
+  &#34;UNWIND [rel in $createdRelationships WHERE type(rel) = &#39;MEMBER_OF&#39;] AS rel
    WITH startNode(rel) AS start, endNode(rel) AS end
    MATCH (start)-[:MEMBER_OF]-&gt;()-[:HAS_TOPIC]-&gt;(topic)
    WHERE not((start)-[:INTERESTED_IN]-&gt;(topic))
@@ -356,8 +358,8 @@ We can do this with the following code:</p>
    WHERE count &gt;= 3
    MERGE (start)-[interestedIn:INTERESTED_IN]-&gt;(topic)
    SET interestedIn.tentative = true
-   ",
-  {phase:'before'})</code></pre>
+   &#34;,
+  {phase:&#39;before&#39;})</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -365,7 +367,7 @@ We can do this with the following code:</p>
 Our trigger receives a list of all the relationships created in a transaction, filters the list to only include the <code>MEMBER_OF</code> ones, and then runs a piece of Cypher that creates an <code>INTERESTED_IN</code> relationship from a user to topics that they may have an interest in.</p>
 </div>
 <div class="paragraph">
-<p>If we want to change the threshold at which we create the relationships we&#8217;d only need to change this line of code:</p>
+<p>If we want to change the threshold at which we create the relationships we’d only need to change this line of code:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -373,7 +375,7 @@ Our trigger receives a list of all the relationships created in a transaction, f
 </div>
 </div>
 <div class="paragraph">
-<p>And that&#8217;s it!</p>
+<p>And that’s it!</p>
 </div>
 </div>
 </div>
@@ -411,7 +413,7 @@ Our trigger receives a list of all the relationships created in a transaction, f
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2018/11/05/neo4j-inferred-relationships-apoc-triggers/&amp;title=Neo4j%3a%20Storing%20inferred%20relationships%20with%20APOC%20triggers&amp;summary=One%20of%20my%20favourite%20things%20about%20modelling%20data%20in%20graphs%20is%20how%20easy%20it%20makes%20it%20to%20infer%20relationships%20between%20pieces%20of%20data%20based%20on%20other%20relationships.%20In%20this%20post%20we%26%238217%3bre%20going%20to%20learn%20how%20to%20compute%20and%20store%20those%20inferred%20relationships%20using%20the%20triggers%20feature%20from%20the%20APOC%20library.%0a%20Meetup%20Graph%20Before%20we%20get%20to%20that%2c%20let%26%238217%3bs%20first%20understand%20what%20we%20mean%20when%20we%20say%20inferred%20relationship.%20We%26%238217%3bll%20create%20a%20small%20graph%20containing%20Person%2c%20Meetup%2c%20and%20Topic%20nodes%20with%20the%20following%20query%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2018/11/05/neo4j-inferred-relationships-apoc-triggers/&amp;title=Neo4j%3a%20Storing%20inferred%20relationships%20with%20APOC%20triggers&amp;summary=One%20of%20my%20favourite%20things%20about%20modelling%20data%20in%20graphs%20is%20how%20easy%20it%20makes%20it%20to%20infer%20relationships%20between%20pieces%20of%20data%20based%20on%20other%20relationships.%20In%20this%20post%20we%e2%80%99re%20going%20to%20learn%20how%20to%20compute%20and%20store%20those%20inferred%20relationships%20using%20the%20triggers%20feature%20from%20the%20APOC%20library.%0aMeetup%20Graph%20Before%20we%20get%20to%20that%2c%20let%e2%80%99s%20first%20understand%20what%20we%20mean%20when%20we%20say%20inferred%20relationship.%20We%e2%80%99ll%20create%20a%20small%20graph%20containing%20Person%2c%20Meetup%2c%20and%20Topic%20nodes%20with%20the%20following%20query%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -554,13 +556,13 @@ Our trigger receives a list of all the relationships created in a transaction, f
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

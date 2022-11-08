@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Apache Pinot: Checking which indexes are defined &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Apache Pinot: Checking which indexes are defined | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2022/01/13/apache-pinot-which-indexes-are-defined/" />
 
@@ -35,7 +36,8 @@
 
     
 
-        <title> Apache Pinot: Checking which indexes are defined &middot;  Mark Needham</title>
+        
+        <title>Apache Pinot: Checking which indexes are defined | Mark Needham</title>
 
     
         <meta name="description" content="In this post we&#39;ll learn how to check which indexes are defined on Pinot segments." />
@@ -49,11 +51,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2022/01/13/apache-pinot-which-indexes-are-defined/" />
 
     
@@ -67,8 +70,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2022-01-13",
-        "description": "One of the most common questions in the Apache Pinot community Slack is how to work out which indexes are defined on columns in Pinot segments. This blog post will attempt to answer that question.\n  Figure 1. Apache Pinot: Checking which indexes are defined  Setup First, we\u0026#8217;re going to spin up a local instance of Pinot using the following Docker compose config:\n docker-compose.yml version: '3.7' services: zookeeper: image: zookeeper:3.",
-        "wordCount":  1823 
+        "description": "One of the most common questions in the Apache Pinot community Slack is how to work out which indexes are defined on columns in Pinot segments. This blog post will attempt to answer that question.\nFigure 1. Apache Pinot: Checking which indexes are defined Setup First, we’re going to spin up a local instance of Pinot using the following Docker compose config:\ndocker-compose.yml version: \u0026#39;3.7\u0026#39; services: zookeeper: image: zookeeper:3.5.6 hostname: zookeeper container_name: zookeeper-indexes ports: - \u0026#34;2181:2181\u0026#34; environment: ZOOKEEPER_CLIENT_PORT: 2181 ZOOKEEPER_TICK_TIME: 2000 pinot-controller: image: apachepinot\/pinot:0.",
+        "wordCount":  1808 
     }
     </script>
     
@@ -194,7 +197,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -222,7 +224,7 @@ This blog post will attempt to answer that question.</p>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/indexes-banner.png" alt="indexes banner">
+/uploads/2022/01/indexes-banner.png" alt="indexes banner"/>
 </div>
 <div class="title">Figure 1. Apache Pinot: Checking which indexes are defined</div>
 </div>
@@ -230,49 +232,49 @@ This blog post will attempt to answer that question.</p>
 <h2 id="_setup">Setup</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>First, we&#8217;re going to spin up a local instance of Pinot using the following Docker compose config:</p>
+<p>First, we’re going to spin up a local instance of Pinot using the following Docker compose config:</p>
 </div>
 <div class="listingblock">
 <div class="title">docker-compose.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: '3.7'
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: &#39;3.7&#39;
 services:
   zookeeper:
     image: zookeeper:3.5.6
     hostname: zookeeper
     container_name: zookeeper-indexes
     ports:
-      - "2181:2181"
+      - &#34;2181:2181&#34;
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
   pinot-controller:
     image: apachepinot/pinot:0.9.3
-    command: "StartController -zkAddress zookeeper-indexes:2181 -dataDir /data"
-    container_name: "pinot-controller-indexes"
+    command: &#34;StartController -zkAddress zookeeper-indexes:2181 -dataDir /data&#34;
+    container_name: &#34;pinot-controller-indexes&#34;
     volumes:
       - ./config:/config
       - ./data:/data
       - ./input:/input
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - &#34;9000:9000&#34;
     depends_on:
       - zookeeper
   pinot-broker:
     image: apachepinot/pinot:0.9.3
-    command: "StartBroker -zkAddress zookeeper-indexes:2181"
+    command: &#34;StartBroker -zkAddress zookeeper-indexes:2181&#34;
     restart: unless-stopped
-    container_name: "pinot-broker-indexes"
+    container_name: &#34;pinot-broker-indexes&#34;
     ports:
-      - "8099:8099"
+      - &#34;8099:8099&#34;
     depends_on:
       - pinot-controller
   pinot-server:
     image: apachepinot/pinot:0.9.3
-    command: "StartServer -zkAddress zookeeper-indexes:2181"
+    command: &#34;StartServer -zkAddress zookeeper-indexes:2181&#34;
     restart: unless-stopped
-    container_name: "pinot-server-indexes"
+    container_name: &#34;pinot-server-indexes&#34;
     depends_on:
       - pinot-broker</code></pre>
 </div>
@@ -288,18 +290,18 @@ services:
 <h2 id="_data">Data</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We&#8217;ll be working with the following CSV files that contain transcripts for various students:</p>
+<p>We’ll be working with the following CSV files that contain transcripts for various students:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. transcript1.csv</caption>
 <colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2858%;">
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2858%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -354,13 +356,13 @@ services:
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. transcript2.csv</caption>
 <colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2858%;">
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2857%;"/>
+<col style="width: 14.2858%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -413,7 +415,7 @@ services:
 </tbody>
 </table>
 <div class="paragraph">
-<p>We&#8217;ve deliberately got two different files so that we can create one segment based on each.</p>
+<p>We’ve deliberately got two different files so that we can create one segment based on each.</p>
 </div>
 </div>
 </div>
@@ -421,7 +423,7 @@ services:
 <h2 id="_create_table">Create Table</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Let&#8217;s create a Pinot schema and table based on this CSV file.</p>
+<p>Let’s create a Pinot schema and table based on this CSV file.</p>
 </div>
 <div class="paragraph">
 <p>The schema is defined below:</p>
@@ -430,40 +432,40 @@ services:
 <div class="title">/config/schema.json</div>
 <div class="content">
 <pre class="highlight"><code>{
-    "schemaName": "transcript",
-    "dimensionFieldSpecs": [
+    &#34;schemaName&#34;: &#34;transcript&#34;,
+    &#34;dimensionFieldSpecs&#34;: [
       {
-        "name": "studentID",
-        "dataType": "INT"
+        &#34;name&#34;: &#34;studentID&#34;,
+        &#34;dataType&#34;: &#34;INT&#34;
       },
       {
-        "name": "firstName",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;firstName&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "lastName",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;lastName&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "gender",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;gender&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       },
       {
-        "name": "subject",
-        "dataType": "STRING"
+        &#34;name&#34;: &#34;subject&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       }
     ],
-    "metricFieldSpecs": [
+    &#34;metricFieldSpecs&#34;: [
       {
-        "name": "score",
-        "dataType": "FLOAT"
+        &#34;name&#34;: &#34;score&#34;,
+        &#34;dataType&#34;: &#34;FLOAT&#34;
       }
     ],
-    "dateTimeFieldSpecs": [{
-      "name": "timestampInEpoch",
-      "dataType": "LONG",
-      "format" : "1:MILLISECONDS:EPOCH",
-      "granularity": "1:MILLISECONDS"
+    &#34;dateTimeFieldSpecs&#34;: [{
+      &#34;name&#34;: &#34;timestampInEpoch&#34;,
+      &#34;dataType&#34;: &#34;LONG&#34;,
+      &#34;format&#34; : &#34;1:MILLISECONDS:EPOCH&#34;,
+      &#34;granularity&#34;: &#34;1:MILLISECONDS&#34;
     }]
   }</code></pre>
 </div>
@@ -475,31 +477,31 @@ services:
 <div class="title">/config/table.json</div>
 <div class="content">
 <pre class="highlight"><code>{
-    "tableName": "transcript",
-    "tableType": "OFFLINE",
-    "segmentsConfig": {
-      "timeColumnName": "timestampInEpoch",
-      "replication": 1
+    &#34;tableName&#34;: &#34;transcript&#34;,
+    &#34;tableType&#34;: &#34;OFFLINE&#34;,
+    &#34;segmentsConfig&#34;: {
+      &#34;timeColumnName&#34;: &#34;timestampInEpoch&#34;,
+      &#34;replication&#34;: 1
     },
-    "tenants": {
-      "broker":"DefaultTenant",
-      "server":"DefaultTenant"
+    &#34;tenants&#34;: {
+      &#34;broker&#34;:&#34;DefaultTenant&#34;,
+      &#34;server&#34;:&#34;DefaultTenant&#34;
     },
-    "tableIndexConfig": {
-      "loadMode": "MMAP"
+    &#34;tableIndexConfig&#34;: {
+      &#34;loadMode&#34;: &#34;MMAP&#34;
     },
-    "ingestionConfig": {
-      "batchIngestionConfig": {
-        "segmentIngestionType": "APPEND",
-        "segmentIngestionFrequency": "DAILY"
+    &#34;ingestionConfig&#34;: {
+      &#34;batchIngestionConfig&#34;: {
+        &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+        &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
       }
     },
-    "metadata": {}
+    &#34;metadata&#34;: {}
   }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Now let&#8217;s create the table and schema:</p>
+<p>Now let’s create the table and schema:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -514,31 +516,31 @@ services:
 <h2 id="_import_csv_files">Import CSV files</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>After we&#8217;ve done that, it&#8217;s time to import the CSV file.
-We&#8217;ll import the <code>transcript1.csv</code> using the ingestion job spec defined below:</p>
+<p>After we’ve done that, it’s time to import the CSV file.
+We’ll import the <code>transcript1.csv</code> using the ingestion job spec defined below:</p>
 </div>
 <div class="listingblock">
 <div class="title">/config/job-spec1.yml</div>
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">executionFrameworkSpec:
-  name: 'standalone'
-  segmentGenerationJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentGenerationJobRunner'
-  segmentTarPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner'
+  name: &#39;standalone&#39;
+  segmentGenerationJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentGenerationJobRunner&#39;
+  segmentTarPushJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner&#39;
 jobType: SegmentCreationAndTarPush
-inputDirURI: '/input'
-includeFileNamePattern: 'glob:**/transcript1.csv'
-outputDirURI: '/data'
+inputDirURI: &#39;/input&#39;
+includeFileNamePattern: &#39;glob:**/transcript1.csv&#39;
+outputDirURI: &#39;/data&#39;
 pinotFSSpecs:
   - scheme: file
     className: org.apache.pinot.spi.filesystem.LocalPinotFS
 recordReaderSpec:
-  dataFormat: 'csv'
-  className: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReader'
-  configClassName: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig'
+  dataFormat: &#39;csv&#39;
+  className: &#39;org.apache.pinot.plugin.inputformat.csv.CSVRecordReader&#39;
+  configClassName: &#39;org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig&#39;
 tableSpec:
-  tableName: 'transcript'
+  tableName: &#39;transcript&#39;
 pinotClusterSpecs:
-  - controllerURI: 'http://localhost:9000'</code></pre>
+  - controllerURI: &#39;http://localhost:9000&#39;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -554,24 +556,24 @@ pinotClusterSpecs:
 <div class="title">/config/job-spec2.yml</div>
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">executionFrameworkSpec:
-  name: 'standalone'
-  segmentGenerationJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentGenerationJobRunner'
-  segmentTarPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner'
+  name: &#39;standalone&#39;
+  segmentGenerationJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentGenerationJobRunner&#39;
+  segmentTarPushJobRunnerClassName: &#39;org.apache.pinot.plugin.ingestion.batch.standalone.SegmentTarPushJobRunner&#39;
 jobType: SegmentCreationAndTarPush
-inputDirURI: '/input'
-includeFileNamePattern: 'glob:**/transcript2.csv'
-outputDirURI: '/data'
+inputDirURI: &#39;/input&#39;
+includeFileNamePattern: &#39;glob:**/transcript2.csv&#39;
+outputDirURI: &#39;/data&#39;
 pinotFSSpecs:
   - scheme: file
     className: org.apache.pinot.spi.filesystem.LocalPinotFS
 recordReaderSpec:
-  dataFormat: 'csv'
-  className: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReader'
-  configClassName: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig'
+  dataFormat: &#39;csv&#39;
+  className: &#39;org.apache.pinot.plugin.inputformat.csv.CSVRecordReader&#39;
+  configClassName: &#39;org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig&#39;
 tableSpec:
-  tableName: 'transcript'
+  tableName: &#39;transcript&#39;
 pinotClusterSpecs:
-  - controllerURI: 'http://localhost:9000'</code></pre>
+  - controllerURI: &#39;http://localhost:9000&#39;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -585,7 +587,7 @@ pinotClusterSpecs:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/segments/transcript" -H "accept: application/json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/segments/transcript&#34; -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <div class="listingblock">
@@ -593,16 +595,16 @@ pinotClusterSpecs:
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">[
   {
-    "OFFLINE": [
-      "transcript_OFFLINE_1570863600000_1572418800000_0",
-      "transcript_OFFLINE_1641746000037_1642068001037_0"
+    &#34;OFFLINE&#34;: [
+      &#34;transcript_OFFLINE_1570863600000_1572418800000_0&#34;,
+      &#34;transcript_OFFLINE_1641746000037_1642068001037_0&#34;
     ]
   }
 ]</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>We&#8217;ve got two segments - one for each file - which is what we expected.</p>
+<p>We’ve got two segments - one for each file - which is what we expected.</p>
 </div>
 </div>
 </div>
@@ -616,61 +618,61 @@ A screenshot of the Swagger documentation for this end point is shown below:</p>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/segment-metadata.png" alt="segment metadata">
+/uploads/2022/01/segment-metadata.png" alt="segment metadata"/>
 </div>
 <div class="title">Figure 2. Segment metadata end point</div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s see what data is returned when we query this end point for the <code>transcript</code> table:</p>
+<p>Let’s see what data is returned when we query this end point for the <code>transcript</code> table:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/segments/transcript/metadata" -H "accept: application/json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/segments/transcript/metadata&#34; -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "transcript_OFFLINE_1570863600000_1572418800000_0": {
-    "segmentName": "transcript_OFFLINE_1570863600000_1572418800000_0",
-    "schemaName": null,
-    "crc": 1700211719,
-    "creationTimeMillis": 1642069557334,
-    "creationTimeReadable": "2022-01-13T10:25:57:334 UTC",
-    "timeGranularitySec": 0,
-    "startTimeMillis": 1570863600000,
-    "startTimeReadable": "2019-10-12T07:00:00.000Z",
-    "endTimeMillis": 1572418800000,
-    "endTimeReadable": "2019-10-30T07:00:00.000Z",
-    "segmentVersion": "v3",
-    "creatorName": null,
-    "custom": {
-      "input.data.file.uri": "file:/input/transcript1.csv"
+  &#34;transcript_OFFLINE_1570863600000_1572418800000_0&#34;: {
+    &#34;segmentName&#34;: &#34;transcript_OFFLINE_1570863600000_1572418800000_0&#34;,
+    &#34;schemaName&#34;: null,
+    &#34;crc&#34;: 1700211719,
+    &#34;creationTimeMillis&#34;: 1642069557334,
+    &#34;creationTimeReadable&#34;: &#34;2022-01-13T10:25:57:334 UTC&#34;,
+    &#34;timeGranularitySec&#34;: 0,
+    &#34;startTimeMillis&#34;: 1570863600000,
+    &#34;startTimeReadable&#34;: &#34;2019-10-12T07:00:00.000Z&#34;,
+    &#34;endTimeMillis&#34;: 1572418800000,
+    &#34;endTimeReadable&#34;: &#34;2019-10-30T07:00:00.000Z&#34;,
+    &#34;segmentVersion&#34;: &#34;v3&#34;,
+    &#34;creatorName&#34;: null,
+    &#34;custom&#34;: {
+      &#34;input.data.file.uri&#34;: &#34;file:/input/transcript1.csv&#34;
     },
-    "columns": [],
-    "indexes": {},
-    "star-tree-index": null
+    &#34;columns&#34;: [],
+    &#34;indexes&#34;: {},
+    &#34;star-tree-index&#34;: null
   },
-  "transcript_OFFLINE_1641746000037_1642068001037_0": {
-    "segmentName": "transcript_OFFLINE_1641746000037_1642068001037_0",
-    "schemaName": null,
-    "crc": 1556428049,
-    "creationTimeMillis": 1642069571796,
-    "creationTimeReadable": "2022-01-13T10:26:11:796 UTC",
-    "timeGranularitySec": 0,
-    "startTimeMillis": 1641746000037,
-    "startTimeReadable": "2022-01-09T16:33:20.037Z",
-    "endTimeMillis": 1642068001037,
-    "endTimeReadable": "2022-01-13T10:00:01.037Z",
-    "segmentVersion": "v3",
-    "creatorName": null,
-    "custom": {
-      "input.data.file.uri": "file:/input/transcript2.csv"
+  &#34;transcript_OFFLINE_1641746000037_1642068001037_0&#34;: {
+    &#34;segmentName&#34;: &#34;transcript_OFFLINE_1641746000037_1642068001037_0&#34;,
+    &#34;schemaName&#34;: null,
+    &#34;crc&#34;: 1556428049,
+    &#34;creationTimeMillis&#34;: 1642069571796,
+    &#34;creationTimeReadable&#34;: &#34;2022-01-13T10:26:11:796 UTC&#34;,
+    &#34;timeGranularitySec&#34;: 0,
+    &#34;startTimeMillis&#34;: 1641746000037,
+    &#34;startTimeReadable&#34;: &#34;2022-01-09T16:33:20.037Z&#34;,
+    &#34;endTimeMillis&#34;: 1642068001037,
+    &#34;endTimeReadable&#34;: &#34;2022-01-13T10:00:01.037Z&#34;,
+    &#34;segmentVersion&#34;: &#34;v3&#34;,
+    &#34;creatorName&#34;: null,
+    &#34;custom&#34;: {
+      &#34;input.data.file.uri&#34;: &#34;file:/input/transcript2.csv&#34;
     },
-    "columns": [],
-    "indexes": {},
-    "star-tree-index": null
+    &#34;columns&#34;: [],
+    &#34;indexes&#34;: {},
+    &#34;star-tree-index&#34;: null
   }
 }</code></pre>
 </div>
@@ -680,162 +682,162 @@ A screenshot of the Swagger documentation for this end point is shown below:</p>
 It also tells us when each of the segments was created, along with the minimum and maximum values for the timestamp column.</p>
 </div>
 <div class="paragraph">
-<p>To get a breakdown of column metadata we&#8217;ll need to pass in a list of column names.
-Let&#8217;s have a look what gets returned if we pass in the <code>firstName</code> column:</p>
+<p>To get a breakdown of column metadata we’ll need to pass in a list of column names.
+Let’s have a look what gets returned if we pass in the <code>firstName</code> column:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET "http://localhost:9000/segments/transcript/metadata?columns=firstName&amp;columns=" -H "accept: application/json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X GET &#34;http://localhost:9000/segments/transcript/metadata?columns=firstName&amp;columns=&#34; -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
 <pre class="highlight"><code class="language-json" data-lang="json">{
-  "transcript_OFFLINE_1570863600000_1572418800000_0": {
-    "segmentName": "transcript_OFFLINE_1570863600000_1572418800000_0",
-    "schemaName": null,
-    "crc": 1700211719,
-    "creationTimeMillis": 1642069557334,
-    "creationTimeReadable": "2022-01-13T10:25:57:334 UTC",
-    "timeGranularitySec": 0,
-    "startTimeMillis": 1570863600000,
-    "startTimeReadable": "2019-10-12T07:00:00.000Z",
-    "endTimeMillis": 1572418800000,
-    "endTimeReadable": "2019-10-30T07:00:00.000Z",
-    "segmentVersion": "v3",
-    "creatorName": null,
-    "custom": {
-      "input.data.file.uri": "file:/input/transcript1.csv"
+  &#34;transcript_OFFLINE_1570863600000_1572418800000_0&#34;: {
+    &#34;segmentName&#34;: &#34;transcript_OFFLINE_1570863600000_1572418800000_0&#34;,
+    &#34;schemaName&#34;: null,
+    &#34;crc&#34;: 1700211719,
+    &#34;creationTimeMillis&#34;: 1642069557334,
+    &#34;creationTimeReadable&#34;: &#34;2022-01-13T10:25:57:334 UTC&#34;,
+    &#34;timeGranularitySec&#34;: 0,
+    &#34;startTimeMillis&#34;: 1570863600000,
+    &#34;startTimeReadable&#34;: &#34;2019-10-12T07:00:00.000Z&#34;,
+    &#34;endTimeMillis&#34;: 1572418800000,
+    &#34;endTimeReadable&#34;: &#34;2019-10-30T07:00:00.000Z&#34;,
+    &#34;segmentVersion&#34;: &#34;v3&#34;,
+    &#34;creatorName&#34;: null,
+    &#34;custom&#34;: {
+      &#34;input.data.file.uri&#34;: &#34;file:/input/transcript1.csv&#34;
     },
-    "columns": [
+    &#34;columns&#34;: [
       {
-        "totalDocs": 4,
-        "partitionFunction": null,
-        "partitions": null,
-        "hasDictionary": true,
-        "columnMaxLength": 4,
-        "autoGenerated": false,
-        "paddingCharacter": "\u0000",
-        "maxNumberOfMultiValues": 0,
-        "fieldSpec": {
-          "name": "firstName",
-          "singleValueField": true,
-          "defaultNullValueString": "null",
-          "virtualColumnProvider": null,
-          "maxLength": 512,
-          "dataType": "STRING",
-          "transformFunction": null,
-          "defaultNullValue": "null"
+        &#34;totalDocs&#34;: 4,
+        &#34;partitionFunction&#34;: null,
+        &#34;partitions&#34;: null,
+        &#34;hasDictionary&#34;: true,
+        &#34;columnMaxLength&#34;: 4,
+        &#34;autoGenerated&#34;: false,
+        &#34;paddingCharacter&#34;: &#34;\u0000&#34;,
+        &#34;maxNumberOfMultiValues&#34;: 0,
+        &#34;fieldSpec&#34;: {
+          &#34;name&#34;: &#34;firstName&#34;,
+          &#34;singleValueField&#34;: true,
+          &#34;defaultNullValueString&#34;: &#34;null&#34;,
+          &#34;virtualColumnProvider&#34;: null,
+          &#34;maxLength&#34;: 512,
+          &#34;dataType&#34;: &#34;STRING&#34;,
+          &#34;transformFunction&#34;: null,
+          &#34;defaultNullValue&#34;: &#34;null&#34;
         },
-        "bitsPerElement": 2,
-        "totalNumberOfEntries": 4,
-        "sorted": false,
-        "minValue": "Bob",
-        "maxValue": "Nick",
-        "cardinality": 3,
-        "fieldType": "DIMENSION",
-        "singleValue": true,
-        "columnName": "firstName",
-        "dataType": "STRING"
+        &#34;bitsPerElement&#34;: 2,
+        &#34;totalNumberOfEntries&#34;: 4,
+        &#34;sorted&#34;: false,
+        &#34;minValue&#34;: &#34;Bob&#34;,
+        &#34;maxValue&#34;: &#34;Nick&#34;,
+        &#34;cardinality&#34;: 3,
+        &#34;fieldType&#34;: &#34;DIMENSION&#34;,
+        &#34;singleValue&#34;: true,
+        &#34;columnName&#34;: &#34;firstName&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       }
     ],
-    "indexes": {
-      "firstName": {
-        "bloom-filter": "NO",
-        "dictionary": "YES",
-        "forward-index": "YES",
-        "inverted-index": "NO",
-        "null-value-vector-reader": "NO",
-        "range-index": "NO",
-        "json-index": "NO"
+    &#34;indexes&#34;: {
+      &#34;firstName&#34;: {
+        &#34;bloom-filter&#34;: &#34;NO&#34;,
+        &#34;dictionary&#34;: &#34;YES&#34;,
+        &#34;forward-index&#34;: &#34;YES&#34;,
+        &#34;inverted-index&#34;: &#34;NO&#34;,
+        &#34;null-value-vector-reader&#34;: &#34;NO&#34;,
+        &#34;range-index&#34;: &#34;NO&#34;,
+        &#34;json-index&#34;: &#34;NO&#34;
       }
     },
-    "star-tree-index": null
+    &#34;star-tree-index&#34;: null
   },
-  "transcript_OFFLINE_1641746000037_1642068001037_0": {
-    "segmentName": "transcript_OFFLINE_1641746000037_1642068001037_0",
-    "schemaName": null,
-    "crc": 1556428049,
-    "creationTimeMillis": 1642069571796,
-    "creationTimeReadable": "2022-01-13T10:26:11:796 UTC",
-    "timeGranularitySec": 0,
-    "startTimeMillis": 1641746000037,
-    "startTimeReadable": "2022-01-09T16:33:20.037Z",
-    "endTimeMillis": 1642068001037,
-    "endTimeReadable": "2022-01-13T10:00:01.037Z",
-    "segmentVersion": "v3",
-    "creatorName": null,
-    "custom": {
-      "input.data.file.uri": "file:/input/transcript2.csv"
+  &#34;transcript_OFFLINE_1641746000037_1642068001037_0&#34;: {
+    &#34;segmentName&#34;: &#34;transcript_OFFLINE_1641746000037_1642068001037_0&#34;,
+    &#34;schemaName&#34;: null,
+    &#34;crc&#34;: 1556428049,
+    &#34;creationTimeMillis&#34;: 1642069571796,
+    &#34;creationTimeReadable&#34;: &#34;2022-01-13T10:26:11:796 UTC&#34;,
+    &#34;timeGranularitySec&#34;: 0,
+    &#34;startTimeMillis&#34;: 1641746000037,
+    &#34;startTimeReadable&#34;: &#34;2022-01-09T16:33:20.037Z&#34;,
+    &#34;endTimeMillis&#34;: 1642068001037,
+    &#34;endTimeReadable&#34;: &#34;2022-01-13T10:00:01.037Z&#34;,
+    &#34;segmentVersion&#34;: &#34;v3&#34;,
+    &#34;creatorName&#34;: null,
+    &#34;custom&#34;: {
+      &#34;input.data.file.uri&#34;: &#34;file:/input/transcript2.csv&#34;
     },
-    "columns": [
+    &#34;columns&#34;: [
       {
-        "totalDocs": 4,
-        "partitionFunction": null,
-        "partitions": null,
-        "hasDictionary": true,
-        "columnMaxLength": 6,
-        "autoGenerated": false,
-        "paddingCharacter": "\u0000",
-        "maxNumberOfMultiValues": 0,
-        "fieldSpec": {
-          "name": "firstName",
-          "singleValueField": true,
-          "defaultNullValueString": "null",
-          "virtualColumnProvider": null,
-          "maxLength": 512,
-          "dataType": "STRING",
-          "transformFunction": null,
-          "defaultNullValue": "null"
+        &#34;totalDocs&#34;: 4,
+        &#34;partitionFunction&#34;: null,
+        &#34;partitions&#34;: null,
+        &#34;hasDictionary&#34;: true,
+        &#34;columnMaxLength&#34;: 6,
+        &#34;autoGenerated&#34;: false,
+        &#34;paddingCharacter&#34;: &#34;\u0000&#34;,
+        &#34;maxNumberOfMultiValues&#34;: 0,
+        &#34;fieldSpec&#34;: {
+          &#34;name&#34;: &#34;firstName&#34;,
+          &#34;singleValueField&#34;: true,
+          &#34;defaultNullValueString&#34;: &#34;null&#34;,
+          &#34;virtualColumnProvider&#34;: null,
+          &#34;maxLength&#34;: 512,
+          &#34;dataType&#34;: &#34;STRING&#34;,
+          &#34;transformFunction&#34;: null,
+          &#34;defaultNullValue&#34;: &#34;null&#34;
         },
-        "bitsPerElement": 2,
-        "totalNumberOfEntries": 4,
-        "sorted": false, <i class="conum" data-value="1"></i><b>(1)</b>
-        "minValue": "Jason",
-        "maxValue": "Olivia",
-        "cardinality": 3,
-        "fieldType": "DIMENSION",
-        "singleValue": true,
-        "columnName": "firstName",
-        "dataType": "STRING"
+        &#34;bitsPerElement&#34;: 2,
+        &#34;totalNumberOfEntries&#34;: 4,
+        &#34;sorted&#34;: false, <i class="conum" data-value="1"></i><b>(1)</b>
+        &#34;minValue&#34;: &#34;Jason&#34;,
+        &#34;maxValue&#34;: &#34;Olivia&#34;,
+        &#34;cardinality&#34;: 3,
+        &#34;fieldType&#34;: &#34;DIMENSION&#34;,
+        &#34;singleValue&#34;: true,
+        &#34;columnName&#34;: &#34;firstName&#34;,
+        &#34;dataType&#34;: &#34;STRING&#34;
       }
     ],
-    "indexes": {
-      "firstName": {
-        "bloom-filter": "NO",
-        "dictionary": "YES", <i class="conum" data-value="2"></i><b>(2)</b>
-        "forward-index": "YES",
-        "inverted-index": "NO",
-        "null-value-vector-reader": "NO",
-        "range-index": "NO",
-        "json-index": "NO"
+    &#34;indexes&#34;: {
+      &#34;firstName&#34;: {
+        &#34;bloom-filter&#34;: &#34;NO&#34;,
+        &#34;dictionary&#34;: &#34;YES&#34;, <i class="conum" data-value="2"></i><b>(2)</b>
+        &#34;forward-index&#34;: &#34;YES&#34;,
+        &#34;inverted-index&#34;: &#34;NO&#34;,
+        &#34;null-value-vector-reader&#34;: &#34;NO&#34;,
+        &#34;range-index&#34;: &#34;NO&#34;,
+        &#34;json-index&#34;: &#34;NO&#34;
       }
     },
-    "star-tree-index": null
+    &#34;star-tree-index&#34;: null
   }
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
-<tr>
+<tbody><tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>The column isn&#8217;t sorted.</td>
+<td>The column isn’t sorted.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
 <td>The column uses a dictionary based forward index.</td>
 </tr>
-</table>
+</tbody></table>
 </div>
 <div class="paragraph">
-<p>Along with the segment metadata we&#8217;ve now also got a bunch of information about the <em>firstName</em> column and its indexes.
-We&#8217;re mostly interested in the information under <code>indexes.firstName</code>, but we can also see whether a <a href="https://docs.pinot.apache.org/basics/indexing/forward-index#sorted-forward-index-with-run-length-encoding" target="_blank" rel="noopener">sorted forward index column</a> has been applied to this column by checking the <code>columns.sorted</code> property.</p>
+<p>Along with the segment metadata we’ve now also got a bunch of information about the <em>firstName</em> column and its indexes.
+We’re mostly interested in the information under <code>indexes.firstName</code>, but we can also see whether a <a href="https://docs.pinot.apache.org/basics/indexing/forward-index#sorted-forward-index-with-run-length-encoding" target="_blank" rel="noopener">sorted forward index column</a> has been applied to this column by checking the <code>columns.sorted</code> property.</p>
 </div>
 <div class="paragraph">
-<p>Next we&#8217;re going to extract information about the indexes defined for each column.
-We&#8217;ll need to combine the data from <code>columns</code> and <code>indexes</code>, which will be much easier to do in Python.
+<p>Next we’re going to extract information about the indexes defined for each column.
+We’ll need to combine the data from <code>columns</code> and <code>indexes</code>, which will be much easier to do in Python.
 The following script writes a CSV file describing column names and indexes for each segment:</p>
 </div>
 <div class="listingblock">
@@ -843,28 +845,28 @@ The following script writes a CSV file describing column names and indexes for e
 <pre class="highlight"><code class="language-python" data-lang="python">import requests
 import csv
 
-pinot_url = "http://localhost:9000"
+pinot_url = &#34;http://localhost:9000&#34;
 
-response = requests.get(f"{pinot_url}/schemas/transcript")
+response = requests.get(f&#34;{pinot_url}/schemas/transcript&#34;)
 r = response.json()
 
-fields = r["dimensionFieldSpecs"] + r["dateTimeFieldSpecs"]
-columns = [field["name"] for field in fields]
+fields = r[&#34;dimensionFieldSpecs&#34;] + r[&#34;dateTimeFieldSpecs&#34;]
+columns = [field[&#34;name&#34;] for field in fields]
 
-data = { "columns": columns}
-response = requests.get(f"{pinot_url}/segments/transcript/metadata", params=data)
+data = { &#34;columns&#34;: columns}
+response = requests.get(f&#34;{pinot_url}/segments/transcript/metadata&#34;, params=data)
 
 r = response.json()
 
 for segment, values in r.items():
-    with open(f"output/schema_{segment}.csv", "w") as schema_file:
-        writer = csv.writer(schema_file, delimiter=",")
+    with open(f&#34;output/schema_{segment}.csv&#34;, &#34;w&#34;) as schema_file:
+        writer = csv.writer(schema_file, delimiter=&#34;,&#34;)
         print(segment)
-        writer.writerow(["column", "sorted"] + list(list(values["indexes"].values())[0].keys()))
-        for column in values["columns"]:
-            column_name = column["fieldSpec"]["name"]
-            filtered_map = {k:v for k,v in values["indexes"].items() if k == column_name}
-            writer.writerow([column_name, column["sorted"]] + list(filtered_map[column_name].values()))</code></pre>
+        writer.writerow([&#34;column&#34;, &#34;sorted&#34;] + list(list(values[&#34;indexes&#34;].values())[0].keys()))
+        for column in values[&#34;columns&#34;]:
+            column_name = column[&#34;fieldSpec&#34;][&#34;name&#34;]
+            filtered_map = {k:v for k,v in values[&#34;indexes&#34;].items() if k == column_name}
+            writer.writerow([column_name, column[&#34;sorted&#34;]] + list(filtered_map[column_name].values()))</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -873,15 +875,15 @@ for segment, values in r.items():
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 3. schema_transcript_OFFLINE_1570863600000_1572418800000_0.csv</caption>
 <colgroup>
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1112%;">
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1112%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -968,15 +970,15 @@ for segment, values in r.items():
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 4. schema_transcript_OFFLINE_1641746000037_1642068001037_0.csv</caption>
 <colgroup>
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1112%;">
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1112%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -1069,27 +1071,27 @@ for segment, values in r.items():
 <div class="title">/config/table-inverted-index.json</div>
 <div class="content">
 <pre class="highlight"><code>{
-    "tableName": "transcript",
-    "tableType": "OFFLINE",
-    "segmentsConfig": {
-      "timeColumnName": "timestampInEpoch",
-      "replication": 1
+    &#34;tableName&#34;: &#34;transcript&#34;,
+    &#34;tableType&#34;: &#34;OFFLINE&#34;,
+    &#34;segmentsConfig&#34;: {
+      &#34;timeColumnName&#34;: &#34;timestampInEpoch&#34;,
+      &#34;replication&#34;: 1
     },
-    "tenants": {
-      "broker":"DefaultTenant",
-      "server":"DefaultTenant"
+    &#34;tenants&#34;: {
+      &#34;broker&#34;:&#34;DefaultTenant&#34;,
+      &#34;server&#34;:&#34;DefaultTenant&#34;
     },
-    "tableIndexConfig": {
-      "loadMode": "MMAP",
-      "invertedIndexColumns": ["firstName"]
+    &#34;tableIndexConfig&#34;: {
+      &#34;loadMode&#34;: &#34;MMAP&#34;,
+      &#34;invertedIndexColumns&#34;: [&#34;firstName&#34;]
     },
-    "ingestionConfig": {
-      "batchIngestionConfig": {
-        "segmentIngestionType": "APPEND",
-        "segmentIngestionFrequency": "DAILY"
+    &#34;ingestionConfig&#34;: {
+      &#34;batchIngestionConfig&#34;: {
+        &#34;segmentIngestionType&#34;: &#34;APPEND&#34;,
+        &#34;segmentIngestionFrequency&#34;: &#34;DAILY&#34;
       }
     },
-    "metadata": {}
+    &#34;metadata&#34;: {}
   }</code></pre>
 </div>
 </div>
@@ -1098,38 +1100,38 @@ for segment, values in r.items():
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"> curl -X PUT "http://localhost:9000/tables/transcript" \
-   -H "accept: application/json" \
-   -H "Content-Type: application/json" \
+<pre class="highlight"><code class="language-bash" data-lang="bash"> curl -X PUT &#34;http://localhost:9000/tables/transcript&#34; \
+   -H &#34;accept: application/json&#34; \
+   -H &#34;Content-Type: application/json&#34; \
    --data @config/table-inverted-index.json</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{"status":"Table config updated for transcript"}</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">{&#34;status&#34;:&#34;Table config updated for transcript&#34;}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The table is now updated, but the inverted index hasn&#8217;t been applied to any of the segments yet.
-To apply this new index, we&#8217;ll need to call the Reload API.
+<p>The table is now updated, but the inverted index hasn’t been applied to any of the segments yet.
+To apply this new index, we’ll need to call the Reload API.
 We can reload an individual segment or all of the segments.</p>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="https://www.markhneedham.com/blog/
-/uploads/2022/01/reload-api.png" alt="reload api">
+/uploads/2022/01/reload-api.png" alt="reload api"/>
 </div>
 <div class="title">Figure 3. Reload API</div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s reload just segment <code>transcript_OFFLINE_1570863600000_1572418800000_0</code>, using the following command:</p>
+<p>Let’s reload just segment <code>transcript_OFFLINE_1570863600000_1572418800000_0</code>, using the following command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">curl -X POST \
-  "http://localhost:9000/segments/transcript/transcript_OFFLINE_1570863600000_1572418800000_0/reload?forceDownload=false" \
-  -H "accept: application/json"</code></pre>
+  &#34;http://localhost:9000/segments/transcript/transcript_OFFLINE_1570863600000_1572418800000_0/reload?forceDownload=false&#34; \
+  -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <style>
@@ -1147,15 +1149,15 @@ table.inverted-index tbody tr:nth-child(2) td:nth-child(6) {
 <table class="tableblock frame-all grid-all stretch inverted-index">
 <caption class="title">Table 5. schema_transcript_OFFLINE_1570863600000_1572418800000_0.csv</caption>
 <colgroup>
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1112%;">
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1112%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -1242,15 +1244,15 @@ table.inverted-index tbody tr:nth-child(2) td:nth-child(6) {
 <table class="tableblock frame-all grid-all stretch inverted-index">
 <caption class="title">Table 6. schema_transcript_OFFLINE_1641746000037_1642068001037_0.csv</caption>
 <colgroup>
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1112%;">
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1112%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -1342,24 +1344,24 @@ table.inverted-index tbody tr:nth-child(2) td:nth-child(6) {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X POST "http://localhost:9000/segments/transcript/reload?forceDownload=false" -H "accept: application/json"</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -X POST &#34;http://localhost:9000/segments/transcript/reload?forceDownload=false&#34; -H &#34;accept: application/json&#34;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>And if we run our Python script one more time, we&#8217;ll get the following output:</p>
+<p>And if we run our Python script one more time, we’ll get the following output:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch inverted-index">
 <caption class="title">Table 7. schema_transcript_OFFLINE_1570863600000_1572418800000_0.csv</caption>
 <colgroup>
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1112%;">
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1112%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -1446,15 +1448,15 @@ table.inverted-index tbody tr:nth-child(2) td:nth-child(6) {
 <table class="tableblock frame-all grid-all stretch inverted-index">
 <caption class="title">Table 8. schema_transcript_OFFLINE_1641746000037_1642068001037_0.csv</caption>
 <colgroup>
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1111%;">
-<col style="width: 11.1112%;">
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1111%;"/>
+<col style="width: 11.1112%;"/>
 </colgroup>
 <thead>
 <tr>
@@ -1577,7 +1579,7 @@ table.inverted-index tbody tr:nth-child(2) td:nth-child(6) {
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/13/apache-pinot-which-indexes-are-defined/&amp;title=Apache%20Pinot%3a%20Checking%20which%20indexes%20are%20defined&amp;summary=One%20of%20the%20most%20common%20questions%20in%20the%20Apache%20Pinot%20community%20Slack%20is%20how%20to%20work%20out%20which%20indexes%20are%20defined%20on%20columns%20in%20Pinot%20segments.%20This%20blog%20post%20will%20attempt%20to%20answer%20that%20question.%0a%20%20Figure%201.%20Apache%20Pinot%3a%20Checking%20which%20indexes%20are%20defined%20%20Setup%20First%2c%20we%26%238217%3bre%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20using%20the%20following%20Docker%20compose%20config%3a%0a%20docker-compose.yml%20version%3a%20%273.7%27%20services%3a%20zookeeper%3a%20image%3a%20zookeeper%3a3...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2022/01/13/apache-pinot-which-indexes-are-defined/&amp;title=Apache%20Pinot%3a%20Checking%20which%20indexes%20are%20defined&amp;summary=One%20of%20the%20most%20common%20questions%20in%20the%20Apache%20Pinot%20community%20Slack%20is%20how%20to%20work%20out%20which%20indexes%20are%20defined%20on%20columns%20in%20Pinot%20segments.%20This%20blog%20post%20will%20attempt%20to%20answer%20that%20question.%0aFigure%201.%20Apache%20Pinot%3a%20Checking%20which%20indexes%20are%20defined%20Setup%20First%2c%20we%e2%80%99re%20going%20to%20spin%20up%20a%20local%20instance%20of%20Pinot%20using%20the%20following%20Docker%20compose%20config%3a%0adocker-compose.yml%20version%3a%20%26%2339%3b3.7%26%2339%3b%20services%3a%20zookeeper%3a%20image%3a%20zookeeper%3a3.5.6%20hostname%3a%20zookeeper%20container_name%3a%20zookeeper-indexes%20ports%3a%20-%20%26%2334%3b2181%3a2181%26%2334%3b%20environment%3a%20ZOOKEEPER_CLIENT_PORT%3a%202181%20ZOOKEEPER_TICK_TIME%3a%202000%20pinot-controller%3a%20image%3a%20apachepinot%2fpinot%3a0...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -1720,13 +1722,13 @@ table.inverted-index tbody tr:nth-child(2) td:nth-child(6) {
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     

@@ -7,7 +7,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" Go vs Python: Parsing a JSON response from a HTTP API &middot;  Mark Needham" />
+        
+        <meta property="og:title" content="Go vs Python: Parsing a JSON response from a HTTP API | Mark Needham" />
         <meta property="og:site_name" content="Mark Needham" />
         <meta property="og:url" content="https://www.markhneedham.com/blog/2017/01/21/go-vs-python-parsing-a-json-response-from-a-http-api/" />
 
@@ -31,7 +32,8 @@
 
     
 
-        <title> Go vs Python: Parsing a JSON response from a HTTP API &middot;  Mark Needham</title>
+        
+        <title>Go vs Python: Parsing a JSON response from a HTTP API | Mark Needham</title>
 
     
         <meta name="description" content="Parsing meetup.com&#39;s HTTP API using Go and Python." />
@@ -45,11 +47,12 @@
         
         
 
-    
+        
+        
         <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
-    
+          
+        
 
-    
         <link rel="canonical" href="https://www.markhneedham.com/blog/2017/01/21/go-vs-python-parsing-a-json-response-from-a-http-api/" />
 
     
@@ -63,7 +66,7 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2017-01-21",
-        "description": "As part of a recommendations with Neo4j talk that I\u0026#8217;ve presented a few times over the last year I have a set of scripts that download some data from the meetup.com API.\n They\u0026#8217;re all written in Python but I thought it\u0026#8217;d be a fun exercise to see what they\u0026#8217;d look like in Go. My eventual goal is to try and parallelise the API calls.\n This is the Python version of the script:",
+        "description": "As part of a recommendations with Neo4j talk that I’ve presented a few times over the last year I have a set of scripts that download some data from the meetup.com API.\nThey’re all written in Python but I thought it’d be a fun exercise to see what they’d look like in Go. My eventual goal is to try and parallelise the API calls.\nThis is the Python version of the script:",
         "wordCount":  581 
     }
     </script>
@@ -190,7 +193,6 @@ tbody tr pre {margin-bottom: 27px}
 	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
 </div>
 
-
             
         </header>
 
@@ -214,10 +216,10 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Go vs Python: Parsing a JSON response from a HTTP API</h1>
     <div class="paragraph">
-<p>As part of a <a href="https://www.meetup.com/graphdb-london/events/236256437/">recommendations with Neo4j talk</a> that I&#8217;ve presented a few times over the last year I have a set of scripts that download some data from the <a href="https://www.meetup.com/meetup_api/">meetup.com API</a>.</p>
+<p>As part of a <a href="https://www.meetup.com/graphdb-london/events/236256437/">recommendations with Neo4j talk</a> that I’ve presented a few times over the last year I have a set of scripts that download some data from the <a href="https://www.meetup.com/meetup_api/">meetup.com API</a>.</p>
 </div>
 <div class="paragraph">
-<p>They&#8217;re all written in Python but I thought it&#8217;d be a fun exercise to see what they&#8217;d look like in Go. My eventual goal is to try and parallelise the API calls.</p>
+<p>They’re all written in Python but I thought it’d be a fun exercise to see what they’d look like in Go. My eventual goal is to try and parallelise the API calls.</p>
 </div>
 <div class="paragraph">
 <p>This is the Python version of the script:</p>
@@ -228,22 +230,22 @@ tbody tr pre {margin-bottom: 27px}
 import os
 import json
 
-key =  os.environ['MEETUP_API_KEY']
-lat = "51.5072"
-lon = "0.1275"
+key =  os.environ[&#39;MEETUP_API_KEY&#39;]
+lat = &#34;51.5072&#34;
+lon = &#34;0.1275&#34;
 
-seed_topic = "nosql"
-uri = "https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}".format(seed_topic, lat, lon, key)
+seed_topic = &#34;nosql&#34;
+uri = &#34;https://api.meetup.com/2/groups?&amp;topic={0}&amp;lat={1}&amp;lon={2}&amp;key={3}&#34;.format(seed_topic, lat, lon, key)
 
 r = requests.get(uri)
-all_topics = [topic["urlkey"]  for result in r.json()["results"] for topic in result["topics"]]
+all_topics = [topic[&#34;urlkey&#34;]  for result in r.json()[&#34;results&#34;] for topic in result[&#34;topics&#34;]]
 
 for topic in all_topics:
     print topic</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>We&#8217;re using the <a href="http://docs.python-requests.org/en/master/">requests</a> library to send a request to the meetup API to get the groups which have the topic 'nosql' in the London area. We then parse the response and print out the topics.</p>
+<p>We’re using the <a href="http://docs.python-requests.org/en/master/">requests</a> library to send a request to the meetup API to get the groups which have the topic &#39;nosql&#39; in the London area. We then parse the response and print out the topics.</p>
 </div>
 <div class="paragraph">
 <p>Now to do the same thing in Go! The first bit of the script is almost identical:</p>
@@ -251,11 +253,11 @@ for topic in all_topics:
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-go" data-lang="go">import (
-	"fmt"
-	"os"
-	"net/http"
-	"log"
-	"time"
+	&#34;fmt&#34;
+	&#34;os&#34;
+	&#34;net/http&#34;
+	&#34;log&#34;
+	&#34;time&#34;
 )
 
 func handleError(err error) {
@@ -268,12 +270,12 @@ func handleError(err error) {
 func main() {
 	var httpClient = &amp;http.Client{Timeout: 10 * time.Second}
 
-	seedTopic := "nosql"
-	lat := "51.5072"
-	lon := "0.1275"
-	key := os.Getenv("MEETUP_API_KEY")
+	seedTopic := &#34;nosql&#34;
+	lat := &#34;51.5072&#34;
+	lon := &#34;0.1275&#34;
+	key := os.Getenv(&#34;MEETUP_API_KEY&#34;)
 
-	uri := fmt.Sprintf("https://api.meetup.com/2/groups?&amp;topic=%s&amp;lat=%s&amp;lon=%s&amp;key=%s", seedTopic, lat, lon, key)
+	uri := fmt.Sprintf(&#34;https://api.meetup.com/2/groups?&amp;topic=%s&amp;lat=%s&amp;lon=%s&amp;key=%s&#34;, seedTopic, lat, lon, key)
 
 	response, err := httpClient.Get(uri)
 	handleError(err)
@@ -289,7 +291,7 @@ func main() {
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ go cmd/blog/main.go
 
-&amp;{200 OK 200 HTTP/2.0 2 0 map[X-Meetup-Request-Id:[2d3be3c7-a393-4127-b7aa-076f150499e6] X-Ratelimit-Reset:[10] Cf-Ray:[324093a73f1135d2-LHR] X-Oauth-Scopes:[basic] Etag:["35a941c5ea3df9df4204d8a4a2d60150"] Server:[cloudflare-nginx] Set-Cookie:[__cfduid=d54db475299a62af4bb963039787e2e3d1484894864; expires=Sat, 20-Jan-18 06:47:44 GMT; path=/; domain=.meetup.com; HttpOnly] X-Meetup-Server:[api7] X-Ratelimit-Limit:[30] X-Ratelimit-Remaining:[29] X-Accepted-Oauth-Scopes:[basic] Vary:[Accept-Encoding,User-Agent,Accept-Language] Date:[Fri, 20 Jan 2017 06:47:45 GMT] Content-Type:[application/json;charset=utf-8]] 0xc420442260 -1 [] false true map[] 0xc4200d01e0 0xc4202b2420}</code></pre>
+&amp;{200 OK 200 HTTP/2.0 2 0 map[X-Meetup-Request-Id:[2d3be3c7-a393-4127-b7aa-076f150499e6] X-Ratelimit-Reset:[10] Cf-Ray:[324093a73f1135d2-LHR] X-Oauth-Scopes:[basic] Etag:[&#34;35a941c5ea3df9df4204d8a4a2d60150&#34;] Server:[cloudflare-nginx] Set-Cookie:[__cfduid=d54db475299a62af4bb963039787e2e3d1484894864; expires=Sat, 20-Jan-18 06:47:44 GMT; path=/; domain=.meetup.com; HttpOnly] X-Meetup-Server:[api7] X-Ratelimit-Limit:[30] X-Ratelimit-Remaining:[29] X-Accepted-Oauth-Scopes:[basic] Vary:[Accept-Encoding,User-Agent,Accept-Language] Date:[Fri, 20 Jan 2017 06:47:45 GMT] Content-Type:[application/json;charset=utf-8]] 0xc420442260 -1 [] false true map[] 0xc4200d01e0 0xc4202b2420}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -303,35 +305,35 @@ func main() {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-go" data-lang="go">import "encoding/json"
+<pre class="highlight"><code class="language-go" data-lang="go">import &#34;encoding/json&#34;
 
 var target map[string]interface{}
 decoder := json.NewDecoder(response.Body)
 decoder.Decode(&amp;target)
 
-for _, rawGroup := range target["results"].([]interface{}) {
+for _, rawGroup := range target[&#34;results&#34;].([]interface{}) {
     group := rawGroup.(map[string]interface{})
-    for _, rawTopic := range group["topics"].([]interface{}) {
+    for _, rawTopic := range group[&#34;topics&#34;].([]interface{}) {
         topic := rawTopic.(map[string]interface{})
-        fmt.Println(topic["urlkey"])
+        fmt.Println(topic[&#34;urlkey&#34;])
     }
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>It&#8217;s more verbose that the Python version because we have to explicitly type each thing we take out of the map at every stage, but it&#8217;s not too bad. This is the full script:</p>
+<p>It’s more verbose that the Python version because we have to explicitly type each thing we take out of the map at every stage, but it’s not too bad. This is the full script:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-go" data-lang="go">package main
 
 import (
-	"fmt"
-	"os"
-	"net/http"
-	"log"
-	"time"
-	"encoding/json"
+	&#34;fmt&#34;
+	&#34;os&#34;
+	&#34;net/http&#34;
+	&#34;log&#34;
+	&#34;time&#34;
+	&#34;encoding/json&#34;
 )
 
 func handleError(err error) {
@@ -344,12 +346,12 @@ func handleError(err error) {
 func main() {
 	var httpClient = &amp;http.Client{Timeout: 10 * time.Second}
 
-	seedTopic := "nosql"
-	lat := "51.5072"
-	lon := "0.1275"
-	key := os.Getenv("MEETUP_API_KEY")
+	seedTopic := &#34;nosql&#34;
+	lat := &#34;51.5072&#34;
+	lon := &#34;0.1275&#34;
+	key := os.Getenv(&#34;MEETUP_API_KEY&#34;)
 
-	uri := fmt.Sprintf("https://api.meetup.com/2/groups?&amp;topic=%s&amp;lat=%s&amp;lon=%s&amp;key=%s", seedTopic, lat, lon, key)
+	uri := fmt.Sprintf(&#34;https://api.meetup.com/2/groups?&amp;topic=%s&amp;lat=%s&amp;lon=%s&amp;key=%s&#34;, seedTopic, lat, lon, key)
 
 	response, err := httpClient.Get(uri)
 	handleError(err)
@@ -359,21 +361,21 @@ func main() {
 	decoder := json.NewDecoder(response.Body)
 	decoder.Decode(&amp;target)
 
-	for _, rawGroup := range target["results"].([]interface{}) {
+	for _, rawGroup := range target[&#34;results&#34;].([]interface{}) {
 		group := rawGroup.(map[string]interface{})
-		for _, rawTopic := range group["topics"].([]interface{}) {
+		for _, rawTopic := range group[&#34;topics&#34;].([]interface{}) {
 			topic := rawTopic.(map[string]interface{})
-			fmt.Println(topic["urlkey"])
+			fmt.Println(topic[&#34;urlkey&#34;])
 		}
 	}
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Once I&#8217;ve got these topics the next step is to make more API calls to get the groups for those topics.</p>
+<p>Once I’ve got these topics the next step is to make more API calls to get the groups for those topics.</p>
 </div>
 <div class="paragraph">
-<p>I want to make those API calls in parallel while making sure I don&#8217;t exceed the rate limit restrictions on the API and I think I can make use of go routines, channels, and timers to do that. But that&#8217;s for another post!</p>
+<p>I want to make those API calls in parallel while making sure I don’t exceed the rate limit restrictions on the API and I think I can make use of go routines, channels, and timers to do that. But that’s for another post!</p>
 </div>
 
     <div id="social-bar">
@@ -409,7 +411,7 @@ func main() {
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/01/21/go-vs-python-parsing-a-json-response-from-a-http-api/&amp;title=Go%20vs%20Python%3a%20Parsing%20a%20JSON%20response%20from%20a%20HTTP%20API&amp;summary=As%20part%20of%20a%20recommendations%20with%20Neo4j%20talk%20that%20I%26%238217%3bve%20presented%20a%20few%20times%20over%20the%20last%20year%20I%20have%20a%20set%20of%20scripts%20that%20download%20some%20data%20from%20the%20meetup.com%20API.%0a%20They%26%238217%3bre%20all%20written%20in%20Python%20but%20I%20thought%20it%26%238217%3bd%20be%20a%20fun%20exercise%20to%20see%20what%20they%26%238217%3bd%20look%20like%20in%20Go.%20My%20eventual%20goal%20is%20to%20try%20and%20parallelise%20the%20API%20calls.%0a%20This%20is%20the%20Python%20version%20of%20the%20script%3a..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2017/01/21/go-vs-python-parsing-a-json-response-from-a-http-api/&amp;title=Go%20vs%20Python%3a%20Parsing%20a%20JSON%20response%20from%20a%20HTTP%20API&amp;summary=As%20part%20of%20a%20recommendations%20with%20Neo4j%20talk%20that%20I%e2%80%99ve%20presented%20a%20few%20times%20over%20the%20last%20year%20I%20have%20a%20set%20of%20scripts%20that%20download%20some%20data%20from%20the%20meetup.com%20API.%0aThey%e2%80%99re%20all%20written%20in%20Python%20but%20I%20thought%20it%e2%80%99d%20be%20a%20fun%20exercise%20to%20see%20what%20they%e2%80%99d%20look%20like%20in%20Go.%20My%20eventual%20goal%20is%20to%20try%20and%20parallelise%20the%20API%20calls.%0aThis%20is%20the%20Python%20version%20of%20the%20script%3a..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -552,13 +554,13 @@ func main() {
       });
     </script>
 	
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-9991626-1"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
 		<script>
 		  window.dataLayer = window.dataLayer || [];
 		  function gtag(){dataLayer.push(arguments);}
 		  gtag('js', new Date());
 
-		  gtag('config', 'UA-9991626-1');
+		  gtag('config', 'G-KVLB7W6R20');
     </script>
 
     
