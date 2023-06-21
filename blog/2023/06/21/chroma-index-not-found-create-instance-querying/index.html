@@ -74,8 +74,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2023-06-21",
-        "description": "Somewhat belatedly, I’ve been playing around with LangChain and HuggingFace to spike a tool that lets me ask question about Tim Berglund’s new Real-Time Analytics podcast. I’m using the Chroma database to store vectors of chunks of the transcript so that I can find appropriate sections to feed to the Large Language Model to help with answering my questions. I ran into an initially perplexing error while building this out, which we’re going to explore in this blog post.",
-        "wordCount":  517 
+        "description": "Somewhat belatedly, I’ve been playing around with LangChain and HuggingFace to spike a tool that lets me ask question about Tim Berglund’s Real-Time Analytics podcast.\nI’m using the Chroma database to store vectors of chunks of the transcript so that I can find appropriate sections to feed to the Large Language Model to help with answering my questions. I ran into an initially perplexing error while building this out, which we’re going to explore in this blog post.",
+        "wordCount":  518 
     }
     </script>
     
@@ -228,8 +228,10 @@ tbody tr pre {margin-bottom: 27px}
     </div>
     <h1 class="post-title">Chroma/LangChain: Index not found, please create an instance before querying</h1>
     <div class="paragraph">
-<p>Somewhat belatedly, I’ve been playing around with <a href="https://github.com/hwchase17/langchain" target="_blank" rel="noopener">LangChain</a> and <a href="https://huggingface.co/" target="_blank" rel="noopener">HuggingFace</a> to spike a tool that lets me ask question about Tim Berglund’s new Real-Time Analytics podcast.
-I’m using the <a href="https://www.trychroma.com/" target="_blank" rel="noopener">Chroma</a> database to store vectors of chunks of the transcript so that I can find appropriate sections to feed to the Large Language Model to help with answering my questions.
+<p>Somewhat belatedly, I’ve been playing around with <a href="https://github.com/hwchase17/langchain" target="_blank" rel="noopener">LangChain</a> and <a href="https://huggingface.co/" target="_blank" rel="noopener">HuggingFace</a> to spike a tool that lets me ask question about <a href="https://podcasts.apple.com/gb/podcast/real-time-analytics-with-tim-berglund/id1680445905" target="_blank" rel="noopener">Tim Berglund’s Real-Time Analytics podcast</a>.</p>
+</div>
+<div class="paragraph">
+<p>I’m using the <a href="https://www.trychroma.com/" target="_blank" rel="noopener">Chroma</a> database to store vectors of chunks of the transcript so that I can find appropriate sections to feed to the Large Language Model to help with answering my questions.
 I ran into an initially perplexing error while building this out, which we’re going to explore in this blog post.</p>
 </div>
 <div class="paragraph">
@@ -311,9 +313,8 @@ Let’s fix that:</p>
 <pre class="highlight"><code class="language-python" data-lang="python">hf_embeddings = HuggingFaceEmbeddings(model_name=&#39;sentence-transformers/all-MiniLM-L6-v2&#39;)
 store = Chroma(collection_name=&#34;transcript&#34;, persist_directory=&#34;db&#34;, embedding_function=hf_embeddings)
 
-print(
-    store.similarity_search(&#34;Who is Anna McDonald?&#34;, top_n=2)
-)</code></pre>
+for row in store.similarity_search(&#34;Who is Anna McDonald?&#34;, top_n=2):
+  print(row)</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -322,7 +323,13 @@ print(
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">[Document(page_content=&#34;- Yeah, and you&#39;re great at explaining it. So, if you wanna know who Anna is, and you wanna know the\nbasics of Kafka Streams... Back to that episode. I&#39;ll just say you are a Customer\nSuccess Technical Architect at Confluent. - Almost got it this time.&#34;, metadata={&#39;source&#39;: &#39;nCLN15W_WOc&#39;}), Document(page_content=&#39;- Anna McDonald is a world-class,\nno universe-class expert in Kafka, and in\nparticular, Kafka Streams. Kafka Streams is an important\npart of the ecosystem and I wanted her to give us\nan introduction to the topic. Good, solid foundation in Kafka\nStreams on&#39;, metadata={&#39;source&#39;: &#39;K14Kn0D-I4Y&#39;}), Document(page_content=&#34;and I&#39;m joined here today\nby my friend, Anna McDonald. Anna is a customer success\ntechnical architect at Confluent. - Bravo (clapping) - I got it. Better known as the Duchess of Siesta. Anna, welcome to the\nReal-Time Analytics Podcast. - Thank you very&#34;, metadata={&#39;source&#39;: &#39;K14Kn0D-I4Y&#39;}), Document(page_content=&#34;- What up? - My guest today- - I learned how to book a... Oh, sorry, I was just gonna say, I learned how to book a\nconference room sort of today, so I can do these. - So now we can do it more. - That&#39;s right. - My guest today has been Anna McDonald. Anna,&#34;, metadata={&#39;source&#39;: &#39;nCLN15W_WOc&#39;})]</code></pre>
+<pre class="highlight"><code class="language-text" data-lang="text">page_content=&#34;- Yeah, and you&#39;re great at explaining it. So, if you wanna know who Anna is, and you wanna know the\nbasics of Kafka Streams... Back to that episode. I&#39;ll just say you are a Customer\nSuccess Technical Architect at Confluent. - Almost got it this time.&#34; metadata={&#39;source&#39;: &#39;nCLN15W_WOc&#39;}
+
+page_content=&#39;- Anna McDonald is a world-class,\nno universe-class expert in Kafka, and in\nparticular, Kafka Streams. Kafka Streams is an important\npart of the ecosystem and I wanted her to give us\nan introduction to the topic. Good, solid foundation in Kafka\nStreams on&#39; metadata={&#39;source&#39;: &#39;K14Kn0D-I4Y&#39;}
+
+page_content=&#34;and I&#39;m joined here today\nby my friend, Anna McDonald. Anna is a customer success\ntechnical architect at Confluent. - Bravo (clapping) - I got it. Better known as the Duchess of Siesta. Anna, welcome to the\nReal-Time Analytics Podcast. - Thank you very&#34; metadata={&#39;source&#39;: &#39;K14Kn0D-I4Y&#39;}
+
+page_content=&#34;- What up? - My guest today- - I learned how to book a... Oh, sorry, I was just gonna say, I learned how to book a\nconference room sort of today, so I can do these. - So now we can do it more. - That&#39;s right. - My guest today has been Anna McDonald. Anna,&#34; metadata={&#39;source&#39;: &#39;nCLN15W_WOc&#39;}</code></pre>
 </div>
 </div>
 
@@ -359,7 +366,7 @@ print(
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2023/06/21/chroma-index-not-found-create-instance-querying/&amp;title=Chroma%2fLangChain%3a%20Index%20not%20found%2c%20please%20create%20an%20instance%20before%20querying&amp;summary=Somewhat%20belatedly%2c%20I%e2%80%99ve%20been%20playing%20around%20with%20LangChain%20and%20HuggingFace%20to%20spike%20a%20tool%20that%20lets%20me%20ask%20question%20about%20Tim%20Berglund%e2%80%99s%20new%20Real-Time%20Analytics%20podcast.%20I%e2%80%99m%20using%20the%20Chroma%20database%20to%20store%20vectors%20of%20chunks%20of%20the%20transcript%20so%20that%20I%20can%20find%20appropriate%20sections%20to%20feed%20to%20the%20Large%20Language%20Model%20to%20help%20with%20answering%20my%20questions.%20I%20ran%20into%20an%20initially%20perplexing%20error%20while%20building%20this%20out%2c%20which%20we%e2%80%99re%20going%20to%20explore%20in%20this%20blog%20post...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2023/06/21/chroma-index-not-found-create-instance-querying/&amp;title=Chroma%2fLangChain%3a%20Index%20not%20found%2c%20please%20create%20an%20instance%20before%20querying&amp;summary=Somewhat%20belatedly%2c%20I%e2%80%99ve%20been%20playing%20around%20with%20LangChain%20and%20HuggingFace%20to%20spike%20a%20tool%20that%20lets%20me%20ask%20question%20about%20Tim%20Berglund%e2%80%99s%20Real-Time%20Analytics%20podcast.%0aI%e2%80%99m%20using%20the%20Chroma%20database%20to%20store%20vectors%20of%20chunks%20of%20the%20transcript%20so%20that%20I%20can%20find%20appropriate%20sections%20to%20feed%20to%20the%20Large%20Language%20Model%20to%20help%20with%20answering%20my%20questions.%20I%20ran%20into%20an%20initially%20perplexing%20error%20while%20building%20this%20out%2c%20which%20we%e2%80%99re%20going%20to%20explore%20in%20this%20blog%20post...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
