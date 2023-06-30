@@ -72,7 +72,7 @@
         },
         "datePublished": "2022-11-18",
         "description": "I recently wrote a post on the StarTre blog describing the inserts from SQL feature that was added in Apache Pinot 0.11, and while writing it I came across some interesting exceptions due to configuration mistakes I’d made. In this post we’re going to describe one of those exceptions.\nTo recap, I was trying to ingest a bunch of JSON files from an S3 bucket using the following SQL query:",
-        "wordCount":  181 
+        "wordCount":  281 
     }
     </script>
     
@@ -320,6 +320,40 @@ OPTION(
 <div class="paragraph">
 <p>My mistake here was that I <strong>didn’t have a minion</strong> in the cluster.
 The ingestion job is run by the minion component, so without one of those this feature doesn’t work!</p>
+</div>
+<div class="sect1">
+<h2 id="_an_update_30th_june_2023">An update (30th June 2023)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Today I learned that you can get this error even if you do have a minion configured.
+The scenario that results in this error is if no files are found for ingestion.</p>
+</div>
+<div class="paragraph">
+<p>This might happen if you have an invalid glob expression in the <code>includeFileNamePattern</code>:
+For example, the following throws the exception:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SET taskName = &#39;events-task7&#39;;
+SET input.fs.className = &#39;org.apache.pinot.spi.filesystem.LocalPinotFS&#39;;
+SET includeFileNamePattern=&#39;glob:customers.csv&#39;;
+INSERT INTO customers
+FROM FILE &#39;file:///input/&#39;;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can fix the query by adding <code>**/</code> at the beginning:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-sql" data-lang="sql">SET taskName = &#39;events-task7&#39;;
+SET input.fs.className = &#39;org.apache.pinot.spi.filesystem.LocalPinotFS&#39;;
+SET includeFileNamePattern=&#39;glob:**/customers.csv&#39;;
+INSERT INTO customers
+FROM FILE &#39;file:///input/&#39;;</code></pre>
+</div>
+</div>
+</div>
 </div>
 
     <div id="social-bar">
