@@ -74,8 +74,8 @@
             "name": "http://profiles.google.com/100354797468725665406?rel=author"
         },
         "datePublished": "2023-06-23",
-        "description": "I’ve been playing around with a bunch of Large Language Models (LLMs) on Hugging Face and while the free inference API is cool, it can sometimes be busy, so I wanted to learn how to run the models locally. That’s what we’ll be doing in this blog post.\nYou’ll need to install the following libraries if you want to follow along:\npip install langchain[all] huggingface-hub langchain transformers The first step is to choose a model that you want to download.",
-        "wordCount":  680 
+        "description": "I’ve been playing around with a bunch of Large Language Models (LLMs) on Hugging Face and while the free inference API is cool, it can sometimes be busy, so I wanted to learn how to run the models locally. That’s what we’ll be doing in this blog post.\nYou’ll need to install the following libraries if you want to follow along:\npip install \u0026#39;langchain[llms]\u0026#39; huggingface-hub langchain transformers The first step is to choose a model that you want to download.",
+        "wordCount":  744 
     }
     </script>
     
@@ -352,13 +352,16 @@ That’s what we’ll be doing in this blog post.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">pip install langchain[all] huggingface-hub langchain transformers</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">pip install &#39;langchain[llms]&#39; huggingface-hub langchain transformers</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>The first step is to choose a model that you want to download.
 I quite like <a href="https://huggingface.co/lmsys/fastchat-t5-3b-v1.0">lmsys/fastchat-t5-3b-v1.06</a> so we’re gonna use that one for the rest of the post.</p>
 </div>
+<div class="sect1">
+<h2 id="_downloading_the_llm">Downloading the LLM</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>We can <a href="https://stackoverflow.com/questions/67595500/how-to-download-model-from-huggingface" target="_blank" rel="noopener">download a model</a> by running the following code:</p>
 </div>
@@ -369,13 +372,20 @@ I quite like <a href="https://huggingface.co/lmsys/fastchat-t5-3b-v1.0">lmsys/fa
 HUGGING_FACE_API_KEY = &#34;&lt;hugging-face-api-key-goes-here&gt;&#34;
 
 # Replace this if you want to use a different model
-model_id, filename = (&#34;lmsys/fastchat-t5-3b-v1.0&#34;, &#34;pytorch_model.bin&#34;) <i class="conum" data-value="1"></i><b>(1)</b>
+model_id = &#34;lmsys/fastchat-t5-3b-v1.0&#34;
+filenames = [ <i class="conum" data-value="1"></i><b>(1)</b>
+    &#34;pytorch_model.bin&#34;, &#34;added_tokens.json&#34;, &#34;config.json&#34;, &#34;generation_config.json&#34;,
+    &#34;special_tokens_map.json&#34;, &#34;spiece.model&#34;, &#34;tokenizer_config.json&#34;
+]
 
-downloaded_model_path = hf_hub_download(
-    repo_id=model_id,
-    filename=filename,
-    token=HUGGING_FACE_API_KEY
-)
+for filename in filenames:
+    downloaded_model_path = hf_hub_download(
+        repo_id=model_id,
+        filename=filename,
+        token=HUGGING_FACE_API_KEY
+    )
+
+    print(downloaded_model_path)
 
 print(downloaded_model_path)</code></pre>
 </div>
@@ -384,7 +394,7 @@ print(downloaded_model_path)</code></pre>
 <table>
 <tbody><tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>I worked out the filename by browsing <a href="https://huggingface.co/lmsys/fastchat-t5-3b-v1.0/tree/main" target="_blank" rel="noopener">Files and versions</a> on the Hugging Face UI.</td>
+<td>I worked out the filenames by browsing <a href="https://huggingface.co/lmsys/fastchat-t5-3b-v1.0/tree/main" target="_blank" rel="noopener">Files and versions</a> on the Hugging Face UI.</td>
 </tr>
 </tbody></table>
 </div>
@@ -396,9 +406,35 @@ In my case it’s the following:</p>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">/Users/markhneedham/.cache/huggingface/hub/models--lmsys--fastchat-t5-3b-v1.0/snapshots/932c4c303f368c4b58489f35aaf62eff9aff2207/pytorch_model.bin</code></pre>
+<pre class="highlight"><code class="language-text" data-lang="text">/Users/markhneedham/.cache/huggingface/hub/models--lmsys--fastchat-t5-3b-v1.0/snapshots/0b1da230a891854102d749b93f7ddf1f18a81024/pytorch_model.bin
+/Users/markhneedham/.cache/huggingface/hub/models--lmsys--fastchat-t5-3b-v1.0/snapshots/0b1da230a891854102d749b93f7ddf1f18a81024/added_tokens.json
+/Users/markhneedham/.cache/huggingface/hub/models--lmsys--fastchat-t5-3b-v1.0/snapshots/0b1da230a891854102d749b93f7ddf1f18a81024/config.json
+/Users/markhneedham/.cache/huggingface/hub/models--lmsys--fastchat-t5-3b-v1.0/snapshots/0b1da230a891854102d749b93f7ddf1f18a81024/generation_config.json
+/Users/markhneedham/.cache/huggingface/hub/models--lmsys--fastchat-t5-3b-v1.0/snapshots/0b1da230a891854102d749b93f7ddf1f18a81024/special_tokens_map.json
+/Users/markhneedham/.cache/huggingface/hub/models--lmsys--fastchat-t5-3b-v1.0/snapshots/0b1da230a891854102d749b93f7ddf1f18a81024/spiece.model
+/Users/markhneedham/.cache/huggingface/hub/models--lmsys--fastchat-t5-3b-v1.0/snapshots/0b1da230a891854102d749b93f7ddf1f18a81024/tokenizer_config.json</code></pre>
 </div>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Any files that you don’t explicitly download like this will be downloaded the first time that you use the model.
+I’m downloading everything separately so that I don’t have to unexpectedly have to wait for things later on!</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_running_the_llm">Running the LLM</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>We’re now going to use the model locally with LangChain so that we can create a repeatable structure around the prompt:</p>
 </div>
@@ -536,6 +572,8 @@ Elapsed time: 13.6518 seconds</code></pre>
 <div class="paragraph">
 <p>Having said that, it is pretty cool to be able to run this type of thing on your own machine and I think it could certainly be useful if you want to ask questions about your own documents that you don’t want to send over the internet.</p>
 </div>
+</div>
+</div>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -570,7 +608,7 @@ Elapsed time: 13.6518 seconds</code></pre>
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2023/06/23/hugging-face-run-llm-model-locally-laptop/&amp;title=Running%20a%20Hugging%20Face%20Large%20Language%20Model%20%28LLM%29%20locally%20on%20my%20laptop&amp;summary=I%e2%80%99ve%20been%20playing%20around%20with%20a%20bunch%20of%20Large%20Language%20Models%20%28LLMs%29%20on%20Hugging%20Face%20and%20while%20the%20free%20inference%20API%20is%20cool%2c%20it%20can%20sometimes%20be%20busy%2c%20so%20I%20wanted%20to%20learn%20how%20to%20run%20the%20models%20locally.%20That%e2%80%99s%20what%20we%e2%80%99ll%20be%20doing%20in%20this%20blog%20post.%0aYou%e2%80%99ll%20need%20to%20install%20the%20following%20libraries%20if%20you%20want%20to%20follow%20along%3a%0apip%20install%20langchain%5ball%5d%20huggingface-hub%20langchain%20transformers%20The%20first%20step%20is%20to%20choose%20a%20model%20that%20you%20want%20to%20download...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2023/06/23/hugging-face-run-llm-model-locally-laptop/&amp;title=Running%20a%20Hugging%20Face%20Large%20Language%20Model%20%28LLM%29%20locally%20on%20my%20laptop&amp;summary=I%e2%80%99ve%20been%20playing%20around%20with%20a%20bunch%20of%20Large%20Language%20Models%20%28LLMs%29%20on%20Hugging%20Face%20and%20while%20the%20free%20inference%20API%20is%20cool%2c%20it%20can%20sometimes%20be%20busy%2c%20so%20I%20wanted%20to%20learn%20how%20to%20run%20the%20models%20locally.%20That%e2%80%99s%20what%20we%e2%80%99ll%20be%20doing%20in%20this%20blog%20post.%0aYou%e2%80%99ll%20need%20to%20install%20the%20following%20libraries%20if%20you%20want%20to%20follow%20along%3a%0apip%20install%20%26%2339%3blangchain%5bllms%5d%26%2339%3b%20huggingface-hub%20langchain%20transformers%20The%20first%20step%20is%20to%20choose%20a%20model%20that%20you%20want%20to%20download...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
