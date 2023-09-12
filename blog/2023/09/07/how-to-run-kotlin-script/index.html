@@ -73,7 +73,7 @@
         },
         "datePublished": "2023-09-07",
         "description": "I was recently helping Tim get a Pinot data-loading Kotlin script working and it took me a while to figure out the best way to run it. In this blog post, I’ll share the solution we came up with.\nBut first things first, we need to install Kotlin if it’s not already installed. I used a library called SDKMAN6 for all things JVM, so I’m gonna run the following command:",
-        "wordCount":  209 
+        "wordCount":  199 
     }
     </script>
     
@@ -363,19 +363,13 @@ I used a library called <a href="https://sdkman.io/">SDKMAN6</a> for all things 
 Our script prints out a JSON document representing a person:</p>
 </div>
 <div class="listingblock">
+<div class="title">script.kts</div>
 <div class="content">
-<pre>.script.kts
-[source, kotlin]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>@file:DependsOn(&#34;com.google.code.gson:gson:2.8.6&#34;) // &lt;.&gt;</p>
-</div>
-<div class="paragraph">
-<p>import com.google.gson.Gson</p>
-</div>
-<div class="paragraph">
-<p>data class Person(val name: String)
+<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">@file:DependsOn(&#34;com.google.code.gson:gson:2.8.6&#34;) // <b class="conum">(1)</b>
+
+import com.google.gson.Gson
+
+data class Person(val name: String)
 class Blog {
     companion object {
         @JvmStatic
@@ -385,55 +379,53 @@ class Blog {
             )
         }
     }
-}</p>
-</div>
-<div class="paragraph">
-<p>println(&#34;Script started&#34;)
+}
+
+println(&#34;Script started&#34;)
 println(&#34;Before main function call&#34;)
-Blog.main(arrayOf()) // &lt;.&gt;
-println(&#34;After main function call&#34;)</p>
+Blog.main(arrayOf()) // <b class="conum">(2)</b>
+println(&#34;After main function call&#34;)</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Install GSON as a dependency</p>
+</li>
+<li>
+<p>Run the <code>Blog</code> main class</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>After trying a few different approaches, I came <a href="https://github.com/kscripting/kscript" target="_blank" rel="noopener">kscript</a>, a wrapper around <code>kotlinc</code> that takes care of compilation and dependency management for us.
+We can install it like this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>&lt;.&gt; Install GSON as a dependency
-&lt;.&gt; Run the `Blog` main class
-
-After trying a few different approaches, I came https://github.com/kscripting/kscript[kscript^], a wrapper around `kotlinc` that takes care of compilation and dependency management for us.
-We can install it like this:
-
-[source, bash]</pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">sdk install kscript</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>sdk install kscript</p>
+<p>And then run our script:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>And then run our script:
-
-[source, bash]</pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">kscript script.kts</code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>kscript script.kts</p>
 </div>
 <div class="listingblock">
+<div class="title">Output</div>
 <div class="content">
-<pre>.Output
-[source, text]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>[kscript] Resolving com.google.code.gson:gson:2.8.6…​
+<pre class="highlight"><code class="language-text" data-lang="text">[kscript] Resolving com.google.code.gson:gson:2.8.6...
 Script started
 Before main function call
 {&#34;name&#34;:&#34;Mark Needham&#34;}
-After main function call</p>
+After main function call</code></pre>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre>And that&#39;s it!</pre>
 </div>
+<div class="paragraph">
+<p>And that’s it!</p>
 </div>
 
     <div id="social-bar">
