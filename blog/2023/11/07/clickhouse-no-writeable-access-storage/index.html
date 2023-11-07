@@ -73,7 +73,7 @@
         },
         "datePublished": "2023-11-06",
         "description": "I’ve been working with ClickHouse’s access control\/account management as part of a video that I created showing how to login to a ClickHouse server with an SSH key, but getting it all setup locally was a bit fiddly. In this blog post, we’ll go through the mistakes I made and how to fix them.\nI initially tried starting the ClickHouse server:\n.\/clickhouse server Connecting to it with a client:",
-        "wordCount":  359 
+        "wordCount":  366 
     }
     </script>
     
@@ -411,13 +411,32 @@ It turns out that we need to put those values in config files under the <code>co
 <div class="listingblock">
 <div class="title">config.d/folders.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">Unresolved directive in &lt;stdin&gt; - include::content/2023/11/07/server/folders.xml[]</code></pre>
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;clickhouse&gt;
+        &lt;access_control_path&gt;my_access_folder&lt;/access_control_path&gt;
+&lt;/clickhouse&gt;</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">config.d/users.xml</div>
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">Unresolved directive in &lt;stdin&gt; - include::content/2023/11/07/server/users.xml[]</code></pre>
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;clickhouse&gt;
+  &lt;users&gt;
+        &lt;default&gt;
+            &lt;password/&gt;
+
+            &lt;networks&gt;
+                &lt;ip&gt;::/0&lt;/ip&gt;
+            &lt;/networks&gt;
+
+            &lt;profile&gt;default&lt;/profile&gt;
+            &lt;quota&gt;default&lt;/quota&gt;
+            &lt;access_management&gt;1&lt;/access_management&gt;
+			&lt;named_collection_control&gt;1&lt;/named_collection_control&gt;
+			&lt;show_named_collections&gt;1&lt;/show_named_collections&gt;
+			&lt;show_named_collections_secrets&gt;1&lt;/show_named_collections_secrets&gt;
+        &lt;/default&gt;
+    &lt;/users&gt;
+&lt;/clickhouse&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
