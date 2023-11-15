@@ -16,6 +16,7 @@
         <meta property="og:type" content="article" />
         <meta property="og:article:published_time" content="2023-11-15T00:44:37Z" />
         <meta property="og:article:tag" content="clickhouse" />
+        <meta property="og:article:tag" content="parquet" />
         <meta property="og:article:tag" content="til" />
         
 
@@ -73,7 +74,7 @@
         },
         "datePublished": "2023-11-15",
         "description": "I’m an avid reader of Simon Willison’s TIL blog and enjoyed a recent post showing how to sum the size of all the Midjourney images stored on Discord. He did this by querying a bunch of Parquet files stored on Hugging Face with DuckDB. I was curious whether I could do the same thing using ClickHouse and in this blog post, we’re going to find out.\nThe dataset that we’re going to use is available at vivym\/midjourney-messages.",
-        "wordCount":  561 
+        "wordCount":  575 
     }
     </script>
     
@@ -339,6 +340,8 @@ tbody tr pre {margin-bottom: 27px}
         
             <a href="https://www.markhneedham.com/blog/tag/clickhouse/">clickhouse</a>
         
+            <a href="https://www.markhneedham.com/blog/tag/parquet/">parquet</a>
+        
             <a href="https://www.markhneedham.com/blog/tag/til/">til</a>
         
         
@@ -352,7 +355,8 @@ I was curious whether I could do the same thing using ClickHouse and in this blo
 </div>
 <div class="paragraph">
 <p>The dataset that we’re going to use is available at <a href="https://huggingface.co/datasets/vivym/midjourney-messages" target="_blank" rel="noopener">vivym/midjourney-messages</a>.
-It contains just over 55 million records spread over 56 Parquet files.</p>
+It contains just over 55 million records spread over 56 Parquet files.
+They’re a little over 150 MB each, for a total of around 8 GB.</p>
 </div>
 <div class="paragraph">
 <p>The files have the following structure:</p>
@@ -390,7 +394,7 @@ https://huggingface.co/datasets/vivym/midjourney-messages/resolve/main/data/0000
 <h2 id="_querying_one_file">Querying one file</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We’ll start by getting a row of one of the files, formatting at JSON.</p>
+<p>We’ll start by getting a row of one of the files, formatting as JSON.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -430,7 +434,7 @@ SETTINGS max_http_get_redirects=1;</code></pre>
 </div>
 <div class="paragraph">
 <p>That took a few seconds and I expect that it pulled down the whole file before selecting the first row.
-Let’s configure nettop, as described in Simon’s post, and then run the query again:</p>
+Let’s configure <code>nettop</code>, as described in Simon’s post, and then run the query again:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -453,7 +457,7 @@ clickhouse.70254    152 MiB</code></pre>
 <h2 id="_summing_the_size_of_one_file">Summing the size of one file</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Let’s now see what happens if we sum the <code>size</code> column, like Simon did in his post:</p>
+<p>Let’s now see what happens if we sum the <code>size</code> column, as Simon did in his post:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -474,7 +478,7 @@ SETTINGS max_http_get_redirects=1;</code></pre>
 </div>
 <div class="paragraph">
 <p>Just over 3 TB for the first file.
-And this is the nettop output:</p>
+And this is the <code>nettop</code> output:</p>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
@@ -518,7 +522,7 @@ Peak memory usage: 896.00 B.</code></pre>
 </div>
 <div class="paragraph">
 <p>It’s kinda insane that Midjourney has created 148 TB of image files!
-And what does nettop have to say?</p>
+And what does <code>nettop</code> have to say?</p>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
