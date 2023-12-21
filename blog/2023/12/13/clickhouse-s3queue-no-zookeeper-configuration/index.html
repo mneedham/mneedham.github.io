@@ -73,7 +73,7 @@
         },
         "datePublished": "2023-12-13",
         "description": "This week I’ve been making a video showing how to use ClickHouse’s S3Queue table engine, which allows streaming import of files in an S3 bucket. The S3Queue table engine was released in version 23.8, but only received \u0026#39;production-ready\u0026#39; status in version 23.11. In this blog post, we’ll walk through the steps to getting this to work locally and the mistakes that I made along the way.\nI configured an S3 bucket, added 10 files containing 100,000 rows of JSON each, and made sure that I’d set the AWS_PROFILE environment variable so that ClickHouse Server could read from the bucket.",
-        "wordCount":  628 
+        "wordCount":  630 
     }
     </script>
     
@@ -410,7 +410,7 @@ ClickHouse Server uses ClickHouse Keeper to keep track of the files that have al
 So to enable ClickHouse Keeper, we will add the following config:</p>
 </div>
 <div class="listingblock">
-<div class="title">\.config.d/config.yaml</div>
+<div class="title">.config.d/config.yaml</div>
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">keeper_server:
     tcp_port: 2181
@@ -499,10 +499,17 @@ The default values of <code>min_insert_block_size_rows</code> and <code>min_inse
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">┌─name────────────────────────┬─type───┬─value─────┐
-│ min_insert_block_size_bytes │ UInt64 │ 268402944 │
-│ min_insert_block_size_rows  │ UInt64 │ 1048449   │
-└─────────────────────────────┴────────┴───────────┘</code></pre>
+<pre class="highlight"><code class="language-text" data-lang="text">Row 1:
+──────
+name:  min_insert_block_size_bytes
+type:  UInt64
+value: 268402944
+
+Row 2:
+──────
+name:  min_insert_block_size_rows
+type:  UInt64
+value: 1048449</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -511,7 +518,7 @@ We can, however, configure this property at the server level, the same way that 
 I added the following config file and restarted ClickHouse Server:</p>
 </div>
 <div class="listingblock yaml">
-<div class="title">\.config.d/profiles.yaml</div>
+<div class="title">.config.d/profiles.yaml</div>
 <div class="content">
 <pre class="highlight"><code>profiles:
   default:
