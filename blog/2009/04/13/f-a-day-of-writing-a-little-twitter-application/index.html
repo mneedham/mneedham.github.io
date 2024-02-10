@@ -69,7 +69,7 @@ I’m sure someone has done this already but it seemed like a good opportunity t
         },
         "datePublished": "2009-04-13",
         "description": "I spent most of the bank holiday Monday here in Sydney writing a little application to scan through my twitter feed and find me just the tweets which have links in them since for me that’s where a lot of the value of twitter lies.\nI’m sure someone has done this already but it seemed like a good opportunity to try and put a little of the F# that I’ve learned from reading Real World Functional Programming to use.",
-        "wordCount":  1053 
+        "wordCount":  1049 
     }
     </script>
     
@@ -396,16 +396,26 @@ h2 code {
  <strong> The <strong>code doesn’t feel that expressive to me</strong> - I was debating whether or not I should have passed a type into the &#39;findLinks&#39; function - right now it’s only possible to tell what each part of the tuple means by reading the pattern matching code which feels wrong. I think there may also be some opportunities to use the <a href="http://www.markhneedham.com/blog/2009/01/12/f-partial-function-application-with-the-function-composition-operator/">function composition operator</a> but I couldn’t quite see where.
  </strong> <strong>How much context should we put in the names of functions?</strong> Most of my programming has been in OO languages where whenever we have a method its context is defined by the object on which it resides. When naming functions such as &#39;findOldestStatus&#39; and &#39;oldestStatusId&#39; I wasn’t sure whether or not I was putting too much context into the function name. I took the alternative approach with the &#39;withLinks&#39; function since I think it reads more clearly like that when it’s actually used.</p>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><sub>~</sub>ocaml #light open Dimebrain.TweetSharp.Fluent open Dimebrain.TweetSharp.Extensions open Dimebrain.TweetSharp.Model open Microsoft.FSharp.Core.Operators let getStatusesBefore (statusId:int64) = FluentTwitter .CreateRequest() .AuthenticateAs(&#34;userName&#34;, &#34;password&#34;) .Statuses() .OnFriendsTimeline() .Before(statusId) .AsJson() .Request() .AsStatuses() let withLinks (statuses:seq<dimebrain.tweetsharp.model.twitterstatus>) = statuses |&gt; Seq.filter (fun eachStatus -&gt; eachStatus.Text.Contains(&#34;http&#34;)) let print (statuses:seq<dimebrain.tweetsharp.model.twitterstatus>) = for status in statuses do printfn &#34;[%s] %s&#34; status.User.ScreenName status.Text let getLatestStatuses = FluentTwitter .CreateRequest() .AuthenticateAs(&#34;userName&#34;, &#34;password&#34;) .Statuses() .OnFriendsTimeline() .AsJson() .Request() .AsStatuses() let findOldestStatus (statuses:seq<dimebrain.tweetsharp.model.twitterstatus>) = statuses |&gt; Seq.sort_by (fun eachStatus -&gt; eachStatus.Id) |&gt; Seq.hd let oldestStatusId = (getLatestStatuses |&gt; findOldestStatus).Id let rec findLinks (args:int64 * int * int) = match args with | (_, numberProcessed, recordsToSearch) when numberProcessed &gt;= recordsToSearch -&gt; ignore | (0L, numberProcessed, recordsToSearch) -&gt; let latestStatuses = getLatestStatuses (latestStatuses |&gt; withLinks) |&gt; print findLinks(findOldestStatus(latestStatuses).Id, numberProcessed + 20, recordsToSearch) | (lastId, numberProcessed, recordsToSearch) -&gt; let latestStatuses = getStatusesBefore lastId (latestStatuses |&gt; withLinks) |&gt; print findLinks(findOldestStatus(latestStatuses).Id, numberProcessed + 20, recordsToSearch) let findStatusesWithLinks recordsToSearch = findLinks(0L, 0, recordsToSearch) |&gt; ignore <sub>~</sub> And to use it to find the links contained in the most recent 100 statuses of the people I follow: <sub>~</sub>text findStatusesWithLinks 100</dimebrain.tweetsharp.model.twitterstatus></dimebrain.tweetsharp.model.twitterstatus></dimebrain.tweetsharp.model.twitterstatus></dt>
-<dd>
-<p><sub>~</sub> Any advice on how to improve this will be gratefully received. I’m going to continue working this into a little DSL which can print me up a nice summary of the links that have been posted during the times that I’m not on twitter watching what’s going on.</p>
-</dd>
-</dl>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">#light open Dimebrain.TweetSharp.Fluent open Dimebrain.TweetSharp.Extensions open Dimebrain.TweetSharp.Model open Microsoft.FSharp.Core.Operators let getStatusesBefore (statusId:int64) = FluentTwitter .CreateRequest() .AuthenticateAs(&#34;userName&#34;, &#34;password&#34;) .Statuses() .OnFriendsTimeline() .Before(statusId) .AsJson() .Request() .AsStatuses() let withLinks (statuses:seq+++&lt;Dimebrain.TweetSharp.Model.TwitterStatus&gt;+++) = statuses |&gt; Seq.filter (fun eachStatus \-&gt; eachStatus.Text.Contains(&#34;http&#34;)) let print (statuses:seq+++&lt;Dimebrain.TweetSharp.Model.TwitterStatus&gt;+++) = for status in statuses do printfn &#34;[%s] %s&#34; status.User.ScreenName status.Text let getLatestStatuses = FluentTwitter .CreateRequest() .AuthenticateAs(&#34;userName&#34;, &#34;password&#34;) .Statuses() .OnFriendsTimeline() .AsJson() .Request() .AsStatuses() let findOldestStatus (statuses:seq+++&lt;Dimebrain.TweetSharp.Model.TwitterStatus&gt;+++) = statuses |&gt; Seq.sort_by (fun eachStatus \-&gt; eachStatus.Id) |&gt; Seq.hd let oldestStatusId = (getLatestStatuses |&gt; findOldestStatus).Id let rec findLinks (args:int64 * int * int) = match args with | (_, numberProcessed, recordsToSearch) when numberProcessed &gt;= recordsToSearch \-&gt; ignore | (0L, numberProcessed, recordsToSearch) \-&gt; let latestStatuses = getLatestStatuses (latestStatuses |&gt; withLinks) |&gt; print findLinks(findOldestStatus(latestStatuses).Id, numberProcessed + 20, recordsToSearch) | (lastId, numberProcessed, recordsToSearch) \-&gt; let latestStatuses = getStatusesBefore lastId (latestStatuses |&gt; withLinks) |&gt; print findLinks(findOldestStatus(latestStatuses).Id, numberProcessed + 20, recordsToSearch) let findStatusesWithLinks recordsToSearch = findLinks(0L, 0, recordsToSearch) |&gt; ignore</code></pre>
+</div>
 </div>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>And to use it to find the links contained in the most recent 100 statuses of the people I follow:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">findStatusesWithLinks 100;;</code></pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Any advice on how to improve this will be gratefully received. I&#39;m going to continue working this into a little DSL which can print me up a nice summary of the links that have been posted during the times that I&#39;m not on twitter watching what&#39;s going on.</pre>
+</div>
 </div>
 </div>
 </div>
