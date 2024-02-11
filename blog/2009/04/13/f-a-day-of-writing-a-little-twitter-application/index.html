@@ -69,7 +69,7 @@ I’m sure someone has done this already but it seemed like a good opportunity t
         },
         "datePublished": "2009-04-13",
         "description": "I spent most of the bank holiday Monday here in Sydney writing a little application to scan through my twitter feed and find me just the tweets which have links in them since for me that’s where a lot of the value of twitter lies.\nI’m sure someone has done this already but it seemed like a good opportunity to try and put a little of the F# that I’ve learned from reading Real World Functional Programming to use.",
-        "wordCount":  1049 
+        "wordCount":  1133 
     }
     </script>
     
@@ -398,7 +398,67 @@ h2 code {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">#light open Dimebrain.TweetSharp.Fluent open Dimebrain.TweetSharp.Extensions open Dimebrain.TweetSharp.Model open Microsoft.FSharp.Core.Operators let getStatusesBefore (statusId:int64) = FluentTwitter .CreateRequest() .AuthenticateAs(&#34;userName&#34;, &#34;password&#34;) .Statuses() .OnFriendsTimeline() .Before(statusId) .AsJson() .Request() .AsStatuses() let withLinks (statuses:seq+++&lt;Dimebrain.TweetSharp.Model.TwitterStatus&gt;+++) = statuses |&gt; Seq.filter (fun eachStatus \-&gt; eachStatus.Text.Contains(&#34;http&#34;)) let print (statuses:seq+++&lt;Dimebrain.TweetSharp.Model.TwitterStatus&gt;+++) = for status in statuses do printfn &#34;[%s] %s&#34; status.User.ScreenName status.Text let getLatestStatuses = FluentTwitter .CreateRequest() .AuthenticateAs(&#34;userName&#34;, &#34;password&#34;) .Statuses() .OnFriendsTimeline() .AsJson() .Request() .AsStatuses() let findOldestStatus (statuses:seq+++&lt;Dimebrain.TweetSharp.Model.TwitterStatus&gt;+++) = statuses |&gt; Seq.sort_by (fun eachStatus \-&gt; eachStatus.Id) |&gt; Seq.hd let oldestStatusId = (getLatestStatuses |&gt; findOldestStatus).Id let rec findLinks (args:int64 * int * int) = match args with | (_, numberProcessed, recordsToSearch) when numberProcessed &gt;= recordsToSearch \-&gt; ignore | (0L, numberProcessed, recordsToSearch) \-&gt; let latestStatuses = getLatestStatuses (latestStatuses |&gt; withLinks) |&gt; print findLinks(findOldestStatus(latestStatuses).Id, numberProcessed + 20, recordsToSearch) | (lastId, numberProcessed, recordsToSearch) \-&gt; let latestStatuses = getStatusesBefore lastId (latestStatuses |&gt; withLinks) |&gt; print findLinks(findOldestStatus(latestStatuses).Id, numberProcessed + 20, recordsToSearch) let findStatusesWithLinks recordsToSearch = findLinks(0L, 0, recordsToSearch) |&gt; ignore</code></pre>
+<pre class="highlight"><code class="language-ocaml" data-lang="ocaml">// Import required namespaces
+open Dimebrain.TweetSharp.Fluent
+open Dimebrain.TweetSharp.Extensions
+open Dimebrain.TweetSharp.Model
+open Microsoft.FSharp.Core.Operators
+
+// Define a function to get statuses before a given status ID
+let getStatusesBefore (statusId: int64) =
+    FluentTwitter.CreateRequest()
+        .AuthenticateAs(&#34;userName&#34;, &#34;password&#34;)
+        .Statuses()
+        .OnFriendsTimeline()
+        .Before(statusId)
+        .AsJson()
+        .Request()
+        .AsStatuses()
+
+// Define a function to filter statuses containing links
+let withLinks (statuses: seq&lt;TwitterStatus&gt;) =
+    statuses |&gt; Seq.filter (fun eachStatus -&gt; eachStatus.Text.Contains(&#34;http&#34;))
+
+// Define a function to print statuses
+let print (statuses: seq&lt;TwitterStatus&gt;) =
+    for status in statuses do
+        printfn &#34;[%s] %s&#34; status.User.ScreenName status.Text
+
+// Define a function to get the latest statuses
+let getLatestStatuses =
+    FluentTwitter.CreateRequest()
+        .AuthenticateAs(&#34;userName&#34;, &#34;password&#34;)
+        .Statuses()
+        .OnFriendsTimeline()
+        .AsJson()
+        .Request()
+        .AsStatuses()
+
+// Define a function to find the oldest status
+let findOldestStatus (statuses: seq&lt;TwitterStatus&gt;) =
+    statuses
+    |&gt; Seq.sort_by (fun eachStatus -&gt; eachStatus.Id)
+    |&gt; Seq.head
+
+// Retrieve the oldest status ID from the latest statuses
+let oldestStatusId = (getLatestStatuses |&gt; findOldestStatus).Id
+
+// Define a recursive function to find statuses with links
+let rec findLinks (args: int64 * int * int) =
+    match args with
+    | (_, numberProcessed, recordsToSearch) when numberProcessed &gt;= recordsToSearch -&gt; ignore
+    | (0L, numberProcessed, recordsToSearch) -&gt;
+        let latestStatuses = getLatestStatuses
+        (latestStatuses |&gt; withLinks) |&gt; print
+        findLinks(findOldestStatus(latestStatuses).Id, numberProcessed + 20, recordsToSearch)
+    | (lastId, numberProcessed, recordsToSearch) -&gt;
+        let latestStatuses = getStatusesBefore lastId
+        (latestStatuses |&gt; withLinks) |&gt; print
+        findLinks(findOldestStatus(latestStatuses).Id, numberProcessed + 20, recordsToSearch)
+
+// Define a function to initiate the search for statuses with links
+let findStatusesWithLinks recordsToSearch =
+    findLinks(0L, 0, recordsToSearch) |&gt; ignore</code></pre>
 </div>
 </div>
 </li>
@@ -412,10 +472,9 @@ h2 code {
 <pre class="highlight"><code class="language-text" data-lang="text">findStatusesWithLinks 100;;</code></pre>
 </div>
 </div>
-<div class="literalblock">
-<div class="content">
-<pre>Any advice on how to improve this will be gratefully received. I&#39;m going to continue working this into a little DSL which can print me up a nice summary of the links that have been posted during the times that I&#39;m not on twitter watching what&#39;s going on.</pre>
-</div>
+<div class="paragraph">
+<p>Any advice on how to improve this will be gratefully received.
+I’m going to continue working this into a little DSL which can print me up a nice summary of the links that have been posted during the times that I’m not on twitter watching what’s going on.</p>
 </div>
 </div>
 </div>
