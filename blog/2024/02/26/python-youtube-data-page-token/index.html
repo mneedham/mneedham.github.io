@@ -74,7 +74,7 @@
         },
         "datePublished": "2024-02-26",
         "description": "I’ve been playing around with the YouTube API to analyse comments on YouTube videos and needed to use pagination to get all the comments. In this blog post, we’ll learn how to do that.\nBut before we do anything, you’ll need to go to console.developers.google.com, create a project and enable YouTube Data API v3.\nFigure 1. YouTube Data API Once you’ve done that, create an API key.\nFigure 2. Creating an API key Create an environment variable that contains your API key:",
-        "wordCount":  884 
+        "wordCount":  1368 
     }
     </script>
     
@@ -524,16 +524,12 @@ It’s probably best to create a function to handle the paging for us and return
 <pre class="highlight"><code class="language-python" data-lang="python">def get_all_comment_threads(api, video_id, per_page=10):
     threads = []
     token = None
-    keep_going = True
-    while keep_going:
-        ct_by_video = api.get_comment_threads(
-            video_id=video_id,
-            count=per_page,
-            page_token=token
-        )
-        threads.append(ct_by_video)
-        token = ct_by_video.nextPageToken
-        keep_going = token is not None
+    while True:
+        response = api.get_comment_threads(video_id=video_id, count=per_page, page_token=token)
+        threads.append(response)
+        token = response.nextPageToken
+        if not token:
+            break
     return threads</code></pre>
 </div>
 </div>
@@ -591,13 +587,27 @@ all_comments = [
     for t in threads for  item in t.items
 ]
 
-len(all_comments)</code></pre>
+len(all_comments), all_comments[:10]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Output</div>
 <div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">356</code></pre>
+<pre class="highlight"><code class="language-text" data-lang="text">(
+    356,
+    [
+        &#39;Will OpenAI or NVIDIA reach AGI first?&#39;,
+        &#39;your current testing is very weak, you should improve your methods and keep evolving your methods as tooling improve, e.g. tests requiring some graphics like &amp;quot;write the formula for the Möbius strip and draw it&amp;quot; (ParametricPlot3D[{Cos[t] + s Sin[t/2] Cos[t], Sin[t] + s Sin[t/2] Sin[t], s Cos[t/2]}, {t, 0, 2 Pi}, {s, -0.5, 0.5}, Mesh -&amp;gt; None, PlotStyle -&amp;gt; Directive[Opacity[0.6], Blue], Axes -&amp;gt; False]&lt;br&gt;). i am willing to bet that traditional interfaces are not going anywhere, though they change form somewhat, peoples need to be able to get their hands on a project, a pocket computer is not a desktop computer, they serve very different purposes for most people. Also i am willing to bet that neural link will fail, i am seriously persuaded the technology will become very unpopular.&#39;,
+        &#39;your title devalues the content, seriously mate, all you AI guys have got to stop saying &amp;#39;shocked&amp;#39;, &amp;#39;stunned&amp;#39;, speechless bs, no informed person is shocked stunned or speechless about this exponential progress, you;re making you vids look like a late night infomercial.  be serious, these are serious times&#39;,
+        &#39;nV is a piece of sh company stealing ideas, code and work since day 0. AI is a joke without army of engineers babysitting the models&lt;br&gt;prophecy says without opensourcing everything all code, apps and hardware will die&#39;,
+        &#39;Why do you and Wes Roth produce the exact same thumbnails with the exact same &amp;quot;SHOCKS THE INDUSTRY&amp;quot; titles in every single video you release?&lt;br&gt;You guys both produce stellar content, but i&amp;#39;m so utterly tired of seeing the exact same over-hyping clickbait titles in every single video either of you post (and its strange they&amp;#39;re all so identical).&lt;br&gt;Yes, AI developments are astonishing, and worthy of hype. But can we please tone down the nonstop identical titles and focus on the news?&#39;,
+        &#39;I think the issue with context window is caused by having a tldr/summary at the end, as well as an introduction giving context&#39;,
+        &#39;I think it&amp;#39;s perfectly feasible that LLMs take us all the way to AGI. There are better architectures we explore after we get there (human brain, proof by existence), which will likely push us into ASI fairly quickly after that.&#39;,
+        &#39;Our brains learn more with little data because they are already the trained foundation model, evolved by natural selection -- trained on billions/trillions of iterations of real world physical data (that didn&amp;#39;t have to be simulated).&#39;,
+        &#39;That&amp;#39;s not AI, that&amp;#39;s crap. Human brain consumes only 100W of power at peak, learns instantly, doesn&amp;#39;t need a billion-dollar worth supercomputer to work, doesn&amp;#39;t require a team of scientists to be trained, doesn&amp;#39;t need a team of low-paid monkeys to correct its errors and jury-rig the results to fit them to the task. And it almost fits in your pocket.&#39;,
+        &#39;I think you should have mentioned where Gemini has gone off the rails and erased history. This is why we need open source.&#39;
+    ]
+)</code></pre>
 </div>
 </div>
 
