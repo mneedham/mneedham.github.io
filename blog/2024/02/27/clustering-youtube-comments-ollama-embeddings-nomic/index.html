@@ -1,0 +1,1134 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        
+        <meta property="og:title" content="Clustering YouTube comments using Ollama Embeddings | Mark Needham" />
+        <meta property="og:site_name" content="Mark Needham" />
+        <meta property="og:url" content="https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/" />
+
+    
+        <meta property="og:type" content="article" />
+        <meta property="og:article:published_time" content="2024-02-27T00:44:37Z" />
+        <meta property="og:article:tag" content="ollama" />
+        <meta property="og:article:tag" content="youtube" />
+        <meta property="og:article:tag" content="til" />
+        <meta property="og:article:tag" content="plotly" />
+        
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@markhneedham" />
+        <meta name="twitter:creator" content="@markhneedham" />
+        <meta name="twitter:title" content="Clustering YouTube comments using Ollama Embeddings" />
+        
+          <meta name="twitter:description" content="In this post, we&#39;ll learn how to cluster YouTube comments." />
+        
+        <meta name="twitter:url" content="https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/" />
+
+      
+        
+        <meta name="og:image" content="https://www.markhneedham.com/blog//uploads/2024/02/youtube-comments-banner.png" />
+        <meta name="image" property="og:image" content="https://www.markhneedham.com/blog//uploads/2024/02/youtube-comments-banner.png">
+        <meta name="twitter:image:src" content="https://www.markhneedham.com/blog//uploads/2024/02/youtube-comments-banner.png" />
+        <meta name="twitter:image" content="https://www.markhneedham.com/blog//uploads/2024/02/youtube-comments-banner.png" />
+      
+
+    
+
+        
+        <title>Clustering YouTube comments using Ollama Embeddings | Mark Needham</title>
+
+    
+        <meta name="description" content="In this post, we&#39;ll learn how to cluster YouTube comments." />
+    
+
+        <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        
+        
+
+        
+        
+        <link href="https://www.markhneedham.com/blog/index.xml" rel="alternate" type="application/rss+xml" title="Mark Needham" />
+          
+        
+
+        <link rel="canonical" href="https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/" />
+
+    
+    <script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Clustering YouTube comments using Ollama Embeddings",
+        "author": {
+            "@type": "Person",
+            "name": "http://profiles.google.com/100354797468725665406?rel=author"
+        },
+        "datePublished": "2024-02-27",
+        "description": "One of my favourite tools in the LLM space is Ollama and if you want to learn how to use it, there’s no better place than Matt Williams\u0026#39; YouTube channel. His videos get a lot of comments and they tend to contain a treasure trove of the things that people are thinking about and the questions that they have. Matt recently did a video about embeddings in Ollama and I thought it’d be fun to try to get a high-level overview of what’s happening in the comments section.",
+        "wordCount":  3455 
+    }
+    </script>
+    
+
+    
+
+<style>
+*{padding:0;margin:0}body,html{font-size:1em;line-height:1.65em;font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;font-weight:300;color:#444}html{height:100%}body{padding:2em 2.5em 1em 20em}header{border-right:1px #eee solid;padding:2em;position:fixed;top:0;left:0;height:100%;width:13.5em}#content{display:block;width:100%}footer{padding:1em 0 2.5em;font-size:.8em;line-height:1.5em;color:#888}article{border-bottom:.1em #eee solid;padding-bottom:1.7em;max-width:56em}h4,h5,h6,hr,p{margin-top:.9em;margin-bottom:.9em}h1,h2,h3,h4,h5,h6{font-family:"Bree Serif",serif;font-weight:400!important}h1{font-size:2.5em;line-height:1.1em;margin-top:.6em;margin-bottom:.6em}h2{font-size:1.9em;line-height:1.2em;margin-top:.7em;margin-bottom:.7em}h3{font-size:1.4em;line-height:1.3em;margin-top:.8em;margin-bottom:.8em}h4{font-size:1.3em}h5{font-size:1.2em}h6{font-size:1.1em}iframe,img{max-width:100%}a{font-weight:700;text-decoration:none;color:#5cc265}a:hover{text-decoration:underline}h1 a,h2 a,h3 a,h4 a,h5 a,h6 a{font-weight:400!important}strong{font-weight:700}blockquote{border-left:.4em solid #008cc1;padding-left:1.2em;font-size:1.3em}hr{border:0;height:1px;background:#eee}ol,ul{margin-left:3em}code{font-size:1.1em;max-height: 500px;background:#0d1117}
+pre{border-radius: .6em;font-size:.8em;line-height:1.7em;color:#c9d1d9;background:#0d1117;padding:2.0em 0.75em 2.0em 0.75em;word-break:break-all;word-wrap:break-word;white-space:pre;white-space:-moz-pre-wrap;white-space:pre-wrap}input{font-size:1em;padding:.3em}header h1{font-size:1.9em;margin-top:.8em;margin-bottom:.6em}header h1 a{color:#444}header h1 a:hover{text-decoration:none}header #logo img{width:9em;height:9em;border-radius:4.5em;-moz-border-radius:4.5em;-webkit-border-radius:4.5em;border:none}#follow-icons{font-size:.7em;margin-top:-.7em;margin-bottom:1.5em}#follow-icons a{color:#ccc}#follow-icons span{vertical-align:top;margin-left:-.15em;margin-right:-.15em}#follow-icons span .fa-stack-1x{font-size:1.05em;line-height:1.9em}header h6{margin-top:.5em}article span.post-stamp{color:#888}h1.post-title{margin-top:.35em;margin-bottom:.6em}h3.post-title{margin-top:.4em;padding-bottom:.9em;border-bottom:1px solid #eee;font-size:1.2em;color:#444}.post-title .feature-star{font-size:.9em}.feature-star,.separator,.taglist{color:#ccc}.taglist a{background-color:#008cc1;color:#fff;display:inline-block;line-height:1.5em;padding:.3em .6em;vertical-align:20%;font-size:.5em;font-family:"Open Sans",sans-serif;font-weight:700!important;text-transform:uppercase;letter-spacing:.05em;border-radius:.25em;-moz-border-radius:.25em;-webkit-border-radius:.25em}#social-bar{margin-top:1.5em;background-color:#eee;padding:.5em}#comments{margin-top:.15em;padding-bottom:.2em;border-bottom:1px solid #eee}.pagination{margin-bottom:1em}footer a{font-weight:300;color:#888;text-decoration:underline}footer a:hover{color:#444;text-decoration:none}@media only screen and (min-width:1281px){body,html{font-size:1.1em}}@media only screen and (max-width:800px){body{padding:0}header{border-right:none;border-bottom:1px #eee solid;position:relative;height:auto;width:auto;text-align:center;padding-bottom:1em}#content{margin-left:0;padding:2em 2em 1em;width:auto}footer{padding:0 2.5em 2em}}@media only screen and (max-width:320px){#content,header{padding:1.2em 1.2em .6em}footer{padding:0 1.5em 1.2em}ol,ul{margin-left:2em}}
+</style>
+
+<style>
+@media only screen and (max-width: 1000px) {
+    table, caption {
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    #header {
+        padding: 5px;
+        display: flex;
+        align-items: center;   
+        flex-wrap: wrap;       
+        justify-content: center;  
+        flex-wrap: nowrap;    
+        overflow-x: auto;     
+        padding: 5px;
+    }
+
+    #header a {
+        margin-bottom: -0.5em;
+        margin-right: 1em;
+    }
+
+    #header #logo img {
+        width: 30px;    
+        height: auto;  
+    }
+    #header h1 {
+        font-size: 1em;    
+        margin-right: 1em;
+    }
+    #header p {
+        display: none;    
+    }
+    #follow-icons a i {
+        font-size: 1em;    
+    }
+
+    #follow-icons {
+        font-size: 1.5em;
+        margin-bottom: 0;
+        margin-top: 0;
+    }
+
+    #follow-icons a {    
+        margin-right: 0;
+    } 
+}
+
+p code, caption code, div.colist code, .hdlist1 code {
+    font-size:1.2em;
+    background:#fff
+}
+
+.hdlist1 {
+    font-weight: 700;
+}
+
+.dlist dd p {
+    margin-top: 0;
+}
+
+pre.highlight {
+    position: relative;
+}
+
+
+.label-right {
+    color: #FFF;
+    padding: 2px 5px;   
+    border-radius: 0 0 0 0.25em;
+    font-size: 1.1em;
+    font-weight: 500;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.green-icon {
+    color: lime;
+}
+
+.copy-button {
+    cursor: pointer;  
+    margin-right: 0.25em;
+    padding: 0.25em 0 0 0;
+}
+
+.copy-notification {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 2px 5px;
+    background-color: #0d1117;
+    color: #fff;
+}
+
+
+.stretch{width:100%}
+table{border-collapse:collapse;border-spacing:0}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede;}
+table thead,table tfoot{background:#008cc1;}
+table thead tr th{background:#008cc1;}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table thead tr th {color: #ffffff;}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8);}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6;}
+table.tableblock{max-width:100%;border-collapse:separate}
+p.tableblock:last-child{margin-bottom:0; margin-top: 0;}
+td.tableblock>.content{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{margin-top: 0.5em;}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd){background:#f8f8f7}
+table.stripes-none tr,table.stripes-odd tr:nth-of-type(even){background:none}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+td>div.verse{white-space:pre}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock,th.tableblock{font-size:0.8em}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#008cc1;font-weight:350;margin-top:.75em;margin-bottom:.25em}
+
+.listingblock>.title {
+    background: linear-gradient(90deg, rgba(151,231,255,1) 0%, rgba(0,140,193,1) 35%, rgba(151,231,255,1) 100%);
+    padding: 0.4em;
+    color: black;
+    margin-bottom: 0;
+    
+    font-size: 0.7em;
+    font-weight: 600;
+    border-radius: 0.6em 0.6em 0 0;
+}
+
+.listingblock div.content {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.listingblock>.title + div.content pre {
+    border-radius: 0 0 .6em .6em;
+}
+
+.listingblock:has(code[data-lang="text"]) > .title {
+    text-transform: uppercase;
+}
+
+.admonitionblock {
+    margin: 0 0 1.5rem;
+    border-left: 4px solid #000000;
+    border-radius: .25rem;
+}
+.admonitionblock.note {
+    background-color: #edf2f7;
+    color: #19407c;
+    border-left-color: #718096;
+}
+.admonitionblock.warning {
+    background-color: #fff6e6;
+    color: #19407c;
+    border-left-color: #FFA500;
+}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;display:none;}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+
+tbody tr pre {margin-bottom: 27px}
+
+.colist, .dlist, .exampleblock, .imageblock, .listingblock, .literalblock, .olist, .paragraph, .partintro, .quoteblock, .sidebarblock, .ulist, .verseblock {
+    margin: 0 0 1.5rem;
+}
+
+.colist {
+    margin: 0;
+}
+
+.colist table {
+    margin: 0;
+    border: none;
+}
+
+.conum { display: inline-block; color: white !important; background-color: #008cc1; -webkit-border-radius: 100px; border-radius: 100px; text-align: center; width: 20px; height: 20px; font-size: 12px; font-weight: bold; line-height: 20px; font-family: Arial, sans-serif; font-style: normal; position: relative; top: -2px; letter-spacing: -1px; }
+.conum * { color: white !important; }
+.conum + b { display: none; }
+.conum:after { content: attr(data-value); }
+.conum:not([data-value]):empty { display: none; }
+
+.colist>table tr>td:first-of-type{ border:0; min-width:0; padding:0 .75em;}
+.colist>table tr>td:last-of-type{ border:0; min-width:0; padding:.25em 0}
+.colist>table tr:nth-child(even) { background:0 0 }
+
+.listingblock + .colist {
+    margin-top: -0.7rem;
+}
+
+h2 code {
+    background: #ffffff;
+}
+</style>
+
+    </head>
+    <body>
+        <header id="header">
+            <a id="logo" href="https://www.markhneedham.com/blog/"><img src="https://www.markhneedham.com/blog//me.jpg" alt="Mark Needham" /></a>
+            <h1><a href="https://www.markhneedham.com/blog/">Mark Needham</a></h1>
+            <p>In this post, we&#39;ll learn how to cluster YouTube comments.</p>
+
+            <div id="follow-icons">
+	<a href="http://twitter.com/markhneedham" rel="me"><i class="fa fa-twitter-square fa-2x"></i></a>
+	<a href="https://www.youtube.com/channel/UCKEk670ECmteGBehmDjVSSg" rel="me"><i class="fa fa-youtube-square fa-2x"></i></a>
+	<a href="http://linkedin.com/in/markhneedham" rel="me"><i class="fa fa-linkedin-square fa-2x"></i></a>
+	<a href="http://github.com/mneedham" rel="me"><i class="fa fa-github-square fa-2x"></i></a>
+	<a href="mailto:m.h.needham@gmail.com"><i class="fa fa-envelope-square fa-2x"></i></a>
+	<a href="https://www.markhneedham.com/blog/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a>
+</div>
+            
+        </header>
+
+<main id="content">
+
+<article id="" class="2024">
+    <div class="post-stamp">
+        <time datetime="2024-02-27T00:44:37Z">
+            27 Feb 2024
+        </time>
+        <span class="taglist">
+        
+        &middot;
+        
+            <a href="https://www.markhneedham.com/blog/tag/ollama/">ollama</a>
+        
+            <a href="https://www.markhneedham.com/blog/tag/youtube/">youtube</a>
+        
+            <a href="https://www.markhneedham.com/blog/tag/til/">til</a>
+        
+            <a href="https://www.markhneedham.com/blog/tag/plotly/">plotly</a>
+        
+        
+        </span>
+    </div>
+    <h1 class="post-title">Clustering YouTube comments using Ollama Embeddings</h1>
+    <div class="paragraph">
+<p>One of my favourite tools in the LLM space is <a href="https://ollama.ai/" target="_blank" rel="noopener">Ollama</a> and if you want to learn how to use it, there’s no better place than <a href="https://www.youtube.com/@technovangelist" target="_blank" rel="noopener">Matt Williams&#39; YouTube channel</a>.
+His videos get a lot of comments and they tend to contain a treasure trove of the things that people are thinking about and the questions that they have.
+Matt recently did a video about embeddings in Ollama and I thought it’d be fun to try to get a high-level overview of what’s happening in the comments section.</p>
+</div>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Ml179HQoy9o?si=600-v3zcVlksDU8o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen=""></iframe>
+<div class="paragraph">
+<p>In this blog post, we’re going to do just that, following these steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Get the comments for a YouTube video</p>
+</li>
+<li>
+<p>Generate an embedding for each comment</p>
+</li>
+<li>
+<p>Cluster the embeddings using hierarchical/agglomerative clustering</p>
+</li>
+<li>
+<p>Visualise the embeddings using tSNE</p>
+</li>
+</ol>
+</div>
+<div class="sect1">
+<h2 id="_getting_youtube_comments">Getting YouTube comments</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In <a href="https://www.markhneedham.com/blog/2024/02/26/python-youtube-data-page-token/" target="_blank" rel="noopener">a previous blog post</a>, I wrote a function that gets all the top-level comments for a given video, so we’re going to reuse that function in this post.
+You’ll also need to create an API key, which I describe in that post as well.
+Once you’ve done that create an environment variable that contains the API key:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">export YOUTUBE_API_KEY=&#34;your-api-key-goes-here&#34;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And then install the <a href="https://sns-sdks.lkhardy.cn/python-youtube/installation/" target="_blank" rel="noopener"><code>python-youtube</code></a> library</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">pip install python-youtube</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next, we’ll initialise the API class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from pyyoutube import Api
+import os
+
+API_KEY = os.environ.get(&#34;YOUTUBE_API_KEY&#34;)
+api = Api(api_key=API_KEY)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And finally, let’s take a look at the function to get all the comment threads for a video:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def get_all_comment_threads(api, video_id, per_page=10):
+    threads = []
+    token = None
+    while True:
+        response = api.get_comment_threads(
+            video_id=video_id,
+            count=per_page,
+            page_token=token
+        )
+        threads.append(response)
+        token = response.nextPageToken
+        if not token:
+            break
+    return threads</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can use the function like this to get all the top-level comments for Matt’s video:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">threads = get_all_comment_threads(api, &#34;Ml179HQoy9o&#34;, per_page=100)
+all_comments = [
+    item.snippet.topLevelComment.snippet.textDisplay
+    for t in threads for  item in t.items
+]
+
+len(all_comments), all_comments[:10]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">(
+    104,
+    [
+        &#39;It&amp;#39;s nice that these embeddings are generated much faster, but have you ran any tests to see if they&amp;#39;re any good?&#39;,
+        &#39;Can you make a video on How vector database work? It&amp;#39;s internal working&#39;,
+        &#39;Great video! would love to see the vector DB video as well&#39;,
+        &#39;Hi Matt . You are realy impresionante. Could you share with me a siurce Code of video example. I&amp;#39;ll be very happy&#39;,
+        &#39;Would love a video on db options&#39;,
+        &#39;Thanks a lot for your great videos! Please make a video on &amp;quot;how to&amp;quot; and &amp;quot;which&amp;quot; of vector databases.&#39;,
+        &#39;Great content! Super useful embedding. Seems we need to use nomic API from now on for using the embedding?&#39;,
+        &#39;So are these embeddings &amp;#39;better&amp;#39; than some of the huggingface embeddings? Having said that the more important question is what is in that flask, i think thats what we all want to know! 😊&#39;,
+        &#39;I feel like I’m missing something because I fundamentally don’t understand the use cases for embedding&#39;,
+        &#39;Do people actually use llama2 for embeddings though?&#39;
+    ]
+)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We’ve got 104 comments to work with and you can see from this sample that the comments cover a range of different things from people saying how much they enjoyed the video to others who want to know what the use case is for them.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_generating_embeddings">Generating embeddings</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now that we’ve got the comments to work with, we’re going to create some embeddings.
+Embeddings take a piece of content and convert it into an array of floating-point numbers.</p>
+</div>
+<div class="paragraph">
+<p>Those floating point numbers represent the semantic meaning of the content according to the embedding model’s view of the world.
+We don’t have any idea what the individual numbers mean, but they’re capturing some characteristics of the content that we’ve embedded.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If you’re interested in learning more about embedding algorithms, the best resource that I’ve come across is <a href="https://simonwillison.net/2023/Oct/23/embeddings/" target="_blank" rel="noopener">Simon Willison’s blog post</a>.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>While I love arrays of floating-point numbers as much as the next developer, what makes embeddings useful is that we can compare them to each other.
+For example, we could use them to <a href="https://www.markhneedham.com/blog/2024/02/11/qdrant-fast-embed-content-discovery/" target="_blank" rel="noopener">find similar blog posts</a>, which I wrote about a few weeks ago.
+Or, in our case, we can create clusters of embeddings based on their closeness in n-dimensional space.</p>
+</div>
+<div class="paragraph">
+<p>But that’s for the next section!
+Let’s first create the embeddings, which we’re going to do using Ollama, so let’s get that library installed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">pip install ollama</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You’ll also need to make sure that you’ve <a href="https://ollama.com/" target="_blank" rel="noopener">downloaded and installed Ollama</a>.
+If you’re running on a Mac it will then be automatically running in the background, but you can also start the Ollama server manually:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">ollama serve</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">time=2024-02-28T07:21:02.893Z level=INFO source=images.go:710 msg=&#34;total blobs: 64&#34;
+time=2024-02-28T07:21:02.908Z level=INFO source=images.go:717 msg=&#34;total unused blobs removed: 0&#34;
+time=2024-02-28T07:21:02.910Z level=INFO source=routes.go:1019 msg=&#34;Listening on 127.0.0.1:11434 (version 0.1.27)&#34;
+time=2024-02-28T07:21:02.910Z level=INFO source=payload_common.go:107 msg=&#34;Extracting dynamic libraries...&#34;
+time=2024-02-28T07:21:02.928Z level=INFO source=payload_common.go:146 msg=&#34;Dynamic LLM libraries [metal]&#34;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ollama supports two embedding algorithms at the time of writing - <a href="https://ollama.com/library/nomic-embed-text" target="_blank" rel="noopener">Nomic Embed Text</a> and <a href="https://ollama.com/library/all-minilm" target="_blank" rel="noopener">all-minilm</a>.
+<a href="https://blog.nomic.ai/posts/nomic-embed-text-v1" target="_blank" rel="noopener">Nomic Embed</a> got a lot of attention recently because it’s the first text embedding model that’s open source, uses open data, and has open training code.
+That sounds like more than enough reasons to give it a try, so let’s pull that down to our machine:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">ollama pull nomic-embed-text</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we’re ready to create some embeddings.
+The Nomic algorithm has a maximum context length of 8192 - in other words, the text that we embed must not have more characters than that.
+Let’s quickly calculate some descriptive statistics on the number of characters in our dataset:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import statistics
+
+comments_length = [len(c) for c in all_comments]
+(
+    min(comments_length),
+    max(comments_length),
+    sum(comments_length)/len(comments_length),
+    statistics.median(comments_length)
+)</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">(5, 850, 160.05769230769232, 104.5)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We’ve got quite a big range here but all the comments are below the limit.
+Keep in mind that the amount of times to embed some text is correlated with how many characters it has i.e. the bigger the text, the longer it takes!
+We can create embeddings by running the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">embeddings = [
+    ollama.embeddings(model=&#39;nomic-embed-text&#39;, prompt=comment)[&#39;embedding&#39;]
+    for comment in all_comments
+]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It took 2 seconds to embed all these comments on my Mac M1.
+If you ran <code>ollama serve</code>, you can see how long it took to embed each comment by looking at the logs:</p>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">[GIN] 2024/02/28 - 07:25:24 | 200 |   1.27146875s |       127.0.0.1 | POST     &#34;/api/embeddings&#34;
+[GIN] 2024/02/28 - 07:25:24 | 200 |   10.114416ms |       127.0.0.1 | POST     &#34;/api/embeddings&#34;
+[GIN] 2024/02/28 - 07:25:24 | 200 |    9.779417ms |       127.0.0.1 | POST     &#34;/api/embeddings&#34;
+...
+[GIN] 2024/02/28 - 07:25:26 | 200 |   12.372084ms |       127.0.0.1 | POST     &#34;/api/embeddings&#34;
+[GIN] 2024/02/28 - 07:25:26 | 200 |   11.281209ms |       127.0.0.1 | POST     &#34;/api/embeddings&#34;
+[GIN] 2024/02/28 - 07:25:26 | 200 |   12.692333ms |       127.0.0.1 | POST     &#34;/api/embeddings&#34;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The amount of time that it takes is quite low for us because the comments don’t have many characters.
+We should expect this time to go up if we embed larger chunks of text.</p>
+</div>
+<div class="paragraph">
+<p>Now that we’ve got the embeddings, let’s do a quick sanity check.
+I’m going to nick the <code>cosine_similarity</code> from Simon Willison’s blog to help out:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def cosine_similarity(a, b):
+    dot_product = sum(x * y for x, y in zip(a, b))
+    magnitude_a = sum(x * x for x in a) ** 0.5
+    magnitude_b = sum(x * x for x in b) ** 0.5
+    return dot_product / (magnitude_a * magnitude_b)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We’re going to create an embedding for the text <code>Great video. I loved it</code> and find the most similar comments to that embedding.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">search_embedding = ollama.embeddings(
+    model=&#39;nomic-embed-text&#39;,
+    prompt=&#34;Great Video. I loved it.&#34;
+)[&#39;embedding&#39;]
+
+sorted([
+    (comment, cosine_similarity(embedding, search_embedding))
+    for comment, embedding in zip(all_comments, embeddings)
+], key=lambda x: x[1]*-1)[:5]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">[
+    (&#39;Your voice is amazing. I could listen to you present on anything man. Amazing video&#39;, 0.6389594729369522),
+    (&#39;Hi Matt, thanks for making these videos. It is very informative and helpful.&#39;, 0.6236011957217291),
+    (&#39;I really loved this video! Great and super timely topic. Yes on a Vector DB comparison video.&#39;, 0.6122029716924652),
+    (&#39;You are a great teacher!! I want to see more videos of yours. Thanks for your service🙇&#39;, 0.5930268150386624),
+    (&#39;thank you, I really appreciate your works and support. can&amp;#39;t wait next video.&#39;, 0.5906926818452719)
+]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That looks pretty good to me - all of those comments are saying that they enjoyed the video.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cluster_the_embeddings">Cluster the embeddings</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Next, we’re going to cluster the embeddings so that the embeddings for similar comments are near to each other in embedding space.
+We’ll be using plot.ly and scikit-learn, so let’s install those libraries:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">pip install plotly scikit-learn</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There are a variety of clustering techniques that we could use, one of which is hierarchical clustering, a technique that builds a hierarchy of clusters.
+plot.ly has a <code>create_dendrogram</code> function that performs hierarchical clustering and renders the resulting tree.
+Let’s give that a try:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import plotly.figure_factory as ff
+import numpy as np
+
+fig = ff.create_dendrogram(np.array(embeddings))
+fig.update_layout(width=1500, height=1000)
+fig.show()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The resulting diagram is shown below:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://www.markhneedham.com/blog/
+/uploads/2024/02/cluster.png" alt="cluster" width="500"/>
+</div>
+<div class="title">Figure 1. Hierarchical clustering</div>
+</div>
+<div class="paragraph">
+<p>The cluster breaks into two at the top level, but there are a lot more values on the left-hand side.
+If we go down one more level on each side, we end up with 6 clusters, which looks like it might be a good way of cutting the data.</p>
+</div>
+<div class="paragraph">
+<p>It’s kinda hard to know exactly what the right number of clusters should be, but let’s start with 6 and see how we go.
+We can create cluster labels for each embedding using the following scikit-learn code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from scipy.cluster.hierarchy import linkage, cut_tree, dendrogram
+from collections import defaultdict
+
+# Compute cluster labels
+complete_clustering = linkage(embeddings, method=&#34;complete&#34;, metric=&#34;cosine&#34;)
+cluster_labels = cut_tree(complete_clustering, n_clusters=6).reshape(-1, )
+
+# Create a label -&gt; comments dictionary
+groups = defaultdict(list)
+for id, label in zip(all_comments, cluster_labels):
+    groups[label].append(id)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let’s have a look at what’s in each cluster:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">for k,v in groups.items():
+    print(f&#34;Cluster: {k} ({len(v)})&#34;)
+    print(v[:5])</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Cluster: 0 (52)
+[&#39;It&amp;#39;s nice that these embeddings are generated much faster, but have you ran any tests to see if they&amp;#39;re any good?&#39;, &#39;Can you make a video on How vector database work? It&amp;#39;s internal working&#39;, &#39;Great video! would love to see the vector DB video as well&#39;, &#39;Would love a video on db options&#39;, &#39;Thanks a lot for your great videos! Please make a video on &amp;quot;how to&amp;quot; and &amp;quot;which&amp;quot; of vector databases.&#39;]
+Cluster: 1 (19)
+[&#39;Hi Matt . You are realy impresionante. Could you share with me a siurce Code of video example. I&amp;#39;ll be very happy&#39;, &#39;Hi Matt, love your content - super stuff thank you, this is exactly what I was looking for and you explain it so well, I am working on a project of RAG search using open-source for a big Genomics project, providing specific information to users of the service, really detailed information about which test to request etc this video came just at the right time 👍&#39;, &#39;I hate shorts. Those videos are for young people who can&amp;#39;t concentrate on anything for even 2 minutes.&#39;, &#39;just a heads up bunnies can fly&#39;, &#39;This is such good content. Can you do a full video tutorial on a production case of a best rag strategy. There&amp;#39;s so many out there .&#39;]
+Cluster: 2 (13)
+[&#39;0.1.27 🙂&#39;, &#39;Thank you Matt! 🎉&#39;, &#39;&amp;lt;3&#39;, &#39;great stuff Thanks for the valuable information&#39;, &#39;Matt, less is more, look after the family.&#39;]
+Cluster: 3 (16)
+[&#39;I am not familiar yet with ollama. I have been waiting for the windows version... Does it only support specific embeddings? I use for example BGE embeddings for rag. Is this possible?  I also see in comments that ollama does not support multi user inference concurrently. If true than it&amp;#39;s ok for testing but not for production. &lt;br&gt;Btw: I prefer 2 legs Bunnies than flying Bunnies😉&#39;, &#39;Maybe you could share with us the update procedure if we&amp;#39;re running ollama webui for windows out of local docker, the best way to update it without screwing it up?&#39;, &#39;Thanks for your superb videos, your content is so rich and well paced - would like to see more about model training using ollama and embedding&#39;, &#39;Can you share a tutorial on how to do this? I have not used embeddings so far and am still quite new to Ollama. Any resources you can share are highly appreciated.&#39;, &#39;Definitely do the side by side for the db options in the context of ollama on something like an M2. Our work machines for the public school system are M2s with only 8 gigs of RAM, as a reference point.  The potential for a local teaching assistant is definitely close&#39;]
+Cluster: 4 (3)
+[&#39;Don&amp;#39;t wasting time on Gemma, it is just not worth it.&#39;, &#39;Great video! Embeddings take Ollama to the next level! And I love that you dont lose a word about Gemma ;)&#39;, &#39;Vids keep getting better - and thanks - I overlooked the embeddings due to gemma!&#39;]
+Cluster: 5 (1)
+[&#39;keep up&#39;]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Cluster 0 seems to be people asking Matt to do a video about vector databases and Cluster 4 is about Google’s Gemma model, but (at least from 5 comments) it’s not obvious to me what the other clusters contain.
+There’s also a big difference in the number of items in each cluster, which doesn’t help.</p>
+</div>
+<div class="paragraph">
+<p>If we put the clustering code into a function, we can play around with different cluster sizes more easily:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from scipy.cluster.hierarchy import linkage, cut_tree, dendrogram
+from collections import defaultdict
+
+def compute_clusters(n_clusters=3):
+    complete_clustering = linkage(embeddings, method=&#34;complete&#34;, metric=&#34;cosine&#34;)
+    cluster_labels = cut_tree(complete_clustering, n_clusters=n_clusters).reshape(-1, )
+
+    groups = defaultdict(list)
+    for id, label in zip(all_comments, cluster_labels):
+        groups[label].append(id)
+    return groups, cluster_labels</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This function also returns the cluster labels, because we’ll need those in the next section.</p>
+</div>
+<div class="paragraph">
+<p>We can call the function like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">for k,v in compute_clusters(n_clusters=9)[0].items():
+    print(f&#34;Cluster: {k} ({len(v)})&#34;)
+    print(v[:5])</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">Cluster: 0 (11)
+[&#39;It&amp;#39;s nice that these embeddings are generated much faster, but have you ran any tests to see if they&amp;#39;re any good?&#39;, &#39;Do people actually use llama2 for embeddings though?&#39;, &#39;did they finally add batching support?&#39;, &#39;You show running some random curl command for 0.25 sec of the video against &lt;b&gt;some&lt;/b&gt; local API you setup beforehand that exposes &lt;b&gt;some&lt;/b&gt; type of embedding behavior... and then never mention anything more about the most important piece of information in this entire video... is this like an intentional mystery video, like a luminal space bit, except it&amp;#39;s a tech review art piece or something?&#39;, &#39;ok, but what everyone wants to know is if its better at any given task than the now dime a dozen competitors. we have oobabooga, lmstudio,  some forge thing, llama itself in either c++ or python format and more&#39;]
+Cluster: 1 (25)
+[&#39;Can you make a video on How vector database work? It&amp;#39;s internal working&#39;, &#39;Great video! would love to see the vector DB video as well&#39;, &#39;Would love a video on db options&#39;, &#39;Thanks a lot for your great videos! Please make a video on &amp;quot;how to&amp;quot; and &amp;quot;which&amp;quot; of vector databases.&#39;, &#39;Cool! Good news!&lt;br&gt;Lets discuss vector db, algorithms for vector search&#39;]
+Cluster: 2 (16)
+[&#39;Hi Matt . You are realy impresionante. Could you share with me a siurce Code of video example. I&amp;#39;ll be very happy&#39;, &#39;Hi Matt, love your content - super stuff thank you, this is exactly what I was looking for and you explain it so well, I am working on a project of RAG search using open-source for a big Genomics project, providing specific information to users of the service, really detailed information about which test to request etc this video came just at the right time 👍&#39;, &#39;I hate shorts. Those videos are for young people who can&amp;#39;t concentrate on anything for even 2 minutes.&#39;, &#39;This is such good content. Can you do a full video tutorial on a production case of a best rag strategy. There&amp;#39;s so many out there .&#39;, &#39;Thank you Matt for making these videos!&#39;]
+Cluster: 3 (16)
+[&#39;Great content! Super useful embedding. Seems we need to use nomic API from now on for using the embedding?&#39;, &#39;So are these embeddings &amp;#39;better&amp;#39; than some of the huggingface embeddings? Having said that the more important question is what is in that flask, i think thats what we all want to know! 😊&#39;, &#39;I feel like I’m missing something because I fundamentally don’t understand the use cases for embedding&#39;, &#39;What about the most accurate embedding, the one that captures the semantic meaning of a text very well?&#39;, &#39;Thank you! swapping my langchain embedding model with nomic-embed-text, really speed it up. This really is bigger news then gemma&#39;]
+Cluster: 4 (13)
+[&#39;0.1.27 🙂&#39;, &#39;Thank you Matt! 🎉&#39;, &#39;&amp;lt;3&#39;, &#39;great stuff Thanks for the valuable information&#39;, &#39;Matt, less is more, look after the family.&#39;]
+Cluster: 5 (16)
+[&#39;I am not familiar yet with ollama. I have been waiting for the windows version... Does it only support specific embeddings? I use for example BGE embeddings for rag. Is this possible?  I also see in comments that ollama does not support multi user inference concurrently. If true than it&amp;#39;s ok for testing but not for production. &lt;br&gt;Btw: I prefer 2 legs Bunnies than flying Bunnies😉&#39;, &#39;Maybe you could share with us the update procedure if we&amp;#39;re running ollama webui for windows out of local docker, the best way to update it without screwing it up?&#39;, &#39;Thanks for your superb videos, your content is so rich and well paced - would like to see more about model training using ollama and embedding&#39;, &#39;Can you share a tutorial on how to do this? I have not used embeddings so far and am still quite new to Ollama. Any resources you can share are highly appreciated.&#39;, &#39;Definitely do the side by side for the db options in the context of ollama on something like an M2. Our work machines for the public school system are M2s with only 8 gigs of RAM, as a reference point.  The potential for a local teaching assistant is definitely close&#39;]
+Cluster: 6 (3)
+[&#39;just a heads up bunnies can fly&#39;, &#39;i think bunny can fly, i just saw in your video&#39;, &#39;Your bunny wrote&lt;br&gt;On a serious note great vids mate&#39;]
+Cluster: 7 (3)
+[&#39;Don&amp;#39;t wasting time on Gemma, it is just not worth it.&#39;, &#39;Great video! Embeddings take Ollama to the next level! And I love that you dont lose a word about Gemma ;)&#39;, &#39;Vids keep getting better - and thanks - I overlooked the embeddings due to gemma!&#39;]
+Cluster: 8 (1)
+[&#39;keep up&#39;]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now the comments about making a video on vector databases have moved into Cluster 1 and Cluster 0 is people asking if the generated embeddings are any good.
+Cluster 2 is people asking for code and a longer tutorial.
+Cllustr 6 has the bunnies and Cluster 7 still has no love for Gemma.</p>
+</div>
+<div class="paragraph">
+<p>I think 9 clusters is doing a better job at pulling out the types of comments than 6 was doing, but we could certainly play around with other values.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_visualise_the_embeddings">Visualise the embeddings</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Finally, we’re going to visualise the embeddings along with their labels.
+To visualise the data we need to reduce the number of dimensions in the embeddings to either 2 or 3 dimensions, otherwise it’ll be too hard for our poor human eyes to understand what’s going on!</p>
+</div>
+<div class="paragraph">
+<p>As with clustering, there are many algorithms to do this.
+One of the best known is called t-SNE or T-distributed Stochastic Neighbor Embedding, which has an implementation in scikit-learn.</p>
+</div>
+<div class="paragraph">
+<p>The t-SNE documentation suggests that we should first reduce the dimensionality of our vectors to 50 before using it to reduce noise and speed up computation.
+We’ve only got 100 vectors so I don’t think speed will be an issue.
+We’ll live a bit on the wild side and feed the embeddings straight in.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from sklearn.manifold import TSNE
+
+tsne = TSNE(n_components=2, verbose=1)
+tsne_results = tsne.fit_transform(np.array(embeddings))</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Output</div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">[t-SNE] Computing 91 nearest neighbors...
+[t-SNE] Indexed 104 samples in 0.015s...
+[t-SNE] Computed neighbors for 104 samples in 0.042s...
+[t-SNE] Computed conditional probabilities for sample 104 / 104
+[t-SNE] Mean sigma: 6.827137
+
+[t-SNE] KL divergence after 250 iterations with early exaggeration: 59.206711
+[t-SNE] KL divergence after 1000 iterations: 0.402528</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import plotly.graph_objects as go
+
+_, cluster_labels = compute_clusters(n_clusters=9)
+
+df = pd.DataFrame(tsne_results, columns=[&#39;x&#39;, &#39;y&#39;])
+df[&#34;comments&#34;] = all_comments
+df[&#34;label&#34;] = cluster_labels
+
+fig = go.Figure(data=go.Scatter(
+    x=df[&#39;x&#39;],
+    y=df[&#39;y&#39;],
+    marker=dict(color=df[&#39;label&#39;], size=15),
+    mode=&#39;markers&#39;,
+    text=df[&#39;comments&#39;])
+)
+fig.show()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can see an animated version of the clusters below:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://www.markhneedham.com/blog/
+/uploads/2024/02/cluster.gif" alt="cluster" width="500"/>
+</div>
+<div class="title">Figure 2. Clusters of comments</div>
+</div>
+<div class="paragraph">
+<p>And then I’ve done some manual annotation of the clusters in the following diagram:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://www.markhneedham.com/blog/
+/uploads/2024/02/annotated-clusters.png" alt="annotated clusters" width="500"/>
+</div>
+<div class="title">Figure 3. Annotated clusters</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_next">What next?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Hopefully that’s shown you some interesting ways that we can use embeddings to make sense of YouTube comments, but there are certainly more things that we can do.
+Some things off the top of my head:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use a large language model to come up with cluster labels</p>
+</li>
+<li>
+<p>Give a large language model the clusters + comments and ask it to evaluate the clusters. Or maybe we could even get the LLM to do the clustering for us?</p>
+</li>
+<li>
+<p>Try out some different clustering methods and dimensionality reduction techniques</p>
+</li>
+<li>
+<p>Put all of this into an interactive application so that we can iterate on different approaches more easily</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+    <div id="social-bar">
+	<ul class="rrssb-buttons clearfix">
+      <li class="email">
+          <a href="mailto:?subject=Clustering%20YouTube%20comments%20using%20Ollama%20Embeddings&amp;body=https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path transform="scale(0.014,-0.014) translate(0,-1670)" d="M1792 826v-794q0 -66 -47 -113t-113 -47h-1472q-66 0 -113 47t-47 113v794q44 -49 101 -87q362 -246 497 -345q57 -42 92.5 -65.5t94.5 -48t110 -24.5h1h1q51 0 110 24.5t94.5 48t92.5 65.5q170 123 498 345q57 39 100 87zM1792 1120q0 -79 -49 -151t-122 -123 q-376 -261 -468 -325q-10 -7 -42.5 -30.5t-54 -38t-52 -32.5t-57.5 -27t-50 -9h-1h-1q-23 0 -50 9t-57.5 27t-52 32.5t-54 38t-42.5 30.5q-91 64 -262 182.5t-205 142.5q-62 42 -117 115.5t-55 136.5q0 78 41.5 130t118.5 52h1472q65 0 112.5 -47t47.5 -113z"/>
+                  </svg>
+              </span>
+              <span class="text">Email</span>
+          </a>
+      </li>
+      <li class="facebook">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path d="M27.825,4.783c0-2.427-2.182-4.608-4.608-4.608H4.783c-2.422,0-4.608,2.182-4.608,4.608v18.434 c0,2.427,2.181,4.608,4.608,4.608H14V17.379h-3.379v-4.608H14v-1.795c0-3.089,2.335-5.885,5.192-5.885h3.718v4.608h-3.726 c-0.408,0-0.884,0.492-0.884,1.236v1.836h4.609v4.608h-4.609v10.446h4.916c2.422,0,4.608-2.188,4.608-4.608V4.783z"/>
+                  </svg>
+              </span>
+              <span class="text">Facebook</span>
+          </a>
+      </li>
+			<li class="twitter">
+          <a href="http://twitter.com/home?status=Clustering%20YouTube%20comments%20using%20Ollama%20Embeddings%20https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+		                  <path d="M24.253,8.756C24.689,17.08,18.297,24.182,9.97,24.62c-3.122,0.162-6.219-0.646-8.861-2.32 c2.703,0.179,5.376-0.648,7.508-2.321c-2.072-0.247-3.818-1.661-4.489-3.638c0.801,0.128,1.62,0.076,2.399-0.155 C4.045,15.72,2.215,13.6,2.115,11.077c0.688,0.275,1.426,0.407,2.168,0.386c-2.135-1.65-2.729-4.621-1.394-6.965 C5.575,7.816,9.54,9.84,13.803,10.071c-0.842-2.739,0.694-5.64,3.434-6.482c2.018-0.623,4.212,0.044,5.546,1.683 c1.186-0.213,2.318-0.662,3.329-1.317c-0.385,1.256-1.247,2.312-2.399,2.942c1.048-0.106,2.069-0.394,3.019-0.851 C26.275,7.229,25.39,8.196,24.253,8.756z"/>
+                  </svg>
+              </span>
+              <span class="text">Twitter</span>
+          </a>
+      </li>
+			<li class="linkedin">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/&amp;title=Clustering%20YouTube%20comments%20using%20Ollama%20Embeddings&amp;summary=One%20of%20my%20favourite%20tools%20in%20the%20LLM%20space%20is%20Ollama%20and%20if%20you%20want%20to%20learn%20how%20to%20use%20it%2c%20there%e2%80%99s%20no%20better%20place%20than%20Matt%20Williams%26%2339%3b%20YouTube%20channel.%20His%20videos%20get%20a%20lot%20of%20comments%20and%20they%20tend%20to%20contain%20a%20treasure%20trove%20of%20the%20things%20that%20people%20are%20thinking%20about%20and%20the%20questions%20that%20they%20have.%20Matt%20recently%20did%20a%20video%20about%20embeddings%20in%20Ollama%20and%20I%20thought%20it%e2%80%99d%20be%20fun%20to%20try%20to%20get%20a%20high-level%20overview%20of%20what%e2%80%99s%20happening%20in%20the%20comments%20section...." class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
+                  </svg>
+              </span>
+              <span class="text">LinkedIn</span>
+          </a>
+      </li>
+      <li class="tumblr">
+					<script>
+						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('https:\/\/www.markhneedham.com\/blog\/2024\/02\/27\/clustering-youtube-comments-ollama-embeddings-nomic\/') + '&amp;t=Clustering YouTube comments using Ollama Embeddings" class="popup">');
+					</script>
+              <span class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+											<path d="M18.02 21.842c-2.029 0.052-2.422-1.396-2.439-2.446v-7.294h4.729V7.874h-4.71V1.592c0 0-3.653 0-3.714 0 s-0.167 0.053-0.182 0.186c-0.218 1.935-1.144 5.33-4.988 6.688v3.637h2.927v7.677c0 2.8 1.7 6.7 7.3 6.6 c1.863-0.03 3.934-0.795 4.392-1.453l-1.22-3.539C19.595 21.6 18.7 21.8 18 21.842z"/>
+									</svg>
+              </span>
+              <span class="text">Tumblr</span>
+          <script>document.write('</a>');</script>
+      </li>
+      <li class="reddit">
+          <a href="http://www.reddit.com/submit?url=https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/">
+              <span class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+											<g>
+													<path d="M11.794 15.316c0-1.029-0.835-1.895-1.866-1.895c-1.03 0-1.893 0.865-1.893 1.895s0.863 1.9 1.9 1.9 C10.958 17.2 11.8 16.3 11.8 15.316z"/>
+													<path d="M18.1 13.422c-1.029 0-1.895 0.864-1.895 1.895c0 1 0.9 1.9 1.9 1.865c1.031 0 1.869-0.836 1.869-1.865 C19.969 14.3 19.1 13.4 18.1 13.422z"/>
+													<path d="M17.527 19.791c-0.678 0.678-1.826 1.006-3.514 1.006c-0.004 0-0.009 0-0.014 0c-0.004 0-0.01 0-0.015 0 c-1.686 0-2.834-0.328-3.51-1.005c-0.264-0.265-0.693-0.265-0.958 0c-0.264 0.265-0.264 0.7 0 1 c0.943 0.9 2.4 1.4 4.5 1.402c0.005 0 0 0 0 0c0.005 0 0 0 0 0c2.066 0 3.527-0.459 4.47-1.402 c0.265-0.264 0.265-0.693 0.002-0.958C18.221 19.5 17.8 19.5 17.5 19.791z"/>
+													<path d="M27.707 13.267c0-1.785-1.453-3.237-3.236-3.237c-0.793 0-1.518 0.287-2.082 0.761c-2.039-1.295-4.646-2.069-7.438-2.219 l1.483-4.691l4.062 0.956c0.071 1.4 1.3 2.6 2.7 2.555c1.488 0 2.695-1.208 2.695-2.695C25.881 3.2 24.7 2 23.2 2 c-1.059 0-1.979 0.616-2.42 1.508l-4.633-1.091c-0.344-0.081-0.693 0.118-0.803 0.455l-1.793 5.7 C10.548 8.6 7.7 9.4 5.6 10.75C5.006 10.3 4.3 10 3.5 10.029c-1.785 0-3.237 1.452-3.237 3.2 c0 1.1 0.6 2.1 1.4 2.69c-0.04 0.272-0.061 0.551-0.061 0.831c0 2.3 1.3 4.4 3.7 5.9 c2.299 1.5 5.3 2.3 8.6 2.325c3.228 0 6.271-0.825 8.571-2.325c2.387-1.56 3.7-3.66 3.7-5.917 c0-0.26-0.016-0.514-0.051-0.768C27.088 15.5 27.7 14.4 27.7 13.267z M23.186 3.355c0.74 0 1.3 0.6 1.3 1.3 c0 0.738-0.6 1.34-1.34 1.34s-1.342-0.602-1.342-1.34C21.844 4 22.4 3.4 23.2 3.355z M1.648 13.3 c0-1.038 0.844-1.882 1.882-1.882c0.31 0 0.6 0.1 0.9 0.209c-1.049 0.868-1.813 1.861-2.26 2.9 C1.832 14.2 1.6 13.8 1.6 13.267z M21.773 21.57c-2.082 1.357-4.863 2.105-7.831 2.105c-2.967 0-5.747-0.748-7.828-2.105 c-1.991-1.301-3.088-3-3.088-4.782c0-1.784 1.097-3.484 3.088-4.784c2.081-1.358 4.861-2.106 7.828-2.106 c2.967 0 5.7 0.7 7.8 2.106c1.99 1.3 3.1 3 3.1 4.784C24.859 18.6 23.8 20.3 21.8 21.57z M25.787 14.6 c-0.432-1.084-1.191-2.095-2.244-2.977c0.273-0.156 0.59-0.245 0.928-0.245c1.035 0 1.9 0.8 1.9 1.9 C26.354 13.8 26.1 14.3 25.8 14.605z"/>
+											</g>
+									</svg>
+              </span>
+              <span class="text">Reddit</span>
+          </a>
+      </li>
+      <li class="googleplus">
+          <a href="https://plus.google.com/share?url=https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <g>
+                          <path d="M14.703,15.854l-1.219-0.948c-0.372-0.308-0.88-0.715-0.88-1.459c0-0.748,0.508-1.223,0.95-1.663 c1.42-1.119,2.839-2.309,2.839-4.817c0-2.58-1.621-3.937-2.399-4.581h2.097l2.202-1.383h-6.67c-1.83,0-4.467,0.433-6.398,2.027 C3.768,4.287,3.059,6.018,3.059,7.576c0,2.634,2.022,5.328,5.604,5.328c0.339,0,0.71-0.033,1.083-0.068 c-0.167,0.408-0.336,0.748-0.336,1.324c0,1.04,0.551,1.685,1.011,2.297c-1.524,0.104-4.37,0.273-6.467,1.562 c-1.998,1.188-2.605,2.916-2.605,4.137c0,2.512,2.358,4.84,7.289,4.84c5.822,0,8.904-3.223,8.904-6.41 c0.008-2.327-1.359-3.489-2.829-4.731H14.703z M10.269,11.951c-2.912,0-4.231-3.765-4.231-6.037c0-0.884,0.168-1.797,0.744-2.511 c0.543-0.679,1.489-1.12,2.372-1.12c2.807,0,4.256,3.798,4.256,6.242c0,0.612-0.067,1.694-0.845,2.478 c-0.537,0.55-1.438,0.948-2.295,0.951V11.951z M10.302,25.609c-3.621,0-5.957-1.732-5.957-4.142c0-2.408,2.165-3.223,2.911-3.492 c1.421-0.479,3.25-0.545,3.555-0.545c0.338,0,0.52,0,0.766,0.034c2.574,1.838,3.706,2.757,3.706,4.479 c-0.002,2.073-1.736,3.665-4.982,3.649L10.302,25.609z"/>
+                          <polygon points="23.254,11.89 23.254,8.521 21.569,8.521 21.569,11.89 18.202,11.89 18.202,13.604 21.569,13.604 21.569,17.004 23.254,17.004 23.254,13.604 26.653,13.604 26.653,11.89"/>
+                      </g>
+                  </svg>
+              </span>
+              <span class="text">Google+</span>
+          </a>
+      </li>
+      <li class="pinterest">
+          <script>
+						var imgurl = "https:\/\/www.markhneedham.com\/blog\/logo.png";
+						var firstimg = document.getElementsByClassName("2024")[0].getElementsByTagName("img")[0];
+						if (firstimg !== undefined) {
+							imgurl = firstimg.src;
+						}
+						document.write('<a href="http://pinterest.com/pin/create/button/?url=https:\/\/www.markhneedham.com\/blog\/2024\/02\/27\/clustering-youtube-comments-ollama-embeddings-nomic\/&amp;media=' + imgurl + '&amp;description=Clustering YouTube comments using Ollama Embeddings" class="popup">');
+					</script>
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+		                  <path d="M14.021,1.57C6.96,1.57,1.236,7.293,1.236,14.355c0,7.062,5.724,12.785,12.785,12.785c7.061,0,12.785-5.725,12.785-12.785 C26.807,7.294,21.082,1.57,14.021,1.57z M15.261,18.655c-1.161-0.09-1.649-0.666-2.559-1.219c-0.501,2.626-1.113,5.145-2.925,6.458 c-0.559-3.971,0.822-6.951,1.462-10.116c-1.093-1.84,0.132-5.545,2.438-4.632c2.837,1.123-2.458,6.842,1.099,7.557 c3.711,0.744,5.227-6.439,2.925-8.775c-3.325-3.374-9.678-0.077-8.897,4.754c0.19,1.178,1.408,1.538,0.489,3.168 C7.165,15.378,6.53,13.7,6.611,11.462c0.131-3.662,3.291-6.227,6.46-6.582c4.007-0.448,7.771,1.474,8.29,5.239 c0.579,4.255-1.816,8.865-6.102,8.533L15.261,18.655z"/>
+                  </svg>
+              </span>
+              <span class="text">Pinterest</span>
+          <script>document.write('</a>');</script>
+      </li>
+      <li class="pocket">
+          <a href="https://getpocket.com/save?url=https://www.markhneedham.com/blog/2024/02/27/clustering-youtube-comments-ollama-embeddings-nomic/"  class="popup">
+              <span class="icon">
+                  <svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                      <path d="M28.7817528,0.00172488695 C30.8117487,0.00431221738 31.9749312,1.12074529 31.9644402,3.10781507 C31.942147,6.67703739 32.1336065,10.2669583 31.8057648,13.8090137 C30.7147076,25.5813672 17.2181194,31.8996281 7.20714461,25.3808491 C2.71833574,22.4571656 0.196577202,18.3122624 0.0549495772,12.9357897 C-0.0342233715,9.5774348 0.00642900214,6.21519891 0.0300336062,2.85555035 C0.0405245414,1.1129833 1.21157517,0.0146615391 3.01995012,0.00819321302 C7.34746087,-0.00603710433 11.6775944,0.00431221738 16.0064164,0.00172488695 C20.2644248,0.00172488695 24.5237444,-0.00215610869 28.7817528,0.00172488695 L28.7817528,0.00172488695 Z M8.64885184,7.85611511 C7.38773662,7.99113854 6.66148108,8.42606978 6.29310958,9.33228474 C5.90114134,10.2969233 6.17774769,11.1421181 6.89875951,11.8276216 C9.35282156,14.161969 11.8108164,16.4924215 14.2976518,18.7943114 C15.3844131,19.7966007 16.5354102,19.7836177 17.6116843,18.7813283 C20.0185529,16.5495467 22.4070683,14.2982907 24.7824746,12.0327533 C25.9845979,10.8850542 26.1012707,9.56468083 25.1469132,8.60653379 C24.1361858,7.59255976 22.8449191,7.6743528 21.5890476,8.85191291 C19.9936451,10.3488554 18.3680912,11.8172352 16.8395462,13.3777945 C16.1342655,14.093159 15.7200114,14.0048744 15.0566806,13.3440386 C13.4599671,11.7484252 11.8081945,10.2060421 10.1262706,8.70001155 C9.65564653,8.27936164 9.00411403,8.05345704 8.64885184,7.85611511 L8.64885184,7.85611511 L8.64885184,7.85611511 Z"></path>
+                  </svg>
+              </span>
+              <span class="text">Pocket</span>
+          </a>
+      </li>
+  </ul>
+</div>
+
+    <div itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <h5>About the author</h5>
+  <section>
+    <p><a href="https://twitter.com/markhneedham" itemprop="name" rel="author">I'm</a> currently working on short form content at <a href="https://clickhouse.com/">ClickHouse</a>. I publish short 5 minute videos showing how to solve data problems
+      on YouTube <a href="https://www.youtube.com/@LearnDataWithMark">@LearnDataWithMark</a>. I previously worked on
+      graph analytics at <a href="https://neo4j.com/">Neo4j</a>, where I also co-authored the <a
+        href="https://www.oreilly.com/library/view/graph-algorithms/9781492047674/">O'Reilly Graph Algorithms Book</a> with Amy Hodler.</p>
+  </section>
+</div>
+    <div id="comments">
+    
+    
+    
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+      var disqus_shortname = 'markhneedham';
+      var disqus_identifier = 'https:\/\/www.markhneedham.com\/blog\/2024\/02\/27\/clustering-youtube-comments-ollama-embeddings-nomic\/';
+      var disqus_title = 'Clustering YouTube comments using Ollama Embeddings';
+      var disqus_url = 'https:\/\/www.markhneedham.com\/blog\/2024\/02\/27\/clustering-youtube-comments-ollama-embeddings-nomic\/';
+      (function() {
+        if (window.location.hostname == "localhost")
+                return;
+
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
+    
+</div>
+
+</article>
+
+</main>
+
+  <footer id="footer">
+			<section id="footer-message">&copy; Mark Needham. All rights reserved. Powered by <a href="http://gohugo.io" target="_blank">Hugo</a>. <a href="https://github.com/kathyqian/crisp-ghost-theme" target="_blank">Crisp</a> theme by <a href="http://kathyqian.com" target="_blank">Kathy Qian</a>.</section>
+		</footer>
+
+    <script>
+      (function(c,f){asyncLoader=function(i,h){i.foreach(function(k,j){e(j,d(j),h)});if(typeof h.callback=="function"){var g=setInterval(function(){if(f.readyState==="complete"){clearInterval(g);h.callback()}},10)}};var d=function(g){var h=g.split(".");return h[h.length-1]},e=function(h,i,g){switch(i){case"js":a(h,g);break;case"css":b(h);break;default:break}},a=function(i,h){var g=document.createElement("script");g.type="text/javascript";g.async=true;g.src=i;document.getElementsByTagName("head")[0].appendChild(g)},b=function(g){var h=document.createElement("link");h.type="text/css";h.rel="stylesheet";h.href=g;document.getElementsByTagName("head")[0].appendChild(h)};Array.prototype.foreach=function(h){for(var g=0;g<this.length;g++){h(g,this[g])}}})(this,document);
+
+      var WebFontConfig={google:{families:["Open Sans:300italic,700italic,300,700","Bree+Serif"]}};
+      asyncLoader([
+        "//netdna.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.css",
+        "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js",
+        "//cdnjs.cloudflare.com/ajax/libs/webfont/1.5.16/webfontloader.js",
+        "//unpkg.com/@highlightjs/cdn-assets@10.7.2/highlight.min.js"        
+      ],{
+        callback:function(){
+          asyncLoader([
+            "https:\/\/www.markhneedham.com\/blog\/css/rrssb.css",
+            "https:\/\/www.markhneedham.com\/blog\/css/github-dark.css",
+            "https:\/\/www.markhneedham.com\/blog\/js/image-zoom.js",
+            "https:\/\/www.markhneedham.com\/blog\/js/gist.min.js",
+            "https:\/\/www.markhneedham.com\/blog\/js/rrssb.min.js",
+            "https://unpkg.com/highlightjs-cypher/dist/cypher.min.js",            
+          ], { callback:function() {
+              
+              document.querySelectorAll('pre code').forEach((block) => {
+                  hljs.highlightElement(block);                  
+                  
+                  var language = block.result.language;
+                  if(language && language !== "text") {             
+                    const originalCode = block.textContent.trim(); 
+                    const labelAndButtonHTML = `
+                      <span class="label-and-button">
+                        <label class="label-right">${language.toUpperCase()}</label>
+                        <i class="copy-button fa fa-copy"></i>
+                      </span>
+                    `;
+                    block.insertAdjacentHTML("afterbegin", `<label class="label-right">${language.toUpperCase()} <i class="copy-button fa fa-copy"></i></label>`);
+
+                    const button = block.querySelector('.copy-button');
+                    button.addEventListener('click', (event) => {
+                        var code = button.parentElement.textContent;
+                        navigator.clipboard.writeText(originalCode).then(function() {
+                          button.classList.remove('fa-copy');  // Remove the copy icon class
+                          button.classList.add('fa-check', 'green-icon');  
+
+                          setTimeout(function() {
+                              button.classList.remove('fa-check', 'green-icon');  
+                              button.classList.add('fa-copy');  
+                          }, 2000);
+                        }, function(err) {
+                             
+                            console.error('Could not copy code to clipboard: ', err);
+                        });
+                    });
+                  }                  
+              });
+          }});
+        }
+      });
+    </script>
+	
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-KVLB7W6R20"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'G-KVLB7W6R20');
+    </script>
+
+    
+
+    
+
+
+  
+	</body>
+</html>
+
